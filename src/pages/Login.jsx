@@ -72,8 +72,10 @@ const Login = () => {
       setLoading(true);
       
       // If demo mode (for testing without SMS)
-      if (otp === '1234' && (phone === '0000000000' || phone === '9876543210' || phone === '8888888888')) {
-        const user = await api.login(phone, '1234');
+      if (otp === '1234' && (phone === '8885490495' || phone === '9876543210' || phone === '8888888888')) {
+        // Special case for admin to use password bypass instead of standard '1234'
+        const bypassPass = phone === '8885490495' ? 'Mystore@karthi@2025' : '1234';
+        const user = await api.login(phone, bypassPass);
         login(user);
         navigate('/dashboard');
         return;
@@ -168,9 +170,9 @@ const Login = () => {
         </p>
 
         <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-          <b>Demo Logins (Pass/OTP: 1234)</b><br/>
-          Admin: 0000000000 • Shop: 9876543210<br/>
-          Distributor: 8888888888
+          <b>Demo Logins</b><br/>
+          Admin: 8885490495 (Pass: Mystore@karthi@2025)<br/>
+          Shop: 9876543210 • Distributor: 8888888888 (Pass: 1234)
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ import { isSupabaseConfigured, supabase } from './supabase';
 
 const mockDB = {
   users: [
-    { id: 'admin', phone: '0000000000', pass: '1234', role: 'admin', name: 'Super Admin', status: 'active' },
+    { id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' },
     { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
     { id: 'u_3', phone: '8888888888', pass: '1234', role: 'distributor', name: 'Guntur FMCG Supply', status: 'active' },
