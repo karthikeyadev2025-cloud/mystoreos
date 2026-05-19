@@ -221,7 +221,7 @@ const UserDashboard = () => {
 
       {/* Cart Bar */}
       {count > 0 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 100, backdropFilter: 'blur(20px)' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 100, backdropFilter: 'blur(20px)' }}>
           <div>
             <h4 style={{ fontSize: '14px', margin: 0 }}>🛒 {count} items</h4>
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', margin: 0 }}>Total: ₹{total}</p>
@@ -234,7 +234,7 @@ const UserDashboard = () => {
 
       {/* Guest Onboarding Modal */}
       {showGuestModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: '#1e293b', width: '100%', maxWidth: '350px', borderRadius: '24px', padding: '24px', border: '1px solid #334155' }}>
             <h2 style={{ fontSize: '22px', fontWeight: 900, margin: '0 0 8px 0', color: '#fff' }}>Almost there! 🚀</h2>
             <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>Please enter your details so the shopkeeper knows who is ordering.</p>
@@ -250,7 +250,7 @@ const UserDashboard = () => {
 
       {/* Checkout Modal */}
       {showWaModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
           <div style={{ background: 'linear-gradient(180deg, #1e293b, #0f172a)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fbbf24', margin: '0 0 16px 0' }}>📋 Order Summary</h2>
             <div style={{ maxHeight: '30vh', overflowY: 'auto' }}>

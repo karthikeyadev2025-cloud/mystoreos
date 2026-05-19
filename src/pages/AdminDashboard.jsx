@@ -55,7 +55,7 @@ const AdminDashboard = () => {
     shopStat: { background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px', textAlign: 'center' },
     shopActions: { display: 'flex', gap: '8px' },
     alertBar: { background: 'linear-gradient(90deg, rgba(245,158,11,0.2), rgba(220,38,38,0.2))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '12px 16px', margin: '0 12px 12px', display: 'flex', alignItems: 'center', gap: '10px' },
-    bottomNav: { position: 'fixed', bottom: 0, left: 0, right: 0, background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '8px 0 12px', zIndex: 100 }
+    bottomNav: { position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '8px 0 12px', zIndex: 100 }
   };
 
   return (

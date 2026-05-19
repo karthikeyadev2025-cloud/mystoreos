@@ -50,11 +50,23 @@ body {
 }
 
 .app-container {
-  max-width: 600px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 20px;
-  padding-bottom: 80px;
+  position: relative;
   min-height: 100vh;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  border-left: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  background-color: var(--bg-dark);
+  padding-bottom: 80px;
+  overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    box-shadow: none;
+    border: none;
+  }
 }
 
 h1, h2, h3 { font-weight: 600; margin-bottom: 8px; }

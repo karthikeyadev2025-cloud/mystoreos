@@ -34,32 +34,35 @@ const RoleRouter = () => {
   }
 };
 
+const AppLayout = ({ children }) => <div className="app-container">{children}</div>;
+
 function App() {
   return (
     <BrowserRouter>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route path="/s/:shopId" element={<UserDashboard />} />
-          
-          <Route path="/dashboard" element={<RoleRouter />} />
-          <Route path="/shop/*" element={
-            <PrivateRoute role={['shop', 'staff']}><ShopDashboard /></PrivateRoute>
-          } />
-          <Route path="/user/*" element={
-            <PrivateRoute role="customer"><UserDashboard /></PrivateRoute>
-          } />
-          <Route path="/distributor/*" element={
-            <PrivateRoute role="distributor"><DistributorDashboard /></PrivateRoute>
-          } />
-          <Route path="/admin/*" element={
-            <PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>
-          } />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Full Screen Routes */}
+        <Route path="/" element={<LandingPage />} />
+        
+        {/* Mobile App Layout Routes */}
+        <Route path="/login" element={<AppLayout><Login /></AppLayout>} />
+        <Route path="/register" element={<AppLayout><Register /></AppLayout>} />
+        
+        <Route path="/s/:shopId" element={<AppLayout><UserDashboard /></AppLayout>} />
+        
+        <Route path="/dashboard" element={<RoleRouter />} />
+        <Route path="/shop/*" element={
+          <PrivateRoute role={['shop', 'staff']}><AppLayout><ShopDashboard /></AppLayout></PrivateRoute>
+        } />
+        <Route path="/user/*" element={
+          <PrivateRoute role="customer"><AppLayout><UserDashboard /></AppLayout></PrivateRoute>
+        } />
+        <Route path="/distributor/*" element={
+          <PrivateRoute role="distributor"><AppLayout><DistributorDashboard /></AppLayout></PrivateRoute>
+        } />
+        <Route path="/admin/*" element={
+          <PrivateRoute role="admin"><AppLayout><AdminDashboard /></AppLayout></PrivateRoute>
+        } />
+      </Routes>
     </BrowserRouter>
   );
 }
