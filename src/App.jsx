@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -60,7 +59,7 @@ function App() {
           <PrivateRoute role="distributor"><AppLayout><DistributorDashboard /></AppLayout></PrivateRoute>
         } />
         <Route path="/admin/*" element={
-          <PrivateRoute role="admin"><AppLayout><AdminDashboard /></AppLayout></PrivateRoute>
+          <PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>
         } />
       </Routes>
     </BrowserRouter>

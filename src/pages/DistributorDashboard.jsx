@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -12,18 +12,34 @@ const DistributorDashboard = () => {
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
   
+  // Stock Orders & Wholesale Catalog states
+  const [stockOrders, setStockOrders] = useState([]);
+  const [wholesaleProducts, setWholesaleProducts] = useState([]);
+  const [newProdName, setNewProdName] = useState('');
+  const [newProdPrice, setNewProdPrice] = useState('');
+  const [newProdStock, setNewProdStock] = useState('');
+  const [newProdCategory, setNewProdCategory] = useState('general');
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
+
   // New Credit Form
   const [selectedShop, setSelectedShop] = useState('');
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setCredits(await api.getDistCredits(user.id));
     setShops(await api.getAllShops());
-  };
+    setStockOrders(await api.getDistributorOrders(user.id));
+    setWholesaleProducts(await api.getDistributorProducts());
+  }, [user.id]);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadData]);
 
   const handleLogout = () => {
     logout();
@@ -47,6 +63,29 @@ const DistributorDashboard = () => {
     loadData();
   };
 
+  const handleAddWholesaleProduct = async () => {
+    if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
+    await api.addDistributorProduct({
+      distributorId: user.id,
+      name: newProdName,
+      price: newProdPrice,
+      stock: newProdStock,
+      category: newProdCategory
+    });
+    toast.success("Product published to wholesale catalog!");
+    setNewProdName('');
+    setNewProdPrice('');
+    setNewProdStock('');
+    setShowCatalogModal(false);
+    loadData();
+  };
+
+  const handleUpdateStockOrder = async (orderId, status) => {
+    await api.updateStockOrderStatus(orderId, status);
+    toast.success(`Restock order marked as ${status}!`);
+    loadData();
+  };
+
   const totalOutstanding = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
   const totalReceived = credits.filter(c => c.paid).reduce((a, b) => a + b.amount, 0);
   const pendingCredits = credits.filter(c => !c.paid);
@@ -67,10 +106,38 @@ const DistributorDashboard = () => {
       {activeTab === 'dashboard' && (
         <>
           <div style={{ padding: '16px' }}>
-            <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+            <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0 }}>Total Market Outstanding</p>
               <h2 style={{ fontSize: '42px', fontWeight: 900, color: '#ef4444', margin: '8px 0' }}>₹{totalOutstanding}</h2>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', borderTop: '1px solid #334155', paddingTop: '16px' }}>
+              
+              {/* Circular SVG Collection progress gauge */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '16px 0' }}>
+                <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+                  <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="60" cy="60" r="50" fill="transparent" stroke="#1e293b" strokeWidth="8" />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="transparent"
+                      stroke="#22c55e"
+                      strokeWidth="8"
+                      strokeDasharray={2 * Math.PI * 50}
+                      strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#e2e8f0' }}>
+                      {Math.round(totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) * 100 : 0)}%
+                    </span>
+                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>Collected</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px', borderTop: '1px solid #334155', paddingTop: '16px' }}>
                 <div style={{ textAlign: 'left' }}>
                   <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>Total Received</p>
                   <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#22c55e', margin: 0 }}>₹{totalReceived}</p>
@@ -137,6 +204,90 @@ const DistributorDashboard = () => {
         </div>
       )}
 
+      {/* Stock Orders Tab */}
+      {activeTab === 'orders' && (
+        <div style={{ padding: 20 }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#fff' }}>📥 Incoming Restock Orders</h2>
+          {stockOrders.length === 0 ? (
+            <p style={{ color: '#94a3b8', textAlign: 'center' }}>No stock orders received.</p>
+          ) : (
+            stockOrders.map(o => (
+              <div key={o.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>🏪 {o.shopName}</h4>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{
+                      fontSize: '10px',
+                      background: o.status === 'pending' ? 'rgba(245,158,11,0.2)' : o.status === 'accepted' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+                      color: o.status === 'pending' ? '#f59e0b' : o.status === 'accepted' ? '#22c55e' : '#ef4444',
+                      padding: '2px 8px',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      textTransform: 'capitalize'
+                    }}>{o.status}</span>
+                    <h4 style={{ fontSize: '16px', margin: '4px 0 0 0', color: '#3b82f6' }}>₹{o.total}</h4>
+                  </div>
+                </div>
+                
+                <div style={{ borderTop: '1px solid #334155', borderBottom: '1px solid #334155', padding: '8px 0', margin: '8px 0' }}>
+                  {o.items.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#cbd5e1', margin: '4px 0' }}>
+                      <span>{item.name}</span>
+                      <span>x{item.qty} (₹{item.price * item.qty})</span>
+                    </div>
+                  ))}
+                </div>
+
+                {o.status === 'pending' && (
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                    <button onClick={() => handleUpdateStockOrder(o.id, 'accepted')} style={{ flex: 1, background: '#22c55e', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                      Accept & Credit
+                    </button>
+                    <button onClick={() => handleUpdateStockOrder(o.id, 'rejected')} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Catalog Tab */}
+      {activeTab === 'catalog' && (
+        <div style={{ padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff' }}>📦 Wholesale Catalog</h2>
+            <button onClick={() => setShowCatalogModal(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+              + Add Product
+            </button>
+          </div>
+
+          {wholesaleProducts.length === 0 ? (
+            <p style={{ color: '#94a3b8', textAlign: 'center' }}>No wholesale products published yet.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {wholesaleProducts.map(p => (
+                <div key={p.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
+                    <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>{p.name}</h4>
+                  </div>
+                  <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#22c55e' }}>₹{p.price}</span>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>Stock: {p.stock}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* History Tab */}
       {activeTab === 'history' && (
         <div style={{padding: 20}}>
@@ -187,6 +338,45 @@ const DistributorDashboard = () => {
         </div>
       )}
 
+      {/* Add Wholesale Product Modal */}
+      {showCatalogModal && (
+        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ background: '#1e293b', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', margin: '0 0 20px 0' }}>📦 Publish Wholesale Product</h2>
+            
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Product Name</label>
+              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Carton (100 packets)" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Price (₹)</label>
+                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Bulk Stock Qty</label>
+                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Category</label>
+              <select value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                <option value="biscuits">Biscuits & Snacks</option>
+                <option value="flour">Atta & Flours</option>
+                <option value="soaps">Soaps & Shampoos</option>
+                <option value="oil">Cooking Oils</option>
+                <option value="general">General Items</option>
+              </select>
+            </div>
+
+            <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#3b82f6', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Publish Product</button>
+            <button onClick={() => setShowCatalogModal(false)} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '10px', borderRadius: '10px', fontSize: '14px', marginTop: '6px', cursor: 'pointer' }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       {/* Bottom Nav */}
       <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: '#0f172a', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 90 }}>
         <div style={{ textAlign: 'center', color: activeTab === 'dashboard' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
@@ -196,6 +386,14 @@ const DistributorDashboard = () => {
         <div style={{ textAlign: 'center', color: activeTab === 'shops' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('shops')}>
           <div style={{ fontSize: '20px' }}>🏪</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Shops</span>
+        </div>
+        <div style={{ textAlign: 'center', color: activeTab === 'orders' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('orders')}>
+          <div style={{ fontSize: '20px' }}>📥</div>
+          <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Orders</span>
+        </div>
+        <div style={{ textAlign: 'center', color: activeTab === 'catalog' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('catalog')}>
+          <div style={{ fontSize: '20px' }}>📦</div>
+          <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Catalog</span>
         </div>
         <div style={{ textAlign: 'center', color: activeTab === 'history' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('history')}>
           <div style={{ fontSize: '20px' }}>✅</div>

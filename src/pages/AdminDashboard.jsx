@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import AdminCMS from './AdminCMS';
 import { 
   LayoutDashboard, Store, Users, FileText, Settings, CreditCard, LogOut, CheckCircle, 
-  XCircle, Trash2, Key, Download, ArrowRight, ShieldCheck, HelpCircle, 
-  Activity, ArrowUpRight, Search, PlusCircle, Globe, Filter, Sparkles, RefreshCw
+  XCircle, Trash2, Key, Download, ShieldCheck, 
+  Activity, ArrowUpRight, Search, PlusCircle, Globe, Sparkles, RefreshCw
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -20,8 +20,6 @@ const AdminDashboard = () => {
   const [razorpayKey, setRazorpayKey] = useState('');
   
   const [shops, setShops] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [distributors, setDistributors] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [resetModal, setResetModal] = useState({ show: false, userId: null, userName: '', newPass: '' });
   
@@ -31,7 +29,7 @@ const AdminDashboard = () => {
   const [userFilter, setUserFilter] = useState('all'); // all, customer, distributor
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsRefreshing(true);
     try {
       const data = await api.getAdminStats();
@@ -40,17 +38,20 @@ const AdminDashboard = () => {
       setStats(data);
       setPendingUsers(await api.getPendingApprovals());
       setShops(await api.getAllShops());
-      setCustomers(await api.getAllUsersByRole('customer'));
-      setDistributors(await api.getAllUsersByRole('distributor'));
       setAllUsers(await api.getAllUsersByRole());
-    } catch (err) {
+    } catch {
       toast.error("Failed to refresh enterprise metrics");
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadData]);
 
   const handleApprove = async (userId) => {
     try {
@@ -453,6 +454,104 @@ const AdminDashboard = () => {
                   <div style={{ fontSize: '20px', fontWeight: 900, color: '#f87171' }}>₹{stats.activeCredit}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>Outstanding Credit Ledger</div>
                 </div>
+              </div>
+            </div>
+
+            {/* SAAS TRIAL VS PRO GROWTH CHART */}
+            <div style={{...styles.glassCard, marginBottom: '32px', padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>📈 SaaS Enterprise Subscription Growth</h3>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Monthly trends of Free Trial vs Premium PRO conversions</p>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#818cf8' }}>
+                    <span style={{ width: '12px', height: '4px', background: '#818cf8', display: 'inline-block', borderRadius: '2px' }}></span> Free Trials
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981' }}>
+                    <span style={{ width: '12px', height: '4px', background: '#10b981', display: 'inline-block', borderRadius: '2px' }}></span> Premium PRO
+                  </span>
+                </div>
+              </div>
+
+              {/* Inline SVG Chart */}
+              <div style={{ width: '100%', overflowX: 'auto' }}>
+                <svg viewBox="0 0 800 240" style={{ width: '100%', minWidth: '600px', height: '220px', overflow: 'visible' }}>
+                  {/* Grid Lines */}
+                  <line x1="50" y1="20" x2="750" y2="20" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                  <line x1="50" y1="70" x2="750" y2="70" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                  <line x1="50" y1="120" x2="750" y2="120" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                  <line x1="50" y1="170" x2="750" y2="170" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                  <line x1="50" y1="210" x2="750" y2="210" stroke="rgba(255,255,255,0.1)" />
+
+                  {/* Months Labels (Axis X) */}
+                  <text x="50" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">Jan</text>
+                  <text x="190" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">Feb</text>
+                  <text x="330" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">Mar</text>
+                  <text x="470" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">Apr</text>
+                  <text x="610" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">May</text>
+                  <text x="750" y="230" fill="#94a3b8" fontSize="11" textAnchor="middle">Jun</text>
+
+                  {/* Y Axis Labels */}
+                  <text x="40" y="25" fill="#64748b" fontSize="10" textAnchor="end">100</text>
+                  <text x="40" y="75" fill="#64748b" fontSize="10" textAnchor="end">75</text>
+                  <text x="40" y="125" fill="#64748b" fontSize="10" textAnchor="end">50</text>
+                  <text x="40" y="175" fill="#64748b" fontSize="10" textAnchor="end">25</text>
+                  <text x="40" y="215" fill="#64748b" fontSize="10" textAnchor="end">0</text>
+
+                  {/* Free Trial Trend Line (Purple) */}
+                  <path 
+                    d="M 50 190 Q 190 160 330 120 T 610 60 T 750 40" 
+                    fill="none" 
+                    stroke="#818cf8" 
+                    strokeWidth="3.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+                  {/* Premium PRO Trend Line (Green) */}
+                  <path 
+                    d="M 50 210 Q 190 195 330 175 T 610 95 T 750 50" 
+                    fill="none" 
+                    stroke="#10b981" 
+                    strokeWidth="3.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+
+                  {/* Area fill for curves */}
+                  <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+                  </linearGradient>
+                  <path 
+                    d="M 50 190 Q 190 160 330 120 T 610 60 T 750 40 L 750 210 L 50 210 Z" 
+                    fill="url(#purpleGrad)" 
+                  />
+
+                  <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                  </linearGradient>
+                  <path 
+                    d="M 50 210 Q 190 195 330 175 T 610 95 T 750 50 L 750 210 L 50 210 Z" 
+                    fill="url(#greenGrad)" 
+                  />
+
+                  {/* Dots on points */}
+                  <circle cx="50" cy="190" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="190" cy="160" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="330" cy="120" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="470" cy="90" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="610" cy="60" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="750" cy="40" r="4.5" fill="#818cf8" stroke="#05070e" strokeWidth="1.5" />
+
+                  <circle cx="50" cy="210" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="190" cy="195" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="330" cy="175" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="470" cy="140" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="610" cy="95" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                  <circle cx="750" cy="50" r="4.5" fill="#10b981" stroke="#05070e" strokeWidth="1.5" />
+                </svg>
               </div>
             </div>
 

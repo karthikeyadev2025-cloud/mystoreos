@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { 
   Save, LayoutTemplate, CreditCard, Megaphone, AlertCircle, 
-  Settings, CheckCircle, ArrowRight, Eye, Sparkles
+  Sparkles
 } from 'lucide-react';
 
 const AdminCMS = () => {
@@ -30,11 +30,7 @@ const AdminCMS = () => {
     proFeatures: 'Unlimited everything, WhatsApp orders, Custom Domain'
   });
 
-  useEffect(() => {
-    loadCMS();
-  }, []);
-
-  const loadCMS = async () => {
+  const loadCMS = useCallback(async () => {
     try {
       const hero = await api.getSiteConfig('hero', heroConfig);
       const announce = await api.getSiteConfig('announcement', announceConfig);
@@ -43,18 +39,35 @@ const AdminCMS = () => {
       setHeroConfig(hero);
       setAnnounceConfig(announce);
       setPricingConfig(pricing);
-    } catch(err) {
+    } catch {
       toast.error('Failed to sync content parameters');
     }
     setLoading(false);
-  };
+  }, [heroConfig, announceConfig, pricingConfig]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadCMS();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadCMS]);
 
   const handleSave = async (key, value) => {
     setSaving(true);
     try {
       await api.saveSiteConfig(key, value);
+      if (key === 'announcement') {
+        if (value.active) {
+          await api.saveAnnouncement({
+            text: value.text,
+            type: value.type
+          });
+        } else {
+          await api.clearAnnouncements();
+        }
+      }
       toast.success(`${key.toUpperCase()} configurations committed to production!`);
-    } catch(err) {
+    } catch {
       toast.error(`Failed to commit ${key} changes`);
     } finally {
       setSaving(false);

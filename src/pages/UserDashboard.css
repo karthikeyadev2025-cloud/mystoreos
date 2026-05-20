@@ -1,0 +1,137 @@
+/* UserDashboard.css - Premium Visual Styles and POS Animations */
+
+@keyframes laser-sweep {
+  0% { top: 15%; opacity: 0.3; }
+  50% { top: 85%; opacity: 1; filter: drop-shadow(0 0 10px #10b981); }
+  100% { top: 15%; opacity: 0.3; }
+}
+
+@keyframes receipt-unroll {
+  0% { transform: translateY(-40px) scaleY(0.7); opacity: 0; }
+  100% { transform: translateY(0) scaleY(1); opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 0.2; }
+  100% { transform: scale(0.95); opacity: 0.6; }
+}
+
+@keyframes shimmer-bg {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.laser-sweep-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #10b981;
+  box-shadow: 0 0 14px #10b981, 0 0 5px #10b981;
+  animation: laser-sweep 2s infinite ease-in-out;
+}
+
+.receipt-paper {
+  background: #fbfbf7;
+  color: #0f172a;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
+  animation: receipt-unroll 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+  position: relative;
+}
+
+.receipt-jagged-top {
+  height: 8px;
+  background-image: linear-gradient(135deg, transparent 75%, #fbfbf7 75%), linear-gradient(225deg, transparent 75%, #fbfbf7 75%);
+  background-size: 12px 12px;
+  background-repeat: repeat-x;
+  transform: translateY(-4px);
+}
+
+.receipt-jagged-bottom-cut {
+  height: 8px;
+  background-image: linear-gradient(45deg, transparent 75%, #fbfbf7 75%), linear-gradient(-45deg, transparent 75%, #fbfbf7 75%);
+  background-size: 12px 12px;
+  background-repeat: repeat-x;
+  margin-top: 24px;
+}
+
+.pulse-scanner-ring {
+  position: absolute;
+  border: 2px solid rgba(16, 185, 129, 0.5);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: pulse-ring 1.8s infinite ease-in-out;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.pro-featured-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.5), rgba(76, 29, 149, 0.18)) !important;
+  border: 1px solid rgba(139, 92, 246, 0.45) !important;
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.12) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-featured-card:hover {
+  border-color: rgba(139, 92, 246, 0.7) !important;
+  box-shadow: 0 12px 36px rgba(139, 92, 246, 0.22) !important;
+  transform: translateY(-2px);
+}
+
+.standard-shop-card {
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.standard-shop-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(30, 41, 59, 0.45);
+  transform: translateY(-2px);
+}
+
+.shimmer-loading {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer-bg 1.5s infinite linear;
+}
+
+@keyframes walk-along-path {
+  0% { left: 35px; transform: scaleX(1); }
+  45% { left: 225px; transform: scaleX(1); }
+  50% { left: 225px; transform: scaleX(-1); }
+  95% { left: 35px; transform: scaleX(-1); }
+  100% { left: 35px; transform: scaleX(1); }
+}
+
+@keyframes announcement-marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.scratch-canvas {
+  touch-action: none;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>') 12 12, pointer;
+}
+

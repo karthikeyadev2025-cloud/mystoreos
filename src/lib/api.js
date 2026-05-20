@@ -9,18 +9,31 @@ import { isSupabaseConfigured, supabase } from './supabase';
 const mockDB = {
   users: [
     { id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' },
-    { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl' },
+    { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl', latitude: 16.3067, longitude: 80.4365, logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=120&h=120&q=80' },
+    { id: 'u_4', phone: '9000000000', pass: '1234', role: 'shop', name: 'Balaji Kirana Store', status: 'active', subscription: 'active', upiId: '9000000000@ybl', latitude: 16.3120, longitude: 80.4450, logo: 'https://images.unsplash.com/photo-1601599561263-8a39304edeec?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
     { id: 'u_3', phone: '8888888888', pass: '1234', role: 'distributor', name: 'Guntur FMCG Supply', status: 'active' },
     { id: 'u_staff1', phone: '7777777777', pass: '1234', role: 'staff', name: 'Ravi (Helper)', status: 'active', staff_of: 'u_1' }
   ],
   products: [
     { id: 'p_1', shopId: 'u_1', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 45 },
-    { id: 'p_2', shopId: 'u_1', name: 'Aashirvaad Atta 1kg', price: 65, barcode: '8901725112028', stock: 8 }
+    { id: 'p_2', shopId: 'u_1', name: 'Aashirvaad Atta 1kg', price: 65, barcode: '8901725112028', stock: 8 },
+    { id: 'p_3', shopId: 'u_4', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 100 },
+    { id: 'p_4', shopId: 'u_4', name: 'Dove Cream Shampoo 180ml', price: 165, barcode: '8901030752834', stock: 30 }
   ],
   orders: [],
   credits: [],
-  settings: { razorpayKey: '' }
+  settings: { razorpayKey: '' },
+  distributorProducts: [
+    { id: 'dp_1', distributorId: 'u_3', name: 'Parle-G Carton (100 packets)', price: 850, stock: 50, category: 'biscuits' },
+    { id: 'dp_2', distributorId: 'u_3', name: 'Aashirvaad Atta Bulk case (10 x 5kg)', price: 1950, stock: 20, category: 'flour' },
+    { id: 'dp_3', distributorId: 'u_3', name: 'Dove Shampoo Case (48 bottles)', price: 6500, stock: 15, category: 'soaps' },
+    { id: 'dp_4', distributorId: 'u_3', name: 'Fortune Sunflower Oil Carton (4 x 5L)', price: 2300, stock: 30, category: 'oil' }
+  ],
+  stockOrders: [],
+  announcements: [
+    { id: 'ann_1', text: 'Welcome to MyStore OS Enterprise version! Enjoy our premium speech controls and automated logistics integrations.', type: 'info', active: true, date: new Date().toISOString() }
+  ]
 };
 
 const localDBStr = localStorage.getItem('mystore_db');
@@ -29,12 +42,28 @@ if (!localDBStr) {
 } else {
   try {
     const db = JSON.parse(localDBStr);
+    let modified = false;
     if (db && db.users) {
       const hasAdmin = db.users.some(u => u.phone === '8885490495');
       if (!hasAdmin) {
         db.users.push({ id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' });
-        localStorage.setItem('mystore_db', JSON.stringify(db));
+        modified = true;
       }
+    }
+    if (db && !db.distributorProducts) {
+      db.distributorProducts = mockDB.distributorProducts;
+      modified = true;
+    }
+    if (db && !db.stockOrders) {
+      db.stockOrders = [];
+      modified = true;
+    }
+    if (db && !db.announcements) {
+      db.announcements = mockDB.announcements;
+      modified = true;
+    }
+    if (modified) {
+      localStorage.setItem('mystore_db', JSON.stringify(db));
     }
   } catch (e) {
     console.error("Failed to migrate mockDB", e);
@@ -49,7 +78,8 @@ const toUser = (row) => row ? ({
   id: row.id, phone: row.phone, pass: row.pass, role: row.role, name: row.name,
   status: row.status, subscription: row.subscription, upiId: row.upi_id,
   logo: row.logo, shopPhotos: row.shop_photos || [], paymentQr: row.payment_qr,
-  staff_of: row.staff_of
+  staff_of: row.staff_of,
+  latitude: row.latitude, longitude: row.longitude
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -389,7 +419,9 @@ export const api = {
       return toUser(data);
     }
     const db = getDB();
-    return db.users.find(u => u.id === shopId && u.role === 'shop');
+    // Normalize IDs so u_1, u1, and 1 all work
+    const cleanId = shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId);
+    return db.users.find(u => (u.id === shopId || u.id === cleanId) && u.role === 'shop');
   },
 
   async getAllShops() {
@@ -411,6 +443,8 @@ export const api = {
       if (data.paymentQr !== undefined) updateObj.payment_qr = data.paymentQr;
       if (data.subscription !== undefined) updateObj.subscription = data.subscription;
       if (data.name !== undefined) updateObj.name = data.name;
+      if (data.latitude !== undefined) updateObj.latitude = data.latitude;
+      if (data.longitude !== undefined) updateObj.longitude = data.longitude;
       await supabase.from('users').update(updateObj).eq('id', userId);
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).single();
       return toUser(updated);
@@ -462,6 +496,138 @@ export const api = {
     const db = getDB();
     if (!db.siteConfig) db.siteConfig = {};
     db.siteConfig[key] = value;
+    saveDB(db);
+  },
+
+  // ---- GLOBAL SEARCH ----
+  async searchGlobalProducts(query) {
+    if (isSupabaseConfigured) {
+      const { data: prods } = await supabase.from('products').select('*').ilike('name', `%${query}%`);
+      if (!prods || prods.length === 0) return [];
+      const shopIds = [...new Set(prods.map(p => p.shop_id))];
+      const { data: shops } = await supabase.from('users').select('*').in('id', shopIds);
+      const shopMap = {};
+      (shops || []).forEach(s => { shopMap[s.id] = toUser(s); });
+      return prods.map(p => ({
+        ...toProduct(p),
+        shop: shopMap[p.shop_id] || { name: 'Unknown Shop' }
+      }));
+    }
+    const db = getDB();
+    const matchingProds = db.products.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+    return matchingProds.map(p => {
+      const shop = db.users.find(u => u.id === p.shopId && u.role === 'shop');
+      return {
+        ...p,
+        shop: shop || { name: 'Unknown Shop' }
+      };
+    });
+  },
+
+  // ---- DISTRIBUTOR WHOLESALE CATALOG & ORDERS ----
+  async getDistributorProducts() {
+    const db = getDB();
+    if (!db.distributorProducts) db.distributorProducts = [];
+    return db.distributorProducts;
+  },
+
+  async addDistributorProduct(productData) {
+    const db = getDB();
+    if (!db.distributorProducts) db.distributorProducts = [];
+    const newProd = {
+      id: 'dp_' + generateId(),
+      distributorId: productData.distributorId || 'u_3',
+      name: productData.name,
+      price: parseFloat(productData.price) || 0,
+      stock: parseInt(productData.stock) || 0,
+      category: productData.category || 'general'
+    };
+    db.distributorProducts.push(newProd);
+    saveDB(db);
+    return newProd;
+  },
+
+  async placeStockOrder(shopId, shopName, items, total) {
+    const db = getDB();
+    if (!db.stockOrders) db.stockOrders = [];
+    const newOrder = {
+      id: 'so_' + generateId(),
+      shopId,
+      shopName,
+      items,
+      total,
+      status: 'pending', // pending, accepted, completed, rejected
+      date: new Date().toISOString()
+    };
+    db.stockOrders.push(newOrder);
+    saveDB(db);
+    return newOrder;
+  },
+
+  async getDistributorOrders() {
+    const db = getDB();
+    if (!db.stockOrders) db.stockOrders = [];
+    return db.stockOrders;
+  },
+
+  async getShopStockOrders(shopId) {
+    const db = getDB();
+    if (!db.stockOrders) db.stockOrders = [];
+    return db.stockOrders.filter(o => o.shopId === shopId);
+  },
+
+  async updateStockOrderStatus(orderId, status) {
+    const db = getDB();
+    if (!db.stockOrders) db.stockOrders = [];
+    const order = db.stockOrders.find(o => o.id === orderId);
+    if (order) {
+      order.status = status;
+      // If accepted, automatically log as a distributor credit entry to create a logical closed loop!
+      if (status === 'accepted') {
+        if (!db.credits) db.credits = [];
+        db.credits.push({
+          id: 'cr_' + generateId(),
+          fromId: 'u_3',
+          toShopId: order.shopId,
+          shopName: order.shopName,
+          desc: `Inventory Supplies: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}`,
+          amount: parseFloat(order.total),
+          paid: false,
+          date: new Date().toISOString()
+        });
+      }
+      saveDB(db);
+    }
+    return order;
+  },
+
+  // ---- LIVE PLATFORM BROADCASTS ANNOUNCEMENTS ----
+  async getAnnouncements() {
+    const db = getDB();
+    if (!db.announcements) db.announcements = [];
+    return db.announcements.filter(a => a.active);
+  },
+
+  async saveAnnouncement(announcementData) {
+    const db = getDB();
+    if (!db.announcements) db.announcements = [];
+    // deactivate previous announcements
+    db.announcements.forEach(a => { a.active = false; });
+    const newAnn = {
+      id: 'ann_' + generateId(),
+      text: announcementData.text,
+      type: announcementData.type || 'info', // info, warning, danger
+      active: true,
+      date: new Date().toISOString()
+    };
+    db.announcements.push(newAnn);
+    saveDB(db);
+    return newAnn;
+  },
+
+  async clearAnnouncements() {
+    const db = getDB();
+    db.announcements = [];
     saveDB(db);
   }
 };

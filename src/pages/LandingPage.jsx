@@ -1,8 +1,20 @@
-import React, { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { CheckCircle, X, Zap, Shield, Smartphone, TrendingUp } from 'lucide-react';
+import { CheckCircle, X } from 'lucide-react';
 import { api } from '../lib/api';
+
+const DEFAULT_HERO_CONFIG = {
+  headline: 'Your Phone is\nYour Billing\nMachine.',
+  subtitle: 'No computer. No printer. No paper rolls.\nJust your phone and 30 seconds to send a branded bill on WhatsApp.',
+  buttonText: '🚀 Start Free — No Card Needed'
+};
+
+const DEFAULT_PRICING_CONFIG = {
+  proPrice: '999',
+  freeFeatures: 'Basic billing, 50 products',
+  proFeatures: 'Unlimited everything, WhatsApp orders, Custom Domain'
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -14,23 +26,14 @@ const LandingPage = () => {
   const fadeUp = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } };
   const stagger = (i) => ({ ...fadeUp, transition: { ...fadeUp.transition, delay: i * 0.1 } });
 
-  const [heroConfig, setHeroConfig] = React.useState({
-    headline: 'Your Phone is\nYour Billing\nMachine.',
-    subtitle: 'No computer. No printer. No paper rolls.\nJust your phone and 30 seconds to send a branded bill on WhatsApp.',
-    buttonText: '🚀 Start Free — No Card Needed'
-  });
-  
-  const [pricingConfig, setPricingConfig] = React.useState({
-    proPrice: '999',
-    freeFeatures: 'Basic billing, 50 products',
-    proFeatures: 'Unlimited everything, WhatsApp orders, Custom Domain'
-  });
+  const [heroConfig, setHeroConfig] = useState(DEFAULT_HERO_CONFIG);
+  const [pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
       try {
-        setHeroConfig(await api.getSiteConfig('hero', heroConfig));
-        setPricingConfig(await api.getSiteConfig('pricing', pricingConfig));
+        setHeroConfig(await api.getSiteConfig('hero', DEFAULT_HERO_CONFIG));
+        setPricingConfig(await api.getSiteConfig('pricing', DEFAULT_PRICING_CONFIG));
       } catch (e) {
         console.error("CMS Load Error", e);
       }
