@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminCMS from './AdminCMS';
+import { 
+  LayoutDashboard, Store, Users, FileText, Settings, CreditCard, LogOut, CheckCircle, 
+  XCircle, Trash2, Key, Download, ArrowRight, ShieldCheck, HelpCircle, 
+  Activity, ArrowUpRight, Search, PlusCircle, Globe, Filter, Sparkles, RefreshCw
+} from 'lucide-react';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -19,20 +24,29 @@ const AdminDashboard = () => {
   const [distributors, setDistributors] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [resetModal, setResetModal] = useState({ show: false, userId: null, userName: '', newPass: '' });
+  
+  // Enterprise features: Live Search and Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [shopFilter, setShopFilter] = useState('all'); // all, pro, trial
+  const [userFilter, setUserFilter] = useState('all'); // all, customer, distributor
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadData = async () => {
+    setIsRefreshing(true);
     try {
       const data = await api.getAdminStats();
-    const settings = await api.getSettings();
-    setRazorpayKey(settings.razorpayKey || '');
-    setStats(data);
-    setPendingUsers(await api.getPendingApprovals());
-    setShops(await api.getAllShops());
+      const settings = await api.getSettings();
+      setRazorpayKey(settings.razorpayKey || '');
+      setStats(data);
+      setPendingUsers(await api.getPendingApprovals());
+      setShops(await api.getAllShops());
       setCustomers(await api.getAllUsersByRole('customer'));
       setDistributors(await api.getAllUsersByRole('distributor'));
       setAllUsers(await api.getAllUsersByRole());
     } catch (err) {
-      toast.error("Failed to load admin data");
+      toast.error("Failed to refresh enterprise metrics");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -41,7 +55,7 @@ const AdminDashboard = () => {
   const handleApprove = async (userId) => {
     try {
       await api.approveUser(userId);
-      toast.success('User Approved & Activated!');
+      toast.success('Organization Approved & Credentials Provisioned!');
       loadData();
     } catch (err) {
       toast.error(err.message || 'Failed to approve user');
@@ -49,10 +63,10 @@ const AdminDashboard = () => {
   };
 
   const handleReject = async (userId) => {
-    if (window.confirm("Reject and permanently delete this user?")) {
+    if (window.confirm("Permanently reject and delete this enterprise registration?")) {
       try {
         await api.deleteUser(userId);
-        toast.success('User Rejected & Removed.');
+        toast.warn('Registration Rejected & Cleared.');
         loadData();
       } catch (err) {
         toast.error(err.message || 'Failed to reject user');
@@ -61,10 +75,10 @@ const AdminDashboard = () => {
   };
   
   const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user? This cannot be undone.")) {
+    if (window.confirm("Are you sure you want to permanently delete this user? This will delete all products, bills, and credit logs linked to them!")) {
       try {
         await api.deleteUser(userId);
-        toast.success('User Deleted!');
+        toast.success('Record Cleared Successfully.');
         loadData();
       } catch (err) {
         toast.error(err.message || 'Failed to delete user');
@@ -73,27 +87,27 @@ const AdminDashboard = () => {
   };
 
   const handleResetPasswordSubmit = async () => {
-    if (resetModal.newPass.length < 4) return toast.error('Password must be at least 4 characters');
+    if (resetModal.newPass.length < 4) return toast.error('Security keys must be at least 4 characters');
     try {
       await api.adminResetPassword(resetModal.userId, resetModal.newPass);
-      toast.success(`Password reset for ${resetModal.userName}!`);
+      toast.success(`Access credentials updated for ${resetModal.userName}`);
       setResetModal({ show: false, userId: null, userName: '', newPass: '' });
     } catch (err) {
-      toast.error(err.message || 'Failed to reset password');
+      toast.error(err.message || 'Failed to update access key');
     }
   };
 
   const handleSaveSettings = async () => {
     try {
       await api.saveSettings({ razorpayKey });
-      toast.success("System Settings Saved Successfully!");
+      toast.success("Merchant Gateway Settings Saved Successfully!");
     } catch (err) {
       toast.error(err.message || 'Failed to save settings');
     }
   };
 
   const downloadCSV = (data, filename) => {
-    if (!data || data.length === 0) return toast.error("No data to export");
+    if (!data || data.length === 0) return toast.error("No record sets to export");
     const headers = Object.keys(data[0]).join(',');
     const csvRows = data.map(row => 
       Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
@@ -103,9 +117,10 @@ const AdminDashboard = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${filename}.csv`;
+    a.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+    toast.success("Spreadsheet downloaded successfully!");
   };
 
   const handleLogout = () => {
@@ -113,289 +128,754 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
+  // Modern Enterprise Styling Object
   const styles = {
-    bg: { backgroundColor: '#050505', color: '#e2e8f0', minHeight: '100vh', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' },
-    header: { background: 'linear-gradient(135deg, #dc2626, #7c2d12)', padding: '16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    superStats: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', padding: '12px' },
-    superBox: { background: 'linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8))', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', textAlign: 'center' },
-    shopCard: { background: 'linear-gradient(145deg, rgba(30,41,59,0.6), rgba(15,23,42,0.6))', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', margin: '0 12px 12px', padding: '16px' },
-    bottomNav: { position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '8px 0 12px', zIndex: 100 },
-    listCard: { background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }
+    wrapper: {
+      backgroundColor: '#05070e',
+      backgroundImage: 'radial-gradient(circle at 50% 0%, #131230 0%, #030408 80%)',
+      color: '#f8fafc',
+      minHeight: '100vh',
+      fontFamily: '"Outfit", "Inter", system-ui, sans-serif',
+      display: 'flex',
+      flexDirection: 'row',
+      overflowX: 'hidden'
+    },
+    sidebar: {
+      width: '280px',
+      background: 'rgba(10, 13, 26, 0.85)',
+      backdropFilter: 'blur(24px)',
+      borderRight: '1px solid rgba(255, 255, 255, 0.05)',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'sticky',
+      top: 0,
+      height: '100vh',
+      padding: '24px 16px',
+      boxSizing: 'border-box'
+    },
+    mainContent: {
+      flex: 1,
+      padding: '32px',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      width: '100%'
+    },
+    glassCard: {
+      background: 'linear-gradient(135deg, rgba(20, 25, 46, 0.5) 0%, rgba(10, 13, 26, 0.7) 100%)',
+      border: '1px solid rgba(255, 255, 255, 0.06)',
+      borderRadius: '20px',
+      padding: '24px',
+      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+      backdropFilter: 'blur(16px)'
+    },
+    statBox: {
+      padding: '24px',
+      borderRadius: '20px',
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      cursor: 'default'
+    },
+    badge: {
+      padding: '4px 10px',
+      borderRadius: '30px',
+      fontSize: '11px',
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px'
+    },
+    navItem: (active) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 16px',
+      borderRadius: '12px',
+      color: active ? '#fff' : '#94a3b8',
+      background: active ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' : 'transparent',
+      border: 'none',
+      fontSize: '15px',
+      fontWeight: active ? '700' : '500',
+      cursor: 'pointer',
+      textAlign: 'left',
+      width: '100%',
+      marginBottom: '8px',
+      boxShadow: active ? '0 10px 20px rgba(99, 102, 241, 0.3)' : 'none',
+      transition: 'all 0.2s ease'
+    }),
+    mobileNav: {
+      position: 'fixed',
+      bottom: '16px',
+      left: '16px',
+      right: '16px',
+      background: 'rgba(8, 12, 26, 0.85)',
+      backdropFilter: 'blur(30px)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: '24px',
+      display: 'flex',
+      justifyContent: 'space-around',
+      padding: '12px 8px',
+      boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+      zIndex: 999
+    },
+    actionBtn: {
+      padding: '10px 18px',
+      borderRadius: '12px',
+      fontWeight: 'bold',
+      fontSize: '13px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      border: 'none',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px'
+    },
+    input: {
+      background: 'rgba(10, 13, 26, 0.8)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      padding: '14px 16px',
+      color: '#fff',
+      fontSize: '14px',
+      outline: 'none',
+      width: '100%',
+      boxSizing: 'border-box'
+    }
   };
 
+  // Responsive Hook Simulation
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Filter Data Sets based on search parameters
+  const filteredShops = shops.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.phone.includes(searchTerm);
+    if (shopFilter === 'pro') return matchesSearch && s.subscription === 'active';
+    if (shopFilter === 'trial') return matchesSearch && s.subscription !== 'active';
+    return matchesSearch;
+  });
+
+  const filteredUsers = allUsers.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.phone.includes(searchTerm);
+    if (userFilter === 'customer') return matchesSearch && u.role === 'customer';
+    if (userFilter === 'distributor') return matchesSearch && u.role === 'distributor';
+    return matchesSearch && u.role !== 'admin';
+  });
+
   return (
-    <div style={styles.bg}>
-      <ToastContainer theme="dark" position="top-center" />
+    <div style={styles.wrapper}>
+      <ToastContainer theme="dark" position="top-right" />
       
-      <div style={styles.header}>
-        <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>🔴 MyStore Admin</h1>
-          <div style={{ fontSize: '12px', opacity: 0.8 }}>Super Admin • {user.name}</div>
+      {/* ===== DESKTOP SIDEBAR ===== */}
+      {!isMobile && (
+        <div style={styles.sidebar}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', paddingLeft: '8px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #818cf8 0%, #4f46e5 100%)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}>
+              <ShieldCheck size={20} color="#fff" />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '16px', fontWeight: 900, margin: 0, letterSpacing: '0.05em', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MYSTORE OS</h2>
+              <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }}></span> Enterprise Platform
+              </div>
+            </div>
+          </div>
+
+          <div style={{ flex: 1 }}>
+            {[
+              { id: 'dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+              { id: 'shops', icon: <Store size={18} />, label: 'Manage Shops' },
+              { id: 'customers', icon: <Users size={18} />, label: 'User Directory' },
+              { id: 'cms', icon: <Globe size={18} />, label: 'Website CMS' },
+              { id: 'payments', icon: <CreditCard size={18} />, label: 'Revenue Analytics' },
+              { id: 'settings', icon: <Settings size={18} />, label: 'System Settings' }
+            ].map(tab => (
+              <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSearchTerm(''); }} style={styles.navItem(activeTab === tab.id)}>
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', boxSizing: 'border-box' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ background: '#1e293b', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold' }}>A</div>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                <div style={{ fontSize: '10px', color: '#94a3b8' }}>Super Administrator</div>
+              </div>
+            </div>
+            <button onClick={handleLogout} style={{ width: '100%', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <LogOut size={14} /> Close Session
+            </button>
+          </div>
         </div>
-        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}>Logout</button>
-      </div>
+      )}
 
-      {/* ===== DASHBOARD TAB ===== */}
-      {activeTab === 'dashboard' && (
-        <>
-          <div style={styles.superStats}>
-            <div style={{...styles.superBox, borderTop: '3px solid #16a34a'}}>
-              <div style={{fontSize: '28px', fontWeight: 800, color: '#16a34a'}}>{stats.revenue}</div>
-              <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)'}}>Monthly Revenue</div>
-              <div style={{fontSize: '10px', color: '#16a34a', marginTop: 4}}>{stats.paidShops} paid shops × ₹999</div>
+      {/* ===== MAIN PANEL CONTENT ===== */}
+      <div style={{...styles.mainContent, paddingBottom: isMobile ? '120px' : '32px'}}>
+        
+        {/* Top Header Row for Mobile */}
+        {isMobile && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(10, 13, 26, 0.5)', padding: '14px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div>
+              <h1 style={{ fontSize: '16px', fontWeight: 900, margin: 0, letterSpacing: '0.05em' }}>🔴 MYSTORE OS</h1>
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Admin • {user.name}</div>
             </div>
-            <div style={{...styles.superBox, borderTop: '3px solid #3b82f6'}}>
-              <div style={{fontSize: '28px', fontWeight: 800, color: '#3b82f6'}}>{stats.totalShops}</div>
-              <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)'}}>Total Shops</div>
-              <div style={{fontSize: '10px', color: '#3b82f6', marginTop: 4}}>{stats.paidShops} paid</div>
-            </div>
-            <div style={{...styles.superBox, borderTop: '3px solid #fbbf24'}}>
-              <div style={{fontSize: '28px', fontWeight: 800, color: '#fbbf24'}}>{stats.totalUsers}</div>
-              <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)'}}>Total Customers</div>
-              <div style={{fontSize: '10px', color: '#fbbf24', marginTop: 4}}>{stats.totalOrders} orders placed</div>
-            </div>
-            <div style={{...styles.superBox, borderTop: '3px solid #f87171'}}>
-              <div style={{fontSize: '28px', fontWeight: 800, color: '#f87171'}}>{pendingUsers.length}</div>
-              <div style={{fontSize: '11px', color: 'rgba(255,255,255,0.6)'}}>Pending Approvals</div>
-              <div style={{fontSize: '10px', color: '#f87171', marginTop: 4}}>Action Required</div>
-            </div>
+            <button onClick={handleLogout} style={{ background: 'rgba(239,68,68,0.15)', border: 'none', color: '#f87171', padding: '8px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>Logout</button>
           </div>
+        )}
 
-          {/* Extra Stats Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', padding: '0 12px 12px' }}>
-            <div style={{...styles.superBox, padding: '12px 8px'}}>
-              <div style={{fontSize: '20px', fontWeight: 800, color: '#a78bfa'}}>{stats.totalDistributors}</div>
-              <div style={{fontSize: '10px', color: 'rgba(255,255,255,0.5)'}}>Distributors</div>
+        {/* Section Header */}
+        {!isMobile && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+            <div>
+              <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>
+                {activeTab === 'dashboard' && 'Platform Overview'}
+                {activeTab === 'shops' && 'Shopkeepers Ecosystem'}
+                {activeTab === 'customers' && 'Global Registry'}
+                {activeTab === 'cms' && 'Dynamic Content Engine'}
+                {activeTab === 'payments' && 'SaaS Revenue Metrics'}
+                {activeTab === 'settings' && 'System Parameters'}
+              </h1>
+              <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '14px' }}>
+                {activeTab === 'dashboard' && 'Manage shop configurations, new requests, and aggregate analytics.'}
+                {activeTab === 'shops' && 'Audit subscription terms, manage accounts, and export shop spreadsheets.'}
+                {activeTab === 'customers' && 'View customer directories, distributors, and credentials reset logs.'}
+                {activeTab === 'cms' && 'Manage live landing page configurations and announcement boards instantly.'}
+                {activeTab === 'payments' && 'Monitor premium plans conversions, pending balances, and total sales.'}
+                {activeTab === 'settings' && 'Setup merchant APIs, payment links, and verify database integrity.'}
+              </p>
             </div>
-            <div style={{...styles.superBox, padding: '12px 8px'}}>
-              <div style={{fontSize: '20px', fontWeight: 800, color: '#fb923c'}}>{stats.totalOrders}</div>
-              <div style={{fontSize: '10px', color: 'rgba(255,255,255,0.5)'}}>Total Orders</div>
-            </div>
-            <div style={{...styles.superBox, padding: '12px 8px'}}>
-              <div style={{fontSize: '20px', fontWeight: 800, color: '#ef4444'}}>₹{stats.activeCredit}</div>
-              <div style={{fontSize: '10px', color: 'rgba(255,255,255,0.5)'}}>Active Credit</div>
-            </div>
+            <button onClick={loadData} disabled={isRefreshing} style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+              <RefreshCw size={14} className={isRefreshing ? 'spin-anim' : ''} /> {isRefreshing ? 'Syncing...' : 'Sync Live'}
+            </button>
           </div>
+        )}
 
-          {/* Pending Approvals */}
-          {pendingUsers.length > 0 && (
-            <div style={{ margin: '0 12px 12px' }}>
-              <h3 style={{ fontSize: '14px', color: '#f87171', marginBottom: '8px' }}>⚠️ Pending Verifications ({pendingUsers.length})</h3>
-              {pendingUsers.map(u => (
-                <div key={u.id} style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', padding: '12px', borderRadius: '12px', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        {/* ===== DASHBOARD TAB CONTENT ===== */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* GRID METRICS */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+              
+              {/* Card 1 */}
+              <div style={{...styles.statBox, ...styles.glassCard, borderTop: '4px solid #10b981'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Monthly Sales</span>
+                  <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CreditCard size={16} />
+                  </div>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: '#10b981', letterSpacing: '-0.03em' }}>{stats.revenue}</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', display: 'flex', justifyItems: 'center', gap: '4px' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>{stats.paidShops}</span> active premium shops
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div style={{...styles.statBox, ...styles.glassCard, borderTop: '4px solid #6366f1'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Shopkeepers</span>
+                  <div style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Store size={16} />
+                  </div>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em' }}>{stats.totalShops}</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>
+                  <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{stats.totalShops - stats.paidShops}</span> on trial terms
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div style={{...styles.statBox, ...styles.glassCard, borderTop: '4px solid #f59e0b'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Customer Count</span>
+                  <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Users size={16} />
+                  </div>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em' }}>{stats.totalUsers}</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>
+                  <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{stats.totalOrders}</span> transaction logs
+                </div>
+              </div>
+
+              {/* Card 4 */}
+              <div style={{...styles.statBox, ...styles.glassCard, borderTop: '4px solid #ef4444'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Pending Verifications</span>
+                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Activity size={16} />
+                  </div>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: pendingUsers.length > 0 ? '#ef4444' : '#fff', letterSpacing: '-0.03em' }}>{pendingUsers.length}</div>
+                <div style={{ fontSize: '11px', color: pendingUsers.length > 0 ? '#ef4444' : '#94a3b8', marginTop: '6px', fontWeight: pendingUsers.length > 0 ? 'bold' : 'normal' }}>
+                  {pendingUsers.length > 0 ? '⚠️ Immediate Action Required' : '✓ All audits complete'}
+                </div>
+              </div>
+
+            </div>
+
+            {/* SECONDARY SUMMARY ROW */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
+              <div style={{...styles.glassCard, display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px' }}>
+                <div style={{ background: 'rgba(167, 139, 250, 0.1)', color: '#c084fc', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <PlusCircle size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '20px', fontWeight: 900 }}>{stats.totalDistributors}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Partner Distributors</div>
+                </div>
+              </div>
+              <div style={{...styles.glassCard, display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px' }}>
+                <div style={{ background: 'rgba(251, 146, 60, 0.1)', color: '#fb923c', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '20px', fontWeight: 900 }}>{stats.totalOrders}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total System Orders</div>
+                </div>
+              </div>
+              <div style={{...styles.glassCard, display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px' }}>
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ArrowUpRight size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '20px', fontWeight: 900, color: '#f87171' }}>₹{stats.activeCredit}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Outstanding Credit Ledger</div>
+                </div>
+              </div>
+            </div>
+
+            {/* PENDING APPROVALS LIST */}
+            {pendingUsers.length > 0 && (
+              <div style={{...styles.glassCard, border: '1px solid rgba(239, 68, 68, 0.25)', marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '16px', color: '#ef4444', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                  <Sparkles size={18} /> ACTION NEEDED: Organization Approvals ({pendingUsers.length})
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {pendingUsers.map(u => (
+                    <div key={u.id} style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', padding: '16px', borderRadius: '14px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>🏢 {u.name}</h4>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#cbd5e1' }}>
+                          📞 {u.phone} • Role: <span style={{...styles.badge, background: 'rgba(99,102,241,0.2)', color: '#818cf8', display: 'inline-block'}}>{u.role}</span>
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => handleApprove(u.id)} style={{...styles.actionBtn, background: '#10b981', color: '#fff', padding: '8px 16px' }}>
+                          <CheckCircle size={14} /> Approve & Grant Access
+                        </button>
+                        <button onClick={() => handleReject(u.id)} style={{...styles.actionBtn, background: 'transparent', border: '1px solid #ef4444', color: '#f87171', padding: '8px 16px' }}>
+                          <XCircle size={14} /> Deny Entry
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* DYNAMIC METRICS OVERVIEW */}
+            <div style={styles.glassCard}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>🏪 Active Onboarded Stores</h3>
+                <span style={{ fontSize: '12px', color: '#cbd5e1', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setActiveTab('shops')}>View Directory →</span>
+              </div>
+              
+              {shops.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
+                  <Store size={40} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                  <p style={{ margin: 0 }}>No partner shops are currently configured in the database.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {shops.slice(0, 4).map(shop => (
+                    <div key={shop.id} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '14px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>🛒 {shop.name}</h4>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                          <span style={{ fontSize: '11px', color: '#94a3b8' }}>📞 {shop.phone}</span>
+                          <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
+                          <span style={{ fontSize: '11px', color: '#94a3b8' }}>Status: {shop.status}</span>
+                        </div>
+                      </div>
+                      <div>
+                        {shop.subscription === 'active' 
+                          ? <span style={{...styles.badge, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981'}}>✓ Enterprise PRO</span>
+                          : <span style={{...styles.badge, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24'}}>Free Trial</span>
+                        }
+                      </div>
+                    </div>
+                  ))}
+                  {shops.length > 4 && (
+                    <button onClick={() => setActiveTab('shops')} style={{ width: '100%', background: 'rgba(255,255,255,0.03)', color: '#fff', border: '1px solid rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                      Show All {shops.length} Partner Organizations
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ===== SHOPS TAB CONTENT ===== */}
+        {activeTab === 'shops' && (
+          <div style={styles.glassCard}>
+            
+            {/* Header + Search bar */}
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>Shopkeepers Registry ({filteredShops.length})</h3>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Total SaaS nodes on network</span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '10px', alignSelf: 'stretch', flexWrap: 'wrap' }}>
+                <button onClick={() => downloadCSV(shops, 'shops_directory')} style={{...styles.actionBtn, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8' }}>
+                  <Download size={14} /> Export Spreadsheet
+                </button>
+              </div>
+            </div>
+
+            {/* Filter controls */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search by store name or phone..." 
+                  value={searchTerm} 
+                  onChange={e => setSearchTerm(e.target.value)} 
+                  style={{...styles.input, paddingLeft: '40px'}} 
+                />
+                <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              </div>
+              <div style={{ display: 'flex', background: 'rgba(10, 13, 26, 0.5)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'pro', label: 'Enterprise PRO' },
+                  { id: 'trial', label: 'Free Trial' }
+                ].map(filterItem => (
+                  <button 
+                    key={filterItem.id}
+                    onClick={() => setShopFilter(filterItem.id)}
+                    style={{ background: shopFilter === filterItem.id ? '#6366f1' : 'transparent', border: 'none', color: '#fff', fontSize: '12px', fontWeight: 'bold', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+                  >
+                    {filterItem.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* List */}
+            {filteredShops.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
+                <Store size={40} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                <p style={{ margin: 0 }}>No partner shops found matching current criteria.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredShops.map(shop => (
+                  <div key={shop.id} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', transition: 'border-color 0.2s' }}>
                     <div>
-                      <h4 style={{ margin: 0, fontSize: '15px' }}>{u.name}</h4>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>📞 {u.phone} • 🏷️ {u.role.toUpperCase()}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>🛒 {shop.name}</h4>
+                        {shop.subscription === 'active' 
+                          ? <span style={{...styles.badge, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981'}}>✓ Enterprise PRO</span>
+                          : <span style={{...styles.badge, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24'}}>Free Trial</span>
+                        }
+                      </div>
+                      <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span>📞 {shop.phone}</span>
+                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
+                        <span>Node Status: <b style={{ color: shop.status === 'active' ? '#10b981' : '#f59e0b' }}>{shop.status.toUpperCase()}</b></span>
+                      </p>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => setResetModal({ show: true, userId: shop.id, userName: shop.name, newPass: '' })} style={{...styles.actionBtn, background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                        <Key size={13} /> Reset Password
+                      </button>
+                      <button onClick={() => handleDelete(shop.id)} style={{...styles.actionBtn, background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                        <Trash2 size={13} /> Delete Account
+                      </button>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => handleApprove(u.id)} style={{ flex: 1, background: '#16a34a', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
-                      ✅ Approve
-                    </button>
-                    <button onClick={() => handleReject(u.id)} style={{ flex: 1, background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
-                      ❌ Reject
-                    </button>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* ===== USER DIRECTORY TAB CONTENT ===== */}
+        {activeTab === 'customers' && (
+          <div style={styles.glassCard}>
+            
+            {/* Header + Actions */}
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>Customer & Distributors Registry ({filteredUsers.length})</h3>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Platform global client accounts</span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => downloadCSV(filteredUsers, 'users_directory')} style={{...styles.actionBtn, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', width: isMobile ? '100%' : 'auto' }}>
+                  <Download size={14} /> Export Spreadsheet
+                </button>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search by client name or phone..." 
+                  value={searchTerm} 
+                  onChange={e => setSearchTerm(e.target.value)} 
+                  style={{...styles.input, paddingLeft: '40px'}} 
+                />
+                <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              </div>
+              <div style={{ display: 'flex', background: 'rgba(10, 13, 26, 0.5)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                {[
+                  { id: 'all', label: 'All Platform Clients' },
+                  { id: 'customer', label: 'Customers only' },
+                  { id: 'distributor', label: 'Distributors only' }
+                ].map(filterItem => (
+                  <button 
+                    key={filterItem.id}
+                    onClick={() => setUserFilter(filterItem.id)}
+                    style={{ background: userFilter === filterItem.id ? '#6366f1' : 'transparent', border: 'none', color: '#fff', fontSize: '12px', fontWeight: 'bold', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+                  >
+                    {filterItem.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* List */}
+            {filteredUsers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
+                <Users size={40} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                <p style={{ margin: 0 }}>No client accounts found matching current query parameters.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredUsers.map(u => (
+                  <div key={u.id} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px 20px', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>👤 {u.name}</h4>
+                        <span style={{
+                          ...styles.badge, 
+                          background: u.role === 'distributor' ? 'rgba(167, 139, 250, 0.15)' : 'rgba(99, 102, 241, 0.15)', 
+                          color: u.role === 'distributor' ? '#c084fc' : '#818cf8'
+                        }}>
+                          {u.role}
+                        </span>
+                      </div>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#94a3b8' }}>📞 Phone: {u.phone} • Status: {u.status}</p>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => setResetModal({ show: true, userId: u.id, userName: u.name, newPass: '' })} style={{...styles.actionBtn, background: 'transparent', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#fbbf24', padding: '6px 12px', borderRadius: '8px' }}>
+                        🔑 Access Key
+                      </button>
+                      <button onClick={() => handleDelete(u.id)} style={{...styles.actionBtn, background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', padding: '6px 12px', borderRadius: '8px' }}>
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* ===== REVENUE ANALYTICS TAB CONTENT ===== */}
+        {activeTab === 'payments' && (
+          <div style={styles.glassCard}>
+            
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: 900 }}>SaaS Revenue Analytics</h3>
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#94a3b8' }}>Real-time subscription billing logs and outstanding balances</p>
+
+            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', padding: '24px', borderRadius: '20px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '24px', justifyItems: 'center', marginBottom: '32px' }}>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold' }}>ARR (Annual Recurring Revenue)</span>
+                <div style={{ fontSize: '48px', fontWeight: 950, color: '#10b981', letterSpacing: '-0.04em', margin: '4px 0' }}>{stats.revenue}</div>
+                <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1' }}>Based on ₹999 premium SaaS pricing for onboarded shops.</p>
+              </div>
+              
+              <div style={{ flex: 1, borderLeft: isMobile ? 'none' : '1px solid rgba(255,255,255,0.08)', borderTop: isMobile ? '1px solid rgba(255,255,255,0.08)' : 'none', paddingLeft: isMobile ? '0' : '24px', paddingTop: isMobile ? '24px' : '0' }}>
+                <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>PRO Conversions Performance</span>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>
+                  {stats.paidShops} / {stats.totalShops} Shops Converted ({stats.totalShops > 0 ? Math.round((stats.paidShops / stats.totalShops) * 100) : 0}%)
+                </div>
+                
+                {/* Visual Progress Bar */}
+                <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${stats.totalShops > 0 ? (stats.paidShops / stats.totalShops) * 100 : 0}%`, background: 'linear-gradient(to right, #10b981, #3b82f6)', borderRadius: '10px' }}></div>
+                </div>
+              </div>
+            </div>
+
+            {/* List */}
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>Premium Subscription Ledger</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {shops.map(shop => (
+                <div key={shop.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', padding: '16px 20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>🛒 {shop.name}</h4>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#cbd5e1' }}>📞 {shop.phone}</p>
+                  </div>
+                  <div>
+                    {shop.subscription === 'active' ? (
+                      <span style={{...styles.badge, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981'}}>✓ Paid ₹999/mo</span>
+                    ) : (
+                      <span style={{...styles.badge, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24'}}>Free Trial Node</span>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-          )}
 
-          {/* Recent Shops */}
-          <div style={{ padding: '4px 16px 0' }}>
-            <h2 style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24', margin: '0 0 12px 0'}}>🏪 Registered Shops</h2>
           </div>
-          {shops.length === 0 ? (
-             <p style={{textAlign: 'center', color: '#94a3b8', fontSize: '14px'}}>No shops registered yet.</p>
-          ) : (
-            shops.map(shop => (
-              <div key={shop.id} style={styles.shopCard}>
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                  <h3 style={{fontSize: '16px', fontWeight: 700, margin: 0}}>🛒 {shop.name}</h3>
-                  {shop.subscription === 'active' 
-                    ? <span style={{background: 'rgba(34,197,94,0.2)', color: '#22c55e', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700}}>✅ PRO</span>
-                    : <span style={{background: 'rgba(245,158,11,0.2)', color: '#f59e0b', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700}}>⚠️ Free Trial</span>
-                  }
-                </div>
-                <p style={{margin: '0 0 8px 0', fontSize: '12px', color: '#94a3b8'}}>📞 {shop.phone} • Status: {shop.status}</p>
-                <button onClick={() => handleDelete(shop.id)} style={{padding: '8px 16px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 700, background: 'rgba(220,38,38,0.2)', color: '#f87171', cursor: 'pointer'}}>🗑️ Delete Shop</button>
-              </div>
-            ))
-          )}
-        </>
-      )}
+        )}
 
-      {/* ===== SHOPS TAB ===== */}
-      {activeTab === 'shops' && (
-        <div style={{padding: 16}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
-            <h2 style={{margin: 0, fontSize: '18px'}}>All Registered Shops ({shops.length})</h2>
-            <button onClick={() => downloadCSV(shops, 'shops_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
-          </div>
-          {shops.length === 0 && <p style={{color: '#94a3b8'}}>No shops found.</p>}
-          {shops.map(shop => (
-            <div key={shop.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <div>
-                <h4 style={{margin: 0, fontSize: '16px'}}>{shop.name}</h4>
-                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {shop.phone}</p>
-                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Status: <span style={{color: shop.status === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.status}</span> | Plan: <span style={{color: shop.subscription === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.subscription === 'active' ? 'PRO ₹999' : 'Free Trial'}</span></p>
-              </div>
-              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => setResetModal({ show: true, userId: shop.id, userName: shop.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🔑 Reset</button>
-                <button onClick={() => handleDelete(shop.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🗑️</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ===== CUSTOMERS TAB ===== */}
-      {activeTab === 'customers' && (
-        <div style={{padding: 16}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
-            <h2 style={{margin: 0, fontSize: '18px'}}>All Customers ({customers.length})</h2>
-            <button onClick={() => downloadCSV(customers, 'customers_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
-          </div>
-          {customers.length === 0 && <p style={{color: '#94a3b8'}}>No customers found.</p>}
-          {customers.map(cust => (
-            <div key={cust.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <div>
-                <h4 style={{margin: 0, fontSize: '16px'}}>{cust.name}</h4>
-                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {cust.phone}</p>
-              </div>
-              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => setResetModal({ show: true, userId: cust.id, userName: cust.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
-                <button onClick={() => handleDelete(cust.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
-              </div>
-            </div>
-          ))}
-
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '24px 0 16px 0'}}>
-            <h2 style={{margin: 0, fontSize: '18px'}}>All Distributors ({distributors.length})</h2>
-            <button onClick={() => downloadCSV(distributors, 'distributors_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
-          </div>
-          {distributors.length === 0 && <p style={{color: '#94a3b8'}}>No distributors found.</p>}
-          {distributors.map(dist => (
-            <div key={dist.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <div>
-                <h4 style={{margin: 0, fontSize: '16px'}}>{dist.name}</h4>
-                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {dist.phone} • Status: {dist.status}</p>
-              </div>
-              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => setResetModal({ show: true, userId: dist.id, userName: dist.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
-                <button onClick={() => handleDelete(dist.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ===== PAYMENTS TAB ===== */}
-      {activeTab === 'payments' && (
-        <div style={{padding: 16}}>
-          <h2 style={{margin: '0 0 8px 0', fontSize: '18px'}}>Subscription Revenue</h2>
-          <div style={{...styles.superBox, borderTop: '3px solid #16a34a', marginBottom: '16px', padding: '20px'}}>
-            <div style={{fontSize: '36px', fontWeight: 900, color: '#16a34a'}}>{stats.revenue}</div>
-            <div style={{fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px'}}>{stats.paidShops} of {stats.totalShops} shops have paid</div>
-          </div>
-          <h3 style={{fontSize: '14px', color: '#94a3b8', marginBottom: '12px'}}>Shop-by-Shop Breakdown</h3>
-          {shops.map(shop => (
-            <div key={shop.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <div>
-                <h4 style={{margin: 0, fontSize: '16px'}}>{shop.name}</h4>
-                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {shop.phone}</p>
-              </div>
-              <div>
-                {shop.subscription === 'active' ? (
-                  <span style={{background: 'rgba(34,197,94,0.2)', color: '#22c55e', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700}}>Paid ₹999</span>
-                ) : (
-                  <span style={{background: 'rgba(245,158,11,0.2)', color: '#f59e0b', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700}}>Free Trial</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      
-      {/* ===== SETTINGS TAB ===== */}
-      {activeTab === 'settings' && (
-        <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
-            <h2 style={{margin:0, fontSize: 18}}>System Settings</h2>
-            <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Manage API Keys and Platform Configuration</p>
-          </div>
-          <div style={{ padding: '16px' }}>
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🔑 Razorpay API Configuration</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                Enter your live Razorpay Key ID here. This key will be dynamically injected into the Shopkeeper dashboards so they can pay their ₹999 PRO subscription directly to your account.
+        {/* ===== SYSTEM SETTINGS TAB CONTENT ===== */}
+        {activeTab === 'settings' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* API Settings */}
+            <div style={styles.glassCard}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#fff', fontWeight: 800 }}>🔑 Payment Gateway Configuration</h3>
+              <p style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '20px', lineHeight: '1.5' }}>
+                Enter your merchant **Razorpay Key ID** here. This key will be dynamically injected into the Shopkeeper dashboards so they can securely checkout their ₹999 PRO subscription directly to your official account.
               </p>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 'bold' }}>Razorpay Key ID</label>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '8px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Razorpay Key ID (Live / Sandbox)</label>
                 <input 
                   type="text" value={razorpayKey} onChange={e => setRazorpayKey(e.target.value)} 
                   placeholder="e.g. rzp_live_xxxxxxxxxxx" 
-                  style={{ width: '100%', padding: '14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} 
+                  style={styles.input} 
                 />
               </div>
-              <button onClick={handleSaveSettings} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
-                💾 Save Keys to System
+              
+              <button onClick={handleSaveSettings} style={{...styles.actionBtn, background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', padding: '14px', width: '100%', justifyContent: 'center', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.25)' }}>
+                💾 Commit API Configuration
               </button>
             </div>
 
-            {/* Platform Summary */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>📊 Platform Summary</h3>
-              <div style={{ fontSize: '13px', color: '#94a3b8', lineHeight: '2' }}>
-                <div>Total Users in System: <b style={{color: '#fff'}}>{allUsers.length}</b></div>
-                <div>Shops: <b style={{color: '#3b82f6'}}>{stats.totalShops}</b> | Customers: <b style={{color: '#fbbf24'}}>{stats.totalUsers}</b> | Distributors: <b style={{color: '#a78bfa'}}>{stats.totalDistributors}</b></div>
-                <div>Pending Approvals: <b style={{color: pendingUsers.length > 0 ? '#ef4444' : '#22c55e'}}>{pendingUsers.length}</b></div>
-                <div>Active Credit Outstanding: <b style={{color: '#ef4444'}}>₹{stats.activeCredit}</b></div>
+            {/* Platform Integrity Summary */}
+            <div style={styles.glassCard}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#fff', fontWeight: 800 }}>📊 Platform Diagnostics</h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', color: '#cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '10px' }}>
+                  <span>Database Nodes Registered:</span>
+                  <b style={{ color: '#fff' }}>{allUsers.length} total users</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '10px' }}>
+                  <span>Tenant Segment Audit:</span>
+                  <span>
+                    <b style={{color: '#818cf8'}}>{stats.totalShops} shops</b> • 
+                    <b style={{color: '#fbbf24', marginLeft: '6px'}}>{stats.totalUsers} customers</b> • 
+                    <b style={{color: '#c084fc', marginLeft: '6px'}}>{stats.totalDistributors} distributors</b>
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '10px' }}>
+                  <span>Gatekeeper Verification Status:</span>
+                  <b style={{color: pendingUsers.length > 0 ? '#ef4444' : '#10b981'}}>{pendingUsers.length > 0 ? '⚠️ Pending Approvals' : '✓ Standard Secure'}</b>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px' }}>
+                  <span>Active Credit Outstanding:</span>
+                  <b style={{color: '#ef4444'}}>₹{stats.activeCredit}</b>
+                </div>
               </div>
             </div>
+
           </div>
+        )}
+
+        {/* ===== CMS TAB CONTENT ===== */}
+        {activeTab === 'cms' && (
+          <div style={styles.glassCard}>
+            <AdminCMS />
+          </div>
+        )}
+
+      </div>
+
+      {/* ===== MOBILE FLOATING NAV DOCK ===== */}
+      {isMobile && (
+        <div style={styles.mobileNav}>
+          {[
+            { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Stats' },
+            { id: 'shops', icon: <Store size={20} />, label: 'Shops' },
+            { id: 'customers', icon: <Users size={20} />, label: 'Users' },
+            { id: 'cms', icon: <Globe size={20} />, label: 'CMS' },
+            { id: 'settings', icon: <Settings size={20} />, label: 'System' }
+          ].map(tab => (
+            <div 
+              key={tab.id} 
+              onClick={() => { setActiveTab(tab.id); setSearchTerm(''); }} 
+              style={{ textAlign: 'center', color: activeTab === tab.id ? '#818cf8' : 'rgba(255,255,255,0.45)', cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyItems: 'center' }}
+            >
+              <div style={{ marginBottom: '2px' }}>{tab.icon}</div>
+              <span style={{ fontSize: '10px', fontWeight: 700 }}>{tab.label}</span>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ===== CMS TAB ===== */}
-      {activeTab === 'cms' && (
-        <AdminCMS />
-      )}
-
-      <div style={styles.bottomNav}>
-        {[
-          { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-          { id: 'shops', icon: '🏪', label: 'Shops' },
-          { id: 'customers', icon: '👥', label: 'Users' },
-          { id: 'cms', icon: '✏️', label: 'Website' },
-          { id: 'payments', icon: '💰', label: 'Revenue' },
-          { id: 'settings', icon: '⚙️', label: 'Settings' }
-        ].map(tab => (
-          <div key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ textAlign: 'center', color: activeTab === tab.id ? '#fbbf24' : 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
-            <span style={{ fontSize: '20px', display: 'block', marginBottom: '2px' }}>{tab.icon}</span>
-            <span style={{ fontSize: '9px', fontWeight: 600 }}>{tab.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* RESET PASSWORD MODAL */}
+      {/* ===== REUSABLE ENTERPRISE GLASS MODAL (RESET ACCESS KEY) ===== */}
       {resetModal.show && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#1e293b', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '400px', border: '1px solid #334155' }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#fff' }}>Reset Password</h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#94a3b8' }}>Set a new password for <b>{resetModal.userName}</b>.</p>
-            <input 
-              type="text" 
-              placeholder="Enter new password (min 4 chars)" 
-              value={resetModal.newPass} 
-              onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })} 
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', background: '#0f172a', color: 'white', marginBottom: '16px' }} 
-            />
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setResetModal({ show: false, userId: null, userName: '', newPass: '' })} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#fff', border: '1px solid #334155', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={handleResetPasswordSubmit} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#f59e0b', color: '#000', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Save Password</button>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(3, 4, 8, 0.85)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(16px)' }}>
+          <div style={{...styles.glassCard, width: '100%', maxWidth: '420px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'linear-gradient(135deg, #0e1224 0%, #05060b 100%)' }}>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Key size={18} />
+              </div>
+              <h3 style={{ margin: 0, fontSize: '18px', color: '#fff', fontWeight: 800 }}>Provision New Access Key</h3>
             </div>
+
+            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.5' }}>
+              You are updating the access credential password for tenant <b>{resetModal.userName}</b>. This will instantly invalidate their previous password.
+            </p>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '8px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>New Access Password</label>
+              <input 
+                type="text" 
+                placeholder="Minimum 4 alpha-numeric keys..." 
+                value={resetModal.newPass} 
+                onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })} 
+                style={styles.input} 
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => setResetModal({ show: false, userId: null, userName: '', newPass: '' })} style={{...styles.actionBtn, flex: 1, background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', justifyContent: 'center' }}>
+                Abort
+              </button>
+              <button onClick={handleResetPasswordSubmit} style={{...styles.actionBtn, flex: 1, background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#000', justifyContent: 'center', boxShadow: '0 8px 16px rgba(245, 158, 11, 0.2)' }}>
+                Commit Credentials
+              </button>
+            </div>
+
           </div>
         </div>
       )}
