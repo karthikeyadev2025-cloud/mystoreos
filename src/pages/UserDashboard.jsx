@@ -76,8 +76,10 @@ const UserDashboard = () => {
   // Device detection for safe UPI deep-linking workflows
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // Normalize IDs so u_1, u1, and 1 all work
-  const ACTIVE_SHOP_ID = shopId ? (shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId)) : null;
+  // Normalize IDs: pass UUIDs as-is, only prefix u_ for legacy numeric mock IDs
+  const ACTIVE_SHOP_ID = shopId
+    ? (shopId.includes('-') || shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId))
+    : null;
 
   // ===== STABLE CALLBACKS FOR LOADERS =====
   const grabLiveLocation = useCallback((silent = false) => {

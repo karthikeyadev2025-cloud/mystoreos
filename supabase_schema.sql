@@ -1,7 +1,10 @@
--- MyStore OS — Complete Supabase Schema (v2)
+-- MyStore OS — Complete Supabase Schema (v3)
 -- Run this ONCE in Supabase SQL Editor
 
 -- Drop existing tables if re-running
+DROP TABLE IF EXISTS public.announcements CASCADE;
+DROP TABLE IF EXISTS public.stock_orders CASCADE;
+DROP TABLE IF EXISTS public.distributor_products CASCADE;
 DROP TABLE IF EXISTS public.credits CASCADE;
 DROP TABLE IF EXISTS public.orders CASCADE;
 DROP TABLE IF EXISTS public.products CASCADE;
@@ -23,6 +26,8 @@ CREATE TABLE public.users (
     payment_qr TEXT,
     shop_photos JSONB DEFAULT '[]'::jsonb,
     staff_of UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    latitude DECIMAL,
+    longitude DECIMAL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -59,6 +64,37 @@ CREATE TABLE public.credits (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Distributor Products table (NEW in v3)
+CREATE TABLE public.distributor_products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    distributor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INT DEFAULT 0,
+    category TEXT DEFAULT 'general',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Stock Orders table (NEW in v3)
+CREATE TABLE public.stock_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    shop_name TEXT NOT NULL,
+    items JSONB NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'completed', 'rejected')),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Announcements table (NEW in v3)
+CREATE TABLE public.announcements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    text TEXT NOT NULL,
+    type TEXT DEFAULT 'info' CHECK (type IN ('info', 'warning', 'success', 'error')),
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- System Settings
 CREATE TABLE public.settings (
     id INT PRIMARY KEY DEFAULT 1,
@@ -77,10 +113,6 @@ CREATE TABLE public.site_config (
 INSERT INTO public.users (phone, pass, role, name, status)
 VALUES ('8885490495', 'Mystore@karthi@2025', 'admin', 'Super Admin', 'active');
 
--- Insert Demo Shopkeeper
-INSERT INTO public.users (phone, pass, role, name, status, subscription, upi_id)
-VALUES ('9876543210', '1234', 'shop', 'Sai Supermarket', 'active', 'trial', '9876543210@ybl');
-
 -- Enable Row Level Security
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
@@ -88,6 +120,9 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.credits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.distributor_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.stock_orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
 -- Allow public access (tighten for production later)
 CREATE POLICY "Allow all" ON public.users FOR ALL USING (true) WITH CHECK (true);
@@ -96,3 +131,11 @@ CREATE POLICY "Allow all" ON public.orders FOR ALL USING (true) WITH CHECK (true
 CREATE POLICY "Allow all" ON public.credits FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all" ON public.settings FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all" ON public.site_config FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.distributor_products FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.stock_orders FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.announcements FOR ALL USING (true) WITH CHECK (true);
+
+-- Migration helper: If upgrading from v2, run these ALTER commands instead of full re-create:
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS latitude DECIMAL;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS longitude DECIMAL;
+-- Then create the 3 new tables above (distributor_products, stock_orders, announcements)

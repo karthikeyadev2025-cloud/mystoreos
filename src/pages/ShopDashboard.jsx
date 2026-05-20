@@ -423,7 +423,7 @@ const ShopDashboard = () => {
 
   const getShopUrl = () => {
     const base = window.location.origin;
-    return `${base}/s/${targetShopId.split('_')[1]}`;
+    return `${base}/s/${targetShopId}`;
   };
 
   const handleShareShop = () => {

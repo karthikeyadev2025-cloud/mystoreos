@@ -415,11 +415,18 @@ export const api = {
   // ---- SHOPS ----
   async getShopById(shopId) {
     if (isSupabaseConfigured) {
+      // Try exact match first (UUID)
       const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').single();
-      return toUser(data);
+      if (data) return toUser(data);
+      // Fallback: try matching by phone or name substring
+      return null;
     }
     const db = getDB();
-    // Normalize IDs so u_1, u1, and 1 all work
+    // Normalize IDs so u_1, u1, and 1 all work for localStorage mock
+    const isUUID = shopId.includes('-');
+    if (isUUID) {
+      return db.users.find(u => u.id === shopId && u.role === 'shop');
+    }
     const cleanId = shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId);
     return db.users.find(u => (u.id === shopId || u.id === cleanId) && u.role === 'shop');
   },
@@ -525,13 +532,33 @@ export const api = {
   },
 
   // ---- DISTRIBUTOR WHOLESALE CATALOG & ORDERS ----
-  async getDistributorProducts() {
+  async getDistributorProducts(distributorId) {
+    if (isSupabaseConfigured) {
+      let query = supabase.from('distributor_products').select('*');
+      if (distributorId) query = query.eq('distributor_id', distributorId);
+      const { data } = await query;
+      return (data || []).map(row => ({
+        id: row.id, distributorId: row.distributor_id, name: row.name,
+        price: row.price, stock: row.stock, category: row.category
+      }));
+    }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
     return db.distributorProducts;
   },
 
   async addDistributorProduct(productData) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('distributor_products').insert({
+        distributor_id: productData.distributorId,
+        name: productData.name,
+        price: parseFloat(productData.price) || 0,
+        stock: parseInt(productData.stock) || 0,
+        category: productData.category || 'general'
+      }).select().single();
+      if (error) throw new Error(error.message);
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category };
+    }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
     const newProd = {
@@ -548,15 +575,19 @@ export const api = {
   },
 
   async placeStockOrder(shopId, shopName, items, total) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('stock_orders').insert({
+        shop_id: shopId, shop_name: shopName, items, total, status: 'pending'
+      }).select().single();
+      if (error) throw new Error(error.message);
+      return { id: data.id, shopId: data.shop_id, shopName: data.shop_name, items: data.items, total: data.total, status: data.status, date: data.created_at };
+    }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
     const newOrder = {
       id: 'so_' + generateId(),
-      shopId,
-      shopName,
-      items,
-      total,
-      status: 'pending', // pending, accepted, completed, rejected
+      shopId, shopName, items, total,
+      status: 'pending',
       date: new Date().toISOString()
     };
     db.stockOrders.push(newOrder);
@@ -565,24 +596,53 @@ export const api = {
   },
 
   async getDistributorOrders() {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('stock_orders').select('*').order('created_at', { ascending: false });
+      return (data || []).map(row => ({
+        id: row.id, shopId: row.shop_id, shopName: row.shop_name,
+        items: row.items, total: row.total, status: row.status, date: row.created_at
+      }));
+    }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
     return db.stockOrders;
   },
 
   async getShopStockOrders(shopId) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('stock_orders').select('*').eq('shop_id', shopId).order('created_at', { ascending: false });
+      return (data || []).map(row => ({
+        id: row.id, shopId: row.shop_id, shopName: row.shop_name,
+        items: row.items, total: row.total, status: row.status, date: row.created_at
+      }));
+    }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
     return db.stockOrders.filter(o => o.shopId === shopId);
   },
 
   async updateStockOrderStatus(orderId, status) {
+    if (isSupabaseConfigured) {
+      await supabase.from('stock_orders').update({ status }).eq('id', orderId);
+      // If accepted, also create a credit entry
+      if (status === 'accepted') {
+        const { data: order } = await supabase.from('stock_orders').select('*').eq('id', orderId).single();
+        if (order) {
+          await supabase.from('credits').insert({
+            from_id: order.shop_id, // The distributor creating credit is implicit
+            to_shop_id: order.shop_id,
+            description: `Inventory: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}`,
+            amount: parseFloat(order.total)
+          });
+        }
+      }
+      return { id: orderId, status };
+    }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
     const order = db.stockOrders.find(o => o.id === orderId);
     if (order) {
       order.status = status;
-      // If accepted, automatically log as a distributor credit entry to create a logical closed loop!
       if (status === 'accepted') {
         if (!db.credits) db.credits = [];
         db.credits.push({
@@ -603,20 +663,36 @@ export const api = {
 
   // ---- LIVE PLATFORM BROADCASTS ANNOUNCEMENTS ----
   async getAnnouncements() {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('announcements').select('*').eq('active', true);
+      return (data || []).map(row => ({
+        id: row.id, text: row.text, type: row.type, active: row.active, date: row.created_at
+      }));
+    }
     const db = getDB();
     if (!db.announcements) db.announcements = [];
     return db.announcements.filter(a => a.active);
   },
 
   async saveAnnouncement(announcementData) {
+    if (isSupabaseConfigured) {
+      // Deactivate all previous
+      await supabase.from('announcements').update({ active: false }).eq('active', true);
+      const { data, error } = await supabase.from('announcements').insert({
+        text: announcementData.text,
+        type: announcementData.type || 'info',
+        active: true
+      }).select().single();
+      if (error) throw new Error(error.message);
+      return { id: data.id, text: data.text, type: data.type, active: data.active, date: data.created_at };
+    }
     const db = getDB();
     if (!db.announcements) db.announcements = [];
-    // deactivate previous announcements
     db.announcements.forEach(a => { a.active = false; });
     const newAnn = {
       id: 'ann_' + generateId(),
       text: announcementData.text,
-      type: announcementData.type || 'info', // info, warning, danger
+      type: announcementData.type || 'info',
       active: true,
       date: new Date().toISOString()
     };
@@ -626,6 +702,10 @@ export const api = {
   },
 
   async clearAnnouncements() {
+    if (isSupabaseConfigured) {
+      await supabase.from('announcements').update({ active: false }).eq('active', true);
+      return;
+    }
     const db = getDB();
     db.announcements = [];
     saveDB(db);
