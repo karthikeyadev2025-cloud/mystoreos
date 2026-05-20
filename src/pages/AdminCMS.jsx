@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { 
   Save, LayoutTemplate, CreditCard, Megaphone, AlertCircle, 
-  Sparkles, Layers, Eye, Quote, Sliders, Heading, FileText, HelpCircle
+  Sparkles, Layers, Eye, Quote, Sliders, Heading
 } from 'lucide-react';
 
 const DEFAULT_HERO_CONFIG = {

@@ -26,6 +26,51 @@ const DistributorDashboard = () => {
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const getNotifications = () => {
+    const list = [];
+    
+    // 1. New Wholesale Orders from Shopkeepers
+    (stockOrders || []).forEach(so => {
+      if (so.status === 'pending') {
+        list.push({
+          id: `wholesale_ord_${so.id}`,
+          title: "New Wholesale Order",
+          text: `Shop "${so.shopName}" requested restock supplies of ₹${so.total}`,
+          type: 'wholesale',
+          date: so.date,
+          emoji: '⚡'
+        });
+      }
+    });
+    
+    // 2. Credits Settled by Shopkeepers
+    (credits || []).forEach(c => {
+      if (c.paid) {
+        list.push({
+          id: `credit_clear_${c.id}`,
+          title: "Credit Payment Cleared",
+          text: `Shop "${c.shopName || 'Retailer'}" paid/settled ₹${c.amount} of credit balance!`,
+          type: 'credit',
+          date: c.date,
+          emoji: '🤝'
+        });
+      } else {
+        list.push({
+          id: `credit_issued_${c.id}`,
+          title: "Credit Outstanding",
+          text: `Issued ₹${c.amount} credit ledger to "${c.shopName || 'Retailer'}"`,
+          type: 'credit',
+          date: c.date,
+          emoji: '💸'
+        });
+      }
+    });
+    
+    // Sort by date descending
+    return list.sort((a, b) => new Date(b.date) - new Date(a.date));
+  };
 
   const loadData = useCallback(async () => {
     setCredits(await api.getDistCredits(user.id));
@@ -100,8 +145,71 @@ const DistributorDashboard = () => {
           <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff' }}>📦 FMCG Distributor</h1>
           <div style={{ fontSize: '12px', color: '#93c5fd' }}>{user.name} • Offline Sync Ready</div>
         </div>
-        <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold' }}>Logout</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)} 
+            style={{ 
+              background: 'rgba(255,255,255,0.1)', 
+              border: '1px solid rgba(255,255,255,0.2)', 
+              color: 'white', 
+              padding: '8px 12px', 
+              borderRadius: '8px', 
+              fontSize: '14px', 
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              position: 'relative'
+            }}
+          >
+            🔔
+            {getNotifications().length > 0 && (
+              <span style={{ 
+                position: 'absolute', 
+                top: '-6px', 
+                right: '-6px', 
+                background: '#ef4444', 
+                color: '#fff', 
+                borderRadius: '50%', 
+                padding: '2px 6px', 
+                fontSize: '10px', 
+                fontWeight: 'bold' 
+              }}>
+                {getNotifications().length}
+              </span>
+            )}
+          </button>
+          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Logout</button>
+        </div>
       </div>
+
+      {/* Notifications Drawer Overlay */}
+      {showNotifications && (
+        <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🔔 Live Notifications</h3>
+            <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>Close</button>
+          </div>
+          {getNotifications().length === 0 ? (
+            <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No recent notifications.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {getNotifications().map(n => (
+                <div key={n.id} style={{ display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>{n.emoji}</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>{n.title}</h4>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', lineHeight: 1.3 }}>{n.text}</p>
+                    {n.date && (
+                      <span style={{ fontSize: '9px', color: '#64748b', display: 'block', marginTop: '4px' }}>
+                        {new Date(n.date).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {activeTab === 'dashboard' && (
         <>

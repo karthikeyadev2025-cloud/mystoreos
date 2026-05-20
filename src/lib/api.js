@@ -85,6 +85,7 @@ const toUser = (row) => row ? ({
   id: row.id, phone: row.phone, pass: row.pass, role: row.role, name: row.name,
   status: row.status, subscription: row.subscription, upiId: row.upi_id,
   logo: row.logo, shopPhotos: row.shop_photos || [], paymentQr: row.payment_qr,
+  avatar: row.avatar,
   staff_of: row.staff_of,
   latitude: row.latitude, longitude: row.longitude
 }) : null;
@@ -514,6 +515,39 @@ export const api = {
     return db.users.filter(u => u.role === 'shop');
   },
 
+  // ---- FILE UPLOADS TO SUPABASE STORAGE ----
+  async uploadAsset(file, userId, folder = 'logos') {
+    if (isSupabaseConfigured) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const randomString = Math.random().toString(36).substring(2, 10);
+        const fileName = `${userId}/${folder}/${randomString}.${fileExt}`;
+
+        const { error } = await supabase.storage
+          .from('mystore-assets')
+          .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+        if (error) throw error;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('mystore-assets')
+          .getPublicUrl(fileName);
+
+        return publicUrlData.publicUrl;
+      } catch (err) {
+        console.error("Supabase upload failed, falling back to Base64:", err);
+      }
+    }
+
+    // Offline / local / fail-safe fallback: Convert to Base64 string
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = (e) => reject(e);
+      reader.readAsDataURL(file);
+    });
+  },
+
   // ---- PROFILE ----
   async updateProfile(userId, data) {
     if (isSupabaseConfigured) {
@@ -526,6 +560,7 @@ export const api = {
       if (data.name !== undefined) updateObj.name = data.name;
       if (data.latitude !== undefined) updateObj.latitude = data.latitude;
       if (data.longitude !== undefined) updateObj.longitude = data.longitude;
+      if (data.avatar !== undefined) updateObj.avatar = data.avatar;
       await supabase.from('users').update(updateObj).eq('id', userId);
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).single();
       return toUser(updated);

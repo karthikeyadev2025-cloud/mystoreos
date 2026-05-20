@@ -33,13 +33,17 @@ const Register = () => {
   };
 
   if (success) {
+    const isCustomer = businessType === 'customer';
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 20 }}>
         <div style={{ background: '#1e293b', padding: '40px 30px', borderRadius: '16px', border: '1px solid #334155', textAlign: 'center', maxWidth: 400, width: '100%' }}>
-          <div style={{ fontSize: '60px', marginBottom: 20 }}>⏳</div>
-          <h2 style={{ color: '#fff', marginBottom: 10 }}>Under Review</h2>
+          <div style={{ fontSize: '60px', marginBottom: 20 }}>{isCustomer ? '🎉' : '⏳'}</div>
+          <h2 style={{ color: '#fff', marginBottom: 10 }}>{isCustomer ? 'Account Active!' : 'Under Review'}</h2>
           <p style={{ color: '#94a3b8', lineHeight: 1.5, marginBottom: 30 }}>
-            Your business account has been created. Our admin team will verify your details and approve your account shortly.
+            {isCustomer 
+              ? 'Your shopper account has been successfully created. You can log in and start shopping immediately!'
+              : 'Your business account has been created. Our admin team will verify your details and approve your account shortly.'
+            }
           </p>
           <button onClick={() => navigate('/login')} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '14px', width: '100%', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
             Go to Login
@@ -55,17 +59,21 @@ const Register = () => {
       <div style={{ background: 'rgba(30,41,59,0.8)', backdropFilter: 'blur(10px)', padding: '40px 30px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 400, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: 30 }}>
-          <h1 style={{ fontSize: '28px', color: '#fff', margin: '0 0 10px 0', fontWeight: 900 }}>Create Business</h1>
+          <h1 style={{ fontSize: '28px', color: '#fff', margin: '0 0 10px 0', fontWeight: 900 }}>
+            {businessType === 'customer' ? 'Create Shopper Account' : 'Create Business'}
+          </h1>
           <p style={{ color: '#94a3b8', margin: 0 }}>Join the paperless revolution</p>
         </div>
 
         <form onSubmit={handleRegister}>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Business Name</label>
+            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>
+              {businessType === 'customer' ? 'Your Full Name' : 'Business Name'}
+            </label>
             <input 
               type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Sai Supermarket or Ravi Tailors"
-              style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
+              placeholder={businessType === 'customer' ? 'Enter your full name' : 'e.g. Sai Supermarket or Ravi Tailors'}
+              style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
             />
           </div>
 
@@ -74,7 +82,7 @@ const Register = () => {
             <input 
               type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="10-digit mobile number"
-              style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
+              style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
             />
           </div>
 
@@ -84,7 +92,7 @@ const Register = () => {
               <input 
                 type={showPassword ? "text" : "password"} value={pass} onChange={(e) => setPass(e.target.value)}
                 placeholder="••••••••"
-                style={{ width: '100%', padding: '14px', paddingRight: '40px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
+                style={{ width: '100%', padding: '14px', paddingRight: '40px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -93,13 +101,14 @@ const Register = () => {
           </div>
 
           <div style={{ marginBottom: 30 }}>
-            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Business Type</label>
+            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Account Type</label>
             <select 
               value={businessType} onChange={(e) => setBusinessType(e.target.value)}
-              style={{ width: '100%', padding: '14px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
+              style={{ width: '100%', padding: '14px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
             >
               <option value="shop">Retail Shop / Service (Salon, Tailor)</option>
               <option value="distributor">Wholesale / Distributor</option>
+              <option value="customer">Customer / Shopper</option>
             </select>
           </div>
 
@@ -107,7 +116,7 @@ const Register = () => {
             disabled={loading}
             style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #dc2626, #f59e0b)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(220,38,38,0.3)' }}
           >
-            {loading ? 'Submitting...' : 'Apply for Account'}
+            {loading ? 'Submitting...' : (businessType === 'customer' ? 'Create Account' : 'Apply for Account')}
           </button>
         </form>
 

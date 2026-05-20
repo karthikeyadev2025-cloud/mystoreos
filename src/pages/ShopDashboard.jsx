@@ -700,6 +700,57 @@ const ShopDashboard = () => {
     }
   };
 
+  const handleOneClickRestock = async (product) => {
+    if (!wholesaleCatalog || wholesaleCatalog.length === 0) {
+      return toast.error("Wholesale distributor catalog is empty or offline. Please add distributor items first!");
+    }
+    
+    // 1. Try to find a matching wholesale product by comparing names (case-insensitive substring check)
+    const normalizedShopName = product.name.toLowerCase();
+    
+    const match = wholesaleCatalog.find(wp => 
+      wp.name.toLowerCase().includes(normalizedShopName) ||
+      normalizedShopName.includes(wp.name.toLowerCase())
+    );
+    
+    if (!match) {
+      // Find matching items by first word
+      const firstWord = normalizedShopName.split(' ')[0];
+      const partialMatch = wholesaleCatalog.find(wp => 
+        wp.name.toLowerCase().includes(firstWord)
+      );
+      
+      if (partialMatch) {
+        await submitOneClickOrder(partialMatch, product.name);
+      } else {
+        // Fallback: order the first item in the catalog
+        const fallbackMatch = wholesaleCatalog[0];
+        await submitOneClickOrder(fallbackMatch, product.name);
+      }
+    } else {
+      await submitOneClickOrder(match, product.name);
+    }
+  };
+
+  const submitOneClickOrder = async (wholesaleProd) => {
+    const qty = 1; // 1 bulk pack/carton
+    const items = [{
+      id: wholesaleProd.id,
+      name: wholesaleProd.name,
+      price: wholesaleProd.price,
+      qty: qty
+    }];
+    const total = wholesaleProd.price * qty;
+    
+    try {
+      await api.placeStockOrder(targetShopId, user.name, items, total);
+      toast.success(`⚡ 1-Click Restock: Sent bulk order of "${wholesaleProd.name}" to Distributor!`);
+      loadData();
+    } catch {
+      toast.error("Failed to place 1-click restock order");
+    }
+  };
+
   const handleSaveProduct = async () => {
     if (!newProdName || !newProdPrice) return toast.error("Name and price required");
     try {
@@ -852,23 +903,32 @@ const ShopDashboard = () => {
     toast.success("Profile Updated successfully!");
   };
 
-  const handleLogoUpload = (e) => {
+  const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogo(reader.result);
-      reader.readAsDataURL(file);
+      try {
+        const url = await api.uploadAsset(file, user.id, 'logos');
+        setLogo(url);
+        toast.success("Logo uploaded successfully!");
+      } catch {
+        toast.error("Failed to upload logo");
+      }
     }
   };
 
-  const handleShopPhotoUpload = (e) => {
+  const handleShopPhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (shopPhotos.length + files.length > 6) return toast.error('Maximum 6 photos allowed');
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => setShopPhotos(prev => [...prev, reader.result]);
-      reader.readAsDataURL(file);
-    });
+    
+    for (const file of files) {
+      try {
+        const url = await api.uploadAsset(file, user.id, 'shop_photos');
+        setShopPhotos(prev => [...prev, url]);
+      } catch {
+        toast.error(`Failed to upload ${file.name}`);
+      }
+    }
+    toast.success("Photos uploaded successfully!");
   };
 
   const removeShopPhoto = (index) => {
@@ -901,12 +961,16 @@ const ShopDashboard = () => {
     toast.success('Opening UPI payment...');
   };
 
-  const handlePaymentQrUpload = (e) => {
+  const handlePaymentQrUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPaymentQr(reader.result);
-      reader.readAsDataURL(file);
+      try {
+        const url = await api.uploadAsset(file, user.id, 'payment_qrs');
+        setPaymentQr(url);
+        toast.success("Payment QR uploaded successfully!");
+      } catch {
+        toast.error("Failed to upload Payment QR");
+      }
     }
   };
 
@@ -1512,6 +1576,22 @@ const ShopDashboard = () => {
                   )}
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #2a2f3d', paddingTop: '12px', marginTop: '12px' }}>
+                    <button 
+                      onClick={() => handleOneClickRestock(p)} 
+                      style={{ 
+                        background: isLowStock ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.05)', 
+                        border: isLowStock ? 'none' : '1px solid rgba(255,255,255,0.15)', 
+                        color: isLowStock ? '#000' : '#fff', 
+                        padding: '6px 12px', 
+                        borderRadius: '6px', 
+                        fontSize: '12px', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer',
+                        boxShadow: isLowStock ? '0 4px 10px rgba(245,158,11,0.2)' : 'none'
+                      }}
+                    >
+                      ⚡ {isLowStock ? '1-Click Restock' : 'Restock'}
+                    </button>
                     <button 
                       onClick={() => handleOpenEditModal(p)} 
                       style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}

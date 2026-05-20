@@ -517,15 +517,15 @@ const UserDashboard = () => {
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (file && user) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Avatar = reader.result;
-        setAvatar(base64Avatar);
-        await api.updateProfile(user.id, { avatar: base64Avatar });
-        const updatedUser = { ...user, avatar: base64Avatar };
+      try {
+        const url = await api.uploadAsset(file, user.id, 'avatars');
+        setAvatar(url);
+        await api.updateProfile(user.id, { avatar: url });
+        const updatedUser = { ...user, avatar: url };
         localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Failed to upload avatar", err);
+      }
     }
   };
 

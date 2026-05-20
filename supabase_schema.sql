@@ -23,6 +23,7 @@ CREATE TABLE public.users (
     subscription TEXT DEFAULT 'trial',
     upi_id TEXT,
     logo TEXT,
+    avatar TEXT,
     payment_qr TEXT,
     shop_photos JSONB DEFAULT '[]'::jsonb,
     staff_of UUID REFERENCES public.users(id) ON DELETE CASCADE,
@@ -142,6 +143,7 @@ CREATE POLICY "Allow all" ON public.announcements FOR ALL USING (true) WITH CHEC
 -- Migration helper: If upgrading from previous version, run these ALTER commands instead of full re-create:
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS latitude DECIMAL;
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS longitude DECIMAL;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar TEXT;
 -- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS batch_number TEXT;
 -- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS expiry_date DATE;
 -- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS variants TEXT;

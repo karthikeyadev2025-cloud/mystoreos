@@ -642,7 +642,6 @@ const ThreeDPhoneSimulator = ({ activeTab, setActiveTab }) => {
             style={{
               padding: '8px 12px',
               borderRadius: '10px',
-              border: 'none',
               cursor: 'pointer',
               fontSize: '11.5px',
               fontWeight: 'bold',
@@ -678,7 +677,6 @@ const FlowVisualizer = () => {
             style={{
               padding: '12px 24px',
               borderRadius: '14px',
-              border: 'none',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: 'bold',

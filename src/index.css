@@ -174,3 +174,17 @@ button.small { padding: 8px 12px; font-size: 14px; border-radius: 8px; width: au
 }
 .stat-box h3 { font-size: 24px; color: var(--primary); margin:0; }
 .stat-box p { font-size: 12px; margin:0; }
+
+/* Hide native browser password reveal and clear buttons to prevent overlapping custom eye toggles */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+
