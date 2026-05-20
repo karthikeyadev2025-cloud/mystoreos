@@ -838,6 +838,10 @@ const LandingPage = () => {
   const [sectionHeadings, setSectionHeadings] = useState(DEFAULT_SECTION_HEADINGS);
   const [activeBillPreview, setActiveBillPreview] = useState('bill'); // 'bill' | 'estimate' | 'challan'
   const [activeSimulatorTab, setActiveSimulatorTab] = useState('billing');
+  
+  const [showLoader, setShowLoader] = useState(true);
+  const [loadingStep, setLoadingStep] = useState(1);
+  const [customCSS, setCustomCSS] = useState('');
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
@@ -861,6 +865,7 @@ const LandingPage = () => {
         const prevConfig = await api.getSiteConfig('previews', DEFAULT_PREVIEWS_CONFIG);
         const qConfig = await api.getSiteConfig('quoteCallout', DEFAULT_QUOTE_CONFIG);
         const sHeadings = await api.getSiteConfig('sectionHeadings', DEFAULT_SECTION_HEADINGS);
+        const cssConfig = await api.getSiteConfig('customCSS', '');
 
         setHeroConfig(hConfig);
         setPricingConfig(pConfig);
@@ -869,16 +874,131 @@ const LandingPage = () => {
         setPreviewsConfig(prevConfig);
         setQuoteConfig(qConfig);
         setSectionHeadings(sHeadings);
+        setCustomCSS(cssConfig);
       } catch (e) {
         console.error("CMS Configuration Load Error", e);
       }
     };
     loadData();
+
+    // Loader Timeouts
+    const timerStep = setTimeout(() => {
+      setLoadingStep(2);
+    }, 2000);
+
+    const timerEnd = setTimeout(() => {
+      setShowLoader(false);
+    }, 4000);
+
+    return () => {
+      clearTimeout(timerStep);
+      clearTimeout(timerEnd);
+    };
   }, []);
 
   return (
     <div ref={containerRef} style={{ backgroundColor: '#030712', color: '#f1f5f9', overflowX: 'hidden', fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", position: 'relative' }}>
       
+      {/* Dynamic Custom CSS Injection */}
+      <style dangerouslySetInnerHTML={{ __html: customCSS }} />
+
+      {/* Cinematic Booting Loader Overlay */}
+      <AnimatePresence>
+        {showLoader && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              background: '#030712',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '24px',
+              fontFamily: "'Outfit', sans-serif"
+            }}
+          >
+            {/* Pulsing Cinematic Orb */}
+            <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 1, 0.5],
+                  rotate: 360
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
+                }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(251,191,36,0.3) 0%, rgba(16,185,129,0.3) 100%)',
+                  filter: 'blur(10px)'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontSize: '32px',
+                zIndex: 2
+              }}>
+                ⚡
+              </div>
+            </div>
+
+            {/* Glowing Text Messages */}
+            <div style={{ textAlign: 'center', minHeight: '60px' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={loadingStep}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    letterSpacing: '-0.3px',
+                    background: 'linear-gradient(135deg, #fff 40%, #fbbf24 85%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0 0 15px rgba(251,191,36,0.2)'
+                  }}
+                >
+                  {loadingStep === 1 ? "⚡ Connecting to MyStore OS safe cloud..." : "✨ Injecting dynamic premium retail configurations..."}
+                </motion.div>
+              </AnimatePresence>
+              <div style={{ fontSize: '11px', color: '#475569', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800 }}>
+                Establishing Secure Handshake
+              </div>
+            </div>
+
+            {/* Loading Progress Bar */}
+            <div style={{ width: '200px', height: '3px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 3.8, ease: 'easeInOut' }}
+                style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #fbbf24, #10b981)',
+                  borderRadius: '10px'
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Injecting Premium Google Fonts & Keyframe animations */}
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       <style>{`

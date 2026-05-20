@@ -135,6 +135,7 @@ const AdminCMS = () => {
   const [previewsConfig, setPreviewsConfig] = useState(DEFAULT_PREVIEWS_CONFIG);
   const [quoteConfig, setQuoteConfig] = useState(DEFAULT_QUOTE_CONFIG);
   const [sectionHeadings, setSectionHeadings] = useState(DEFAULT_SECTION_HEADINGS);
+  const [customCSS, setCustomCSS] = useState('');
 
   const loadCMS = useCallback(async () => {
     try {
@@ -146,6 +147,7 @@ const AdminCMS = () => {
       const previews = await api.getSiteConfig('previews', DEFAULT_PREVIEWS_CONFIG);
       const quote = await api.getSiteConfig('quoteCallout', DEFAULT_QUOTE_CONFIG);
       const headings = await api.getSiteConfig('sectionHeadings', DEFAULT_SECTION_HEADINGS);
+      const css = await api.getSiteConfig('customCSS', '');
       
       setHeroConfig(hero);
       setAnnounceConfig(announce);
@@ -155,6 +157,7 @@ const AdminCMS = () => {
       setPreviewsConfig(previews);
       setQuoteConfig(quote);
       setSectionHeadings(headings);
+      setCustomCSS(css);
     } catch {
       toast.error('Failed to sync content parameters');
     }
@@ -172,6 +175,9 @@ const AdminCMS = () => {
     setSaving(true);
     try {
       await api.saveSiteConfig(key, value);
+      if (key === 'customCSS') {
+        window.dispatchEvent(new CustomEvent('custom-css-updated', { detail: value }));
+      }
       if (key === 'announcement') {
         if (value.active) {
           await api.saveAnnouncement({
@@ -325,6 +331,9 @@ const AdminCMS = () => {
         </button>
         <button onClick={() => setActiveTab('announce')} style={styles.tabBtn(activeTab === 'announce', '#10b981')}>
           <Megaphone size={15} /> Global Broadcast
+        </button>
+        <button onClick={() => setActiveTab('css')} style={styles.tabBtn(activeTab === 'css', '#ec4899')}>
+          <Sparkles size={15} /> Custom CSS
         </button>
       </div>
 
@@ -951,6 +960,45 @@ const AdminCMS = () => {
 
           <button onClick={() => handleSave('announcement', announceConfig)} disabled={saving} style={styles.saveBtn('#10b981')}>
             <Megaphone size={16} /> {saving ? 'Committing...' : 'Broadcast Announcement'}
+          </button>
+        </div>
+      )}
+
+      {/* TAB 8: CUSTOM STYLING (CSS) */}
+      {activeTab === 'css' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ background: 'rgba(236,72,153,0.03)', border: '1px solid rgba(236,72,153,0.1)', padding: '16px', borderRadius: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <Sparkles size={20} color="#ec4899" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div>
+              <h4 style={{ margin: 0, color: '#f472b6', fontSize: '14px', fontWeight: 'bold' }}>Custom Styles & CSS Sheet</h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
+                Directly inject custom CSS rules, layout configurations, class overrides, or styling variables live into production pages.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label style={styles.label}>Custom CSS Code Block</label>
+            <textarea 
+              value={customCSS} 
+              onChange={e => setCustomCSS(e.target.value)} 
+              placeholder={`/* Inject Custom CSS Styles here */\n:root {\n  --neon-glow-primary: #fbbf24;\n}\n\nbody {\n  /* Your custom style rule overrides */\n}`}
+              style={{
+                ...styles.input,
+                height: '240px',
+                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                fontSize: '13px',
+                lineHeight: '1.5',
+                color: '#34d399',
+                background: 'rgba(5, 7, 14, 0.85)',
+                border: '1px solid rgba(236,72,153,0.25)',
+                padding: '20px'
+              }} 
+            />
+          </div>
+
+          <button onClick={() => handleSave('customCSS', customCSS)} disabled={saving} style={styles.saveBtn('#ec4899')}>
+            <Save size={16} /> {saving ? 'Injecting CSS Sheet...' : 'Inject CSS Sheet Live'}
           </button>
         </div>
       )}
