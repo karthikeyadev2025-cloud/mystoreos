@@ -94,7 +94,55 @@ const UserDashboard = () => {
   const [scratchModalOpen, setScratchModalOpen] = useState(false);
   const [scratchCardAmount, setScratchCardAmount] = useState(0);
   const [scratchCardRevealed, setScratchCardRevealed] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState('');
   const scratchCanvasRef = useRef(null);
+
+  const playPaymentSuccessSound = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc1.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+      gain1.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start();
+      osc1.stop(ctx.currentTime + 0.25);
+      
+      setTimeout(() => {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880, ctx.currentTime); // A5
+        osc2.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.2); // E6
+        gain2.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.3);
+      }, 120);
+    } catch (e) {
+      console.error("Audio Context failed", e);
+    }
+  };
+
+  const speakPaymentSuccess = (order) => {
+    if ('speechSynthesis' in window) {
+      const shopName = order?.shopName || shopInfo?.name || 'Partner Store';
+      const text = `Payment of ${order?.total || 0} rupees received successfully at ${shopName}. Thank you for shopping with us!`;
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.rate = 1.0;
+      speech.pitch = 1.0;
+      window.speechSynthesis.speak(speech);
+    }
+  };
   const isDrawingScratch = useRef(false);
 
   
@@ -112,9 +160,9 @@ const UserDashboard = () => {
   // Device detection for safe UPI deep-linking workflows
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // Normalize IDs: pass UUIDs as-is, only prefix u_ for legacy numeric mock IDs
+  // Normalize IDs: pass UUIDs and phone numbers as-is, only prefix u_ for legacy numeric mock IDs
   const ACTIVE_SHOP_ID = shopId
-    ? (shopId.includes('-') || shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId))
+    ? (shopId.includes('-') || shopId.startsWith('u_') || /^\d{10,12}$/.test(shopId) ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId))
     : null;
 
   // ===== STABLE CALLBACKS FOR LOADERS =====
@@ -353,7 +401,7 @@ const UserDashboard = () => {
     // Deterministic offset based on shopId hash if unseeded or extremely far (> 100km radius)
     // Ensures proximity distances remain beautiful and realistic during regional live tests
     if (!shopLat || !shopLon || Math.abs(lat1 - shopLat) > 1 || Math.abs(lon1 - shopLon) > 1) {
-      if (sId) {
+      if (sId && typeof sId === 'string') {
         const hash = sId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const latOffset = (((hash % 7) + 1) * 0.003) - 0.012; // deterministically mock within ~1.5km
         const lonOffset = ((((hash >> 2) % 7) + 1) * 0.003) - 0.012;
@@ -624,7 +672,13 @@ const UserDashboard = () => {
     try {
       if (!user) return;
       
-      await api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total);
+      const placedOrder = await api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total);
+      const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
+      setLastOrderId(orderId);
+      
+      // Play audio and voice checkout sound immediately on success!
+      playPaymentSuccessSound();
+      speakPaymentSuccess(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'Partner Store' });
       
       let msg = `*🛒 NEW MYSTORE ORDER* 🚀%0A`;
       msg += `-----------------------------%0A`;
@@ -750,7 +804,7 @@ const UserDashboard = () => {
   };
 
   // Local catalogue filtering
-  let filteredProducts = products.filter(p => p.name.toLowerCase().includes(localSearch.toLowerCase()));
+  let filteredProducts = products.filter(p => p && p.name && p.name.toLowerCase().includes(localSearch.toLowerCase()));
   if (filter !== 'all') filteredProducts = filteredProducts.filter(p => p.category === filter);
 
   const sortedShops = getSortedShops();
@@ -1959,7 +2013,12 @@ const UserDashboard = () => {
             <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <Gift size={20} /> Checkout Cashback!
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 20px 0' }}>
+            {lastOrderId && (
+              <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px dashed rgba(16,185,129,0.3)', padding: '6px 14px', borderRadius: '10px', display: 'inline-block', margin: '8px auto', fontSize: '11px', color: '#10b981', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                RECEIPT / ORDER #: {lastOrderId.toUpperCase()}
+              </div>
+            )}
+            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '8px 0 20px 0' }}>
               Rub the silver card below to reveal your guaranteed coins.
             </p>
 

@@ -173,7 +173,7 @@ export const api = {
       // Check if phone already exists
       const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
       if (existing) throw new Error("Phone already registered");
-      const status = (role === 'shop' || role === 'distributor') ? 'pending' : 'active';
+      const status = 'active'; // Bypass pending review, activate immediately!
       const subscription = role === 'shop' ? 'trial' : 'active';
       const { data, error } = await supabase.from('users').insert({ phone, pass, role, name, status, subscription }).select().single();
       if (error) throw new Error(error.message);
@@ -181,7 +181,7 @@ export const api = {
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
-    const status = (role === 'shop' || role === 'distributor') ? 'pending' : 'active';
+    const status = 'active'; // Bypass pending review, activate immediately!
     const subscription = role === 'shop' ? 'trial' : 'active';
     const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status, subscription };
     db.users.push(newUser);
@@ -268,11 +268,25 @@ export const api = {
 
   // ---- PRODUCTS ----
   async getShopProducts(shopId) {
+    if (!shopId || typeof shopId !== 'string') return [];
     if (isSupabaseConfigured) {
+      let resolvedId = shopId;
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
-      if (isUUID) {
+      if (!isUUID) {
         try {
-          const { data } = await supabase.from('products').select('*').eq('shop_id', shopId);
+          const shop = await api.getShopById(shopId);
+          if (shop && shop.id) {
+            resolvedId = shop.id;
+          }
+        } catch (e) {
+          console.error("Failed resolving shopId for products lookup", e);
+        }
+      }
+
+      const isResolvedUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedId);
+      if (isResolvedUUID) {
+        try {
+          const { data } = await supabase.from('products').select('*').eq('shop_id', resolvedId);
           if (data && data.length > 0) {
             return data.map(toProduct);
           }
@@ -283,7 +297,7 @@ export const api = {
       
       // Fallback: check if this is a mockDB shop id (like 'u_1')
       const db = getDB();
-      const mockProds = db.products.filter(p => p.shopId === shopId);
+      const mockProds = db.products.filter(p => p.shopId === resolvedId || p.shopId === shopId);
       if (mockProds && mockProds.length > 0) return mockProds;
       
       return [];
@@ -398,11 +412,25 @@ export const api = {
 
   // ---- ORDERS ----
   async getShopOrders(shopId) {
+    if (!shopId || typeof shopId !== 'string') return [];
     if (isSupabaseConfigured) {
+      let resolvedId = shopId;
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
-      if (isUUID) {
+      if (!isUUID) {
         try {
-          const { data: orders } = await supabase.from('orders').select('*').eq('shop_id', shopId).order('created_at', { ascending: false });
+          const shop = await api.getShopById(shopId);
+          if (shop && shop.id) {
+            resolvedId = shop.id;
+          }
+        } catch (e) {
+          console.error("Failed resolving shopId for orders lookup", e);
+        }
+      }
+
+      const isResolvedUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedId);
+      if (isResolvedUUID) {
+        try {
+          const { data: orders } = await supabase.from('orders').select('*').eq('shop_id', resolvedId).order('created_at', { ascending: false });
           const { data: users } = await supabase.from('users').select('id, name');
           const userMap = {};
           (users || []).forEach(u => { userMap[u.id] = u.name; });
@@ -414,7 +442,7 @@ export const api = {
       
       // Fallback: check mockDB
       const db = getDB();
-      return db.orders.filter(o => o.shopId === shopId).map(o => {
+      return db.orders.filter(o => o.shopId === resolvedId || o.shopId === shopId).map(o => {
         const user = db.users.find(u => u.id === o.userId);
         return { ...o, userName: user ? user.name : 'Unknown' };
       }).reverse();
@@ -443,7 +471,20 @@ export const api = {
 
   async placeOrder(userId, shopId, items, total) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('orders').insert({ user_id: userId, shop_id: shopId, items, total }).select().single();
+      let resolvedId = shopId;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
+      if (!isUUID) {
+        try {
+          const shop = await api.getShopById(shopId);
+          if (shop && shop.id) {
+            resolvedId = shop.id;
+          }
+        } catch (e) {
+          console.error("Failed resolving shopId for order placement", e);
+        }
+      }
+
+      const { data, error } = await supabase.from('orders').insert({ user_id: userId, shop_id: resolvedId, items, total }).select().single();
       if (error) throw new Error(error.message);
       
       // Decrement product inventory stock levels in Supabase
@@ -548,6 +589,7 @@ export const api = {
 
   // ---- SHOPS ----
   async getShopById(shopId) {
+    if (!shopId || typeof shopId !== 'string') return null;
     if (isSupabaseConfigured) {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
       if (isUUID) {

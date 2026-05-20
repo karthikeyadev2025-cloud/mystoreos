@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [pass, setPass] = useState('');
   const [businessType, setBusinessType] = useState('shop');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -22,9 +23,10 @@ const Register = () => {
     
     try {
       setLoading(true);
-      await api.register(name, phone, pass, businessType);
-      setSuccess(true);
-      toast.success("Registration Successful!");
+      const newUser = await api.register(name, phone, pass, businessType);
+      toast.success("Welcome to MyStore OS! Logging you in...");
+      login(newUser);
+      navigate('/dashboard');
     } catch (err) {
       toast.error(err.message || 'Registration failed');
     } finally {

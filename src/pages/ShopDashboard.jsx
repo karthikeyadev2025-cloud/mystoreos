@@ -944,11 +944,29 @@ const ShopDashboard = () => {
     return `${base}/s/${targetShopId}`;
   };
 
-  const handleShareShop = () => {
+  const handleShareShop = async () => {
     const url = getShopUrl();
     const msg = `Check out ${user.name} on MyStore OS!\n${url}`;
+    
+    // Attempt clipboard copying first for seamless UX
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Shop link copied to clipboard! 📋");
+      }
+    } catch (err) {
+      console.warn("Failed to copy link to clipboard automatically:", err);
+    }
+
     if (navigator.share) {
-      navigator.share({ title: user.name, text: msg, url }).catch(() => {});
+      try {
+        await navigator.share({ title: user.name, text: msg, url });
+      } catch (shareErr) {
+        // Safe fallback to WhatsApp if the user aborts or browser sharing fails
+        if (shareErr && shareErr.name !== 'AbortError') {
+          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+      }
     } else {
       window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     }
