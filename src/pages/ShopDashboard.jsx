@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { Home, Package, Receipt, Wallet, User, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, QrCode, Barcode as BarcodeIcon } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, User, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import Barcode from 'react-barcode';
 import { jsPDF } from 'jspdf';
+import { QRCodeSVG } from 'qrcode.react';
 
 const ShopDashboard = () => {
   const { user, logout } = useAuth();
@@ -37,6 +38,8 @@ const ShopDashboard = () => {
   const [upiId, setUpiId] = useState(user?.upiId || '');
   const [logo, setLogo] = useState(user?.logo || '');
   const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
+  const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
+  const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
 
   // System Settings (Razorpay Key)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -205,9 +208,9 @@ const ShopDashboard = () => {
   };
 
   const handleSaveProfile = async () => {
-    await api.updateProfile(user.id, { upiId, logo, shopPhotos });
-    const updatedUser = { ...user, upiId, logo, shopPhotos };
-    localStorage.setItem('mystore_user', JSON.stringify(updatedUser));
+    await api.updateProfile(user.id, { upiId, logo, shopPhotos, paymentQr });
+    const updatedUser = { ...user, upiId, logo, shopPhotos, paymentQr };
+    localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
     toast.success("Profile Updated successfully!");
   };
 
@@ -250,10 +253,23 @@ const ShopDashboard = () => {
   };
 
   const handleShowUpiQr = () => {
-    if (!upiId) return toast.error('Set your UPI ID in Settings first!');
+    if (paymentQr) {
+      setShowPaymentQrModal(true);
+      return;
+    }
+    if (!upiId) return toast.error('Upload your Payment QR or set UPI ID in Settings!');
     const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${billTotal}&cu=INR`;
     window.open(upiUrl, '_blank');
     toast.success('Opening UPI payment...');
+  };
+
+  const handlePaymentQrUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPaymentQr(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubscribe = () => {
@@ -715,6 +731,40 @@ const ShopDashboard = () => {
               </button>
             </div>
 
+            {/* Payment QR Scanner Upload */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>📱 Payment QR Scanner</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Upload your GPay / PhonePe / Paytm QR code image. Customers will see this QR to pay you instantly. You can take a photo of your existing QR or upload from gallery.
+              </p>
+              {paymentQr ? (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22c55e', background: '#fff', padding: '8px' }} />
+                  <p style={{ fontSize: '11px', color: '#22c55e', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
+                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
+                    Remove QR
+                  </button>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: '150px', height: '150px', borderRadius: '12px', background: '#0f172a', margin: '0 auto 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', border: '2px dashed #334155' }}>
+                    <Camera size={32} style={{ marginBottom: '8px' }} />
+                    <span style={{ fontSize: '12px' }}>No QR uploaded</span>
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <label style={{ flex: 1, background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                  📁 Upload from Gallery
+                  <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
+                </label>
+                <label style={{ flex: 1, background: '#8b5cf6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                  📷 Take Photo
+                  <input type="file" accept="image/*" capture="environment" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
+                </label>
+              </div>
+            </div>
+
             {/* Shop Photos Section */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>📸 Shop Photos (Max 6)</h3>
@@ -739,7 +789,7 @@ const ShopDashboard = () => {
                 Print this QR code or share your link so customers can order directly from their phone.
               </p>
               <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px' }}>
-                <QrCode size={120} color="#000" />
+                <QRCodeSVG value={getShopUrl()} size={140} />
               </div>
               <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
               <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -747,6 +797,21 @@ const ShopDashboard = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* PAYMENT QR DISPLAY MODAL */}
+      {showPaymentQrModal && paymentQr && (
+        <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : ''}</p>
+          <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+            <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
+          </div>
+          <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+          <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+            Close
+          </button>
         </div>
       )}
 

@@ -1,61 +1,88 @@
--- MyStore OS Supabase Schema
+-- MyStore OS — Complete Supabase Schema (v2)
+-- Run this ONCE in Supabase SQL Editor
 
--- Users table (Customers, Shopkeepers, Distributors, Admins)
+-- Drop existing tables if re-running
+DROP TABLE IF EXISTS public.credits CASCADE;
+DROP TABLE IF EXISTS public.orders CASCADE;
+DROP TABLE IF EXISTS public.products CASCADE;
+DROP TABLE IF EXISTS public.settings CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+
+-- Users table
 CREATE TABLE public.users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone TEXT UNIQUE NOT NULL,
-    pass TEXT NOT NULL, -- Note: In a real production app, use Supabase Auth instead of plaintext
-    role TEXT NOT NULL CHECK (role IN ('customer', 'shop', 'distributor', 'admin')),
+    pass TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('customer', 'shop', 'distributor', 'admin', 'staff')),
     name TEXT NOT NULL,
-    status TEXT DEFAULT 'active',
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'pending')),
     subscription TEXT DEFAULT 'trial',
     upi_id TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    logo TEXT,
+    payment_qr TEXT,
+    shop_photos JSONB DEFAULT '[]'::jsonb,
+    staff_of UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Products table
 CREATE TABLE public.products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
-    mrp DECIMAL(10, 2),
-    weight TEXT,
-    icon TEXT,
-    category TEXT,
     barcode TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    stock INT DEFAULT 100,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Orders table
 CREATE TABLE public.orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.users(id),
-    shop_id UUID REFERENCES public.users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL,
+    shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     items JSONB NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
-    status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Accepted', 'Completed', 'Cancelled')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Accepted', 'Completed', 'Cancelled')),
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Credits / Distributor Ledgers table
+-- Credits table
 CREATE TABLE public.credits (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    from_id UUID REFERENCES public.users(id), -- The distributor giving the credit
-    to_shop_id UUID REFERENCES public.users(id), -- The shop receiving the credit
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    from_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    to_shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     description TEXT,
     amount DECIMAL(10, 2) NOT NULL,
     paid BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- System Settings
 CREATE TABLE public.settings (
     id INT PRIMARY KEY DEFAULT 1,
-    razorpay_key TEXT
+    razorpay_key TEXT DEFAULT ''
 );
 INSERT INTO public.settings (id, razorpay_key) VALUES (1, '');
 
--- Insert Demo Admin
-INSERT INTO public.users (id, phone, pass, role, name) 
-VALUES ('00000000-0000-0000-0000-000000000000', '0000000000', '1234', 'admin', 'Super Admin');
+-- Insert Super Admin
+INSERT INTO public.users (phone, pass, role, name, status)
+VALUES ('8885490495', 'Mystore@karthi@2025', 'admin', 'Super Admin', 'active');
+
+-- Insert Demo Shopkeeper
+INSERT INTO public.users (phone, pass, role, name, status, subscription, upi_id)
+VALUES ('9876543210', '1234', 'shop', 'Sai Supermarket', 'active', 'trial', '9876543210@ybl');
+
+-- Enable Row Level Security
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.credits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow public access (tighten for production later)
+CREATE POLICY "Allow all" ON public.users FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.products FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.orders FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.credits FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.settings FOR ALL USING (true) WITH CHECK (true);
