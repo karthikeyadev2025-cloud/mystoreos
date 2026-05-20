@@ -188,14 +188,15 @@ export const api = {
   async getAdminStats() {
     const db = getDB();
     const totalUsers = db.users.filter(u => u.role === 'customer').length;
-    const totalShops = db.users.filter(u => u.role === 'shop').length;
+    const shops = db.users.filter(u => u.role === 'shop');
+    const totalShops = shops.length;
     const totalDistributors = db.users.filter(u => u.role === 'distributor').length;
     const totalOrders = db.orders.length;
-    const totalRevenue = db.orders.reduce((a, b) => a + b.total, 0);
     const activeCredit = db.credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
+    const paidShops = shops.filter(s => s.subscription === 'active').length;
 
     return {
-      totalUsers, totalShops, totalDistributors, totalOrders, totalRevenue, activeCredit
+      totalUsers, totalShops, totalDistributors, totalOrders, activeCredit, paidShops, revenue: `₹${paidShops * 999}`
     };
   },
 
@@ -208,19 +209,6 @@ export const api = {
   async getPendingApprovals() {
     const db = getDB();
     return db.users.filter(u => u.status === 'pending');
-  },
-
-  async getAdminStats() {
-    const db = getDB();
-    const shops = db.users.filter(u => u.role === 'shop');
-    const customers = db.users.filter(u => u.role === 'customer');
-    const paidShops = shops.filter(s => s.subscription === 'active').length;
-    return {
-      totalShops: shops.length,
-      totalUsers: customers.length,
-      paidShops,
-      revenue: `₹${paidShops * 999}`
-    };
   },
 
   async updateProfile(userId, data) {

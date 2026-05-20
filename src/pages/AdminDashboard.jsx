@@ -7,9 +7,14 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [stats, setStats] = useState({ revenue: 0, activeShops: 0, customers: 0 });
+  const [stats, setStats] = useState({ revenue: 0, activeShops: 0, customers: 0, paidShops: 0 });
   const [pendingUsers, setPendingUsers] = useState([]);
   const [razorpayKey, setRazorpayKey] = useState('');
+  
+  // Real data state
+  const [shops, setShops] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [distributors, setDistributors] = useState([]);
 
   const loadData = async () => {
     const data = await api.getAdminStats();
@@ -22,6 +27,11 @@ const AdminDashboard = () => {
       customers: data.totalUsers || 0
     });
     setPendingUsers(await api.getPendingApprovals());
+    
+    // Fetch real user data
+    setShops(await api.getAllShops());
+    setCustomers(await api.getAllUsersByRole('customer'));
+    setDistributors(await api.getAllUsersByRole('distributor'));
   };
 
   useEffect(() => {
@@ -32,6 +42,14 @@ const AdminDashboard = () => {
     await api.approveUser(userId);
     alert('User Approved!');
     loadData();
+  };
+  
+  const handleDelete = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      await api.deleteUser(userId);
+      alert('User Deleted!');
+      loadData();
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -55,7 +73,8 @@ const AdminDashboard = () => {
     shopStat: { background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px', textAlign: 'center' },
     shopActions: { display: 'flex', gap: '8px' },
     alertBar: { background: 'linear-gradient(90deg, rgba(245,158,11,0.2), rgba(220,38,38,0.2))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '12px 16px', margin: '0 12px 12px', display: 'flex', alignItems: 'center', gap: '10px' },
-    bottomNav: { position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '8px 0 12px', zIndex: 100 }
+    bottomNav: { position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(15,23,42,0.98), #000)', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '8px 0 12px', zIndex: 100 },
+    listCard: { background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
   };
 
   return (
@@ -63,9 +82,9 @@ const AdminDashboard = () => {
       <div style={styles.header}>
         <div>
           <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>🔴 MyStore Admin</h1>
-          <div style={{ fontSize: '12px', opacity: 0.8 }}>Super Admin • Guntur Region</div>
+          <div style={{ fontSize: '12px', opacity: 0.8 }}>Super Admin • Global</div>
         </div>
-        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px' }}>Logout</button>
+        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}>Logout</button>
       </div>
 
       {activeTab === 'dashboard' && (
@@ -110,39 +129,88 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          <div style={styles.alertBar}>
-            <span style={{fontSize: '20px'}}>⚠️</span>
-            <p style={{fontSize: '13px', margin: 0}}><b>Sai Supermarket</b> payment overdue by 5 days. ₹999 due.</p>
-          </div>
-
           <div style={styles.secHeader}>
             <h2 style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24', margin: 0}}>🏪 My Shops</h2>
-            <button style={{background: 'linear-gradient(135deg, #dc2626, #f59e0b)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer'}}>+ Add Shop</button>
           </div>
 
-          <div style={styles.shopCard}>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
-              <h3 style={{fontSize: '16px', fontWeight: 700, margin: 0}}>🛒 Sai Supermarket</h3>
-              <span style={{background: 'rgba(245,158,11,0.2)', color: '#f59e0b', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700}}>⚠️ Payment Due</span>
-            </div>
-            <div style={styles.shopStats}>
-              <div style={styles.shopStat}><div style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24'}}>₹45K</div><div style={{fontSize: '9px', color: 'rgba(255,255,255,0.5)'}}>Revenue</div></div>
-              <div style={styles.shopStat}><div style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24'}}>320</div><div style={{fontSize: '9px', color: 'rgba(255,255,255,0.5)'}}>Orders</div></div>
-              <div style={styles.shopStat}><div style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24'}}>89</div><div style={{fontSize: '9px', color: 'rgba(255,255,255,0.5)'}}>Customers</div></div>
-            </div>
-            <div style={styles.shopActions}>
-              <button style={{flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 700, background: 'rgba(59,130,246,0.2)', color: '#60a5fa'}}>👁️ View</button>
-              <button style={{flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 700, background: 'rgba(251,191,36,0.2)', color: '#fbbf24'}}>🧾 Bills</button>
-              <button style={{flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 700, background: 'rgba(220,38,38,0.2)', color: '#f87171'}}>📢 Remind</button>
-            </div>
-          </div>
+          {shops.length === 0 ? (
+             <p style={{textAlign: 'center', color: '#94a3b8', fontSize: '14px'}}>No shops registered yet.</p>
+          ) : (
+            shops.map(shop => (
+              <div key={shop.id} style={styles.shopCard}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
+                  <h3 style={{fontSize: '16px', fontWeight: 700, margin: 0}}>🛒 {shop.name}</h3>
+                  {shop.subscription === 'active' 
+                    ? <span style={{background: 'rgba(34,197,94,0.2)', color: '#22c55e', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700}}>✅ PRO</span>
+                    : <span style={{background: 'rgba(245,158,11,0.2)', color: '#f59e0b', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700}}>⚠️ Free Trial</span>
+                  }
+                </div>
+                <div style={styles.shopStats}>
+                  <div style={styles.shopStat}><div style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24'}}>{shop.phone}</div><div style={{fontSize: '9px', color: 'rgba(255,255,255,0.5)'}}>Phone</div></div>
+                  <div style={styles.shopStat}><div style={{fontSize: '16px', fontWeight: 700, color: '#fbbf24'}}>{shop.status}</div><div style={{fontSize: '9px', color: 'rgba(255,255,255,0.5)'}}>Status</div></div>
+                </div>
+                <div style={styles.shopActions}>
+                  <button onClick={() => handleDelete(shop.id)} style={{flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontSize: '11px', fontWeight: 700, background: 'rgba(220,38,38,0.2)', color: '#f87171', cursor: 'pointer'}}>🗑️ Delete Shop</button>
+                </div>
+              </div>
+            ))
+          )}
         </>
       )}
 
-      {/* Placeholders for other tabs */}
-      {activeTab === 'shops' && <div style={{padding: 20}}><h2>All Shops</h2></div>}
-      {activeTab === 'customers' && <div style={{padding: 20}}><h2>Customers</h2></div>}
-      {activeTab === 'payments' && <div style={{padding: 20}}><h2>Payments</h2></div>}
+      {activeTab === 'shops' && (
+        <div style={{padding: 20}}>
+          <h2 style={{marginBottom: 20}}>All Registered Shops</h2>
+          {shops.length === 0 && <p style={{color: '#94a3b8'}}>No shops found.</p>}
+          {shops.map(shop => (
+            <div key={shop.id} style={styles.listCard}>
+              <div>
+                <h4 style={{margin: 0, fontSize: '16px'}}>{shop.name}</h4>
+                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Phone: {shop.phone}</p>
+                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Status: {shop.status} | Plan: {shop.subscription}</p>
+              </div>
+              <button onClick={() => handleDelete(shop.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer'}}>Delete</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'customers' && (
+        <div style={{padding: 20}}>
+          <h2 style={{marginBottom: 20}}>All Customers</h2>
+          {customers.length === 0 && <p style={{color: '#94a3b8'}}>No customers found.</p>}
+          {customers.map(cust => (
+            <div key={cust.id} style={styles.listCard}>
+              <div>
+                <h4 style={{margin: 0, fontSize: '16px'}}>{cust.name}</h4>
+                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Phone: {cust.phone}</p>
+              </div>
+              <button onClick={() => handleDelete(cust.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer'}}>Delete</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'payments' && (
+        <div style={{padding: 20}}>
+          <h2 style={{marginBottom: 20}}>Subscription Status</h2>
+          {shops.map(shop => (
+            <div key={shop.id} style={styles.listCard}>
+              <div>
+                <h4 style={{margin: 0, fontSize: '16px'}}>{shop.name}</h4>
+                <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Phone: {shop.phone}</p>
+              </div>
+              <div>
+                {shop.subscription === 'active' ? (
+                  <span style={{background: '#22c55e', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '12px'}}>Paid ₹999</span>
+                ) : (
+                  <span style={{background: '#f59e0b', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '12px'}}>Free Trial</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       
       {activeTab === 'settings' && (
         <div style={{paddingBottom: 80}}>
