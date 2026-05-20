@@ -269,8 +269,24 @@ export const api = {
   // ---- PRODUCTS ----
   async getShopProducts(shopId) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('products').select('*').eq('shop_id', shopId);
-      return (data || []).map(toProduct);
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
+      if (isUUID) {
+        try {
+          const { data } = await supabase.from('products').select('*').eq('shop_id', shopId);
+          if (data && data.length > 0) {
+            return data.map(toProduct);
+          }
+        } catch (err) {
+          console.error("Supabase getShopProducts query failed:", err);
+        }
+      }
+      
+      // Fallback: check if this is a mockDB shop id (like 'u_1')
+      const db = getDB();
+      const mockProds = db.products.filter(p => p.shopId === shopId);
+      if (mockProds && mockProds.length > 0) return mockProds;
+      
+      return [];
     }
     const db = getDB();
     return db.products.filter(p => p.shopId === shopId);
@@ -383,11 +399,25 @@ export const api = {
   // ---- ORDERS ----
   async getShopOrders(shopId) {
     if (isSupabaseConfigured) {
-      const { data: orders } = await supabase.from('orders').select('*').eq('shop_id', shopId).order('created_at', { ascending: false });
-      const { data: users } = await supabase.from('users').select('id, name');
-      const userMap = {};
-      (users || []).forEach(u => { userMap[u.id] = u.name; });
-      return (orders || []).map(o => ({ ...toOrder(o), userName: userMap[o.user_id] || (o.user_id === 'walk-in-customer' ? 'Walk-in Bill' : 'Unknown') }));
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
+      if (isUUID) {
+        try {
+          const { data: orders } = await supabase.from('orders').select('*').eq('shop_id', shopId).order('created_at', { ascending: false });
+          const { data: users } = await supabase.from('users').select('id, name');
+          const userMap = {};
+          (users || []).forEach(u => { userMap[u.id] = u.name; });
+          return (orders || []).map(o => ({ ...toOrder(o), userName: userMap[o.user_id] || (o.user_id === 'walk-in-customer' ? 'Walk-in Bill' : 'Unknown') }));
+        } catch (err) {
+          console.error("Supabase getShopOrders query failed:", err);
+        }
+      }
+      
+      // Fallback: check mockDB
+      const db = getDB();
+      return db.orders.filter(o => o.shopId === shopId).map(o => {
+        const user = db.users.find(u => u.id === o.userId);
+        return { ...o, userName: user ? user.name : 'Unknown' };
+      }).reverse();
     }
     const db = getDB();
     return db.orders.filter(o => o.shopId === shopId).map(o => {
@@ -415,11 +445,40 @@ export const api = {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('orders').insert({ user_id: userId, shop_id: shopId, items, total }).select().single();
       if (error) throw new Error(error.message);
+      
+      // Decrement product inventory stock levels in Supabase
+      if (items && Array.isArray(items)) {
+        for (const item of items) {
+          try {
+            const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).single();
+            if (prodData) {
+              const currentStock = parseInt(prodData.stock) || 0;
+              const newStock = Math.max(0, currentStock - (parseInt(item.qty) || 1));
+              await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
+            }
+          } catch (err) {
+            console.error("Failed to update stock in Supabase for item:", item.id, err);
+          }
+        }
+      }
+      
       return toOrder(data);
     }
     const db = getDB();
     const order = { id: 'o_' + generateId(), userId, shopId, items, total, status: 'Pending', date: new Date().toISOString() };
     db.orders.push(order);
+    
+    // Decrement product inventory stock levels in localStorage offline mode
+    if (items && Array.isArray(items)) {
+      items.forEach(item => {
+        const prod = db.products.find(p => p.id === item.id);
+        if (prod) {
+          const currentStock = parseInt(prod.stock) || 0;
+          prod.stock = Math.max(0, currentStock - (parseInt(item.qty) || 1));
+        }
+      });
+    }
+    
     saveDB(db);
     return order;
   },
@@ -490,10 +549,30 @@ export const api = {
   // ---- SHOPS ----
   async getShopById(shopId) {
     if (isSupabaseConfigured) {
-      // Try exact match first (UUID)
-      const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').single();
-      if (data) return toUser(data);
-      // Fallback: try matching by phone or name substring
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
+      if (isUUID) {
+        try {
+          const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').single();
+          if (data) return toUser(data);
+        } catch (err) {
+          console.error("Supabase getShopById UUID lookup failed:", err);
+        }
+      }
+      
+      // Fallback: try matching by phone or search mockDB
+      try {
+        const { data } = await supabase.from('users').select('*').eq('phone', shopId).eq('role', 'shop').single();
+        if (data) return toUser(data);
+      } catch (err) {
+        // Silent
+      }
+
+      // Check mockDB as a fail-safe
+      const db = getDB();
+      const cleanId = shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId);
+      const mockShop = db.users.find(u => (u.id === shopId || u.id === cleanId || u.phone === shopId) && u.role === 'shop');
+      if (mockShop) return mockShop;
+
       return null;
     }
     const db = getDB();
@@ -503,7 +582,7 @@ export const api = {
       return db.users.find(u => u.id === shopId && u.role === 'shop');
     }
     const cleanId = shopId.startsWith('u_') ? shopId : (shopId.startsWith('u') ? 'u_' + shopId.substring(1) : 'u_' + shopId);
-    return db.users.find(u => (u.id === shopId || u.id === cleanId) && u.role === 'shop');
+    return db.users.find(u => (u.id === shopId || u.id === cleanId || u.phone === shopId) && u.role === 'shop');
   },
 
   async getAllShops() {

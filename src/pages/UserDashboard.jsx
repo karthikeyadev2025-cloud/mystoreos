@@ -6,7 +6,7 @@ import {
   Search, MapPin, QrCode, Receipt, ShoppingCart, ArrowLeft, 
   Compass, ChevronRight, X, Sparkles, 
   Printer, Info, Clock, User, Navigation, 
-  AlertTriangle, CreditCard, Mic, Gift
+  AlertTriangle, CreditCard, Mic, Gift, Copy
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -15,6 +15,40 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UserDashboard.css'; // Premium CSS file containing animations, keyframes, scrollbars and thermal styles
 
+
+const classifyCategory = (name = "") => {
+  const n = name.toLowerCase();
+  if (n.includes("rice")) return "rice";
+  if (n.includes("oil")) return "oil";
+  if (n.includes("dal") || n.includes("lentil") || n.includes("pulse") || n.includes("gram")) return "dal";
+  if (n.includes("soap") || n.includes("surf") || n.includes("wash") || n.includes("detergent") || n.includes("cleaner") || n.includes("bar") || n.includes("shaving") || n.includes("paste") || n.includes("brush")) return "soap";
+  if (n.includes("milk") || n.includes("dairy") || n.includes("curd") || n.includes("paneer") || n.includes("cheese") || n.includes("amul") || n.includes("butter") || n.includes("ghee") || n.includes("cream")) return "milk";
+  if (n.includes("shampoo") || n.includes("dove") || n.includes("conditioner") || n.includes("hair")) return "shampoo";
+  return "grocery";
+};
+
+const getCategoryIcon = (category, name = "") => {
+  const n = name.toLowerCase();
+  if (category === "rice") return "🍚";
+  if (category === "oil") return "🛢️";
+  if (category === "dal") return "🥣";
+  if (category === "soap") {
+    if (n.includes("paste") || n.includes("brush")) return "🪥";
+    return "🧼";
+  }
+  if (category === "milk") return "🥛";
+  if (category === "shampoo") return "🧴";
+  
+  if (n.includes("egg")) return "🥚";
+  if (n.includes("bread") || n.includes("roti")) return "🍞";
+  if (n.includes("biscuit") || n.includes("parle") || n.includes("cookie")) return "🍪";
+  if (n.includes("salt") || n.includes("sugar") || n.includes("masala") || n.includes("spices")) return "🧂";
+  if (n.includes("fruit") || n.includes("apple") || n.includes("banana")) return "🍎";
+  if (n.includes("veg") || n.includes("potato") || n.includes("onion") || n.includes("tomato")) return "🥗";
+  if (n.includes("tea") || n.includes("coffee")) return "☕";
+  if (n.includes("water") || n.includes("soda") || n.includes("drink")) return "🥤";
+  return "📦";
+};
 
 const UserDashboard = () => {
   const { user, login, logout } = useAuth();
@@ -72,6 +106,8 @@ const UserDashboard = () => {
   const [guestPhone, setGuestPhone] = useState('');
   const [paymentProof, setPaymentProof] = useState('');
   const [isLocatingCatalog, setIsLocatingCatalog] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const scannerRef = useRef(null);
 
   // Device detection for safe UPI deep-linking workflows
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -153,7 +189,12 @@ const UserDashboard = () => {
 
       const data = await api.getShopProducts(ACTIVE_SHOP_ID);
       if (data && data.length > 0) {
-        setProducts(data);
+        const enriched = data.map(p => {
+          const category = p.category || classifyCategory(p.name);
+          const icon = p.icon || getCategoryIcon(category, p.name);
+          return { ...p, category, icon };
+        });
+        setProducts(enriched);
       } else {
         // Fallback products
         setProducts([
@@ -214,41 +255,86 @@ const UserDashboard = () => {
     }
     const searchProds = async () => {
       const results = await api.searchGlobalProducts(globalSearch);
-      setGlobalResults(results);
+      const enriched = (results || []).map(p => {
+        const category = p.category || classifyCategory(p.name);
+        const icon = p.icon || getCategoryIcon(category, p.name);
+        return { ...p, category, icon };
+      });
+      setGlobalResults(enriched);
     };
     const delayDebounce = setTimeout(searchProds, 300);
     return () => clearTimeout(delayDebounce);
   }, [globalSearch]);
 
   useEffect(() => {
-    let scanner = null;
-    if (cameraScannerActive && activeTab === 'scan') {
-      scanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-      scanner.render((decodedText) => {
-        try {
-          if (decodedText.includes('/s/')) {
-            const parts = decodedText.split('/s/');
-            const scannedId = parts[parts.length - 1];
-            if (scannedId) {
-              scanner.clear();
-              setCameraScannerActive(false);
-              navigate(`/s/${scannedId}`);
-            }
-          } else {
-            scanner.clear();
-            setCameraScannerActive(false);
-            navigate(`/s/${decodedText}`);
-          }
-        } catch {
-          alert('Scanned successfully, but link format was unrecognized: ' + decodedText);
+    let active = true;
+    let retryTimeout = null;
+
+    const initScanner = () => {
+      if (!active) return;
+      
+      const element = document.getElementById('reader');
+      if (!element) {
+        // Retry in 50ms if React has not mounted the element yet
+        retryTimeout = setTimeout(initScanner, 50);
+        return;
+      }
+
+      try {
+        if (scannerRef.current) {
+          try { scannerRef.current.clear(); } catch (e) { /* ignore */ }
+          scannerRef.current = null;
         }
-      }, () => {
-        // Silent error
-      });
+
+        const scanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+        scannerRef.current = scanner;
+
+        scanner.render((decodedText) => {
+          try {
+            let scannedId = decodedText;
+            if (decodedText.includes('/s/')) {
+              const parts = decodedText.split('/s/');
+              scannedId = parts[parts.length - 1];
+            }
+            if (scannedId) {
+              scanner.clear()
+                .then(() => {
+                  scannerRef.current = null;
+                  setCameraScannerActive(false);
+                  navigate(`/s/${scannedId}`);
+                })
+                .catch((err) => {
+                  console.error("Error clearing scanner on scan success:", err);
+                  scannerRef.current = null;
+                  setCameraScannerActive(false);
+                  navigate(`/s/${scannedId}`);
+                });
+            }
+          } catch {
+            alert('Scanned successfully, but link format was unrecognized: ' + decodedText);
+          }
+        }, () => {
+          // Silent error
+        });
+      } catch (err) {
+        console.error("Failed to initialize scanner:", err);
+      }
+    };
+
+    if (cameraScannerActive && activeTab === 'scan') {
+      initScanner();
     }
+
     return () => {
-      if (scanner) {
-        try { scanner.clear(); } catch { /* ignore clear failure */ }
+      active = false;
+      if (retryTimeout) clearTimeout(retryTimeout);
+      if (scannerRef.current) {
+        try {
+          scannerRef.current.clear();
+        } catch (e) {
+          /* ignore */
+        }
+        scannerRef.current = null;
       }
     };
   }, [cameraScannerActive, activeTab, navigate]);
@@ -538,7 +624,7 @@ const UserDashboard = () => {
       
       let msg = `*🛒 NEW MYSTORE ORDER* 🚀%0A`;
       msg += `-----------------------------%0A`;
-      msg += `*Shop:* ${shopInfo.name}%0A`;
+      msg += `*Shop:* ${shopInfo?.name || 'Partner Store'}%0A`;
       msg += `*Customer:* ${user.name} (${user.phone})%0A`;
       msg += `-----------------------------%0A`;
       items.forEach(item => {
@@ -553,7 +639,7 @@ const UserDashboard = () => {
       msg += `-----------------------------%0A`;
       msg += `Thank you! Powered by MyStore OS.`;
 
-      const shopPhone = shopInfo.phone || '9876543210';
+      const shopPhone = shopInfo?.phone || '9876543210';
       window.open(`https://wa.me/91${shopPhone}?text=${msg}`, '_blank');
       
       // Clear cart for this specific shop
@@ -692,70 +778,76 @@ const UserDashboard = () => {
       {/* MODE A: STORE CATALOGUE MODE                             */}
       {/* ======================================================== */}
       {isStoreMode ? (
-        <div style={{ paddingBottom: '90px' }}>
-          
-          {/* Header & Hero Area */}
-          <div style={{ position: 'relative', overflow: 'hidden', padding: '24px 16px', background: 'linear-gradient(135deg, #1e1b4b, #311042, #0b0f19)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        !shopInfo ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', background: 'transparent', color: '#94a3b8' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(244, 63, 94, 0.2)', borderTopColor: '#f43f5e', animation: 'laser-sweep 1s infinite linear', marginBottom: '16px' }}></div>
+            <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', letterSpacing: '0.5px' }}>Loading Store Profile...</p>
+          </div>
+        ) : (
+          <div style={{ paddingBottom: '90px' }}>
             
-            {/* Back to Marketplace Trigger */}
-            <button 
-              onClick={() => navigate('/user')}
-              style={{ position: 'absolute', top: 16, left: 16, display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 14px', borderRadius: '20px', width: 'auto', fontSize: '13px', cursor: 'pointer', zIndex: 10 }}
-            >
-              <ArrowLeft size={16} /> Home
-            </button>
-
-            {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'absolute', top: 16, right: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', padding: '8px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-                  <Gift size={13} /> {loyaltyCoins} Coins
-                </div>
-                <button 
-                  onClick={handleLogout}
-                  style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '8px 14px', borderRadius: '20px', width: 'auto', fontSize: '13px', cursor: 'pointer' }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-
-            {/* Shop branding & location metadata */}
-            <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            {/* Header & Hero Area */}
+            <div style={{ position: 'relative', overflow: 'hidden', padding: '24px 16px', background: 'linear-gradient(135deg, #1e1b4b, #311042, #0b0f19)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               
-              {shopInfo?.logo ? (
-                <div style={{ position: 'relative', width: '84px', height: '84px', marginBottom: '12px' }}>
-                  <img 
-                    src={shopInfo.logo} 
-                    alt="Logo" 
-                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f43f5e', boxShadow: '0 8px 24px rgba(244, 63, 94, 0.3)' }} 
-                  />
-                  {shopInfo.subscription === 'active' && (
-                    <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', border: '2px solid #0f172a', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
-                      PRO
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', marginBottom: '12px', boxShadow: '0 8px 20px rgba(139, 92, 246, 0.2)' }}>
-                  🏪
+              {/* Back to Marketplace Trigger */}
+              <button 
+                onClick={() => navigate('/user')}
+                style={{ position: 'absolute', top: 16, left: 16, display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 14px', borderRadius: '20px', width: 'auto', fontSize: '13px', cursor: 'pointer', zIndex: 10 }}
+              >
+                <ArrowLeft size={16} /> Home
+              </button>
+
+              {user && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'absolute', top: 16, right: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', padding: '8px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+                    <Gift size={13} /> {loyaltyCoins} Coins
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '8px 14px', borderRadius: '20px', width: 'auto', fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
 
-              <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px', margin: '0 0 4px 0', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                {shopInfo?.name || 'Sai Supermarket'}
-              </h1>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#94a3b8', marginBottom: '8px' }}>
-                <MapPin size={13} style={{ color: '#f43f5e' }} />
-                <span>
-                  GPS Location Locked • 
-                  {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
-                    ` ${(calculateDistance(coords.latitude, coords.longitude, shopInfo.latitude, shopInfo.longitude, shopInfo.id)).toFixed(2)} km away`
-                  ) : (
-                    ' Calculating proximity...'
-                  )}
-                </span>
-              </div>
+              {/* Shop branding & location metadata */}
+              <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                
+                {shopInfo?.logo ? (
+                  <div style={{ position: 'relative', width: '84px', height: '84px', marginBottom: '12px' }}>
+                    <img 
+                      src={shopInfo?.logo} 
+                      alt="Logo" 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f43f5e', boxShadow: '0 8px 24px rgba(244, 63, 94, 0.3)' }} 
+                    />
+                    {shopInfo?.subscription === 'active' && (
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', border: '2px solid #0f172a', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
+                        PRO
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', marginBottom: '12px', boxShadow: '0 8px 20px rgba(139, 92, 246, 0.2)' }}>
+                    🏪
+                  </div>
+                )}
+
+                <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px', margin: '0 0 4px 0', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                  {shopInfo?.name || 'Sai Supermarket'}
+                </h1>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#94a3b8', marginBottom: '8px' }}>
+                  <MapPin size={13} style={{ color: '#f43f5e' }} />
+                  <span>
+                    GPS Location Locked • 
+                    {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
+                      ` ${(calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id)).toFixed(2)} km away`
+                    ) : (
+                      ' Calculating proximity...'
+                    )}
+                  </span>
+                </div>
 
               {/* Badges row */}
               <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
@@ -1019,7 +1111,8 @@ const UserDashboard = () => {
             </div>
           )}
 
-        </div>
+          </div>
+        )
       ) : (
         // ========================================================
         // MODE B: GENERAL CONSUMER MARKETPLACE HOME                
@@ -1279,7 +1372,7 @@ const UserDashboard = () => {
                         }}
                       >
                         <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-                          🧴
+                          {p.icon || '📦'}
                         </div>
 
                         <div style={{ flex: 1 }}>
@@ -1696,47 +1789,120 @@ const UserDashboard = () => {
               <span>₹{getCartTotals().total}</span>
             </div>
 
-            {/* UPI QR Code Section */}
-            {shopInfo?.upiId ? (
-              <div style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
-                <h4 style={{ color: '#10b981', margin: '0 0 10px 0', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  <CreditCard size={14} /> Scan / Tap to Pay UPI
-                </h4>
+            {/* Payment Method Switch Pills */}
+            <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '4px', marginBottom: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('upi')}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: paymentMethod === 'upi' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
+                  color: paymentMethod === 'upi' ? '#fff' : '#94a3b8',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  width: 'auto'
+                }}
+              >
+                💳 UPI Transfer
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('cash')}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: paymentMethod === 'cash' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent',
+                  color: paymentMethod === 'cash' ? '#fff' : '#94a3b8',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  width: 'auto'
+                }}
+              >
+                💵 Cash / Counter
+              </button>
+            </div>
 
-                {/* Draw QR deep-link code SVG */}
-                <div style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px' }}>
-                  <QRCodeSVG 
-                    value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`} 
-                    size={110} 
-                  />
+            {/* Dynamic Payment Method View */}
+            {paymentMethod === 'upi' ? (
+              shopInfo?.upiId ? (
+                <div style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                  <h4 style={{ color: '#10b981', margin: '0 0 10px 0', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <CreditCard size={14} /> Scan or Tap to Pay UPI
+                  </h4>
+
+                  {/* Draw QR deep-link code SVG */}
+                  <div style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>
+                    <QRCodeSVG 
+                      value={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`} 
+                      size={110} 
+                    />
+                  </div>
+
+                  {/* Copy UPI ID utility */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '8px 12px', marginBottom: '14px', fontSize: '12px' }}>
+                    <span style={{ color: '#cbd5e1', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo?.upiId}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (shopInfo?.upiId) {
+                          navigator.clipboard.writeText(shopInfo.upiId);
+                          toast.success("UPI ID copied to clipboard!");
+                        }
+                      }}
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', fontSize: '11px', flexShrink: 0 }}
+                    >
+                      <Copy size={12} /> Copy
+                    </button>
+                  </div>
+
+                  {/* Desktop / Mobile Aware Deep links */}
+                  {isMobileDevice ? (
+                    <a 
+                      href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
+                      style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s' }}
+                      onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+                      onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                    >
+                      💳 Tap to Pay with PhonePe / Paytm / GPay
+                    </a>
+                  ) : (
+                    <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#f59e0b', padding: '10px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <Info size={12} /> Desktop detected: Scan this UPI QR code using your mobile camera or scanner app
+                    </div>
+                  )}
+
+                  {/* Display Custom uploaded Shopkeeper QR Poster image if available */}
+                  {shopInfo?.paymentQr && (
+                    <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                      <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px' }}>Or scan the shop's printed barcode poster:</p>
+                      <img src={shopInfo?.paymentQr} alt="Payment QR" style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                    </div>
+                  )}
+
                 </div>
-
-                {/* Gaps fixed: Desktop warning workflow for mobile apps */}
-                {isMobileDevice ? (
-                  <a 
-                    href={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`}
-                    style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff' }}
-                  >
-                    💳 Click to Pay on PhonePe/Paytm
-                  </a>
-                ) : (
-                  <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#f59e0b', padding: '10px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                    <Info size={12} /> Desktop Detected: Open your mobile camera to scan this UPI QR
-                  </div>
-                )}
-
-                {/* Display Custom uploaded Shopkeeper QR Poster image if available */}
-                {shopInfo.paymentQr && (
-                  <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-                    <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px' }}>Or scan the shopkeeper's uploaded barcode:</p>
-                    <img src={shopInfo.paymentQr} alt="Payment QR" style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  </div>
-                )}
-
-              </div>
+              ) : (
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>💵 No UPI details registered. Settle this payment at the shop counter.</p>
+                </div>
+              )
             ) : (
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>💵 Pay at Shop Counter (Cash / Custom Scan)</p>
+              <div style={{ background: 'rgba(245, 158, 11, 0.06)', border: '1px solid rgba(245, 158, 11, 0.18)', padding: '16px', borderRadius: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>💵</div>
+                <h4 style={{ color: '#fbbf24', margin: '0 0 6px 0', fontSize: '14px', fontWeight: '700' }}>
+                  Settle Cash at Counter
+                </h4>
+                <p style={{ fontSize: '12px', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>
+                  Your order details are preserved! Pay with cash or scan at the store's physical checkout counter. Click the WhatsApp button below to instantly alert the merchant.
+                </p>
               </div>
             )}
 
