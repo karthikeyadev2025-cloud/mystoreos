@@ -149,3 +149,33 @@ CREATE POLICY "Allow all" ON public.announcements FOR ALL USING (true) WITH CHEC
 -- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS variants TEXT;
 -- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS reorder_level INT DEFAULT 10;
 -- Then create the 3 tables: distributor_products, stock_orders, announcements if not present.
+
+-- ============================================================
+-- STORAGE CONFIGURATION (mystore-assets Bucket & RLS Policies)
+-- ============================================================
+
+-- 1. Create the mystore-assets bucket if it does not exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('mystore-assets', 'mystore-assets', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Allow anyone to retrieve and view files in the assets bucket (Public Read Access)
+CREATE POLICY "Public Read Access" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'mystore-assets');
+
+-- 3. Allow authenticated or anonymous users to insert files (Public Write Access)
+CREATE POLICY "Public Insert Access" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'mystore-assets');
+
+-- 4. Allow users to update their files (Public Update Access)
+CREATE POLICY "Public Update Access" 
+ON storage.objects FOR UPDATE 
+USING (bucket_id = 'mystore-assets');
+
+-- 5. Allow users to delete their files (Public Delete Access)
+CREATE POLICY "Public Delete Access" 
+ON storage.objects FOR DELETE 
+USING (bucket_id = 'mystore-assets');
+
