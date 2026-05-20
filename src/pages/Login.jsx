@@ -17,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // OTP State
-  const [useOtp, setUseOtp] = useState(true);
+  const [useOtp, setUseOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
 
