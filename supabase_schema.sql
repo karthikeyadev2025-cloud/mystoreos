@@ -160,21 +160,25 @@ VALUES ('mystore-assets', 'mystore-assets', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Allow anyone to retrieve and view files in the assets bucket (Public Read Access)
+DROP POLICY IF EXISTS "Public Read Access" ON storage.objects;
 CREATE POLICY "Public Read Access" 
 ON storage.objects FOR SELECT 
 USING (bucket_id = 'mystore-assets');
 
 -- 3. Allow authenticated or anonymous users to insert files (Public Write Access)
+DROP POLICY IF EXISTS "Public Insert Access" ON storage.objects;
 CREATE POLICY "Public Insert Access" 
 ON storage.objects FOR INSERT 
 WITH CHECK (bucket_id = 'mystore-assets');
 
 -- 4. Allow users to update their files (Public Update Access)
+DROP POLICY IF EXISTS "Public Update Access" ON storage.objects;
 CREATE POLICY "Public Update Access" 
 ON storage.objects FOR UPDATE 
 USING (bucket_id = 'mystore-assets');
 
 -- 5. Allow users to delete their files (Public Delete Access)
+DROP POLICY IF EXISTS "Public Delete Access" ON storage.objects;
 CREATE POLICY "Public Delete Access" 
 ON storage.objects FOR DELETE 
 USING (bucket_id = 'mystore-assets');
