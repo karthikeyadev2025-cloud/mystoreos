@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { Store, ShieldCheck, ArrowLeft, KeyRound } from 'lucide-react';
+import { Store, ShieldCheck, ArrowLeft, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,6 +11,7 @@ const Login = () => {
   const [pass, setPass] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -96,19 +97,26 @@ const Login = () => {
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>New Password</label>
-              <input 
-                type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} 
-                placeholder="Minimum 4 characters"
-                style={inputStyle}
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} value={newPass} onChange={(e) => setNewPass(e.target.value)} 
+                  placeholder="At least 4 characters" 
+                  style={{...inputStyle, paddingRight: '40px'}}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Confirm New Password</label>
-              <input 
-                type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} 
-                placeholder="Re-enter new password"
-                style={inputStyle}
-              />
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Confirm Password</label>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} 
+                  placeholder="Retype password" 
+                  style={{...inputStyle, paddingRight: '40px'}}
+                />
+              </div>
             </div>
             <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(245,158,11,0.25)' }}>
               {loading ? 'Resetting...' : '🔑 Reset Password'}
@@ -144,11 +152,16 @@ const Login = () => {
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Password</label>
-            <input 
-              type="password" value={pass} onChange={(e) => setPass(e.target.value)}
-              placeholder="••••••••"
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"} value={pass} onChange={(e) => setPass(e.target.value)}
+                placeholder="••••••••"
+                style={{...inputStyle, paddingRight: '40px'}}
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div style={{ textAlign: 'right', marginBottom: 24 }}>

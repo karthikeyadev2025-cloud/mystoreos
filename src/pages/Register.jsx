@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import { Eye, EyeOff } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
@@ -11,6 +12,7 @@ const Register = () => {
   const [pass, setPass] = useState('');
   const [businessType, setBusinessType] = useState('shop');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleRegister = async (e) => {
@@ -78,11 +80,16 @@ const Register = () => {
 
           <div style={{ marginBottom: 20 }}>
             <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Create Password</label>
-            <input 
-              type="password" value={pass} onChange={(e) => setPass(e.target.value)}
-              placeholder="••••••••"
-              style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"} value={pass} onChange={(e) => setPass(e.target.value)}
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '14px', paddingRight: '40px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div style={{ marginBottom: 30 }}>
