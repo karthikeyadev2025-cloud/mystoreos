@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { Store, ShieldCheck } from 'lucide-react';
+import { Store, ShieldCheck, ArrowLeft, KeyRound } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { auth } from '../lib/firebase';
 
 const Login = () => {
   const [phone, setPhone] = useState('');
@@ -16,15 +14,19 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // OTP State
-  const [useOtp, setUseOtp] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
+  // Forgot Password State
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotPhone, setForgotPhone] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
 
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
+    if (phone.length < 10) return setError("Enter a valid 10-digit mobile number");
+    if (!pass) return setError("Enter your password");
     try {
       setLoading(true);
+      setError('');
       const user = await api.login(phone, pass);
       login(user);
       navigate('/dashboard');
@@ -35,145 +37,138 @@ const Login = () => {
     }
   };
 
-  const handleSendOtp = async (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    if(phone.length < 10) return setError("Enter a valid 10-digit mobile number");
-    
+    if (forgotPhone.length < 10) return setError("Enter a valid 10-digit mobile number");
+    if (newPass.length < 4) return setError("Password must be at least 4 characters");
+    if (newPass !== confirmPass) return setError("Passwords do not match");
     try {
       setLoading(true);
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          'size': 'invisible'
-        });
-      }
-      
-      const formatPhone = '+91' + phone; // Default to India
-      const confirmationResult = await signInWithPhoneNumber(auth, formatPhone, window.recaptchaVerifier);
-      window.confirmationResult = confirmationResult;
-      
-      setOtpSent(true);
-      toast.success("OTP sent securely via Firebase!");
+      setError('');
+      await api.resetPassword(forgotPhone, newPass);
+      toast.success("Password reset successful! Please login with your new password.");
+      setShowForgot(false);
+      setPhone(forgotPhone);
+      setPass('');
+      setForgotPhone('');
+      setNewPass('');
+      setConfirmPass('');
     } catch (err) {
-      setError(err.message || "Failed to send OTP. Check Firebase config.");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = null;
-      }
+      setError(err.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if(otp.length < 4) return setError("Enter valid OTP");
-    
-    try {
-      setLoading(true);
-      
-      // If demo mode (for testing without SMS)
-      if (otp === '1234' && (phone === '8885490495' || phone === '9876543210' || phone === '8888888888')) {
-        // Special case for admin to use password bypass instead of standard '1234'
-        const bypassPass = phone === '8885490495' ? 'Mystore@karthi@2025' : '1234';
-        const user = await api.login(phone, bypassPass);
-        login(user);
-        navigate('/dashboard');
-        return;
-      }
-
-      // Real Firebase Verification
-      await window.confirmationResult.confirm(otp);
-      
-      // OTP matched! Now fetch the user from our Database
-      const user = await api.loginByPhone(phone);
-      login(user);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.message || "Invalid OTP or User not found");
-    } finally {
-      setLoading(false);
-    }
+  const inputStyle = { 
+    width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', 
+    border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', 
+    color: '#fff', fontSize: '15px', outline: 'none', boxSizing: 'border-box'
   };
 
+  // ===== FORGOT PASSWORD SCREEN =====
+  if (showForgot) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', padding: '20px' }}>
+        <ToastContainer theme="dark" position="top-center" />
+        <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(20px)', padding: '36px 28px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 400, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+          
+          <button onClick={() => { setShowForgot(false); setError(''); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: 0, marginBottom: '20px' }}>
+            <ArrowLeft size={16} /> Back to Login
+          </button>
+
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <KeyRound size={44} color="#f59e0b" style={{ margin: '0 auto 14px' }} />
+            <h1 style={{ fontSize: '24px', color: '#fff', margin: '0 0 8px 0', fontWeight: 900 }}>Reset Password</h1>
+            <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>Enter your registered mobile number and set a new password</p>
+          </div>
+
+          {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' }}>{error}</div>}
+
+          <form onSubmit={handleForgotPassword}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Registered Mobile Number</label>
+              <input 
+                type="tel" value={forgotPhone} onChange={(e) => setForgotPhone(e.target.value)} 
+                placeholder="10-digit mobile number" maxLength={10}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>New Password</label>
+              <input 
+                type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} 
+                placeholder="Minimum 4 characters"
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Confirm New Password</label>
+              <input 
+                type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} 
+                placeholder="Re-enter new password"
+                style={inputStyle}
+              />
+            </div>
+            <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(245,158,11,0.25)' }}>
+              {loading ? 'Resetting...' : '🔑 Reset Password'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== MAIN LOGIN SCREEN =====
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', padding: 20 }}>
-      <ToastContainer theme="dark" />
-      <div style={{ background: 'rgba(30,41,59,0.8)', backdropFilter: 'blur(20px)', padding: '40px 30px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 400, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', padding: '20px' }}>
+      <ToastContainer theme="dark" position="top-center" />
+      <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(20px)', padding: '36px 28px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 400, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
         
-        <div style={{ textAlign: 'center', marginBottom: 30 }}>
-          <Store size={48} color="#fbbf24" style={{ margin: '0 auto 16px' }} />
-          <h1 style={{ fontSize: '28px', color: '#fff', margin: '0 0 10px 0', fontWeight: 900 }}>Welcome Back</h1>
-          <p style={{ color: '#94a3b8', margin: 0 }}>Login to MyStore OS</p>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <Store size={44} color="#fbbf24" style={{ margin: '0 auto 14px' }} />
+          <h1 style={{ fontSize: '26px', color: '#fff', margin: '0 0 8px 0', fontWeight: 900 }}>Welcome Back</h1>
+          <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>Login to MyStore OS</p>
         </div>
 
-        {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px', textAlign: 'center' }}>{error}</div>}
+        {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' }}>{error}</div>}
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px' }}>
-          <button onClick={() => {setUseOtp(true); setOtpSent(false); setError('');}} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: useOtp ? '#3b82f6' : 'transparent', color: useOtp ? 'white' : '#94a3b8', fontWeight: 'bold', cursor: 'pointer' }}>OTP Login</button>
-          <button onClick={() => {setUseOtp(false); setError('');}} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: !useOtp ? '#3b82f6' : 'transparent', color: !useOtp ? 'white' : '#94a3b8', fontWeight: 'bold', cursor: 'pointer' }}>Password Login</button>
-        </div>
+        <form onSubmit={handlePasswordLogin}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Mobile Number</label>
+            <input 
+              type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+              placeholder="10-digit mobile number" maxLength={10}
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 6, fontWeight: 'bold' }}>Password</label>
+            <input 
+              type="password" value={pass} onChange={(e) => setPass(e.target.value)}
+              placeholder="••••••••"
+              style={inputStyle}
+            />
+          </div>
 
-        {useOtp ? (
-          <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Mobile Number</label>
-              <input 
-                type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={otpSent}
-                placeholder="10-digit mobile number"
-                style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
-              />
-            </div>
-            
-            {otpSent && (
-              <div style={{ marginBottom: 30 }}>
-                <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Enter 4-digit OTP</label>
-                <input 
-                  type="text" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4}
-                  placeholder="e.g. 1234"
-                  style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '24px', letterSpacing: '8px', textAlign: 'center' }}
-                />
-              </div>
-            )}
-            
-            <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <ShieldCheck size={20} />
-              {loading ? 'Processing...' : (otpSent ? 'Verify & Login' : 'Send Firebase OTP')}
-            </button>
-            <div id="recaptcha-container" style={{marginTop: 16, display: 'flex', justifyContent: 'center'}}></div>
-          </form>
-        ) : (
-          <form onSubmit={handlePasswordLogin}>
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Mobile Number</label>
-              <input 
-                type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                placeholder="10-digit mobile number"
-                style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
-              />
-            </div>
-            <div style={{ marginBottom: 30 }}>
-              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Password</label>
-              <input 
-                type="password" value={pass} onChange={(e) => setPass(e.target.value)}
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px' }}
-              />
-            </div>
-            <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(59,130,246,0.3)' }}>
-              {loading ? 'Logging in...' : 'Login securely'}
-            </button>
-          </form>
-        )}
+          <div style={{ textAlign: 'right', marginBottom: 24 }}>
+            <span 
+              onClick={() => { setShowForgot(true); setError(''); }} 
+              style={{ color: '#f59e0b', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}
+            >
+              Forgot Password?
+            </span>
+          </div>
+
+          <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <ShieldCheck size={18} />
+            {loading ? 'Logging in...' : 'Login Securely'}
+          </button>
+        </form>
         
-        <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', marginTop: 20 }}>
+        <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', marginTop: 20, marginBottom: 0 }}>
           Don't have an account? <span onClick={() => navigate('/register')} style={{ color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold' }}>Register here</span>
         </p>
-
-        <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-          <b>Demo Logins</b><br/>
-          Admin: 8885490495 (Pass: Mystore@karthi@2025)<br/>
-          Shop: 9876543210 • Distributor: 8888888888 (Pass: 1234)
-        </div>
       </div>
     </div>
   );

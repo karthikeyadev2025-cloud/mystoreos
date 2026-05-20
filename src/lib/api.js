@@ -85,6 +85,31 @@ export const api = {
     return user;
   },
 
+  async resetPassword(phone, newPass) {
+    if (isSupabaseConfigured) {
+      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
+      if (!existing) throw new Error("Phone number not found. Please register first.");
+      await supabase.from('users').update({ pass: newPass }).eq('id', existing.id);
+      return true;
+    }
+    const db = getDB();
+    const user = db.users.find(u => u.phone === phone);
+    if (!user) throw new Error("Phone number not found. Please register first.");
+    user.pass = newPass;
+    saveDB(db);
+    return true;
+  },
+
+  async adminResetPassword(userId, newPass) {
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update({ pass: newPass }).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const user = db.users.find(u => u.id === userId);
+    if (user) { user.pass = newPass; saveDB(db); }
+  },
+
   async register(name, phone, pass, role) {
     if (isSupabaseConfigured) {
       // Check if phone already exists

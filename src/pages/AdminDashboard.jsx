@@ -54,6 +54,14 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResetPassword = async (userId, userName) => {
+    const newPass = prompt(`Set new password for ${userName}:`);
+    if (!newPass) return;
+    if (newPass.length < 4) return toast.error('Password must be at least 4 characters');
+    await api.adminResetPassword(userId, newPass);
+    toast.success(`Password reset for ${userName}!`);
+  };
+
   const handleSaveSettings = async () => {
     await api.saveSettings({ razorpayKey });
     toast.success("System Settings Saved Successfully!");
@@ -189,7 +197,10 @@ const AdminDashboard = () => {
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {shop.phone}</p>
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Status: <span style={{color: shop.status === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.status}</span> | Plan: <span style={{color: shop.subscription === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.subscription === 'active' ? 'PRO ₹999' : 'Free Trial'}</span></p>
               </div>
-              <button onClick={() => handleDelete(shop.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap'}}>Delete</button>
+              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
+                <button onClick={() => handleResetPassword(shop.id, shop.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🔑 Reset</button>
+                <button onClick={() => handleDelete(shop.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🗑️</button>
+              </div>
             </div>
           ))}
         </div>
@@ -206,7 +217,10 @@ const AdminDashboard = () => {
                 <h4 style={{margin: 0, fontSize: '16px'}}>{cust.name}</h4>
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {cust.phone}</p>
               </div>
-              <button onClick={() => handleDelete(cust.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer'}}>Delete</button>
+              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
+                <button onClick={() => handleResetPassword(cust.id, cust.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
+                <button onClick={() => handleDelete(cust.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
+              </div>
             </div>
           ))}
 
@@ -218,7 +232,10 @@ const AdminDashboard = () => {
                 <h4 style={{margin: 0, fontSize: '16px'}}>{dist.name}</h4>
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {dist.phone} • Status: {dist.status}</p>
               </div>
-              <button onClick={() => handleDelete(dist.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer'}}>Delete</button>
+              <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
+                <button onClick={() => handleResetPassword(dist.id, dist.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
+                <button onClick={() => handleDelete(dist.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
+              </div>
             </div>
           ))}
         </div>
