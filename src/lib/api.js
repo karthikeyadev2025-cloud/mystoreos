@@ -23,8 +23,22 @@ const mockDB = {
   settings: { razorpayKey: '' }
 };
 
-if (!localStorage.getItem('mystore_db')) {
+const localDBStr = localStorage.getItem('mystore_db');
+if (!localDBStr) {
   localStorage.setItem('mystore_db', JSON.stringify(mockDB));
+} else {
+  try {
+    const db = JSON.parse(localDBStr);
+    if (db && db.users) {
+      const hasAdmin = db.users.some(u => u.phone === '8885490495');
+      if (!hasAdmin) {
+        db.users.push({ id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' });
+        localStorage.setItem('mystore_db', JSON.stringify(db));
+      }
+    }
+  } catch (e) {
+    console.error("Failed to migrate mockDB", e);
+  }
 }
 const getDB = () => JSON.parse(localStorage.getItem('mystore_db'));
 const saveDB = (db) => localStorage.setItem('mystore_db', JSON.stringify(db));
