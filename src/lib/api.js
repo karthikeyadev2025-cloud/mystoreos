@@ -59,14 +59,18 @@ export const api = {
   // ---- AUTH ----
   async login(phone, pass) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).eq('pass', pass).single();
-      if (error || !data) throw new Error("Invalid credentials");
+      // Find user by phone first, then verify password in JS
+      // This avoids Supabase query issues with special characters in passwords
+      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).single();
+      if (error || !data) throw new Error("Phone number not found. Please register first.");
+      if (data.pass !== pass) throw new Error("Wrong password. Try again or use Forgot Password.");
       if (data.status === 'pending') throw new Error("Account pending admin approval");
       return toUser(data);
     }
     const db = getDB();
-    const user = db.users.find(u => u.phone === phone && u.pass === pass);
-    if (!user) throw new Error("Invalid credentials");
+    const user = db.users.find(u => u.phone === phone);
+    if (!user) throw new Error("Phone number not found. Please register first.");
+    if (user.pass !== pass) throw new Error("Wrong password. Try again or use Forgot Password.");
     if (user.status === 'pending') throw new Error("Account pending admin approval");
     return user;
   },
