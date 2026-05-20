@@ -16,10 +16,10 @@ const mockDB = {
     { id: 'u_staff1', phone: '7777777777', pass: '1234', role: 'staff', name: 'Ravi (Helper)', status: 'active', staff_of: 'u_1' }
   ],
   products: [
-    { id: 'p_1', shopId: 'u_1', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 45 },
-    { id: 'p_2', shopId: 'u_1', name: 'Aashirvaad Atta 1kg', price: 65, barcode: '8901725112028', stock: 8 },
-    { id: 'p_3', shopId: 'u_4', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 100 },
-    { id: 'p_4', shopId: 'u_4', name: 'Dove Cream Shampoo 180ml', price: 165, barcode: '8901030752834', stock: 30 }
+    { id: 'p_1', shopId: 'u_1', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 45, batchNumber: 'B-PAR01', expiryDate: '2026-12-31', variants: 'Regular, Family Pack', reorderLevel: 10 },
+    { id: 'p_2', shopId: 'u_1', name: 'Aashirvaad Atta 1kg', price: 65, barcode: '8901725112028', stock: 8, batchNumber: 'B-ASH22', expiryDate: '2026-06-15', variants: '1kg, 5kg', reorderLevel: 15 },
+    { id: 'p_3', shopId: 'u_4', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 100, batchNumber: 'B-PAR01', expiryDate: '2027-01-01', variants: 'Regular', reorderLevel: 10 },
+    { id: 'p_4', shopId: 'u_4', name: 'Dove Cream Shampoo 180ml', price: 165, barcode: '8901030752834', stock: 30, batchNumber: 'B-DOV99', expiryDate: '2026-05-10', variants: '180ml, 360ml', reorderLevel: 10 }
   ],
   orders: [],
   credits: [],
@@ -43,6 +43,13 @@ if (!localDBStr) {
   try {
     const db = JSON.parse(localDBStr);
     let modified = false;
+    
+    // Migrate old mock DB to support advanced inventory fields
+    if (db && db.products && db.products.length > 0 && !Object.prototype.hasOwnProperty.call(db.products[0], 'batchNumber')) {
+      db.products = mockDB.products;
+      modified = true;
+    }
+    
     if (db && db.users) {
       const hasAdmin = db.users.some(u => u.phone === '8885490495');
       if (!hasAdmin) {
@@ -84,7 +91,9 @@ const toUser = (row) => row ? ({
 
 const toProduct = (row) => row ? ({
   id: row.id, shopId: row.shop_id, name: row.name, price: row.price,
-  barcode: row.barcode, stock: row.stock
+  barcode: row.barcode, stock: row.stock,
+  batchNumber: row.batch_number, expiryDate: row.expiry_date,
+  variants: row.variants, reorderLevel: row.reorder_level || 10
 }) : null;
 
 const toOrder = (row) => row ? ({
@@ -266,17 +275,82 @@ export const api = {
     return db.products.filter(p => p.shopId === shopId);
   },
 
-  async addProduct(shopId, name, price, barcode) {
+  async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('products').insert({ shop_id: shopId, name, price: parseFloat(price), barcode, stock: 100 }).select().single();
+      const { data, error } = await supabase.from('products').insert({ 
+        shop_id: shopId, 
+        name, 
+        price: parseFloat(price), 
+        barcode, 
+        stock: parseInt(stock) || 0,
+        batch_number: batchNumber || null,
+        expiry_date: expiryDate || null,
+        variants: variants || null,
+        reorder_level: parseInt(reorderLevel) || 10
+      }).select().single();
       if (error) throw new Error(error.message);
       return toProduct(data);
     }
     const db = getDB();
-    const newProd = { id: 'p_' + generateId(), shopId, name, price: parseFloat(price), barcode, stock: 100 };
+    const newProd = { 
+      id: 'p_' + generateId(), 
+      shopId, 
+      name, 
+      price: parseFloat(price), 
+      barcode, 
+      stock: parseInt(stock) || 0,
+      batchNumber: batchNumber || '',
+      expiryDate: expiryDate || '',
+      variants: variants || '',
+      reorderLevel: parseInt(reorderLevel) || 10
+    };
     db.products.push(newProd);
     saveDB(db);
     return newProd;
+  },
+
+  async editProduct(prodId, data) {
+    if (isSupabaseConfigured) {
+      const updateObj = {};
+      if (data.name !== undefined) updateObj.name = data.name;
+      if (data.price !== undefined) updateObj.price = parseFloat(data.price);
+      if (data.barcode !== undefined) updateObj.barcode = data.barcode;
+      if (data.stock !== undefined) updateObj.stock = parseInt(data.stock);
+      if (data.batchNumber !== undefined) updateObj.batch_number = data.batchNumber || null;
+      if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
+      if (data.variants !== undefined) updateObj.variants = data.variants || null;
+      if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
+      
+      const { data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().single();
+      if (error) throw new Error(error.message);
+      return toProduct(updated);
+    }
+    const db = getDB();
+    const prod = db.products.find(p => p.id === prodId);
+    if (prod) {
+      if (data.name !== undefined) prod.name = data.name;
+      if (data.price !== undefined) prod.price = parseFloat(data.price);
+      if (data.barcode !== undefined) prod.barcode = data.barcode;
+      if (data.stock !== undefined) prod.stock = parseInt(data.stock);
+      if (data.batchNumber !== undefined) prod.batchNumber = data.batchNumber || '';
+      if (data.expiryDate !== undefined) prod.expiryDate = data.expiryDate || '';
+      if (data.variants !== undefined) prod.variants = data.variants || '';
+      if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
+      saveDB(db);
+    }
+    return prod;
+  },
+
+  async deleteProduct(prodId) {
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('products').delete().eq('id', prodId);
+      if (error) throw new Error(error.message);
+      return true;
+    }
+    const db = getDB();
+    db.products = db.products.filter(p => p.id !== prodId);
+    saveDB(db);
+    return true;
   },
 
   // ---- STAFF ----

@@ -39,6 +39,10 @@ CREATE TABLE public.products (
     price DECIMAL(10, 2) NOT NULL,
     barcode TEXT,
     stock INT DEFAULT 100,
+    batch_number TEXT,
+    expiry_date DATE,
+    variants TEXT,
+    reorder_level INT DEFAULT 10,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -135,7 +139,11 @@ CREATE POLICY "Allow all" ON public.distributor_products FOR ALL USING (true) WI
 CREATE POLICY "Allow all" ON public.stock_orders FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all" ON public.announcements FOR ALL USING (true) WITH CHECK (true);
 
--- Migration helper: If upgrading from v2, run these ALTER commands instead of full re-create:
+-- Migration helper: If upgrading from previous version, run these ALTER commands instead of full re-create:
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS latitude DECIMAL;
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS longitude DECIMAL;
--- Then create the 3 new tables above (distributor_products, stock_orders, announcements)
+-- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS batch_number TEXT;
+-- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS expiry_date DATE;
+-- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS variants TEXT;
+-- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS reorder_level INT DEFAULT 10;
+-- Then create the 3 tables: distributor_products, stock_orders, announcements if not present.

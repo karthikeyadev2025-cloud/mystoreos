@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { Home, Package, Receipt, Wallet, User, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,6 +25,10 @@ const ShopDashboard = () => {
   const [billItems, setBillItems] = useState([]);
   const [customItemName, setCustomItemName] = useState('');
   const [customItemPrice, setCustomItemPrice] = useState('');
+  const [billingMode, setBillingMode] = useState('bill'); // 'bill' | 'estimate' | 'challan'
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [billsSubTab, setBillsSubTab] = useState('sales'); // 'sales' | 'drafts'
   
   // Receipt Modal State
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -33,8 +37,34 @@ const ShopDashboard = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdPrice, setNewProdPrice] = useState('');
+  const [newProdStock, setNewProdStock] = useState('100');
+  const [newProdReorder, setNewProdReorder] = useState('10');
+  const [newProdBatch, setNewProdBatch] = useState('');
+  const [newProdExpiry, setNewProdExpiry] = useState('');
+  const [newProdVariants, setNewProdVariants] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+
+  // Edit Product Modal State
+  const [showEditProductModal, setShowEditProductModal] = useState(false);
+  const [editingProdId, setEditingProdId] = useState(null);
+  const [editProdName, setEditProdName] = useState('');
+  const [editProdPrice, setEditProdPrice] = useState('');
+  const [editProdStock, setEditProdStock] = useState('');
+  const [editProdReorder, setEditProdReorder] = useState('');
+  const [editProdBatch, setEditProdBatch] = useState('');
+  const [editProdExpiry, setEditProdExpiry] = useState('');
+  const [editProdVariants, setEditProdVariants] = useState('');
+  const [editProdBarcode, setEditProdBarcode] = useState('');
+
+  // Credit Ledger Toggle & Form States
+  const [creditTabSub, setCreditTabSub] = useState('payable'); // 'payable' | 'receivable'
+  const [custCreditName, setCustCreditName] = useState('');
+  const [custCreditPhone, setCustCreditPhone] = useState('');
+  const [custCreditDesc, setCustCreditDesc] = useState('');
+  const [custCreditAmount, setCustCreditAmount] = useState('');
+  const [customerCredits, setCustomerCredits] = useState([]);
+  const [stockOrders, setStockOrders] = useState([]);
 
   // Profile State
   const [upiId, setUpiId] = useState(user?.upiId || '');
@@ -74,6 +104,8 @@ const ShopDashboard = () => {
     
     if (isOwner) {
       setCredits(await api.getShopCredits(targetShopId));
+      setCustomerCredits(await api.getDistCredits(targetShopId));
+      setStockOrders(await api.getShopStockOrders(targetShopId));
       setSysSettings(await api.getSettings());
       setStaffList(await api.getShopStaff(targetShopId));
     }
@@ -86,22 +118,178 @@ const ShopDashboard = () => {
     return () => clearTimeout(timer);
   }, [loadData]);
 
+  const decodeOrderUserId = (userId) => {
+    if (!userId) return { type: 'bill', name: 'Walk-in Customer', phone: '' };
+    const parts = userId.split(':');
+    if (parts.length >= 2) {
+      const type = parts[0]; // 'estimate', 'challan', 'walk-in'
+      const name = parts[1] || 'Guest';
+      const phone = parts[2] || '';
+      return { type, name, phone };
+    }
+    return { type: 'bill', name: userId === 'walk-in-customer' ? 'Walk-in Customer' : userId, phone: '' };
+  };
+
+  const checkExpiryStatus = (expiryDateStr) => {
+    if (!expiryDateStr) return { status: 'ok', text: '' };
+    const today = new Date('2026-05-20');
+    const expiry = new Date(expiryDateStr);
+    if (expiry <= today) {
+      return { status: 'expired', text: 'Expired 🚨' };
+    }
+    const ninetyDaysFromNow = new Date('2026-05-20');
+    ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+    if (expiry <= ninetyDaysFromNow) {
+      return { status: 'near', text: 'Expires Soon ⚠️' };
+    }
+    return { status: 'ok', text: '' };
+  };
+
+  const handleConvertEstimateToBill = (o) => {
+    const { name, phone } = decodeOrderUserId(o.userId);
+    setCustomerName(name);
+    setCustomerPhone(phone);
+    
+    setBillItems(o.items.map(item => ({
+      ...item,
+      variants: products.find(p => p.id === item.id)?.variants || ''
+    })));
+    
+    setBillingMode('bill');
+    setActiveTab('home');
+    toast.success(`Converted Estimate to Active Bill for ${name}!`);
+  };
+
+  const handleOpenEditModal = (p) => {
+    setEditingProdId(p.id);
+    setEditProdName(p.name);
+    setEditProdPrice(p.price);
+    setEditProdStock(p.stock || 0);
+    setEditProdReorder(p.reorderLevel || 10);
+    setEditProdBatch(p.batchNumber || '');
+    setEditProdExpiry(p.expiryDate || '');
+    setEditProdVariants(p.variants || '');
+    setEditProdBarcode(p.barcode || '');
+    setShowEditProductModal(true);
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editProdName || !editProdPrice) return toast.error("Name and price required");
+    try {
+      await api.editProduct(editingProdId, {
+        name: editProdName,
+        price: parseFloat(editProdPrice),
+        stock: parseInt(editProdStock) || 0,
+        reorderLevel: parseInt(editProdReorder) || 10,
+        batchNumber: editProdBatch,
+        expiryDate: editProdExpiry,
+        variants: editProdVariants,
+        barcode: editProdBarcode
+      });
+      toast.success("Product updated successfully!");
+      setShowEditProductModal(false);
+      loadData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to update product");
+    }
+  };
+
+  const handleDeleteProduct = async (prodId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await api.deleteProduct(prodId);
+        toast.success("Product deleted successfully!");
+        loadData();
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to delete product");
+      }
+    }
+  };
+
+  const handleAddCustomerCredit = async () => {
+    if (!custCreditName || !custCreditAmount) return toast.error("Name and amount required");
+    try {
+      const descStr = `customer:${custCreditName}:${custCreditPhone || ''}:${custCreditDesc || 'Credit Purchase'}`;
+      await api.addCredit(targetShopId, targetShopId, descStr, custCreditAmount);
+      toast.success("Customer credit logged successfully!");
+      setCustCreditName('');
+      setCustCreditPhone('');
+      setCustCreditDesc('');
+      setCustCreditAmount('');
+      loadData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to save credit");
+    }
+  };
+
+  const sendCustomerCreditReminder = (c) => {
+    const parts = c.desc.split(':');
+    const custName = parts[1] || 'Valued Customer';
+    const custPhone = parts[2] || '';
+    const custDesc = parts[3] || 'Pending Balance';
+    
+    const storeName = user.name;
+    const upiIdForStore = upiId || user.upiId || '';
+    
+    if (!upiIdForStore) {
+      return toast.error("Configure your UPI ID in Settings to generate payment links.");
+    }
+    
+    const upiLink = `upi://pay?pa=${upiIdForStore}&pn=${encodeURIComponent(storeName)}&am=${c.amount}&cu=INR`;
+    const message = `Hello *${custName}*,\nThis is a friendly reminder from *${storeName}* regarding your pending outstanding balance of *₹${c.amount}* for *${custDesc}*.\n\nYou can pay instantly via any UPI App by clicking this link:\n${upiLink}\n\nThank you!`;
+    
+    window.open(`https://wa.me/${custPhone ? custPhone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   const addToBill = useCallback((prod) => {
-    setBillItems(prevItems => [...prevItems, prod]);
-    toast.success(`Added ${prod.name} to bill`, { autoClose: 1000 });
+    setBillItems(prevItems => {
+      const existing = prevItems.find(item => item.id === prod.id);
+      if (existing) {
+        toast.success(`Increased quantity of ${prod.name}`, { autoClose: 1000 });
+        return prevItems.map(item => item.id === prod.id ? { ...item, qty: item.qty + 1 } : item);
+      }
+      const firstVariant = prod.variants ? prod.variants.split(',')[0].trim() : '';
+      toast.success(`Added ${prod.name} to bill`, { autoClose: 1000 });
+      return [...prevItems, { ...prod, qty: 1, selectedVariant: firstVariant }];
+    });
   }, []);
 
   const addCustomItem = () => {
     if(!customItemName || !customItemPrice) return toast.error("Enter name and price");
-    const item = { name: customItemName, price: parseFloat(customItemPrice), qty: 1 };
+    const item = { id: 'custom_' + Date.now(), name: customItemName, price: parseFloat(customItemPrice), qty: 1, selectedVariant: '' };
     setBillItems([...billItems, item]);
     setCustomItemName('');
     setCustomItemPrice('');
+  };
+
+  const updateBillItemQty = (prodId, delta) => {
+    setBillItems(prev => {
+      return prev.map(item => {
+        if (item.id === prodId) {
+          const newQty = item.qty + delta;
+          return newQty > 0 ? { ...item, qty: newQty } : null;
+        }
+        return item;
+      }).filter(Boolean);
+    });
+  };
+
+  const updateBillItemVariant = (prodId, variant) => {
+    setBillItems(prev => {
+      return prev.map(item => item.id === prodId ? { ...item, selectedVariant: variant } : item);
+    });
+  };
+
+  const removeBillItem = (prodId) => {
+    setBillItems(prev => prev.filter(item => item.id !== prodId));
   };
 
   const applyPromoCode = () => {
@@ -122,79 +310,215 @@ const ShopDashboard = () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const total = Math.max(0, billTotal - discountAmount);
     
-    // Save to DB as an offline walk-in order
     try {
-      await api.placeOrder('walk-in-customer', targetShopId, billItems.map(b => ({...b, qty: 1})), total);
+      let finalUserId = 'walk-in-customer';
+      if (billingMode === 'estimate') {
+        finalUserId = `estimate:${customerName || 'Guest'}:${customerPhone || ''}`;
+      } else if (billingMode === 'challan') {
+        finalUserId = `challan:${customerName || 'Guest'}:${customerPhone || ''}`;
+      } else {
+        finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}`;
+      }
+
+      await api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
+        id: b.id,
+        name: b.name,
+        price: b.price,
+        qty: b.qty || 1,
+        selectedVariant: b.selectedVariant || ''
+      })), total);
       
-      // PhonePe Soundbox Synthesis voice announcement
-      if ('speechSynthesis' in window) {
+      // Sound synthesis announcement for completed bill (not for estimate/challan)
+      if (billingMode === 'bill' && 'speechSynthesis' in window) {
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(`MyStore received ${total} rupees successfully!`));
       }
 
-      // Generate Branded PDF Receipt
+      // Generate Premium Custom Themed PDF
       const doc = new jsPDF();
-      if (user.logo) {
-        doc.addImage(user.logo, 'JPEG', 80, 10, 50, 50); // Add logo centered
-        doc.text(user.name, 105, 70, { align: 'center' });
-      } else {
-        doc.setFontSize(22);
-        doc.text(user.name, 105, 20, { align: 'center' });
-      }
-      doc.setFontSize(12);
-      doc.text(`Phone: ${user.phone}`, 105, user.logo ? 80 : 30, { align: 'center' });
-      doc.text("--------------------------------------------------", 105, user.logo ? 90 : 40, { align: 'center' });
       
-      let yOffset = user.logo ? 100 : 50;
-      doc.setFontSize(14);
-      doc.text("Item Name", 20, yOffset);
-      doc.text("Amount", 160, yOffset);
-      yOffset += 10;
+      let themeColor = '#10b981'; // emerald green for bill
+      let modeTitle = 'TAX INVOICE';
+      if (billingMode === 'estimate') {
+        themeColor = '#f59e0b'; // amber orange for estimate
+        modeTitle = 'PROFORMA ESTIMATE / QUOTATION';
+      } else if (billingMode === 'challan') {
+        themeColor = '#3b82f6'; // blue for challan
+        modeTitle = 'DELIVERY CHALLAN (GOODS IN TRANSIT)';
+      }
+      
+      // Top colored header stripe
+      doc.setFillColor(
+        parseInt(themeColor.substring(1, 3), 16),
+        parseInt(themeColor.substring(3, 5), 16),
+        parseInt(themeColor.substring(5, 7), 16)
+      );
+      doc.rect(0, 0, 210, 8, 'F');
+      
+      // Brand / Shop Info
+      if (user.logo && user.logo.startsWith('data:image')) {
+        try {
+          doc.addImage(user.logo, 'JPEG', 15, 12, 25, 25);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(20);
+          doc.text(user.name, 45, 20);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Phone: ${user.phone}`, 45, 26);
+          if (user.upiId) doc.text(`UPI ID: ${user.upiId}`, 45, 31);
+        } catch (e) {
+          console.error("PDF logo error", e);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(22);
+          doc.text(user.name, 15, 22);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Phone: ${user.phone}`, 15, 28);
+          if (user.upiId) doc.text(`UPI: ${user.upiId}`, 15, 33);
+        }
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.text(user.name, 15, 22);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Phone: ${user.phone}`, 15, 28);
+        if (user.upiId) doc.text(`UPI ID: ${user.upiId}`, 15, 33);
+      }
+      
+      // Horizontal Rule
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.5);
+      doc.line(15, 42, 195, 42);
+      
+      // Title Block
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
+      doc.setTextColor(
+        parseInt(themeColor.substring(1, 3), 16),
+        parseInt(themeColor.substring(3, 5), 16),
+        parseInt(themeColor.substring(5, 7), 16)
+      );
+      doc.text(modeTitle, 15, 50);
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Date: ${new Date().toLocaleString()}`, 135, 50);
+      
+      let custY = 58;
+      if (customerName || customerPhone) {
+        doc.setFont("helvetica", "bold");
+        doc.text("CUSTOMER DETAILS:", 15, custY);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Name: ${customerName || 'Guest'}`, 15, custY + 5);
+        if (customerPhone) doc.text(`Phone: ${customerPhone}`, 15, custY + 10);
+        custY += 18;
+      } else {
+        custY += 2;
+      }
+      
+      // Table Headers
+      doc.setFillColor(248, 250, 252);
+      doc.rect(15, custY, 180, 8, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text("Item Details", 18, custY + 5.5);
+      doc.text("Qty", 120, custY + 5.5);
+      doc.text("Unit Price", 145, custY + 5.5);
+      doc.text("Total", 175, custY + 5.5);
+      
+      doc.line(15, custY + 8, 195, custY + 8);
+      
+      let yOffset = custY + 13;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(51, 65, 85);
       
       billItems.forEach((item) => {
-        doc.text(item.name, 20, yOffset);
-        doc.text(`Rs. ${item.price}`, 160, yOffset);
-        yOffset += 10;
+        const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
+        doc.text(itemFullName, 18, yOffset);
+        doc.text(`${item.qty || 1}`, 120, yOffset);
+        doc.text(`Rs. ${item.price}`, 145, yOffset);
+        doc.text(`Rs. ${item.price * (item.qty || 1)}`, 175, yOffset);
+        yOffset += 8;
       });
       
+      doc.line(15, yOffset - 2, 195, yOffset - 2);
+      yOffset += 4;
+      
+      // Totals
       if (discountAmount > 0) {
-        doc.text("--------------------------------------------------", 105, yOffset, { align: 'center' });
-        yOffset += 10;
-        doc.text(`Subtotal: Rs. ${billTotal}`, 20, yOffset);
-        yOffset += 10;
-        doc.text(`Discount: -Rs. ${discountAmount}`, 20, yOffset);
-        yOffset += 10;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Subtotal: Rs. ${billTotal}`, 135, yOffset);
+        yOffset += 5;
+        doc.text(`Discount: -Rs. ${discountAmount}`, 135, yOffset);
+        yOffset += 5;
       }
-
-      doc.text("--------------------------------------------------", 105, yOffset, { align: 'center' });
-      yOffset += 10;
-      doc.setFontSize(16);
-      doc.text(`TOTAL: Rs. ${total}`, 160, yOffset, { align: 'right' });
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`GRAND TOTAL: Rs. ${total}`, 135, yOffset);
+      yOffset += 12;
+      
+      // Footer text/Note
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(148, 163, 184);
+      
+      if (billingMode === 'estimate') {
+        doc.setTextColor(217, 119, 6);
+        doc.text("* Note: This is a proforma estimate/quotation and not a tax invoice. Valid for 30 days.", 15, yOffset);
+      } else if (billingMode === 'challan') {
+        doc.setTextColor(37, 99, 235);
+        doc.text("* Note: Goods received in good condition. Not for sale. Value listed is for transit declaration.", 15, yOffset);
+      } else {
+        doc.text("Thank you for your business! Visit again.", 15, yOffset);
+      }
+      
+      yOffset += 6;
+      doc.setTextColor(148, 163, 184);
+      doc.text("Generated via MyStore OS - The Paperless Retail Revolution", 15, yOffset);
       
       const pdfBlob = doc.output("blob");
-      const pdfFile = new File([pdfBlob], "Receipt.pdf", { type: "application/pdf" });
+      const pdfFile = new File([pdfBlob], `${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Receipt')}.pdf`, { type: "application/pdf" });
 
       if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
           files: [pdfFile],
-          title: 'Your Receipt',
-          text: `Thank you for shopping at ${user.name}! Here is your bill.`,
+          title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
+          text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
         });
       } else {
-        // Fallback to text if file sharing not supported (desktop)
-        let msg = `*${user.name}*\nBill Total: Rs.${total}\n\n`;
-        billItems.forEach(i => msg += `- ${i.name}: Rs.${i.price}\n`);
-        if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal Paid: Rs.${total}\n`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        let msg = `*${user.name}*\n`;
+        if (billingMode === 'estimate') msg += `*PROFORMA ESTIMATE / QUOTATION*\n`;
+        else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
+        else msg += `*TAX INVOICE / RECEIPT*\n`;
+        
+        if (customerName) msg += `Customer: ${customerName}\n`;
+        msg += `Total: Rs.${total}\n\n`;
+        billItems.forEach(i => msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} x${i.qty || 1}: Rs.${i.price * (i.qty || 1)}\n`);
+        if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal: Rs.${total}\n`;
+        
+        if (billingMode === 'bill' && upiId) {
+          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&cu=INR\n`;
+        }
+        window.open(`https://wa.me/${customerPhone ? customerPhone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(msg)}`, '_blank');
       }
 
-      toast.success(`Bill saved and sent for ₹${total}!`);
+      toast.success(`${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Bill')} generated and sent successfully!`);
       setBillItems([]);
       setDiscountAmount(0);
       setPromoCode('');
-      loadData(); // refresh orders
-    } catch {
-      toast.error("Error saving bill");
+      setCustomerName('');
+      setCustomerPhone('');
+      loadData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Error saving receipt");
     }
   };
 
@@ -210,10 +534,10 @@ const ShopDashboard = () => {
     loadData();
   };
 
-  const sales = orders.filter(o => o.status === 'Accepted').reduce((a, b) => a + b.total, 0);
-  const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+  const sales = orders.filter(o => o.status === 'Accepted' && !o.userId.startsWith('estimate') && !o.userId.startsWith('challan')).reduce((a, b) => a + b.total, 0);
+  const pendingOrders = orders.filter(o => o.status === 'Pending' && !o.userId.startsWith('estimate') && !o.userId.startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
-  const billTotal = billItems.reduce((a, b) => a + b.price, 0);
+  const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
 
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -224,6 +548,9 @@ const ShopDashboard = () => {
       scanner.render(
         (decodedText) => {
           setScannedBarcode(decodedText);
+          if (showEditProductModal) {
+            setEditProdBarcode(decodedText);
+          }
           setShowScanner(false);
           scanner.clear();
           toast.success("Barcode Scanned: " + decodedText);
@@ -239,7 +566,101 @@ const ShopDashboard = () => {
       );
       return () => { scanner.clear().catch(e => console.error("Scanner clear error", e)); };
     }
-  }, [showScanner, activeTab, products, addToBill]);
+  }, [showScanner, activeTab, products, addToBill, showEditProductModal]);
+
+  const reportsData = () => {
+    const todayStr = '2026-05-20';
+    
+    // Cash In: accepted sales orders today + customer credits settled today
+    const todaySalesOrders = orders.filter(o => 
+      o.status === 'Accepted' && 
+      !o.userId.startsWith('estimate') && 
+      !o.userId.startsWith('challan') &&
+      o.date && o.date.startsWith(todayStr)
+    );
+    const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + o.total, 0);
+    
+    const todayCustSettled = customerCredits.filter(c => 
+      c.paid && 
+      c.date && c.date.startsWith(todayStr)
+    );
+    const todayCustSettledTotal = todayCustSettled.reduce((sum, c) => sum + c.amount, 0);
+    
+    const cashIn = todaySalesTotal + todayCustSettledTotal;
+    
+    // Cash Out: accepted restock orders today + distributor credits settled today
+    const todayStockOrders = stockOrders.filter(so => 
+      so.status === 'accepted' && 
+      so.date && so.date.startsWith(todayStr)
+    );
+    const todayStockTotal = todayStockOrders.reduce((sum, so) => sum + so.total, 0);
+    
+    const todayDistSettled = credits.filter(c => 
+      c.paid && 
+      c.date && c.date.startsWith(todayStr)
+    );
+    const todayDistSettledTotal = todayDistSettled.reduce((sum, c) => sum + c.amount, 0);
+    
+    const cashOut = todayStockTotal + todayDistSettledTotal;
+    
+    const netProfit = cashIn - cashOut;
+    const marginPercent = cashIn > 0 ? Math.round((netProfit / cashIn) * 100) : 0;
+    
+    // Gather all ledger items for Today's Day Book
+    const ledgerItems = [];
+    
+    todaySalesOrders.forEach(o => {
+      const { name } = decodeOrderUserId(o.userId);
+      ledgerItems.push({
+        id: o.id,
+        type: 'Cash In',
+        category: 'Retail Sale',
+        desc: `Sale: ${name}`,
+        amount: o.total,
+        time: new Date(o.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    });
+    
+    todayCustSettled.forEach(c => {
+      const parts = c.desc.split(':');
+      const name = parts[1] || 'Customer';
+      ledgerItems.push({
+        id: c.id,
+        type: 'Cash In',
+        category: 'Credit Settle',
+        desc: `Received from ${name}`,
+        amount: c.amount,
+        time: new Date(c.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    });
+    
+    todayStockOrders.forEach(so => {
+      ledgerItems.push({
+        id: so.id,
+        type: 'Cash Out',
+        category: 'Wholesale Restock',
+        desc: `Bulk Purchase: ${so.items.map(i => i.name).join(', ')}`,
+        amount: so.total,
+        time: new Date(so.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    });
+    
+    todayDistSettled.forEach(c => {
+      ledgerItems.push({
+        id: c.id,
+        type: 'Cash Out',
+        category: 'Supplier Paid',
+        desc: `Paid Distributor: ${c.distName || 'Distributor'}`,
+        amount: c.amount,
+        time: new Date(c.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    });
+    
+    // Sort ledger items by time
+    ledgerItems.sort((a, b) => a.time.localeCompare(b.time));
+    
+    return { cashIn, cashOut, netProfit, marginPercent, ledgerItems };
+  };
 
   const handleRestockQtyChange = (prodId, delta) => {
     setRestockCart(prev => {
@@ -281,13 +702,46 @@ const ShopDashboard = () => {
 
   const handleSaveProduct = async () => {
     if (!newProdName || !newProdPrice) return toast.error("Name and price required");
-    await api.addProduct(targetShopId, newProdName, newProdPrice, scannedBarcode);
-    toast.success("Product Saved to Inventory!");
-    setShowAddProductModal(false);
-    setNewProdName('');
-    setNewProdPrice('');
-    setScannedBarcode('');
-    loadData();
+    try {
+      await api.addProduct(
+        targetShopId,
+        newProdName,
+        newProdPrice,
+        scannedBarcode,
+        parseInt(newProdStock) || 0,
+        newProdBatch,
+        newProdExpiry,
+        newProdVariants,
+        parseInt(newProdReorder) || 10
+      );
+      toast.success("Product Saved to Inventory!");
+      setShowAddProductModal(false);
+      setNewProdName('');
+      setNewProdPrice('');
+      setScannedBarcode('');
+      setNewProdStock('100');
+      setNewProdReorder('10');
+      setNewProdBatch('');
+      setNewProdExpiry('');
+      setNewProdVariants('');
+      loadData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to add product");
+    }
+  };
+
+  const handleSettleCustomerCredit = async (creditId) => {
+    if (window.confirm("Mark this customer debt as fully settled?")) {
+      try {
+        await api.markCreditPaid(creditId);
+        toast.success("Debt marked as settled!");
+        loadData();
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to settle debt");
+      }
+    }
   };
 
   const handleAddStaff = async () => {
@@ -630,6 +1084,68 @@ const ShopDashboard = () => {
             </div>
             <div style={{ padding: '16px' }}>
               
+              {/* Billing Mode Selector */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <button 
+                  onClick={() => setBillingMode('bill')} 
+                  style={{ 
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    border: '1px solid ' + (billingMode === 'bill' ? '#10b981' : '#2a2f3d'),
+                    background: billingMode === 'bill' ? 'rgba(16,185,129,0.15)' : '#1e222d',
+                    color: billingMode === 'bill' ? '#10b981' : '#cbd5e1'
+                  }}
+                >
+                  🟢 Standard Bill
+                </button>
+                <button 
+                  onClick={() => setBillingMode('estimate')} 
+                  style={{ 
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    border: '1px solid ' + (billingMode === 'estimate' ? '#f59e0b' : '#2a2f3d'),
+                    background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1e222d',
+                    color: billingMode === 'estimate' ? '#f59e0b' : '#cbd5e1'
+                  }}
+                >
+                  🟡 Estimate / Quote
+                </button>
+                <button 
+                  onClick={() => setBillingMode('challan')} 
+                  style={{ 
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    border: '1px solid ' + (billingMode === 'challan' ? '#3b82f6' : '#2a2f3d'),
+                    background: billingMode === 'challan' ? 'rgba(59,130,246,0.15)' : '#1e222d',
+                    color: billingMode === 'challan' ? '#3b82f6' : '#cbd5e1'
+                  }}
+                >
+                  🔵 Delivery Challan
+                </button>
+              </div>
+
+              {/* Customer details row */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid #2a2f3d', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8' }}>
+                    👤 Customer Details { (billingMode === 'estimate' || billingMode === 'challan') && <span style={{ color: '#f59e0b' }}>(Recommended)</span> }
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Customer Name" 
+                    value={customerName} 
+                    onChange={e => setCustomerName(e.target.value)}
+                    style={{ flex: 1, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  />
+                  <input 
+                    type="tel" 
+                    placeholder="Mobile Number" 
+                    value={customerPhone} 
+                    onChange={e => setCustomerPhone(e.target.value)}
+                    style={{ width: '130px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
               {/* Universal Custom Billing Input */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
                 <input 
@@ -640,16 +1156,53 @@ const ShopDashboard = () => {
                   type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
                   style={{ width: '60px', background: 'transparent', border: 'none', color: '#f59e0b', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
                 />
-                <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold' }}>Add</button>
+                <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Add</button>
               </div>
 
-              {billItems.length === 0 && <p style={{color:'#94a3b8', fontSize:14, margin:0}}>No items in bill yet. Add custom item or tap + below.</p>}
-              {billItems.map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                  <span>{item.name}</span>
-                  <span>₹{item.price}</span>
+              {/* Cart List */}
+              {billItems.length === 0 ? (
+                <p style={{color:'#94a3b8', fontSize:13, margin: '12px 0 20px 0', textAlign: 'center'}}>No items in bill yet. Add custom item or tap + below.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '12px 0 20px 0' }}>
+                  {billItems.map((item, idx) => {
+                    const variantList = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
+                    return (
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '10px 12px', borderRadius: '8px', border: '1px solid #2a2f3d' }}>
+                        <div style={{ flex: 1, marginRight: '8px' }}>
+                          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.name}</p>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '2px' }}>
+                            <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 'bold' }}>₹{item.price}</span>
+                            {variantList.length > 0 && (
+                              <select 
+                                value={item.selectedVariant || ''} 
+                                onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
+                                style={{ background: '#1e293b', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', outline: 'none' }}
+                              >
+                                {variantList.map((v, vidx) => (
+                                  <option key={vidx} value={v}>{v}</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>-</button>
+                          <span style={{ fontSize: '13px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center' }}>{item.qty || 1}</span>
+                          <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>+</button>
+                          
+                          <span style={{ fontWeight: 'bold', color: '#22c55e', minWidth: '55px', textAlign: 'right', fontSize: '13px' }}>₹{item.price * (item.qty || 1)}</span>
+                          
+                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
+
               {/* Promo Discount Code Drawer */}
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px', background: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', alignItems: 'center' }}>
                 <input 
@@ -676,8 +1229,8 @@ const ShopDashboard = () => {
                   <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
                 </div>
               </div>
-              <button style={{...styles.whatsappBtn, opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
-                <span style={{ fontSize: '18px' }}>💬</span> Generate Bill
+              <button style={{...styles.whatsappBtn, background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : '#22c55e'), color: billingMode === 'estimate' ? '#000' : '#fff', opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
+                <span style={{ fontSize: '18px' }}>💬</span> {billingMode === 'estimate' ? 'Generate Estimate' : (billingMode === 'challan' ? 'Generate Challan' : 'Generate Bill')}
               </button>
               <button style={styles.upiBtn} onClick={handleShowUpiQr}>
                 <QrCode size={16} /> Show UPI QR for Payment
@@ -714,85 +1267,185 @@ const ShopDashboard = () => {
       {/* ORDERS / BILLS TAB */}
       {activeTab === 'bills' && (
         <div style={{paddingBottom: 40}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
+          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18}}>Online Orders & Bills</h2>
-          </div>
-          {orders.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94a3b8'}}>No orders yet.</p>}
-          {orders.map(o => (
-            <div key={o.id} style={styles.orderCard}>
-              <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
-                <span style={{fontWeight:'bold'}}>{o.userName === 'walk-in-customer' ? 'Walk-in Bill' : o.userName}</span>
-                <span style={{color: o.status === 'Pending' ? '#ef4444' : '#22c55e', fontWeight:'bold', fontSize:14}}>
-                  {o.status === 'Pending' ? '⚠️ Pending' : '✅ Accepted'}
-                </span>
-              </div>
-              <div style={{background:'rgba(0,0,0,0.2)', padding:12, borderRadius:8, marginBottom:12}}>
-                {o.items.map((item, idx) => (
-                  <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'#94a3b8'}}>
-                    <span>{item.qty}x {item.name}</span>
-                    <span>₹{item.price * item.qty}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                <span style={{fontSize:18, fontWeight:'bold', color:'#fbbf24'}}>₹{o.total}</span>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => setSelectedOrder(o)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>
-                    View Receipt
-                  </button>
-                  {o.status === 'Pending' && (
-                    <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>
-                      Accept
-                    </button>
-                  )}
-                </div>
-              </div>
+            
+            {/* Glassmorphic Sub-tab toggle */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <button 
+                onClick={() => setBillsSubTab('sales')}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  background: billsSubTab === 'sales' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: billsSubTab === 'sales' ? '#22c55e' : '#94a3b8',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🟢 Sales Invoices
+              </button>
+              <button 
+                onClick={() => setBillsSubTab('drafts')}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  background: billsSubTab === 'drafts' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: billsSubTab === 'drafts' ? '#fbbf24' : '#94a3b8',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🟡 Drafts (Estimates / Challans)
+              </button>
             </div>
-          ))}
+          </div>
+
+          {(() => {
+            const filteredOrders = orders.filter(o => {
+              const isDraft = o.userId.startsWith('estimate') || o.userId.startsWith('challan');
+              return billsSubTab === 'sales' ? !isDraft : isDraft;
+            });
+
+            if (filteredOrders.length === 0) {
+              return <p style={{padding: 40, textAlign:'center', color:'#94a3b8'}}>No {billsSubTab === 'sales' ? 'sales invoices' : 'drafts'} found.</p>;
+            }
+
+            return filteredOrders.map(o => {
+              const { type, name, phone } = decodeOrderUserId(o.userId);
+              
+              // Custom borders/accents for draft cards
+              let cardBorder = '1px solid #334155';
+              let cardBg = 'linear-gradient(145deg, #1e293b, #0f172a)';
+              let badgeText = '';
+              let badgeColor = '';
+              
+              if (billsSubTab === 'drafts') {
+                if (type === 'estimate') {
+                  cardBorder = '1px solid rgba(245,158,11,0.4)';
+                  cardBg = 'linear-gradient(145deg, #241d13, #0f172a)';
+                  badgeText = 'Draft Estimate';
+                  badgeColor = '#f59e0b';
+                } else if (type === 'challan') {
+                  cardBorder = '1px solid rgba(59,130,246,0.4)';
+                  cardBg = 'linear-gradient(145deg, #131c2d, #0f172a)';
+                  badgeText = 'Delivery Challan';
+                  badgeColor = '#3b82f6';
+                }
+              }
+
+              return (
+                <div key={o.id} style={{ ...styles.orderCard, border: cardBorder, background: cardBg }}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:12, alignItems: 'center'}}>
+                    <div>
+                      <span style={{fontWeight:'bold', fontSize: '15px'}}>{name}</span>
+                      {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8'}}>Ph: {phone}</p>}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                      {badgeText && (
+                        <span style={{ fontSize: '10px', background: badgeColor + '20', color: badgeColor, padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                          {badgeText}
+                        </span>
+                      )}
+                      <span style={{color: o.status === 'Pending' ? '#ef4444' : '#22c55e', fontWeight:'bold', fontSize: 13}}>
+                        {o.status === 'Pending' ? '⚠️ Pending' : '✅ Accepted'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div style={{background:'rgba(0,0,0,0.2)', padding:12, borderRadius:8, marginBottom:12}}>
+                    {o.items.map((item, idx) => (
+                      <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'#94a3b8'}}>
+                        <span>{item.qty}x {item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
+                        <span>₹{item.price * item.qty}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                    <span style={{fontSize:18, fontWeight:'bold', color:'#fbbf24'}}>₹{o.total}</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px'}}>
+                        View Receipt
+                      </button>
+                      
+                      {billsSubTab === 'drafts' && type === 'estimate' && (
+                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #fbbf24, #d97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                          ⚡ Convert to Bill
+                        </button>
+                      )}
+
+                      {o.status === 'Pending' && (
+                        <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px'}}>
+                          Accept
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
       )}
 
       {/* THERMAL RECEIPT MODAL */}
-      {selectedOrder && (
-        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#fff', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-            <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '12px', marginBottom: '12px' }}>
-              <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{user.name}</h2>
-              <p style={{ margin: 0, fontSize: '12px' }}>Ph: {user.phone}</p>
-              <p style={{ margin: 0, fontSize: '12px' }}>{new Date(selectedOrder.date).toLocaleString()}</p>
-              <p style={{ margin: '4px 0 0 0', fontSize: '12px', fontWeight: 'bold' }}>Receipt #{selectedOrder.id.split('_')[1]}</p>
-            </div>
-            
-            <div style={{ minHeight: '100px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '12px', borderBottom: '1px solid #000', paddingBottom: '4px', marginBottom: '8px' }}>
-                <span>ITEM</span>
-                <span>AMT</span>
+      {selectedOrder && (() => {
+        const { type, name, phone } = decodeOrderUserId(selectedOrder.userId);
+        let receiptTitle = 'TAX INVOICE';
+        if (type === 'estimate') receiptTitle = 'ESTIMATE / QUOTE';
+        else if (type === 'challan') receiptTitle = 'DELIVERY CHALLAN';
+
+        return (
+          <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ background: '#fff', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', overflowY: 'auto', maxHeight: '90vh' }}>
+              <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '12px', marginBottom: '12px' }}>
+                <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{user.name}</h2>
+                <p style={{ margin: 0, fontSize: '12px' }}>Ph: {user.phone}</p>
+                <p style={{ margin: 0, fontSize: '12px' }}>{new Date(selectedOrder.date).toLocaleString()}</p>
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', fontWeight: 'bold' }}>{receiptTitle} #{selectedOrder.id.split('_')[1]}</p>
               </div>
-              {selectedOrder.items.map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                  <span>{item.qty}x {item.name}</span>
-                  <span>₹{item.price * item.qty}</span>
+              
+              {(name || phone) && (
+                <div style={{ borderBottom: '1px dashed #000', paddingBottom: '8px', marginBottom: '8px', fontSize: '11px' }}>
+                  <p style={{ margin: '0 0 2px 0' }}><b>Customer:</b> {name || 'Walk-in'}</p>
+                  {phone && <p style={{ margin: 0 }}><b>Phone:</b> {phone}</p>}
                 </div>
-              ))}
-            </div>
+              )}
+              
+              <div style={{ minHeight: '80px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '12px', borderBottom: '1px solid #000', paddingBottom: '4px', marginBottom: '8px' }}>
+                  <span>ITEM</span>
+                  <span>AMT</span>
+                </div>
+                {selectedOrder.items.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                    <span>{item.qty}x {item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
+                    <span>₹{item.price * item.qty}</span>
+                  </div>
+                ))}
+              </div>
 
-            <div style={{ borderTop: '1px dashed #000', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px' }}>
-              <span>TOTAL</span>
-              <span>₹{selectedOrder.total}</span>
-            </div>
-            
-            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
-              <p style={{ margin: 0 }}>Thank you for your business!</p>
-              <p style={{ margin: 0 }}>Powered by MyStore OS</p>
-            </div>
+              <div style={{ borderTop: '1px dashed #000', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px' }}>
+                <span>TOTAL</span>
+                <span>₹{selectedOrder.total}</span>
+              </div>
+              
+              <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
+                {type === 'estimate' ? (
+                  <p style={{ margin: 0 }}>* Proforma Estimate Only *</p>
+                ) : type === 'challan' ? (
+                  <p style={{ margin: 0 }}>* Delivery Challan Only *</p>
+                ) : (
+                  <p style={{ margin: 0 }}>Thank you for your business!</p>
+                )}
+                <p style={{ margin: '4px 0 0 0' }}>Powered by MyStore OS</p>
+              </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-              <button onClick={() => window.print()} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
-              <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
+                <button onClick={() => window.print()} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
+                <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* PRODUCTS INVENTORY TAB */}
       {activeTab === 'products' && (
@@ -805,21 +1458,76 @@ const ShopDashboard = () => {
           {products.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94a3b8'}}>No products in inventory.</p>}
           
           <div style={{ padding: '12px' }}>
-            {products.map(p => (
-              <div key={p.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px' }}>{p.name}</h3>
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#f59e0b' }}>₹{p.price}</span>
-                </div>
-                {p.barcode ? (
-                  <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-block', marginTop: '8px' }}>
-                    <Barcode value={p.barcode} height={30} width={1.5} fontSize={12} margin={0} displayValue={true} />
+            {products.map(p => {
+              const expStatus = checkExpiryStatus(p.expiryDate);
+              const isLowStock = p.stock < (p.reorderLevel || 10);
+              
+              return (
+                <div key={p.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{p.name}</h3>
+                      {p.batchNumber && (
+                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Batch: {p.batchNumber}</p>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#f59e0b' }}>₹{p.price}</span>
                   </div>
-                ) : (
-                  <span style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '10px' }}>No Barcode</span>
-                )}
-              </div>
-            ))}
+
+                  {/* Stock & Reorder Info */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '8px 0' }}>
+                    <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? '#ef4444' : '#10b981'), fontWeight: 'bold' }}>
+                      Stock: {p.stock || 0} {isLowStock && ' (Low Stock)'}
+                    </span>
+                    {p.reorderLevel !== undefined && (
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8' }}>
+                        Min Stock Alert: {p.reorderLevel}
+                      </span>
+                    )}
+                    {expStatus.status === 'expired' && (
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid #ef4444', fontWeight: 'bold' }}>
+                        {expStatus.text} ({p.expiryDate})
+                      </span>
+                    )}
+                    {expStatus.status === 'near' && (
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#f59e0b', border: '1px solid #f59e0b', fontWeight: 'bold' }}>
+                        {expStatus.text} ({p.expiryDate})
+                      </span>
+                    )}
+                    {p.variants && (
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                        {p.variants.split(',').map((v, vidx) => (
+                          <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#334155', color: '#cbd5e1' }}>
+                            {v.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {p.barcode && (
+                    <div style={{ background: '#fff', padding: '6px', borderRadius: '8px', display: 'inline-block', marginTop: '4px', marginBottom: '8px' }}>
+                      <Barcode value={p.barcode} height={20} width={1.2} fontSize={10} margin={0} displayValue={true} />
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #2a2f3d', paddingTop: '12px', marginTop: '12px' }}>
+                    <button 
+                      onClick={() => handleOpenEditModal(p)} 
+                      style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteProduct(p.id)} 
+                      style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -827,48 +1535,168 @@ const ShopDashboard = () => {
       {/* CREDIT LEDGER TAB */}
       {activeTab === 'credit' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Distributor Credit Ledger</h2>
-            <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Manage outstanding payments to distributors</p>
+          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+            <h2 style={{margin:0, fontSize: 18}}>Credit Book (బకాయిలు)</h2>
+            
+            {/* Toggle Payable vs Receivable */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <button 
+                onClick={() => setCreditTabSub('payable')}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  background: creditTabSub === 'payable' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: creditTabSub === 'payable' ? '#ef4444' : '#94a3b8',
+                  transition: 'all 0.2s'
+                }}
+              >
+                💸 Supplier Payables (₹{payable})
+              </button>
+              <button 
+                onClick={() => setCreditTabSub('receivable')}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  background: creditTabSub === 'receivable' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: creditTabSub === 'receivable' ? '#10b981' : '#94a3b8',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🟢 Customer Receivables (₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)})
+              </button>
+            </div>
           </div>
           
           <div style={{ padding: '16px' }}>
-            <div style={{ background: '#1e293b', border: '1px solid #ef4444', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ margin: 0, fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>TOTAL OUTSTANDING</p>
-                <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{payable}</h3>
-              </div>
-              <Wallet size={32} color="#ef4444" opacity={0.5} />
-            </div>
+            {creditTabSub === 'payable' ? (
+              <>
+                <div style={{ background: '#1e293b', border: '1px solid #ef4444', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>TOTAL SUPPLIER OUTSTANDING</p>
+                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{payable}</h3>
+                  </div>
+                  <Wallet size={32} color="#ef4444" opacity={0.5} />
+                </div>
 
-            <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
-            {credits.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No credit records found.</p>}
-            
-            {credits.map(c => (
-              <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{c.distName || 'Distributor'}</span>
-                  <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#ef4444' }}>
-                    {c.paid ? '✅ Settled' : '⏳ Unpaid'}
-                  </span>
+                <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
+                {credits.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No distributor credit records found.</p>}
+                
+                {credits.map(c => (
+                  <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{c.distName || 'Distributor'}</span>
+                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#ef4444' }}>
+                        {c.paid ? '✅ Settled' : '⏳ Unpaid'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginBottom: '12px' }}>
+                      <span>{new Date(c.date).toLocaleDateString()}</span>
+                      <span>Invoice: #{c.id.split('_')[1]}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
+                      {!c.paid && (
+                        <button onClick={() => {
+                          if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
+                          window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
+                        }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                          Pay Now via UPI
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <div style={{ background: '#1e293b', border: '1px solid #10b981', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#10b981', fontWeight: 'bold' }}>TOTAL CUSTOMER OUTSTANDING</p>
+                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)}</h3>
+                  </div>
+                  <Wallet size={32} color="#10b981" opacity={0.5} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginBottom: '12px' }}>
-                  <span>{new Date(c.date).toLocaleDateString()}</span>
-                  <span>Invoice: #{c.id.split('_')[1]}</span>
+
+                {/* Add New Customer Credit Form */}
+                <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                  <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Log New Customer Credit / Debt</h3>
+                  <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input 
+                        type="text" value={custCreditName} onChange={e => setCustCreditName(e.target.value)} 
+                        placeholder="Customer Name" 
+                        style={{ flex: 1, padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                      />
+                      <input 
+                        type="tel" value={custCreditPhone} onChange={e => setCustCreditPhone(e.target.value)} 
+                        placeholder="Mobile (Optional)" 
+                        style={{ width: '130px', padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                      />
+                    </div>
+                    <input 
+                      type="text" value={custCreditDesc} onChange={e => setCustCreditDesc(e.target.value)} 
+                      placeholder="Reason (e.g. Milk & Eggs)" 
+                      style={{ padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                    />
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input 
+                        type="number" value={custCreditAmount} onChange={e => setCustCreditAmount(e.target.value)} 
+                        placeholder="Outstanding Amount (₹)" 
+                        style={{ flex: 1, padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                      />
+                      <button onClick={handleAddCustomerCredit} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                        + Add Debt
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
-                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
-                  {!c.paid && (
-                    <button onClick={() => {
-                      if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
-                      window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
-                    }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                      Pay Now via UPI
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+
+                <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Customer Outstanding Book</h3>
+                {customerCredits.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No customer debt records logged yet.</p>}
+                
+                {customerCredits.map(c => {
+                  const parts = c.desc.split(':');
+                  const custName = parts[1] || 'Customer';
+                  const custPhone = parts[2] || '';
+                  const custDesc = parts[3] || 'Credit Purchase';
+                  
+                  return (
+                    <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <div>
+                          <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{custName}</span>
+                          {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Ph: {custPhone}</p>}
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#f59e0b' }}>
+                          {c.paid ? '✅ Settled' : '⏳ Pending'}
+                        </span>
+                      </div>
+                      
+                      <div style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px', background: 'rgba(0,0,0,0.15)', padding: '8px 12px', borderRadius: '6px' }}>
+                        <b>Remarks:</b> {custDesc}
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '12px' }}>
+                        <span>Logged: {new Date(c.date).toLocaleDateString()}</span>
+                        <span>Reference: #{c.id.split('_')[1]}</span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
+                        {!c.paid && (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => sendCustomerCreditReminder(c)} style={{ background: '#25D366', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              💬 Remind
+                            </button>
+                            <button onClick={() => handleSettleCustomerCredit(c.id)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                              ✅ Settle
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
       )}
@@ -962,49 +1790,112 @@ const ShopDashboard = () => {
         </div>
       )}
 
-      {/* STAFF MANAGEMENT TAB */}
-      {isOwner && activeTab === 'staff' && (
-        <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Staff Management</h2>
-            <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Add helpers who can scan and bill, but cannot see your revenue.</p>
-          </div>
-          <div style={{ padding: '16px' }}>
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>👥 Add New Staff</h3>
-              <div style={{ marginBottom: '12px' }}>
-                <input 
-                  type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
-                  placeholder="Staff Name (e.g. Raju Helper)" 
-                  style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} 
-                />
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <input 
-                  type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
-                  placeholder="Staff Mobile Number" 
-                  style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} 
-                />
-              </div>
-              <button onClick={handleAddStaff} style={{ width: '100%', background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                + Add Staff Member
-              </button>
-            </div>
+      {/* REPORTS & ANALYTICS TAB */}
+      {isOwner && activeTab === 'reports' && (() => {
+        const { cashIn, cashOut, netProfit, marginPercent, ledgerItems } = reportsData();
+        
+        const radius = 50;
+        const circumference = 2 * Math.PI * radius;
+        const displayPercent = Math.min(100, Math.max(0, Math.abs(marginPercent)));
+        const strokeOffset = circumference - (displayPercent / 100) * circumference;
+        const isLoss = netProfit < 0;
+        const strokeColor = isLoss ? '#ef4444' : '#10b981';
 
-            <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Active Staff</h3>
-            {staffList.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No staff added yet.</p>}
-            {staffList.map(s => (
-              <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', marginBottom: '8px' }}>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '14px' }}>{s.name}</h4>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Ph: {s.phone}</p>
+        return (
+          <div style={{paddingBottom: 80}}>
+            <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
+              <h2 style={{margin:0, fontSize: 18}}>Retail Day Book & Reports</h2>
+              <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
+            </div>
+            
+            <div style={{ padding: '16px' }}>
+              
+              {/* Profit & Loss Margin Gauge */}
+              <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
+                
+                {/* Circular Gauge */}
+                <div style={{ position: 'relative', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="130" height="130" style={{ transform: 'rotate(-90deg)' }}>
+                    {/* Background Track */}
+                    <circle 
+                      cx="65" cy="65" r={radius} 
+                      fill="transparent" stroke="#1e222d" strokeWidth="10" 
+                    />
+                    {/* Animated Filled Track */}
+                    <circle 
+                      cx="65" cy="65" r={radius} 
+                      fill="transparent" stroke={strokeColor} strokeWidth="10" 
+                      strokeDasharray={circumference} strokeDashoffset={strokeOffset}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
+                    />
+                  </svg>
+                  
+                  {/* Text Center */}
+                  <div style={{ position: 'absolute', textAlign: 'center' }}>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: strokeColor }}>
+                      {isLoss ? '-' : '+'}{displayPercent}%
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                      {isLoss ? 'Loss Margin' : 'Net Margin'}
+                    </p>
+                  </div>
                 </div>
-                <span style={{ background: '#22c55e', color: 'white', fontSize: '10px', padding: '4px 8px', borderRadius: '12px' }}>Active</span>
+
+                {/* Margins Data Summary */}
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? '#fca5a5' : '#a7f3d0' }}>
+                    {isLoss ? '🔴 Loss Today: ' : '🟢 Profit Today: '} ₹{Math.abs(netProfit)}
+                  </h3>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#cbd5e1' }}>Total Cash In Today:</span>
+                      <span style={{ color: '#10b981', fontWeight: 'bold' }}>₹{cashIn}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#cbd5e1' }}>Total Cash Out Today:</span>
+                      <span style={{ color: '#ef4444', fontWeight: 'bold' }}>₹{cashOut}</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-            ))}
+
+              {/* Day Book Transactions List */}
+              <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px' }}>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  📖 Today's Retail Day Book Ledger
+                </h3>
+                
+                {ledgerItems.length === 0 ? (
+                  <p style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '24px 0', margin: 0 }}>No transactions logged today yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {ledgerItems.map((item, idx) => (
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '12px', borderRadius: '10px', border: '1px solid #2a2f3d' }}>
+                        <div>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                              {item.category}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{item.time}</span>
+                          </div>
+                          <p style={{ margin: '6px 0 0 0', fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.desc}</p>
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', fontSize: '15px' }}>
+                          {item.type === 'Cash In' ? '+' : '-'}₹{item.amount}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Profile & Settings TAB */}
       {isOwner && activeTab === 'profile' && (
@@ -1141,6 +2032,43 @@ const ShopDashboard = () => {
                 </button>
               </div>
             </div>
+
+            {/* STAFF MANAGEMENT CARD inside Settings */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👥 Staff Management (సహాయకులు)</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
+              
+              <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>Add New Staff</h4>
+                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                  <input 
+                    type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
+                    placeholder="Staff Name (e.g. Raju Helper)" 
+                    style={{ width: '100%', padding: '10px 14px', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                  />
+                  <input 
+                    type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
+                    placeholder="Staff Mobile Number" 
+                    style={{ width: '100%', padding: '10px 14px', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                  />
+                  <button onClick={handleAddStaff} style={{ width: '100%', background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                    + Add Staff Member
+                  </button>
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Active Staff Members</h4>
+              {staffList.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px', margin: 0}}>No staff added yet.</p>}
+              {staffList.map(s => (
+                <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', marginBottom: '8px' }}>
+                  <div>
+                    <h5 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{s.name}</h5>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Ph: {s.phone}</p>
+                  </div>
+                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22c55e', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22c55e', fontWeight: 'bold' }}>Active PIN: 1234</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -1172,25 +2100,52 @@ const ShopDashboard = () => {
 
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
-        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
-          <div style={{ background: '#1e293b', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px' }}>
-            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px' }}>📦 Add Product to Inventory</h2>
+        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ background: '#1e293b', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#fff' }}>📦 Add Product to Inventory</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Product Name</label>
-              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', color: '#fff', fontSize: '16px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
             </div>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Price (₹)</label>
-              <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', color: '#fff', fontSize: '16px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+              <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+              <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Barcode (Optional)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', color: '#fff', fontSize: '16px' }} />
-                <button onClick={() => setShowScanner(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0 20px', borderRadius: '12px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
+                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <button onClick={() => setShowScanner(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
               </div>
               {scannedBarcode && (
                 <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
@@ -1199,8 +2154,70 @@ const ShopDashboard = () => {
               )}
             </div>
 
-            <button onClick={handleSaveProduct} style={{ width: '100%', background: '#22c55e', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-            <button onClick={() => setShowAddProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
+            <button onClick={() => setShowAddProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT PRODUCT MODAL */}
+      {showEditProductModal && !showScanner && (
+        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ background: '#1e293b', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#fff' }}>✏️ Edit Product Details</h2>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+              <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <button onClick={() => setShowScanner(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
+              </div>
+              {editProdBarcode && (
+                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                  <Barcode value={editProdBarcode} height={40} width={2} fontSize={14} />
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
+            <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -1240,9 +2257,9 @@ const ShopDashboard = () => {
         )}
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'staff' ? '#f59e0b' : '#94a3b8' }} onClick={() => setActiveTab('staff')}>
-            <User size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Staff</p>
+          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#f59e0b' : '#94a3b8' }} onClick={() => setActiveTab('reports')}>
+            <Book size={20} style={{ margin: '0 auto 4px auto' }} />
+            <p style={{ fontSize: '10px', margin: 0 }}>Reports</p>
           </div>
         )}
         {isOwner && (
