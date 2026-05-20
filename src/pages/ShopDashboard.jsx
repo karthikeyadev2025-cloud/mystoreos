@@ -41,8 +41,9 @@ const ShopDashboard = () => {
   const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
   const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
 
-  // System Settings (Razorpay Key)
+  // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
+  const [announceConfig, setAnnounceConfig] = useState({ active: false, text: '', type: 'info' });
 
   // Staff Management
   const [staffList, setStaffList] = useState([]);
@@ -55,6 +56,10 @@ const ShopDashboard = () => {
   const loadData = async () => {
     setProducts(await api.getShopProducts(targetShopId));
     setOrders(await api.getShopOrders(targetShopId));
+    
+    // Load Global Announcement
+    const announce = await api.getSiteConfig('announcement', announceConfig);
+    setAnnounceConfig(announce);
     
     if (isOwner) {
       setCredits(await api.getShopCredits(targetShopId));
@@ -302,6 +307,15 @@ const ShopDashboard = () => {
     rzp.open();
   };
 
+  const getAnnounceColor = () => {
+    switch(announceConfig.type) {
+      case 'warning': return '#f59e0b';
+      case 'success': return '#22c55e';
+      case 'error': return '#ef4444';
+      default: return '#3b82f6';
+    }
+  };
+
   const styles = {
     bg: { backgroundColor: '#11151c', minHeight: '100vh', color: 'white', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' },
     header: { background: 'linear-gradient(to right, #e53935, #b71c1c)', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
@@ -327,6 +341,14 @@ const ShopDashboard = () => {
   return (
     <div style={styles.bg}>
       <ToastContainer theme="dark" position="top-center" />
+      
+      {/* GLOBAL ANNOUNCEMENT BANNER */}
+      {announceConfig.active && announceConfig.text && (
+        <div style={{ background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>{announceConfig.text}</div>
+          <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}><X size={16} /></button>
+        </div>
+      )}
       
       {/* Header */}
       <div style={styles.header}>

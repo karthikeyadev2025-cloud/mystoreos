@@ -79,8 +79,8 @@ const UserDashboard = () => {
       // Create profile & login
       try { await api.register(guestName, guestPhone, '0000', 'customer'); } catch(e) { /* ignore if exists */ }
       const loggedInUser = await api.login(guestPhone, '0000');
-      // Set auth context (mocked simple way)
-      localStorage.setItem('mystore_user', JSON.stringify(loggedInUser));
+      // Set auth context
+      localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser); // use useAuth login function instead of reload
       setShowGuestModal(false);
       setShowWaModal(true);
@@ -95,14 +95,15 @@ const UserDashboard = () => {
       await api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total);
       
       // 2. Generate WhatsApp message
-      let msg = 'Hi Sai Supermarket, I want to order:%0A%0A';
+      let msg = `Hi ${shopInfo.name}, I want to order:%0A%0A`;
       items.forEach(i => {
         msg += `- ${i.name} ${i.weight || ''} x${i.qty} = ₹${i.price * i.qty}%0A`;
       });
       msg += `%0ATotal: ₹${total}%0A%0ADeliver to: ${user.name}%0A%0AThank you!`;
       
       // 3. Open WhatsApp and close modal
-      window.open(`https://wa.me/919800012345?text=${msg}`, '_blank');
+      const shopPhone = shopInfo.phone || '9876543210';
+      window.open(`https://wa.me/91${shopPhone}?text=${msg}`, '_blank');
       setCart({}); // Clear cart
       setShowWaModal(false);
       alert("Order placed successfully! The shopkeeper has been notified.");
@@ -121,7 +122,7 @@ const UserDashboard = () => {
         setAvatar(base64Avatar);
         await api.updateProfile(user.id, { avatar: base64Avatar });
         const updatedUser = { ...user, avatar: base64Avatar };
-        localStorage.setItem('mystore_user', JSON.stringify(updatedUser));
+        localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
       };
       reader.readAsDataURL(file);
     }

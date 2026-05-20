@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AdminCMS from './AdminCMS';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -17,54 +18,94 @@ const AdminDashboard = () => {
   const [customers, setCustomers] = useState([]);
   const [distributors, setDistributors] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [resetModal, setResetModal] = useState({ show: false, userId: null, userName: '', newPass: '' });
 
   const loadData = async () => {
-    const data = await api.getAdminStats();
+    try {
+      const data = await api.getAdminStats();
     const settings = await api.getSettings();
     setRazorpayKey(settings.razorpayKey || '');
     setStats(data);
     setPendingUsers(await api.getPendingApprovals());
     setShops(await api.getAllShops());
-    setCustomers(await api.getAllUsersByRole('customer'));
-    setDistributors(await api.getAllUsersByRole('distributor'));
-    setAllUsers(await api.getAllUsersByRole());
+      setCustomers(await api.getAllUsersByRole('customer'));
+      setDistributors(await api.getAllUsersByRole('distributor'));
+      setAllUsers(await api.getAllUsersByRole());
+    } catch (err) {
+      toast.error("Failed to load admin data");
+    }
   };
 
   useEffect(() => { loadData(); }, []);
 
   const handleApprove = async (userId) => {
-    await api.approveUser(userId);
-    toast.success('User Approved & Activated!');
-    loadData();
+    try {
+      await api.approveUser(userId);
+      toast.success('User Approved & Activated!');
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Failed to approve user');
+    }
   };
 
   const handleReject = async (userId) => {
     if (window.confirm("Reject and permanently delete this user?")) {
-      await api.deleteUser(userId);
-      toast.success('User Rejected & Removed.');
-      loadData();
+      try {
+        await api.deleteUser(userId);
+        toast.success('User Rejected & Removed.');
+        loadData();
+      } catch (err) {
+        toast.error(err.message || 'Failed to reject user');
+      }
     }
   };
   
   const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user? This cannot be undone.")) {
-      await api.deleteUser(userId);
-      toast.success('User Deleted!');
-      loadData();
+      try {
+        await api.deleteUser(userId);
+        toast.success('User Deleted!');
+        loadData();
+      } catch (err) {
+        toast.error(err.message || 'Failed to delete user');
+      }
     }
   };
 
-  const handleResetPassword = async (userId, userName) => {
-    const newPass = prompt(`Set new password for ${userName}:`);
-    if (!newPass) return;
-    if (newPass.length < 4) return toast.error('Password must be at least 4 characters');
-    await api.adminResetPassword(userId, newPass);
-    toast.success(`Password reset for ${userName}!`);
+  const handleResetPasswordSubmit = async () => {
+    if (resetModal.newPass.length < 4) return toast.error('Password must be at least 4 characters');
+    try {
+      await api.adminResetPassword(resetModal.userId, resetModal.newPass);
+      toast.success(`Password reset for ${resetModal.userName}!`);
+      setResetModal({ show: false, userId: null, userName: '', newPass: '' });
+    } catch (err) {
+      toast.error(err.message || 'Failed to reset password');
+    }
   };
 
   const handleSaveSettings = async () => {
-    await api.saveSettings({ razorpayKey });
-    toast.success("System Settings Saved Successfully!");
+    try {
+      await api.saveSettings({ razorpayKey });
+      toast.success("System Settings Saved Successfully!");
+    } catch (err) {
+      toast.error(err.message || 'Failed to save settings');
+    }
+  };
+
+  const downloadCSV = (data, filename) => {
+    if (!data || data.length === 0) return toast.error("No data to export");
+    const headers = Object.keys(data[0]).join(',');
+    const csvRows = data.map(row => 
+      Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+    );
+    const csvString = [headers, ...csvRows].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   const handleLogout = () => {
@@ -188,7 +229,10 @@ const AdminDashboard = () => {
       {/* ===== SHOPS TAB ===== */}
       {activeTab === 'shops' && (
         <div style={{padding: 16}}>
-          <h2 style={{margin: '0 0 16px 0', fontSize: '18px'}}>All Registered Shops ({shops.length})</h2>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+            <h2 style={{margin: 0, fontSize: '18px'}}>All Registered Shops ({shops.length})</h2>
+            <button onClick={() => downloadCSV(shops, 'shops_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
+          </div>
           {shops.length === 0 && <p style={{color: '#94a3b8'}}>No shops found.</p>}
           {shops.map(shop => (
             <div key={shop.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -198,7 +242,7 @@ const AdminDashboard = () => {
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Status: <span style={{color: shop.status === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.status}</span> | Plan: <span style={{color: shop.subscription === 'active' ? '#22c55e' : '#f59e0b'}}>{shop.subscription === 'active' ? 'PRO ₹999' : 'Free Trial'}</span></p>
               </div>
               <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => handleResetPassword(shop.id, shop.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🔑 Reset</button>
+                <button onClick={() => setResetModal({ show: true, userId: shop.id, userName: shop.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🔑 Reset</button>
                 <button onClick={() => handleDelete(shop.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap'}}>🗑️</button>
               </div>
             </div>
@@ -209,7 +253,10 @@ const AdminDashboard = () => {
       {/* ===== CUSTOMERS TAB ===== */}
       {activeTab === 'customers' && (
         <div style={{padding: 16}}>
-          <h2 style={{margin: '0 0 16px 0', fontSize: '18px'}}>All Customers ({customers.length})</h2>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+            <h2 style={{margin: 0, fontSize: '18px'}}>All Customers ({customers.length})</h2>
+            <button onClick={() => downloadCSV(customers, 'customers_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
+          </div>
           {customers.length === 0 && <p style={{color: '#94a3b8'}}>No customers found.</p>}
           {customers.map(cust => (
             <div key={cust.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -218,13 +265,16 @@ const AdminDashboard = () => {
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {cust.phone}</p>
               </div>
               <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => handleResetPassword(cust.id, cust.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
+                <button onClick={() => setResetModal({ show: true, userId: cust.id, userName: cust.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
                 <button onClick={() => handleDelete(cust.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
               </div>
             </div>
           ))}
 
-          <h2 style={{margin: '24px 0 16px 0', fontSize: '18px'}}>All Distributors ({distributors.length})</h2>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '24px 0 16px 0'}}>
+            <h2 style={{margin: 0, fontSize: '18px'}}>All Distributors ({distributors.length})</h2>
+            <button onClick={() => downloadCSV(distributors, 'distributors_data')} style={{background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold'}}>📥 Export CSV</button>
+          </div>
           {distributors.length === 0 && <p style={{color: '#94a3b8'}}>No distributors found.</p>}
           {distributors.map(dist => (
             <div key={dist.id} style={{...styles.listCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -233,7 +283,7 @@ const AdminDashboard = () => {
                 <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>📞 {dist.phone} • Status: {dist.status}</p>
               </div>
               <div style={{display: 'flex', gap: '6px', flexShrink: 0}}>
-                <button onClick={() => handleResetPassword(dist.id, dist.name)} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
+                <button onClick={() => setResetModal({ show: true, userId: dist.id, userName: dist.name, newPass: '' })} style={{background: 'transparent', border: '1px solid #f59e0b', color: '#f59e0b', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🔑</button>
                 <button onClick={() => handleDelete(dist.id)} style={{background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '11px'}}>🗑️</button>
               </div>
             </div>
@@ -308,11 +358,17 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* ===== CMS TAB ===== */}
+      {activeTab === 'cms' && (
+        <AdminCMS />
+      )}
+
       <div style={styles.bottomNav}>
         {[
           { id: 'dashboard', icon: '📊', label: 'Dashboard' },
           { id: 'shops', icon: '🏪', label: 'Shops' },
           { id: 'customers', icon: '👥', label: 'Users' },
+          { id: 'cms', icon: '✏️', label: 'Website' },
           { id: 'payments', icon: '💰', label: 'Revenue' },
           { id: 'settings', icon: '⚙️', label: 'Settings' }
         ].map(tab => (
@@ -322,6 +378,27 @@ const AdminDashboard = () => {
           </div>
         ))}
       </div>
+
+      {/* RESET PASSWORD MODAL */}
+      {resetModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#1e293b', padding: '24px', borderRadius: '16px', width: '100%', maxWidth: '400px', border: '1px solid #334155' }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#fff' }}>Reset Password</h3>
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#94a3b8' }}>Set a new password for <b>{resetModal.userName}</b>.</p>
+            <input 
+              type="text" 
+              placeholder="Enter new password (min 4 chars)" 
+              value={resetModal.newPass} 
+              onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })} 
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #334155', background: '#0f172a', color: 'white', marginBottom: '16px' }} 
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => setResetModal({ show: false, userId: null, userName: '', newPass: '' })} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#fff', border: '1px solid #334155', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleResetPasswordSubmit} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#f59e0b', color: '#000', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Save Password</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

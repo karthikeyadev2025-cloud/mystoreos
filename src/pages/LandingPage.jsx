@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { CheckCircle, X, Zap, Shield, Smartphone, TrendingUp } from 'lucide-react';
+import { api } from '../lib/api';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -12,6 +13,30 @@ const LandingPage = () => {
 
   const fadeUp = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } };
   const stagger = (i) => ({ ...fadeUp, transition: { ...fadeUp.transition, delay: i * 0.1 } });
+
+  const [heroConfig, setHeroConfig] = React.useState({
+    headline: 'Your Phone is\nYour Billing\nMachine.',
+    subtitle: 'No computer. No printer. No paper rolls.\nJust your phone and 30 seconds to send a branded bill on WhatsApp.',
+    buttonText: '🚀 Start Free — No Card Needed'
+  });
+  
+  const [pricingConfig, setPricingConfig] = React.useState({
+    proPrice: '999',
+    freeFeatures: 'Basic billing, 50 products',
+    proFeatures: 'Unlimited everything, WhatsApp orders, Custom Domain'
+  });
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        setHeroConfig(await api.getSiteConfig('hero', heroConfig));
+        setPricingConfig(await api.getSiteConfig('pricing', pricingConfig));
+      } catch (e) {
+        console.error("CMS Load Error", e);
+      }
+    };
+    loadData();
+  }, []);
 
   return (
     <div ref={containerRef} style={{ backgroundColor: '#030712', color: '#e2e8f0', overflowX: 'hidden', fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
@@ -31,12 +56,12 @@ const LandingPage = () => {
             🔥 INDIA'S SMARTEST RETAIL OS
           </motion.div>
 
-          <h1 style={{ fontSize: 'clamp(36px, 7vw, 72px)', fontWeight: 900, lineHeight: 1.05, margin: '0 0 24px 0', background: 'linear-gradient(135deg, #ffffff 30%, #fbbf24 60%, #ef4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Your Phone is<br/>Your Billing<br/>Machine.
+          <h1 style={{ fontSize: 'clamp(36px, 7vw, 72px)', fontWeight: 900, lineHeight: 1.05, margin: '0 0 24px 0', background: 'linear-gradient(135deg, #ffffff 30%, #fbbf24 60%, #ef4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', whiteSpace: 'pre-line' }}>
+            {heroConfig.headline}
           </h1>
 
-          <p style={{ fontSize: 'clamp(16px, 2.5vw, 22px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 auto 16px', maxWidth: 550, fontWeight: 300 }}>
-            No computer. No printer. No paper rolls.<br/>Just your phone and 30 seconds to send a branded bill on WhatsApp.
+          <p style={{ fontSize: 'clamp(16px, 2.5vw, 22px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 auto 16px', maxWidth: 550, fontWeight: 300, whiteSpace: 'pre-line' }}>
+            {heroConfig.subtitle}
           </p>
           <p style={{ fontSize: 'clamp(14px, 2vw, 18px)', color: '#fbbf24', fontWeight: 700, marginBottom: '48px' }}>
             కంప్యూటర్ లేకుండా • ప్రింటర్ లేకుండా • కాగితం లేకుండా
@@ -44,7 +69,7 @@ const LandingPage = () => {
 
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <motion.button whileHover={{ scale: 1.04, boxShadow: '0 0 50px rgba(220,38,38,0.5)' }} whileTap={{ scale: 0.96 }} onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg, #dc2626, #ea580c)', color: 'white', border: 'none', padding: '18px 40px', borderRadius: '16px', fontSize: '17px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 30px rgba(220,38,38,0.35)', letterSpacing: '0.5px' }}>
-              🚀 Start Free — No Card Needed
+              {heroConfig.buttonText}
             </motion.button>
             <motion.button whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.1)' }} whileTap={{ scale: 0.96 }} onClick={() => navigate('/login')} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', padding: '18px 40px', borderRadius: '16px', fontSize: '17px', fontWeight: 600, cursor: 'pointer' }}>
               Login →
@@ -210,9 +235,9 @@ const LandingPage = () => {
             <div style={{ fontSize: '48px', fontWeight: 900, color: '#fff', lineHeight: 1 }}>Free</div>
             <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '28px' }}>forever / ఎప్పటికీ ఉచితం</div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', flex: 1 }}>
-              {['Up to 50 products', 'WhatsApp billing', 'Barcode scanner', 'Customer orders', 'Basic dashboard'].map((f, i) => (
+              {(pricingConfig.freeFeatures || '').split(',').map((f, i) => (
                 <li key={i} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
-                  <CheckCircle size={16} color="#22c55e" /> {f}
+                  <CheckCircle size={16} color="#22c55e" /> {f.trim()}
                 </li>
               ))}
               {['Credit ledger', 'Staff management', 'Online shop link', 'Shop photos & QR'].map((f, i) => (
@@ -231,14 +256,14 @@ const LandingPage = () => {
             <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ position: 'absolute', top: -14, right: 20, background: 'linear-gradient(135deg, #dc2626, #ea580c)', padding: '6px 16px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, color: '#fff', boxShadow: '0 4px 12px rgba(220,38,38,0.4)' }}>⚡ MOST POPULAR</motion.div>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#fbbf24', letterSpacing: '1px', marginBottom: '8px' }}>PRO</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '48px', fontWeight: 900, color: '#fbbf24', lineHeight: 1 }}>₹999</span>
+              <span style={{ fontSize: '48px', fontWeight: 900, color: '#fbbf24', lineHeight: 1 }}>₹{pricingConfig.proPrice}</span>
               <span style={{ fontSize: '14px', color: '#94a3b8' }}>/month</span>
             </div>
             <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '28px' }}>₹33/day — less than a cup of tea ☕</div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', flex: 1 }}>
-              {['Unlimited products', 'Branded PDF receipts', 'Barcode scanner', 'UPI QR payments', 'Credit ledger', 'Staff management', 'Online shop link', 'Shop photos & QR', 'Revenue dashboard'].map((f, i) => (
+              {(pricingConfig.proFeatures || '').split(',').map((f, i) => (
                 <li key={i} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'rgba(255,255,255,0.7)' }}>
-                  <CheckCircle size={16} color="#22c55e" /> {f}
+                  <CheckCircle size={16} color="#22c55e" /> {f.trim()}
                 </li>
               ))}
             </ul>

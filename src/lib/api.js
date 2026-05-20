@@ -428,5 +428,26 @@ export const api = {
     db.settings = { ...db.settings, ...newSettings };
     saveDB(db);
     return db.settings;
+  },
+
+  // ---- CMS (Site Config) ----
+  async getSiteConfig(key, defaultData) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('site_config').select('value').eq('key', key).single();
+      return data?.value || defaultData;
+    }
+    const db = getDB();
+    return db.siteConfig?.[key] || defaultData;
+  },
+
+  async saveSiteConfig(key, value) {
+    if (isSupabaseConfigured) {
+      await supabase.from('site_config').upsert({ key, value, updated_at: new Date().toISOString() });
+      return;
+    }
+    const db = getDB();
+    if (!db.siteConfig) db.siteConfig = {};
+    db.siteConfig[key] = value;
+    saveDB(db);
   }
 };

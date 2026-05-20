@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS public.orders CASCADE;
 DROP TABLE IF EXISTS public.products CASCADE;
 DROP TABLE IF EXISTS public.settings CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
+DROP TABLE IF EXISTS public.site_config CASCADE;
 
 -- Users table
 CREATE TABLE public.users (
@@ -65,6 +66,13 @@ CREATE TABLE public.settings (
 );
 INSERT INTO public.settings (id, razorpay_key) VALUES (1, '');
 
+-- Site Config (CMS)
+CREATE TABLE public.site_config (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Insert Super Admin
 INSERT INTO public.users (phone, pass, role, name, status)
 VALUES ('8885490495', 'Mystore@karthi@2025', 'admin', 'Super Admin', 'active');
@@ -79,6 +87,7 @@ ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.credits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_config ENABLE ROW LEVEL SECURITY;
 
 -- Allow public access (tighten for production later)
 CREATE POLICY "Allow all" ON public.users FOR ALL USING (true) WITH CHECK (true);
@@ -86,3 +95,4 @@ CREATE POLICY "Allow all" ON public.products FOR ALL USING (true) WITH CHECK (tr
 CREATE POLICY "Allow all" ON public.orders FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all" ON public.credits FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all" ON public.settings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all" ON public.site_config FOR ALL USING (true) WITH CHECK (true);
