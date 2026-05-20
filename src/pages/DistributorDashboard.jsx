@@ -110,9 +110,52 @@ const DistributorDashboard = () => {
         </>
       )}
 
-      {/* Placeholders */}
-      {activeTab === 'shops' && <div style={{padding: 20}}><h2>My Shops</h2><p style={{color:'#94a3b8'}}>List of shops and total ledgers.</p></div>}
-      {activeTab === 'history' && <div style={{padding: 20}}><h2>Collection History</h2><p style={{color:'#94a3b8'}}>Past cleared records.</p></div>}
+      {/* Shops Tab */}
+      {activeTab === 'shops' && (
+        <div style={{padding: 20}}>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#fff'}}>🏪 My Shops</h2>
+          {shops.length === 0 ? (
+            <p style={{color: '#94a3b8', textAlign: 'center'}}>No shops available.</p>
+          ) : (
+            shops.map(shop => {
+              const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
+              const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
+              return (
+                <div key={shop.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>{shop.name}</h4>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>{shop.phone}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total Owed</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? '#ef4444' : '#22c55e' }}>₹{owed}</div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* History Tab */}
+      {activeTab === 'history' && (
+        <div style={{padding: 20}}>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#fff'}}>✅ Collection History</h2>
+          {credits.filter(c => c.paid).length === 0 ? (
+            <p style={{color: '#94a3b8', textAlign: 'center'}}>No history of paid collections.</p>
+          ) : (
+            credits.filter(c => c.paid).map(c => (
+              <div key={c.id} style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>{c.shopName}</h4>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#22c55e' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#22c55e' }}>+ ₹{c.amount}</div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Add Credit Modal */}
       {showModal && (

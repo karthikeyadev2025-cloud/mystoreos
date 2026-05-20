@@ -167,12 +167,13 @@ const UserDashboard = () => {
 
       {/* Search */}
       <div style={{ padding: '16px', background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <input 
-          type="text" 
-          placeholder="Search products... వెతకండి..." 
-          value={search} onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '15px', color: '#fff' }} 
-        />
+          <input 
+            type="text" 
+            placeholder="Search products..." 
+            value={search} 
+            onChange={e => setSearch(e.target.value)} 
+            style={{ width: '100%', padding: '14px', background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '16px', outline: 'none' }}
+          />
       </div>
 
       {/* Categories */}
