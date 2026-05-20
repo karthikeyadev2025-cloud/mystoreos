@@ -36,6 +36,7 @@ const ShopDashboard = () => {
   // Profile State
   const [upiId, setUpiId] = useState(user?.upiId || '');
   const [logo, setLogo] = useState(user?.logo || '');
+  const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
 
   // System Settings (Razorpay Key)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -204,8 +205,8 @@ const ShopDashboard = () => {
   };
 
   const handleSaveProfile = async () => {
-    await api.updateProfile(user.id, { upiId, logo });
-    const updatedUser = { ...user, upiId, logo };
+    await api.updateProfile(user.id, { upiId, logo, shopPhotos });
+    const updatedUser = { ...user, upiId, logo, shopPhotos };
     localStorage.setItem('mystore_user', JSON.stringify(updatedUser));
     toast.success("Profile Updated successfully!");
   };
@@ -217,6 +218,42 @@ const ShopDashboard = () => {
       reader.onloadend = () => setLogo(reader.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleShopPhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (shopPhotos.length + files.length > 6) return toast.error('Maximum 6 photos allowed');
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => setShopPhotos(prev => [...prev, reader.result]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeShopPhoto = (index) => {
+    setShopPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const getShopUrl = () => {
+    const base = window.location.origin;
+    return `${base}/s/${targetShopId.split('_')[1]}`;
+  };
+
+  const handleShareShop = () => {
+    const url = getShopUrl();
+    const msg = `Check out ${user.name} on MyStore OS!\n${url}`;
+    if (navigator.share) {
+      navigator.share({ title: user.name, text: msg, url }).catch(() => {});
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  };
+
+  const handleShowUpiQr = () => {
+    if (!upiId) return toast.error('Set your UPI ID in Settings first!');
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${billTotal}&cu=INR`;
+    window.open(upiUrl, '_blank');
+    toast.success('Opening UPI payment...');
   };
 
   const handleSubscribe = () => {
@@ -349,9 +386,9 @@ const ShopDashboard = () => {
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
               </div>
             )}
-            <div style={styles.gridBtn}>
+            <div style={styles.gridBtn} onClick={handleShowUpiQr}>
               <IndianRupee size={24} color="#f59e0b" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>డబ్బు తీసుకోండి</p></div>
+              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>UPI QR</p></div>
             </div>
             {isOwner && (
               <div style={styles.gridBtn} onClick={() => setActiveTab('credit')}>
@@ -363,9 +400,9 @@ const ShopDashboard = () => {
               <Receipt size={24} color={pendingOrders > 0 ? "#ef4444" : "#94a3b8"} />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>All Bills</p><p style={styles.gridSub}>అన్ని బిల్లులు</p></div>
             </div>
-            <div style={styles.gridBtn} onClick={() => window.open(`http://localhost:5173/s/${targetShopId.split('_')[1]}`, '_blank')}>
+            <div style={styles.gridBtn} onClick={handleShareShop}>
               <Share2 size={24} color="#ef4444" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Share Shop</p><p style={styles.gridSub}>లింక్ పంపు</p></div>
+              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Share Shop</p><p style={styles.gridSub}>Share Link</p></div>
             </div>
           </div>
 
@@ -403,7 +440,7 @@ const ShopDashboard = () => {
               <button style={{...styles.whatsappBtn, opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
                 <span style={{ fontSize: '18px' }}>💬</span> Generate Bill
               </button>
-              <button style={styles.upiBtn}>
+              <button style={styles.upiBtn} onClick={handleShowUpiQr}>
                 <QrCode size={16} /> Show UPI QR for Payment
               </button>
             </div>
@@ -571,7 +608,7 @@ const ShopDashboard = () => {
             {credits.map(c => (
               <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{c.distributorName}</span>
+                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{c.distName || 'Distributor'}</span>
                   <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#ef4444' }}>
                     {c.paid ? '✅ Settled' : '⏳ Unpaid'}
                   </span>
@@ -583,7 +620,10 @@ const ShopDashboard = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
                   <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
                   {!c.paid && (
-                    <button style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    <button onClick={() => {
+                      if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
+                      window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
+                    }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                       Pay Now via UPI
                     </button>
                   )}
@@ -675,6 +715,24 @@ const ShopDashboard = () => {
               </button>
             </div>
 
+            {/* Shop Photos Section */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>📸 Shop Photos (Max 6)</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Upload photos of your shop, products, and services. These will show on your public shop profile.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                {shopPhotos.map((photo, idx) => (
+                  <div key={idx} style={{ position: 'relative' }}>
+                    <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #334155' }} />
+                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
+                  </div>
+                ))}
+              </div>
+              {shopPhotos.length < 6 && (
+                <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'block', fontSize: '12px', color: '#94a3b8' }} />
+              )}
+            </div>
+
+            {/* Shop Link & QR */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🔗 Your Shop Link & QR</h3>
               <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
@@ -683,7 +741,10 @@ const ShopDashboard = () => {
               <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px' }}>
                 <QrCode size={120} color="#000" />
               </div>
-              <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#3b82f6' }}>mystore.in/s/{user.id.split('_')[1]}</p>
+              <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
+              <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                📤 Share Shop Profile via WhatsApp
+              </button>
             </div>
           </div>
         </div>
@@ -765,6 +826,12 @@ const ShopDashboard = () => {
           <div style={{...styles.navBtn, color: activeTab === 'staff' ? '#f59e0b' : '#94a3b8' }} onClick={() => setActiveTab('staff')}>
             <User size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Staff</p>
+          </div>
+        )}
+        {isOwner && (
+          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#f59e0b' : '#94a3b8' }} onClick={() => setActiveTab('profile')}>
+            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
+            <p style={{ fontSize: '10px', margin: 0 }}>Settings</p>
           </div>
         )}
       </div>
