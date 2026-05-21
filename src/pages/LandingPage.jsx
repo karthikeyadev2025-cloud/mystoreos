@@ -830,6 +830,7 @@ const LandingPage = () => {
   const [heroConfig, setHeroConfig] = useState(DEFAULT_HERO_CONFIG);
   const [pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
   const [featuresConfig, setFeaturesConfig] = useState(DEFAULT_FEATURES_CONFIG);
+  const [plans, setPlans] = useState([]);
   const [interactive3dConfig, setInteractive3dConfig] = useState(DEFAULT_INTERACTIVE3D_CONFIG);
   const [previewsConfig, setPreviewsConfig] = useState(DEFAULT_PREVIEWS_CONFIG);
   const [quoteConfig, setQuoteConfig] = useState(DEFAULT_QUOTE_CONFIG);
@@ -864,6 +865,7 @@ const LandingPage = () => {
         const qConfig = await api.getSiteConfig('quoteCallout', DEFAULT_QUOTE_CONFIG);
         const sHeadings = await api.getSiteConfig('sectionHeadings', DEFAULT_SECTION_HEADINGS);
         const cssConfig = await api.getSiteConfig('customCSS', '');
+        const dynamicPlans = await api.getSubscriptionPlans();
 
         setHeroConfig(hConfig);
         setPricingConfig(pConfig);
@@ -873,6 +875,7 @@ const LandingPage = () => {
         setQuoteConfig(qConfig);
         setSectionHeadings(sHeadings);
         setCustomCSS(cssConfig);
+        setPlans(dynamicPlans);
       } catch (e) {
         console.error("CMS Configuration Load Error", e);
       }
@@ -1350,90 +1353,83 @@ const LandingPage = () => {
           <motion.div {...fadeUp} style={{ textAlign: 'center', marginBottom: '60px' }}>
             <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase' }}>SIMPLE PRICING</span>
             <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(28px, 4.5vw, 42px)', fontWeight: 800, margin: '8px 0 12px', color: '#fff' }}>
-              One Plan. Complete Access.
+              Select Your Business Growth Plan
             </h2>
             <p style={{ color: '#94a3b8', fontSize: '15px' }}>Start completely free with basic billing. Upgrade only when you grow.</p>
           </motion.div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', justifyContent: 'center', alignItems: 'stretch' }}>
-            
-            {/* Free Plan Card */}
-            <motion.div {...fadeUp} style={{
-              flex: '1 1 300px', maxWidth: '380px',
-              background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)',
-              borderRadius: '24px', padding: '40px 32px', display: 'flex', flexDirection: 'column'
-            }}>
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>STARTER CATALOG</span>
-              <h3 style={{ margin: 0, fontSize: '32px', fontWeight: 800, color: '#fff' }}>Free</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>Forever free for smaller merchants</p>
-              
-              <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '20px', marginBottom: '24px' }}>
-                <span style={{ fontSize: '14px', color: '#cbd5e1' }}>Perfect for basic point of sale billing.</span>
-              </div>
+            {plans.map((plan, index) => {
+              const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+              return (
+                <motion.div 
+                  key={plan.id}
+                  {...fadeUp}
+                  whileHover={{ y: -6 }}
+                  style={{
+                    flex: '1 1 300px',
+                    maxWidth: '380px',
+                    background: isPopular ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(255,255,255,0.01)',
+                    border: isPopular ? '2px solid rgba(124, 58, 237, 0.4)' : '1px solid rgba(255,255,255,0.05)',
+                    borderRadius: '24px',
+                    padding: '40px 32px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    boxShadow: isPopular ? '0 20px 40px rgba(124, 58, 237, 0.15)' : 'none'
+                  }}
+                >
+                  {isPopular && (
+                    <div style={{ position: 'absolute', top: -14, right: 28, background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff', fontSize: '10px', padding: '4px 12px', borderRadius: '20px', fontWeight: 800, letterSpacing: '0.5px' }}>
+                      RECOMMENDED
+                    </div>
+                  )}
 
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#94a3b8' }}>
-                {(pricingConfig.freeFeatures || '').split(',').map((f, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>✓</span> {f.trim()}
-                  </li>
-                ))}
-                {['Estimates & Challans', 'Expiry alert badges', 'UPI auto remind pay links', 'Distributor reordering ledgers'].map((f, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.3 }}>
-                    <span>✕</span> {f}
-                  </li>
-                ))}
-              </ul>
+                  <span style={{ fontSize: '11px', color: isPopular ? '#a78bfa' : '#94a3b8', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    {plan.name} TIER
+                  </span>
+                  
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '42px', fontWeight: 900, color: '#fff' }}>₹{plan.price}</span>
+                    <span style={{ fontSize: '14px', color: '#cbd5e1' }}>/month</span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>{plan.description}</p>
+                  
+                  <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '20px', marginBottom: '24px' }}>
+                    <span style={{ fontSize: '14px', color: '#cbd5e1', fontWeight: 'bold' }}>Includes premium retail features:</span>
+                  </div>
 
-              <button onClick={() => navigate('/register')} style={{
-                width: '100%', padding: '14px', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
-                background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', transition: 'all 0.2s'
-              }} onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-                Get Started Free
-              </button>
-            </motion.div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#cbd5e1' }}>
+                    {plan.features?.map((f, i) => (
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <span style={{ color: '#10b981', fontWeight: 'bold', marginTop: '2px' }}>✓</span>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-            {/* Pro Plan Card (Highly Featured Glassmorphism) */}
-            <motion.div {...fadeUp} whileHover={{ y: -6 }} style={{
-              flex: '1 1 340px', maxWidth: '420px',
-              background: 'linear-gradient(135deg, rgba(251,191,36,0.04) 0%, rgba(16,185,129,0.02) 100%)',
-              border: '2px solid rgba(251,191,36,0.25)', borderRadius: '24px', padding: '40px 32px',
-              display: 'flex', flexDirection: 'column', position: 'relative',
-              boxShadow: '0 20px 40px rgba(251,191,36,0.05)'
-            }}>
-              <div style={{ position: 'absolute', top: -14, right: 28, background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#030712', fontSize: '10px', padding: '4px 12px', borderRadius: '20px', fontWeight: 800, letterSpacing: '0.5px' }}>
-                MOST POPULAR
-              </div>
-
-              <span style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>MYSTORE PRO NODE</span>
-              
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '42px', fontWeight: 900, color: '#fbbf24' }}>₹{pricingConfig.proPrice}</span>
-                <span style={{ fontSize: '14px', color: '#94a3b8' }}>/month</span>
-              </div>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>Less than ₹33 a day — simple, pocket-friendly. ☕</p>
-              
-              <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '20px', marginBottom: '24px' }}>
-                <span style={{ fontSize: '14px', color: '#cbd5e1', fontWeight: 'bold' }}>Unlock the full suite of retail utilities.</span>
-              </div>
-
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#cbd5e1' }}>
-                {(pricingConfig.proFeatures || '').split(',').map((f, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <span style={{ color: '#10b981', fontWeight: 'bold', marginTop: '2px' }}>✓</span>
-                    <span>{f.trim()}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button onClick={() => navigate('/register')} style={{
-                width: '100%', padding: '16px', borderRadius: '12px', cursor: 'pointer', fontWeight: 800, fontSize: '15px',
-                background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#030712', border: 'none',
-                boxShadow: '0 6px 20px rgba(251,191,36,0.25)', transition: 'transform 0.2s'
-              }}>
-                Start 7-Day Free Trial
-              </button>
-            </motion.div>
-
+                  <button onClick={() => navigate('/register')} style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '15px',
+                    background: isPopular ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : 'transparent',
+                    color: '#fff',
+                    border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: isPopular ? '0 6px 20px rgba(124, 58, 237, 0.25)' : 'none',
+                    transition: 'all 0.2s'
+                  }} onMouseEnter={(e) => {
+                    if (!isPopular) e.target.style.background = 'rgba(255,255,255,0.04)';
+                  }} onMouseLeave={(e) => {
+                    if (!isPopular) e.target.style.background = 'transparent';
+                  }}>
+                    Start Free Trial
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

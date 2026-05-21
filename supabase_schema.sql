@@ -17,7 +17,7 @@ CREATE TABLE public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone TEXT UNIQUE NOT NULL,
     pass TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('customer', 'shop', 'distributor', 'admin', 'staff')),
+    role TEXT NOT NULL CHECK (role IN ('customer', 'shop', 'distributor', 'admin', 'staff', 'ca')),
     name TEXT NOT NULL,
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'pending')),
     subscription TEXT DEFAULT 'trial',
@@ -29,6 +29,9 @@ CREATE TABLE public.users (
     staff_of UUID REFERENCES public.users(id) ON DELETE CASCADE,
     latitude DECIMAL,
     longitude DECIMAL,
+    gstin TEXT,
+    state_code TEXT,
+    business_address TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -44,6 +47,8 @@ CREATE TABLE public.products (
     expiry_date DATE,
     variants TEXT,
     reorder_level INT DEFAULT 10,
+    hsn_code TEXT,
+    gst_rate INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -54,7 +59,10 @@ CREATE TABLE public.orders (
     shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     items JSONB NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
-    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Accepted', 'Completed', 'Cancelled')),
+    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Accepted', 'Completed', 'Cancelled', 'Returned')),
+    customer_gstin TEXT,
+    customer_address TEXT,
+    customer_state_code TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

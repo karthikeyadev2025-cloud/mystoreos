@@ -60,6 +60,13 @@ const UserDashboard = () => {
   // Dual-Mode flag
   const isStoreMode = !!shopId;
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Shared / General states
   const [coords, setCoords] = useState({ latitude: 16.3067, longitude: 80.4365 }); // default Guntur Arundelpet
   const [locationStatus, setLocationStatus] = useState('Default (Guntur)');
@@ -430,8 +437,8 @@ const UserDashboard = () => {
       return { ...shop, distance };
     }).sort((a, b) => {
       // 1. Featured PRO shops first
-      const aPro = a.subscription === 'active' ? 1 : 0;
-      const bPro = b.subscription === 'active' ? 1 : 0;
+      const aPro = (a.subscription && a.subscription !== 'trial') ? 1 : 0;
+      const bPro = (b.subscription && b.subscription !== 'trial') ? 1 : 0;
       if (bPro !== aPro) return bPro - aPro;
 
       // 2. Nearest shops go next
@@ -810,6 +817,847 @@ const UserDashboard = () => {
   const sortedShops = getSortedShops();
   const activeCartsList = getActiveCartsList();
 
+  if (!isMobile) {
+    return (
+      <div className="dashboard-wrapper-flex" style={{ background: 'linear-gradient(180deg, #0b0f19, #0f172a, #020617)', color: '#f8fafc', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", width: '100%' }}>
+        <ToastContainer theme="dark" position="top-center" />
+
+        {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
+        {announcements.length > 0 && announcements.map(ann => (
+          <div key={ann.id} style={{ background: 'rgba(30, 41, 59, 0.45)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px', color: '#fff', fontSize: '13px', overflow: 'hidden', position: 'fixed', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, width: '100%' }}>
+            <span style={{
+              background: ann.type === 'warning' ? '#f59e0b' : (ann.type === 'danger' || ann.type === 'error') ? '#ef4444' : '#3b82f6',
+              color: '#000', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', flexShrink: 0
+            }}>
+              {ann.type || 'Alert'}
+            </span>
+            <div style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', position: 'relative', height: '20px' }}>
+              <div className="marquee-content" style={{ display: 'inline-block', position: 'absolute', whiteSpace: 'nowrap', animation: 'announcement-marquee 25s linear infinite' }}>
+                {ann.text}
+              </div>
+            </div>
+            <button onClick={() => setAnnouncements(prev => prev.filter(a => a.id !== ann.id))} style={{ background: 'transparent', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0 }}><X size={14} /></button>
+          </div>
+        ))}
+
+        {isStoreMode ? (
+          // ================= DESKTOP STORE CATALOGUE MODE =================
+          <>
+            {/* Left Column (Sticky Sidebar) */}
+            <div className="desktop-glass-sidebar">
+              {/* Back to Marketplace Trigger */}
+              <button 
+                onClick={() => navigate('/user')}
+                className="sidebar-nav-item"
+                style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.06)', color: '#fff' }}
+              >
+                <ArrowLeft size={16} /> Marketplace
+              </button>
+
+              {/* Shop Branding & Location Metadata */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '24px' }}>
+                {shopInfo?.logo ? (
+                  <div style={{ position: 'relative', width: '70px', height: '70px', marginBottom: '10px' }}>
+                    <img 
+                      src={shopInfo.logo} 
+                      alt="Logo" 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '2px solid #f43f5e' }} 
+                    />
+                    {shopInfo.subscription && shopInfo.subscription !== 'trial' && (
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', padding: '2px 6px', borderRadius: '8px', fontSize: '8px', fontWeight: '800' }}>PRO</span>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '10px' }}>🏪</div>
+                )}
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0 }}>{shopInfo?.name}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
+                  <MapPin size={10} style={{ color: '#f43f5e' }} />
+                  <span>
+                    {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
+                      `${calculateDistance(coords.latitude, coords.longitude, shopInfo.latitude, shopInfo.longitude, shopInfo.id).toFixed(2)} km away`
+                    ) : (
+                      'Calculating distance...'
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              {/* Proximity walking map guide toggle button */}
+              <button
+                onClick={() => setShowWalkingMap(!showWalkingMap)}
+                className="sidebar-nav-item"
+                style={{ fontSize: '12px', background: 'rgba(139, 92, 246, 0.1)', color: '#c084fc', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}
+              >
+                <Navigation size={13} style={{ transform: showWalkingMap ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+                {showWalkingMap ? 'Hide Route Map' : 'Show Walking Guide'}
+              </button>
+
+              {/* Category Filters Vertical Nav Menu */}
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>
+                Store Categories
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }} className="custom-scroll">
+                {['all', 'rice', 'oil', 'dal', 'soap', 'milk', 'shampoo', 'grocery'].map(c => (
+                  <button 
+                    key={c}
+                    onClick={() => setFilter(c)}
+                    className={`sidebar-nav-item ${filter === c ? 'active' : ''}`}
+                    style={{ textTransform: 'capitalize', fontSize: '13px', padding: '10px 14px' }}
+                  >
+                    🏪 {c}
+                  </button>
+                ))}
+              </div>
+
+              {/* Coins Panel and Logout */}
+              <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+                {user && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24', padding: '8px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', justifyContent: 'center' }}>
+                      <Gift size={13} /> {loyaltyCoins} Coins Available
+                    </div>
+                    <button 
+                      onClick={handleLogout}
+                      className="sidebar-nav-item"
+                      style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Main Content Workspace (Split POS Catalogue + Cart summary sheet) */}
+            <div className="fluid-dashboard-main" style={{ marginTop: announcements.length > 0 ? '40px' : '0px' }}>
+              
+              {/* Walking Map SVG guide display */}
+              {showWalkingMap && (
+                <div className="glass" style={{ padding: '16px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 'bold' }}>📍 GPS WALKING GUIDE MAP</span>
+                    <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold' }}>GPS Connected</span>
+                  </div>
+                  <div style={{ position: 'relative', height: '80px', background: 'rgba(30, 41, 59, 0.3)', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', padding: '0 20px' }}>
+                    <svg width="100%" height="40" style={{ position: 'absolute', top: '20px', left: 0, overflow: 'visible' }}>
+                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="rgba(139, 92, 246, 0.25)" strokeWidth="3" />
+                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="6, 6" />
+                    </svg>
+                    <div style={{ position: 'absolute', top: '5px', left: '50px', fontSize: '20px', animation: 'walk-along-path 8s infinite linear', zIndex: 5 }}>🚶</div>
+                    <div style={{ position: 'absolute', left: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>👤 <span style={{ fontSize: '11px', fontWeight: 'bold' }}>You</span></div>
+                    <div style={{ position: 'absolute', right: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>🏪 <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#f43f5e' }}>{shopInfo.name}</span></div>
+                  </div>
+                </div>
+              )}
+
+              <div className="responsive-split-grid" style={{ width: '100%' }}>
+                {/* Center Column: Catalog directory grid */}
+                <div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <span style={{ position: 'absolute', left: '16px', top: '15px', color: '#94a3b8' }}>
+                        <Search size={18} />
+                      </span>
+                      <input 
+                        type="text" 
+                        placeholder="Search products in this store..." 
+                        value={localSearch} 
+                        onChange={e => setLocalSearch(e.target.value)} 
+                        style={{ width: '100%', padding: '14px 14px 14px 46px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#fff', fontSize: '15px', outline: 'none', margin: 0 }}
+                      />
+                    </div>
+                    <button 
+                      onClick={() => handleVoiceSearch('local')}
+                      style={{
+                        width: '48px', height: '48px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)',
+                        background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : 'rgba(15, 23, 42, 0.8)',
+                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                        flexShrink: 0, transition: 'all 0.3s',
+                        boxShadow: isListeningLocal ? '0 0 12px #f43f5e' : 'none'
+                      }}
+                    >
+                      <Mic size={18} />
+                    </button>
+                  </div>
+
+                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#94a3b8', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📦</span> Catalogue Products ({filteredProducts.length})
+                  </h2>
+
+                  {isLocatingCatalog ? (
+                    <div style={{ padding: '40px 0', textAlign: 'center', color: '#94a3b8' }}>
+                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #f43f5e', borderTopColor: 'transparent', margin: '0 auto 12px', animation: 'laser-sweep 1s infinite linear' }}></div>
+                      Loading catalogue...
+                    </div>
+                  ) : (
+                    <div className="premium-product-grid">
+                      {filteredProducts.map(p => (
+                        <div key={p.id} className="glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', transition: 'all 0.3s ease' }}>
+                          <div style={{ fontSize: '36px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px' }}>
+                            {p.icon || '📦'}
+                          </div>
+                          <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h3>
+                          <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{p.weight || '1 unit'}</p>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: 'auto' }}>
+                            <span style={{ fontSize: '18px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</span>
+                            {p.mrp && <span style={{ fontSize: '11px', color: '#64748b', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
+                          </div>
+                          {p.mrp && p.mrp > p.price && (
+                            <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 'bold' }}>Save ₹{p.mrp - p.price}</div>
+                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', background: 'rgba(15,23,42,0.6)', padding: '4px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                            <button onClick={() => updateQty(p.id, -1)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>−</button>
+                            <span style={{ fontSize: '13px', fontWeight: '700' }}>{cart[p.id] || 0}</span>
+                            <button onClick={() => updateQty(p.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>+</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {filteredProducts.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                      <AlertTriangle size={24} style={{ color: '#f59e0b', margin: '0 auto 8px' }} />
+                      <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>No items match your search filter.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Checkout cart bill sheet & payments */}
+                <div>
+                  <div className="glass" style={{ padding: '20px', position: 'sticky', top: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fbbf24', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <ShoppingCart size={18} /> Active Checkout Cart
+                    </h3>
+
+                    {getCartTotals().count === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '30px 10px', color: '#64748b' }}>
+                        <ShoppingCart size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
+                        Your checkout cart is empty. Select products from the catalogue to build invoice!
+                      </div>
+                    ) : (
+                      <>
+                        {/* Cart items scroll summary */}
+                        <div style={{ maxHeight: '180px', overflowY: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '10px 14px', marginBottom: '16px' }} className="custom-scroll">
+                          {getCartTotals().items.map(i => (
+                            <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '13px' }}>
+                              <span style={{ color: '#cbd5e1' }}>{i.name} <strong style={{ color: '#f43f5e' }}>x{i.qty}</strong></span>
+                              <span style={{ fontWeight: '700', color: '#f8fafc' }}>₹{i.price * i.qty}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Order calculation summary */}
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#cbd5e1', marginBottom: '6px' }}>
+                            <span>Total Items:</span>
+                            <span>{getCartTotals().count} units</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: '800', color: '#fbbf24', borderTop: '2px dashed rgba(245,158,11,0.2)', paddingTop: '10px', marginBottom: '16px' }}>
+                            <span>Payable Total:</span>
+                            <span>₹{getCartTotals().total}</span>
+                          </div>
+                        </div>
+
+                        {/* Payment Switch Tabs */}
+                        <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '4px', marginBottom: '16px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod('upi')}
+                            style={{
+                              flex: 1, padding: '8px', borderRadius: '10px', border: 'none',
+                              background: paymentMethod === 'upi' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
+                              color: paymentMethod === 'upi' ? '#fff' : '#94a3b8',
+                              fontSize: '12px', fontWeight: 'bold', cursor: 'pointer'
+                            }}
+                          >
+                            💳 UPI
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod('cash')}
+                            style={{
+                              flex: 1, padding: '8px', borderRadius: '10px', border: 'none',
+                              background: paymentMethod === 'cash' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent',
+                              color: paymentMethod === 'cash' ? '#fff' : '#94a3b8',
+                              fontSize: '12px', fontWeight: 'bold', cursor: 'pointer'
+                            }}
+                          >
+                            💵 Cash
+                          </button>
+                        </div>
+
+                        {/* Dynamic payment options */}
+                        {paymentMethod === 'upi' ? (
+                          shopInfo?.upiId ? (
+                            <div style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '12px', padding: '14px', marginBottom: '16px', textAlign: 'center' }}>
+                              <h4 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <CreditCard size={13} /> Scan QR to Pay UPI
+                              </h4>
+                              <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-block', marginBottom: '8px' }}>
+                                <QRCodeSVG value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`} size={100} />
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 10px', marginBottom: '10px', fontSize: '11px' }}>
+                                <span style={{ color: '#cbd5e1', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo.upiId}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(shopInfo.upiId);
+                                    toast.success("UPI ID copied!");
+                                  }}
+                                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px', width: 'auto' }}
+                                >
+                                  Copy
+                                </button>
+                              </div>
+                              {shopInfo.paymentQr && (
+                                <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                                  <p style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '6px' }}>Shopkeeper's QR poster:</p>
+                                  <img src={shopInfo.paymentQr} alt="QR Poster" style={{ maxWidth: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px' }} />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '12px', borderRadius: '10px', marginBottom: '16px', textAlign: 'center' }}>
+                              <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>💵 No UPI details registered. Pay Cash at Counter.</p>
+                            </div>
+                          )
+                        ) : (
+                          <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', padding: '14px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
+                            <h4 style={{ color: '#fbbf24', margin: '0 0 4px 0', fontSize: '13px' }}>💵 Cash Counter Settlement</h4>
+                            <p style={{ fontSize: '11px', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>Pay with cash or card at the store counter. Click button below to notify merchant.</p>
+                          </div>
+                        )}
+
+                        {/* Guest onboarding inline details */}
+                        {!user && (
+                          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
+                            <h4 style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '10px', fontWeight: 'bold' }}>One-Time Guest Checkout Details</h4>
+                            <input 
+                              type="text" 
+                              placeholder="Your Full Name" 
+                              value={guestName} 
+                              onChange={e=>setGuestName(e.target.value)} 
+                              style={{ padding: '10px', background: '#030712', border: '1px solid #1f2937', borderRadius: '8px', color: '#fff', fontSize: '13px', marginBottom: '8px', outline: 'none' }} 
+                            />
+                            <input 
+                              type="tel" 
+                              placeholder="10-Digit Mobile Number" 
+                              value={guestPhone} 
+                              onChange={e=>setGuestPhone(e.target.value)} 
+                              style={{ padding: '10px', background: '#030712', border: '1px solid #1f2937', borderRadius: '8px', color: '#fff', fontSize: '13px', marginBottom: '0', outline: 'none' }} 
+                            />
+                          </div>
+                        )}
+
+                        {/* Transaction Proof */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 'bold' }}>Transaction ID / Ref # (Optional)</label>
+                          <input 
+                            type="text" 
+                            placeholder="Enter 12-Digit Ref ID" 
+                            value={paymentProof} 
+                            onChange={e => setPaymentProof(e.target.value)} 
+                            style={{ width: '100%', padding: '10px', background: '#030712', border: '1px solid #1f2937', borderRadius: '8px', color: '#fff', fontSize: '13px', margin: 0, outline: 'none' }}
+                          />
+                        </div>
+
+                        {/* Place Order Trigger */}
+                        <button 
+                          onClick={sendWhatsAppOrder} 
+                          style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
+                        >
+                          📲 Notify & Place Order via WhatsApp
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          // ================= DESKTOP MARKETPLACE HOME MODE =================
+          <>
+            {/* Left Sidebar */}
+            <div className="desktop-glass-sidebar">
+              {/* User Profiling details */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px', paddingLeft: '8px' }}>
+                <label style={{ cursor: 'pointer', position: 'relative' }}>
+                  <img 
+                    src={avatar || 'https://ui-avatars.com/api/?name=' + (user?.name || 'Guest') + '&background=random'} 
+                    alt="User" 
+                    style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #8b5cf6', objectFit: 'cover' }} 
+                  />
+                  <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                </label>
+                <div>
+                  <div style={{ color: '#f43f5e', fontSize: '11px', fontWeight: '800' }}>CONSUMER PORTAL</div>
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', margin: 0 }}>{user?.name || 'Guest User'}</h3>
+                </div>
+              </div>
+
+              {/* Marketplace vertical nav list */}
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>
+                Navigation Menu
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                {[
+                  { id: 'explore', label: 'Explore Shops', icon: Compass },
+                  { id: 'search', label: 'Global Item Search', icon: Search },
+                  { id: 'scan', label: 'Scan QR Poster', icon: QrCode },
+                  { id: 'bills', label: 'My Bills Ledger', icon: Receipt },
+                ].map(tab => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setCameraScannerActive(false);
+                      }}
+                      className={`sidebar-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+                      style={{ fontSize: '13px', padding: '12px 14px' }}
+                    >
+                      <Icon size={16} /> {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Footer status GPS & coins */}
+              <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+                {user && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24', padding: '8px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', justifyContent: 'center', marginBottom: '12px' }}>
+                    <Gift size={13} /> {loyaltyCoins} Loyalty Coins
+                  </div>
+                )}
+                
+                {/* GPS lock widget */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '10px', marginBottom: '12px', fontSize: '11px' }}>
+                  <div style={{ color: '#64748b', fontWeight: 'bold', fontSize: '9px', marginBottom: '2px' }}>GPS COORDINATES</div>
+                  <div style={{ color: '#cbd5e1', fontWeight: 'bold' }}>{locationStatus}</div>
+                  <button 
+                    onClick={() => grabLiveLocation(false)} 
+                    style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#f43f5e', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justify: 'center', gap: '4px' }}
+                  >
+                    <Compass size={10} /> Refocus GPS
+                  </button>
+                </div>
+
+                {user ? (
+                  <button 
+                    onClick={handleLogout}
+                    className="sidebar-nav-item"
+                    style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="sidebar-nav-item active"
+                    style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
+                  >
+                    Sign In to Account
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Main Content Workspace */}
+            <div className="fluid-dashboard-main" style={{ marginTop: announcements.length > 0 ? '40px' : '0px' }}>
+              <h1 style={{ fontSize: '26px', fontWeight: '900', letterSpacing: '-0.5px', marginBottom: '20px' }}>
+                MyStore <span style={{ color: '#8b5cf6' }}>OS Marketplace</span>
+              </h1>
+
+              {/* Explore Tab Panel */}
+              {activeTab === 'explore' && (
+                <div className="responsive-split-grid">
+                  {/* Left block: local shops list */}
+                  <div>
+                    {activeCartsList.length > 0 && (
+                      <div className="glass" style={{ padding: '14px', marginBottom: '20px', border: '1px solid rgba(244, 63, 94, 0.25)' }}>
+                        <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#f43f5e', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <ShoppingCart size={13} /> Active Carts Pending Checkout
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {activeCartsList.map(cartItem => (
+                            <div key={cartItem.shopId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                              <span style={{ color: '#cbd5e1' }}>You have <strong>{cartItem.count} items</strong> at {cartItem.shopName}</span>
+                              <button 
+                                onClick={() => navigate(`/s/${cartItem.shopId}`)}
+                                style={{ width: 'auto', padding: '4px 10px', fontSize: '11px', background: '#f43f5e', color: '#fff', borderRadius: '6px', fontWeight: 'bold' }}
+                              >
+                                Resume Checkout
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#cbd5e1', marginBottom: '12px' }}>
+                      🏪 Discoverable Local Shops Nearby
+                    </h2>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {sortedShops.map(shop => {
+                        const dist = calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
+                        return (
+                          <div key={shop.id} className="glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                              {shop.logo ? (
+                                <img src={shop.logo} alt="Logo" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #8b5cf6' }} />
+                              ) : (
+                                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #f43f5e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🏪</div>
+                              )}
+                              <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  {shop.name}
+                                  {shop.subscription && shop.subscription !== 'trial' && (
+                                    <span style={{ background: 'linear-gradient(135deg, #e11d48, #c084fc)', fontSize: '8px', padding: '2px 6px', borderRadius: '6px', fontWeight: '800' }}>PRO</span>
+                                  )}
+                                </h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
+                                  <MapPin size={11} style={{ color: '#f43f5e' }} />
+                                  <span>{shop.business_address || 'Local Street'} • {dist !== null ? `${dist.toFixed(2)} km away` : 'Estimating location...'}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => navigate(`/s/${shop.id}`)}
+                              style={{ width: 'auto', padding: '10px 18px', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}
+                            >
+                              Open Catalogue 🏪
+                            </button>
+                          </div>
+                        );
+                      })}
+
+                      {sortedShops.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                          <AlertTriangle size={24} style={{ color: '#f59e0b', margin: '0 auto 8px' }} />
+                          <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>No local shops discoverable nearby.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right block: Loyalty Coins */}
+                  <div>
+                    <div className="glass" style={{ padding: '20px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                        <Gift size={16} /> loyalty Coins Rewards
+                      </h3>
+                      <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.4', marginBottom: '16px' }}>
+                        Earn guaranteed coins with every checkout order! Scratch the coupon card at invoice delivery to unlock free local cashback rewards.
+                      </p>
+                      <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{ fontSize: '32px' }}>🪙</div>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: '900', color: '#fbbf24' }}>{loyaltyCoins}</div>
+                          <div style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 'bold', textTransform: 'uppercase' }}>Coins Locked in Ledger</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Global search tab view */}
+              {activeTab === 'search' && (
+                <div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <span style={{ position: 'absolute', left: '16px', top: '15px', color: '#94a3b8' }}>
+                        <Search size={18} />
+                      </span>
+                      <input 
+                        type="text" 
+                        placeholder="Search items globally across all local shops (e.g. Rice, Oil)..." 
+                        value={globalSearch} 
+                        onChange={e => {
+                          setGlobalSearch(e.target.value);
+                        }} 
+                        style={{ width: '100%', padding: '14px 14px 14px 46px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#fff', fontSize: '15px', outline: 'none', margin: 0 }}
+                      />
+                    </div>
+                    <button 
+                      onClick={() => handleVoiceSearch('global')}
+                      style={{
+                        width: '48px', height: '48px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)',
+                        background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : 'rgba(15, 23, 42, 0.8)',
+                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                        flexShrink: 0, transition: 'all 0.3s',
+                        boxShadow: isListeningGlobal ? '0 0 12px #f43f5e' : 'none'
+                      }}
+                    >
+                      <Mic size={18} />
+                    </button>
+                  </div>
+
+                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#94a3b8', marginBottom: '14px' }}>
+                    📦 Search Results ({globalResults.length})
+                  </h2>
+
+                  <div className="premium-product-grid">
+                    {globalResults.map(res => (
+                      <div key={`${res.shopId}-${res.id}`} className="glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+                        <div style={{ fontSize: '36px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+                          {res.icon || '📦'}
+                        </div>
+                        <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{res.name}</h3>
+                        <p style={{ fontSize: '11px', color: '#cbd5e1', margin: 0 }}>🏪 {res.shopName}</p>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#fbbf24', marginTop: 'auto' }}>₹{res.price}</div>
+                        <button 
+                          onClick={() => navigate(`/s/${res.shopId}?search=${encodeURIComponent(res.name)}`)}
+                          style={{ padding: '8px 12px', fontSize: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#c084fc', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                          Visit Store 🏪
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {globalResults.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                      <Search size={24} style={{ color: '#cbd5e1', margin: '0 auto 8px' }} />
+                      <p style={{ margin: 0, fontSize: '14px', color: '#cbd5e1' }}>Type an item name above to run search query.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Scan tab view */}
+              {activeTab === 'scan' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
+                  <div className="glass" style={{ padding: '30px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                      <QrCode size={30} style={{ color: '#f43f5e' }} />
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>Scan Shop printed QR Poster</h3>
+                    <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '20px', lineHeight: '1.4' }}>
+                      Enable camera permission, hold the phone up to the shopkeeper's barcode poster to auto load their catalogue.
+                    </p>
+                    <div style={{ background: '#090d16', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', position: 'relative', minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {cameraScannerActive ? (
+                        <div id="reader" style={{ width: '100%' }}></div>
+                      ) : (
+                        <div style={{ cursor: 'pointer' }} onClick={() => setCameraScannerActive(true)}>
+                          <span style={{ fontSize: '48px', display: 'block', marginBottom: '8px' }}>📷</span>
+                          <span style={{ fontSize: '13px', color: '#8b5cf6', fontWeight: 'bold' }}>Trigger Webcam/Camera Hardware</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bills tab view */}
+              {activeTab === 'bills' && (
+                <div className="responsive-split-grid equal-cols">
+                  {/* Left Column: bills lists */}
+                  <div>
+                    <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#cbd5e1', marginBottom: '12px' }}>
+                      📋 Invoice Receipts & Digital Ledgers
+                    </h2>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '70vh', overflowY: 'auto' }} className="custom-scroll">
+                      {orders.map(order => (
+                        <div 
+                          key={order.id} 
+                          className="glass" 
+                          onClick={() => setSelectedOrder(order)}
+                          style={{ padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', border: selectedOrder?.id === order.id ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.06)' }}
+                        >
+                          <div>
+                            <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>🏪 {order.shopName || 'Store Invoice'}</h4>
+                            <p style={{ fontSize: '10px', color: '#cbd5e1', margin: '4px 0 0 0' }}>Order ID: {order.id.substring(0,8).toUpperCase()} • {new Date(order.date).toLocaleDateString()}</p>
+                            <p style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 'bold', margin: '4px 0 0 0' }}>{order.items?.length || 0} items purchased</p>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{order.total}</span>
+                            <div style={{ display: 'block', fontSize: '9px', fontWeight: 'bold', color: '#94a3b8', marginTop: '3px' }}>
+                              View Slip 🗒️
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {orders.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
+                          <Receipt size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
+                          You have not placed any orders yet.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: physical receipt preview */}
+                  <div>
+                    {selectedOrder ? (
+                      <div className="glass" style={{ padding: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                          <span style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 'bold' }}>🗒️ INVOICE RECEIPT CANVAS</span>
+                          <button 
+                            onClick={() => downloadReceiptPDF(selectedOrder)}
+                            style={{ width: 'auto', padding: '6px 12px', fontSize: '11px', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', borderRadius: '6px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Printer size={12} /> Print PDF
+                          </button>
+                        </div>
+
+                        <div className="receipt-paper" style={{ padding: '24px 20px', borderRadius: '2px', color: '#000' }}>
+                          <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+                            <h2 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>
+                              *** MYSTORE INVOICE ***
+                            </h2>
+                            <p style={{ fontStyle: 'italic', margin: 0, fontSize: '11px' }}>POS-Roll Serialized Bill</p>
+                          </div>
+
+                          <div style={{ fontSize: '11px', lineHeight: '1.4', marginBottom: '14px' }}>
+                            <div><strong>STORE :</strong> {(selectedOrder.shopName || 'Store').toUpperCase()}</div>
+                            <div><strong>DATE  :</strong> {new Date(selectedOrder.date).toLocaleString()}</div>
+                            <div><strong>BILL# :</strong> {(selectedOrder.id || '').toUpperCase()}</div>
+                            <div><strong>CLIENT :</strong> {user?.name || 'Walk-in'}</div>
+                          </div>
+
+                          <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
+
+                          <div style={{ fontSize: '11px', marginBottom: '10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', marginBottom: '6px' }}>
+                              <span>ITEM DESC</span>
+                              <span>SUB</span>
+                            </div>
+                            {selectedOrder.items?.map((item, idx) => (
+                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <span>{item.name.substring(0, 18)} x{item.qty}</span>
+                                <span>₹{item.price * item.qty}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '12px' }}>
+                            <span>TOTAL AMT:</span>
+                            <span>₹{selectedOrder.total}</span>
+                          </div>
+
+                          <div style={{ textAlign: 'center', fontSize: '9px', lineHeight: '1.3', marginTop: '10px' }}>
+                            <strong>* SCAN PAY PACK GO *</strong>
+                            <div>Thank you for shopping local!</div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="glass" style={{ padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#64748b', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        <Receipt size={40} style={{ color: '#1e293b', marginBottom: '12px' }} />
+                        <p style={{ margin: 0, fontSize: '14px', textAlign: 'center' }}>Select an invoice voucher from the ledger to preview receipt slip</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Modal Overlays for Desktop Mode */}
+        {showReceiptModal && selectedOrder && (
+          <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+            <div style={{ width: '100%', maxWidth: '350px' }}>
+              <div className="receipt-paper" style={{ padding: '24px 20px', borderRadius: '2px', color: '#000' }}>
+                <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+                  <h2 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>*** MYSTORE INVOICE ***</h2>
+                  <p style={{ fontStyle: 'italic', margin: 0, fontSize: '11px' }}>POS-Roll Serialized Bill</p>
+                </div>
+                <div style={{ fontSize: '11px', lineHeight: '1.4', marginBottom: '14px' }}>
+                  <div><strong>STORE :</strong> {(selectedOrder.shopName || 'Store').toUpperCase()}</div>
+                  <div><strong>DATE  :</strong> {new Date(selectedOrder.date).toLocaleString()}</div>
+                  <div><strong>BILL# :</strong> {(selectedOrder.id || '').toUpperCase()}</div>
+                </div>
+                <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
+                <div style={{ fontSize: '11px', marginBottom: '10px' }}>
+                  {selectedOrder.items?.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span>{item.name.substring(0, 18)} x{item.qty}</span>
+                      <span>₹{item.price * item.qty}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '12px' }}>
+                  <span>TOTAL AMT:</span>
+                  <span>₹{selectedOrder.total}</span>
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '9px', marginTop: '10px' }}>
+                  <strong>* SCAN PAY PACK GO *</strong>
+                  <div>Thank you for shopping local!</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                <button onClick={() => downloadReceiptPDF(selectedOrder)} style={{ flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', padding: '12px', borderRadius: '12px', fontSize: '13px', fontWeight: 'bold' }}>Print Receipt</button>
+                <button onClick={() => setShowReceiptModal(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px', borderRadius: '12px', fontSize: '13px' }}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showGuestModal && (
+          <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+            <div style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: '350px', borderRadius: '24px', padding: '24px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px 0', color: '#fff' }}>Customer Onboarding 🚀</h2>
+              </div>
+              <input type="text" placeholder="Your Full Name" value={guestName} onChange={e=>setGuestName(e.target.value)} style={{ padding: '12px', background: '#030712', border: '1px solid #1f2937', borderRadius: '8px', color: '#fff', marginBottom: '12px' }} />
+              <input type="tel" placeholder="10-Digit Mobile Number" value={guestPhone} onChange={e=>setGuestPhone(e.target.value)} style={{ padding: '12px', background: '#030712', border: '1px solid #1f2937', borderRadius: '8px', color: '#fff', marginBottom: '20px' }} />
+              <button onClick={handleGuestLogin} style={{ background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', padding: '12px' }}>Submit & Proceed</button>
+              <button onClick={() => setShowGuestModal(false)} style={{ background: 'transparent', color: '#64748b', padding: '10px', marginTop: '6px' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {scratchModalOpen && (
+          <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #1e1b4b, #0f172a)', border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: '340px', borderRadius: '24px', padding: '24px', textAlign: 'center' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24', margin: '0 0 4px 0' }}><Gift size={20} /> Checkout Cashback!</h3>
+              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '8px 0 20px 0' }}>Rub the silver card below to reveal your guaranteed coins.</p>
+              <div style={{ position: 'relative', width: '240px', height: '240px', margin: '0 auto 20px', borderRadius: '16px', overflow: 'hidden', background: '#020617' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                  <span style={{ fontSize: '42px' }}>🎉</span>
+                  <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold' }}>YOU WON</span>
+                  <h4 style={{ fontSize: '32px', fontWeight: '900', color: '#f59e0b', margin: 0 }}>+{scratchCardAmount}</h4>
+                  <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Loyalty Coins</span>
+                </div>
+                <canvas
+                  ref={scratchCanvasRef}
+                  width={240}
+                  height={240}
+                  style={{ position: 'absolute', top: 0, left: 0, zIndex: 2, borderRadius: '16px', display: scratchCardRevealed ? 'none' : 'block' }}
+                  onMouseDown={() => { isDrawingScratch.current = true; }}
+                  onMouseUp={() => { isDrawingScratch.current = false; }}
+                  onMouseLeave={() => { isDrawingScratch.current = false; }}
+                  onMouseMove={handleScratchMove}
+                  onTouchStart={() => { isDrawingScratch.current = true; }}
+                  onTouchEnd={() => { isDrawingScratch.current = false; }}
+                  onTouchMove={handleScratchMove}
+                />
+              </div>
+              {scratchCardRevealed ? (
+                <button onClick={() => setScratchModalOpen(false)} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '12px' }}>Claim Coins & Continue</button>
+              ) : (
+                <button disabled style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b', padding: '12px' }}>Scratch to Reveal</button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: 'linear-gradient(180deg, #0b0f19, #0f172a, #020617)', color: '#f8fafc', minHeight: '100vh', fontFamily: "'Outfit', sans-serif" }}>
       <ToastContainer theme="dark" position="top-center" />
@@ -879,7 +1727,7 @@ const UserDashboard = () => {
                       alt="Logo" 
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f43f5e', boxShadow: '0 8px 24px rgba(244, 63, 94, 0.3)' }} 
                     />
-                    {shopInfo?.subscription === 'active' && (
+                    {shopInfo?.subscription && shopInfo?.subscription !== 'trial' && (
                       <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', border: '2px solid #0f172a', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
                         PRO
                       </span>
@@ -1305,7 +2153,7 @@ const UserDashboard = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {sortedShops.map(shop => {
-                    const isPro = shop.subscription === 'active';
+                    const isPro = shop.subscription && shop.subscription !== 'trial';
                     return (
                       <div 
                         key={shop.id}
@@ -1412,7 +2260,7 @@ const UserDashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {globalResults.map(p => {
                     const distance = calculateDistance(coords.latitude, coords.longitude, p.shop?.latitude, p.shop?.longitude, p.shopId);
-                    const isPro = p.shop?.subscription === 'active';
+                    const isPro = p.shop?.subscription && p.shop?.subscription !== 'trial';
                     return (
                       <div 
                         key={p.id}

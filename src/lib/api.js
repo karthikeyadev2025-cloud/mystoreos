@@ -13,7 +13,8 @@ const mockDB = {
     { id: 'u_4', phone: '9000000000', pass: '1234', role: 'shop', name: 'Balaji Kirana Store', status: 'active', subscription: 'active', upiId: '9000000000@ybl', latitude: 16.3120, longitude: 80.4450, logo: 'https://images.unsplash.com/photo-1601599561263-8a39304edeec?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
     { id: 'u_3', phone: '8888888888', pass: '1234', role: 'distributor', name: 'Guntur FMCG Supply', status: 'active' },
-    { id: 'u_staff1', phone: '7777777777', pass: '1234', role: 'staff', name: 'Ravi (Helper)', status: 'active', staff_of: 'u_1' }
+    { id: 'u_staff1', phone: '7777777777', pass: '1234', role: 'staff', name: 'Ravi (Helper)', status: 'active', staff_of: 'u_1' },
+    { id: 'u_ca1', phone: '1111111111', pass: '1234', role: 'ca', name: 'Srinivas & Co (CA)', status: 'active' }
   ],
   products: [
     { id: 'p_1', shopId: 'u_1', name: 'Parle-G 10Rs', price: 10, barcode: '8901719102029', stock: 45, batchNumber: 'B-PAR01', expiryDate: '2026-12-31', variants: 'Regular, Family Pack', reorderLevel: 10 },
@@ -56,6 +57,11 @@ if (!localDBStr) {
         db.users.push({ id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' });
         modified = true;
       }
+      const hasCA = db.users.some(u => u.role === 'ca');
+      if (!hasCA) {
+        db.users.push({ id: 'u_ca1', phone: '1111111111', pass: '1234', role: 'ca', name: 'Srinivas & Co (CA)', status: 'active' });
+        modified = true;
+      }
     }
     if (db && !db.distributorProducts) {
       db.distributorProducts = mockDB.distributorProducts;
@@ -87,19 +93,22 @@ const toUser = (row) => row ? ({
   logo: row.logo, shopPhotos: row.shop_photos || [], paymentQr: row.payment_qr,
   avatar: row.avatar,
   staff_of: row.staff_of,
-  latitude: row.latitude, longitude: row.longitude
+  latitude: row.latitude, longitude: row.longitude,
+  gstin: row.gstin, stateCode: row.state_code, businessAddress: row.business_address
 }) : null;
 
 const toProduct = (row) => row ? ({
   id: row.id, shopId: row.shop_id, name: row.name, price: row.price,
   barcode: row.barcode, stock: row.stock,
   batchNumber: row.batch_number, expiryDate: row.expiry_date,
-  variants: row.variants, reorderLevel: row.reorder_level || 10
+  variants: row.variants, reorderLevel: row.reorder_level || 10,
+  hsnCode: row.hsn_code, gstRate: row.gst_rate || 0
 }) : null;
 
 const toOrder = (row) => row ? ({
   id: row.id, userId: row.user_id, shopId: row.shop_id, items: row.items,
-  total: row.total, status: row.status, date: row.created_at
+  total: row.total, status: row.status, date: row.created_at,
+  customerGstin: row.customer_gstin, customerAddress: row.customer_address, customerStateCode: row.customer_state_code
 }) : null;
 
 const toCredit = (row) => row ? ({
@@ -306,7 +315,7 @@ export const api = {
     return db.products.filter(p => p.shopId === shopId);
   },
 
-  async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10) {
+  async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10, data = {}) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('products').insert({ 
         shop_id: shopId, 
@@ -317,7 +326,9 @@ export const api = {
         batch_number: batchNumber || null,
         expiry_date: expiryDate || null,
         variants: variants || null,
-        reorder_level: parseInt(reorderLevel) || 10
+        reorder_level: parseInt(reorderLevel) || 10,
+        hsn_code: data.hsnCode || null,
+        gst_rate: parseInt(data.gstRate) || 0
       }).select().single();
       if (error) throw new Error(error.message);
       return toProduct(data);
@@ -333,7 +344,9 @@ export const api = {
       batchNumber: batchNumber || '',
       expiryDate: expiryDate || '',
       variants: variants || '',
-      reorderLevel: parseInt(reorderLevel) || 10
+      reorderLevel: parseInt(reorderLevel) || 10,
+      hsnCode: data?.hsnCode || '',
+      gstRate: parseInt(data?.gstRate) || 0
     };
     db.products.push(newProd);
     saveDB(db);
@@ -351,6 +364,8 @@ export const api = {
       if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
       if (data.variants !== undefined) updateObj.variants = data.variants || null;
       if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
+      if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
+      if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       
       const { data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().single();
       if (error) throw new Error(error.message);
@@ -367,6 +382,8 @@ export const api = {
       if (data.expiryDate !== undefined) prod.expiryDate = data.expiryDate || '';
       if (data.variants !== undefined) prod.variants = data.variants || '';
       if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
+      if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
+      if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
       saveDB(db);
     }
     return prod;
@@ -408,6 +425,18 @@ export const api = {
     }
     const db = getDB();
     return db.users.filter(u => u.role === 'staff' && u.staff_of === shopId);
+  },
+
+  async verifyAdminPin(shopId, pin) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users').select('pass').eq('id', shopId).single();
+      if (!data || data.pass !== pin) throw new Error("Invalid Admin PIN");
+      return true;
+    }
+    const db = getDB();
+    const admin = db.users.find(u => u.id === shopId);
+    if (!admin || admin.pass !== pin) throw new Error("Invalid Admin PIN");
+    return true;
   },
 
   // ---- ORDERS ----
@@ -469,7 +498,7 @@ export const api = {
     }).reverse();
   },
 
-  async placeOrder(userId, shopId, items, total) {
+  async placeOrder(userId, shopId, items, total, customerData = {}) {
     if (isSupabaseConfigured) {
       let resolvedId = shopId;
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
@@ -484,7 +513,15 @@ export const api = {
         }
       }
 
-      const { data, error } = await supabase.from('orders').insert({ user_id: userId, shop_id: resolvedId, items, total }).select().single();
+      const { data, error } = await supabase.from('orders').insert({ 
+        user_id: userId, 
+        shop_id: resolvedId, 
+        items, 
+        total,
+        customer_gstin: customerData.gstin || null,
+        customer_address: customerData.address || null,
+        customer_state_code: customerData.stateCode || null
+      }).select().single();
       if (error) throw new Error(error.message);
       
       // Decrement product inventory stock levels in Supabase
@@ -506,7 +543,18 @@ export const api = {
       return toOrder(data);
     }
     const db = getDB();
-    const order = { id: 'o_' + generateId(), userId, shopId, items, total, status: 'Pending', date: new Date().toISOString() };
+    const order = { 
+      id: 'o_' + generateId(), 
+      userId, 
+      shopId, 
+      items, 
+      total, 
+      status: 'Pending', 
+      date: new Date().toISOString(),
+      customerGstin: customerData.gstin || '',
+      customerAddress: customerData.address || '',
+      customerStateCode: customerData.stateCode || ''
+    };
     db.orders.push(order);
     
     // Decrement product inventory stock levels in localStorage offline mode
@@ -533,6 +581,48 @@ export const api = {
     const order = db.orders.find(o => o.id === orderId);
     if (order) order.status = 'Accepted';
     saveDB(db);
+  },
+
+  async processReturn(orderId, returnItems, refundMode) {
+    if (isSupabaseConfigured) {
+      // In Supabase, we would:
+      // 1. Mark order as 'Returned' or partially returned
+      // 2. Increment stock for returned items
+      // For MVP, we will update the stock and set status to 'Returned'
+      await supabase.from('orders').update({ status: 'Returned' }).eq('id', orderId);
+      
+      for (const item of returnItems) {
+        try {
+          const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).single();
+          if (prodData) {
+            const currentStock = parseInt(prodData.stock) || 0;
+            const newStock = currentStock + (parseInt(item.returnQty) || 1);
+            await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
+          }
+        } catch (err) {
+          console.error("Failed to restore stock in Supabase", err);
+        }
+      }
+      return true;
+    }
+    
+    const db = getDB();
+    const order = db.orders.find(o => o.id === orderId);
+    if (order) order.status = 'Returned';
+    
+    // Increment inventory stock
+    if (returnItems && Array.isArray(returnItems)) {
+      returnItems.forEach(item => {
+        const prod = db.products.find(p => p.id === item.id);
+        if (prod) {
+          const currentStock = parseInt(prod.stock) || 0;
+          prod.stock = currentStock + (parseInt(item.returnQty) || 1);
+        }
+      });
+    }
+    
+    saveDB(db);
+    return true;
   },
 
   // ---- CREDITS ----
@@ -682,6 +772,9 @@ export const api = {
       if (data.latitude !== undefined) updateObj.latitude = data.latitude;
       if (data.longitude !== undefined) updateObj.longitude = data.longitude;
       if (data.avatar !== undefined) updateObj.avatar = data.avatar;
+      if (data.gstin !== undefined) updateObj.gstin = data.gstin;
+      if (data.stateCode !== undefined) updateObj.state_code = data.stateCode;
+      if (data.businessAddress !== undefined) updateObj.business_address = data.businessAddress;
       await supabase.from('users').update(updateObj).eq('id', userId);
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).single();
       return toUser(updated);
@@ -734,6 +827,57 @@ export const api = {
     if (!db.siteConfig) db.siteConfig = {};
     db.siteConfig[key] = value;
     saveDB(db);
+  },
+
+  async getSubscriptionPlans() {
+    const defaultPlans = [
+      {
+        id: 'starter',
+        name: 'Starter Plan',
+        price: 499,
+        description: 'Perfect for small neighborhood kirana shops looking to go paperless.',
+        features: [
+          'Standard digital billing & invoicing',
+          'Up to 200 inventory products',
+          'Basic Day Book profit/loss gauge',
+          'Single-device active session',
+          'Standard billing templates'
+        ]
+      },
+      {
+        id: 'pro',
+        name: 'Premium PRO Plan',
+        price: 999,
+        description: 'Complete ERP suite with intelligent stock management and payment tracking.',
+        features: [
+          'Unlimited invoicing & estimates',
+          'WhatsApp invoice receipt sharing',
+          'Maker-checker staff helper logs & PIN locks',
+          'Batch number & 90-day expiry notifications',
+          'UPI payment links & automatic WhatsApp reminders',
+          'Low stock auto-reordering alert catalog'
+        ]
+      },
+      {
+        id: 'enterprise',
+        name: 'Enterprise Ultra Plan',
+        price: 2499,
+        description: 'Robust multisite compliance system for modern retail chains and corporations.',
+        features: [
+          'GST compliance billing (Intra/Inter-state CGST/SGST/IGST)',
+          'Direct CA Portal & Tally ERP XML exports',
+          'Advanced Credits & returns registries',
+          'Multi-device real-time cloud sync',
+          'Custom store brand invoice footers',
+          'Priority 24/7 client account manager support'
+        ]
+      }
+    ];
+    return await this.getSiteConfig('subscription_plans', defaultPlans);
+  },
+
+  async saveSubscriptionPlans(plans) {
+    await this.saveSiteConfig('subscription_plans', plans);
   },
 
   // ---- GLOBAL SEARCH ----
@@ -852,7 +996,7 @@ export const api = {
     return db.stockOrders.filter(o => o.shopId === shopId);
   },
 
-  async updateStockOrderStatus(orderId, status) {
+  async updateStockOrderStatus(orderId, status, distributorId) {
     if (isSupabaseConfigured) {
       await supabase.from('stock_orders').update({ status }).eq('id', orderId);
       // If accepted, also create a credit entry
@@ -860,7 +1004,7 @@ export const api = {
         const { data: order } = await supabase.from('stock_orders').select('*').eq('id', orderId).single();
         if (order) {
           await supabase.from('credits').insert({
-            from_id: order.shop_id, // The distributor creating credit is implicit
+            from_id: distributorId || order.shop_id,
             to_shop_id: order.shop_id,
             description: `Inventory: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}`,
             amount: parseFloat(order.total)
@@ -878,7 +1022,7 @@ export const api = {
         if (!db.credits) db.credits = [];
         db.credits.push({
           id: 'cr_' + generateId(),
-          fromId: 'u_3',
+          fromId: distributorId || 'u_3',
           toShopId: order.shopId,
           shopName: order.shopName,
           desc: `Inventory Supplies: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}`,
@@ -940,5 +1084,55 @@ export const api = {
     const db = getDB();
     db.announcements = [];
     saveDB(db);
+  },
+
+  async getGlobalCredits() {
+    if (isSupabaseConfigured) {
+      const { data: credits } = await supabase.from('credits').select('*').order('created_at', { ascending: false });
+      const { data: users } = await supabase.from('users').select('id, name, role');
+      const userMap = {};
+      (users || []).forEach(u => { userMap[u.id] = u.name; });
+      return (credits || []).map(c => ({
+        ...toCredit(c),
+        fromName: userMap[c.from_id] || 'Unknown Distributor',
+        toName: userMap[c.to_shop_id] || 'Unknown Shop'
+      }));
+    }
+    const db = getDB();
+    if (!db.credits) db.credits = [];
+    return db.credits.map(c => {
+      const dist = db.users.find(u => u.id === c.fromId);
+      const shop = db.users.find(u => u.id === c.toShopId);
+      return {
+        ...c,
+        fromName: dist ? dist.name : 'Unknown Distributor',
+        toName: shop ? shop.name : 'Unknown Shop'
+      };
+    }).reverse();
+  },
+
+  async getGlobalOrders() {
+    if (isSupabaseConfigured) {
+      const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+      const { data: users } = await supabase.from('users').select('id, name, role');
+      const userMap = {};
+      (users || []).forEach(u => { userMap[u.id] = u.name; });
+      return (orders || []).map(o => ({
+        ...toOrder(o),
+        userName: userMap[o.user_id] || (o.user_id === 'walk-in-customer' ? 'Walk-in Bill' : 'Unknown'),
+        shopName: userMap[o.shop_id] || 'Unknown Shop'
+      }));
+    }
+    const db = getDB();
+    if (!db.orders) db.orders = [];
+    return db.orders.map(o => {
+      const user = db.users.find(u => u.id === o.userId);
+      const shop = db.users.find(u => u.id === o.shopId);
+      return {
+        ...o,
+        userName: user ? user.name : (o.userId === 'walk-in-customer' ? 'Walk-in Bill' : 'Unknown'),
+        shopName: shop ? shop.name : 'Unknown Shop'
+      };
+    }).reverse();
   }
 };

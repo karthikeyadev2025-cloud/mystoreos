@@ -9,6 +9,17 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import Barcode from 'react-barcode';
 import { jsPDF } from 'jspdf';
 import { QRCodeSVG } from 'qrcode.react';
+import { downloadTallyXML } from '../lib/TallyExporter';
+import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
+
+import DesktopSidebar from '../components/DesktopSidebar';
+import DesktopPOS from '../components/DesktopPOS';
+import DesktopInventory from '../components/DesktopInventory';
+import DesktopBills from '../components/DesktopBills';
+import DesktopCredit from '../components/DesktopCredit';
+import DesktopRestock from '../components/DesktopRestock';
+import DesktopReports from '../components/DesktopReports';
+import DesktopSettings from '../components/DesktopSettings';
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
@@ -28,6 +39,9 @@ const ShopDashboard = () => {
   const [billingMode, setBillingMode] = useState('bill'); // 'bill' | 'estimate' | 'challan'
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerGstin, setCustomerGstin] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [customerStateCode, setCustomerStateCode] = useState('');
   const [billsSubTab, setBillsSubTab] = useState('sales'); // 'sales' | 'drafts'
   
   // Receipt Modal State
@@ -42,6 +56,8 @@ const ShopDashboard = () => {
   const [newProdBatch, setNewProdBatch] = useState('');
   const [newProdExpiry, setNewProdExpiry] = useState('');
   const [newProdVariants, setNewProdVariants] = useState('');
+  const [newProdHsnCode, setNewProdHsnCode] = useState('');
+  const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -55,6 +71,8 @@ const ShopDashboard = () => {
   const [editProdBatch, setEditProdBatch] = useState('');
   const [editProdExpiry, setEditProdExpiry] = useState('');
   const [editProdVariants, setEditProdVariants] = useState('');
+  const [editProdHsnCode, setEditProdHsnCode] = useState('');
+  const [editProdGstRate, setEditProdGstRate] = useState('0');
   const [editProdBarcode, setEditProdBarcode] = useState('');
 
   // Credit Ledger Toggle & Form States
@@ -74,6 +92,9 @@ const ShopDashboard = () => {
   const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
   const [latitude, setLatitude] = useState(user?.latitude || '');
   const [longitude, setLongitude] = useState(user?.longitude || '');
+  const [gstin, setGstin] = useState(user?.gstin || '');
+  const [stateCode, setStateCode] = useState(user?.stateCode || '');
+  const [businessAddress, setBusinessAddress] = useState(user?.businessAddress || '');
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -83,6 +104,7 @@ const ShopDashboard = () => {
   const [staffList, setStaffList] = useState([]);
   const [newStaffPhone, setNewStaffPhone] = useState('');
   const [newStaffName, setNewStaffName] = useState('');
+  const [showStaffModal, setShowStaffModal] = useState(false);
 
   // Promo Code & Wholesale Restocking States
   const [promoCode, setPromoCode] = useState('');
@@ -90,8 +112,43 @@ const ShopDashboard = () => {
   const [wholesaleCatalog, setWholesaleCatalog] = useState([]);
   const [restockCart, setRestockCart] = useState({}); // { wholesaleProdId: qty }
 
+  // Sales Returns
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [returnOrder, setReturnOrder] = useState(null);
+  const [returnItemsState, setReturnItemsState] = useState({}); // { itemId: returnQty }
+
+  // Admin PIN / Maker-Checker Workflows
+  const [showAdminPinModal, setShowAdminPinModal] = useState(false);
+  const [adminPinInput, setAdminPinInput] = useState('');
+  const [pendingAction, setPendingAction] = useState(null);
+
+  // SaaS Subscription States
+  const [plans, setPlans] = useState([]);
+  const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
+
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
   const isOwner = user.role === 'shop';
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleAdminPinSubmit = async () => {
+    try {
+      await api.verifyAdminPin(targetShopId, adminPinInput);
+      setShowAdminPinModal(false);
+      setAdminPinInput('');
+      if (pendingAction) {
+        await pendingAction();
+        setPendingAction(null);
+      }
+    } catch (e) {
+      toast.error(e.message || "Invalid PIN");
+    }
+  };
 
   const loadData = useCallback(async () => {
     setProducts(await api.getShopProducts(targetShopId));
@@ -108,6 +165,7 @@ const ShopDashboard = () => {
       setStockOrders(await api.getShopStockOrders(targetShopId));
       setSysSettings(await api.getSettings());
       setStaffList(await api.getShopStaff(targetShopId));
+      setPlans(await api.getSubscriptionPlans());
     }
   }, [targetShopId, isOwner]);
 
@@ -149,6 +207,9 @@ const ShopDashboard = () => {
     const { name, phone } = decodeOrderUserId(o.userId);
     setCustomerName(name);
     setCustomerPhone(phone);
+    setCustomerGstin(o.customerGstin || '');
+    setCustomerAddress(o.customerAddress || '');
+    setCustomerStateCode(o.customerStateCode || '');
     
     setBillItems(o.items.map(item => ({
       ...item,
@@ -169,6 +230,8 @@ const ShopDashboard = () => {
     setEditProdBatch(p.batchNumber || '');
     setEditProdExpiry(p.expiryDate || '');
     setEditProdVariants(p.variants || '');
+    setEditProdHsnCode(p.hsnCode || '');
+    setEditProdGstRate(p.gstRate || '0');
     setEditProdBarcode(p.barcode || '');
     setShowEditProductModal(true);
   };
@@ -184,6 +247,8 @@ const ShopDashboard = () => {
         batchNumber: editProdBatch,
         expiryDate: editProdExpiry,
         variants: editProdVariants,
+        hsnCode: editProdHsnCode,
+        gstRate: editProdGstRate,
         barcode: editProdBarcode
       });
       toast.success("Product updated successfully!");
@@ -196,6 +261,15 @@ const ShopDashboard = () => {
   };
 
   const handleDeleteProduct = async (prodId) => {
+    if (!isOwner) {
+      setPendingAction(() => () => executeDeleteProduct(prodId));
+      setShowAdminPinModal(true);
+      return;
+    }
+    executeDeleteProduct(prodId);
+  };
+
+  const executeDeleteProduct = async (prodId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         await api.deleteProduct(prodId);
@@ -310,6 +384,18 @@ const ShopDashboard = () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const total = Math.max(0, billTotal - discountAmount);
     
+    if (!isOwner && total > 5000) {
+      setPendingAction(() => () => executeSendWhatsAppBill());
+      setShowAdminPinModal(true);
+      return;
+    }
+    
+    executeSendWhatsAppBill();
+  };
+
+  const executeSendWhatsAppBill = async () => {
+    const total = Math.max(0, billTotal - discountAmount);
+    
     try {
       let finalUserId = 'walk-in-customer';
       if (billingMode === 'estimate') {
@@ -326,7 +412,7 @@ const ShopDashboard = () => {
         price: b.price,
         qty: b.qty || 1,
         selectedVariant: b.selectedVariant || ''
-      })), total);
+      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode });
       
       // Sound synthesis announcement for completed bill (not for estimate/challan)
       if (billingMode === 'bill' && 'speechSynthesis' in window) {
@@ -407,29 +493,67 @@ const ShopDashboard = () => {
       doc.setFontSize(10);
       doc.setTextColor(71, 85, 105);
       doc.text(`Date: ${new Date().toLocaleString()}`, 135, 50);
+
+      // Top section: Add shop GSTIN and State Code
+      if (gstin) {
+        doc.setFontSize(10);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`GSTIN: ${gstin} | State Code: ${stateCode}`, 15, 41);
+        if (businessAddress) doc.text(businessAddress, 15, 45);
+      }
       
-      let custY = 58;
-      if (customerName || customerPhone) {
+      let custY = gstin ? 58 : 58;
+      if (customerName || customerPhone || customerGstin) {
         doc.setFont("helvetica", "bold");
         doc.text("CUSTOMER DETAILS:", 15, custY);
         doc.setFont("helvetica", "normal");
         doc.text(`Name: ${customerName || 'Guest'}`, 15, custY + 5);
         if (customerPhone) doc.text(`Phone: ${customerPhone}`, 15, custY + 10);
-        custY += 18;
+        let custOffset = 15;
+        if (customerGstin) {
+          doc.text(`GSTIN: ${customerGstin} | State Code: ${customerStateCode}`, 15, custY + custOffset);
+          custOffset += 5;
+        }
+        if (customerAddress) {
+          doc.text(`Address: ${customerAddress}`, 15, custY + custOffset);
+          custOffset += 5;
+        }
+        custY += custOffset + 3;
       } else {
         custY += 2;
       }
+
+      // GST Calculation logic
+      let isInterState = false;
+      if (gstin && customerGstin && stateCode && customerStateCode && stateCode !== customerStateCode) {
+        isInterState = true;
+      }
+      const showGstColumns = !!gstin && billingMode === 'bill';
       
       // Table Headers
       doc.setFillColor(248, 250, 252);
       doc.rect(15, custY, 180, 8, 'F');
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setTextColor(71, 85, 105);
-      doc.text("Item Details", 18, custY + 5.5);
-      doc.text("Qty", 120, custY + 5.5);
-      doc.text("Unit Price", 145, custY + 5.5);
-      doc.text("Total", 175, custY + 5.5);
+      
+      if (showGstColumns) {
+        doc.text("Item Details (HSN)", 18, custY + 5.5);
+        doc.text("Qty", 85, custY + 5.5);
+        doc.text("Taxable", 98, custY + 5.5);
+        if (isInterState) {
+          doc.text("IGST", 125, custY + 5.5);
+        } else {
+          doc.text("CGST", 120, custY + 5.5);
+          doc.text("SGST", 145, custY + 5.5);
+        }
+        doc.text("Total", 175, custY + 5.5);
+      } else {
+        doc.text("Item Details", 18, custY + 5.5);
+        doc.text("Qty", 120, custY + 5.5);
+        doc.text("Unit Price", 145, custY + 5.5);
+        doc.text("Total", 175, custY + 5.5);
+      }
       
       doc.line(15, custY + 8, 195, custY + 8);
       
@@ -437,12 +561,47 @@ const ShopDashboard = () => {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(51, 65, 85);
       
+      let totalTaxable = 0;
+      let totalCgst = 0;
+      let totalSgst = 0;
+      let totalIgst = 0;
+
       billItems.forEach((item) => {
-        const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
-        doc.text(itemFullName, 18, yOffset);
-        doc.text(`${item.qty || 1}`, 120, yOffset);
-        doc.text(`Rs. ${item.price}`, 145, yOffset);
-        doc.text(`Rs. ${item.price * (item.qty || 1)}`, 175, yOffset);
+        const qty = item.qty || 1;
+        const amount = item.price * qty;
+        
+        if (showGstColumns) {
+          const rate = parseInt(item.gstRate) || 0;
+          const taxableVal = amount / (1 + (rate / 100));
+          const taxAmt = amount - taxableVal;
+          totalTaxable += taxableVal;
+          
+          let hsnText = item.hsnCode ? ` [${item.hsnCode}]` : '';
+          const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '') + hsnText;
+          
+          doc.text(itemFullName, 18, yOffset);
+          doc.text(`${qty}`, 85, yOffset);
+          doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
+          
+          if (isInterState) {
+            totalIgst += taxAmt;
+            doc.text(`${taxAmt.toFixed(2)} (${rate}%)`, 125, yOffset);
+          } else {
+            const halfTax = taxAmt / 2;
+            const halfRate = rate / 2;
+            totalCgst += halfTax;
+            totalSgst += halfTax;
+            doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 120, yOffset);
+            doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 145, yOffset);
+          }
+          doc.text(`${amount.toFixed(2)}`, 175, yOffset);
+        } else {
+          const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
+          doc.text(itemFullName, 18, yOffset);
+          doc.text(`${qty}`, 120, yOffset);
+          doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
+          doc.text(`${amount.toFixed(2)}`, 175, yOffset);
+        }
         yOffset += 8;
       });
       
@@ -450,18 +609,33 @@ const ShopDashboard = () => {
       yOffset += 4;
       
       // Totals
+      if (showGstColumns) {
+         doc.setFontSize(9);
+         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, 135, yOffset);
+         yOffset += 5;
+         if (isInterState) {
+           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, 135, yOffset);
+           yOffset += 5;
+         } else {
+           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, 135, yOffset);
+           yOffset += 5;
+           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, 135, yOffset);
+           yOffset += 5;
+         }
+      }
+
       if (discountAmount > 0) {
-        doc.setFont("helvetica", "normal");
-        doc.text(`Subtotal: Rs. ${billTotal}`, 135, yOffset);
+        doc.setFontSize(10);
+        doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, 135, yOffset);
         yOffset += 5;
-        doc.text(`Discount: -Rs. ${discountAmount}`, 135, yOffset);
+        doc.text(`Discount: -Rs. ${discountAmount.toFixed(2)}`, 135, yOffset);
         yOffset += 5;
       }
       
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.setTextColor(15, 23, 42);
-      doc.text(`GRAND TOTAL: Rs. ${total}`, 135, yOffset);
+      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, 135, yOffset);
       yOffset += 12;
       
       // Footer text/Note
@@ -515,6 +689,9 @@ const ShopDashboard = () => {
       setPromoCode('');
       setCustomerName('');
       setCustomerPhone('');
+      setCustomerGstin('');
+      setCustomerAddress('');
+      setCustomerStateCode('');
       loadData();
     } catch (e) {
       console.error(e);
@@ -767,7 +944,8 @@ const ShopDashboard = () => {
         newProdBatch,
         newProdExpiry,
         newProdVariants,
-        parseInt(newProdReorder) || 10
+        parseInt(newProdReorder) || 10,
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate }
       );
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -779,6 +957,8 @@ const ShopDashboard = () => {
       setNewProdBatch('');
       setNewProdExpiry('');
       setNewProdVariants('');
+      setNewProdHsnCode('');
+      setNewProdGstRate('0');
       loadData();
     } catch (e) {
       console.error(e);
@@ -791,10 +971,99 @@ const ShopDashboard = () => {
       try {
         await api.markCreditPaid(creditId);
         toast.success("Debt marked as settled!");
+        
+        const creditData = customerCredits.find(c => c.id === creditId);
+        if (creditData) {
+          const parts = creditData.desc.split(':');
+          const doc = generateVoucherPDF({
+            id: creditId,
+            partyName: parts[1] || 'Customer',
+            partyPhone: parts[2] || '',
+            partyDesc: parts[3] || 'Pending Balance Settlement',
+            amount: creditData.amount
+          }, user, true); // true = Receipt Voucher
+          
+          doc.save(`Receipt_Voucher_${creditId}.pdf`);
+        }
+        
         loadData();
       } catch (e) {
         console.error(e);
         toast.error("Failed to settle debt");
+      }
+    }
+  };
+
+  const handleOpenReturnModal = (order) => {
+    setReturnOrder(order);
+    const initialItems = {};
+    order.items.forEach(item => { initialItems[item.id] = 0; });
+    setReturnItemsState(initialItems);
+    setShowReturnModal(true);
+  };
+
+  const handleProcessReturn = async () => {
+    if (!isOwner) {
+      setPendingAction(() => () => executeProcessReturn());
+      setShowReturnModal(false); // Hide return modal temporarily
+      setShowAdminPinModal(true);
+      return;
+    }
+    executeProcessReturn();
+  };
+
+  const executeProcessReturn = async () => {
+    const itemsToReturn = returnOrder.items.filter(item => returnItemsState[item.id] > 0).map(item => ({
+      ...item,
+      returnQty: returnItemsState[item.id]
+    }));
+    
+    if (itemsToReturn.length === 0) {
+      setShowReturnModal(true);
+      return toast.error("Select at least one item to return");
+    }
+    
+    const refundAmount = itemsToReturn.reduce((sum, item) => sum + (item.price * item.returnQty), 0);
+    
+    try {
+      await api.processReturn(returnOrder.id, itemsToReturn, 'cash');
+      toast.success("Return processed successfully!");
+      
+      const doc = generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
+      doc.save(`Credit_Note_${returnOrder.id}.pdf`);
+      
+      setShowReturnModal(false);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to process return");
+      setShowReturnModal(true);
+    }
+  };
+
+  const handleSettleSupplierCredit = async (creditId) => {
+    if (window.confirm("Mark this supplier invoice as fully paid?")) {
+      try {
+        await api.markCreditPaid(creditId);
+        toast.success("Payment marked as settled!");
+        
+        const creditData = credits.find(c => c.id === creditId);
+        if (creditData) {
+          const doc = generateVoucherPDF({
+            id: creditId,
+            partyName: creditData.distName || 'Distributor',
+            partyPhone: '',
+            partyDesc: 'Invoice Settlement',
+            amount: creditData.amount
+          }, user, false); // false = Payment Voucher
+          
+          doc.save(`Payment_Voucher_${creditId}.pdf`);
+        }
+        
+        loadData();
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to settle supplier payment");
       }
     }
   };
@@ -896,12 +1165,14 @@ const ShopDashboard = () => {
     await api.updateProfile(user.id, { 
       upiId, logo, shopPhotos, paymentQr, 
       latitude: parseFloat(latitude) || null, 
-      longitude: parseFloat(longitude) || null 
+      longitude: parseFloat(longitude) || null,
+      gstin, stateCode, businessAddress
     });
     const updatedUser = { 
       ...user, upiId, logo, shopPhotos, paymentQr, 
       latitude: parseFloat(latitude) || null, 
-      longitude: parseFloat(longitude) || null 
+      longitude: parseFloat(longitude) || null,
+      gstin, stateCode, businessAddress
     };
     localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
     toast.success("Profile Updated successfully!");
@@ -996,31 +1267,37 @@ const ShopDashboard = () => {
     }
   };
 
-  const handleSubscribe = () => {
+  const handleSubscribe = (plan) => {
+    if (!plan) return;
     if (!sysSettings.razorpayKey) {
       return toast.error("Admin has not configured Razorpay yet.");
     }
     
     const options = {
       key: sysSettings.razorpayKey, // Dynamic key from Admin Settings
-      amount: "99900", // Amount is in currency subunits. 99900 = ₹999
+      amount: (plan.price * 100).toString(), // Amount is in subunits
       currency: "INR",
       name: "MyStore OS",
-      description: "Pro Subscription",
-      image: "https://example.com/your_logo",
-      handler: async function () {
-        toast.success("Payment successful! Upgrading to PRO...");
-        await api.updateProfile(targetShopId, { subscription: 'active' });
-        // Update local user object
-        const updatedUser = { ...user, subscription: 'active' };
-        localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
-        window.location.reload();
+      description: `${plan.name} Subscription`,
+      image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
+      handler: async function (response) {
+        try {
+          toast.success(`Payment successful! Upgrading to ${plan.name}...`);
+          await api.updateProfile(targetShopId, { subscription: plan.id });
+          // Update local user object
+          const updatedUser = { ...user, subscription: plan.id };
+          localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
+          setShowPlanSelectorModal(false);
+          window.location.reload();
+        } catch (e) {
+          toast.error("Failed to upgrade subscription. Please contact support.");
+        }
       },
       prefill: {
         name: user.name,
         contact: user.phone
       },
-      theme: { color: "#dc2626" }
+      theme: { color: "#7c3aed" }
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
@@ -1057,6 +1334,273 @@ const ShopDashboard = () => {
     navBtn: { textAlign: 'center', cursor: 'pointer' }
   };
 
+  if (!isMobile) {
+    return (
+      <div className="dashboard-wrapper-flex" style={{ backgroundColor: '#0f172a', color: 'white', minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
+        <ToastContainer theme="dark" position="top-center" />
+        
+        {/* GLOBAL ANNOUNCEMENT BANNER */}
+        {announceConfig.active && announceConfig.text && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2000 }}>
+            <div style={{ flex: 1 }}>{announceConfig.text}</div>
+            <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}><X size={16} /></button>
+          </div>
+        )}
+
+        <DesktopSidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isOwner={isOwner} 
+          pendingOrders={pendingOrders} 
+          handleLogout={handleLogout} 
+          userName={user.name} 
+        />
+
+        <div className="fluid-dashboard-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
+          {activeTab === 'home' && (
+            <DesktopPOS 
+              products={products}
+              filteredProducts={filteredProducts}
+              billItems={billItems}
+              customItemName={customItemName}
+              setCustomItemName={setCustomItemName}
+              customItemPrice={customItemPrice}
+              setCustomItemPrice={setCustomItemPrice}
+              billingMode={billingMode}
+              setBillingMode={setBillingMode}
+              customerName={customerName}
+              setCustomerName={setCustomerName}
+              customerPhone={customerPhone}
+              setCustomerPhone={setCustomerPhone}
+              customerGstin={customerGstin}
+              setCustomerGstin={setCustomerGstin}
+              customerAddress={customerAddress}
+              setCustomerAddress={setCustomerAddress}
+              customerStateCode={customerStateCode}
+              setCustomerStateCode={setCustomerStateCode}
+              promoCode={promoCode}
+              setPromoCode={setPromoCode}
+              discountAmount={discountAmount}
+              billTotal={billTotal}
+              search={search}
+              setSearch={setSearch}
+              pendingOrders={pendingOrders}
+              sales={sales}
+              payable={payable}
+              isOwner={isOwner}
+              setShowScanner={setShowScanner}
+              handleShowUpiQr={handleShowUpiQr}
+              addCustomItem={addCustomItem}
+              updateBillItemQty={updateBillItemQty}
+              updateBillItemVariant={updateBillItemVariant}
+              removeBillItem={removeBillItem}
+              applyPromoCode={applyPromoCode}
+              sendWhatsAppBill={sendWhatsAppBill}
+              addToBill={addToBill}
+              setActiveTab={setActiveTab}
+              setShowAddProductModal={setShowAddProductModal}
+            />
+          )}
+
+          {activeTab === 'products' && isOwner && (
+            <DesktopInventory 
+              products={products}
+              isOwner={isOwner}
+              setShowAddProductModal={setShowAddProductModal}
+              checkExpiryStatus={checkExpiryStatus}
+              handleOneClickRestock={handleOneClickRestock}
+              handleOpenEditModal={handleOpenEditModal}
+              handleDeleteProduct={handleDeleteProduct}
+            />
+          )}
+
+          {activeTab === 'bills' && (
+            <DesktopBills 
+              orders={orders}
+              billsSubTab={billsSubTab}
+              setBillsSubTab={setBillsSubTab}
+              handleConvertEstimateToBill={handleConvertEstimateToBill}
+              acceptOrder={acceptOrder}
+              handleOpenReturnModal={handleOpenReturnModal}
+              decodeOrderUserId={decodeOrderUserId}
+              user={user}
+              products={products}
+            />
+          )}
+
+          {activeTab === 'credit' && isOwner && (
+            <DesktopCredit 
+              creditTabSub={creditTabSub}
+              setCreditTabSub={setCreditTabSub}
+              custCreditName={custCreditName}
+              setCustCreditName={setCustCreditName}
+              custCreditPhone={custCreditPhone}
+              setCustCreditPhone={setCustCreditPhone}
+              custCreditDesc={custCreditDesc}
+              setCustCreditDesc={setCustCreditDesc}
+              custCreditAmount={custCreditAmount}
+              setCustCreditAmount={setCustCreditAmount}
+              credits={credits}
+              customerCredits={customerCredits}
+              handleAddCredit={handleAddCredit}
+              handleSettleCredit={handleSettleCredit}
+              handleSettleDistCredit={handleSettleDistCredit}
+              whatsappCreditReminder={whatsappCreditReminder}
+            />
+          )}
+
+          {activeTab === 'restock' && isOwner && (
+            <DesktopRestock 
+              wholesaleCatalog={wholesaleCatalog}
+              restockCart={restockCart}
+              stockOrders={stockOrders}
+              updateRestockQty={updateRestockQty}
+              submitWholesaleOrder={submitWholesaleOrder}
+              user={user}
+            />
+          )}
+
+          {activeTab === 'reports' && isOwner && (
+            <DesktopReports 
+              sales={sales}
+              orders={orders}
+              credits={credits}
+              customerCredits={customerCredits}
+              products={products}
+              downloadTallyXML={downloadTallyXML}
+              targetShopId={targetShopId}
+            />
+          )}
+
+          {activeTab === 'profile' && isOwner && (
+            <DesktopSettings 
+              user={user}
+              gstin={gstin}
+              setGstin={setGstin}
+              stateCode={stateCode}
+              setStateCode={setStateCode}
+              businessAddress={businessAddress}
+              setBusinessAddress={setBusinessAddress}
+              upiId={upiId}
+              setUpiId={setUpiId}
+              logo={logo}
+              handleLogoUpload={handleLogoUpload}
+              shopPhotos={shopPhotos}
+              handleShopPhotoUpload={handleShopPhotoUpload}
+              removeShopPhoto={removeShopPhoto}
+              latitude={latitude}
+              setLatitude={setLatitude}
+              longitude={longitude}
+              setLongitude={setLongitude}
+              handleGrabLocation={handleGrabLocation}
+              handleSaveProfile={handleSaveProfile}
+              getShopUrl={getShopUrl}
+              downloadQrPoster={downloadQrPoster}
+              handleShareShop={handleShareShop}
+              staffList={staffList}
+              newStaffName={newStaffName}
+              setNewStaffName={setNewStaffName}
+              newStaffPhone={newStaffPhone}
+              setNewStaffPhone={setNewStaffPhone}
+              handleAddStaff={handleAddStaff}
+              sysSettings={sysSettings}
+              setSysSettings={setSysSettings}
+              handleUpdateRazorpay={handleUpdateRazorpay}
+              plans={plans}
+              setShowPlanSelectorModal={setShowPlanSelectorModal}
+            />
+          )}
+        </div>
+
+        {/* Global Modals for Desktop */}
+        {showPaymentQrModal && paymentQr && (
+          <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+              <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : ''}</p>
+              <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+                <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
+              </div>
+              <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+              <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showScanner && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+              <div id="reader" style={{ width: '100%' }}></div>
+              <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#ef4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+            </div>
+          </div>
+        )}
+
+        {showReturnModal && returnOrder && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, padding: '20px' }}>
+            <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #ef4444' }}>
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#fff', display: 'flex', justifyContent: 'space-between' }}>
+                Process Sales Return
+                <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
+              </h2>
+              <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
+                {returnOrder.items.map(item => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold' }}>{item.name}</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: '#fbbf24' }}>₹{item.price} x {item.qty}</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
+                      <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{returnItemsState[item.id] || 0}</span>
+                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, (prev[item.id] || 0) + 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>+</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#ef4444' }}>
+                  <span>Total Refund:</span>
+                  <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * (returnItemsState[item.id] || 0)), 0).toFixed(2)}</span>
+                </div>
+                <button onClick={handleProcessReturn} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+                  Confirm Return & Generate Credit Note
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showAdminPinModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ background: '#1e293b', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid #ef4444', textAlign: 'center' }}>
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#ef4444' }}>Admin Authorization Required</h2>
+              <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+              
+              <input 
+                type="password" 
+                placeholder="Enter Admin PIN" 
+                value={adminPinInput} 
+                onChange={e => setAdminPinInput(e.target.value)} 
+                style={{ padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
+              />
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: '#94a3b8', border: '1px solid #334155', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={styles.bg}>
       <ToastContainer theme="dark" position="top-center" />
@@ -1083,15 +1627,14 @@ const ShopDashboard = () => {
         </button>
       </div>
 
-      {/* Subscription Banner */}
-      {isOwner && user.subscription === 'trial' && (
+      {isOwner && (user.subscription === 'trial' || !user.subscription) && (
         <div style={{ background: 'linear-gradient(90deg, #f59e0b, #d97706)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', display: 'block' }}>Free Trial Active</span>
             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)' }}>Upgrade to Pro to remove limits</span>
           </div>
-          <button onClick={handleSubscribe} style={{ background: '#fff', color: '#d97706', border: 'none', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            Pay ₹999
+          <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: '#d97706', border: 'none', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            Upgrade Plan
           </button>
         </div>
       )}
@@ -1228,6 +1771,31 @@ const ShopDashboard = () => {
                     value={customerPhone} 
                     onChange={e => setCustomerPhone(e.target.value)}
                     style={{ width: '130px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="GSTIN (Optional)" 
+                    value={customerGstin} 
+                    onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
+                    style={{ flex: 1, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="State Code" 
+                    value={customerStateCode} 
+                    onChange={e => setCustomerStateCode(e.target.value)}
+                    style={{ width: '90px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ marginTop: '6px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Billing Address (Optional)" 
+                    value={customerAddress} 
+                    onChange={e => setCustomerAddress(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
                   />
                 </div>
               </div>
@@ -1460,6 +2028,12 @@ const ShopDashboard = () => {
                       {o.status === 'Pending' && (
                         <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px'}}>
                           Accept
+                        </button>
+                      )}
+                      
+                      {o.status === 'Accepted' && (
+                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#ef4444', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                          ↩️ Return
                         </button>
                       )}
                     </div>
@@ -1696,12 +2270,17 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
                       <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
                       {!c.paid && (
-                        <button onClick={() => {
-                          if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
-                          window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
-                        }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                          Pay Now via UPI
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => {
+                            if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
+                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
+                          }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                            Pay UPI
+                          </button>
+                          <button onClick={() => handleSettleSupplierCredit(c.id)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                            ✅ Settle & Generate Note
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1964,6 +2543,20 @@ const ShopDashboard = () => {
 
               </div>
 
+              {/* TALLY EXPORT PANEL */}
+              <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #10b981', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#10b981' }}>📊 Tally ERP / Prime Export</h3>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Download Sales Vouchers as Tally-compatible XML for your CA.</p>
+                </div>
+                <button 
+                  onClick={() => downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name)} 
+                  style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  📥 Export XML
+                </button>
+              </div>
+
               {/* Day Book Transactions List */}
               <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -2007,6 +2600,30 @@ const ShopDashboard = () => {
           </div>
           <div style={{ padding: '16px' }}>
 
+            {/* SaaS Subscription Info Card */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9))', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 8px 32px rgba(139,92,246,0.1)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  ⚡ SaaS Subscription
+                </h3>
+                {user.subscription && user.subscription !== 'trial' ? (
+                  <span style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>Active Paid Plan</span>
+                ) : (
+                  <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>Free Trial Mode</span>
+                )}
+              </div>
+              <p style={{ fontSize: '12px', color: '#cbd5e1', margin: '0 0 16px 0' }}>
+                Your current active plan is: <b>{plans?.find(p => p.id === user.subscription)?.name || (user.subscription === 'active' ? 'Premium PRO' : 'Free Trial')}</b>. 
+                {plans?.find(p => p.id === user.subscription) && ` This plan charges ₹${plans.find(p => p.id === user.subscription)?.price}/mo and gives you full access.`}
+              </p>
+              <button 
+                onClick={() => setShowPlanSelectorModal(true)} 
+                style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+              >
+                Change or Upgrade Plan
+              </button>
+            </div>
+
             {/* Logo Upload Section */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🖼️ Shop Logo</h3>
@@ -2016,6 +2633,32 @@ const ShopDashboard = () => {
                 <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0f172a', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>No Logo</div>
               )}
               <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94a3b8' }} />
+            </div>
+
+            {/* GST & Tax Compliance Section */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🏛️ GST & Compliance Setup</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Configure these details to generate formal B2B and B2C GST invoices for your customers.</p>
+              
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ flex: 2 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
+                  <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
+                  <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoice)</label>
+                <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={3} style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', resize: 'vertical' }}></textarea>
+              </div>
+
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                💾 Save Business Info
+              </button>
             </div>
 
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
@@ -2200,6 +2843,86 @@ const ShopDashboard = () => {
         </div>
       )}
 
+      {/* STAFF MODAL */}
+      {showStaffModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #334155' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between' }}>
+              Add Staff Member
+              <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input type="text" placeholder="Staff Name" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} style={{ padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
+              <input type="tel" placeholder="Staff Phone (Login ID)" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} style={{ padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
+              <p style={{ fontSize: '12px', color: '#94a3b8' }}>* Default PIN will be 1234. Staff can change it later.</p>
+              <button onClick={handleAddStaff} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Add Staff</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RETURN MODAL */}
+      {showReturnModal && returnOrder && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #ef4444' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#fff', display: 'flex', justifyContent: 'space-between' }}>
+              Process Sales Return
+              <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
+            </h2>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
+              {returnOrder.items.map(item => (
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold' }}>{item.name}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#fbbf24' }}>₹{item.price} x {item.qty}</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
+                    <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{returnItemsState[item.id]}</span>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, prev[item.id] + 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>+</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#ef4444' }}>
+                <span>Total Refund:</span>
+                <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * returnItemsState[item.id]), 0).toFixed(2)}</span>
+              </div>
+              <button onClick={handleProcessReturn} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+                Confirm Return & Generate Credit Note
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN PIN MODAL */}
+      {showAdminPinModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050, padding: '20px' }}>
+          <div style={{ background: '#1e293b', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid #ef4444', textAlign: 'center' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#ef4444' }}>Admin Authorization Required</h2>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+            
+            <input 
+              type="password" 
+              placeholder="Enter Admin PIN" 
+              value={adminPinInput} 
+              onChange={e => setAdminPinInput(e.target.value)} 
+              style={{ padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
+            />
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: '#94a3b8', border: '1px solid #334155', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
@@ -2241,6 +2964,24 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  <option value="0">0% (Exempt)</option>
+                  <option value="3">3%</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
@@ -2303,6 +3044,24 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                <input type="text" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  <option value="0">0% (Exempt)</option>
+                  <option value="3">3%</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
@@ -2371,6 +3130,201 @@ const ShopDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Dynamic Plan Selector Modal */}
+      {showPlanSelectorModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(16px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '20px',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '900px',
+            padding: isMobile ? '20px' : '32px',
+            boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+            position: 'relative',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }}>
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowPlanSelectorModal(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#cbd5e1',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '18px'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <span style={{
+                background: 'linear-gradient(90deg, #7c3aed, #2563eb)',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                letterSpacing: '1px',
+                display: 'inline-block',
+                marginBottom: '10px'
+              }}>
+                MyStore OS SaaS pricing
+              </span>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Select Your Business Growth Plan
+              </h2>
+              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+                Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
+              </p>
+            </div>
+
+            {/* Plans Container */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+              gap: '20px',
+              overflowY: 'auto',
+              paddingRight: '4px'
+            }}>
+              {plans.map(plan => {
+                const isCurrent = user.subscription === plan.id;
+                const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+                return (
+                  <div 
+                    key={plan.id}
+                    style={{
+                      background: isPopular ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
+                      border: isPopular ? '2px solid #7c3aed' : '1px solid rgba(255, 255, 255, 0.06)',
+                      borderRadius: '20px',
+                      padding: '24px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                      position: 'relative',
+                      boxShadow: isPopular ? '0 12px 32px rgba(124, 58, 237, 0.15)' : 'none'
+                    }}
+                  >
+                    {isPopular && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
+                        color: 'white',
+                        fontSize: '9px',
+                        fontWeight: '800',
+                        textTransform: 'uppercase',
+                        padding: '4px 10px',
+                        borderRadius: '10px',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Most Popular Choice
+                      </span>
+                    )}
+
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
+                      <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
+                    </div>
+
+                    <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: 0 }} />
+
+                    {/* Features checklist */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
+                      {plan.features?.map((feat, idx) => (
+                        <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ color: '#10b981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {isCurrent ? (
+                      <button 
+                        disabled
+                        style={{
+                          width: '100%',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#94a3b8',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          cursor: 'not-allowed'
+                        }}
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleSubscribe(plan)}
+                        style={{
+                          width: '100%',
+                          background: isPopular ? 'linear-gradient(90deg, #7c3aed, #4f46e5)' : 'white',
+                          color: isPopular ? 'white' : '#0f172a',
+                          border: 'none',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        Subscribe
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+              🔒 Secure, encrypted transactions powered by **Razorpay PG**. Cancel or downgrade anytime instantly.
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

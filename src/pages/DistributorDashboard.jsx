@@ -4,6 +4,20 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { 
+  BarChart3, 
+  Building2, 
+  ShoppingBag, 
+  Layers, 
+  History, 
+  Bell, 
+  LogOut, 
+  Plus, 
+  X, 
+  MapPin, 
+  ShoppingCart, 
+  AlertTriangle 
+} from 'lucide-react';
 
 const DistributorDashboard = () => {
   const { user, logout } = useAuth();
@@ -27,6 +41,22 @@ const DistributorDashboard = () => {
   const [amount, setAmount] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // Responsive state & Widescreen helpers
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (stockOrders && stockOrders.length > 0 && !selectedOrder) {
+      setSelectedOrder(stockOrders[0]);
+    }
+  }, [stockOrders, selectedOrder]);
 
   const getNotifications = () => {
     const list = [];
@@ -126,7 +156,7 @@ const DistributorDashboard = () => {
   };
 
   const handleUpdateStockOrder = async (orderId, status) => {
-    await api.updateStockOrderStatus(orderId, status);
+    await api.updateStockOrderStatus(orderId, status, user.id);
     toast.success(`Restock order marked as ${status}!`);
     loadData();
   };
@@ -135,6 +165,502 @@ const DistributorDashboard = () => {
   const totalReceived = credits.filter(c => c.paid).reduce((a, b) => a + b.amount, 0);
   const pendingCredits = credits.filter(c => !c.paid);
 
+  if (!isMobile) {
+    const notifications = getNotifications();
+    
+    return (
+      <div className="dashboard-wrapper-flex" style={{ background: 'linear-gradient(180deg, #0b0f19, #0f172a, #020617)', color: '#f8fafc', minHeight: '100vh', width: '100%' }}>
+        <ToastContainer theme="dark" position="top-center" />
+
+        {/* Desktop Sticky Left Sidebar */}
+        <div className="desktop-glass-sidebar">
+          {/* Logo & Branding */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingLeft: '8px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: '0 0 12px rgba(59, 130, 246, 0.4)' }}>📦</div>
+            <div>
+              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px' }}>FMCG Supply</h2>
+              <span style={{ fontSize: '10px', color: '#3b82f6', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
+            </div>
+          </div>
+
+          {/* User Profile */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Welcome back,</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>{user.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: '#22c55e', marginTop: '4px', fontWeight: 'bold' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
+              Offline Sync Active
+            </div>
+          </div>
+
+          {/* Sidebar Tabs Nav Menu */}
+          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>Menu Navigation</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+              { id: 'shops', label: 'Retail Shops', icon: Building2 },
+              { id: 'orders', label: 'Incoming Orders', icon: ShoppingBag, badge: stockOrders.filter(o => o.status === 'pending').length },
+              { id: 'catalog', label: 'Wholesale Catalog', icon: Layers },
+              { id: 'history', label: 'Collection History', icon: History }
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`sidebar-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+                  style={{ fontSize: '13px', padding: '12px 14px', position: 'relative' }}
+                >
+                  <Icon size={16} /> 
+                  <span style={{ flex: 1 }}>{tab.label}</span>
+                  {tab.badge > 0 && (
+                    <span style={{ background: '#ef4444', color: '#fff', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Sidebar Notifications Quick View */}
+          <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="sidebar-nav-item"
+              style={{ fontSize: '13px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '12px' }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Bell size={16} style={{ color: '#fbbf24' }} /> Alerts Log
+              </span>
+              {notifications.length > 0 && (
+                <span style={{ background: '#3b82f6', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>{notifications.length}</span>
+              )}
+            </button>
+
+            <button 
+              onClick={handleLogout}
+              className="sidebar-nav-item"
+              style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.1)' }}
+            >
+              <LogOut size={16} /> Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Pane */}
+        <div className="fluid-dashboard-main">
+          
+          {/* Notifications Banner Overlay inside Desktop view */}
+          {showNotifications && (
+            <div className="glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}><Bell size={15} style={{ color: '#fbbf24' }} /> Notifications & Activity Stream</h3>
+                <button onClick={() => setShowNotifications(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px' }}>Dismiss</button>
+              </div>
+              {notifications.length === 0 ? (
+                <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', margin: 0 }}>No recent business events.</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+                  {notifications.map(n => (
+                    <div key={n.id} style={{ display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '10px' }}>
+                      <span style={{ fontSize: '16px' }}>{n.emoji}</span>
+                      <div>
+                        <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>{n.title}</h4>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', lineHeight: 1.3 }}>{n.text}</p>
+                        <span style={{ fontSize: '9px', color: '#64748b', display: 'block', marginTop: '4px' }}>{new Date(n.date).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= DASHBOARD TAB ================= */}
+          {activeTab === 'dashboard' && (
+            <div className="responsive-split-grid" style={{ width: '100%' }}>
+              {/* Left Column: Stats overview + Circular Collection Guage */}
+              <div>
+                <div className="glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
+                  <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Active Market Outstanding</span>
+                  <h2 style={{ fontSize: '48px', fontWeight: '900', color: '#ef4444', margin: '10px 0 20px 0', letterSpacing: '-1px' }}>₹{totalOutstanding}</h2>
+                  
+                  {/* Gauge */}
+                  <div style={{ position: 'relative', width: '160px', height: '160px', marginBottom: '24px' }}>
+                    <svg width="160" height="160" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
+                      <circle cx="60" cy="60" r="50" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="6" />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="50"
+                        fill="transparent"
+                        stroke="#10b981"
+                        strokeWidth="6"
+                        strokeDasharray={2 * Math.PI * 50}
+                        strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
+                        strokeLinecap="round"
+                        style={{ transition: 'stroke-dashoffset 0.8s ease', filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.4))' }}
+                      />
+                    </svg>
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                      <span style={{ fontSize: '28px', fontWeight: '900', color: '#fff' }}>
+                        {Math.round(totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) * 100 : 0)}%
+                      </span>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase' }}>Collected</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px', gap: '16px' }}>
+                    <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)', paddingRight: '16px' }}>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 'bold' }}>Revenue Collected</div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#10b981', marginTop: '4px' }}>₹{totalReceived}</div>
+                    </div>
+                    <div style={{ paddingLeft: '16px' }}>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 'bold' }}>Linked Retailers</div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#3b82f6', marginTop: '4px' }}>{shops.length} shops</div>
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setShowModal(true)} 
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}
+                >
+                  <Plus size={18} /> + Supply Wholesale Stock (Extend Credit)
+                </button>
+              </div>
+
+              {/* Right Column: Pending Collection Ledgers */}
+              <div>
+                <div className="glass" style={{ padding: '20px', minHeight: '100%' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '800', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>💸</span> Outstanding Credit Balances ({pendingCredits.length})
+                  </h3>
+                  
+                  {pendingCredits.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 10px', color: '#64748b' }}>
+                      <span style={{ fontSize: '32px' }}>🤝</span>
+                      <p style={{ margin: '12px 0 0 0', fontSize: '13px' }}>All store credits have been fully cleared!</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '420px', overflowY: 'auto' }} className="custom-scroll">
+                      {pendingCredits.map(c => (
+                        <div key={c.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '14px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                            <div>
+                              <h4 style={{ fontSize: '14px', margin: 0, color: '#fff', fontWeight: 'bold' }}>🏪 {c.shopName}</h4>
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</span>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#ef4444' }}>₹{c.amount}</span>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => markPaid(c.id)}
+                            style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                          >
+                            Mark Received Cash
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================= SHOPS TAB ================= */}
+          {activeTab === 'shops' && (
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>🏪 Registered Retail Stores ({shops.length})</h2>
+              {shops.length === 0 ? (
+                <p style={{ color: '#94a3b8', textAlign: 'center' }}>No shops linked to your distribution line.</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                  {shops.map(shop => {
+                    const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
+                    const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
+                    return (
+                      <div key={shop.id} className="glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🏪</div>
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '15px', color: '#fff', fontWeight: 'bold' }}>{shop.name}</h4>
+                            <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>{shop.phone}</p>
+                          </div>
+                        </div>
+                        <div style={{ background: 'rgba(15,23,42,0.4)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Total Outstanding Credit:</span>
+                          <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? '#ef4444' : '#10b981' }}>₹{owed}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= ORDERS TAB ================= */}
+          {activeTab === 'orders' && (
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>📥 Incoming Restock Orders ({stockOrders.length})</h2>
+              
+              {stockOrders.length === 0 ? (
+                <div className="glass" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                  <ShoppingBag size={48} style={{ color: '#1e293b', marginBottom: '12px' }} />
+                  <p style={{ margin: 0 }}>No wholesale stock orders received yet from retailers.</p>
+                </div>
+              ) : (
+                <div className="responsive-split-grid" style={{ width: '100%' }}>
+                  {/* Left Column: Orders list */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', overflowY: 'auto' }} className="custom-scroll">
+                    {stockOrders.map(o => (
+                      <div 
+                        key={o.id} 
+                        onClick={() => setSelectedOrder(o)}
+                        className="glass" 
+                        style={{ 
+                          padding: '16px', 
+                          cursor: 'pointer', 
+                          border: selectedOrder?.id === o.id ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.06)',
+                          background: selectedOrder?.id === o.id ? 'rgba(59,130,246,0.06)' : 'rgba(30, 41, 59, 0.7)',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>🏪 {o.shopName}</h4>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{new Date(o.date).toLocaleDateString()}</span>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{
+                              fontSize: '9px',
+                              background: o.status === 'pending' ? 'rgba(245,158,11,0.15)' : o.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                              color: o.status === 'pending' ? '#f59e0b' : o.status === 'accepted' ? '#10b981' : '#ef4444',
+                              padding: '2px 6px',
+                              borderRadius: '6px',
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase'
+                            }}>{o.status}</span>
+                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#3b82f6', marginTop: '4px' }}>₹{o.total}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Right Column: Order Details Split panel */}
+                  <div>
+                    {selectedOrder ? (
+                      <div className="glass" style={{ padding: '20px', position: 'sticky', top: '24px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px', marginBottom: '16px' }}>
+                          <div>
+                            <span style={{ fontSize: '10px', color: '#3b82f6', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
+                            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: '#fff' }}>🏪 {selectedOrder.shopName}</h3>
+                            <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1' }}>Order ID: #{selectedOrder.id.substring(0, 8)}</p>
+                          </div>
+                          <span style={{
+                            fontSize: '10px',
+                            background: selectedOrder.status === 'pending' ? 'rgba(245,158,11,0.2)' : selectedOrder.status === 'accepted' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
+                            color: selectedOrder.status === 'pending' ? '#f59e0b' : selectedOrder.status === 'accepted' ? '#10b981' : '#ef4444',
+                            padding: '3px 8px',
+                            borderRadius: '10px',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase'
+                          }}>{selectedOrder.status}</span>
+                        </div>
+
+                        {/* Items list */}
+                        <div style={{ background: 'rgba(15,23,42,0.4)', borderRadius: '10px', padding: '12px', marginBottom: '20px' }}>
+                          <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Itemized Ledger</span>
+                          <div style={{ maxHeight: '180px', overflowY: 'auto' }} className="custom-scroll">
+                            {selectedOrder.items.map((item, idx) => (
+                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '13px' }}>
+                                <span style={{ color: '#cbd5e1' }}>{item.name} <strong style={{ color: '#3b82f6' }}>x{item.qty}</strong></span>
+                                <span style={{ fontWeight: '700', color: '#fff' }}>₹{item.price * item.qty}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '900', color: '#fbbf24', borderTop: '2px dashed rgba(245,158,11,0.15)', paddingTop: '14px', marginBottom: '20px' }}>
+                          <span>Order Total Value:</span>
+                          <span>₹{selectedOrder.total}</span>
+                        </div>
+
+                        {selectedOrder.status === 'pending' && (
+                          <div style={{ display: 'flex', gap: '12px' }}>
+                            <button 
+                              onClick={() => handleUpdateStockOrder(selectedOrder.id, 'accepted')}
+                              style={{ flex: 1, background: '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
+                            >
+                              Accept & Ship Credit
+                            </button>
+                            <button 
+                              onClick={() => handleUpdateStockOrder(selectedOrder.id, 'rejected')}
+                              style={{ flex: 1, background: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold' }}
+                            >
+                              Reject Order
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="glass" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>
+                        Select an order from the ledger to manage its fulfillment.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= CATALOG TAB ================= */}
+          {activeTab === 'catalog' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#fff' }}>📦 Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
+                <button 
+                  onClick={() => setShowCatalogModal(true)}
+                  style={{ background: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto' }}
+                >
+                  <Plus size={16} /> Publish Wholesale Product
+                </button>
+              </div>
+
+              {wholesaleProducts.length === 0 ? (
+                <div className="glass" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                  <Layers size={48} style={{ color: '#1e293b', marginBottom: '12px' }} />
+                  <p style={{ margin: 0 }}>No products published in the distributor catalog.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                  {wholesaleProducts.map(p => (
+                    <div key={p.id} className="glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '140px' }}>
+                      <div>
+                        <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.12)', color: '#3b82f6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
+                        <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>{p.name}</h4>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '10px', marginTop: '10px' }}>
+                        <span style={{ fontSize: '18px', fontWeight: '900', color: '#10b981' }}>₹{p.price}</span>
+                        <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: '500' }}>Stock: {p.stock} cases</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= HISTORY TAB ================= */}
+          {activeTab === 'history' && (
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>✅ Collection History & Settled Invoices</h2>
+              
+              {credits.filter(c => c.paid).length === 0 ? (
+                <div className="glass" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                  <History size={48} style={{ color: '#1e293b', marginBottom: '12px' }} />
+                  <p style={{ margin: 0 }}>No history of paid collections recorded yet.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
+                  {credits.filter(c => c.paid).map(c => (
+                    <div key={c.id} className="glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #10b981' }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '15px', color: '#fff', fontWeight: 'bold' }}>🏪 {c.shopName}</h4>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
+                      </div>
+                      <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>+ ₹{c.amount}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+
+        {/* ================= MODALS ================= */}
+        {/* Supply Stock / Add Credit Modal */}
+        {showModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: 'rgba(30,41,59,0.95)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', margin: '0 0 20px 0' }}>📦 Supply Stock on Credit</h2>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 'bold' }}>Select Shop</label>
+                <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  <option value="">-- Choose Shop --</option>
+                  {shops.map(s => <option key={s.id} value={s.id}>{s.name} ({s.phone})</option>)}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 'bold' }}>Bill Amount (₹)</label>
+                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 'bold' }}>Description / Items Supply</label>
+                <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. FMCG Stock / Atta packets" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={handleGiveCredit} style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px' }}>Save Entry</button>
+                <button onClick={() => setShowModal(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '10px', fontSize: '14px' }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Wholesale Product Modal */}
+        {showCatalogModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: 'rgba(30,41,59,0.95)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', margin: '0 0 20px 0' }}>📦 Publish Wholesale Product</h2>
+              
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Rice Bag (25kg)" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '14px' }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Wholesale Price (₹)</label>
+                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '14px' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Available Stock</label>
+                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '14px' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
+                <select value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '14px' }}>
+                  <option value="biscuits">Biscuits & Snacks</option>
+                  <option value="flour">Atta & Flours</option>
+                  <option value="soaps">Soaps & Shampoos</option>
+                  <option value="oil">Cooking Oils</option>
+                  <option value="general">General Items</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px' }}>Publish Product</button>
+                <button onClick={() => setShowCatalogModal(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '10px', fontSize: '14px' }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    );
+  }
+
+  // ================= MOBILE RETAIL CLIENT INTERFACE =================
   return (
     <div style={{ backgroundColor: '#0f172a', color: '#e2e8f0', minHeight: '100vh', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' }}>
       <ToastContainer theme="dark" position="top-center" />

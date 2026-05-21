@@ -141,11 +141,14 @@ button.small { padding: 8px 12px; font-size: 14px; border-radius: 8px; width: au
   display: flex;
   justify-content: space-around;
   padding: 12px 0;
-  background: var(--surface-solid);
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--glass-border);
   z-index: 1000;
-  max-width: 600px;
+  max-width: 480px;
   margin: 0 auto;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .nav-item {
@@ -187,4 +190,140 @@ input::-webkit-credentials-auto-fill-button {
   display: none !important;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   PHASE 7: RESPONSIVE OVERLAYS & GLASS-SIDEBARS UTILITIES
+   ========================================================================== */
+
+/* Responsive Widescreen App Shell */
+@media (min-width: 1024px) {
+  .app-container.wide-layout {
+    max-width: 100% !important;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Sidebar and Dashboard Flex Layouts */
+.dashboard-wrapper-flex {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-wrapper-flex {
+    flex-direction: column;
+    padding-bottom: 80px; /* Space for mobile bottom bar */
+  }
+}
+
+.desktop-glass-sidebar {
+  width: 260px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  z-index: 999;
+}
+
+.fluid-dashboard-main {
+  flex: 1;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .fluid-dashboard-main {
+    padding: 16px;
+  }
+}
+
+/* Widescreen Responsive Grids */
+.responsive-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .responsive-split-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+  .responsive-split-grid.equal-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.responsive-three-column-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .responsive-three-column-grid {
+    grid-template-columns: 240px 1fr 340px;
+  }
+}
+
+.premium-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .premium-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* Sidebar Nav Items */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.sidebar-nav-item:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav-item.active {
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.25);
+  font-weight: 600;
+}
+
 
