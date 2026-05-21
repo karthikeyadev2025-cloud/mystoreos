@@ -9,7 +9,7 @@ import {
   AlertTriangle, CreditCard, Mic, Gift, Copy
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+// html5-qrcode loaded on demand (see initScanner)
 // jsPDF is dynamically imported on demand in downloadReceiptPDF
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -325,9 +325,9 @@ const UserDashboard = () => {
     let active = true;
     let retryTimeout = null;
 
-    const initScanner = () => {
+    const initScanner = async () => {
       if (!active) return;
-      
+
       const element = document.getElementById('reader');
       if (!element) {
         // Retry in 50ms if React has not mounted the element yet
@@ -341,6 +341,7 @@ const UserDashboard = () => {
           scannerRef.current = null;
         }
 
+        const { Html5QrcodeScanner } = await import('html5-qrcode');
         const scanner = new Html5QrcodeScanner('reader', { 
           fps: 10, 
           qrbox: { width: 250, height: 250 },
