@@ -120,6 +120,14 @@ const toCredit = (row) => row ? ({
   amount: row.amount, paid: row.paid, date: row.created_at
 }) : null;
 
+// Client-side trial expiry check (bridges gap between daily edge-function runs)
+export const isTrialExpired = (user) => {
+  if (!user || user.subscription !== 'trial') return false;
+  if (!user.trialStartedAt) return false;
+  const daysSinceStart = (Date.now() - new Date(user.trialStartedAt).getTime()) / (1000 * 60 * 60 * 24);
+  return daysSinceStart > 7;
+};
+
 // ============================================================
 export const api = {
 
@@ -927,6 +935,16 @@ export const api = {
   },
 
   async saveSubscriptionPlans(plans) {
+    await this.saveSiteConfig('subscription_plans', plans);
+  },
+
+  // Seeds default plan capabilities into site_config if not already present.
+  // Call once after first Supabase connection (e.g. from AdminDashboard on mount).
+  async seedSubscriptionPlans() {
+    if (!isSupabaseConfigured) return;
+    const existing = await this.getSiteConfig('subscription_plans', null);
+    if (existing) return;
+    const plans = await this.getSubscriptionPlans();
     await this.saveSiteConfig('subscription_plans', plans);
   },
 
