@@ -4,7 +4,6 @@ import { Package, Search, Plus, AlertCircle, Calendar, RefreshCw } from 'lucide-
 
 const DesktopInventory = ({
   products,
-  isOwner,
   setShowAddProductModal,
   checkExpiryStatus,
   handleOneClickRestock,

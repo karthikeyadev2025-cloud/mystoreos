@@ -22,7 +22,7 @@ const CADashboard = () => {
         // For MVP, CAs can see all shops. 
         // In reality, this would be filtered by assigned shops.
         setShops(allShops);
-      } catch (err) {
+      } catch (_err) {
         toast.error("Failed to load shops");
       }
     };
@@ -35,7 +35,7 @@ const CADashboard = () => {
     try {
       const orders = await api.getShopOrders(shop.id);
       setShopOrders(orders.filter(o => o.status?.toLowerCase() === 'completed'));
-    } catch (err) {
+    } catch (_err) {
       toast.error("Failed to load shop orders");
     } finally {
       setLoading(false);

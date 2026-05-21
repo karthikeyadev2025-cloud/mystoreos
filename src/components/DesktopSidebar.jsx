@@ -1,4 +1,3 @@
-import React from 'react';
 import { Home, Package, Receipt, Wallet, Truck, Book, LogOut } from 'lucide-react';
 
 const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName }) => {

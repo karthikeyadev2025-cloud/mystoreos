@@ -1,5 +1,4 @@
-import React from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Plus, Users, ShieldAlert, Award, FileText } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 const DesktopSettings = ({

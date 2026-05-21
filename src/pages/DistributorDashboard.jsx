@@ -4,19 +4,15 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { 
-  BarChart3, 
-  Building2, 
-  ShoppingBag, 
-  Layers, 
-  History, 
-  Bell, 
-  LogOut, 
-  Plus, 
-  X, 
-  MapPin, 
-  ShoppingCart, 
-  AlertTriangle 
+import {
+  BarChart3,
+  Building2,
+  ShoppingBag,
+  Layers,
+  History,
+  Bell,
+  LogOut,
+  Plus
 } from 'lucide-react';
 
 const DistributorDashboard = () => {
@@ -54,6 +50,7 @@ const DistributorDashboard = () => {
 
   useEffect(() => {
     if (stockOrders && stockOrders.length > 0 && !selectedOrder) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedOrder(stockOrders[0]);
     }
   }, [stockOrders, selectedOrder]);

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Receipt, ArrowRight, Printer, Share2, CornerUpLeft, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Receipt, ArrowRight, Printer, CornerUpLeft, Check } from 'lucide-react';
 
 const DesktopBills = ({
   orders,
@@ -9,8 +9,7 @@ const DesktopBills = ({
   acceptOrder,
   handleOpenReturnModal,
   decodeOrderUserId,
-  user,
-  products
+  user
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBill, setSelectedBill] = useState(null);
@@ -88,7 +87,7 @@ const DesktopBills = ({
             </p>
           ) : (
             filteredOrders.map(o => {
-              const { type, name, phone } = decodeOrderUserId(o.userId);
+              const { type, name } = decodeOrderUserId(o.userId);
               const isSelected = selectedBill && selectedBill.id === o.id;
               
               let cardBorder = isSelected ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.04)';

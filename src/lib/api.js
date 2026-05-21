@@ -583,7 +583,7 @@ export const api = {
     saveDB(db);
   },
 
-  async processReturn(orderId, returnItems, refundMode) {
+  async processReturn(orderId, returnItems, _refundMode) {
     if (isSupabaseConfigured) {
       // In Supabase, we would:
       // 1. Mark order as 'Returned' or partially returned
@@ -695,7 +695,7 @@ export const api = {
       try {
         const { data } = await supabase.from('users').select('*').eq('phone', shopId).eq('role', 'shop').single();
         if (data) return toUser(data);
-      } catch (err) {
+      } catch (_err) {
         // Silent
       }
 

@@ -15,7 +15,7 @@ export const generateTallyXML = (orders, shopName) => {
       <REQUESTDATA>
 `;
 
-  orders.forEach((order, index) => {
+  orders.forEach((order, _index) => {
     // Generate a voucher for each order
     // In Tally, B2C is often booked under a 'Cash' ledger, B2B under the Customer's ledger.
     // For simplicity, we'll use "Cash" for walk-ins and the customer name if available.

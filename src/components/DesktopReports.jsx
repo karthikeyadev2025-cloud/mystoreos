@@ -1,5 +1,4 @@
-import React from 'react';
-import { Book, Download, TrendingUp, TrendingDown, RefreshCw, BarChart2 } from 'lucide-react';
+import { Book, Download, TrendingUp, TrendingDown, BarChart2 } from 'lucide-react';
 
 const DesktopReports = ({
   reportsData,

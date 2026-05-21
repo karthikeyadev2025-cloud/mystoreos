@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, Search, Plus, Send, CheckCircle, ArrowDownLeft, ArrowUpRight, MessageSquare, AlertCircle } from 'lucide-react';
+import { Search, Plus, Send, CheckCircle, ArrowDownLeft, ArrowUpRight, MessageSquare, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const DesktopCredit = ({
@@ -88,7 +88,7 @@ const DesktopCredit = ({
             <button 
               onClick={() => setCreditTabSub('payable')}
               style={{
-                width: '100%', padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: 'bold',
+                width: '100%', padding: '12px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: 'bold',
                 background: creditTabSub === 'payable' ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
                 color: creditTabSub === 'payable' ? '#ef4444' : '#94a3b8',
                 border: creditTabSub === 'payable' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid transparent',
@@ -99,7 +99,7 @@ const DesktopCredit = ({
             <button 
               onClick={() => setCreditTabSub('receivable')}
               style={{
-                width: '100%', padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: 'bold',
+                width: '100%', padding: '12px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: 'bold',
                 background: creditTabSub === 'receivable' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
                 color: creditTabSub === 'receivable' ? '#10b981' : '#94a3b8',
                 border: creditTabSub === 'receivable' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',

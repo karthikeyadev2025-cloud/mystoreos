@@ -1267,6 +1267,13 @@ const ShopDashboard = () => {
     }
   };
 
+  const handleUpdateRazorpay = async (key) => {
+    const updated = { ...sysSettings, razorpayKey: key };
+    await api.saveSettings(updated);
+    setSysSettings(updated);
+    toast.success('Razorpay key saved.');
+  };
+
   const handleSubscribe = (plan) => {
     if (!plan) return;
     if (!sysSettings.razorpayKey) {
@@ -1280,7 +1287,7 @@ const ShopDashboard = () => {
       name: "MyStore OS",
       description: `${plan.name} Subscription`,
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
-      handler: async function (response) {
+      handler: async function (_response) {
         try {
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
           await api.updateProfile(targetShopId, { subscription: plan.id });
@@ -1289,7 +1296,7 @@ const ShopDashboard = () => {
           localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           setShowPlanSelectorModal(false);
           window.location.reload();
-        } catch (e) {
+        } catch (_e) {
           toast.error("Failed to upgrade subscription. Please contact support.");
         }
       },
@@ -1457,8 +1464,8 @@ const ShopDashboard = () => {
               wholesaleCatalog={wholesaleCatalog}
               restockCart={restockCart}
               stockOrders={stockOrders}
-              updateRestockQty={updateRestockQty}
-              submitWholesaleOrder={submitWholesaleOrder}
+              handleRestockQtyChange={handleRestockQtyChange}
+              handlePlaceRestockOrder={handlePlaceRestockOrder}
               user={user}
             />
           )}

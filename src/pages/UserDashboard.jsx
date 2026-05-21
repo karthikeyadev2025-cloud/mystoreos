@@ -337,7 +337,7 @@ const UserDashboard = () => {
 
       try {
         if (scannerRef.current) {
-          try { scannerRef.current.clear(); } catch (e) { /* ignore */ }
+          try { scannerRef.current.clear(); } catch (_e) { /* ignore */ }
           scannerRef.current = null;
         }
 
@@ -390,7 +390,7 @@ const UserDashboard = () => {
       if (scannerRef.current) {
         try {
           scannerRef.current.clear();
-        } catch (e) {
+        } catch (_e) {
           /* ignore */
         }
         scannerRef.current = null;

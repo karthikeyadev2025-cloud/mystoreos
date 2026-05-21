@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode } from 'lucide-react';
 
 const DesktopPOS = ({

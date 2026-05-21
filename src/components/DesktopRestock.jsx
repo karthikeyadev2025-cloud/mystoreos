@@ -1,4 +1,3 @@
-import React from 'react';
 import { Truck, ShoppingCart, ShieldAlert, Plus, Check } from 'lucide-react';
 
 const DesktopRestock = ({

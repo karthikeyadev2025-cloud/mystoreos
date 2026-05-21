@@ -828,7 +828,7 @@ const LandingPage = () => {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0.15]);
 
   const [heroConfig, setHeroConfig] = useState(DEFAULT_HERO_CONFIG);
-  const [pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
+  const [_pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
   const [featuresConfig, setFeaturesConfig] = useState(DEFAULT_FEATURES_CONFIG);
   const [plans, setPlans] = useState([]);
   const [interactive3dConfig, setInteractive3dConfig] = useState(DEFAULT_INTERACTIVE3D_CONFIG);
@@ -840,7 +840,7 @@ const LandingPage = () => {
   
   const [showLoader, setShowLoader] = useState(true);
   const [loadingStep, setLoadingStep] = useState(1);
-  const [customCSS, setCustomCSS] = useState('');
+  const [_customCSS, setCustomCSS] = useState('');
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
@@ -1359,7 +1359,7 @@ const LandingPage = () => {
           </motion.div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', justifyContent: 'center', alignItems: 'stretch' }}>
-            {plans.map((plan, index) => {
+            {plans.map((plan, _index) => {
               const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
               return (
                 <motion.div 
