@@ -1,4 +1,5 @@
 import { Book, Download, TrendingUp, TrendingDown, BarChart2 } from 'lucide-react';
+import { PlanGate, LockedFeature } from './PlanGate';
 
 const DesktopReports = ({
   reportsData,
@@ -87,12 +88,17 @@ const DesktopReports = ({
                 Generate double-entry bookkeeping ledgers. Download compliant Sales XML format directly for auditing.
               </p>
             </div>
-            <button 
-              onClick={() => downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name)} 
-              style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+            <PlanGate
+              feature="tallyExport"
+              fallback={<LockedFeature feature="tallyExport" compact />}
             >
-              <Download size={14} /> Export XML
-            </button>
+              <button
+                onClick={() => downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name)}
+                style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+              >
+                <Download size={14} /> Export XML
+              </button>
+            </PlanGate>
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { PlanGate, LockedFeature } from './PlanGate';
 
 const DesktopSettings = ({
   isOwner,
@@ -216,13 +217,15 @@ const DesktopSettings = ({
 
         {/* Staff Helpers management */}
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={18} color="#3b82f6" /> Staff Management (సహాయకులు)
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} color="#3b82f6" /> Staff Management (సహాయకులు)</span>
+            <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" compact />}>{null}</PlanGate>
           </h3>
           <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px', lineHeight: '1.4' }}>
             Recruit staff assistants who can scan barcodes and log quick bills but cannot access sensitive Day Books or reports.
           </p>
 
+          <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" />}>
           <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '14px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', fontWeight: 'bold' }}>Add Helper Account</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -258,6 +261,7 @@ const DesktopSettings = ({
               ))}
             </div>
           )}
+          </PlanGate>
         </div>
 
         {/* Gallery Images */}

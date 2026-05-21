@@ -3,6 +3,8 @@ import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
+import { useSubscription } from '../hooks/useSubscription';
+import { TrialExpiredOverlay } from '../components/PlanGate';
 import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -132,6 +134,7 @@ const ShopDashboard = () => {
   const isOwner = user.role === 'shop';
 
   const { isOnline, pendingCount } = useOfflineSync();
+  const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   useEffect(() => {
@@ -667,27 +670,29 @@ const ShopDashboard = () => {
       const pdfBlob = doc.output("blob");
       const pdfFile = new File([pdfBlob], `${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Receipt')}.pdf`, { type: "application/pdf" });
 
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      if (hasFeature('whatsappShare') && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
           files: [pdfFile],
           title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
           text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
         });
-      } else {
+      } else if (hasFeature('whatsappShare')) {
         let msg = `*${user.name}*\n`;
         if (billingMode === 'estimate') msg += `*PROFORMA ESTIMATE / QUOTATION*\n`;
         else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
         else msg += `*TAX INVOICE / RECEIPT*\n`;
-        
         if (customerName) msg += `Customer: ${customerName}\n`;
         msg += `Total: Rs.${total}\n\n`;
         billItems.forEach(i => msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} x${i.qty || 1}: Rs.${i.price * (i.qty || 1)}\n`);
         if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal: Rs.${total}\n`;
-        
         if (billingMode === 'bill' && upiId) {
           msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&cu=INR\n`;
         }
         window.open(`https://wa.me/${customerPhone ? customerPhone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(msg)}`, '_blank');
+      } else {
+        // Starter plan: save PDF locally instead of WhatsApp share
+        doc.save(`${user.name}_bill.pdf`);
+        toast.info('Bill saved as PDF. Upgrade to Pro to share via WhatsApp.');
       }
 
       toast.success(`${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Bill')} generated and sent successfully!`);
@@ -941,6 +946,9 @@ const ShopDashboard = () => {
 
   const handleSaveProduct = async () => {
     if (!newProdName || !newProdPrice) return toast.error("Name and price required");
+    if (capabilities.maxProducts !== -1 && products.length >= capabilities.maxProducts) {
+      return toast.error(`Starter plan limit: ${capabilities.maxProducts} products. Upgrade to Pro for unlimited.`);
+    }
     try {
       await api.addProduct(
         targetShopId,
@@ -1352,7 +1360,10 @@ const ShopDashboard = () => {
     return (
       <div className="dashboard-wrapper-flex" style={{ backgroundColor: '#0f172a', color: 'white', minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
         <ToastContainer theme="dark" position="top-center" />
-        
+        {isExpired && isOwner && (
+          <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
+        )}
+
         {/* GLOBAL ANNOUNCEMENT BANNER */}
         {announceConfig.active && announceConfig.text && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2000 }}>
