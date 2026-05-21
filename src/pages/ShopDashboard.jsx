@@ -30,7 +30,7 @@ import DesktopExpenses from '../components/DesktopExpenses';
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
 const ShopDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [products, setProducts] = useState([]);
@@ -1451,10 +1451,13 @@ const ShopDashboard = () => {
             userId: targetShopId,
           });
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
-          const updatedUser = { ...user, subscription: 'active', subscriptionTier: plan.id };
+          const updatedUser = await api.updateProfile(targetShopId, {
+            subscription: 'active',
+            subscriptionTier: plan.id
+          });
+          setUser(updatedUser);
           localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           setShowPlanSelectorModal(false);
-          window.location.reload();
         } catch (_e) {
           toast.error(`Upgrade failed. Contact support with ID: ${response.razorpay_payment_id}`);
         }

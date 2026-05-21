@@ -3,6 +3,9 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { api } from './lib/api';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { useOfflineSync } from './hooks/useOfflineSync';
+import { I18nProvider } from './lib/i18n';
+import ErrorBoundary from './components/ErrorBoundary';
+import { DashboardSkeleton } from './components/Skeleton';
 
 // Route-level code splitting — each page loads only when navigated to
 const Login = lazy(() => import('./pages/Login'));
@@ -64,38 +67,60 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      {customCSS && <style dangerouslySetInnerHTML={{ __html: customCSS }} />}
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
+    <ErrorBoundary fullPage>
+      <I18nProvider>
+        <AuthProvider>
+          {customCSS && <style dangerouslySetInnerHTML={{ __html: customCSS }} />}
+          <BrowserRouter>
+            <Suspense fallback={<DashboardSkeleton />}>
+              <Routes>
+                <Route path="/" element={
+                  <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
+                } />
 
-            <Route path="/login"    element={<AppLayout><Login /></AppLayout>} />
-            <Route path="/register" element={<AppLayout><Register /></AppLayout>} />
+                <Route path="/login" element={
+                  <ErrorBoundary fullPage><AppLayout><Login /></AppLayout></ErrorBoundary>
+                } />
+                <Route path="/register" element={
+                  <ErrorBoundary fullPage><AppLayout><Register /></AppLayout></ErrorBoundary>
+                } />
 
-            <Route path="/s/:shopId" element={<WideAppLayout><UserDashboard /></WideAppLayout>} />
+                <Route path="/s/:shopId" element={
+                  <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                } />
 
-            <Route path="/dashboard" element={<RoleRouter />} />
-            <Route path="/shop/*" element={
-              <PrivateRoute role={['shop', 'staff']}><WideAppLayout><ShopDashboard /></WideAppLayout></PrivateRoute>
-            } />
-            <Route path="/user/*" element={
-              <PrivateRoute role="customer"><WideAppLayout><UserDashboard /></WideAppLayout></PrivateRoute>
-            } />
-            <Route path="/distributor/*" element={
-              <PrivateRoute role="distributor"><WideAppLayout><DistributorDashboard /></WideAppLayout></PrivateRoute>
-            } />
-            <Route path="/admin/*" element={
-              <PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>
-            } />
-            <Route path="/ca/*" element={
-              <PrivateRoute role="ca"><WideAppLayout><CADashboard /></WideAppLayout></PrivateRoute>
-            } />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
+                <Route path="/dashboard" element={<RoleRouter />} />
+                <Route path="/shop/*" element={
+                  <PrivateRoute role={['shop', 'staff']}>
+                    <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                  </PrivateRoute>
+                } />
+                <Route path="/user/*" element={
+                  <PrivateRoute role="customer">
+                    <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                  </PrivateRoute>
+                } />
+                <Route path="/distributor/*" element={
+                  <PrivateRoute role="distributor">
+                    <ErrorBoundary fullPage><WideAppLayout><DistributorDashboard /></WideAppLayout></ErrorBoundary>
+                  </PrivateRoute>
+                } />
+                <Route path="/admin/*" element={
+                  <PrivateRoute role="admin">
+                    <ErrorBoundary fullPage><AdminDashboard /></ErrorBoundary>
+                  </PrivateRoute>
+                } />
+                <Route path="/ca/*" element={
+                  <PrivateRoute role="ca">
+                    <ErrorBoundary fullPage><WideAppLayout><CADashboard /></WideAppLayout></ErrorBoundary>
+                  </PrivateRoute>
+                } />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </I18nProvider>
+    </ErrorBoundary>
   );
 }
 

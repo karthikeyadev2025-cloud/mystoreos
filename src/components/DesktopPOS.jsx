@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode } from 'lucide-react';
+import { useSubscription } from '../hooks/useSubscription';
 
 const DesktopPOS = ({
   products,
@@ -50,6 +51,8 @@ const DesktopPOS = ({
   handleSetDailyTarget,
   flashSales = {},
 }) => {
+  const { hasFeature } = useSubscription();
+  const canShare = hasFeature('whatsappShare');
   const [targetInput, setTargetInput] = useState('');
   const [showTargetInput, setShowTargetInput] = useState(false);
   const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
@@ -507,7 +510,11 @@ const DesktopPOS = ({
             }}
           >
             <Share2 size={16} /> 
-            {billingMode === 'estimate' ? 'Generate Estimate & Share' : (billingMode === 'challan' ? 'Generate Challan & Share' : 'Checkout & Print Bill')}
+            {billingMode === 'estimate' 
+              ? (canShare ? 'Generate Estimate & Share' : 'Generate Estimate (Download PDF) 🔒') 
+              : (billingMode === 'challan' 
+                  ? (canShare ? 'Generate Challan & Share' : 'Generate Challan (Download PDF) 🔒') 
+                  : 'Checkout & Print Bill')}
           </button>
           
           <button onClick={handleShowUpiQr} style={{ width: '100%', background: '#334155', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>

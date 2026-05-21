@@ -2,12 +2,63 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MyStore OS</title>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <title>MyStore OS — One Platform. Zero Paper. Infinite Growth.</title>
+    <meta name="description" content="MyStore OS is India's most powerful retail management platform. GST billing, inventory tracking, UPI payments, credit ledger, WhatsApp invoicing — all in one app." />
+    <meta name="theme-color" content="#0f0c29" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MyStore OS — India's Smartest Retail OS" />
+    <meta property="og:description" content="Paperless billing, inventory, UPI payments, credit ledger, WhatsApp invoicing. One platform for every Indian shop." />
+    <meta property="og:site_name" content="MyStore OS" />
+
+    <!-- Preconnects for critical third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://checkout.razorpay.com" />
+
+    <!-- Google Fonts: Outfit (preloaded for LCP text) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Razorpay Checkout SDK (defer to not block render) -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+
+    <!-- Sentry error tracking (lazy, conditional) -->
+    <script>
+      (function(){
+        var dsn = '__SENTRY_DSN__'; // replaced at build time or set via env
+        if (dsn && dsn !== '__SENTRY_DSN__') {
+          var s = document.createElement('script');
+          s.src = 'https://browser.sentry-cdn.com/8.47.0/bundle.tracing.min.js';
+          s.crossOrigin = 'anonymous';
+          s.onload = function() {
+            window.Sentry && window.Sentry.init({
+              dsn: dsn,
+              tracesSampleRate: 0.1,
+              environment: location.hostname === 'localhost' ? 'development' : 'production',
+            });
+          };
+          document.head.appendChild(s);
+        }
+      })();
+    </script>
   </head>
   <body>
+    <noscript>
+      <div style="padding:40px;text-align:center;font-family:sans-serif;background:#0f172a;color:#94a3b8;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+        <div>
+          <h1 style="color:white;margin-bottom:12px;">MyStore OS requires JavaScript</h1>
+          <p>Please enable JavaScript in your browser to use this application.</p>
+        </div>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

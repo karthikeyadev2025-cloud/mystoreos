@@ -53,9 +53,13 @@ export default defineConfig({
           if (id.includes('node_modules/react-barcode') || id.includes('node_modules/jsbarcode')) return 'barcode';
           // Supabase client
           if (id.includes('node_modules/@supabase')) return 'supabase';
+          // Framer Motion
+          if (id.includes('node_modules/framer-motion')) return 'framer';
+          // Lucide icons
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/@lucide')) return 'icons';
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 650,
   },
 })

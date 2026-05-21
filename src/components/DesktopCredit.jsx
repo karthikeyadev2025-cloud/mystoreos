@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Plus, Send, CheckCircle, ArrowDownLeft, ArrowUpRight, MessageSquare, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { PlanGate } from './PlanGate';
 
 const DesktopCredit = ({
   credits,
@@ -277,12 +278,22 @@ const DesktopCredit = ({
                           <span style={{ fontSize: '18px', fontWeight: '800', color: '#fbbf24' }}>₹{c.amount}</span>
                           {!c.paid && (
                             <div style={{ display: 'flex', gap: '8px' }}>
-                              <button 
-                                onClick={() => sendCustomerCreditReminder(c)} 
-                                style={{ background: '#25D366', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                              >
-                                <MessageSquare size={13} /> WhatsApp Remind
-                              </button>
+                              <PlanGate feature="whatsappShare" fallback={
+                                <button 
+                                  title="WhatsApp reminder requires Pro Plan"
+                                  disabled
+                                  style={{ background: 'rgba(255,255,255,0.04)', color: '#475569', border: '1px solid rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'not-allowed', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  <MessageSquare size={13} /> Remind 🔒
+                                </button>
+                              }>
+                                <button 
+                                  onClick={() => sendCustomerCreditReminder(c)} 
+                                  style={{ background: '#25D366', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  <MessageSquare size={13} /> WhatsApp Remind
+                                </button>
+                              </PlanGate>
                               <button 
                                 onClick={() => handleSettleCustomerCredit(c.id)} 
                                 style={{ background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
