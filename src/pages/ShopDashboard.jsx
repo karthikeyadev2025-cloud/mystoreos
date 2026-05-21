@@ -1442,10 +1442,13 @@ const ShopDashboard = () => {
               setCustCreditAmount={setCustCreditAmount}
               credits={credits}
               customerCredits={customerCredits}
-              handleAddCredit={handleAddCredit}
-              handleSettleCredit={handleSettleCredit}
-              handleSettleDistCredit={handleSettleDistCredit}
-              whatsappCreditReminder={whatsappCreditReminder}
+              payable={payable}
+              upiId={user?.upiId}
+              user={user}
+              handleAddCustomerCredit={handleAddCustomerCredit}
+              handleSettleSupplierCredit={handleSettleSupplierCredit}
+              handleSettleCustomerCredit={handleSettleCustomerCredit}
+              sendCustomerCreditReminder={sendCustomerCreditReminder}
             />
           )}
 
