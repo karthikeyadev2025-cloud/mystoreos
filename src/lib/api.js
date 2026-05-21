@@ -1271,6 +1271,46 @@ export const api = {
     return { usersMigrated, productsMigrated, skipped };
   },
 
+  // ---- RAZORPAY PAYMENT ----
+  async createRazorpayOrder(planId, amount) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { data, error } = await supabase.functions.invoke('razorpay-create-order', {
+      body: { planId, amount, currency: 'INR' },
+    });
+    if (error) throw new Error(error.message);
+    return data; // { orderId, amount, currency }
+  },
+
+  async verifyRazorpayPayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, userId }) {
+    if (!isSupabaseConfigured) return { success: true };
+    const { data, error } = await supabase.functions.invoke('razorpay-verify-payment', {
+      body: { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, userId },
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getPaymentHistory(userId) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase
+        .from('payment_history')
+        .select('id, plan_id, amount, currency, status, processed_at, razorpay_payment_id')
+        .eq('user_id', userId)
+        .order('processed_at', { ascending: false })
+        .limit(20);
+      return (data || []).map(row => ({
+        id: row.id,
+        planId: row.plan_id,
+        amount: row.amount,
+        currency: row.currency,
+        status: row.status,
+        date: row.processed_at,
+        paymentId: row.razorpay_payment_id,
+      }));
+    }
+    return [];
+  },
+
   async getGlobalOrders() {
     if (isSupabaseConfigured) {
       const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });

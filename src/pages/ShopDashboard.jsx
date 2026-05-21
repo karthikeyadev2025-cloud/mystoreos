@@ -129,6 +129,7 @@ const ShopDashboard = () => {
   // SaaS Subscription States
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
+  const [paymentHistory, setPaymentHistory] = useState([]);
 
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
   const isOwner = user.role === 'shop';
@@ -173,6 +174,7 @@ const ShopDashboard = () => {
       setSysSettings(await api.getSettings());
       setStaffList(await api.getShopStaff(targetShopId));
       setPlans(await api.getSubscriptionPlans());
+      setPaymentHistory(await api.getPaymentHistory(targetShopId));
     }
   }, [targetShopId, isOwner]);
 
@@ -1289,36 +1291,48 @@ const ShopDashboard = () => {
     toast.success('Razorpay key saved.');
   };
 
-  const handleSubscribe = (plan) => {
+  const handleSubscribe = async (plan) => {
     if (!plan) return;
     if (!sysSettings.razorpayKey) {
       return toast.error("Admin has not configured Razorpay yet.");
     }
-    
+
+    // Create server-side Razorpay order for signature verification
+    let orderId = null;
+    try {
+      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
+      orderId = orderData.orderId;
+    } catch (_e) {
+      // Edge function not deployed yet — fall back to client-only flow
+    }
+
     const options = {
-      key: sysSettings.razorpayKey, // Dynamic key from Admin Settings
-      amount: (plan.price * 100).toString(), // Amount is in subunits
+      key: sysSettings.razorpayKey,
+      amount: (plan.price * 100).toString(),
       currency: "INR",
       name: "MyStore OS",
       description: `${plan.name} Subscription`,
+      ...(orderId ? { order_id: orderId } : {}),
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
-      handler: async function (_response) {
+      handler: async function (response) {
         try {
+          await api.verifyRazorpayPayment({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            planId: plan.id,
+            userId: targetShopId,
+          });
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
-          await api.updateProfile(targetShopId, { subscription: plan.id });
-          // Update local user object
-          const updatedUser = { ...user, subscription: plan.id };
+          const updatedUser = { ...user, subscription: 'active', subscriptionTier: plan.id };
           localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           setShowPlanSelectorModal(false);
           window.location.reload();
         } catch (_e) {
-          toast.error("Failed to upgrade subscription. Please contact support.");
+          toast.error(`Upgrade failed. Contact support with ID: ${response.razorpay_payment_id}`);
         }
       },
-      prefill: {
-        name: user.name,
-        contact: user.phone
-      },
+      prefill: { name: user.name, contact: user.phone },
       theme: { color: "#7c3aed" }
     };
     const rzp = new window.Razorpay(options);
@@ -1537,6 +1551,7 @@ const ShopDashboard = () => {
               handleUpdateRazorpay={handleUpdateRazorpay}
               plans={plans}
               setShowPlanSelectorModal={setShowPlanSelectorModal}
+              paymentHistory={paymentHistory}
             />
           )}
         </div>

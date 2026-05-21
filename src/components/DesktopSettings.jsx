@@ -1,4 +1,4 @@
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
@@ -37,7 +37,8 @@ const DesktopSettings = ({
   handleAddStaff,
   user,
   plans = [],
-  setShowPlanSelectorModal
+  setShowPlanSelectorModal,
+  paymentHistory = []
 }) => {
   if (!isOwner) {
     return (
@@ -193,6 +194,43 @@ const DesktopSettings = ({
             Change or Upgrade Plan
           </button>
         </div>
+
+        {/* Billing History */}
+        {paymentHistory.length > 0 && (
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CreditCard size={16} color="#10b981" /> Billing History
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
+              {paymentHistory.map(payment => (
+                <div key={payment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'white', textTransform: 'capitalize' }}>
+                      {payment.planId?.replace('_', ' ')} Plan
+                    </p>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: '#64748b' }}>
+                      {new Date(payment.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {payment.paymentId && ` · ${payment.paymentId.slice(-8)}`}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#10b981' }}>
+                      ₹{Number(payment.amount).toLocaleString('en-IN')}
+                    </p>
+                    <span style={{
+                      fontSize: '9px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '8px',
+                      background: payment.status === 'success' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                      color: payment.status === 'success' ? '#10b981' : '#ef4444',
+                      textTransform: 'uppercase',
+                    }}>
+                      {payment.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Wall QR Poster */}
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
