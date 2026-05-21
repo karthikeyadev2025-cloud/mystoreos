@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
+import { useOfflineSync } from '../hooks/useOfflineSync';
+import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,6 +20,7 @@ import {
 const DistributorDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isOnline, pendingCount } = useOfflineSync();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
@@ -113,6 +116,9 @@ const DistributorDashboard = () => {
     return () => clearTimeout(timer);
   }, [loadData]);
 
+  useRealtimeTable({ table: 'stock_orders', onRefresh: loadData });
+  useRealtimeTable({ table: 'credits', filter: `from_id=eq.${user.id}`, onRefresh: loadData });
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -184,9 +190,9 @@ const DistributorDashboard = () => {
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
             <div style={{ fontSize: '11px', color: '#94a3b8' }}>Welcome back,</div>
             <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>{user.name}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: '#22c55e', marginTop: '4px', fontWeight: 'bold' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
-              Offline Sync Active
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: isOnline ? '#22c55e' : '#f59e0b', marginTop: '4px', fontWeight: 'bold' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
+              {isOnline ? (pendingCount > 0 ? `${pendingCount} pending sync` : 'Online') : 'Offline mode'}
             </div>
           </div>
 

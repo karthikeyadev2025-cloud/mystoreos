@@ -1,6 +1,6 @@
 import { Home, Package, Receipt, Wallet, Truck, Book, LogOut } from 'lucide-react';
 
-const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName }) => {
+const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName, syncStatus }) => {
   return (
     <div className="desktop-glass-sidebar">
       <div style={{ marginBottom: '32px', padding: '0 8px' }}>
@@ -44,6 +44,23 @@ const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handl
           </button>
         )}
       </div>
+
+      {syncStatus && (syncStatus.pendingCount > 0 || !syncStatus.isOnline) && (
+        <div style={{ marginBottom: '8px' }}>
+          {!syncStatus.isOnline && (
+            <div style={{ fontSize: '11px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'rgba(245,158,11,0.08)', borderRadius: '8px', marginBottom: '4px', border: '1px solid rgba(245,158,11,0.15)' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', flexShrink: 0 }}></span>
+              Offline mode
+            </div>
+          )}
+          {syncStatus.pendingCount > 0 && (
+            <div style={{ fontSize: '11px', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'rgba(59,130,246,0.08)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.15)' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#60a5fa', flexShrink: 0 }}></span>
+              {syncStatus.pendingCount} pending sync
+            </div>
+          )}
+        </div>
+      )}
 
       <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', background: 'rgba(239,68,68,0.05)', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', outline: 'none', width: '100%' }}>
         <LogOut size={16} /> Logout

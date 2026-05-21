@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
+import { useOfflineSync } from '../hooks/useOfflineSync';
+import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -129,6 +131,8 @@ const ShopDashboard = () => {
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
   const isOwner = user.role === 'shop';
 
+  const { isOnline, pendingCount } = useOfflineSync();
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -175,6 +179,9 @@ const ShopDashboard = () => {
     }, 0);
     return () => clearTimeout(timer);
   }, [loadData]);
+
+  useRealtimeTable({ table: 'orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
+  useRealtimeTable({ table: 'products', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
 
   const decodeOrderUserId = (userId) => {
     if (!userId) return { type: 'bill', name: 'Walk-in Customer', phone: '' };
@@ -1354,13 +1361,14 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        <DesktopSidebar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          isOwner={isOwner} 
-          pendingOrders={pendingOrders} 
-          handleLogout={handleLogout} 
-          userName={user.name} 
+        <DesktopSidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isOwner={isOwner}
+          pendingOrders={pendingOrders}
+          handleLogout={handleLogout}
+          userName={user.name}
+          syncStatus={{ isOnline, pendingCount }}
         />
 
         <div className="fluid-dashboard-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
