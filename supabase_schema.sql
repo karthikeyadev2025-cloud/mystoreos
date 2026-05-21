@@ -33,6 +33,9 @@ CREATE TABLE public.users (
     subscription_tier TEXT DEFAULT 'starter' CHECK (subscription_tier IN ('starter', 'pro', 'enterprise')),
     plan_expires_at TIMESTAMPTZ,                 -- NULL = no expiry (trial or lifetime override)
     trial_started_at TIMESTAMPTZ DEFAULT NOW(),  -- set on shop registration
+    distributor_plan_tier TEXT DEFAULT 'basic_distributor' CHECK (distributor_plan_tier IN ('basic_distributor', 'pro_distributor', 'enterprise_distributor')),
+    distributor_plan_expires_at TIMESTAMPTZ,
+    distributor_trial_started_at TIMESTAMPTZ,
     upi_id TEXT,
     logo TEXT,
     avatar TEXT,

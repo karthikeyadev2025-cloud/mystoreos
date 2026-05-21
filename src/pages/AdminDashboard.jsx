@@ -32,6 +32,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [shopFilter, setShopFilter] = useState('all'); // all, pro, trial
   const [userFilter, setUserFilter] = useState('all'); // all, customer, distributor
+  const [shopManageTab, setShopManageTab] = useState('retailers'); // retailers | distributors
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Dynamic SaaS plans state
@@ -731,11 +732,18 @@ const AdminDashboard = () => {
         {/* ===== SHOPS TAB CONTENT ===== */}
         {activeTab === 'shops' && (
           <div style={styles.glassCard}>
-            
+
+            {/* Sub-tab toggle: Retailers / Distributors */}
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', width: 'fit-content', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {[['retailers', '🛒 Shops (Retailers)'], ['distributors', '📦 Distributors']].map(([val, label]) => (
+                <button key={val} onClick={() => setShopManageTab(val)} style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', background: shopManageTab === val ? '#6366f1' : 'transparent', color: '#fff', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>{label}</button>
+              ))}
+            </div>
+
             {/* Header + Search bar */}
             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>Shopkeepers Registry ({filteredShops.length})</h3>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>{shopManageTab === 'retailers' ? `Shopkeepers Registry (${filteredShops.length})` : `Distributors Registry (${allUsers.filter(u => u.role === 'distributor').length})`}</h3>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>Total SaaS nodes on network</span>
               </div>
               
@@ -775,51 +783,87 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* List */}
-            {filteredShops.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
-                <Store size={40} style={{ opacity: 0.3, marginBottom: '8px' }} />
-                <p style={{ margin: 0 }}>No partner shops found matching current criteria.</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {filteredShops.map(shop => (
-                  <div key={shop.id} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', transition: 'border-color 0.2s' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>🛒 {shop.name}</h4>
-                        {shop.subscription === 'active' 
-                          ? <span style={{...styles.badge, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981'}}>✓ Enterprise PRO</span>
-                          : <span style={{...styles.badge, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24'}}>Free Trial</span>
-                        }
+            {/* Retailers List */}
+            {shopManageTab === 'retailers' && (
+              filteredShops.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
+                  <Store size={40} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                  <p style={{ margin: 0 }}>No partner shops found matching current criteria.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {filteredShops.map(shop => (
+                    <div key={shop.id} style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', transition: 'border-color 0.2s' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>🛒 {shop.name}</h4>
+                          {shop.subscription === 'active'
+                            ? <span style={{...styles.badge, background: 'rgba(16, 185, 129, 0.15)', color: '#10b981'}}>✓ Enterprise PRO</span>
+                            : <span style={{...styles.badge, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24'}}>Free Trial</span>
+                          }
+                        </div>
+                        <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                          <span>📞 {shop.phone}</span>
+                          <span>Node Status: <b style={{ color: (shop.status || '') === 'active' ? '#10b981' : '#f59e0b' }}>{(shop.status || 'unknown').toUpperCase()}</b></span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }} onClick={() => togglePINReveal(shop.id)}>
+                            {revealedPINs[shop.id] ? <EyeOff size={11} /> : <Eye size={11} />}
+                            PIN: <b>{revealedPINs[shop.id] ? (shop.pass || '1234') : '••••'}</b>
+                          </span>
+                        </p>
                       </div>
-                      <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                        <span>📞 {shop.phone}</span>
-                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
-                        <span>Node Status: <b style={{ color: (shop.status || '') === 'active' ? '#10b981' : '#f59e0b' }}>{(shop.status || 'unknown').toUpperCase()}</b></span>
-                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }} onClick={() => togglePINReveal(shop.id)}>
-                          {revealedPINs[shop.id] ? <EyeOff size={11} /> : <Eye size={11} />}
-                          <span>PIN/Pass: <b>{revealedPINs[shop.id] ? (shop.pass || '1234') : '••••'}</b></span>
-                        </span>
-                      </p>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button onClick={() => handleToggleSubscription(shop.id, shop.subscription)} style={{...styles.actionBtn, background: shop.subscription === 'active' ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', color: shop.subscription === 'active' ? '#f87171' : '#10b981', border: `1px solid ${shop.subscription === 'active' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
+                          🔄 {shop.subscription === 'active' ? 'Downgrade' : 'Upgrade PRO'}
+                        </button>
+                        <button onClick={() => setResetModal({ show: true, userId: shop.id, userName: shop.name, newPass: '' })} style={{...styles.actionBtn, background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }}>
+                          <Key size={13} /> Reset PIN
+                        </button>
+                        <button onClick={() => handleDelete(shop.id)} style={{...styles.actionBtn, background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>
+                          <Trash2 size={13} /> Delete
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <button onClick={() => handleToggleSubscription(shop.id, shop.subscription)} style={{...styles.actionBtn, background: shop.subscription === 'active' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: shop.subscription === 'active' ? '#f87171' : '#10b981', border: `1px solid ${shop.subscription === 'active' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}` }}>
-                        🔄 {shop.subscription === 'active' ? 'Downgrade' : 'Upgrade PRO'}
-                      </button>
-                      <button onClick={() => setResetModal({ show: true, userId: shop.id, userName: shop.name, newPass: '' })} style={{...styles.actionBtn, background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                        <Key size={13} /> Reset PIN
-                      </button>
-                      <button onClick={() => handleDelete(shop.id)} style={{...styles.actionBtn, background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                        <Trash2 size={13} /> Delete Account
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )
             )}
+
+            {/* Distributors List */}
+            {shopManageTab === 'distributors' && (() => {
+              const distributors = allUsers.filter(u => u.role === 'distributor');
+              const DIST_TIER_LABELS = { basic_distributor: 'Basic', pro_distributor: 'Pro', enterprise_distributor: 'Enterprise' };
+              const DIST_TIER_COLORS = { basic_distributor: '#94a3b8', pro_distributor: '#3b82f6', enterprise_distributor: '#8b5cf6' };
+              return distributors.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
+                  <p style={{ margin: 0 }}>No distributors registered yet.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {distributors.map(dist => {
+                    const tier = dist.distributorPlanTier || 'basic_distributor';
+                    return (
+                      <div key={dist.id} style={{ background: 'rgba(59,130,246,0.02)', border: '1px solid rgba(59,130,246,0.08)', padding: '20px', borderRadius: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800 }}>📦 {dist.name}</h4>
+                            <span style={{...styles.badge, background: `${DIST_TIER_COLORS[tier]}22`, color: DIST_TIER_COLORS[tier]}}>{DIST_TIER_LABELS[tier] || tier}</span>
+                          </div>
+                          <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#cbd5e1' }}>📞 {dist.phone}</p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <button onClick={() => setResetModal({ show: true, userId: dist.id, userName: dist.name, newPass: '' })} style={{...styles.actionBtn, background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }}>
+                            <Key size={13} /> Reset PIN
+                          </button>
+                          <button onClick={() => handleDelete(dist.id)} style={{...styles.actionBtn, background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>
+                            <Trash2 size={13} /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
           </div>
         )}
@@ -938,23 +982,31 @@ const AdminDashboard = () => {
             <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: 900 }}>SaaS Revenue Analytics</h3>
             <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#94a3b8' }}>Real-time subscription billing logs and outstanding balances</p>
 
-            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', padding: '24px', borderRadius: '20px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '24px', justifyItems: 'center', marginBottom: '32px' }}>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold' }}>ARR (Annual Recurring Revenue)</span>
-                <div style={{ fontSize: '48px', fontWeight: 950, color: '#10b981', letterSpacing: '-0.04em', margin: '4px 0' }}>{stats.revenue}</div>
-                <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1' }}>Based on premium SaaS pricing models for onboarded shops.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
+              <div style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', padding: '24px', borderRadius: '20px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Total MRR</span>
+                <div style={{ fontSize: '36px', fontWeight: 950, color: '#10b981', letterSpacing: '-0.04em', margin: '4px 0' }}>{stats.revenue}</div>
+                <p style={{ margin: 0, fontSize: '11px', color: '#64748b' }}>Shop MRR + Distributor MRR</p>
               </div>
-              
-              <div style={{ flex: 1, borderLeft: isMobile ? 'none' : '1px solid rgba(255,255,255,0.08)', borderTop: isMobile ? '1px solid rgba(255,255,255,0.08)' : 'none', paddingLeft: isMobile ? '0' : '24px', paddingTop: isMobile ? '24px' : '0' }}>
-                <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Premium Conversions Performance</span>
-                <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>
-                  {stats.paidShops} / {stats.totalShops} Shops Converted ({stats.totalShops > 0 ? Math.round((stats.paidShops / stats.totalShops) * 100) : 0}%)
-                </div>
-                
-                {/* Visual Progress Bar */}
-                <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${stats.totalShops > 0 ? (stats.paidShops / stats.totalShops) * 100 : 0}%`, background: 'linear-gradient(to right, #10b981, #3b82f6)', borderRadius: '10px' }}></div>
-                </div>
+              <div style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', padding: '24px', borderRadius: '20px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Shop MRR</span>
+                <div style={{ fontSize: '36px', fontWeight: 950, color: '#818cf8', letterSpacing: '-0.04em', margin: '4px 0' }}>₹{stats.shopMRR || 0}</div>
+                <p style={{ margin: 0, fontSize: '11px', color: '#64748b' }}>{stats.paidShops} paid retailers × ₹999</p>
+              </div>
+              <div style={{ background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.15)', padding: '24px', borderRadius: '20px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Distributor MRR</span>
+                <div style={{ fontSize: '36px', fontWeight: 950, color: '#60a5fa', letterSpacing: '-0.04em', margin: '4px 0' }}>₹{stats.distMRR || 0}</div>
+                <p style={{ margin: 0, fontSize: '11px', color: '#64748b' }}>{stats.totalDistributors} distributors on paid plans</p>
+              </div>
+            </div>
+            {/* Conversion bar */}
+            <div style={{ background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.1)', padding: '16px 20px', borderRadius: '12px', marginBottom: '32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 'bold' }}>Shop Conversion Rate</span>
+                <span style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{stats.paidShops} / {stats.totalShops} ({stats.totalShops > 0 ? Math.round((stats.paidShops / stats.totalShops) * 100) : 0}%)</span>
+              </div>
+              <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${stats.totalShops > 0 ? (stats.paidShops / stats.totalShops) * 100 : 0}%`, background: 'linear-gradient(to right, #10b981, #3b82f6)', borderRadius: '10px' }} />
               </div>
             </div>
 

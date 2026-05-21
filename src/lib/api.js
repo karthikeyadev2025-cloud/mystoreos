@@ -100,6 +100,9 @@ const toUser = (row) => row ? ({
   subscriptionTier: row.subscription_tier || 'starter',
   planExpiresAt: row.plan_expires_at || null,
   trialStartedAt: row.trial_started_at || null,
+  distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
+  distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
+  distributorTrialStartedAt: row.distributor_trial_started_at || null,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -260,36 +263,47 @@ export const api = {
   },
 
   async getAdminStats() {
+    const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
     if (isSupabaseConfigured) {
-      const { data: users } = await supabase.from('users').select('role, subscription');
+      const { data: users } = await supabase.from('users').select('role, subscription, distributor_plan_tier');
       const { data: orders } = await supabase.from('orders').select('total');
       const { data: credits } = await supabase.from('credits').select('amount, paid');
       const allUsers = users || [];
       const shops = allUsers.filter(u => u.role === 'shop');
       const paidShops = shops.filter(s => s.subscription === 'active').length;
+      const shopMRR = paidShops * 999;
+      const distributors = allUsers.filter(u => u.role === 'distributor');
+      const distMRR = distributors.reduce((sum, d) => sum + (DIST_PRICES[d.distributor_plan_tier] || 0), 0);
       const activeCredit = (credits || []).filter(c => !c.paid).reduce((a, b) => a + Number(b.amount), 0);
       return {
         totalUsers: allUsers.filter(u => u.role === 'customer').length,
         totalShops: shops.length,
-        totalDistributors: allUsers.filter(u => u.role === 'distributor').length,
+        totalDistributors: distributors.length,
         totalOrders: (orders || []).length,
         activeCredit,
         paidShops,
-        revenue: `₹${paidShops * 999}`
+        shopMRR,
+        distMRR,
+        revenue: `₹${shopMRR + distMRR}`
       };
     }
     const db = getDB();
     const shops = db.users.filter(u => u.role === 'shop');
     const paidShops = shops.filter(s => s.subscription === 'active').length;
+    const shopMRR = paidShops * 999;
+    const distributors = db.users.filter(u => u.role === 'distributor');
+    const distMRR = distributors.reduce((sum, d) => sum + (DIST_PRICES[d.distributorPlanTier] || 0), 0);
     const activeCredit = db.credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
     return {
       totalUsers: db.users.filter(u => u.role === 'customer').length,
       totalShops: shops.length,
-      totalDistributors: db.users.filter(u => u.role === 'distributor').length,
+      totalDistributors: distributors.length,
       totalOrders: db.orders.length,
       activeCredit,
       paidShops,
-      revenue: `₹${paidShops * 999}`
+      shopMRR,
+      distMRR,
+      revenue: `₹${shopMRR + distMRR}`
     };
   },
 
@@ -1010,6 +1024,70 @@ export const api = {
     if (existing) return;
     const plans = await this.getSubscriptionPlans();
     await this.saveSiteConfig('subscription_plans', plans);
+  },
+
+  async getDistributorSubscriptionPlans() {
+    const defaults = [
+      {
+        id: 'basic_distributor',
+        name: 'Basic Distributor',
+        price: 999,
+        description: 'For small wholesale suppliers serving 1–10 kirana shops.',
+        features: [
+          'Up to 10 assigned retail shops',
+          'Stock order management',
+          'Credit ledger (payables + receivables)',
+          'WhatsApp order sharing',
+          'Basic sales reports',
+        ],
+        capabilities: { maxShops: 10, routePlanner: false, bulkOrderCSV: false, tallyExport: false, multiDevice: 1, advancedAnalytics: false },
+      },
+      {
+        id: 'pro_distributor',
+        name: 'Pro Distributor',
+        price: 2499,
+        description: 'Mid-size FMCG distributors serving 11–50 shops.',
+        features: [
+          'Up to 50 assigned retail shops',
+          'Route planner (shops by credit + distance)',
+          'Bulk order CSV export',
+          'Tally ERP export',
+          'Multi-device support (3 devices)',
+          'Advanced analytics (top shops, GMV trends)',
+          'Automated payment reminders to shops',
+        ],
+        capabilities: { maxShops: 50, routePlanner: true, bulkOrderCSV: true, tallyExport: true, multiDevice: 3, advancedAnalytics: true },
+      },
+      {
+        id: 'enterprise_distributor',
+        name: 'Enterprise Distributor',
+        price: 4999,
+        description: 'Large distributors managing 50+ shops with multi-branch operations.',
+        features: [
+          'Unlimited assigned shops',
+          'Everything in Pro Distributor',
+          'Multi-branch support',
+          'API access',
+          'Custom branded reports',
+          'Priority 24/7 support',
+          'Staff accounts for delivery agents',
+        ],
+        capabilities: { maxShops: -1, routePlanner: true, bulkOrderCSV: true, tallyExport: true, multiDevice: 10, advancedAnalytics: true, multiBranch: true, apiAccess: true, staffAccounts: true },
+      },
+    ];
+    return await this.getSiteConfig('distributor_subscription_plans', defaults);
+  },
+
+  async saveDistributorSubscriptionPlans(plans) {
+    await this.saveSiteConfig('distributor_subscription_plans', plans);
+  },
+
+  async seedDistributorSubscriptionPlans() {
+    if (!isSupabaseConfigured) return;
+    const existing = await this.getSiteConfig('distributor_subscription_plans', null);
+    if (existing) return;
+    const plans = await this.getDistributorSubscriptionPlans();
+    await this.saveSiteConfig('distributor_subscription_plans', plans);
   },
 
   // ---- GLOBAL SEARCH ----

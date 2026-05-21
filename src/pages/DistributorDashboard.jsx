@@ -6,6 +6,7 @@ import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getDistCaps, hasDistCap } from '../lib/features';
 import {
   BarChart3,
   Building2,
@@ -14,7 +15,10 @@ import {
   History,
   Bell,
   LogOut,
-  Plus
+  Plus,
+  Lock,
+  TrendingUp,
+  Map
 } from 'lucide-react';
 
 const DistributorDashboard = () => {
@@ -40,6 +44,11 @@ const DistributorDashboard = () => {
   const [amount, setAmount] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // Distributor subscription plan state
+  const [distPlans, setDistPlans] = useState([]);
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
+  const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
 
   // Responsive state & Widescreen helpers
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -107,6 +116,9 @@ const DistributorDashboard = () => {
     setShops(await api.getAllShops());
     setStockOrders(await api.getDistributorOrders(user.id));
     setWholesaleProducts(await api.getDistributorProducts());
+    setDistPlans(await api.getDistributorSubscriptionPlans());
+    const settings = await api.getSettings();
+    setSysSettings(settings);
   }, [user.id]);
 
   useEffect(() => {
@@ -164,6 +176,46 @@ const DistributorDashboard = () => {
     loadData();
   };
 
+  const handleDistSubscribe = async (plan) => {
+    if (!plan) return;
+    if (!sysSettings.razorpayKey) return toast.error("Payment gateway not configured yet.");
+    let orderId = null;
+    try {
+      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
+      orderId = orderData.orderId;
+    } catch (_e) { /* proceed without server order if edge fn unavailable */ }
+    const options = {
+      key: sysSettings.razorpayKey,
+      amount: (plan.price * 100).toString(),
+      currency: "INR",
+      name: "MyStore OS — Distributor",
+      description: plan.name,
+      order_id: orderId || undefined,
+      handler: async (response) => {
+        try {
+          await api.verifyRazorpayPayment({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            planId: plan.id,
+            userId: user.id,
+          });
+          await api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' });
+          toast.success(`Upgraded to ${plan.name}!`);
+          setShowUpgradePlanModal(false);
+          loadData();
+        } catch (_e) {
+          toast.error(`Upgrade failed. Contact support.`);
+        }
+      },
+      prefill: { name: user.name, contact: user.phone || '' },
+      theme: { color: "#3b82f6" }
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
+  const distCaps = getDistCaps(user);
   const totalOutstanding = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
   const totalReceived = credits.filter(c => c.paid).reduce((a, b) => a + b.amount, 0);
   const pendingCredits = credits.filter(c => !c.paid);
@@ -204,6 +256,8 @@ const DistributorDashboard = () => {
               { id: 'shops', label: 'Retail Shops', icon: Building2 },
               { id: 'orders', label: 'Incoming Orders', icon: ShoppingBag, badge: stockOrders.filter(o => o.status === 'pending').length },
               { id: 'catalog', label: 'Wholesale Catalog', icon: Layers },
+              { id: 'routeplanner', label: 'Route Planner', icon: Map, locked: !hasDistCap(user, 'routePlanner') },
+              { id: 'analytics', label: 'Advanced Analytics', icon: TrendingUp, locked: !hasDistCap(user, 'advancedAnalytics') },
               { id: 'history', label: 'Collection History', icon: History }
             ].map(tab => {
               const Icon = tab.icon;
@@ -212,11 +266,12 @@ const DistributorDashboard = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`sidebar-nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                  style={{ fontSize: '13px', padding: '12px 14px', position: 'relative' }}
+                  style={{ fontSize: '13px', padding: '12px 14px', position: 'relative', opacity: tab.locked ? 0.6 : 1 }}
                 >
-                  <Icon size={16} /> 
+                  <Icon size={16} />
                   <span style={{ flex: 1 }}>{tab.label}</span>
-                  {tab.badge > 0 && (
+                  {tab.locked && <Lock size={11} style={{ color: '#f59e0b' }} />}
+                  {!tab.locked && tab.badge > 0 && (
                     <span style={{ background: '#ef4444', color: '#fff', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
                   )}
                 </button>
@@ -239,7 +294,15 @@ const DistributorDashboard = () => {
               )}
             </button>
 
-            <button 
+            <button
+              onClick={() => setShowUpgradePlanModal(true)}
+              className="sidebar-nav-item"
+              style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: '8px' }}
+            >
+              <TrendingUp size={16} /> Upgrade Plan
+              <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(245,158,11,0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold' }}>{(user.distributorPlanTier || 'basic_distributor').replace('_distributor', '').toUpperCase()}</span>
+            </button>
+            <button
               onClick={handleLogout}
               className="sidebar-nav-item"
               style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.1)' }}
@@ -275,6 +338,18 @@ const DistributorDashboard = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Shop limit upgrade banner */}
+          {distCaps.maxShops !== -1 && shops.length > distCaps.maxShops && (
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: '#fbbf24' }}>
+                ⚠️ You have {shops.length} shops but your plan allows {distCaps.maxShops}. Upgrade to continue serving all shops.
+              </p>
+              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#f59e0b', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                Upgrade Now
+              </button>
             </div>
           )}
 
@@ -557,10 +632,128 @@ const DistributorDashboard = () => {
             </div>
           )}
 
+          {/* ================= ROUTE PLANNER TAB ================= */}
+          {activeTab === 'routeplanner' && (
+            <div>
+              {!hasDistCap(user, 'routePlanner') ? (
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '20px' }}>
+                  <Lock size={40} style={{ color: '#f59e0b', marginBottom: '16px' }} />
+                  <h3 style={{ color: '#fff', margin: '0 0 8px 0' }}>Route Planner — Pro Distributor Feature</h3>
+                  <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                    Upgrade to Pro Distributor
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>🗺️ Route Planner</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+                    {shops.sort((a, b) => {
+                      const aOwed = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const bOwed = credits.filter(c => c.toShopId === b.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      return bOwed - aOwed;
+                    }).map((shop, idx) => {
+                      const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      return (
+                        <div key={shop.id} className="glass" style={{ padding: '16px', borderLeft: `4px solid ${owed > 5000 ? '#ef4444' : owed > 0 ? '#f59e0b' : '#10b981'}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <span style={{ fontSize: '11px', color: '#64748b' }}>Stop #{idx + 1}</span>
+                              <h4 style={{ margin: '2px 0', color: '#fff', fontSize: '14px' }}>{shop.name}</h4>
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>{shop.phone}</span>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? '#ef4444' : '#10b981' }}>₹{owed}</div>
+                              <div style={{ fontSize: '10px', color: '#94a3b8' }}>outstanding</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= ANALYTICS TAB ================= */}
+          {activeTab === 'analytics' && (
+            <div>
+              {!hasDistCap(user, 'advancedAnalytics') ? (
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'rgba(139,92,246,0.04)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: '20px' }}>
+                  <TrendingUp size={40} style={{ color: '#a78bfa', marginBottom: '16px' }} />
+                  <h3 style={{ color: '#fff', margin: '0 0 8px 0' }}>Advanced Analytics — Pro Distributor Feature</h3>
+                  <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                    Upgrade to Pro Distributor
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#fff' }}>📊 Advanced Analytics</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                    {[
+                      { label: 'Total Shops Served', value: shops.length, color: '#3b82f6' },
+                      { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#10b981' },
+                      { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#ef4444' },
+                      { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#f59e0b' },
+                    ].map((stat, i) => (
+                      <div key={i} className="glass" style={{ padding: '20px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {shops.sort((a, b) => {
+                      const aO = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const bO = credits.filter(c => c.toShopId === b.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      return bO - aO;
+                    }).slice(0, 5).map(shop => {
+                      const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const total = credits.filter(c => c.toShopId === shop.id).reduce((s, c) => s + c.amount, 0);
+                      const pct = total > 0 ? Math.round((owed / total) * 100) : 0;
+                      return (
+                        <div key={shop.id} className="glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ color: '#fff', fontSize: '14px' }}>{shop.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#ef4444' : '#f59e0b', borderRadius: '3px' }} />
+                            </div>
+                            <span style={{ color: owed > 0 ? '#ef4444' : '#10b981', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* ================= HISTORY TAB ================= */}
           {activeTab === 'history' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>✅ Collection History & Settled Invoices</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#fff' }}>✅ Collection History & Settled Invoices</h2>
+                {hasDistCap(user, 'tallyExport') ? (
+                  <button
+                    onClick={() => {
+                      const rows = [['Date','Shop','Description','Amount','Status'], ...credits.map(c => [new Date(c.date).toLocaleDateString(), c.shopName || '', c.desc || '', c.amount, c.paid ? 'Paid' : 'Unpaid'])];
+                      const csv = rows.map(r => r.join(',')).join('\n');
+                      const a = document.createElement('a'); a.href = 'data:text/csv,' + encodeURIComponent(csv); a.download = 'distributor_tally.csv'; a.click();
+                    }}
+                    style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#10b981', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    ⬇ Tally Export CSV
+                  </button>
+                ) : (
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Lock size={11} /> Tally Export (Pro+)
+                  </button>
+                )}
+              </div>
               
               {credits.filter(c => c.paid).length === 0 ? (
                 <div className="glass" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
@@ -584,6 +777,49 @@ const DistributorDashboard = () => {
           )}
 
         </div>
+
+        {/* Upgrade Plan Modal */}
+        {showUpgradePlanModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div className="glass" style={{ width: '100%', maxWidth: '760px', padding: '32px', background: 'rgba(15,23,42,0.98)', border: '1px solid rgba(255,255,255,0.08)', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#fff' }}>Distributor Subscription Plans</h2>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>7-day free trial on Pro Distributor plan</p>
+                </div>
+                <button onClick={() => setShowUpgradePlanModal(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Close</button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+                {distPlans.map(plan => {
+                  const isCurrent = (user.distributorPlanTier || 'basic_distributor') === plan.id;
+                  const isPro = plan.id === 'pro_distributor';
+                  return (
+                    <div key={plan.id} style={{ background: isPro ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.01)', border: `1px solid ${isPro ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                      {isPro && <div style={{ position: 'absolute', top: -12, right: 20, background: '#3b82f6', color: '#fff', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', fontWeight: 800 }}>RECOMMENDED</div>}
+                      <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{plan.name}</div>
+                      <div style={{ fontSize: '32px', fontWeight: 900, color: '#fff' }}>₹{plan.price}<span style={{ fontSize: '13px', color: '#94a3b8' }}>/mo</span></div>
+                      <p style={{ fontSize: '12px', color: '#64748b', margin: '8px 0 16px 0' }}>{plan.description}</p>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {(plan.features || []).map((f, i) => (
+                          <li key={i} style={{ fontSize: '12px', color: '#cbd5e1', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                            <span style={{ color: '#10b981', marginTop: '1px' }}>✓</span>{f}
+                          </li>
+                        ))}
+                      </ul>
+                      {isCurrent ? (
+                        <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981', padding: '10px', borderRadius: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold' }}>Current Plan</div>
+                      ) : (
+                        <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(255,255,255,0.05)', color: '#fff', border: isPro ? 'none' : '1px solid rgba(255,255,255,0.1)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
+                          {plan.id === 'pro_distributor' ? 'Start Free Trial' : 'Upgrade'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ================= MODALS ================= */}
         {/* Supply Stock / Add Credit Modal */}

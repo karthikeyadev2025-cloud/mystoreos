@@ -831,6 +831,8 @@ const LandingPage = () => {
   const [_pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
   const [featuresConfig, setFeaturesConfig] = useState(DEFAULT_FEATURES_CONFIG);
   const [plans, setPlans] = useState([]);
+  const [distPlans, setDistPlans] = useState([]);
+  const [pricingAudience, setPricingAudience] = useState('shops');
   const [interactive3dConfig, setInteractive3dConfig] = useState(DEFAULT_INTERACTIVE3D_CONFIG);
   const [previewsConfig, setPreviewsConfig] = useState(DEFAULT_PREVIEWS_CONFIG);
   const [quoteConfig, setQuoteConfig] = useState(DEFAULT_QUOTE_CONFIG);
@@ -866,6 +868,7 @@ const LandingPage = () => {
         const sHeadings = await api.getSiteConfig('sectionHeadings', DEFAULT_SECTION_HEADINGS);
         const cssConfig = await api.getSiteConfig('customCSS', '');
         const dynamicPlans = await api.getSubscriptionPlans();
+        const dynamicDistPlans = await api.getDistributorSubscriptionPlans();
 
         setHeroConfig(hConfig);
         setPricingConfig(pConfig);
@@ -876,6 +879,7 @@ const LandingPage = () => {
         setSectionHeadings(sHeadings);
         setCustomCSS(cssConfig);
         setPlans(dynamicPlans);
+        setDistPlans(dynamicDistPlans);
       } catch (e) {
         console.error("CMS Configuration Load Error", e);
       }
@@ -1350,17 +1354,27 @@ const LandingPage = () => {
       <section style={{ padding: '80px 24px', background: '#050814' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           
-          <motion.div {...fadeUp} style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <motion.div {...fadeUp} style={{ textAlign: 'center', marginBottom: '40px' }}>
             <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase' }}>SIMPLE PRICING</span>
             <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(28px, 4.5vw, 42px)', fontWeight: 800, margin: '8px 0 12px', color: '#fff' }}>
               Select Your Business Growth Plan
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '15px' }}>Start completely free with basic billing. Upgrade only when you grow.</p>
+            <p style={{ color: '#94a3b8', fontSize: '15px', marginBottom: '24px' }}>Start completely free. Upgrade only when you grow.</p>
+            {/* Audience Toggle */}
+            <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '4px', gap: '4px' }}>
+              {[['shops', '🛒 For Shops'], ['distributors', '📦 For Distributors']].map(([val, label]) => (
+                <button key={val} onClick={() => setPricingAudience(val)} style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: pricingAudience === val ? (val === 'distributors' ? '#3b82f6' : '#7c3aed') : 'transparent', color: '#fff', fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', justifyContent: 'center', alignItems: 'stretch' }}>
-            {plans.map((plan, _index) => {
-              const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+            {(pricingAudience === 'shops' ? plans : distPlans).map((plan, _index) => {
+              const isPopular = pricingAudience === 'shops'
+                ? (plan.id === 'pro' || plan.name.toLowerCase().includes('pro'))
+                : plan.id === 'pro_distributor';
               return (
                 <motion.div 
                   key={plan.id}
