@@ -1355,6 +1355,95 @@ export const api = {
     return [];
   },
 
+  async getNextInvoiceNumber(userId) {
+    const counterKey = `invCounter_${userId}`;
+    const prefixKey = `invPrefix_${userId}`;
+    const prefix = await this.getSiteConfig(prefixKey, 'INV');
+    const current = parseInt(await this.getSiteConfig(counterKey, 0)) || 0;
+    const next = current + 1;
+    await this.saveSiteConfig(counterKey, next);
+    return `${prefix}-${String(next).padStart(4, '0')}`;
+  },
+
+  async getLoyaltyPoints(shopId, phone) {
+    if (!phone) return 0;
+    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    return parseInt(await this.getSiteConfig(key, 0)) || 0;
+  },
+
+  async awardLoyaltyPoints(shopId, phone, orderTotal) {
+    if (!phone) return 0;
+    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    const current = parseInt(await this.getSiteConfig(key, 0)) || 0;
+    const earned = Math.floor(orderTotal / 10);
+    const next = current + earned;
+    if (earned > 0) await this.saveSiteConfig(key, next);
+    return { earned, balance: next };
+  },
+
+  async redeemLoyaltyPoints(shopId, phone, pointsToRedeem) {
+    if (!phone || pointsToRedeem <= 0) return 0;
+    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    const current = parseInt(await this.getSiteConfig(key, 0)) || 0;
+    const redeemed = Math.min(pointsToRedeem, current);
+    const remaining = current - redeemed;
+    await this.saveSiteConfig(key, remaining);
+    return remaining;
+  },
+
+  async getFlashSales(shopId) {
+    const raw = await this.getSiteConfig(`flashSales_${shopId}`, {});
+    const map = typeof raw === 'string' ? JSON.parse(raw || '{}') : (raw || {});
+    const now = Date.now();
+    const active = {};
+    Object.entries(map).forEach(([id, sale]) => {
+      if (new Date(sale.expiresAt).getTime() > now) active[id] = sale;
+    });
+    return active;
+  },
+
+  async setFlashSale(shopId, productId, discountPct, durationHours) {
+    const key = `flashSales_${shopId}`;
+    const raw = await this.getSiteConfig(key, {});
+    const map = typeof raw === 'string' ? JSON.parse(raw || '{}') : (raw || {});
+    map[productId] = {
+      discount: parseInt(discountPct),
+      expiresAt: new Date(Date.now() + durationHours * 3600 * 1000).toISOString(),
+    };
+    await this.saveSiteConfig(key, JSON.stringify(map));
+  },
+
+  async clearFlashSale(shopId, productId) {
+    const key = `flashSales_${shopId}`;
+    const raw = await this.getSiteConfig(key, {});
+    const map = typeof raw === 'string' ? JSON.parse(raw || '{}') : (raw || {});
+    delete map[productId];
+    await this.saveSiteConfig(key, JSON.stringify(map));
+  },
+
+  async getExpenses(shopId, yearMonth) {
+    const key = `expenses_${shopId}_${yearMonth}`;
+    const raw = await this.getSiteConfig(key, []);
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw || '[]'); } catch { return []; }
+    }
+    return Array.isArray(raw) ? raw : [];
+  },
+
+  async addExpense(shopId, entry) {
+    const ym = entry.date.slice(0, 7);
+    const key = `expenses_${shopId}_${ym}`;
+    const list = await this.getExpenses(shopId, ym);
+    list.push({ ...entry, id: Date.now().toString() });
+    await this.saveSiteConfig(key, JSON.stringify(list));
+  },
+
+  async deleteExpense(shopId, expenseId, yearMonth) {
+    const key = `expenses_${shopId}_${yearMonth}`;
+    const list = await this.getExpenses(shopId, yearMonth);
+    await this.saveSiteConfig(key, JSON.stringify(list.filter(e => e.id !== expenseId)));
+  },
+
   async getGlobalOrders() {
     if (isSupabaseConfigured) {
       const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode } from 'lucide-react';
 
 const DesktopPOS = ({
@@ -40,8 +41,26 @@ const DesktopPOS = ({
   sendWhatsAppBill,
   addToBill,
   setActiveTab,
-  setShowAddProductModal
+  setShowAddProductModal,
+  loyaltyEnabled = false,
+  customerLoyaltyPoints = 0,
+  loyaltyRedeem = 0,
+  setLoyaltyRedeem,
+  dailyTarget = 0,
+  handleSetDailyTarget,
+  flashSales = {},
 }) => {
+  const [targetInput, setTargetInput] = useState('');
+  const [showTargetInput, setShowTargetInput] = useState(false);
+  const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
+  const maxRedeemable = Math.floor(customerLoyaltyPoints / 10) * 10;
+
+  const CIRC = 2 * Math.PI * 28;
+  const targetPct = dailyTarget > 0 ? Math.min(1, sales / dailyTarget) : 0;
+  const ringOffset = CIRC * (1 - targetPct);
+  const targetPctInt = Math.round(targetPct * 100);
+  const ringColor = targetPctInt >= 100 ? '#10b981' : targetPctInt >= 60 ? '#f59e0b' : '#ef4444';
+  const motivation = targetPctInt >= 100 ? '🎉 Target Hit!' : targetPctInt >= 80 ? '💪 Almost There!' : targetPctInt >= 50 ? '📈 Keep Going!' : '🚀 Start Billing!';
   const lowStockProducts = products.filter(p => p.stock < 10);
 
   return (
@@ -85,6 +104,58 @@ const DesktopPOS = ({
             </div>
           )}
         </div>
+
+        {/* Daily Target Progress Ring */}
+        {isOwner && (
+          <div className="premium-glass" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {dailyTarget > 0 ? (
+              <>
+                <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="7" />
+                  <circle cx="40" cy="40" r="28" fill="none" stroke={ringColor} strokeWidth="7"
+                    strokeDasharray={CIRC} strokeDashoffset={ringOffset}
+                    strokeLinecap="round" transform="rotate(-90 40 40)"
+                    style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                  />
+                  <text x="40" y="45" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="Outfit, sans-serif">{targetPctInt}%</text>
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: 'white', marginBottom: '2px' }}>{motivation}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>₹{sales.toLocaleString('en-IN')} of ₹{dailyTarget.toLocaleString('en-IN')} daily target</div>
+                  <button onClick={() => setShowTargetInput(v => !v)} style={{ fontSize: '10px', color: '#64748b', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                    Change Target
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '28px' }}>🎯</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>Set a Daily Sales Target</div>
+                  <div style={{ fontSize: '11px', color: '#64748b' }}>Track your progress toward a daily revenue goal</div>
+                </div>
+              </div>
+            )}
+            {(showTargetInput || dailyTarget === 0) && (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#94a3b8', fontSize: '13px' }}>₹</span>
+                <input
+                  type="number"
+                  placeholder="e.g. 5000"
+                  value={targetInput}
+                  onChange={e => setTargetInput(e.target.value)}
+                  style={{ width: '90px', padding: '6px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                />
+                <button
+                  onClick={() => { handleSetDailyTarget && handleSetDailyTarget(targetInput); setTargetInput(''); setShowTargetInput(false); }}
+                  style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  Set
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Search & Actions Panel */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -136,11 +207,28 @@ const DesktopPOS = ({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
             {filteredProducts.map(p => {
               const lowStock = p.stock < (p.reorderLevel || 10);
+              const sale = flashSales[p.id];
+              const activeSale = sale && new Date(sale.expiresAt) > new Date();
+              const salePrice = activeSale ? Math.round(p.price * (1 - sale.discount / 100)) : null;
+              const minsLeft = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
+              const timeLabel = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative' }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '14px', borderRadius: '12px', background: activeSale ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${activeSale ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.05)'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative' }}>
+                  {activeSale && (
+                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#ef4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                      🔥 -{sale.discount}% · {timeLabel}
+                    </div>
+                  )}
                   <div>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: 'white' }}>{p.name}</h4>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</p>
+                    {activeSale ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#ef4444' }}>₹{salePrice}</p>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#64748b', textDecoration: 'line-through' }}>₹{p.price}</p>
+                      </div>
+                    ) : (
+                      <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</p>
+                    )}
                     <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: lowStock ? '#ef4444' : '#94a3b8', fontWeight: lowStock ? 'bold' : 'normal' }}>
                       Stock: {p.stock || 0}
                     </p>
@@ -248,10 +336,18 @@ const DesktopPOS = ({
               style={{ width: '80px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
             />
           </div>
-          <input 
-            type="text" 
-            placeholder="GSTIN (Optional)" 
-            value={customerGstin} 
+          {loyaltyEnabled && customerPhone && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(139,92,246,0.06)', borderRadius: '6px', border: '1px solid rgba(139,92,246,0.2)' }}>
+              <span style={{ fontSize: '11px' }}>⭐</span>
+              <span style={{ fontSize: '11px', color: '#a78bfa', fontWeight: '600' }}>
+                {customerLoyaltyPoints > 0 ? `${customerLoyaltyPoints} loyalty pts` : 'No loyalty pts yet'}
+              </span>
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="GSTIN (Optional)"
+            value={customerGstin}
             onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
             style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
           />
@@ -346,14 +442,44 @@ const DesktopPOS = ({
             </div>
           )}
 
+          {loyaltyEnabled && customerLoyaltyPoints > 0 && (
+            <div style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#a78bfa', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ⭐ Loyalty Points
+                </span>
+                <span style={{ fontSize: '11px', color: '#c4b5fd', fontWeight: '700' }}>{customerLoyaltyPoints} pts available</span>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={maxRedeemable}
+                  step={10}
+                  value={loyaltyRedeem}
+                  onChange={e => setLoyaltyRedeem && setLoyaltyRedeem(parseInt(e.target.value))}
+                  style={{ flex: 1, accentColor: '#8b5cf6' }}
+                />
+                <span style={{ fontSize: '11px', color: '#c4b5fd', minWidth: '50px', textAlign: 'right' }}>{loyaltyRedeem} pts</span>
+              </div>
+              {loyaltyDiscountRupees > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#a78bfa', fontWeight: '600' }}>
+                  <span>Points Redeemed:</span>
+                  <span>-₹{loyaltyDiscountRupees}</span>
+                </div>
+              )}
+              <p style={{ margin: 0, fontSize: '9px', color: '#7c3aed' }}>10 pts = ₹1 off • Slide to redeem</p>
+            </div>
+          )}
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#94a3b8' }}>Gross Total</span>
-            <span style={{ fontSize: '14px', color: '#cbd5e1', textDecoration: discountAmount > 0 ? 'line-through' : 'none' }}>₹{billTotal}</span>
+            <span style={{ fontSize: '14px', color: '#cbd5e1', textDecoration: (discountAmount > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>Final Payable</span>
-            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees)}</span>
           </div>
         </div>
 

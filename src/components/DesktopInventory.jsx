@@ -1,7 +1,26 @@
 import React from 'react';
 import Barcode from 'react-barcode';
-import { Package, Search, Plus, AlertCircle, Calendar, RefreshCw, Zap } from 'lucide-react';
+import { Package, Search, Plus, AlertCircle, Calendar, RefreshCw, Zap, Upload, Flame } from 'lucide-react';
 import { PlanGate, LockedFeature } from './PlanGate';
+
+const CSV_TEMPLATE = 'name,price,stock,reorderLevel,hsnCode,gstRate,batchNumber,expiryDate,variants\nRice 1kg,55,100,20,1006,5,BATCH01,2025-12-31,500g,1kg\nSugar 1kg,42,50,15,1701,5,,2026-06-30,';
+
+const CATEGORY_PATTERNS = {
+  Grains: /\b(rice|wheat|atta|flour|dal|pulses|lentil|poha|suji|semolina|oats|maize|corn|ragi|bajra)\b/i,
+  Oils: /\b(oil|ghee|vanaspati|dalda|butter)\b/i,
+  Dairy: /\b(milk|curd|paneer|cheese|lassi|cream|yogurt|dahi)\b/i,
+  Snacks: /\b(biscuit|chips|namkeen|wafer|cracker|popcorn|mixture|murukku|kurkure)\b/i,
+  Beverages: /\b(tea|coffee|juice|drink|water|soda|cola|energy|beverage|chai|horlicks|boost)\b/i,
+  'Personal Care': /\b(soap|shampoo|toothpaste|toothbrush|lotion|cream|deo|deodorant|facewash|powder|hair|skin)\b/i,
+  Cleaning: /\b(detergent|surf|ariel|vim|phenyl|broom|mop|cleaner|dishwash|floor|harpic|lizol)\b/i,
+  Spices: /\b(masala|chili|pepper|turmeric|haldi|jeera|cumin|coriander|salt|sugar|garam|ajwain|mustard)\b/i,
+};
+const autoCategory = (name) => {
+  for (const [cat, rx] of Object.entries(CATEGORY_PATTERNS)) {
+    if (rx.test(name)) return cat;
+  }
+  return 'Other';
+};
 
 const DesktopInventory = ({
   products,
@@ -9,16 +28,67 @@ const DesktopInventory = ({
   checkExpiryStatus,
   handleOneClickRestock,
   handleOpenEditModal,
-  handleDeleteProduct
+  handleDeleteProduct,
+  handleBulkCsvImport,
+  flashSales = {},
+  handleSetFlashSale,
+  handleClearFlashSale,
+  handleStockAdjust,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [alertFilter, setAlertFilter] = React.useState('all');
+  const [catFilter, setCatFilter] = React.useState('All');
+  const [saleTarget, setSaleTarget] = React.useState(null);
+  const [salePct, setSalePct] = React.useState('20');
+  const [saleDuration, setSaleDuration] = React.useState('6');
+  const [adjustTarget, setAdjustTarget] = React.useState(null);
+  const [adjustDelta, setAdjustDelta] = React.useState('');
+  const [adjustReason, setAdjustReason] = React.useState('Correction');
+  const csvInputRef = React.useRef(null);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (p.batchNumber && p.batchNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (p.barcode && p.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const parseCsv = (text) => {
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+      const vals = line.split(',').map(v => v.trim());
+      return Object.fromEntries(headers.map((h, i) => [h, vals[i] || '']));
+    }).filter(row => row.name);
+  };
+
+  const onCsvFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const rows = parseCsv(ev.target.result);
+      if (rows.length === 0) return;
+      handleBulkCsvImport && handleBulkCsvImport(rows);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const downloadTemplate = () => {
+    const blob = new Blob([CSV_TEMPLATE], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'product_import_template.csv';
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  const allCategories = React.useMemo(() => {
+    const cats = new Set(products.map(p => autoCategory(p.name)));
+    return ['All', ...Array.from(cats).sort()];
+  }, [products]);
+
+  const filteredProducts = products.filter(p => {
+    const q = searchTerm.toLowerCase();
+    const matchSearch = p.name.toLowerCase().includes(q) ||
+      (p.batchNumber && p.batchNumber.toLowerCase().includes(q)) ||
+      (p.barcode && p.barcode.toLowerCase().includes(q));
+    const matchCat = catFilter === 'All' || autoCategory(p.name) === catFilter;
+    return matchSearch && matchCat;
+  });
 
   // Build prioritised alerts list
   const alerts = React.useMemo(() => {
@@ -77,10 +147,30 @@ const DesktopInventory = ({
               style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'white', outline: 'none', fontSize: '13px' }}
             />
           </div>
+          <button onClick={downloadTemplate} title="Download CSV template" style={{ background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid #334155', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            📋 Template
+          </button>
+          <button onClick={() => csvInputRef.current?.click()} style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Upload size={14} /> Import CSV
+          </button>
+          <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={onCsvFileChange} style={{ display: 'none' }} />
           <button onClick={() => setShowAddProductModal(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={16} /> Add Product
           </button>
         </div>
+      </div>
+
+      {/* Category Filter Tabs */}
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
+        {allCategories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setCatFilter(cat)}
+            style={{ padding: '4px 12px', borderRadius: '20px', border: `1px solid ${catFilter === cat ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`, background: catFilter === cat ? 'rgba(139,92,246,0.15)' : 'transparent', color: catFilter === cat ? '#a78bfa' : '#64748b', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.15s' }}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {/* Quick Summary Grid */}
@@ -190,14 +280,19 @@ const DesktopInventory = ({
             const expStatus = checkExpiryStatus(p.expiryDate);
             const isLowStock = p.stock < (p.reorderLevel || 10);
             return (
-              <div key={p.id} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s' }}>
+              <div key={p.id} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${flashSales[p.id] ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{p.name}</h3>
-                      {p.batchNumber && (
-                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Batch: {p.batchNumber}</p>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                        <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)', fontWeight: 'bold', letterSpacing: '0.3px' }}>
+                          {autoCategory(p.name)}
+                        </span>
+                        {p.batchNumber && (
+                          <span style={{ fontSize: '10px', color: '#94a3b8' }}>Batch: {p.batchNumber}</span>
+                        )}
+                      </div>
                     </div>
                     <span style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</span>
                   </div>
@@ -236,12 +331,30 @@ const DesktopInventory = ({
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => handleOneClickRestock(p)}
                     style={{ background: isLowStock ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.03)', border: isLowStock ? 'none' : '1px solid rgba(255,255,255,0.1)', color: isLowStock ? '#000' : '#fff', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: isLowStock ? '0 4px 12px rgba(245,158,11,0.2)' : 'none' }}
                   >
                     <RefreshCw size={11} /> Restock
+                  </button>
+                  <PlanGate feature="flashSales" fallback={
+                    <button title="Flash Sales require Pro Plan" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#64748b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Flame size={11} /> Sale 🔒
+                    </button>
+                  }>
+                    {flashSales[p.id] ? (
+                      <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🔥 End Sale
+                      </button>
+                    ) : (
+                      <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Flame size={11} /> Sale
+                      </button>
+                    )}
+                  </PlanGate>
+                  <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', color: '#a78bfa', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Adjust
                   </button>
                   <button onClick={() => handleOpenEditModal(p)} style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#3b82f6', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Edit
@@ -250,6 +363,64 @@ const DesktopInventory = ({
                     Delete
                   </button>
                 </div>
+
+                {/* Inline stock adjustment form */}
+                {adjustTarget === p.id && (
+                  <div style={{ marginTop: '10px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#a78bfa', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="number"
+                        placeholder="±delta (e.g. -5 or +10)"
+                        value={adjustDelta}
+                        onChange={e => setAdjustDelta(e.target.value)}
+                        style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
+                      />
+                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                        {['Correction','Damaged','Expired','Sample','Theft','Incoming'].map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        onClick={() => {
+                          const d = parseInt(adjustDelta);
+                          if (!d || isNaN(d)) return;
+                          handleStockAdjust && handleStockAdjust(p, d, adjustReason);
+                          setAdjustTarget(null);
+                        }}
+                        style={{ flex: 1, background: '#8b5cf6', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                      >
+                        Apply
+                      </button>
+                      <button onClick={() => setAdjustTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #334155', color: '#64748b', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Inline flash sale setter */}
+                {saleTarget === p.id && (
+                  <div style={{ marginTop: '10px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#fca5a5', fontWeight: 'bold' }}>🔥 Set Flash Sale</p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                        {[5,10,15,20,25,30,40,50].map(d => <option key={d} value={d}>{d}% off</option>)}
+                      </select>
+                      <select value={saleDuration} onChange={e => setSaleDuration(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                        {[[1,'1 hour'],[2,'2 hours'],[4,'4 hours'],[6,'6 hours'],[12,'12 hours'],[24,'24 hours'],[48,'2 days']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => { handleSetFlashSale && handleSetFlashSale(p.id, salePct, parseInt(saleDuration)); setSaleTarget(null); }} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        Launch Sale
+                      </button>
+                      <button onClick={() => setSaleTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #334155', color: '#64748b', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

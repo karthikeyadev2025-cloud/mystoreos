@@ -24,6 +24,8 @@ import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
 import DesktopReports from '../components/DesktopReports';
 import DesktopSettings from '../components/DesktopSettings';
+import DesktopCustomers from '../components/DesktopCustomers';
+import DesktopExpenses from '../components/DesktopExpenses';
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
@@ -99,6 +101,10 @@ const ShopDashboard = () => {
   const [gstin, setGstin] = useState(user?.gstin || '');
   const [stateCode, setStateCode] = useState(user?.stateCode || '');
   const [businessAddress, setBusinessAddress] = useState(user?.businessAddress || '');
+  const [invoiceFooter, setInvoiceFooter] = useState('');
+  const [invoicePrefix, setInvoicePrefix] = useState('INV');
+  const [dailyTarget, setDailyTarget] = useState(0);
+  const [flashSales, setFlashSales] = useState({});
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -109,6 +115,10 @@ const ShopDashboard = () => {
   const [newStaffPhone, setNewStaffPhone] = useState('');
   const [newStaffName, setNewStaffName] = useState('');
   const [showStaffModal, setShowStaffModal] = useState(false);
+
+  // Loyalty Points States
+  const [customerLoyaltyPoints, setCustomerLoyaltyPoints] = useState(0);
+  const [loyaltyRedeem, setLoyaltyRedeem] = useState(0);
 
   // Promo Code & Wholesale Restocking States
   const [promoCode, setPromoCode] = useState('');
@@ -136,6 +146,7 @@ const ShopDashboard = () => {
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
+  const loyaltyEnabled = hasFeature('loyaltyPoints');
   const { deviceLimitExceeded, activeSessions, forceRevokeOthers } = useSessionGuard();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -176,6 +187,10 @@ const ShopDashboard = () => {
       setStaffList(await api.getShopStaff(targetShopId));
       setPlans(await api.getSubscriptionPlans());
       setPaymentHistory(await api.getPaymentHistory(targetShopId));
+      setInvoiceFooter(await api.getSiteConfig('invoiceFooter_' + targetShopId, ''));
+      setInvoicePrefix(await api.getSiteConfig('invPrefix_' + targetShopId, 'INV'));
+      setDailyTarget(parseInt(await api.getSiteConfig('dailyTarget_' + targetShopId, 0)) || 0);
+      setFlashSales(await api.getFlashSales(targetShopId));
     }
   }, [targetShopId, isOwner]);
 
@@ -188,6 +203,20 @@ const ShopDashboard = () => {
 
   useRealtimeTable({ table: 'orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
   useRealtimeTable({ table: 'products', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
+
+  useEffect(() => {
+    let cancelled = false;
+    const pts = loyaltyEnabled && customerPhone
+      ? api.getLoyaltyPoints(targetShopId, customerPhone)
+      : Promise.resolve(0);
+    pts.then(p => {
+      if (!cancelled) {
+        setCustomerLoyaltyPoints(p);
+        setLoyaltyRedeem(0);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [customerPhone, targetShopId, loyaltyEnabled]);
 
   const decodeOrderUserId = (userId) => {
     if (!userId) return { type: 'bill', name: 'Walk-in Customer', phone: '' };
@@ -344,11 +373,15 @@ const ShopDashboard = () => {
         toast.success(`Increased quantity of ${prod.name}`, { autoClose: 1000 });
         return prevItems.map(item => item.id === prod.id ? { ...item, qty: item.qty + 1 } : item);
       }
+      const sale = flashSales[prod.id];
+      const activeSale = sale && new Date(sale.expiresAt) > new Date();
+      const salePrice = activeSale ? Math.round(prod.price * (1 - sale.discount / 100)) : prod.price;
       const firstVariant = prod.variants ? prod.variants.split(',')[0].trim() : '';
-      toast.success(`Added ${prod.name} to bill`, { autoClose: 1000 });
-      return [...prevItems, { ...prod, qty: 1, selectedVariant: firstVariant }];
+      const label = activeSale ? `🔥 ${prod.name} added (${sale.discount}% off!)` : `Added ${prod.name} to bill`;
+      toast.success(label, { autoClose: 1000 });
+      return [...prevItems, { ...prod, price: salePrice, originalPrice: activeSale ? prod.price : undefined, qty: 1, selectedVariant: firstVariant }];
     });
-  }, []);
+  }, [flashSales]);
 
   const addCustomItem = () => {
     if(!customItemName || !customItemPrice) return toast.error("Enter name and price");
@@ -396,8 +429,9 @@ const ShopDashboard = () => {
 
   const sendWhatsAppBill = async () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
-    const total = Math.max(0, billTotal - discountAmount);
-    
+    const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
+    const total = Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees);
+
     if (!isOwner && total > 5000) {
       setPendingAction(() => () => executeSendWhatsAppBill());
       setShowAdminPinModal(true);
@@ -408,7 +442,8 @@ const ShopDashboard = () => {
   };
 
   const executeSendWhatsAppBill = async () => {
-    const total = Math.max(0, billTotal - discountAmount);
+    const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10); // 10 pts = ₹1
+    const total = Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees);
     
     try {
       let finalUserId = 'walk-in-customer';
@@ -427,7 +462,15 @@ const ShopDashboard = () => {
         qty: b.qty || 1,
         selectedVariant: b.selectedVariant || ''
       })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode });
-      
+
+      let loyaltyResult = null;
+      if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
+        if (loyaltyRedeem > 0) await api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem);
+        loyaltyResult = await api.awardLoyaltyPoints(targetShopId, customerPhone, total);
+      }
+
+      const invoiceNo = billingMode === 'bill' ? await api.getNextInvoiceNumber(targetShopId) : null;
+
       // Sound synthesis announcement for completed bill (not for estimate/challan)
       if (billingMode === 'bill' && 'speechSynthesis' in window) {
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(`MyStore received ${total} rupees successfully!`));
@@ -503,11 +546,15 @@ const ShopDashboard = () => {
         parseInt(themeColor.substring(5, 7), 16)
       );
       doc.text(modeTitle, 15, 50);
-      
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(71, 85, 105);
       doc.text(`Date: ${new Date().toLocaleString()}`, 135, 50);
+      if (invoiceNo) {
+        doc.setFontSize(9);
+        doc.text(`Invoice # ${invoiceNo}`, 135, 56);
+      }
 
       // Top section: Add shop GSTIN and State Code
       if (gstin) {
@@ -665,9 +712,16 @@ const ShopDashboard = () => {
         doc.setTextColor(37, 99, 235);
         doc.text("* Note: Goods received in good condition. Not for sale. Value listed is for transit declaration.", 15, yOffset);
       } else {
-        doc.text("Thank you for your business! Visit again.", 15, yOffset);
+        doc.text(invoiceFooter || "Thank you for your business! Visit again.", 15, yOffset);
       }
-      
+
+      if (loyaltyResult && billingMode === 'bill') {
+        yOffset += 6;
+        doc.setFontSize(8);
+        doc.setTextColor(139, 92, 246);
+        doc.text(`⭐ Loyalty Points: Earned +${loyaltyResult.earned} pts | Balance: ${loyaltyResult.balance} pts (10 pts = ₹1 off your next bill)`, 15, yOffset);
+      }
+
       yOffset += 6;
       doc.setTextColor(148, 163, 184);
       doc.text("Generated via MyStore OS - The Paperless Retail Revolution", 15, yOffset);
@@ -704,6 +758,8 @@ const ShopDashboard = () => {
       setBillItems([]);
       setDiscountAmount(0);
       setPromoCode('');
+      setLoyaltyRedeem(0);
+      setCustomerLoyaltyPoints(0);
       setCustomerName('');
       setCustomerPhone('');
       setCustomerGstin('');
@@ -1197,6 +1253,78 @@ const ShopDashboard = () => {
     toast.success("Profile Updated successfully!");
   };
 
+  const handleSetDailyTarget = async (targetAmount) => {
+    const val = parseInt(targetAmount) || 0;
+    setDailyTarget(val);
+    await api.saveSiteConfig('dailyTarget_' + targetShopId, val);
+  };
+
+  const handleSetFlashSale = async (productId, discountPct, durationHours) => {
+    try {
+      await api.setFlashSale(targetShopId, productId, discountPct, durationHours);
+      const updated = await api.getFlashSales(targetShopId);
+      setFlashSales(updated);
+      toast.success(`🔥 Flash sale set — ${discountPct}% off for ${durationHours}h!`);
+    } catch (_e) {
+      toast.error('Failed to set flash sale');
+    }
+  };
+
+  const handleClearFlashSale = async (productId) => {
+    try {
+      await api.clearFlashSale(targetShopId, productId);
+      setFlashSales(prev => { const n = { ...prev }; delete n[productId]; return n; });
+      toast.success('Flash sale cleared');
+    } catch (_e) {
+      toast.error('Failed to clear flash sale');
+    }
+  };
+
+  const handleBulkCsvImport = async (rows) => {
+    let success = 0, failed = 0;
+    for (const row of rows) {
+      try {
+        await api.addProduct(targetShopId, {
+          name: row.name,
+          price: parseFloat(row.price) || 0,
+          stock: parseInt(row.stock) || 0,
+          reorderLevel: parseInt(row.reorderLevel) || 10,
+          hsnCode: row.hsnCode || '',
+          gstRate: row.gstRate || '0',
+          batchNumber: row.batchNumber || '',
+          expiryDate: row.expiryDate || '',
+          variants: row.variants || '',
+        });
+        success++;
+      } catch (_e) {
+        failed++;
+      }
+    }
+    toast.success(`Imported ${success} product${success !== 1 ? 's' : ''}${failed ? ` (${failed} failed)` : ''}!`);
+    loadData();
+  };
+
+  const handleStockAdjust = async (product, delta, reason) => {
+    const newStock = Math.max(0, (product.stock || 0) + delta);
+    try {
+      await api.editProduct(product.id, { stock: newStock });
+      toast.success(`${product.name}: stock ${delta > 0 ? '+' + delta : delta} → ${newStock} (${reason})`);
+      loadData();
+    } catch (_e) {
+      toast.error('Failed to adjust stock');
+    }
+  };
+
+  const handleSaveInvoiceSettings = async () => {
+    try {
+      await api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter);
+      await api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix);
+      toast.success("Invoice settings saved!");
+    } catch (_e) {
+      toast.error("Failed to save invoice settings");
+    }
+  };
+
   const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -1462,6 +1590,13 @@ const ShopDashboard = () => {
               addToBill={addToBill}
               setActiveTab={setActiveTab}
               setShowAddProductModal={setShowAddProductModal}
+              loyaltyEnabled={loyaltyEnabled}
+              customerLoyaltyPoints={customerLoyaltyPoints}
+              loyaltyRedeem={loyaltyRedeem}
+              setLoyaltyRedeem={setLoyaltyRedeem}
+              dailyTarget={dailyTarget}
+              handleSetDailyTarget={handleSetDailyTarget}
+              flashSales={flashSales}
             />
           )}
 
@@ -1473,6 +1608,25 @@ const ShopDashboard = () => {
               handleOneClickRestock={handleOneClickRestock}
               handleOpenEditModal={handleOpenEditModal}
               handleDeleteProduct={handleDeleteProduct}
+              handleBulkCsvImport={handleBulkCsvImport}
+              flashSales={flashSales}
+              handleSetFlashSale={handleSetFlashSale}
+              handleClearFlashSale={handleClearFlashSale}
+              handleStockAdjust={handleStockAdjust}
+            />
+          )}
+
+          {activeTab === 'customers' && isOwner && (
+            <DesktopCustomers
+              orders={orders}
+              targetShopId={targetShopId}
+            />
+          )}
+
+          {activeTab === 'expenses' && isOwner && (
+            <DesktopExpenses
+              targetShopId={targetShopId}
+              orders={orders}
             />
           )}
 
@@ -1571,6 +1725,11 @@ const ShopDashboard = () => {
               plans={plans}
               setShowPlanSelectorModal={setShowPlanSelectorModal}
               paymentHistory={paymentHistory}
+              invoiceFooter={invoiceFooter}
+              setInvoiceFooter={setInvoiceFooter}
+              invoicePrefix={invoicePrefix}
+              setInvoicePrefix={setInvoicePrefix}
+              handleSaveInvoiceSettings={handleSaveInvoiceSettings}
             />
           )}
         </div>

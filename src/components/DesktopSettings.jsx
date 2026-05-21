@@ -38,7 +38,12 @@ const DesktopSettings = ({
   user,
   plans = [],
   setShowPlanSelectorModal,
-  paymentHistory = []
+  paymentHistory = [],
+  invoiceFooter = '',
+  setInvoiceFooter,
+  invoicePrefix = 'INV',
+  setInvoicePrefix,
+  handleSaveInvoiceSettings,
 }) => {
   if (!isOwner) {
     return (
@@ -169,6 +174,51 @@ const DesktopSettings = ({
             </button>
             <button onClick={handleSaveProfile} style={{ flex: 1, background: '#10b981', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               Commit Coordinates
+            </button>
+          </div>
+        </div>
+
+        {/* Invoice Customization */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileText size={18} color="#a78bfa" /> Invoice Customization
+          </h3>
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px', lineHeight: '1.4' }}>
+            Customize the invoice number prefix and the footer message printed on every bill PDF.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '6px', fontWeight: 'bold' }}>Invoice Number Prefix</label>
+              <input
+                type="text"
+                value={invoicePrefix}
+                onChange={e => setInvoicePrefix && setInvoicePrefix(e.target.value.toUpperCase())}
+                placeholder="e.g. INV"
+                maxLength={10}
+                style={{ width: '100%', padding: '10px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+              />
+              <p style={{ fontSize: '10px', color: '#64748b', margin: '4px 0 0 0' }}>Bills will be numbered: {invoicePrefix || 'INV'}-0001, {invoicePrefix || 'INV'}-0002, …</p>
+            </div>
+
+            <PlanGate feature="customInvoiceFooter" fallback={<LockedFeature feature="customInvoiceFooter" />}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#cbd5e1', marginBottom: '6px', fontWeight: 'bold' }}>Custom Invoice Footer Message</label>
+                <textarea
+                  value={invoiceFooter}
+                  onChange={e => setInvoiceFooter && setInvoiceFooter(e.target.value)}
+                  placeholder="e.g. Thank you for shopping with us! GST registered. All sales final."
+                  rows={3}
+                  style={{ width: '100%', padding: '10px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+            </PlanGate>
+
+            <button
+              onClick={handleSaveInvoiceSettings}
+              style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}
+            >
+              💾 Save Invoice Settings
             </button>
           </div>
         </div>

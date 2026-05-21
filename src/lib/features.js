@@ -5,19 +5,19 @@ export const PLAN_CAPS = {
     maxProducts: 200, maxDevices: 1,
     whatsappShare: false, batchExpiry: false, gst: false,
     staffAccounts: false, caPortal: false, tallyExport: false,
-    multiDevice: false, customInvoiceFooter: false,
+    multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
   },
   pro: {
     maxProducts: -1, maxDevices: 1,
     whatsappShare: true, batchExpiry: true, gst: false,
     staffAccounts: true, caPortal: false, tallyExport: false,
-    multiDevice: false, customInvoiceFooter: false,
+    multiDevice: false, customInvoiceFooter: false, loyaltyPoints: true, flashSales: true,
   },
   enterprise: {
     maxProducts: -1, maxDevices: 5,
     whatsappShare: true, batchExpiry: true, gst: true,
     staffAccounts: true, caPortal: true, tallyExport: true,
-    multiDevice: true, customInvoiceFooter: true,
+    multiDevice: true, customInvoiceFooter: true, loyaltyPoints: true, flashSales: true,
   },
 };
 
@@ -31,6 +31,8 @@ export const FEATURE_PLAN_LABEL = {
   tallyExport: 'Enterprise Plan',
   multiDevice: 'Enterprise Plan',
   customInvoiceFooter: 'Enterprise Plan',
+  loyaltyPoints: 'Pro Plan',
+  flashSales: 'Pro Plan',
 };
 
 // Returns the capabilities object for a user.

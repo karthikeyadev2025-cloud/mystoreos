@@ -1,4 +1,4 @@
-import { Home, Package, Receipt, Wallet, Truck, Book, LogOut } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, Truck, Book, LogOut, Users, IndianRupee } from 'lucide-react';
 
 const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName, syncStatus }) => {
   return (
@@ -23,6 +23,16 @@ const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handl
           <Receipt size={18} /> All Bills
           {pendingOrders > 0 && <span style={{ position: 'absolute', top: 12, right: 16, background: '#ef4444', width: 8, height: 8, borderRadius: '50%' }}></span>}
         </button>
+        {isOwner && (
+          <button className={`sidebar-nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>
+            <Users size={18} /> Customers
+          </button>
+        )}
+        {isOwner && (
+          <button className={`sidebar-nav-item ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>
+            <IndianRupee size={18} /> Expenses
+          </button>
+        )}
         {isOwner && (
           <button className={`sidebar-nav-item ${activeTab === 'credit' ? 'active' : ''}`} onClick={() => setActiveTab('credit')}>
             <Wallet size={18} /> Credit Book
