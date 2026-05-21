@@ -63,6 +63,7 @@ CREATE TABLE public.products (
     reorder_level INT DEFAULT 10,
     hsn_code TEXT,
     gst_rate INT DEFAULT 0,
+    cost_price DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

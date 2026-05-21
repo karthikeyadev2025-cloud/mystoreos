@@ -174,7 +174,7 @@ const DesktopInventory = ({
       </div>
 
       {/* Quick Summary Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Package size={18} />
@@ -202,6 +202,20 @@ const DesktopInventory = ({
               {products.filter(p => checkExpiryStatus(p.expiryDate).status !== 'ok').length}
             </h4>
             <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Near Expiry Items</p>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>%</div>
+          <div>
+            <h4 style={{ margin: 0, fontSize: '18px', color: 'white' }}>
+              {(() => {
+                const priced = products.filter(p => p.costPrice > 0 && p.price > 0);
+                if (!priced.length) return '—';
+                const avg = priced.reduce((s, p) => s + (p.price - p.costPrice) / p.price * 100, 0) / priced.length;
+                return Math.round(avg) + '%';
+              })()}
+            </h4>
+            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Avg Margin</p>
           </div>
         </div>
       </div>
@@ -305,6 +319,17 @@ const DesktopInventory = ({
                         Min: {p.reorderLevel}
                       </span>
                     )}
+                    {p.costPrice > 0 && p.price > 0 && (() => {
+                      const margin = Math.round((p.price - p.costPrice) / p.price * 100);
+                      const color = margin >= 20 ? '#10b981' : margin >= 10 ? '#f59e0b' : '#ef4444';
+                      const bg = margin >= 20 ? 'rgba(16,185,129,0.12)' : margin >= 10 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+                      const border = margin >= 20 ? 'rgba(16,185,129,0.25)' : margin >= 10 ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)';
+                      return (
+                        <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: bg, color, border: `1px solid ${border}`, fontWeight: 'bold' }}>
+                          Margin: {margin}%
+                        </span>
+                      );
+                    })()}
                     {expStatus.status === 'expired' && (
                       <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', fontWeight: 'bold' }}>
                         Expired ({p.expiryDate})

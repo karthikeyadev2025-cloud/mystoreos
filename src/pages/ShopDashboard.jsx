@@ -64,6 +64,7 @@ const ShopDashboard = () => {
   const [newProdVariants, setNewProdVariants] = useState('');
   const [newProdHsnCode, setNewProdHsnCode] = useState('');
   const [newProdGstRate, setNewProdGstRate] = useState('0');
+  const [newProdCostPrice, setNewProdCostPrice] = useState('0');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -79,6 +80,7 @@ const ShopDashboard = () => {
   const [editProdVariants, setEditProdVariants] = useState('');
   const [editProdHsnCode, setEditProdHsnCode] = useState('');
   const [editProdGstRate, setEditProdGstRate] = useState('0');
+  const [editProdCostPrice, setEditProdCostPrice] = useState('0');
   const [editProdBarcode, setEditProdBarcode] = useState('');
 
   // Credit Ledger Toggle & Form States
@@ -275,6 +277,7 @@ const ShopDashboard = () => {
     setEditProdVariants(p.variants || '');
     setEditProdHsnCode(p.hsnCode || '');
     setEditProdGstRate(p.gstRate || '0');
+    setEditProdCostPrice(p.costPrice !== undefined ? String(p.costPrice) : '0');
     setEditProdBarcode(p.barcode || '');
     setShowEditProductModal(true);
   };
@@ -292,6 +295,7 @@ const ShopDashboard = () => {
         variants: editProdVariants,
         hsnCode: editProdHsnCode,
         gstRate: editProdGstRate,
+        costPrice: parseFloat(editProdCostPrice) || 0,
         barcode: editProdBarcode
       });
       toast.success("Product updated successfully!");
@@ -1021,7 +1025,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0 }
       );
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1035,6 +1039,7 @@ const ShopDashboard = () => {
       setNewProdVariants('');
       setNewProdHsnCode('');
       setNewProdGstRate('0');
+      setNewProdCostPrice('0');
       loadData();
     } catch (e) {
       console.error(e);
@@ -3170,9 +3175,15 @@ const ShopDashboard = () => {
               <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
             </div>
             
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-              <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -3250,9 +3261,15 @@ const ShopDashboard = () => {
               <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
             </div>
             
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-              <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>

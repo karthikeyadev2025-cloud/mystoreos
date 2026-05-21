@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tool artifacts (ruflo / claude-flow MCP)
+.claude/
+.claude-flow/
+.swarm/
+ruvector.db
+CLAUDE.md
