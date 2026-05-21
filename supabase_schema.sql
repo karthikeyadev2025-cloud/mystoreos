@@ -347,7 +347,9 @@ CREATE POLICY "settings_admin_all"
   ON public.settings FOR ALL
   USING (public.current_user_role() = 'admin');
 
--- ---- site_config (public read, admin write) ----
+-- ---- site_config (public read, shop+admin write) ----
+-- Keys follow the pattern: <feature>_<shopId>[_<extra>]
+-- A shop owner's auth.uid() IS their shopId, so LIKE check is safe.
 CREATE POLICY "site_config_read_all"
   ON public.site_config FOR SELECT USING (true);
 
@@ -358,6 +360,17 @@ CREATE POLICY "site_config_admin_write"
 CREATE POLICY "site_config_admin_update"
   ON public.site_config FOR UPDATE
   USING (public.current_user_role() = 'admin');
+
+-- Shop owners may write rows whose key contains their own user ID.
+-- Covers: flashSales_<uid>, invoiceFooter_<uid>, invPrefix_<uid>,
+--         invCounter_<uid>, dailyTarget_<uid>, expenses_<uid>_*, loyalty_<uid>_*
+CREATE POLICY "site_config_shop_write"
+  ON public.site_config FOR INSERT
+  WITH CHECK (key LIKE '%' || auth.uid()::text || '%');
+
+CREATE POLICY "site_config_shop_update"
+  ON public.site_config FOR UPDATE
+  USING (key LIKE '%' || auth.uid()::text || '%');
 
 -- ---- announcements (public read, admin write) ----
 CREATE POLICY "announcements_read_all"
