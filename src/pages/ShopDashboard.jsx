@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useSubscription } from '../hooks/useSubscription';
+import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
 import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -136,6 +137,7 @@ const ShopDashboard = () => {
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
+  const { deviceLimitExceeded, activeSessions, forceRevokeOthers } = useSessionGuard();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   useEffect(() => {
@@ -1377,6 +1379,27 @@ const ShopDashboard = () => {
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
         )}
+        {deviceLimitExceeded && isOwner && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+            <div style={{ maxWidth: '440px', width: '100%', background: 'linear-gradient(135deg, #1e293b, #0f172a)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '20px', padding: '36px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', marginBottom: '14px' }}>📱</div>
+              <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '800', color: 'white' }}>Device Limit Reached</h2>
+              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#94a3b8', lineHeight: '1.6' }}>
+                Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: '#fbbf24' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
+                You have {activeSessions.length} device{activeSessions.length !== 1 ? 's' : ''} logged in.
+              </p>
+              <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: '#64748b' }}>
+                Sign out from your other devices, or force this device in by revoking all other sessions.
+              </p>
+              <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, #ef4444, #b91c1c)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
+                Use This Device (Revoke Others)
+              </button>
+              <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                Upgrade for More Devices →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* GLOBAL ANNOUNCEMENT BANNER */}
         {announceConfig.active && announceConfig.text && (
@@ -1504,14 +1527,11 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'reports' && isOwner && (
-            <DesktopReports 
-              sales={sales}
+            <DesktopReports
+              reportsData={reportsData}
               orders={orders}
-              credits={credits}
-              customerCredits={customerCredits}
-              products={products}
               downloadTallyXML={downloadTallyXML}
-              targetShopId={targetShopId}
+              user={user}
             />
           )}
 

@@ -1,5 +1,6 @@
-import { Book, Download, TrendingUp, TrendingDown, BarChart2 } from 'lucide-react';
+import { Book, Download, TrendingUp, TrendingDown, BarChart2, FileSpreadsheet } from 'lucide-react';
 import { PlanGate, LockedFeature } from './PlanGate';
+import { downloadGSTR1CSV } from '../lib/gstrExport';
 
 const DesktopReports = ({
   reportsData,
@@ -97,6 +98,29 @@ const DesktopReports = ({
                 style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
               >
                 <Download size={14} /> Export XML
+              </button>
+            </PlanGate>
+          </div>
+        </div>
+
+        {/* GSTR-1 CSV Exporter Card */}
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(139,92,246,0.3)', background: 'linear-gradient(135deg, rgba(139,92,246,0.06), rgba(79,70,229,0.02))' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+            <div>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#8b5cf6' }}>🇮🇳 GSTR-1 CSV Exporter</h3>
+              <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', lineHeight: '1.4' }}>
+                Download GST-portal ready GSTR-1 CSV with CGST/SGST/IGST split for B2B and B2C invoices.
+              </p>
+            </div>
+            <PlanGate
+              feature="gst"
+              fallback={<LockedFeature feature="gst" compact />}
+            >
+              <button
+                onClick={() => downloadGSTR1CSV(orders, user, new Date().toISOString().slice(0, 7))}
+                style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+              >
+                <FileSpreadsheet size={14} /> Export CSV
               </button>
             </PlanGate>
           </div>
