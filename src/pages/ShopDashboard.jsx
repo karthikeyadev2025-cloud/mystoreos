@@ -1466,9 +1466,8 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'products' && isOwner && (
-            <DesktopInventory 
+            <DesktopInventory
               products={products}
-              isOwner={isOwner}
               setShowAddProductModal={setShowAddProductModal}
               checkExpiryStatus={checkExpiryStatus}
               handleOneClickRestock={handleOneClickRestock}
