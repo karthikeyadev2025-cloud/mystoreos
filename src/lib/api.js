@@ -135,17 +135,18 @@ export const api = {
   // ---- AUTH ----
   async login(phone, pass) {
     if (isSupabaseConfigured) {
-      // Find user by phone first, then verify password in JS
-      // This avoids Supabase query issues with special characters in passwords
-      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).single();
-      if (error || !data) throw new Error("Phone number not found. Please register first.");
-      const supaPassMatch = data.pass.startsWith('$2b$') ? await bcrypt.compare(pass, data.pass) : data.pass === pass;
-      if (!supaPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
-      if (!data.pass.startsWith('$2b$')) {
-        await supabase.from('users').update({ pass: await bcrypt.hash(pass, 10) }).eq('id', data.id);
+      const { data, error } = await supabase.functions.invoke('auth-login', {
+        body: { phone, password: pass },
+      });
+      if (error) throw new Error(error.message || 'Login failed');
+      if (data?.error) throw new Error(data.error);
+      if (data?.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
       }
-      if (data.status === 'pending') throw new Error("Account pending admin approval");
-      return toUser(data);
+      return data.profile;
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
@@ -173,9 +174,11 @@ export const api = {
 
   async resetPassword(phone, newPass) {
     if (isSupabaseConfigured) {
-      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
-      if (!existing) throw new Error("Phone number not found. Please register first.");
-      await supabase.from('users').update({ pass: await bcrypt.hash(newPass, 10) }).eq('id', existing.id);
+      const { data, error } = await supabase.functions.invoke('auth-reset-password', {
+        body: { phone, newPassword: newPass },
+      });
+      if (error) throw new Error(error.message || 'Reset failed');
+      if (data?.error) throw new Error(data.error);
       return true;
     }
     const db = getDB();
@@ -188,7 +191,11 @@ export const api = {
 
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ pass: await bcrypt.hash(newPass, 10) }).eq('id', userId);
+      const { data, error } = await supabase.functions.invoke('auth-reset-password', {
+        body: { userId, newPassword: newPass },
+      });
+      if (error) throw new Error(error.message || 'Admin reset failed');
+      if (data?.error) throw new Error(data.error);
       return;
     }
     const db = getDB();
@@ -198,24 +205,23 @@ export const api = {
 
   async register(name, phone, pass, role) {
     if (isSupabaseConfigured) {
-      // Check if phone already exists
-      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
-      if (existing) throw new Error("Phone already registered");
-      const status = 'active'; // Bypass pending review, activate immediately!
-      const subscription = role === 'shop' ? 'trial' : 'active';
-      const subscription_tier = role === 'shop' ? 'starter' : null;
-      const trial_started_at = role === 'shop' ? new Date().toISOString() : null;
-      const { data, error } = await supabase.from('users').insert({
-        phone, pass: await bcrypt.hash(pass, 10), role, name, status, subscription, subscription_tier, trial_started_at
-      }).select().single();
-      if (error) throw new Error(error.message);
-      return toUser(data);
+      const { data, error } = await supabase.functions.invoke('auth-register', {
+        body: { name, phone, password: pass, role },
+      });
+      if (error) throw new Error(error.message || 'Registration failed');
+      if (data?.error) throw new Error(data.error);
+      if (data?.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
+      return data.profile;
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
-    const status = 'active'; // Bypass pending review, activate immediately!
     const subscription = role === 'shop' ? 'trial' : 'active';
-    const newUser = { id: 'u_' + generateId(), phone, pass: await bcrypt.hash(pass, 10), role, name, status, subscription };
+    const newUser = { id: 'u_' + generateId(), phone, pass: await bcrypt.hash(pass, 10), role, name, status: 'active', subscription };
     db.users.push(newUser);
     saveDB(db);
     return newUser;

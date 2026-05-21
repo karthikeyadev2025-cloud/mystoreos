@@ -25,7 +25,8 @@ const PageLoader = () => (
 );
 
 const PrivateRoute = ({ children, role }) => {
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
+  if (authLoading) return <PageLoader />;
   if (!user) return <Navigate to="/login" />;
   if (role) {
     const roles = Array.isArray(role) ? role : [role];
