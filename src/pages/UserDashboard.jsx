@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { jsPDF } from 'jspdf';
+// jsPDF is dynamically imported on demand in downloadReceiptPDF
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UserDashboard.css'; // Premium CSS file containing animations, keyframes, scrollbars and thermal styles
@@ -747,8 +747,9 @@ const UserDashboard = () => {
     }, 700);
   };
 
-  const downloadReceiptPDF = (order) => {
-    const doc = new jsPDF({
+  const downloadReceiptPDF = async (order) => {
+    const { jsPDF: JsPDF } = await import('jspdf');
+    const doc = new JsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: [80, 160] // POS 80mm standard paper strip size!

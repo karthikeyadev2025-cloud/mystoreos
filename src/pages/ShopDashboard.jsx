@@ -10,9 +10,8 @@ import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Bo
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+// html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
-import { jsPDF } from 'jspdf';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML } from '../lib/TallyExporter';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
@@ -204,12 +203,13 @@ const ShopDashboard = () => {
 
   const checkExpiryStatus = (expiryDateStr) => {
     if (!expiryDateStr) return { status: 'ok', text: '' };
-    const today = new Date('2026-05-20');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const expiry = new Date(expiryDateStr);
     if (expiry <= today) {
       return { status: 'expired', text: 'Expired 🚨' };
     }
-    const ninetyDaysFromNow = new Date('2026-05-20');
+    const ninetyDaysFromNow = new Date();
     ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
     if (expiry <= ninetyDaysFromNow) {
       return { status: 'near', text: 'Expires Soon ⚠️' };
@@ -434,7 +434,8 @@ const ShopDashboard = () => {
       }
 
       // Generate Premium Custom Themed PDF
-      const doc = new jsPDF();
+      const { jsPDF: JsPDF } = await import('jspdf');
+      const doc = new JsPDF();
       
       let themeColor = '#10b981'; // emerald green for bill
       let modeTitle = 'TAX INVOICE';
@@ -734,39 +735,39 @@ const ShopDashboard = () => {
 
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
-  // Setup Camera Scanner
+  // Setup Camera Scanner — html5-qrcode loaded on demand
   useEffect(() => {
-    if (showScanner) {
-      const scanner = new Html5QrcodeScanner('reader', { 
-        fps: 10, 
+    if (!showScanner) return;
+    let scanner = null;
+    const init = async () => {
+      const { Html5QrcodeScanner } = await import('html5-qrcode');
+      scanner = new Html5QrcodeScanner('reader', {
+        fps: 10,
         qrbox: { width: 250, height: 150 },
-        videoConstraints: { facingMode: "environment" }
+        videoConstraints: { facingMode: 'environment' },
       }, false);
       scanner.render(
         (decodedText) => {
           setScannedBarcode(decodedText);
-          if (showEditProductModal) {
-            setEditProdBarcode(decodedText);
-          }
+          if (showEditProductModal) setEditProdBarcode(decodedText);
           setShowScanner(false);
           scanner.clear();
-          toast.success("Barcode Scanned: " + decodedText);
-          
-          // If we are in 'home' tab and scanning a bill item instead of adding a new product
+          toast.success('Barcode Scanned: ' + decodedText);
           if (activeTab === 'home') {
             const foundProd = products.find(p => p.barcode === decodedText);
             if (foundProd) addToBill(foundProd);
-            else toast.error("Product not found in inventory!");
+            else toast.error('Product not found in inventory!');
           }
         },
-        () => { /* ignore */ }
+        () => { /* ignore decode errors */ },
       );
-      return () => { scanner.clear().catch(e => console.error("Scanner clear error", e)); };
-    }
+    };
+    init();
+    return () => { scanner?.clear().catch(() => {}); };
   }, [showScanner, activeTab, products, addToBill, showEditProductModal]);
 
   const reportsData = () => {
-    const todayStr = '2026-05-20';
+    const todayStr = new Date().toISOString().slice(0, 10);
     
     // Cash In: accepted sales orders today + customer credits settled today
     const todaySalesOrders = orders.filter(o => 
@@ -994,14 +995,13 @@ const ShopDashboard = () => {
         const creditData = customerCredits.find(c => c.id === creditId);
         if (creditData) {
           const parts = creditData.desc.split(':');
-          const doc = generateVoucherPDF({
+          const doc = await generateVoucherPDF({
             id: creditId,
             partyName: parts[1] || 'Customer',
             partyPhone: parts[2] || '',
             partyDesc: parts[3] || 'Pending Balance Settlement',
             amount: creditData.amount
-          }, user, true); // true = Receipt Voucher
-          
+          }, user, true);
           doc.save(`Receipt_Voucher_${creditId}.pdf`);
         }
         
@@ -1048,7 +1048,7 @@ const ShopDashboard = () => {
       await api.processReturn(returnOrder.id, itemsToReturn, 'cash');
       toast.success("Return processed successfully!");
       
-      const doc = generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
+      const doc = await generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
       doc.save(`Credit_Note_${returnOrder.id}.pdf`);
       
       setShowReturnModal(false);
@@ -1068,14 +1068,13 @@ const ShopDashboard = () => {
         
         const creditData = credits.find(c => c.id === creditId);
         if (creditData) {
-          const doc = generateVoucherPDF({
+          const doc = await generateVoucherPDF({
             id: creditId,
             partyName: creditData.distName || 'Distributor',
             partyPhone: '',
             partyDesc: 'Invoice Settlement',
             amount: creditData.amount
-          }, user, false); // false = Payment Voucher
-          
+          }, user, false);
           doc.save(`Payment_Voucher_${creditId}.pdf`);
         }
         
@@ -1119,8 +1118,9 @@ const ShopDashboard = () => {
     );
   };
 
-  const downloadQrPoster = () => {
-    const doc = new jsPDF();
+  const downloadQrPoster = async () => {
+    const { jsPDF: JsPDF } = await import('jspdf');
+    const doc = new JsPDF();
     doc.setFillColor(15, 23, 42); // slate-900 background
     doc.rect(0, 0, 210, 297, 'F');
     
