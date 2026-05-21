@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from './supabase';
+import bcrypt from 'bcryptjs';
 
 // ============================================================
 // SUPABASE API — Real cloud database
@@ -94,7 +95,10 @@ const toUser = (row) => row ? ({
   avatar: row.avatar,
   staff_of: row.staff_of,
   latitude: row.latitude, longitude: row.longitude,
-  gstin: row.gstin, stateCode: row.state_code, businessAddress: row.business_address
+  gstin: row.gstin, stateCode: row.state_code, businessAddress: row.business_address,
+  subscriptionTier: row.subscription_tier || 'starter',
+  planExpiresAt: row.plan_expires_at || null,
+  trialStartedAt: row.trial_started_at || null,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -126,14 +130,20 @@ export const api = {
       // This avoids Supabase query issues with special characters in passwords
       const { data, error } = await supabase.from('users').select('*').eq('phone', phone).single();
       if (error || !data) throw new Error("Phone number not found. Please register first.");
-      if (data.pass !== pass) throw new Error("Wrong password. Try again or use Forgot Password.");
+      const supaPassMatch = data.pass.startsWith('$2b$') ? await bcrypt.compare(pass, data.pass) : data.pass === pass;
+      if (!supaPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
+      if (!data.pass.startsWith('$2b$')) {
+        await supabase.from('users').update({ pass: await bcrypt.hash(pass, 10) }).eq('id', data.id);
+      }
       if (data.status === 'pending') throw new Error("Account pending admin approval");
       return toUser(data);
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not found. Please register first.");
-    if (user.pass !== pass) throw new Error("Wrong password. Try again or use Forgot Password.");
+    const localPassMatch = user.pass.startsWith('$2b$') ? await bcrypt.compare(pass, user.pass) : user.pass === pass;
+    if (!localPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
+    if (!user.pass.startsWith('$2b$')) { user.pass = await bcrypt.hash(pass, 10); saveDB(db); }
     if (user.status === 'pending') throw new Error("Account pending admin approval");
     return user;
   },
@@ -156,25 +166,25 @@ export const api = {
     if (isSupabaseConfigured) {
       const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
       if (!existing) throw new Error("Phone number not found. Please register first.");
-      await supabase.from('users').update({ pass: newPass }).eq('id', existing.id);
+      await supabase.from('users').update({ pass: await bcrypt.hash(newPass, 10) }).eq('id', existing.id);
       return true;
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not found. Please register first.");
-    user.pass = newPass;
+    user.pass = await bcrypt.hash(newPass, 10);
     saveDB(db);
     return true;
   },
 
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ pass: newPass }).eq('id', userId);
+      await supabase.from('users').update({ pass: await bcrypt.hash(newPass, 10) }).eq('id', userId);
       return;
     }
     const db = getDB();
     const user = db.users.find(u => u.id === userId);
-    if (user) { user.pass = newPass; saveDB(db); }
+    if (user) { user.pass = await bcrypt.hash(newPass, 10); saveDB(db); }
   },
 
   async register(name, phone, pass, role) {
@@ -184,7 +194,11 @@ export const api = {
       if (existing) throw new Error("Phone already registered");
       const status = 'active'; // Bypass pending review, activate immediately!
       const subscription = role === 'shop' ? 'trial' : 'active';
-      const { data, error } = await supabase.from('users').insert({ phone, pass, role, name, status, subscription }).select().single();
+      const subscription_tier = role === 'shop' ? 'starter' : null;
+      const trial_started_at = role === 'shop' ? new Date().toISOString() : null;
+      const { data, error } = await supabase.from('users').insert({
+        phone, pass: await bcrypt.hash(pass, 10), role, name, status, subscription, subscription_tier, trial_started_at
+      }).select().single();
       if (error) throw new Error(error.message);
       return toUser(data);
     }
@@ -192,7 +206,7 @@ export const api = {
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
     const status = 'active'; // Bypass pending review, activate immediately!
     const subscription = role === 'shop' ? 'trial' : 'active';
-    const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status, subscription };
+    const newUser = { id: 'u_' + generateId(), phone, pass: await bcrypt.hash(pass, 10), role, name, status, subscription };
     db.users.push(newUser);
     saveDB(db);
     return newUser;
@@ -842,7 +856,19 @@ export const api = {
           'Basic Day Book profit/loss gauge',
           'Single-device active session',
           'Standard billing templates'
-        ]
+        ],
+        capabilities: {
+          maxProducts: 200,
+          maxDevices: 1,
+          whatsappShare: false,
+          batchExpiry: false,
+          gst: false,
+          staffAccounts: false,
+          caPortal: false,
+          tallyExport: false,
+          multiDevice: false,
+          customInvoiceFooter: false,
+        }
       },
       {
         id: 'pro',
@@ -856,7 +882,19 @@ export const api = {
           'Batch number & 90-day expiry notifications',
           'UPI payment links & automatic WhatsApp reminders',
           'Low stock auto-reordering alert catalog'
-        ]
+        ],
+        capabilities: {
+          maxProducts: -1,
+          maxDevices: 1,
+          whatsappShare: true,
+          batchExpiry: true,
+          gst: false,
+          staffAccounts: true,
+          caPortal: false,
+          tallyExport: false,
+          multiDevice: false,
+          customInvoiceFooter: false,
+        }
       },
       {
         id: 'enterprise',
@@ -870,7 +908,19 @@ export const api = {
           'Multi-device real-time cloud sync',
           'Custom store brand invoice footers',
           'Priority 24/7 client account manager support'
-        ]
+        ],
+        capabilities: {
+          maxProducts: -1,
+          maxDevices: 5,
+          whatsappShare: true,
+          batchExpiry: true,
+          gst: true,
+          staffAccounts: true,
+          caPortal: true,
+          tallyExport: true,
+          multiDevice: true,
+          customInvoiceFooter: true,
+        }
       }
     ];
     return await this.getSiteConfig('subscription_plans', defaultPlans);

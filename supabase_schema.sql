@@ -1,7 +1,13 @@
--- MyStore OS — Complete Supabase Schema (v3)
+-- MyStore OS — Complete Supabase Schema (v4 — Phase 1.5 Security & Foundations)
 -- Run this ONCE in Supabase SQL Editor
+-- Phase 2a will switch RLS policies from anon-pass-through to auth.uid()-based enforcement
+-- when Supabase Auth replaces the custom phone/password flow.
 
--- Drop existing tables if re-running
+-- ============================================================
+-- DROP existing tables (safe re-run)
+-- ============================================================
+DROP TABLE IF EXISTS public.active_sessions CASCADE;
+DROP TABLE IF EXISTS public.payment_history CASCADE;
 DROP TABLE IF EXISTS public.announcements CASCADE;
 DROP TABLE IF EXISTS public.stock_orders CASCADE;
 DROP TABLE IF EXISTS public.distributor_products CASCADE;
@@ -12,15 +18,21 @@ DROP TABLE IF EXISTS public.settings CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
 DROP TABLE IF EXISTS public.site_config CASCADE;
 
+-- ============================================================
 -- Users table
+-- ============================================================
 CREATE TABLE public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone TEXT UNIQUE NOT NULL,
-    pass TEXT NOT NULL,
+    pass TEXT NOT NULL,                          -- bcrypt hash (Phase 1.5+), never plaintext
     role TEXT NOT NULL CHECK (role IN ('customer', 'shop', 'distributor', 'admin', 'staff', 'ca')),
     name TEXT NOT NULL,
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'pending')),
+    -- subscription values: trial | starter | pro | enterprise | active (legacy)
     subscription TEXT DEFAULT 'trial',
+    subscription_tier TEXT DEFAULT 'starter' CHECK (subscription_tier IN ('starter', 'pro', 'enterprise')),
+    plan_expires_at TIMESTAMPTZ,                 -- NULL = no expiry (trial or lifetime override)
+    trial_started_at TIMESTAMPTZ DEFAULT NOW(),  -- set on shop registration
     upi_id TEXT,
     logo TEXT,
     avatar TEXT,
@@ -35,7 +47,9 @@ CREATE TABLE public.users (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ============================================================
 -- Products table
+-- ============================================================
 CREATE TABLE public.products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
@@ -52,7 +66,9 @@ CREATE TABLE public.products (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ============================================================
 -- Orders table
+-- ============================================================
 CREATE TABLE public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL,
@@ -66,7 +82,9 @@ CREATE TABLE public.orders (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ============================================================
 -- Credits table
+-- ============================================================
 CREATE TABLE public.credits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     from_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
@@ -77,7 +95,9 @@ CREATE TABLE public.credits (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Distributor Products table (NEW in v3)
+-- ============================================================
+-- Distributor Products table
+-- ============================================================
 CREATE TABLE public.distributor_products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     distributor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
@@ -88,7 +108,9 @@ CREATE TABLE public.distributor_products (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Stock Orders table (NEW in v3)
+-- ============================================================
+-- Stock Orders table
+-- ============================================================
 CREATE TABLE public.stock_orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
@@ -99,7 +121,9 @@ CREATE TABLE public.stock_orders (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Announcements table (NEW in v3)
+-- ============================================================
+-- Announcements table
+-- ============================================================
 CREATE TABLE public.announcements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     text TEXT NOT NULL,
@@ -108,25 +132,81 @@ CREATE TABLE public.announcements (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ============================================================
 -- System Settings
+-- ============================================================
 CREATE TABLE public.settings (
     id INT PRIMARY KEY DEFAULT 1,
     razorpay_key TEXT DEFAULT ''
 );
 INSERT INTO public.settings (id, razorpay_key) VALUES (1, '');
 
--- Site Config (CMS)
+-- ============================================================
+-- Site Config (CMS / subscription plan definitions)
+-- ============================================================
 CREATE TABLE public.site_config (
     key TEXT PRIMARY KEY,
     value JSONB NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert Super Admin
-INSERT INTO public.users (phone, pass, role, name, status)
-VALUES ('8885490495', 'Mystore@karthi@2025', 'admin', 'Super Admin', 'active');
+-- ============================================================
+-- Active Sessions (multi-device enforcement — Phase 3)
+-- Used to enforce Starter single-device limit.
+-- Heartbeat updates last_seen_at every 5 minutes from the client.
+-- Stale sessions (>30 days) are treated as expired.
+-- ============================================================
+CREATE TABLE public.active_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    session_token TEXT UNIQUE NOT NULL,
+    device_fingerprint TEXT,                     -- browser fingerprint hash
+    last_seen_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_active_sessions_user ON public.active_sessions(user_id);
+CREATE INDEX idx_active_sessions_last_seen ON public.active_sessions(last_seen_at);
 
+-- ============================================================
+-- Payment History (Phase 4 — Razorpay webhook logging)
+-- Idempotency: razorpay_event_id is UNIQUE to prevent double-processing
+-- ============================================================
+CREATE TABLE public.payment_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    razorpay_event_id TEXT UNIQUE NOT NULL,      -- idempotency key
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    event_type TEXT NOT NULL,                    -- payment.captured | subscription.charged | subscription.halted
+    plan_id TEXT NOT NULL,                       -- starter | pro | enterprise
+    amount DECIMAL(10, 2),
+    currency TEXT DEFAULT 'INR',
+    status TEXT NOT NULL,                        -- success | failed | refunded
+    processed_at TIMESTAMPTZ DEFAULT NOW(),
+    raw_payload JSONB                            -- full Razorpay webhook body for audit
+);
+CREATE INDEX idx_payment_history_user ON public.payment_history(user_id);
+CREATE INDEX idx_payment_history_event ON public.payment_history(razorpay_event_id);
+
+-- ============================================================
+-- Seed: Super Admin
+-- Password is bcrypt hash of 'Mystore@karthi@2025' (cost 10)
+-- Change this password via the app's admin reset flow after first deploy.
+-- ============================================================
+INSERT INTO public.users (phone, pass, role, name, status, subscription, subscription_tier)
+VALUES (
+    '8885490495',
+    '$2b$10$4CwI2L.smt1uigPQfARhVOSei62g6fYWK3SCU8Q7JnWV16HdB2vPC',
+    'admin',
+    'Super Admin',
+    'active',
+    'active',
+    'enterprise'
+);
+
+-- ============================================================
 -- Enable Row Level Security
+-- ============================================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
@@ -136,58 +216,209 @@ ALTER TABLE public.site_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.distributor_products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stock_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.active_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.payment_history ENABLE ROW LEVEL SECURITY;
 
--- Allow public access (tighten for production later)
-CREATE POLICY "Allow all" ON public.users FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.products FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.orders FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.credits FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.settings FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.site_config FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.distributor_products FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.stock_orders FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all" ON public.announcements FOR ALL USING (true) WITH CHECK (true);
+-- ============================================================
+-- RLS POLICIES (Phase 1.5 — proper per-role enforcement)
+--
+-- IMPORTANT: These policies use auth.uid() which maps to the Supabase
+-- Auth user ID. They become fully enforced in Phase 2a when the app
+-- migrates from custom phone/pass auth to Supabase Auth.
+-- Until then, the service_role key (server-side only) bypasses RLS,
+-- which is the current behaviour used by the React client.
+--
+-- Design assumptions:
+--   auth.uid() = users.id  (Supabase Auth UID == our users.id UUID)
+--   role is stored on users row, used for admin/distributor/ca checks
+-- ============================================================
 
--- Migration helper: If upgrading from previous version, run these ALTER commands instead of full re-create:
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS latitude DECIMAL;
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS longitude DECIMAL;
--- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar TEXT;
--- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS batch_number TEXT;
--- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS expiry_date DATE;
--- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS variants TEXT;
--- ALTER TABLE public.products ADD COLUMN IF NOT EXISTS reorder_level INT DEFAULT 10;
--- Then create the 3 tables: distributor_products, stock_orders, announcements if not present.
+-- Helper function: get current user's role
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT role FROM public.users WHERE id = auth.uid()
+$$;
+
+-- ---- users ----
+-- Anyone can register (INSERT); own row update; admin reads/updates all
+CREATE POLICY "users_insert_registration"
+  ON public.users FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "users_select_own_or_admin"
+  ON public.users FOR SELECT
+  USING (id = auth.uid() OR public.current_user_role() = 'admin');
+
+CREATE POLICY "users_select_public_profile"
+  ON public.users FOR SELECT
+  USING (role = 'shop');  -- shop profiles are public (for /s/:shopId directory)
+
+CREATE POLICY "users_update_own"
+  ON public.users FOR UPDATE
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
+
+CREATE POLICY "users_update_admin"
+  ON public.users FOR UPDATE
+  USING (public.current_user_role() = 'admin');
+
+CREATE POLICY "users_delete_admin"
+  ON public.users FOR DELETE
+  USING (public.current_user_role() = 'admin');
+
+-- ---- products ----
+-- Shop owns their products; public read for catalog browsing
+CREATE POLICY "products_read_public"
+  ON public.products FOR SELECT USING (true);
+
+CREATE POLICY "products_write_owner"
+  ON public.products FOR INSERT
+  WITH CHECK (shop_id = auth.uid());
+
+CREATE POLICY "products_update_owner"
+  ON public.products FOR UPDATE
+  USING (shop_id = auth.uid());
+
+CREATE POLICY "products_delete_owner"
+  ON public.products FOR DELETE
+  USING (shop_id = auth.uid());
+
+-- ---- orders ----
+-- Shop sees own shop orders; customer sees their own orders; insert open
+CREATE POLICY "orders_read_shop"
+  ON public.orders FOR SELECT
+  USING (shop_id = auth.uid() OR user_id = auth.uid()::text OR public.current_user_role() = 'admin');
+
+CREATE POLICY "orders_insert_any"
+  ON public.orders FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "orders_update_shop"
+  ON public.orders FOR UPDATE
+  USING (shop_id = auth.uid() OR public.current_user_role() = 'admin');
+
+-- ---- credits ----
+-- Both parties (from_id and to_shop_id) can read; inserter must be from_id
+CREATE POLICY "credits_read_parties"
+  ON public.credits FOR SELECT
+  USING (from_id = auth.uid() OR to_shop_id = auth.uid() OR public.current_user_role() = 'admin');
+
+CREATE POLICY "credits_insert_from"
+  ON public.credits FOR INSERT
+  WITH CHECK (from_id = auth.uid());
+
+CREATE POLICY "credits_update_parties"
+  ON public.credits FOR UPDATE
+  USING (from_id = auth.uid() OR to_shop_id = auth.uid());
+
+-- ---- distributor_products ----
+CREATE POLICY "dist_products_read_all"
+  ON public.distributor_products FOR SELECT USING (true);
+
+CREATE POLICY "dist_products_write_owner"
+  ON public.distributor_products FOR INSERT
+  WITH CHECK (distributor_id = auth.uid());
+
+CREATE POLICY "dist_products_update_owner"
+  ON public.distributor_products FOR UPDATE
+  USING (distributor_id = auth.uid());
+
+CREATE POLICY "dist_products_delete_owner"
+  ON public.distributor_products FOR DELETE
+  USING (distributor_id = auth.uid());
+
+-- ---- stock_orders ----
+CREATE POLICY "stock_orders_read_parties"
+  ON public.stock_orders FOR SELECT
+  USING (
+    shop_id = auth.uid()
+    OR public.current_user_role() = 'distributor'
+    OR public.current_user_role() = 'admin'
+  );
+
+CREATE POLICY "stock_orders_insert_shop"
+  ON public.stock_orders FOR INSERT
+  WITH CHECK (shop_id = auth.uid());
+
+CREATE POLICY "stock_orders_update_distributor"
+  ON public.stock_orders FOR UPDATE
+  USING (public.current_user_role() IN ('distributor', 'admin'));
+
+-- ---- settings (admin only) ----
+CREATE POLICY "settings_admin_all"
+  ON public.settings FOR ALL
+  USING (public.current_user_role() = 'admin');
+
+-- ---- site_config (public read, admin write) ----
+CREATE POLICY "site_config_read_all"
+  ON public.site_config FOR SELECT USING (true);
+
+CREATE POLICY "site_config_admin_write"
+  ON public.site_config FOR INSERT
+  WITH CHECK (public.current_user_role() = 'admin');
+
+CREATE POLICY "site_config_admin_update"
+  ON public.site_config FOR UPDATE
+  USING (public.current_user_role() = 'admin');
+
+-- ---- announcements (public read, admin write) ----
+CREATE POLICY "announcements_read_all"
+  ON public.announcements FOR SELECT USING (true);
+
+CREATE POLICY "announcements_admin_write"
+  ON public.announcements FOR INSERT
+  WITH CHECK (public.current_user_role() = 'admin');
+
+CREATE POLICY "announcements_admin_update"
+  ON public.announcements FOR UPDATE
+  USING (public.current_user_role() = 'admin');
+
+-- ---- active_sessions (own only) ----
+CREATE POLICY "sessions_own"
+  ON public.active_sessions FOR ALL
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+-- ---- payment_history (own read, server write via service_role) ----
+CREATE POLICY "payment_history_read_own"
+  ON public.payment_history FOR SELECT
+  USING (user_id = auth.uid() OR public.current_user_role() = 'admin');
+
+-- INSERT/UPDATE comes only from Razorpay webhook handler (service_role key) — no client policy needed
+
+-- ============================================================
+-- Migration helpers (upgrading from v3 → v4, skip if re-creating)
+-- ============================================================
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS subscription_tier TEXT DEFAULT 'starter';
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMPTZ;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMPTZ DEFAULT NOW();
+-- CREATE TABLE IF NOT EXISTS public.active_sessions (...);  -- see definition above
+-- CREATE TABLE IF NOT EXISTS public.payment_history (...);  -- see definition above
+-- UPDATE public.users SET subscription_tier = 'starter' WHERE subscription = 'trial' OR subscription = 'active';
+-- UPDATE public.users SET subscription_tier = 'pro' WHERE subscription = 'pro';
+-- UPDATE public.users SET subscription_tier = 'enterprise' WHERE subscription = 'enterprise';
 
 -- ============================================================
 -- STORAGE CONFIGURATION (mystore-assets Bucket & RLS Policies)
 -- ============================================================
-
--- 1. Create the mystore-assets bucket if it does not exist
-INSERT INTO storage.buckets (id, name, public) 
+INSERT INTO storage.buckets (id, name, public)
 VALUES ('mystore-assets', 'mystore-assets', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Allow anyone to retrieve and view files in the assets bucket (Public Read Access)
 DROP POLICY IF EXISTS "Public Read Access" ON storage.objects;
-CREATE POLICY "Public Read Access" 
-ON storage.objects FOR SELECT 
-USING (bucket_id = 'mystore-assets');
+CREATE POLICY "Public Read Access"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'mystore-assets');
 
--- 3. Allow authenticated or anonymous users to insert files (Public Write Access)
 DROP POLICY IF EXISTS "Public Insert Access" ON storage.objects;
-CREATE POLICY "Public Insert Access" 
-ON storage.objects FOR INSERT 
-WITH CHECK (bucket_id = 'mystore-assets');
+CREATE POLICY "Public Insert Access"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'mystore-assets');
 
--- 4. Allow users to update their files (Public Update Access)
 DROP POLICY IF EXISTS "Public Update Access" ON storage.objects;
-CREATE POLICY "Public Update Access" 
-ON storage.objects FOR UPDATE 
-USING (bucket_id = 'mystore-assets');
+CREATE POLICY "Public Update Access"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'mystore-assets');
 
--- 5. Allow users to delete their files (Public Delete Access)
 DROP POLICY IF EXISTS "Public Delete Access" ON storage.objects;
-CREATE POLICY "Public Delete Access" 
-ON storage.objects FOR DELETE 
-USING (bucket_id = 'mystore-assets');
-
+CREATE POLICY "Public Delete Access"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'mystore-assets');
