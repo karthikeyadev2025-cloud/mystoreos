@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase } from './supabase';
 import bcrypt from 'bcryptjs';
+import { enqueue } from './offlineQueue';
 
 // ============================================================
 // SUPABASE API — Real cloud database
@@ -339,7 +340,15 @@ export const api = {
 
   async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10, data = {}) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('products').insert({ 
+      if (!navigator.onLine) {
+        const tempId = crypto.randomUUID();
+        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: data?.hsnCode || null, gst_rate: parseInt(data?.gstRate) || 0 };
+        await enqueue({ table: 'products', action: 'insert', data: row });
+        const db = getDB(); db.products = db.products || [];
+        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: data?.hsnCode || '', gstRate: parseInt(data?.gstRate) || 0 });
+        saveDB(db); return toProduct(row);
+      }
+      const { data, error } = await supabase.from('products').insert({
         shop_id: shopId, 
         name, 
         price: parseFloat(price), 
@@ -377,6 +386,22 @@ export const api = {
 
   async editProduct(prodId, data) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        const updateObj = {};
+        if (data.name !== undefined) updateObj.name = data.name;
+        if (data.price !== undefined) updateObj.price = parseFloat(data.price);
+        if (data.barcode !== undefined) updateObj.barcode = data.barcode;
+        if (data.stock !== undefined) updateObj.stock = parseInt(data.stock);
+        if (data.batchNumber !== undefined) updateObj.batch_number = data.batchNumber || null;
+        if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
+        if (data.variants !== undefined) updateObj.variants = data.variants || null;
+        if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
+        if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
+        if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
+        await enqueue({ table: 'products', action: 'update', data: updateObj, match: { id: prodId } });
+        const db = getDB(); const prod = db.products.find(p => p.id === prodId);
+        if (prod) { Object.assign(prod, data); saveDB(db); } return prod;
+      }
       const updateObj = {};
       if (data.name !== undefined) updateObj.name = data.name;
       if (data.price !== undefined) updateObj.price = parseFloat(data.price);
@@ -413,6 +438,10 @@ export const api = {
 
   async deleteProduct(prodId) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        await enqueue({ table: 'products', action: 'delete', data: {}, match: { id: prodId } });
+        const db = getDB(); db.products = db.products.filter(p => p.id !== prodId); saveDB(db); return true;
+      }
       const { error } = await supabase.from('products').delete().eq('id', prodId);
       if (error) throw new Error(error.message);
       return true;
@@ -522,6 +551,14 @@ export const api = {
 
   async placeOrder(userId, shopId, items, total, customerData = {}) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        const tempId = crypto.randomUUID();
+        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status: 'Pending', customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null };
+        await enqueue({ table: 'orders', action: 'insert', data: row });
+        const db = getDB(); db.orders = db.orders || [];
+        db.orders.push({ id: tempId, userId, shopId, items, total, status: 'Pending', date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '' });
+        saveDB(db); return toOrder({ ...row, created_at: new Date().toISOString() });
+      }
       let resolvedId = shopId;
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
       if (!isUUID) {
@@ -596,6 +633,10 @@ export const api = {
 
   async acceptOrder(orderId) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        await enqueue({ table: 'orders', action: 'update', data: { status: 'Accepted' }, match: { id: orderId } });
+        const db = getDB(); const o = db.orders.find(x => x.id === orderId); if (o) { o.status = 'Accepted'; saveDB(db); } return;
+      }
       await supabase.from('orders').update({ status: 'Accepted' }).eq('id', orderId);
       return;
     }
@@ -680,6 +721,14 @@ export const api = {
 
   async addCredit(fromId, toShopId, desc, amount) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        const tempId = crypto.randomUUID();
+        const row = { id: tempId, from_id: fromId, to_shop_id: toShopId, description: desc, amount: parseFloat(amount), paid: false };
+        await enqueue({ table: 'credits', action: 'insert', data: row });
+        const db = getDB(); db.credits = db.credits || [];
+        db.credits.push({ id: tempId, fromId, toShopId, desc, amount: parseFloat(amount), paid: false, date: new Date().toISOString() });
+        saveDB(db); return;
+      }
       await supabase.from('credits').insert({ from_id: fromId, to_shop_id: toShopId, description: desc, amount: parseFloat(amount) });
       return;
     }
@@ -690,6 +739,10 @@ export const api = {
 
   async markCreditPaid(creditId) {
     if (isSupabaseConfigured) {
+      if (!navigator.onLine) {
+        await enqueue({ table: 'credits', action: 'update', data: { paid: true }, match: { id: creditId } });
+        const db = getDB(); const c = db.credits.find(x => x.id === creditId); if (c) { c.paid = true; saveDB(db); } return;
+      }
       await supabase.from('credits').update({ paid: true }).eq('id', creditId);
       return;
     }
@@ -1177,6 +1230,45 @@ export const api = {
         toName: shop ? shop.name : 'Unknown Shop'
       };
     }).reverse();
+  },
+
+  // One-time migration: pushes real (non-demo) localStorage users and their products to Supabase.
+  // Safe to call multiple times — checks by phone before inserting.
+  // Returns { usersMigrated, productsMigrated, skipped }.
+  async migrateLocalToSupabase() {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const db = getDB();
+    const DEMO_PHONES = new Set(['8885490495', '9876543210', '9000000000', '9999999999', '8888888888', '7777777777', '1111111111']);
+    const DEMO_IDS = new Set(['u_1', 'u_4', 'u_2', 'u_3', 'u_staff1', 'u_ca1', 'admin']);
+    const realUsers = db.users.filter(u => !DEMO_IDS.has(u.id) && !DEMO_PHONES.has(u.phone));
+    let usersMigrated = 0, productsMigrated = 0, skipped = 0;
+    for (const user of realUsers) {
+      const { data: exists } = await supabase.from('users').select('id').eq('phone', user.phone).single();
+      if (exists) { skipped++; continue; }
+      const hashedPass = user.pass?.startsWith('$2b$') ? user.pass : await bcrypt.hash(user.pass || 'changeme', 10);
+      const { data: newUser, error } = await supabase.from('users').insert({
+        phone: user.phone, pass: hashedPass, role: user.role, name: user.name,
+        status: user.status || 'active', subscription: user.subscription || 'trial',
+        subscription_tier: user.subscriptionTier || 'starter',
+        trial_started_at: user.trialStartedAt || new Date().toISOString(),
+        upi_id: user.upiId || null, logo: user.logo || null,
+        latitude: user.latitude || null, longitude: user.longitude || null,
+      }).select('id').single();
+      if (error) continue;
+      usersMigrated++;
+      const userProducts = db.products?.filter(p => p.shopId === user.id) || [];
+      for (const prod of userProducts) {
+        const { error: pe } = await supabase.from('products').insert({
+          shop_id: newUser.id, name: prod.name, price: prod.price,
+          barcode: prod.barcode || null, stock: prod.stock ?? 100,
+          batch_number: prod.batchNumber || null, expiry_date: prod.expiryDate || null,
+          variants: prod.variants || null, reorder_level: prod.reorderLevel || 10,
+          hsn_code: prod.hsnCode || null, gst_rate: prod.gstRate || 0,
+        });
+        if (!pe) productsMigrated++;
+      }
+    }
+    return { usersMigrated, productsMigrated, skipped };
   },
 
   async getGlobalOrders() {

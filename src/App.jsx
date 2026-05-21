@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import LandingPage from './pages/LandingPage';
 import CADashboard from './pages/CADashboard';
 import { useAuth, AuthProvider } from './hooks/useAuth';
+import { useOfflineSync } from './hooks/useOfflineSync';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ const AppLayout = ({ children }) => <div className="app-container">{children}</d
 const WideAppLayout = ({ children }) => <div className="app-container wide-layout">{children}</div>;
 
 function App() {
+  useOfflineSync(); // background: auto-flushes offline write queue on reconnect
   const [customCSS, setCustomCSS] = useState('');
 
   useEffect(() => {
