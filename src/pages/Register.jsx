@@ -34,26 +34,7 @@ const Register = () => {
     }
   };
 
-  if (success) {
-    const isCustomer = businessType === 'customer';
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 20 }}>
-        <div style={{ background: '#1e293b', padding: '40px 30px', borderRadius: '16px', border: '1px solid #334155', textAlign: 'center', maxWidth: 400, width: '100%' }}>
-          <div style={{ fontSize: '60px', marginBottom: 20 }}>{isCustomer ? '🎉' : '⏳'}</div>
-          <h2 style={{ color: '#fff', marginBottom: 10 }}>{isCustomer ? 'Account Active!' : 'Under Review'}</h2>
-          <p style={{ color: '#94a3b8', lineHeight: 1.5, marginBottom: 30 }}>
-            {isCustomer 
-              ? 'Your shopper account has been successfully created. You can log in and start shopping immediately!'
-              : 'Your business account has been created. Our admin team will verify your details and approve your account shortly.'
-            }
-          </p>
-          <button onClick={() => navigate('/login')} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '14px', width: '100%', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', padding: 20 }}>

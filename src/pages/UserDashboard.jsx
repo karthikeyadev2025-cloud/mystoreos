@@ -754,9 +754,9 @@ const UserDashboard = () => {
     
     doc.setFont("courier", "normal");
     doc.setFontSize(8);
-    doc.text(`STORE: ${order.shopName.toUpperCase()}`, 6, 28);
+    doc.text(`STORE: ${(order.shopName || 'Store').toUpperCase()}`, 6, 28);
     doc.text(`DATE : ${new Date(order.date).toLocaleString()}`, 6, 33);
-    doc.text(`ORDER: ${order.id.toUpperCase()}`, 6, 38);
+    doc.text(`ORDER: ${(order.id || '').toUpperCase()}`, 6, 38);
     doc.text(`PHONE: +91 ${user?.phone || 'Guest'}`, 6, 43);
     doc.text("-------------------------", 40, 48, { align: "center" });
     
@@ -785,7 +785,7 @@ const UserDashboard = () => {
     doc.setFont("courier", "normal");
     doc.setFontSize(8);
     doc.text("GST Included (5% Mock)", 6, y);
-    doc.text(`STATUS: ${order.status.toUpperCase()}`, 6, y + 5);
+    doc.text(`STATUS: ${(order.status || 'Pending').toUpperCase()}`, 6, y + 5);
     
     y += 15;
     doc.setFont("courier", "bold");
@@ -1664,9 +1664,9 @@ const UserDashboard = () => {
               </div>
 
               <div style={{ fontSize: '11px', lineHeight: '1.4', marginBottom: '14px' }}>
-                <div><strong>STORE :</strong> {selectedOrder.shopName.toUpperCase()}</div>
+                <div><strong>STORE :</strong> {(selectedOrder.shopName || 'Store').toUpperCase()}</div>
                 <div><strong>DATE  :</strong> {new Date(selectedOrder.date).toLocaleString()}</div>
-                <div><strong>BILL# :</strong> {selectedOrder.id.toUpperCase()}</div>
+                <div><strong>BILL# :</strong> {(selectedOrder.id || '').toUpperCase()}</div>
                 <div><strong>CLIENT :</strong> {user?.name || 'Walk-in'}</div>
                 <div><strong>PHONE  :</strong> {user?.phone || 'Guest'}</div>
               </div>
@@ -1738,7 +1738,7 @@ const UserDashboard = () => {
                   </g>
                 </svg>
                 <div style={{ fontSize: '8px', color: '#000', letterSpacing: '2px', fontWeight: 'bold', marginTop: '2px' }}>
-                  *{selectedOrder.id.toUpperCase()}*
+                  *{(selectedOrder.id || '').toUpperCase()}*
                 </div>
               </div>
 

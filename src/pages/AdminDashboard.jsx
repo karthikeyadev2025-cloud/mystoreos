@@ -258,14 +258,14 @@ const AdminDashboard = () => {
 
   // Filter Data Sets based on search parameters
   const filteredShops = shops.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.phone.includes(searchTerm);
+    const matchesSearch = (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (s.phone || '').includes(searchTerm);
     if (shopFilter === 'pro') return matchesSearch && s.subscription === 'active';
     if (shopFilter === 'trial') return matchesSearch && s.subscription !== 'active';
     return matchesSearch;
   });
 
   const filteredUsers = allUsers.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.phone.includes(searchTerm);
+    const matchesSearch = (u.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (u.phone || '').includes(searchTerm);
     if (userFilter === 'customer') return matchesSearch && u.role === 'customer';
     if (userFilter === 'distributor') return matchesSearch && u.role === 'distributor';
     return matchesSearch && u.role !== 'admin';
@@ -695,7 +695,7 @@ const AdminDashboard = () => {
                       <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span>📞 {shop.phone}</span>
                         <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}></span>
-                        <span>Node Status: <b style={{ color: shop.status === 'active' ? '#10b981' : '#f59e0b' }}>{shop.status.toUpperCase()}</b></span>
+                        <span>Node Status: <b style={{ color: (shop.status || '') === 'active' ? '#10b981' : '#f59e0b' }}>{(shop.status || 'unknown').toUpperCase()}</b></span>
                       </p>
                     </div>
                     
@@ -924,6 +924,7 @@ const AdminDashboard = () => {
             { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Stats' },
             { id: 'shops', icon: <Store size={20} />, label: 'Shops' },
             { id: 'customers', icon: <Users size={20} />, label: 'Users' },
+            { id: 'payments', icon: <CreditCard size={20} />, label: 'Revenue' },
             { id: 'cms', icon: <Globe size={20} />, label: 'CMS' },
             { id: 'settings', icon: <Settings size={20} />, label: 'System' }
           ].map(tab => (

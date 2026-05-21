@@ -534,12 +534,12 @@ const ShopDashboard = () => {
     loadData();
   };
 
-  const sales = orders.filter(o => o.status === 'Accepted' && !o.userId.startsWith('estimate') && !o.userId.startsWith('challan')).reduce((a, b) => a + b.total, 0);
-  const pendingOrders = orders.filter(o => o.status === 'Pending' && !o.userId.startsWith('estimate') && !o.userId.startsWith('challan')).length;
+  const sales = orders.filter(o => o.status === 'Accepted' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).reduce((a, b) => a + b.total, 0);
+  const pendingOrders = orders.filter(o => o.status === 'Pending' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
   const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
 
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
   // Setup Camera Scanner
   useEffect(() => {
@@ -578,8 +578,8 @@ const ShopDashboard = () => {
     // Cash In: accepted sales orders today + customer credits settled today
     const todaySalesOrders = orders.filter(o => 
       o.status === 'Accepted' && 
-      !o.userId.startsWith('estimate') && 
-      !o.userId.startsWith('challan') &&
+      !(o.userId || '').startsWith('estimate') && 
+      !(o.userId || '').startsWith('challan') &&
       o.date && o.date.startsWith(todayStr)
     );
     const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + o.total, 0);

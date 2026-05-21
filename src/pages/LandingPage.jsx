@@ -897,8 +897,7 @@ const LandingPage = () => {
   return (
     <div ref={containerRef} style={{ backgroundColor: '#030712', color: '#f1f5f9', overflowX: 'hidden', fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", position: 'relative' }}>
       
-      {/* Dynamic Custom CSS Injection */}
-      <style dangerouslySetInnerHTML={{ __html: customCSS }} />
+      {/* Custom CSS is injected globally by App.jsx */}
 
       {/* Cinematic Booting Loader Overlay */}
       <AnimatePresence>

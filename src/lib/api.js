@@ -774,6 +774,7 @@ export const api = {
     }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
+    if (distributorId) return db.distributorProducts.filter(p => p.distributorId === distributorId);
     return db.distributorProducts;
   },
 
