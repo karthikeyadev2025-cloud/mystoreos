@@ -1391,14 +1391,11 @@ const ShopDashboard = () => {
   };
 
   const handleShowUpiQr = () => {
-    if (paymentQr) {
+    if (paymentQr || upiId) {
       setShowPaymentQrModal(true);
       return;
     }
-    if (!upiId) return toast.error('Upload your Payment QR or set UPI ID in Settings!');
-    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${billTotal}&cu=INR`;
-    window.open(upiUrl, '_blank');
-    toast.success('Opening UPI payment...');
+    toast.error('Upload your Payment QR or set UPI ID in Settings!');
   };
 
   const handlePaymentQrUpload = async (e) => {
@@ -1735,13 +1732,20 @@ const ShopDashboard = () => {
         </div>
 
         {/* Global Modals for Desktop */}
-        {showPaymentQrModal && paymentQr && (
+        {showPaymentQrModal && (paymentQr || upiId) && (
           <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
             <div onClick={e => e.stopPropagation()} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
               <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
-              <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : ''}</p>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
               <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-                <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
+                {paymentQr ? (
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
+                ) : (
+                  <QRCodeSVG 
+                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&cu=INR`} 
+                    size={240} 
+                  />
+                )}
               </div>
               <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
@@ -3041,12 +3045,19 @@ const ShopDashboard = () => {
       )}
 
       {/* PAYMENT QR DISPLAY MODAL */}
-      {showPaymentQrModal && paymentQr && (
+      {showPaymentQrModal && (paymentQr || upiId) && (
         <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : ''}</p>
+          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
           <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-            <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
+            {paymentQr ? (
+              <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
+            ) : (
+              <QRCodeSVG 
+                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&cu=INR`} 
+                size={260} 
+              />
+            )}
           </div>
           <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
           <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
