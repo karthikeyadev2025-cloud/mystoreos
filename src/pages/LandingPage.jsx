@@ -1475,9 +1475,13 @@ const LandingPage = () => {
         <div style={{ maxWidth: '1200px', margin: '0 auto', fontSize: '13.5px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <p style={{ margin: 0, color: '#94a3b8', fontWeight: 'bold' }}>⚡ MyStore OS — India's Smartest Pocket Retail Operating System</p>
           <p style={{ margin: 0 }}>© 2026 MyStore OS. Crafted with ❤️ in Guntur, Andhra Pradesh</p>
-          <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', marginTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '8px' }}>
             <span onClick={() => navigate('/login')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Login</span>
             <span onClick={() => navigate('/register')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Register</span>
+            <span onClick={() => navigate('/alternative/tally')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Tally Alternative</span>
+            <span onClick={() => navigate('/alternative/vyapar')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Vyapar Alternative</span>
+            <span onClick={() => navigate('/alternative/dukaan')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Dukaan Alternative</span>
+            <span onClick={() => navigate('/alternative/mybillbook')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>myBillBook Alternative</span>
             <span onClick={() => window.open('https://wa.me/918885490495', '_blank')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>WhatsApp Support</span>
           </div>
         </div>

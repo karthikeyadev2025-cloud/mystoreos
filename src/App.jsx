@@ -16,6 +16,7 @@ const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
+const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -98,6 +99,10 @@ function App() {
               <Routes>
                 <Route path="/" element={
                   <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
+                } />
+
+                <Route path="/alternative/:competitor" element={
+                  <ErrorBoundary fullPage><AlternativeComparison /></ErrorBoundary>
                 } />
 
                 <Route path="/login" element={
