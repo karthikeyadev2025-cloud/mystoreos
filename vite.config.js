@@ -11,13 +11,18 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 4_000_000,
-        // Don't precache heavy on-demand chunks — let them be network-fetched and browser-cached
         navigateFallback: '/index.html',
+        // Purge cached chunks from old deployments when SW updates — prevents
+        // the stale-hash MIME error where old index.html references chunks that
+        // no longer exist on the server
+        cleanupOutdatedCaches: true,
+        // Assets use content hashes — NetworkFirst ensures fresh chunks are
+        // always fetched when online, falls back to cache only when offline
         runtimeCaching: [
           {
-            urlPattern: /\.(?:js|css)$/,
-            handler: 'CacheFirst',
-            options: { cacheName: 'static-assets', expiration: { maxAgeSeconds: 7 * 24 * 60 * 60 } },
+            urlPattern: /\/assets\/.+\.(js|css)$/,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'hashed-assets', networkTimeoutSeconds: 10 },
           },
         ],
       },
