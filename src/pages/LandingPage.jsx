@@ -360,7 +360,7 @@ function HeroSection({ config, onRegister }) {
 
   // GSAP ScrollTrigger parallax on hero background glows
   useGSAP(() => {
-    if (prefersReduced() || !heroRef.current) return;
+    if (prefersReduced() || !heroRef.current || !glow1Ref.current || !glow2Ref.current) return;
     gsap.to(glow1Ref.current, {
       y: -120, ease: 'none',
       scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: 1.5 },
