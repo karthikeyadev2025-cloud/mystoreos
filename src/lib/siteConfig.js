@@ -85,8 +85,9 @@ export function SiteConfigProvider({ children }) {
       }
     }).catch(() => applyToDOM(DEFAULTS));
 
+    let channel = null;
     if (isSupabaseConfigured) {
-      const channel = supabase
+      channel = supabase
         .channel('site-config-realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'site_config', filter: 'key=eq.site_theme' }, (payload) => {
           const val = payload.new?.value;
@@ -97,7 +98,6 @@ export function SiteConfigProvider({ children }) {
           }
         })
         .subscribe();
-      return () => supabase.removeChannel(channel);
     }
 
     const handler = (e) => {
@@ -110,7 +110,10 @@ export function SiteConfigProvider({ children }) {
       }
     };
     window.addEventListener('site-config-updated', handler);
-    return () => window.removeEventListener('site-config-updated', handler);
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+      window.removeEventListener('site-config-updated', handler);
+    };
   }, []);
 
   const updateConfig = useCallback(async (key, value) => {

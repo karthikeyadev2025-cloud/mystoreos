@@ -1,6 +1,6 @@
 // Lightweight i18n system for MyStore OS.
 // No heavy libraries — just a locale-aware translation lookup.
-import { useState, useCallback, useMemo, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
 import en from './translations/en';
 
 // Lazy-load Hindi and Telugu to keep initial bundle small
@@ -29,12 +29,12 @@ export function I18nProvider({ children }) {
   const [translations, setTranslations] = useState(locale === 'en' ? en : en);
   const [loadingLang, setLoadingLang] = useState(false);
 
-  // Load initial non-English locale
-  useState(() => {
+  // Load initial non-English locale — runs once on mount only
+  useEffect(() => { // eslint-disable-line react-hooks/exhaustive-deps
     if (locale !== 'en') {
       translationLoaders[locale]?.().then(t => setTranslations(t)).catch(() => {});
     }
-  });
+  }, []);
 
   const setLocale = useCallback(async (code) => {
     if (!SUPPORTED_LOCALES.includes(code)) return;

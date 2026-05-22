@@ -6,8 +6,6 @@ import CountUp from 'react-countup';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger);
 import {
   Receipt, Package, Wallet, Users, Truck, BarChart2,
   Check, ChevronDown, Star, Menu, X,
@@ -15,6 +13,8 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useSiteConfig } from '../lib/siteConfig';
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // ─── reduce-motion helper ───────────────────────────────────────────────────
 const prefersReduced = () =>

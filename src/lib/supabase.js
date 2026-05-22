@@ -1,10 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://mock.supabase.co'
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'mock-key'
+const _url = import.meta.env.VITE_SUPABASE_URL;
+const _key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// If no environment variables are provided, we will mock the backend logic in api.js
-export const supabase = createClient(supabaseUrl, supabaseKey)
+// Validates that env vars are real values — not missing, "undefined", or the mock placeholder
+export const isSupabaseConfigured =
+  typeof _url === 'string' && _url.startsWith('https://') &&
+  _url !== 'https://mock.supabase.co' &&
+  typeof _key === 'string' && _key.length > 10 &&
+  _key !== 'mock-key';
 
-// A flag to check if real Supabase is configured
-export const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = isSupabaseConfigured ? _url : 'https://mock.supabase.co';
+const supabaseKey = isSupabaseConfigured ? _key : 'mock-key';
+
+export const supabase = createClient(supabaseUrl, supabaseKey);

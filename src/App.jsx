@@ -60,13 +60,13 @@ const BANNER_COLORS = { info: '#3b82f6', warning: '#f59e0b', success: '#10b981',
 
 function AnnouncementBanner() {
   const { config } = useSiteConfig();
-  const [dismissedKey, setDismissedKey] = useState(() => sessionStorage.getItem('ann_dismissed') || '');
+  const [dismissedKey, setDismissedKey] = useState(() => { try { return sessionStorage.getItem('ann_dismissed') || ''; } catch { return ''; } });
   const dismissed = dismissedKey === config.announcementText;
   if (!config.announcementActive || !config.announcementText || dismissed) return null;
   return (
     <div style={{ background: BANNER_COLORS[config.announcementType] || '#3b82f6', color: '#fff', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Outfit, sans-serif' }}>
       <span>{config.announcementText}</span>
-      <button onClick={() => { sessionStorage.setItem('ann_dismissed', config.announcementText); setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
+      <button onClick={() => { try { sessionStorage.setItem('ann_dismissed', config.announcementText); } catch (_e) { /* ignore */ } setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
     </div>
   );
 }

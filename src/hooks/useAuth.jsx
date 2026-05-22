@@ -19,13 +19,15 @@ export const AuthProvider = ({ children }) => {
     if (!isSupabaseConfigured) return;
 
     // Resolve any existing session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        localStorage.removeItem('mystore_session');
-        setUser(null);
-      }
-      setAuthLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!session) {
+          try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
+          setUser(null);
+        }
+        setAuthLoading(false);
+      })
+      .catch(() => setAuthLoading(false));
 
     // Keep session in sync: tab restore, token refresh, sign-out
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {

@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 // Tracks online state, counts queued offline writes, and auto-flushes the queue on reconnect.
 // pendingCount > 0 means the user has writes waiting to sync — show a badge in Phase 3 UI.
 export function useOfflineSync() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
 

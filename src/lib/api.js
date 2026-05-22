@@ -9,7 +9,7 @@ import { enqueue } from './offlineQueue';
 // ---- localStorage Mock (fallback for offline/dev) ----
 const mockDB = {
   users: [
-    { id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' },
+    { id: 'admin', phone: '8885490495', pass: 'demo-admin', role: 'admin', name: 'Super Admin', status: 'active' },
     { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl', latitude: 16.3067, longitude: 80.4365, logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_4', phone: '9000000000', pass: '1234', role: 'shop', name: 'Balaji Kirana Store', status: 'active', subscription: 'active', upiId: '9000000000@ybl', latitude: 16.3120, longitude: 80.4450, logo: 'https://images.unsplash.com/photo-1601599561263-8a39304edeec?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
@@ -38,53 +38,55 @@ const mockDB = {
   ]
 };
 
-const localDBStr = localStorage.getItem('mystore_db');
-if (!localDBStr) {
-  localStorage.setItem('mystore_db', JSON.stringify(mockDB));
-} else {
-  try {
-    const db = JSON.parse(localDBStr);
-    let modified = false;
-    
-    // Migrate old mock DB to support advanced inventory fields
-    if (db && db.products && db.products.length > 0 && !Object.prototype.hasOwnProperty.call(db.products[0], 'batchNumber')) {
-      db.products = mockDB.products;
-      modified = true;
-    }
-    
-    if (db && db.users) {
-      const hasAdmin = db.users.some(u => u.phone === '8885490495');
-      if (!hasAdmin) {
-        db.users.push({ id: 'admin', phone: '8885490495', pass: 'Mystore@karthi@2025', role: 'admin', name: 'Super Admin', status: 'active' });
+let _memDB = null; // in-memory fallback when localStorage is unavailable (Safari private mode)
+
+try {
+  const localDBStr = localStorage.getItem('mystore_db');
+  if (!localDBStr) {
+    localStorage.setItem('mystore_db', JSON.stringify(mockDB));
+  } else {
+    try {
+      const db = JSON.parse(localDBStr);
+      let modified = false;
+
+      if (db && db.products && db.products.length > 0 && !Object.prototype.hasOwnProperty.call(db.products[0], 'batchNumber')) {
+        db.products = mockDB.products;
         modified = true;
       }
-      const hasCA = db.users.some(u => u.role === 'ca');
-      if (!hasCA) {
-        db.users.push({ id: 'u_ca1', phone: '1111111111', pass: '1234', role: 'ca', name: 'Srinivas & Co (CA)', status: 'active' });
-        modified = true;
+
+      if (db && db.users) {
+        const hasAdmin = db.users.some(u => u.phone === '8885490495');
+        if (!hasAdmin) {
+          db.users.push({ id: 'admin', phone: '8885490495', pass: 'demo-admin', role: 'admin', name: 'Super Admin', status: 'active' });
+          modified = true;
+        }
+        const hasCA = db.users.some(u => u.role === 'ca');
+        if (!hasCA) {
+          db.users.push({ id: 'u_ca1', phone: '1111111111', pass: '1234', role: 'ca', name: 'Srinivas & Co (CA)', status: 'active' });
+          modified = true;
+        }
       }
+      if (db && !db.distributorProducts) { db.distributorProducts = mockDB.distributorProducts; modified = true; }
+      if (db && !db.stockOrders) { db.stockOrders = []; modified = true; }
+      if (db && !db.announcements) { db.announcements = mockDB.announcements; modified = true; }
+      if (modified) localStorage.setItem('mystore_db', JSON.stringify(db));
+    } catch (e) {
+      console.error("Failed to migrate mockDB", e);
     }
-    if (db && !db.distributorProducts) {
-      db.distributorProducts = mockDB.distributorProducts;
-      modified = true;
-    }
-    if (db && !db.stockOrders) {
-      db.stockOrders = [];
-      modified = true;
-    }
-    if (db && !db.announcements) {
-      db.announcements = mockDB.announcements;
-      modified = true;
-    }
-    if (modified) {
-      localStorage.setItem('mystore_db', JSON.stringify(db));
-    }
-  } catch (e) {
-    console.error("Failed to migrate mockDB", e);
   }
+} catch (_e) {
+  // localStorage unavailable (Safari private mode, etc.) — use in-memory store
+  _memDB = JSON.parse(JSON.stringify(mockDB));
 }
-const getDB = () => JSON.parse(localStorage.getItem('mystore_db'));
-const saveDB = (db) => localStorage.setItem('mystore_db', JSON.stringify(db));
+
+const getDB = () => {
+  if (_memDB) return JSON.parse(JSON.stringify(_memDB));
+  try { return JSON.parse(localStorage.getItem('mystore_db')); } catch { return JSON.parse(JSON.stringify(mockDB)); }
+};
+const saveDB = (db) => {
+  if (_memDB) { _memDB = db; return; }
+  try { localStorage.setItem('mystore_db', JSON.stringify(db)); } catch { _memDB = db; }
+};
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 // ---- Helper: Convert Supabase snake_case row to camelCase ----

@@ -29,14 +29,14 @@ export default defineConfig({
         background_color: '#0f0c29',
         display: 'standalone',
         icons: [
-          { src: 'https://cdn-icons-png.flaticon.com/512/3514/3514491.png', sizes: '192x192', type: 'image/png' },
-          { src: 'https://cdn-icons-png.flaticon.com/512/3514/3514491.png', sizes: '512x512', type: 'image/png' },
+          { src: '/logo.png', sizes: '192x192', type: 'image/png' },
+          { src: '/logo.png', sizes: '512x512', type: 'image/png' },
         ],
       },
     }),
   ],
   build: {
-    rolldownOptions: {
+    rollupOptions: {
       output: {
         manualChunks: (id) => {
           // Core React runtime — loads on every page
