@@ -29,3 +29,9 @@ dist-ssr
 .swarm/
 ruvector.db
 CLAUDE.md
+
+# Stray files created by MCP hook side-effects (no extension, root-level)
+[a-z]
+[a-z].[a-z]*
+\(*
+\[*
