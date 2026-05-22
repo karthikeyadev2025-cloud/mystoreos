@@ -21,6 +21,8 @@ import {
   Map
 } from 'lucide-react';
 
+const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+
 const DistributorDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -112,12 +114,12 @@ const DistributorDashboard = () => {
   };
 
   const loadData = useCallback(async () => {
-    setCredits(await api.getDistCredits(user.id));
-    setShops(await api.getAllShops());
-    setStockOrders(await api.getDistributorOrders(user.id));
-    setWholesaleProducts(await api.getDistributorProducts());
-    setDistPlans(await api.getDistributorSubscriptionPlans());
-    const settings = await api.getSettings();
+    setCredits(await safe(() => api.getDistCredits(user.id)));
+    setShops(await safe(() => api.getAllShops()));
+    setStockOrders(await safe(() => api.getDistributorOrders(user.id)));
+    setWholesaleProducts(await safe(() => api.getDistributorProducts()));
+    setDistPlans(await safe(() => api.getDistributorSubscriptionPlans()));
+    const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
 
@@ -138,7 +140,7 @@ const DistributorDashboard = () => {
 
   const handleGiveCredit = async () => {
     if(!selectedShop || !amount) return toast.error("Select shop and amount");
-    await api.addCredit(user.id, selectedShop, desc || 'FMCG Stock Supply', amount);
+    await safe(() => api.addCredit(user.id, selectedShop, desc || 'FMCG Stock Supply', amount));
     toast.success("Credit added to shop successfully!");
     setShowModal(false);
     setSelectedShop('');
@@ -148,20 +150,20 @@ const DistributorDashboard = () => {
   };
 
   const markPaid = async (creditId) => {
-    await api.markCreditPaid(creditId);
+    await safe(() => api.markCreditPaid(creditId));
     toast.success("Payment Received & Cleared!");
     loadData();
   };
 
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
-    await api.addDistributorProduct({
+    await safe(() => api.addDistributorProduct({
       distributorId: user.id,
       name: newProdName,
       price: newProdPrice,
       stock: newProdStock,
       category: newProdCategory
-    });
+    }));
     toast.success("Product published to wholesale catalog!");
     setNewProdName('');
     setNewProdPrice('');
@@ -171,7 +173,7 @@ const DistributorDashboard = () => {
   };
 
   const handleUpdateStockOrder = async (orderId, status) => {
-    await api.updateStockOrderStatus(orderId, status, user.id);
+    await safe(() => api.updateStockOrderStatus(orderId, status, user.id));
     toast.success(`Restock order marked as ${status}!`);
     loadData();
   };
@@ -181,8 +183,8 @@ const DistributorDashboard = () => {
     if (!sysSettings.razorpayKey) return toast.error("Payment gateway not configured yet.");
     let orderId = null;
     try {
-      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
-      orderId = orderData.orderId;
+      const orderData = await safe(() => api.createRazorpayOrder(plan.id, plan.price));
+      orderId = orderData?.orderId;
     } catch (_e) { /* proceed without server order if edge fn unavailable */ }
     const options = {
       key: sysSettings.razorpayKey,
@@ -193,14 +195,14 @@ const DistributorDashboard = () => {
       order_id: orderId || undefined,
       handler: async (response) => {
         try {
-          await api.verifyRazorpayPayment({
+          await safe(() => api.verifyRazorpayPayment({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
             planId: plan.id,
             userId: user.id,
-          });
-          await api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' });
+          }));
+          await safe(() => api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' }));
           toast.success(`Upgraded to ${plan.name}!`);
           setShowUpgradePlanModal(false);
           loadData();

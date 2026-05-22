@@ -1076,12 +1076,14 @@ const CSS = `
   }
 `;
 
+const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 const LandingPage = () => {
   const navigate = useNavigate();
   const { config } = useSiteConfig();
   useEffect(() => {
-    api.seedSubscriptionPlans().catch(() => {});
+    safe(() => api.seedSubscriptionPlans());
   }, []);
 
   const onRegister = () => navigate('/register');

@@ -29,6 +29,8 @@ import DesktopExpenses from '../components/DesktopExpenses';
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
+const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+
 const ShopDashboard = () => {
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -160,7 +162,7 @@ const ShopDashboard = () => {
 
   const handleAdminPinSubmit = async () => {
     try {
-      await api.verifyAdminPin(targetShopId, adminPinInput);
+      await safe(() => api.verifyAdminPin(targetShopId, adminPinInput));
       setShowAdminPinModal(false);
       setAdminPinInput('');
       if (pendingAction) {
@@ -173,26 +175,26 @@ const ShopDashboard = () => {
   };
 
   const loadData = useCallback(async () => {
-    setProducts((await api.getShopProducts(targetShopId)) || []);
-    setOrders((await api.getShopOrders(targetShopId)) || []);
-    setWholesaleCatalog((await api.getDistributorProducts()) || []);
+    setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
+    setOrders((await safe(() => api.getShopOrders(targetShopId))) || []);
+    setWholesaleCatalog((await safe(() => api.getDistributorProducts())) || []);
 
     // Load Global Announcement
-    const announce = await api.getSiteConfig('announcement', DEFAULT_ANNOUNCE);
-    setAnnounceConfig(announce);
+    const announce = await safe(() => api.getSiteConfig('announcement', DEFAULT_ANNOUNCE));
+    setAnnounceConfig(announce || DEFAULT_ANNOUNCE);
 
     if (isOwner) {
-      setCredits((await api.getShopCredits(targetShopId)) || []);
-      setCustomerCredits((await api.getDistCredits(targetShopId)) || []);
-      setStockOrders((await api.getShopStockOrders(targetShopId)) || []);
-      setSysSettings(await api.getSettings());
-      setStaffList(await api.getShopStaff(targetShopId));
-      setPlans(await api.getSubscriptionPlans());
-      setPaymentHistory(await api.getPaymentHistory(targetShopId));
-      setInvoiceFooter(await api.getSiteConfig('invoiceFooter_' + targetShopId, ''));
-      setInvoicePrefix(await api.getSiteConfig('invPrefix_' + targetShopId, 'INV'));
-      setDailyTarget(parseInt(await api.getSiteConfig('dailyTarget_' + targetShopId, 0)) || 0);
-      setFlashSales(await api.getFlashSales(targetShopId));
+      setCredits((await safe(() => api.getShopCredits(targetShopId))) || []);
+      setCustomerCredits((await safe(() => api.getDistCredits(targetShopId))) || []);
+      setStockOrders((await safe(() => api.getShopStockOrders(targetShopId))) || []);
+      setSysSettings(await safe(() => api.getSettings()));
+      setStaffList(await safe(() => api.getShopStaff(targetShopId)));
+      setPlans(await safe(() => api.getSubscriptionPlans()));
+      setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
+      setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
+      setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
+      setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
+      setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
     }
   }, [targetShopId, isOwner]);
 
@@ -285,7 +287,7 @@ const ShopDashboard = () => {
   const handleUpdateProduct = async () => {
     if (!editProdName || !editProdPrice) return toast.error("Name and price required");
     try {
-      await api.editProduct(editingProdId, {
+      await safe(() => api.editProduct(editingProdId, {
         name: editProdName,
         price: parseFloat(editProdPrice),
         stock: parseInt(editProdStock) || 0,
@@ -297,7 +299,7 @@ const ShopDashboard = () => {
         gstRate: editProdGstRate,
         costPrice: parseFloat(editProdCostPrice) || 0,
         barcode: editProdBarcode
-      });
+      }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
       loadData();
@@ -319,7 +321,7 @@ const ShopDashboard = () => {
   const executeDeleteProduct = async (prodId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await api.deleteProduct(prodId);
+        await safe(() => api.deleteProduct(prodId));
         toast.success("Product deleted successfully!");
         loadData();
       } catch (e) {
@@ -333,7 +335,7 @@ const ShopDashboard = () => {
     if (!custCreditName || !custCreditAmount) return toast.error("Name and amount required");
     try {
       const descStr = `customer:${custCreditName}:${custCreditPhone || ''}:${custCreditDesc || 'Credit Purchase'}`;
-      await api.addCredit(targetShopId, targetShopId, descStr, custCreditAmount);
+      await safe(() => api.addCredit(targetShopId, targetShopId, descStr, custCreditAmount));
       toast.success("Customer credit logged successfully!");
       setCustCreditName('');
       setCustCreditPhone('');
@@ -459,21 +461,21 @@ const ShopDashboard = () => {
         finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}`;
       }
 
-      await api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
+      await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
         id: b.id,
         name: b.name,
         price: b.price,
         qty: b.qty || 1,
         selectedVariant: b.selectedVariant || ''
-      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode });
+      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode }));
 
       let loyaltyResult = null;
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
-        if (loyaltyRedeem > 0) await api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem);
-        loyaltyResult = await api.awardLoyaltyPoints(targetShopId, customerPhone, total);
+        if (loyaltyRedeem > 0) await safe(() => api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem));
+        loyaltyResult = await safe(() => api.awardLoyaltyPoints(targetShopId, customerPhone, total));
       }
 
-      const invoiceNo = billingMode === 'bill' ? await api.getNextInvoiceNumber(targetShopId) : null;
+      const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
 
       // Sound synthesis announcement for completed bill (not for estimate/challan)
       if (billingMode === 'bill' && 'speechSynthesis' in window) {
@@ -778,7 +780,7 @@ const ShopDashboard = () => {
 
   const acceptOrder = async (orderId) => {
     const o = orders.find(ord => ord.id === orderId);
-    await api.acceptOrder(orderId);
+    await safe(() => api.acceptOrder(orderId));
     toast.success("Order Accepted!");
     
     // Vocal synthesis soundbox trigger
@@ -952,7 +954,7 @@ const ShopDashboard = () => {
     const distributorId = firstProd?.distributorId || null;
 
     try {
-      await api.placeStockOrder(targetShopId, user.name, items, total, distributorId);
+      await safe(() => api.placeStockOrder(targetShopId, user.name, items, total, distributorId));
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
       loadData();
@@ -1004,7 +1006,7 @@ const ShopDashboard = () => {
     const total = wholesaleProd.price * qty;
 
     try {
-      await api.placeStockOrder(targetShopId, user.name, items, total, wholesaleProd.distributorId || null);
+      await safe(() => api.placeStockOrder(targetShopId, user.name, items, total, wholesaleProd.distributorId || null));
       toast.success(`⚡ 1-Click Restock: Sent bulk order of "${wholesaleProd.name}" to Distributor!`);
       loadData();
     } catch {
@@ -1018,7 +1020,7 @@ const ShopDashboard = () => {
       return toast.error(`Starter plan limit: ${capabilities.maxProducts} products. Upgrade to Pro for unlimited.`);
     }
     try {
-      await api.addProduct(
+      await safe(() => api.addProduct(
         targetShopId,
         newProdName,
         newProdPrice,
@@ -1029,7 +1031,7 @@ const ShopDashboard = () => {
         newProdVariants,
         parseInt(newProdReorder) || 10,
         { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0 }
-      );
+      ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
       setNewProdName('');
@@ -1053,7 +1055,7 @@ const ShopDashboard = () => {
   const handleSettleCustomerCredit = async (creditId) => {
     if (window.confirm("Mark this customer debt as fully settled?")) {
       try {
-        await api.markCreditPaid(creditId);
+        await safe(() => api.markCreditPaid(creditId));
         toast.success("Debt marked as settled!");
         
         const creditData = customerCredits.find(c => c.id === creditId);
@@ -1109,7 +1111,7 @@ const ShopDashboard = () => {
     const refundAmount = itemsToReturn.reduce((sum, item) => sum + (item.price * item.returnQty), 0);
     
     try {
-      await api.processReturn(returnOrder.id, itemsToReturn, 'cash');
+      await safe(() => api.processReturn(returnOrder.id, itemsToReturn, 'cash'));
       toast.success("Return processed successfully!");
       
       const doc = await generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
@@ -1127,7 +1129,7 @@ const ShopDashboard = () => {
   const handleSettleSupplierCredit = async (creditId) => {
     if (window.confirm("Mark this supplier invoice as fully paid?")) {
       try {
-        await api.markCreditPaid(creditId);
+        await safe(() => api.markCreditPaid(creditId));
         toast.success("Payment marked as settled!");
         
         const creditData = credits.find(c => c.id === creditId);
@@ -1153,7 +1155,7 @@ const ShopDashboard = () => {
   const handleAddStaff = async () => {
     if (!newStaffPhone || !newStaffName) return toast.error("Phone and Name required");
     try {
-      await api.addStaff(targetShopId, newStaffPhone, '1234', newStaffName);
+      await safe(() => api.addStaff(targetShopId, newStaffPhone, '1234', newStaffName));
       toast.success("Staff member added! PIN is 1234.");
       setNewStaffName('');
       setNewStaffPhone('');
@@ -1245,12 +1247,12 @@ const ShopDashboard = () => {
   };
 
   const handleSaveProfile = async () => {
-    await api.updateProfile(user.id, { 
-      upiId, logo, shopPhotos, paymentQr, 
-      latitude: parseFloat(latitude) || null, 
+    await safe(() => api.updateProfile(user.id, {
+      upiId, logo, shopPhotos, paymentQr,
+      latitude: parseFloat(latitude) || null,
       longitude: parseFloat(longitude) || null,
       gstin, stateCode, businessAddress
-    });
+    }));
     const updatedUser = { 
       ...user, upiId, logo, shopPhotos, paymentQr, 
       latitude: parseFloat(latitude) || null, 
@@ -1264,13 +1266,13 @@ const ShopDashboard = () => {
   const handleSetDailyTarget = async (targetAmount) => {
     const val = parseInt(targetAmount) || 0;
     setDailyTarget(val);
-    await api.saveSiteConfig('dailyTarget_' + targetShopId, val);
+    await safe(() => api.saveSiteConfig('dailyTarget_' + targetShopId, val));
   };
 
   const handleSetFlashSale = async (productId, discountPct, durationHours) => {
     try {
-      await api.setFlashSale(targetShopId, productId, discountPct, durationHours);
-      const updated = await api.getFlashSales(targetShopId);
+      await safe(() => api.setFlashSale(targetShopId, productId, discountPct, durationHours));
+      const updated = await safe(() => api.getFlashSales(targetShopId));
       setFlashSales(updated);
       toast.success(`🔥 Flash sale set — ${discountPct}% off for ${durationHours}h!`);
     } catch (_e) {
@@ -1280,7 +1282,7 @@ const ShopDashboard = () => {
 
   const handleClearFlashSale = async (productId) => {
     try {
-      await api.clearFlashSale(targetShopId, productId);
+      await safe(() => api.clearFlashSale(targetShopId, productId));
       setFlashSales(prev => { const n = { ...prev }; delete n[productId]; return n; });
       toast.success('Flash sale cleared');
     } catch (_e) {
@@ -1292,7 +1294,7 @@ const ShopDashboard = () => {
     let success = 0, failed = 0;
     for (const row of rows) {
       try {
-        await api.addProduct(targetShopId, {
+        await safe(() => api.addProduct(targetShopId, {
           name: row.name,
           price: parseFloat(row.price) || 0,
           stock: parseInt(row.stock) || 0,
@@ -1302,7 +1304,7 @@ const ShopDashboard = () => {
           batchNumber: row.batchNumber || '',
           expiryDate: row.expiryDate || '',
           variants: row.variants || '',
-        });
+        }));
         success++;
       } catch (_e) {
         failed++;
@@ -1315,7 +1317,7 @@ const ShopDashboard = () => {
   const handleStockAdjust = async (product, delta, reason) => {
     const newStock = Math.max(0, (product.stock || 0) + delta);
     try {
-      await api.editProduct(product.id, { stock: newStock });
+      await safe(() => api.editProduct(product.id, { stock: newStock }));
       toast.success(`${product.name}: stock ${delta > 0 ? '+' + delta : delta} → ${newStock} (${reason})`);
       loadData();
     } catch (_e) {
@@ -1325,8 +1327,8 @@ const ShopDashboard = () => {
 
   const handleSaveInvoiceSettings = async () => {
     try {
-      await api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter);
-      await api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix);
+      await safe(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter));
+      await safe(() => api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix));
       toast.success("Invoice settings saved!");
     } catch (_e) {
       toast.error("Failed to save invoice settings");
@@ -1337,7 +1339,7 @@ const ShopDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const url = await api.uploadAsset(file, user.id, 'logos');
+        const url = await safe(() => api.uploadAsset(file, user.id, 'logos'));
         setLogo(url);
         toast.success("Logo uploaded successfully!");
       } catch {
@@ -1352,7 +1354,7 @@ const ShopDashboard = () => {
     
     for (const file of files) {
       try {
-        const url = await api.uploadAsset(file, user.id, 'shop_photos');
+        const url = await safe(() => api.uploadAsset(file, user.id, 'shop_photos'));
         setShopPhotos(prev => [...prev, url]);
       } catch {
         toast.error(`Failed to upload ${file.name}`);
@@ -1410,7 +1412,7 @@ const ShopDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const url = await api.uploadAsset(file, user.id, 'payment_qrs');
+        const url = await safe(() => api.uploadAsset(file, user.id, 'payment_qrs'));
         setPaymentQr(url);
         toast.success("Payment QR uploaded successfully!");
       } catch {
@@ -1421,7 +1423,7 @@ const ShopDashboard = () => {
 
   const handleUpdateRazorpay = async (key) => {
     const updated = { ...sysSettings, razorpayKey: key };
-    await api.saveSettings(updated);
+    await safe(() => api.saveSettings(updated));
     setSysSettings(updated);
     toast.success('Razorpay key saved.');
   };
@@ -1435,8 +1437,8 @@ const ShopDashboard = () => {
     // Create server-side Razorpay order for signature verification
     let orderId = null;
     try {
-      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
-      orderId = orderData.orderId;
+      const orderData = await safe(() => api.createRazorpayOrder(plan.id, plan.price));
+      orderId = orderData?.orderId;
     } catch (_e) {
       // Edge function not deployed yet — fall back to client-only flow
     }
@@ -1451,18 +1453,18 @@ const ShopDashboard = () => {
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
       handler: async function (response) {
         try {
-          await api.verifyRazorpayPayment({
+          await safe(() => api.verifyRazorpayPayment({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
             planId: plan.id,
             userId: targetShopId,
-          });
+          }));
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
-          const updatedUser = await api.updateProfile(targetShopId, {
+          const updatedUser = await safe(() => api.updateProfile(targetShopId, {
             subscription: 'active',
             subscriptionTier: plan.id
-          });
+          }));
           setUser(updatedUser);
           localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           setShowPlanSelectorModal(false);
