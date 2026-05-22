@@ -731,7 +731,15 @@ const ShopDashboard = () => {
       yOffset += 6;
       doc.setTextColor(148, 163, 184);
       doc.text("Generated via MyStore OS - The Paperless Retail Revolution", 15, yOffset);
-      
+
+      if (user.subscription === 'trial' || user.subscription === 'expired') {
+        doc.setTextColor(255, 0, 0);
+        doc.setGState(new doc.GState({ opacity: 0.15 }));
+        doc.setFontSize(60);
+        doc.text('TRIAL VERSION', 105, 148, { angle: 45, align: 'center' });
+        doc.setGState(new doc.GState({ opacity: 1 }));
+      }
+
       const pdfBlob = doc.output("blob");
       const pdfFile = new File([pdfBlob], `${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Receipt')}.pdf`, { type: "application/pdf" });
 

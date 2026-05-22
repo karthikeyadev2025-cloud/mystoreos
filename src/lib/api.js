@@ -241,14 +241,13 @@ export const api = {
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
-    const subscription = role === 'shop' ? 'trial' : 'active';
-    const now = new Date().toISOString();
+    const trialStart = role === 'shop' ? new Date().toISOString() : null;
     const newUser = {
       id: 'u_' + generateId(), phone, pass, role, name,
-      status: 'active',
-      subscription,
+      status: role === 'customer' ? 'active' : 'pending',
+      subscription: role === 'shop' ? 'trial' : role === 'customer' ? 'active' : 'pending',
       subscriptionTier: role === 'shop' ? 'starter' : null,
-      trialStartedAt: role === 'shop' ? now : null,
+      trialStartedAt: trialStart,
       planExpiresAt: role === 'shop' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null,
     };
     db.users.push(newUser);

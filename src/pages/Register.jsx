@@ -29,9 +29,14 @@ const Register = () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
-      toast.success('Welcome to MyStore OS! Logging you in...');
-      login(newUser);
-      navigate('/dashboard');
+      if (newUser && newUser.status === 'pending') {
+        toast.info('Application submitted! Admin will review and activate your account shortly.');
+        setTimeout(() => navigate('/login'), 3000);
+      } else {
+        toast.success('Welcome to MyStore OS! Logging you in...');
+        login(newUser);
+        navigate('/dashboard');
+      }
     } catch (err) {
       let msg = err.message || 'Registration failed';
       if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError'))
@@ -79,7 +84,7 @@ const Register = () => {
               <label style={lbl}>Create Password</label>
               <div style={{ position: 'relative' }}>
                 <input type={showPassword ? 'text' : 'password'} value={pass} onChange={(e) => setPass(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: '48px' }} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '44px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '44px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, zIndex: 2 }}>
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -93,7 +98,7 @@ const Register = () => {
               </select>
             </div>
             <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#dc2626,#f59e0b)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 10px 20px rgba(220,38,38,0.3)' }}>
-              {loading ? 'Submitting...' : (businessType === 'customer' ? 'Create Account' : 'Apply for Account')}
+              {loading ? 'Submitting...' : (businessType === 'customer' ? 'Create Account' : 'Start Free 7-Day Trial 🚀')}
             </button>
           </form>
 
