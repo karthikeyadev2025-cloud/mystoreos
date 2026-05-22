@@ -2,8 +2,40 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import ReactCountUp from 'react-countup';
-const CountUp = typeof ReactCountUp === 'function' ? ReactCountUp : (ReactCountUp?.default || ReactCountUp);
+const CountUp = ({ end, duration = 2, separator = ',' }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp = null;
+    const endVal = Number(end) || 0;
+    const durationMs = duration * 1000;
+    let animationFrameId;
+
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / durationMs, 1);
+      const easedProgress = progress * (2 - progress); // easeOutQuad
+      setCount(Math.floor(easedProgress * endVal));
+
+      if (progress < 1) {
+        animationFrameId = window.requestAnimationFrame(step);
+      }
+    };
+
+    animationFrameId = window.requestAnimationFrame(step);
+    return () => {
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [end, duration]);
+
+  const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+  };
+
+  return formatNumber(count);
+};
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
