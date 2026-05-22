@@ -10,6 +10,8 @@ import { downloadGSTR1CSV, summarizeGST } from '../lib/gstrExport';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+const safe = async (fn, def = null) => { try { return await fn(); } catch { return def; } };
+
 const CADashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -23,22 +25,22 @@ const CADashboard = () => {
   const [filterYear, setFilterYear] = useState(now.getFullYear());
 
   useEffect(() => {
-    api.getAllShops()
-      .then(setShops)
-      .catch(() => toast.error('Failed to load shops'));
+    safe(() => api.getAllShops(), []).then(data => {
+      if (data) setShops(data);
+      else toast.error('Failed to load shops');
+    });
   }, []);
 
   const handleSelectShop = async (shop) => {
     setSelectedShop(shop);
     setLoading(true);
-    try {
-      const orders = await api.getShopOrders(shop.id);
+    const orders = await safe(() => api.getShopOrders(shop.id), []);
+    if (orders) {
       setShopOrders(orders.filter(o => ['Completed', 'completed', 'Accepted', 'accepted'].includes(o.status)));
-    } catch (_err) {
+    } else {
       toast.error('Failed to load shop orders');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   // Filter orders to the selected month/year
