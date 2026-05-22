@@ -2,10 +2,29 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import CountUp from 'react-countup';
 import { Check, ChevronDown, Star, Menu, X, Zap, Shield, BarChart2, Package, CreditCard, Users, Truck } from 'lucide-react';
 import { api } from '../lib/api';
 import { useSiteConfig } from '../lib/siteConfig';
+
+const CountUp = ({ end, duration = 2, separator = ',', decimals = 0 }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let startTimestamp = null;
+    const endVal = Number(end) || 0;
+    const durationMs = duration * 1000;
+    let raf;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / durationMs, 1);
+      const eased = progress * (2 - progress);
+      setCount(parseFloat((eased * endVal).toFixed(decimals)));
+      if (progress < 1) raf = window.requestAnimationFrame(step);
+    };
+    raf = window.requestAnimationFrame(step);
+    return () => { if (raf) window.cancelAnimationFrame(raf); };
+  }, [end, duration, decimals]);
+  return count.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+};
 
 const C = { bg: '#030712', card: '#0d1424', border: '#1e293b', cobalt: '#1e3a8a', emerald: '#10b981', amber: '#f59e0b', primary: '#f43f5e', text: '#f1f5f9', muted: '#64748b', grad: 'linear-gradient(135deg,#f43f5e,#8b5cf6)' };
 const safe = async (fn, def = null) => { try { return await fn(); } catch { return def; } };
