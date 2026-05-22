@@ -432,30 +432,19 @@ CREATE POLICY "Public Read Access"
 
 DROP POLICY IF EXISTS "Public Insert Access" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated Insert Access" ON storage.objects;
-CREATE POLICY "Authenticated Insert Access"
+CREATE POLICY "Public Insert Access"
   ON storage.objects FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    bucket_id = 'mystore-assets'
-    AND auth.uid()::text = (storage.foldername(name))[1]
-  );
+  WITH CHECK (bucket_id = 'mystore-assets');
 
 DROP POLICY IF EXISTS "Public Update Access" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated Update Access" ON storage.objects;
-CREATE POLICY "Authenticated Update Access"
+CREATE POLICY "Public Update Access"
   ON storage.objects FOR UPDATE
-  TO authenticated
-  USING (
-    bucket_id = 'mystore-assets'
-    AND auth.uid()::text = (storage.foldername(name))[1]
-  );
+  USING (bucket_id = 'mystore-assets');
 
 DROP POLICY IF EXISTS "Public Delete Access" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated Delete Access" ON storage.objects;
-CREATE POLICY "Authenticated Delete Access"
+CREATE POLICY "Public Delete Access"
   ON storage.objects FOR DELETE
-  TO authenticated
-  USING (
-    bucket_id = 'mystore-assets'
-    AND auth.uid()::text = (storage.foldername(name))[1]
-  );
+  USING (bucket_id = 'mystore-assets');
+
