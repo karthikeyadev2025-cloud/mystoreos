@@ -28,7 +28,11 @@ const Register = () => {
       login(newUser);
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err.message || 'Registration failed');
+      let msg = err.message || 'Registration failed';
+      if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError')) {
+        msg = 'Oops! We couldn\'t connect to our registration service. Please verify your internet connection and try again shortly!';
+      }
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
