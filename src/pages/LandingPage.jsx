@@ -112,20 +112,20 @@ function Hero() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)', borderRadius: 100, padding: '6px 16px', width: 'fit-content' }}>
-            <Zap size={12} color={C.primary} /><span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>The Operating System for Modern Retail</span>
+            <Zap size={12} color={C.primary} /><span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>The Operating System for Modern Business</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
             style={{ margin: 0, fontSize: 'clamp(36px,7vw,68px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.1, color: '#fff' }}>
-            One App.<br /><span style={{ background: C.grad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Zero Paperwork.</span>
+            The Operating System<br /><span style={{ background: C.grad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>for Modern Business</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
             style={{ margin: 0, fontSize: 'clamp(14px,2vw,17px)', color: '#94a3b8', lineHeight: 1.7 }}>
-            Trusted by 500+ shops across India<br /><span style={{ color: C.amber, fontWeight: 600 }}>మీ షాపును స్మార్ట్ గా నడపండి</span>
+            Bills • Inventory • Credit • Staff — One App for Every Business Type<br /><span style={{ color: C.amber, fontWeight: 600 }}>మీ వ్యాపారాన్ని స్మార్ట్‌గా నడపండి</span>
           </motion.p>
           <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
             onClick={() => navigate('/register')}
             style={{ background: C.grad, border: 'none', color: '#fff', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer', width: 'fit-content', animation: 'pg 2.5s ease-in-out infinite' }}>
-            Start Free Trial — 7 Days PRO
+            Start Free 7-Day Trial →
           </motion.button>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {['UPI Verified', 'Bank-Grade Security', 'Works Offline', 'WhatsApp Native'].map(b => (
@@ -259,6 +259,122 @@ function RoiCalc() {
                 <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{r.sub}</div>
               </div>
             ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ─── DAY IN THE LIFE ──────────────────────────────────────────────────────────
+const BEATS = [
+  { icon: '🌅', title: 'Open Shop', sub: 'Check stock levels & yesterday\'s summary', screen: ['Parle-G  45 units', 'Atta 5kg  8 ⚠', 'Sunflower 22 units'], color: '#3b82f6' },
+  { icon: '🧾', title: 'First Bill', sub: 'Customer walks in — 30-second billing', screen: ['Parle-G  ₹10', 'Atta 5kg  ₹65', '─────────────', 'Total  ₹75 ✓'], color: '#10b981' },
+  { icon: '🤝', title: 'Credit Customer', sub: 'Record credit & send WhatsApp reminder', screen: ['Ravi Kumar  Credit', '₹320 added', 'WhatsApp sent ✓', 'Due: ₹320'], color: '#f59e0b' },
+  { icon: '📦', title: 'Stock Check', sub: 'AI alerts on near-expiry & low stock', screen: ['⚠ Atta 5kg: 8 left', '⚠ Dove: expiring', 'Reorder now?', '→ Order from dist.'], color: '#8b5cf6' },
+  { icon: '🚚', title: 'Restock Order', sub: 'Order from distributor in one tap', screen: ['Guntur FMCG Supply', 'Atta Bulk  ₹1,950', 'Order sent ✓', 'Delivers: Tomorrow'], color: '#06b6d4' },
+  { icon: '📊', title: 'Day End', sub: 'Profit report & cash summary auto-ready', screen: ['Cash In  ₹4,820', 'Cash Out  ₹1,950', 'Net Profit  ₹2,870', 'Margin  59% 🎉'], color: '#f43f5e' },
+];
+
+function DayInLife() {
+  const [beat, setBeat] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setBeat(b => (b + 1) % BEATS.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+  const b = BEATS[beat];
+  return (
+    <section style={{ padding: 'clamp(56px,7vw,90px) 24px', background: `linear-gradient(180deg,${C.bg},#050814)` }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 44 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#06b6d4', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>A Day in the Life</div>
+          <h2 style={{ margin: 0, fontSize: 'clamp(22px,3.5vw,38px)', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>MyStore OS Runs Your Entire Day</h2>
+        </motion.div>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 36 }}>
+          {BEATS.map((bx, i) => (
+            <button key={i} onClick={() => setBeat(i)} style={{ padding: '7px 14px', borderRadius: 20, border: `1px solid ${beat === i ? bx.color : 'rgba(255,255,255,0.08)'}`, background: beat === i ? `${bx.color}18` : 'transparent', color: beat === i ? bx.color : C.muted, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>{bx.icon}</span>{bx.title}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 36, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={beat} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.28 }}
+              style={{ background: C.card, border: `1px solid ${b.color}40`, borderLeft: `4px solid ${b.color}`, borderRadius: 20, padding: '30px 28px', maxWidth: 380, flex: 1 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>{b.icon}</div>
+              <h3 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 900, color: '#fff' }}>{b.title}</h3>
+              <p style={{ margin: 0, fontSize: 14, color: C.muted, lineHeight: 1.7 }}>{b.sub}</p>
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div key={`phone-${beat}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.28 }}
+              style={{ width: 148, background: '#0a0f1e', border: '6px solid #1e293b', borderRadius: 28, overflow: 'hidden', boxShadow: `0 20px 60px rgba(0,0,0,0.6),0 0 30px ${b.color}18`, flexShrink: 0 }}>
+              <div style={{ height: 18, background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 44, height: 5, background: '#0f172a', borderRadius: 3 }} /></div>
+              <div style={{ padding: '4px 8px 2px', display: 'flex', justifyContent: 'space-between', fontSize: 7, color: '#64748b' }}><span>9:41</span><span>●●●</span></div>
+              <div style={{ padding: 10 }}>
+                <div style={{ fontSize: 8, fontWeight: 800, color: b.color, textAlign: 'center', borderBottom: `1px solid ${b.color}30`, paddingBottom: 5, marginBottom: 7 }}>{b.title}</div>
+                {b.screen.map((line, li) => (
+                  <div key={li} style={{ fontSize: 9, fontFamily: 'monospace', marginBottom: 4, color: line.startsWith('─') ? '#334155' : line.includes('✓') ? '#10b981' : line.includes('⚠') ? '#f59e0b' : '#cbd5e1' }}>{line}</div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── COMPETITIVE MATRIX ───────────────────────────────────────────────────────
+const MATRIX_ROWS = [
+  { label: 'Price/month', vals: ['From ₹499', 'Free (your time)', '₹5,000+', 'From ₹699'] },
+  { label: 'Works Offline', vals: [true, false, false, true] },
+  { label: 'Mobile App', vals: [true, false, false, true] },
+  { label: 'WhatsApp Bills', vals: [true, false, false, true] },
+  { label: 'GST Compliance', vals: [true, false, true, true] },
+  { label: 'Staff Auditing', vals: [true, false, false, true] },
+  { label: 'Distributor Network', vals: [true, false, false, false] },
+  { label: 'Credit Khata AI', vals: [true, false, false, 'Basic'] },
+];
+const MATRIX_COLS = ['MyStore OS', 'Paper Ledger', 'Desktop Software', 'Vyapar'];
+
+function CompMatrix() {
+  return (
+    <section style={{ padding: 'clamp(56px,7vw,90px) 24px', background: `linear-gradient(180deg,#050814,${C.bg})` }}>
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.primary, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Comparison</div>
+          <h2 style={{ margin: 0, fontSize: 'clamp(22px,3.5vw,36px)', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>Why Businesses Choose MyStore OS</h2>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 20, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
+              <thead>
+                <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1 }}>Feature</th>
+                  {MATRIX_COLS.map((col, ci) => (
+                    <th key={ci} style={{ padding: '14px 16px', textAlign: 'center', fontSize: 13, fontWeight: 800, color: ci === 0 ? C.primary : C.muted, background: ci === 0 ? 'rgba(244,63,94,0.06)' : 'transparent', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
+                      {col}{ci === 0 && <span style={{ display: 'block', fontSize: 9, color: C.emerald, fontWeight: 700, marginTop: 2 }}>✓ BEST</span>}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {MATRIX_ROWS.map((row, ri) => (
+                  <tr key={ri} style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: ri % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                    <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{row.label}</td>
+                    {row.vals.map((val, vi) => (
+                      <td key={vi} style={{ padding: '12px 16px', textAlign: 'center', fontSize: 13, background: vi === 0 ? 'rgba(244,63,94,0.04)' : 'transparent', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
+                        {val === true ? <span style={{ fontSize: 16, color: '#10b981' }}>✓</span>
+                          : val === false ? <span style={{ fontSize: 16, color: '#334155' }}>✗</span>
+                          : <span style={{ fontSize: 11, fontWeight: 600, color: vi === 0 ? C.primary : C.muted }}>{val}</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </motion.div>
       </div>
@@ -505,7 +621,9 @@ export default function LandingPage() {
       <StatsBar />
       <ForWho />
       <Features />
+      <DayInLife />
       <RoiCalc />
+      <CompMatrix />
       <Testimonials />
       <Pricing plans={plans} distPlans={distPlans} />
       <HowItWorks />

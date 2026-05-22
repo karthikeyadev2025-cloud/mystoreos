@@ -32,6 +32,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
   background-image: radial-gradient(circle at top right, rgba(244, 63, 94, 0.15), transparent 40%),
                     radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent 40%);
   background-attachment: fixed;
@@ -63,7 +64,7 @@ body {
   border-left: 1px solid rgba(255,255,255,0.05);
   border-right: 1px solid rgba(255,255,255,0.05);
   background-color: var(--bg-dark);
-  padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   overflow-x: hidden;
 }
 
@@ -357,6 +358,28 @@ input::-webkit-credentials-auto-fill-button {
 .premium-glass select,
 .premium-glass textarea {
   margin-bottom: 0;
+}
+
+/* Mobile modal safety */
+@media (max-width: 600px) {
+  [style*="position: fixed"][style*="z-index"],
+  [style*="position:fixed"][style*="z-index"] {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* DesktopPOS cart bottom-sheet on very small screens */
+@media (max-width: 480px) {
+  .responsive-split-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* Bottom nav safe area offset */
+.bottom-nav {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 
