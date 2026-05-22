@@ -67,7 +67,7 @@ const DesktopPOS = ({
   const lowStockProducts = products.filter(p => p.stock < 10);
 
   return (
-    <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', alignItems: 'start' }}>
+    <div className="responsive-split-grid" style={{ alignItems: 'start' }}>
       {/* Left Column (2/3 width): Products, Stats, Search, Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
@@ -268,7 +268,7 @@ const DesktopPOS = ({
       </div>
 
       {/* Right Column (1/3 width): Checkout Cart */}
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -323,20 +323,20 @@ const DesktopPOS = ({
             onChange={e => setCustomerName(e.target.value)}
             style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
           />
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <input 
               type="tel" 
               placeholder="Mobile Number" 
               value={customerPhone} 
               onChange={e => setCustomerPhone(e.target.value)}
-              style={{ flex: 1, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+              style={{ flex: '1 1 120px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }}
             />
             <input 
               type="text" 
-              placeholder="State Code" 
+              placeholder="State" 
               value={customerStateCode} 
               onChange={e => setCustomerStateCode(e.target.value)}
-              style={{ width: '80px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+              style={{ width: '80px', flexGrow: 0, flexShrink: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }}
             />
           </div>
           {loyaltyEnabled && customerPhone && (
@@ -364,16 +364,16 @@ const DesktopPOS = ({
         </div>
 
         {/* Add Miscellaneous / Custom Item */}
-        <div style={{ display: 'flex', gap: '8px', background: '#0f172a', padding: '8px 12px', borderRadius: '10px', border: '1px solid #334155' }}>
+        <div style={{ display: 'flex', gap: '8px', background: '#0f172a', padding: '8px 12px', borderRadius: '10px', border: '1px solid #334155', alignItems: 'center' }}>
           <input 
             type="text" placeholder="Custom item..." value={customItemName} onChange={e => setCustomItemName(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px' }} 
+            style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px', margin: 0, padding: '4px 0', width: 'auto' }} 
           />
           <input 
             type="number" placeholder="₹" value={customItemPrice} onChange={e => setCustomItemPrice(e.target.value)}
-            style={{ width: '50px', background: 'transparent', border: 'none', color: '#fbbf24', outline: 'none', fontSize: '13px', fontWeight: 'bold' }} 
+            style={{ width: '60px', background: 'transparent', border: 'none', color: '#fbbf24', outline: 'none', fontSize: '13px', fontWeight: 'bold', margin: 0, padding: '4px 0' }} 
           />
-          <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>Add</button>
+          <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', width: 'auto', margin: 0 }}>Add</button>
         </div>
 
         {/* Invoice Basket Items */}
