@@ -132,6 +132,23 @@ export const isTrialExpired = (user) => {
   const daysSinceStart = (Date.now() - new Date(user.trialStartedAt).getTime()) / (1000 * 60 * 60 * 24);
   return daysSinceStart > 7;
 };
+// Helper to intercept and format technical database/edge-function errors into friendly user messages
+const formatApiError = (err, fallback = 'Operation failed') => {
+  if (!err) return new Error(fallback);
+  let message = '';
+  if (typeof err === 'string') {
+    message = err;
+  } else if (err instanceof Error) {
+    message = err.message || '';
+  } else if (typeof err === 'object') {
+    message = err.message || err.error || '';
+  }
+  
+  if (message.includes('Edge Function') || message.includes('non-2xx') || message.includes('Failed to fetch') || message.includes('TypeError')) {
+    return new Error("Oops! We couldn't connect to our services. Please check your internet connection and try again shortly!");
+  }
+  return new Error(message || fallback);
+};
 
 // ============================================================
 export const api = {
@@ -142,8 +159,8 @@ export const api = {
       const { data, error } = await supabase.functions.invoke('auth-login', {
         body: { phone, password: pass },
       });
-      if (error) throw new Error(error.message || 'Login failed');
-      if (data?.error) throw new Error(data.error);
+      if (error) throw formatApiError(error, 'Login failed');
+      if (data?.error) throw formatApiError(data.error, 'Login failed');
       if (data?.session) {
         await supabase.auth.setSession({
           access_token: data.session.access_token,
@@ -181,8 +198,8 @@ export const api = {
       const { data, error } = await supabase.functions.invoke('auth-reset-password', {
         body: { phone, newPassword: newPass },
       });
-      if (error) throw new Error(error.message || 'Reset failed');
-      if (data?.error) throw new Error(data.error);
+      if (error) throw formatApiError(error, 'Reset failed');
+      if (data?.error) throw formatApiError(data.error, 'Reset failed');
       return true;
     }
     const db = getDB();
@@ -198,8 +215,8 @@ export const api = {
       const { data, error } = await supabase.functions.invoke('auth-reset-password', {
         body: { userId, newPassword: newPass },
       });
-      if (error) throw new Error(error.message || 'Admin reset failed');
-      if (data?.error) throw new Error(data.error);
+      if (error) throw formatApiError(error, 'Admin reset failed');
+      if (data?.error) throw formatApiError(data.error, 'Admin reset failed');
       return;
     }
     const db = getDB();
@@ -212,8 +229,8 @@ export const api = {
       const { data, error } = await supabase.functions.invoke('auth-register', {
         body: { name, phone, password: pass, role },
       });
-      if (error) throw new Error(error.message || 'Registration failed');
-      if (data?.error) throw new Error(data.error);
+      if (error) throw formatApiError(error, 'Registration failed');
+      if (data?.error) throw formatApiError(data.error, 'Registration failed');
       if (data?.session) {
         await supabase.auth.setSession({
           access_token: data.session.access_token,
@@ -1426,7 +1443,7 @@ export const api = {
     const { data, error } = await supabase.functions.invoke('razorpay-create-order', {
       body: { planId, amount, currency: 'INR' },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw formatApiError(error, 'Failed to create order');
     return data; // { orderId, amount, currency }
   },
 
@@ -1435,7 +1452,7 @@ export const api = {
     const { data, error } = await supabase.functions.invoke('razorpay-verify-payment', {
       body: { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId, userId },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw formatApiError(error, 'Failed to verify payment');
     return data;
   },
 

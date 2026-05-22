@@ -157,9 +157,7 @@ function Navbar({ onLogin, onRegister }) {
     <>
       <nav style={navStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 16 }}>🏪</span>
-          </div>
+          <img src="/logo.png" alt="MyStore OS" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover', boxShadow: '0 0 12px rgba(251,191,36,0.3)' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           <span style={{ fontWeight: 800, fontSize: 18, color: '#fff', letterSpacing: '-0.3px' }}>MyStore OS</span>
         </div>
 
@@ -951,7 +949,7 @@ function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🏪</div>
+              <img src="/logo.png" alt="MyStore OS" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }} onError={(e) => { e.target.style.display='none'; }} />
               <span style={{ fontWeight: 800, fontSize: 18, color: '#fff' }}>MyStore OS</span>
             </div>
             <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 16 }}>The complete pocket OS for Indian kirana shop owners. Manage smarter, grow faster.</p>
@@ -996,7 +994,7 @@ function Footer() {
         </div>
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <span style={{ fontSize: 13, color: '#334155' }}>© 2025 MyStore OS • Made with ❤️ in Andhra Pradesh</span>
+          <span style={{ fontSize: 13, color: '#334155' }}>© 2026 MyStore OS • Made with ❤️ in Andhra Pradesh</span>
           <span style={{ fontSize: 12, color: '#1e293b' }}>Powered by React • Supabase</span>
         </div>
       </div>

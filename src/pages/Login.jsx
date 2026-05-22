@@ -32,7 +32,11 @@ const Login = () => {
       login(user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Invalid credentials');
+      let msg = err.message || 'Invalid credentials';
+      if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError')) {
+        msg = 'Oops! We couldn\'t reach the login server. Please check your internet connection and try again!';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -55,7 +59,11 @@ const Login = () => {
       setNewPass('');
       setConfirmPass('');
     } catch (err) {
-      setError(err.message || "Failed to reset password");
+      let msg = err.message || "Failed to reset password";
+      if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError')) {
+        msg = 'Oops! We couldn\'t reach the password reset server. Please check your internet connection and try again shortly!';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }

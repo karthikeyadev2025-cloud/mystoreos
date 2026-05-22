@@ -331,4 +331,33 @@ input::-webkit-credentials-auto-fill-button {
   font-weight: 600;
 }
 
+/* Custom premium scrollbars for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Prevent global input margins from distorting modern flex/grid layouts inside glass cards */
+.premium-glass input,
+.premium-glass select,
+.premium-glass textarea {
+  margin-bottom: 0;
+}
+
+
 

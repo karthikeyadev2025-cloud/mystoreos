@@ -34,13 +34,34 @@ serve(async (req) => {
 
     const email = `${phone}@mystore.internal`;
 
+    let uid: string;
     // Create Supabase Auth user
     const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
       email, password, email_confirm: true,
     });
-    if (authErr || !authUser?.user) return json({ error: authErr?.message || 'Auth user creation failed' }, 500);
 
-    const uid = authUser.user.id;
+    if (authErr) {
+      // If user already exists in Supabase Auth, let's find their ID and update password
+      if (authErr.message.includes('already been registered') || authErr.status === 422 || authErr.message.includes('already exists')) {
+        const { data: { users }, error: listErr } = await admin.auth.admin.listUsers();
+        if (listErr) return json({ error: `Auth listing failed: ${listErr.message}` }, 500);
+
+        const existingAuth = users?.find(u => u.email === email);
+        if (!existingAuth) {
+          return json({ error: 'Auth user conflict, please contact support.' }, 500);
+        }
+
+        uid = existingAuth.id;
+        // Update password for the existing auth user to ensure it is synchronized
+        const { error: updateErr } = await admin.auth.admin.updateUserById(uid, { password });
+        if (updateErr) return json({ error: `Failed to update credentials: ${updateErr.message}` }, 500);
+      } else {
+        return json({ error: authErr.message }, 500);
+      }
+    } else {
+      if (!authUser?.user) return json({ error: 'Auth user creation returned empty' }, 500);
+      uid = authUser.user.id;
+    }
     const subscription = role === 'shop' ? 'trial' : 'active';
     const subscription_tier = role === 'shop' ? 'starter' : null;
     const trial_started_at = role === 'shop' ? new Date().toISOString() : null;
