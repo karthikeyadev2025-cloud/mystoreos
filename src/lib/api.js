@@ -911,7 +911,7 @@ export const api = {
   // ---- CMS (Site Config) ----
   async getSiteConfig(key, defaultData) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('site_config').select('value').eq('key', key).single();
+      const { data } = await supabase.from('site_config').select('value').eq('key', key).maybeSingle();
       return data?.value || defaultData;
     }
     const db = getDB();
