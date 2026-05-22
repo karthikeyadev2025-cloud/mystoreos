@@ -934,7 +934,8 @@ const ShopDashboard = () => {
   };
 
   const handlePlaceRestockOrder = async () => {
-    const items = Object.entries(restockCart).map(([prodId, qty]) => {
+    const cartEntries = Object.entries(restockCart);
+    const items = cartEntries.map(([prodId, qty]) => {
       const prod = wholesaleCatalog.find(p => p.id === prodId);
       return {
         id: prod.id,
@@ -945,11 +946,13 @@ const ShopDashboard = () => {
     });
 
     if (items.length === 0) return toast.error("Restock basket is empty");
-    
+
     const total = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    
+    const firstProd = wholesaleCatalog.find(p => p.id === cartEntries[0]?.[0]);
+    const distributorId = firstProd?.distributorId || null;
+
     try {
-      await api.placeStockOrder(targetShopId, user.name, items, total);
+      await api.placeStockOrder(targetShopId, user.name, items, total, distributorId);
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
       loadData();
@@ -991,17 +994,17 @@ const ShopDashboard = () => {
   };
 
   const submitOneClickOrder = async (wholesaleProd) => {
-    const qty = 1; // 1 bulk pack/carton
+    const qty = 1;
     const items = [{
       id: wholesaleProd.id,
       name: wholesaleProd.name,
       price: wholesaleProd.price,
-      qty: qty
+      qty,
     }];
     const total = wholesaleProd.price * qty;
-    
+
     try {
-      await api.placeStockOrder(targetShopId, user.name, items, total);
+      await api.placeStockOrder(targetShopId, user.name, items, total, wholesaleProd.distributorId || null);
       toast.success(`⚡ 1-Click Restock: Sent bulk order of "${wholesaleProd.name}" to Distributor!`);
       loadData();
     } catch {
@@ -1664,7 +1667,7 @@ const ShopDashboard = () => {
               credits={credits}
               customerCredits={customerCredits}
               payable={payable}
-              upiId={user?.upiId}
+              upiId={upiId || user?.upiId}
               user={user}
               handleAddCustomerCredit={handleAddCustomerCredit}
               handleSettleSupplierCredit={handleSettleSupplierCredit}

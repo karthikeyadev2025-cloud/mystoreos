@@ -23,7 +23,7 @@ const Login = () => {
 
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
-    if (phone.length < 10) return setError("Enter a valid 10-digit mobile number");
+    if (!/^\d{10}$/.test(phone)) return setError("Enter a valid 10-digit mobile number");
     if (!pass) return setError("Enter your password");
     try {
       setLoading(true);
@@ -44,7 +44,7 @@ const Login = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    if (forgotPhone.length < 10) return setError("Enter a valid 10-digit mobile number");
+    if (!/^\d{10}$/.test(forgotPhone)) return setError("Enter a valid 10-digit mobile number");
     if (newPass.length < 4) return setError("Password must be at least 4 characters");
     if (newPass !== confirmPass) return setError("Passwords do not match");
     try {
@@ -181,7 +181,7 @@ const Login = () => {
             </span>
           </div>
 
-          <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 10px 20px rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <ShieldCheck size={18} />
             {loading ? 'Logging in...' : 'Login Securely'}
           </button>

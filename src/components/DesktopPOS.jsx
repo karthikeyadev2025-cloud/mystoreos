@@ -64,7 +64,7 @@ const DesktopPOS = ({
   const targetPctInt = Math.round(targetPct * 100);
   const ringColor = targetPctInt >= 100 ? '#10b981' : targetPctInt >= 60 ? '#f59e0b' : '#ef4444';
   const motivation = targetPctInt >= 100 ? '🎉 Target Hit!' : targetPctInt >= 80 ? '💪 Almost There!' : targetPctInt >= 50 ? '📈 Keep Going!' : '🚀 Start Billing!';
-  const lowStockProducts = products.filter(p => p.stock < 10);
+  const lowStockProducts = products.filter(p => p.stock < (p.reorderLevel || 10));
 
   return (
     <div className="responsive-split-grid" style={{ alignItems: 'start' }}>

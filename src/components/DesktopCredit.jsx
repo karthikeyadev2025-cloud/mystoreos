@@ -35,7 +35,7 @@ const DesktopCredit = ({
   );
 
   const filteredCustomerCredits = customerCredits.filter(c => {
-    const parts = c.desc.split(':');
+    const parts = (c.desc || '').split(':');
     const custName = parts[1] || 'Customer';
     const custPhone = parts[2] || '';
     const custDesc = parts[3] || '';
@@ -248,7 +248,7 @@ const DesktopCredit = ({
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {filteredCustomerCredits.map(c => {
-                    const parts = c.desc.split(':');
+                    const parts = (c.desc || '').split(':');
                     const custName = parts[1] || 'Shopper';
                     const custPhone = parts[2] || '';
                     const custDesc = parts[3] || 'Credit Purchase';

@@ -19,7 +19,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!name || !phone || !pass) return toast.error('Please fill all fields');
-    if (phone.length < 10) return toast.error('Enter valid 10 digit phone number');
+    if (!/^\d{10}$/.test(phone)) return toast.error('Enter valid 10-digit mobile number (digits only)');
     
     try {
       setLoading(true);
@@ -67,8 +67,8 @@ const Register = () => {
           <div style={{ marginBottom: 20 }}>
             <label style={{ display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' }}>Mobile Number</label>
             <input 
-              type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-              placeholder="10-digit mobile number"
+              type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="10-digit mobile number" maxLength={10}
               style={{ width: '100%', padding: '14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
             />
           </div>
@@ -101,7 +101,7 @@ const Register = () => {
 
           <button 
             disabled={loading}
-            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #dc2626, #f59e0b)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(220,38,38,0.3)' }}
+            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #dc2626, #f59e0b)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 10px 20px rgba(220,38,38,0.3)' }}
           >
             {loading ? 'Submitting...' : (businessType === 'customer' ? 'Create Account' : 'Apply for Account')}
           </button>

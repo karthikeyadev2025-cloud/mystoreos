@@ -399,7 +399,7 @@ export const api = {
         hsn_code: extraData.hsnCode || null,
         gst_rate: parseInt(extraData.gstRate) || 0,
         cost_price: parseFloat(extraData.costPrice) || 0,
-      }).select().single();
+      }).select().maybeSingle();
       if (error) throw new Error(error.message);
       return toProduct(prodRow);
     }
@@ -456,7 +456,7 @@ export const api = {
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
 
-      const { data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().single();
+      const { data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().maybeSingle();
       if (error) throw new Error(error.message);
       return toProduct(updated);
     }
@@ -499,7 +499,7 @@ export const api = {
     if (isSupabaseConfigured) {
       const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).maybeSingle();
       if (existing) throw new Error("Phone already exists");
-      const { data, error } = await supabase.from('users').insert({ phone, pass, role: 'staff', name, status: 'active', staff_of: shopId }).select().single();
+      const { data, error } = await supabase.from('users').insert({ phone, pass, role: 'staff', name, status: 'active', staff_of: shopId }).select().maybeSingle();
       if (error) throw new Error(error.message);
       return toUser(data);
     }
@@ -614,15 +614,15 @@ export const api = {
         }
       }
 
-      const { data, error } = await supabase.from('orders').insert({ 
-        user_id: userId, 
-        shop_id: resolvedId, 
-        items, 
+      const { data, error } = await supabase.from('orders').insert({
+        user_id: userId,
+        shop_id: resolvedId,
+        items,
         total,
         customer_gstin: customerData.gstin || null,
         customer_address: customerData.address || null,
         customer_state_code: customerData.stateCode || null
-      }).select().single();
+      }).select().maybeSingle();
       if (error) throw new Error(error.message);
       
       // Decrement product inventory stock levels in Supabase
@@ -698,7 +698,7 @@ export const api = {
       
       for (const item of returnItems) {
         try {
-          const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).single();
+          const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).maybeSingle();
           if (prodData) {
             const currentStock = parseInt(prodData.stock) || 0;
             const newStock = currentStock + (parseInt(item.returnQty) || 1);
@@ -893,8 +893,10 @@ export const api = {
       if (data.gstin !== undefined) updateObj.gstin = data.gstin;
       if (data.stateCode !== undefined) updateObj.state_code = data.stateCode;
       if (data.businessAddress !== undefined) updateObj.business_address = data.businessAddress;
+      if (data.distributorPlanTier !== undefined) updateObj.distributor_plan_tier = data.distributorPlanTier;
+      if (data.distributorPlanExpiresAt !== undefined) updateObj.distributor_plan_expires_at = data.distributorPlanExpiresAt;
       await supabase.from('users').update(updateObj).eq('id', userId);
-      const { data: updated } = await supabase.from('users').select('*').eq('id', userId).single();
+      const { data: updated } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       return toUser(updated);
     }
     const db = getDB();
@@ -1181,11 +1183,12 @@ export const api = {
     return newProd;
   },
 
-  async placeStockOrder(shopId, shopName, items, total) {
+  async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('stock_orders').insert({
-        shop_id: shopId, shop_name: shopName, items, total, status: 'pending'
-      }).select().single();
+        shop_id: shopId, shop_name: shopName, items, total, status: 'pending',
+        distributor_id: distributorId || null,
+      }).select().maybeSingle();
       if (error) throw new Error(error.message);
       return { id: data.id, shopId: data.shop_id, shopName: data.shop_name, items: data.items, total: data.total, status: data.status, date: data.created_at };
     }

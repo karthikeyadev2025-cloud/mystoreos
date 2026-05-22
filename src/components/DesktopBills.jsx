@@ -15,14 +15,15 @@ const DesktopBills = ({
   const [selectedBill, setSelectedBill] = useState(null);
 
   const filteredOrders = orders.filter(o => {
-    const isDraft = o.userId.startsWith('estimate') || o.userId.startsWith('challan');
+    const uid = o.userId || '';
+    const isDraft = uid.startsWith('estimate') || uid.startsWith('challan');
     const matchesSubTab = billsSubTab === 'sales' ? !isDraft : isDraft;
-    
-    const { name, phone } = decodeOrderUserId(o.userId);
-    const matchesSearch = 
+
+    const { name, phone } = decodeOrderUserId(uid);
+    const matchesSearch =
       name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       phone.includes(searchTerm) ||
-      o.id.toLowerCase().includes(searchTerm.toLowerCase());
+      (o.id || '').toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesSubTab && matchesSearch;
   });
@@ -171,11 +172,11 @@ const DesktopBills = ({
                     <span style={{ flex: 1, textAlign: 'center' }}>QTY</span>
                     <span style={{ flex: 1, textAlign: 'right' }}>AMT</span>
                   </div>
-                  {selectedBill.items.map((item, idx) => (
+                  {(selectedBill.items || []).map((item, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '6px', lineHeight: '1.3' }}>
                       <span style={{ flex: 2 }}>{item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
-                      <span style={{ flex: 1, textAlign: 'center' }}>{item.qty}</span>
-                      <span style={{ flex: 1, textAlign: 'right' }}>₹{item.price * item.qty}</span>
+                      <span style={{ flex: 1, textAlign: 'center' }}>{item.qty || 0}</span>
+                      <span style={{ flex: 1, textAlign: 'right' }}>₹{((item.price || 0) * (item.qty || 0)).toFixed(0)}</span>
                     </div>
                   ))}
                 </div>

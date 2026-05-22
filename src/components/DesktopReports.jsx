@@ -130,7 +130,7 @@ const DesktopReports = ({
               </div>
               <PlanGate feature="tallyExport" fallback={<LockedFeature feature="tallyExport" compact />}>
                 <button
-                  onClick={() => downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name)}
+                  onClick={() => downloadTallyXML(orders.filter(o => ['Accepted', 'accepted', 'Completed', 'completed'].includes(o.status)), user.name)}
                   style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
                 >
                   <Download size={14} /> Export XML

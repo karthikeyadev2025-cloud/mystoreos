@@ -84,13 +84,15 @@ export default function TabSettings() {
   });
 
   const saveMaintenance = () => saveSection('maintenance', async () => {
-    await api.saveSiteTheme({ maintenanceMode: maintenance, maintenanceMessage: maintenanceMsg, registrationOpen });
+    const current = await api.getSiteTheme();
+    await api.saveSiteTheme({ ...current, maintenanceMode: maintenance, maintenanceMessage: maintenanceMsg, registrationOpen });
     await api.setMaintenanceMode(maintenance);
     await api.logAdminAction('maintenance_mode', 'settings', null, maintenance ? 'enabled' : 'disabled');
   });
 
   const saveContact = () => saveSection('contact', async () => {
-    await api.saveSiteTheme({ supportEmail, contactPhone, whatsappSupport });
+    const current = await api.getSiteTheme();
+    await api.saveSiteTheme({ ...current, supportEmail, contactPhone, whatsappSupport });
     await api.logAdminAction('update_contact_settings', 'settings', null, 'updated');
   });
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { IndianRupee, Trash2, Plus, TrendingDown, TrendingUp, Activity } from 'lucide-react';
 import { api } from '../lib/api';
-import { PlanGate } from './PlanGate';
 
 const EXPENSE_CATS = ['Rent', 'Electricity', 'Wages', 'Supplies', 'Packaging', 'Transport', 'Maintenance', 'Misc'];
 
@@ -55,15 +54,21 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
   const handleAdd = async () => {
     if (!form.amount || parseFloat(form.amount) <= 0 || !form.date) return;
     setSaving(true);
-    const entry = { date: form.date, category: form.category, description: form.description.trim(), amount: parseFloat(form.amount) };
-    await api.addExpense(targetShopId, entry);
-    const updated = await api.getExpenses(targetShopId, yearMonth);
-    setExpenses(updated);
-    setForm(f => ({ ...f, description: '', amount: '' }));
-    setSaving(false);
+    try {
+      const entry = { date: form.date, category: form.category, description: form.description.trim(), amount: parseFloat(form.amount) };
+      await api.addExpense(targetShopId, entry);
+      const updated = await api.getExpenses(targetShopId, yearMonth);
+      setExpenses(updated);
+      setForm(f => ({ ...f, description: '', amount: '' }));
+    } catch {
+      // toast not imported here — fail silently but at least unspin the button
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Delete this expense?')) return;
     await api.deleteExpense(targetShopId, id, yearMonth);
     setExpenses(prev => prev.filter(e => e.id !== id));
   };
@@ -76,10 +81,9 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [expenses]);
 
-  const sorted = [...expenses].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   return (
-    <PlanGate feature="gst">
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
@@ -189,7 +193,6 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
           </div>
         </div>
       </div>
-    </PlanGate>
   );
 };
 

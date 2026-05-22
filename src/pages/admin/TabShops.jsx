@@ -206,9 +206,10 @@ export default function TabShops() {
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         {shop.status === 'pending'
                           ? <button disabled={isBusy} onClick={() => approve(shop)} style={S.btn('#10b981')}><CheckCircle size={12} />Approve</button>
-                          : <button disabled={isBusy} onClick={() => suspend(shop)} style={S.btn('#f59e0b')}><XCircle size={12} />Suspend</button>
+                          : shop.status === 'active'
+                            ? <button disabled={isBusy} onClick={() => suspend(shop)} style={S.btn('#f59e0b')}><XCircle size={12} />Suspend</button>
+                            : <button disabled={isBusy} onClick={() => unsuspend(shop)} style={S.btn('#10b981')}><ShieldCheck size={12} />Activate</button>
                         }
-                        {shop.status !== 'pending' && <button disabled={isBusy} onClick={() => unsuspend(shop)} style={S.btn('#10b981')}><ShieldCheck size={12} />Activate</button>}
                         <button disabled={isBusy} onClick={() => setUpgradeModal(shop)} style={S.btn('#8b5cf6')}><ChevronDown size={12} />Plan</button>
                         <button disabled={isBusy} onClick={() => setResetModal(shop)} style={S.btn('#94a3b8')}><Key size={12} />Reset PW</button>
                         <button disabled={isBusy} onClick={() => del(shop)} style={S.btn('#ef4444')}><Trash2 size={12} />Delete</button>

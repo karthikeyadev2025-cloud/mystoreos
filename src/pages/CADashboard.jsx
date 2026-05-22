@@ -33,7 +33,7 @@ const CADashboard = () => {
     setLoading(true);
     try {
       const orders = await api.getShopOrders(shop.id);
-      setShopOrders(orders.filter(o => ['completed', 'Accepted', 'accepted'].includes(o.status)));
+      setShopOrders(orders.filter(o => ['Completed', 'completed', 'Accepted', 'accepted'].includes(o.status)));
     } catch (_err) {
       toast.error('Failed to load shop orders');
     } finally {
@@ -209,9 +209,9 @@ const CADashboard = () => {
                   </thead>
                   <tbody>
                     {filteredOrders.map(order => {
-                      let customerName = 'Cash Walk-in';
-                      if (order.userId) {
-                        const parts = order.userId.split(':');
+                      let customerName = order.customerName || 'Cash Walk-in';
+                      if (!order.customerName && order.userId) {
+                        const parts = (order.userId || '').split(':');
                         if (parts.length >= 2 && parts[1] && parts[1] !== 'Guest') customerName = parts[1];
                       }
                       const total = Number(order.total || order.totalAmount || 0);

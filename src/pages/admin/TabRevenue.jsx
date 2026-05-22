@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, FunnelChart, Funnel, LabelList } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, LabelList, Cell } from 'recharts';
 import { RefreshCw, TrendingUp, IndianRupee, Store, Truck, CreditCard } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
@@ -155,10 +155,8 @@ export default function TabRevenue() {
                 <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} width={65} />
                 <Tooltip contentStyle={CHART_STYLE} />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                  {shopTierBreakdown.map((row, i) => <rect key={i} fill={row.color} />)}
-                  {shopTierBreakdown.map((entry, index) => (
-                    <LabelList key={index} dataKey="count" position="right" style={{ fill: '#64748b', fontSize: 11 }} />
-                  ))}
+                  {shopTierBreakdown.map((row, i) => <Cell key={i} fill={row.color} />)}
+                  <LabelList dataKey="count" position="right" style={{ fill: '#64748b', fontSize: 11 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -187,12 +185,15 @@ export default function TabRevenue() {
       <div style={S.card}>
         <div style={{ color: '#f8fafc', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Conversion Funnel</div>
         <ResponsiveContainer width="100%" height={180}>
-          <FunnelChart>
+          <BarChart data={funnelData} layout="vertical" margin={{ left: 10, right: 40 }}>
+            <XAxis type="number" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} width={90} />
             <Tooltip contentStyle={CHART_STYLE} />
-            <Funnel dataKey="value" data={funnelData} isAnimationActive>
-              <LabelList position="right" fill="#94a3b8" stroke="none" dataKey="name" style={{ fontSize: '12px' }} />
-            </Funnel>
-          </FunnelChart>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              {funnelData.map((row, i) => <Cell key={i} fill={row.fill} />)}
+              <LabelList dataKey="value" position="right" style={{ fill: '#94a3b8', fontSize: 11 }} />
+            </Bar>
+          </BarChart>
         </ResponsiveContainer>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

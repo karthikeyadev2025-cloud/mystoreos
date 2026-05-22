@@ -7,7 +7,7 @@ const DesktopRestock = ({
   handleRestockQtyChange,
   handlePlaceRestockOrder
 }) => {
-  const lowStockList = products.filter(p => p.stock < 10);
+  const lowStockList = products.filter(p => p.stock < (p.reorderLevel || 10));
   const cartItemCount = Object.keys(restockCart).length;
 
   const basketTotal = Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
