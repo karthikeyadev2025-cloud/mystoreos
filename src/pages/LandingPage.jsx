@@ -1043,8 +1043,8 @@ const LandingPage = () => {
       ══════════════════════════════════════════════ */}
       <header style={{ position: 'sticky', top: 0, left: 0, right: 0, zIndex: 1000, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', background: 'rgba(3, 7, 18, 0.75)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '26px' }}>⚡</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="MyStore OS Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 0 15px rgba(251,191,36,0.3)' }} />
             <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '23px', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(135deg, #fff 40%, #fbbf24 70%, #10b981 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MyStore OS</span>
           </div>
 
