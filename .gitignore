@@ -35,3 +35,6 @@ CLAUDE.md
 [a-z].[a-z]*
 \(*
 \[*
+!*
+{
+supabase/.temp/
