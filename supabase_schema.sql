@@ -122,8 +122,10 @@ CREATE TABLE public.stock_orders (
     items JSONB NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'completed', 'rejected')),
+    distributor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX idx_stock_orders_distributor ON public.stock_orders(distributor_id);
 
 -- ============================================================
 -- Announcements table
@@ -334,7 +336,7 @@ CREATE POLICY "stock_orders_read_parties"
   ON public.stock_orders FOR SELECT
   USING (
     shop_id = auth.uid()
-    OR public.current_user_role() = 'distributor'
+    OR distributor_id = auth.uid()
     OR public.current_user_role() = 'admin'
   );
 
@@ -344,7 +346,10 @@ CREATE POLICY "stock_orders_insert_shop"
 
 CREATE POLICY "stock_orders_update_distributor"
   ON public.stock_orders FOR UPDATE
-  USING (public.current_user_role() IN ('distributor', 'admin'));
+  USING (
+    distributor_id = auth.uid()
+    OR public.current_user_role() = 'admin'
+  );
 
 -- ---- settings (admin only) ----
 CREATE POLICY "settings_admin_all"
@@ -426,16 +431,31 @@ CREATE POLICY "Public Read Access"
   USING (bucket_id = 'mystore-assets');
 
 DROP POLICY IF EXISTS "Public Insert Access" ON storage.objects;
-CREATE POLICY "Public Insert Access"
+DROP POLICY IF EXISTS "Authenticated Insert Access" ON storage.objects;
+CREATE POLICY "Authenticated Insert Access"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'mystore-assets');
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'mystore-assets'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
 
 DROP POLICY IF EXISTS "Public Update Access" ON storage.objects;
-CREATE POLICY "Public Update Access"
+DROP POLICY IF EXISTS "Authenticated Update Access" ON storage.objects;
+CREATE POLICY "Authenticated Update Access"
   ON storage.objects FOR UPDATE
-  USING (bucket_id = 'mystore-assets');
+  TO authenticated
+  USING (
+    bucket_id = 'mystore-assets'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
 
 DROP POLICY IF EXISTS "Public Delete Access" ON storage.objects;
-CREATE POLICY "Public Delete Access"
+DROP POLICY IF EXISTS "Authenticated Delete Access" ON storage.objects;
+CREATE POLICY "Authenticated Delete Access"
   ON storage.objects FOR DELETE
-  USING (bucket_id = 'mystore-assets');
+  TO authenticated
+  USING (
+    bucket_id = 'mystore-assets'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );

@@ -46,12 +46,13 @@ Deno.serve(async (req: Request) => {
     .lt('trial_started_at', trialCutoff.toISOString())
     .select('id, name, phone')
 
-  // 2. Expire paid plans that have passed plan_expires_at + grace period
+  // 2. Expire paid plans that have passed plan_expires_at + grace period.
+  // Active premium subscriptions have subscription = 'active' and subscription_tier set to starter/pro/enterprise.
   const { data: expiredPaid, error: paidError } = await supabase
     .from('users')
     .update({ subscription: 'expired' })
     .eq('role', 'shop')
-    .in('subscription', ['starter', 'pro', 'enterprise'])
+    .in('subscription', ['active', 'starter', 'pro', 'enterprise'])
     .not('plan_expires_at', 'is', null)
     .lt('plan_expires_at', graceCutoff.toISOString())
     .select('id, name, phone')

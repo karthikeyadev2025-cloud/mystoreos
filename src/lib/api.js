@@ -1193,7 +1193,7 @@ export const api = {
         distributor_id: distributorId || null,
       }).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { id: data.id, shopId: data.shop_id, shopName: data.shop_name, items: data.items, total: data.total, status: data.status, date: data.created_at };
+      return { id: data.id, shopId: data.shop_id, shopName: data.shop_name, items: data.items, total: data.total, status: data.status, date: data.created_at, distributorId: data.distributor_id };
     }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
@@ -1201,7 +1201,8 @@ export const api = {
       id: 'so_' + generateId(),
       shopId, shopName, items, total,
       status: 'pending',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      distributorId: distributorId || null
     };
     db.stockOrders.push(newOrder);
     saveDB(db);
@@ -1215,11 +1216,13 @@ export const api = {
       const { data } = await query;
       return (data || []).map(row => ({
         id: row.id, shopId: row.shop_id, shopName: row.shop_name,
-        items: row.items, total: row.total, status: row.status, date: row.created_at
+        items: row.items, total: row.total, status: row.status, date: row.created_at,
+        distributorId: row.distributor_id
       }));
     }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
+    if (distributorId) return db.stockOrders.filter(o => o.distributorId === distributorId);
     return db.stockOrders;
   },
 
@@ -1446,8 +1449,9 @@ export const api = {
   // ---- RAZORPAY PAYMENT ----
   async createRazorpayOrder(planId, amount) {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const userId = await this._getAuthUid();
     const { data, error } = await supabase.functions.invoke('razorpay-create-order', {
-      body: { planId, amount, currency: 'INR' },
+      body: { planId, amount, currency: 'INR', userId },
     });
     if (error) throw formatApiError(error, 'Failed to create order');
     return data; // { orderId, amount, currency }

@@ -1,9 +1,8 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const PLAN_TIER: Record<string, string> = { starter: 'starter', pro: 'pro', enterprise: 'enterprise' };
 
-serve(async (req) => {
+Deno.serve(async (req: Request) => {
   try {
     const webhookSecret = Deno.env.get('RAZORPAY_WEBHOOK_SECRET');
     if (!webhookSecret) return new Response('Not configured', { status: 500 });
@@ -14,8 +13,11 @@ serve(async (req) => {
     // HMAC-SHA256 verification
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
-      'raw', encoder.encode(webhookSecret),
-      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+      'raw',
+      encoder.encode(webhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign'],
     );
     const sigBytes = await crypto.subtle.sign('HMAC', key, encoder.encode(rawBody));
     const expectedSig = Array.from(new Uint8Array(sigBytes))
@@ -32,7 +34,7 @@ serve(async (req) => {
     const payment = payload.payload?.payment?.entity;
     if (!payment) return new Response('OK', { status: 200 });
 
-    // Use `wh_<payment_id>` so webhook and verify-payment have different event IDs
+    // Use `wh_<payment_id>` so webhook and verify-payment have different event IDs (prevent race/lock)
     const eventId = `wh_${payment.id}`;
 
     const supabase = createClient(
@@ -54,15 +56,22 @@ serve(async (req) => {
     const tier = PLAN_TIER[planId] ?? 'pro';
     const planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Resolve user by phone contact from Razorpay payment
-    const contact: string = (payment.contact ?? '')
-      .replace(/^\+91/, '').replace(/\D/g, '').slice(-10);
+    // 1. Resolve user ID directly from notes first
+    let userId: string | null = notes.userId ?? notes.user_id ?? null;
 
-    let userId: string | null = null;
-    if (contact) {
-      const { data: userRow } = await supabase
-        .from('users').select('id').eq('phone', contact).maybeSingle();
-      userId = userRow?.id ?? null;
+    // 2. Fallback to phone contact mapping if no userId is in notes
+    if (!userId) {
+      const contact: string = (payment.contact ?? '')
+        .replace(/^\+91/, '').replace(/\D/g, '').slice(-10);
+
+      if (contact) {
+        const { data: userRow } = await supabase
+          .from('users')
+          .select('id')
+          .eq('phone', contact)
+          .maybeSingle();
+        userId = userRow?.id ?? null;
+      }
     }
 
     if (userId) {
