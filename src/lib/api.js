@@ -398,9 +398,9 @@ export const api = {
       expiryDate: expiryDate || '',
       variants: variants || '',
       reorderLevel: parseInt(reorderLevel) || 10,
-      hsnCode: data?.hsnCode || '',
-      gstRate: parseInt(data?.gstRate) || 0,
-      costPrice: parseFloat(data?.costPrice) || 0,
+      hsnCode: extraData?.hsnCode || '',
+      gstRate: parseInt(extraData?.gstRate) || 0,
+      costPrice: parseFloat(extraData?.costPrice) || 0,
     };
     db.products.push(newProd);
     saveDB(db);
