@@ -1550,5 +1550,280 @@ export const api = {
         shopName: shop ? shop.name : 'Unknown Shop'
       };
     }).reverse();
-  }
+  },
+
+  // ---- ADMIN: USER MANAGEMENT ----
+  async getAllUsers() {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+      return (data || []).map(toUser);
+    }
+    const db = getDB();
+    return [...db.users].reverse();
+  },
+
+  async searchUsers(query) {
+    const q = (query || '').toLowerCase();
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users').select('*')
+        .or(`name.ilike.%${q}%,phone.ilike.%${q}%`).limit(50);
+      return (data || []).map(toUser);
+    }
+    const db = getDB();
+    return db.users.filter(u => u.name?.toLowerCase().includes(q) || u.phone?.includes(q));
+  },
+
+  async updateUserSubscription(userId, tier, expiresAt) {
+    const updateObj = { subscription_tier: tier, plan_expires_at: expiresAt || null };
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update(updateObj).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.subscriptionTier = tier; u.planExpiresAt = expiresAt || null; saveDB(db); }
+  },
+
+  async updateDistributorSubscription(userId, tier, expiresAt) {
+    const updateObj = { distributor_plan_tier: tier, distributor_plan_expires_at: expiresAt || null };
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update(updateObj).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.distributorPlanTier = tier; u.distributorPlanExpiresAt = expiresAt || null; saveDB(db); }
+  },
+
+  async updateUserRole(userId, role) {
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update({ role }).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.role = role; saveDB(db); }
+  },
+
+  async suspendUser(userId) {
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update({ status: 'pending' }).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.status = 'pending'; saveDB(db); }
+  },
+
+  async unsuspendUser(userId) {
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update({ status: 'active' }).eq('id', userId);
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.status = 'active'; saveDB(db); }
+  },
+
+  async bulkUpdateSubscription(userIds, tier) {
+    if (isSupabaseConfigured) {
+      await supabase.from('users').update({ subscription_tier: tier }).in('id', userIds);
+      return;
+    }
+    const db = getDB();
+    userIds.forEach(id => {
+      const u = db.users.find(x => x.id === id);
+      if (u) u.subscriptionTier = tier;
+    });
+    saveDB(db);
+  },
+
+  // ---- ADMIN: ANALYTICS ----
+  async getRevenueByMonth(months = 6) {
+    const PLAN_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
+    const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
+    if (isSupabaseConfigured) {
+      const { data: users } = await supabase.from('users').select('role, subscription_tier, distributor_plan_tier, created_at, plan_expires_at');
+      const result = [];
+      for (let i = months - 1; i >= 0; i--) {
+        const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
+        const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
+        const activeShops = (users || []).filter(u => u.role === 'shop' && u.subscription_tier && u.subscription_tier !== 'trial');
+        const shopRev = activeShops.reduce((s, u) => s + (PLAN_PRICES[u.subscription_tier] || 0), 0);
+        const activeDists = (users || []).filter(u => u.role === 'distributor');
+        const distRev = activeDists.reduce((s, u) => s + (DIST_PRICES[u.distributor_plan_tier] || 0), 0);
+        result.push({ month: label, shops: shopRev, distributors: distRev, total: shopRev + distRev });
+      }
+      return result;
+    }
+    const db = getDB();
+    const result = [];
+    for (let i = months - 1; i >= 0; i--) {
+      const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
+      const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
+      const shopRev = db.users.filter(u => u.role === 'shop' && u.subscription === 'active').length * 999;
+      result.push({ month: label, shops: shopRev, distributors: 0, total: shopRev });
+    }
+    return result;
+  },
+
+  async getUserGrowthByMonth(months = 6) {
+    if (isSupabaseConfigured) {
+      const { data: users } = await supabase.from('users').select('role, created_at');
+      const result = [];
+      for (let i = months - 1; i >= 0; i--) {
+        const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
+        const next = new Date(d); next.setMonth(next.getMonth() + 1);
+        const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
+        const inMonth = (users || []).filter(u => {
+          const c = new Date(u.created_at);
+          return c >= d && c < next;
+        });
+        result.push({ month: label, shops: inMonth.filter(u => u.role === 'shop').length, customers: inMonth.filter(u => u.role === 'customer').length, distributors: inMonth.filter(u => u.role === 'distributor').length });
+      }
+      return result;
+    }
+    const months6 = [];
+    for (let i = months - 1; i >= 0; i--) {
+      const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
+      months6.push({ month: d.toLocaleString('default', { month: 'short', year: '2-digit' }), shops: 0, customers: 0, distributors: 0 });
+    }
+    return months6;
+  },
+
+  async getExpiredTrials() {
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users').select('*')
+        .eq('role', 'shop').eq('subscription', 'trial').lt('trial_started_at', cutoff);
+      return (data || []).map(toUser);
+    }
+    const db = getDB();
+    return db.users.filter(u => u.role === 'shop' && u.subscription === 'trial' && u.trialStartedAt && new Date(u.trialStartedAt) < new Date(cutoff));
+  },
+
+  async getTopShopsByRevenue(limit = 10) {
+    if (isSupabaseConfigured) {
+      const { data: orders } = await supabase.from('orders').select('shop_id, total').eq('status', 'Completed');
+      const { data: users } = await supabase.from('users').select('id, name, subscription_tier');
+      const rev = {};
+      (orders || []).forEach(o => { rev[o.shop_id] = (rev[o.shop_id] || 0) + Number(o.total); });
+      return Object.entries(rev)
+        .sort((a, b) => b[1] - a[1]).slice(0, limit)
+        .map(([id, total]) => {
+          const u = (users || []).find(x => x.id === id);
+          return { id, name: u?.name || 'Unknown', total, tier: u?.subscription_tier || 'starter' };
+        });
+    }
+    const db = getDB();
+    const rev = {};
+    (db.orders || []).filter(o => o.status === 'Completed').forEach(o => { rev[o.shopId] = (rev[o.shopId] || 0) + Number(o.total); });
+    return Object.entries(rev).sort((a, b) => b[1] - a[1]).slice(0, limit)
+      .map(([id, total]) => ({ id, name: db.users.find(u => u.id === id)?.name || 'Unknown', total }));
+  },
+
+  async getTopDistributorsByCredit(limit = 10) {
+    if (isSupabaseConfigured) {
+      const { data: credits } = await supabase.from('credits').select('from_id, amount');
+      const { data: users } = await supabase.from('users').select('id, name');
+      const totals = {};
+      (credits || []).forEach(c => { totals[c.from_id] = (totals[c.from_id] || 0) + Number(c.amount); });
+      return Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, limit)
+        .map(([id, total]) => ({ id, name: (users || []).find(u => u.id === id)?.name || 'Unknown', total }));
+    }
+    const db = getDB();
+    const totals = {};
+    (db.credits || []).forEach(c => { totals[c.fromId] = (totals[c.fromId] || 0) + Number(c.amount); });
+    return Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, limit)
+      .map(([id, total]) => ({ id, name: db.users.find(u => u.id === id)?.name || 'Unknown', total }));
+  },
+
+  async getOrdersByDateRange(startDate, endDate) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('orders').select('*')
+        .gte('created_at', startDate).lte('created_at', endDate).order('created_at', { ascending: false });
+      return (data || []).map(toOrder);
+    }
+    const db = getDB();
+    const s = new Date(startDate), e = new Date(endDate);
+    return (db.orders || []).filter(o => { const d = new Date(o.date || o.created_at); return d >= s && d <= e; }).reverse();
+  },
+
+  // ---- ADMIN: AUDIT LOG ----
+  async logAdminAction(action, targetId, oldVal, newVal) {
+    const entry = { action, targetId, oldVal, newVal, ts: new Date().toISOString() };
+    const key = 'admin_audit_log';
+    try {
+      if (isSupabaseConfigured) {
+        const existing = await this.getSiteConfig(key, []);
+        const log = Array.isArray(existing) ? existing : [];
+        log.unshift(entry);
+        await this.saveSiteConfig(key, log.slice(0, 500));
+      } else {
+        const db = getDB();
+        if (!db.siteConfig) db.siteConfig = {};
+        const log = Array.isArray(db.siteConfig[key]) ? db.siteConfig[key] : [];
+        log.unshift(entry);
+        db.siteConfig[key] = log.slice(0, 500);
+        saveDB(db);
+      }
+    } catch (_e) { /* audit failures are non-fatal */ }
+  },
+
+  async getAdminAuditLog() {
+    const raw = await this.getSiteConfig('admin_audit_log', []);
+    return Array.isArray(raw) ? raw : [];
+  },
+
+  // ---- ADMIN: MAINTENANCE & SITE SETTINGS ----
+  async getMaintenanceMode() {
+    const val = await this.getSiteConfig('maintenanceMode', false);
+    return val === true || val === 'true';
+  },
+
+  async setMaintenanceMode(enabled) {
+    await this.saveSiteConfig('maintenanceMode', enabled);
+    window.dispatchEvent(new CustomEvent('site-config-updated', { detail: { maintenanceMode: enabled } }));
+  },
+
+  async getSiteTheme() {
+    return await this.getSiteConfig('site_theme', {});
+  },
+
+  async saveSiteTheme(themeObj) {
+    await this.saveSiteConfig('site_theme', themeObj);
+    window.dispatchEvent(new CustomEvent('site-config-updated', { detail: themeObj }));
+  },
+
+  // ---- ADMIN: CSV EXPORTS ----
+  buildCSV(headers, rows) {
+    const BOM = '﻿';
+    const escape = (v) => {
+      const s = v === null || v === undefined ? '' : String(v);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [headers.map(escape).join(','), ...rows.map(r => r.map(escape).join(','))];
+    return BOM + lines.join('\n');
+  },
+
+  async exportUsersCSV() {
+    const users = await this.getAllUsers();
+    const headers = ['ID', 'Name', 'Phone', 'Role', 'Status', 'Subscription', 'Tier', 'Created'];
+    const rows = users.map(u => [u.id, u.name, u.phone, u.role, u.status, u.subscription || '', u.subscriptionTier || u.distributorPlanTier || '', u.createdAt || '']);
+    return this.buildCSV(headers, rows);
+  },
+
+  async exportOrdersCSV(startDate, endDate) {
+    const orders = startDate ? await this.getOrdersByDateRange(startDate, endDate) : await this.getGlobalOrders();
+    const headers = ['ID', 'Shop', 'Customer', 'Total', 'Status', 'Date'];
+    const rows = orders.map(o => [o.id, o.shopName || o.shopId, o.userName || o.userId, o.total, o.status, o.date || o.created_at || '']);
+    return this.buildCSV(headers, rows);
+  },
+
+  async exportCreditsCSV() {
+    const credits = await this.getGlobalCredits();
+    const headers = ['ID', 'From', 'To Shop', 'Description', 'Amount', 'Paid', 'Date'];
+    const rows = credits.map(c => [c.id, c.fromName || c.fromId, c.toName || c.toShopId, c.desc || '', c.amount, c.paid ? 'Yes' : 'No', c.date || '']);
+    return this.buildCSV(headers, rows);
+  },
 };

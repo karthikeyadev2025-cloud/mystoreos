@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { api } from './lib/api';
+import { useState, lazy, Suspense } from 'react';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { useOfflineSync } from './hooks/useOfflineSync';
 import { I18nProvider } from './lib/i18n';
+import { SiteConfigProvider, useSiteConfig } from './lib/siteConfig';
 import ErrorBoundary from './components/ErrorBoundary';
 import { DashboardSkeleton } from './components/Skeleton';
 
@@ -55,23 +55,45 @@ const RoleRouter = () => {
 const AppLayout = ({ children }) => <div className="app-container">{children}</div>;
 const WideAppLayout = ({ children }) => <div className="app-container wide-layout">{children}</div>;
 
+const BANNER_COLORS = { info: '#3b82f6', warning: '#f59e0b', success: '#10b981', error: '#ef4444' };
+
+function AnnouncementBanner() {
+  const { config } = useSiteConfig();
+  const [dismissedKey, setDismissedKey] = useState(() => sessionStorage.getItem('ann_dismissed') || '');
+  const dismissed = dismissedKey === config.announcementText;
+  if (!config.announcementActive || !config.announcementText || dismissed) return null;
+  return (
+    <div style={{ background: BANNER_COLORS[config.announcementType] || '#3b82f6', color: '#fff', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Outfit, sans-serif' }}>
+      <span>{config.announcementText}</span>
+      <button onClick={() => { sessionStorage.setItem('ann_dismissed', config.announcementText); setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
+    </div>
+  );
+}
+
+function MaintenanceModeOverlay() {
+  const { config } = useSiteConfig();
+  const { user } = useAuth();
+  if (!config.maintenanceMode || user?.role === 'admin') return null;
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ fontSize: '48px' }}>🔧</div>
+      <h2 style={{ color: '#f8fafc', fontSize: '24px', fontWeight: 700 }}>Under Maintenance</h2>
+      <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', maxWidth: '400px' }}>{config.maintenanceMessage || 'We are performing scheduled maintenance. Back soon!'}</p>
+    </div>
+  );
+}
+
 function App() {
   useOfflineSync();
-  const [customCSS, setCustomCSS] = useState('');
-
-  useEffect(() => {
-    api.getSiteConfig('customCSS', '').then(setCustomCSS).catch(() => {});
-    const handler = (e) => setCustomCSS(e.detail || '');
-    window.addEventListener('custom-css-updated', handler);
-    return () => window.removeEventListener('custom-css-updated', handler);
-  }, []);
 
   return (
     <ErrorBoundary fullPage>
       <I18nProvider>
-        <AuthProvider>
-          {customCSS && <style dangerouslySetInnerHTML={{ __html: customCSS }} />}
+        <SiteConfigProvider>
+          <AuthProvider>
           <BrowserRouter>
+              <AnnouncementBanner />
+              <MaintenanceModeOverlay />
             <Suspense fallback={<DashboardSkeleton />}>
               <Routes>
                 <Route path="/" element={
@@ -118,7 +140,8 @@ function App() {
               </Routes>
             </Suspense>
           </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </SiteConfigProvider>
       </I18nProvider>
     </ErrorBoundary>
   );
