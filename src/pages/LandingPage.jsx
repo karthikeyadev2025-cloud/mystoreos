@@ -14,7 +14,7 @@ import {
 import { api } from '../lib/api';
 import { useSiteConfig } from '../lib/siteConfig';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 // ─── reduce-motion helper ───────────────────────────────────────────────────
 const prefersReduced = () =>

@@ -65,9 +65,9 @@ export function I18nProvider({ children }) {
   }), [t, locale, setLocale, loadingLang]);
 
   return (
-    <I18nContext.Provider value={value}>
+    <I18nContext value={value}>
       {children}
-    </I18nContext.Provider>
+    </I18nContext>
   );
 }
 

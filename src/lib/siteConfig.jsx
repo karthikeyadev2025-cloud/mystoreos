@@ -1,4 +1,4 @@
-import { createElement, createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { isSupabaseConfigured, supabase } from './supabase';
 import { api } from './api';
 
@@ -136,7 +136,11 @@ export function SiteConfigProvider({ children }) {
     });
   }, []);
 
-  return createElement(SiteConfigContext.Provider, { value: { config, updateConfig, updateConfigs } }, children);
+  return (
+    <SiteConfigContext value={{ config, updateConfig, updateConfigs }}>
+      {children}
+    </SiteConfigContext>
+  );
 }
 
 export const useSiteConfig = () => useContext(SiteConfigContext);
