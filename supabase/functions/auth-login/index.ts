@@ -21,6 +21,9 @@ function rowToProfile(row: Record<string, unknown>) {
     subscriptionTier: row.subscription_tier || 'starter',
     planExpiresAt: row.plan_expires_at || null,
     trialStartedAt: row.trial_started_at || null,
+    distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
+    distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
+    distributorTrialStartedAt: row.distributor_trial_started_at || null,
   };
 }
 

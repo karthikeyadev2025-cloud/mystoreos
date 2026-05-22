@@ -73,6 +73,9 @@ serve(async (req) => {
       subscriptionTier: profileRow.subscription_tier || 'starter',
       planExpiresAt: profileRow.plan_expires_at || null,
       trialStartedAt: profileRow.trial_started_at || null,
+      distributorPlanTier: profileRow.distributor_plan_tier || 'basic_distributor',
+      distributorPlanExpiresAt: profileRow.distributor_plan_expires_at || null,
+      distributorTrialStartedAt: profileRow.distributor_trial_started_at || null,
     };
 
     return json({ session: signIn.session, profile });
