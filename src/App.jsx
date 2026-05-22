@@ -95,55 +95,73 @@ function App() {
           <BrowserRouter>
               <AnnouncementBanner />
               <MaintenanceModeOverlay />
-            <Suspense fallback={<DashboardSkeleton />}>
               <Routes>
                 <Route path="/" element={
-                  <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
+                  </Suspense>
                 } />
 
                 <Route path="/alternative/:competitor" element={
-                  <ErrorBoundary fullPage><AlternativeComparison /></ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AlternativeComparison /></ErrorBoundary>
+                  </Suspense>
                 } />
 
                 <Route path="/login" element={
-                  <ErrorBoundary fullPage><AppLayout><Login /></AppLayout></ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AppLayout><Login /></AppLayout></ErrorBoundary>
+                  </Suspense>
                 } />
                 <Route path="/register" element={
-                  <ErrorBoundary fullPage><AppLayout><Register /></AppLayout></ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AppLayout><Register /></AppLayout></ErrorBoundary>
+                  </Suspense>
                 } />
 
                 <Route path="/s/:shopId" element={
-                  <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                  </Suspense>
                 } />
 
                 <Route path="/dashboard" element={<RoleRouter />} />
                 <Route path="/shop/*" element={
                   <PrivateRoute role={['shop', 'staff']}>
-                    <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
                   </PrivateRoute>
                 } />
                 <Route path="/user/*" element={
                   <PrivateRoute role="customer">
-                    <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
                   </PrivateRoute>
                 } />
                 <Route path="/distributor/*" element={
                   <PrivateRoute role="distributor">
-                    <ErrorBoundary fullPage><WideAppLayout><DistributorDashboard /></WideAppLayout></ErrorBoundary>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><DistributorDashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
                   </PrivateRoute>
                 } />
                 <Route path="/admin/*" element={
                   <PrivateRoute role="admin">
-                    <ErrorBoundary fullPage><AdminDashboard /></ErrorBoundary>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><AdminDashboard /></ErrorBoundary>
+                    </Suspense>
                   </PrivateRoute>
                 } />
                 <Route path="/ca/*" element={
                   <PrivateRoute role="ca">
-                    <ErrorBoundary fullPage><WideAppLayout><CADashboard /></WideAppLayout></ErrorBoundary>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><CADashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
                   </PrivateRoute>
                 } />
               </Routes>
-            </Suspense>
           </BrowserRouter>
           </AuthProvider>
         </SiteConfigProvider>
