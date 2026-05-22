@@ -13,7 +13,6 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    this.setState({ errorInfo });
     // Report to Sentry if available
     if (typeof window !== 'undefined' && window.Sentry) {
       window.Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } });
@@ -32,6 +31,20 @@ class ErrorBoundary extends Component {
         return typeof this.props.fallback === 'function'
           ? this.props.fallback({ error: this.state.error, retry: this.handleRetry })
           : this.props.fallback;
+      }
+
+      let isDev = false;
+      try {
+        isDev = !!(import.meta.env && import.meta.env.DEV);
+      } catch {
+        // Safe fallback
+      }
+
+      let errorString = '';
+      try {
+        errorString = this.state.error ? String(this.state.error.message || this.state.error) : '';
+      } catch {
+        errorString = 'An unknown error occurred.';
       }
 
       return (
@@ -57,14 +70,14 @@ class ErrorBoundary extends Component {
               We hit an unexpected error. Your data is safe — try refreshing the page or click retry below.
             </p>
 
-            {import.meta.env.DEV && this.state.error && (
+            {isDev && errorString && (
               <div style={{
                 background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
                 borderRadius: '10px', padding: '12px', marginBottom: '20px', textAlign: 'left',
                 maxHeight: '120px', overflowY: 'auto',
               }}>
                 <p style={{ margin: 0, fontSize: '11px', color: '#f87171', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-                  {this.state.error.toString()}
+                  {errorString}
                 </p>
               </div>
             )}
