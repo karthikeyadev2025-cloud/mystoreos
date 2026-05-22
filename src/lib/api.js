@@ -931,11 +931,12 @@ export const api = {
   // ---- CMS (Site Config) ----
   async getSiteConfig(key, defaultData) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('site_config').select('value').eq('key', key).maybeSingle();
-      return data?.value || defaultData;
+      const { data, error } = await supabase.from('site_config').select('value').eq('key', key).maybeSingle();
+      if (error) return defaultData;
+      return data?.value ?? defaultData;
     }
     const db = getDB();
-    return db.siteConfig?.[key] || defaultData;
+    return db.siteConfig?.[key] ?? defaultData;
   },
 
   async saveSiteConfig(key, value) {
