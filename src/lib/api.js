@@ -164,7 +164,7 @@ export const api = {
 
   async loginByPhone(phone) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).single();
+      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
       if (error || !data) throw new Error("Phone number not registered. Please register first.");
       if (data.status === 'pending') throw new Error("Account pending admin approval");
       return toUser(data);
@@ -359,32 +359,32 @@ export const api = {
     return db.products.filter(p => p.shopId === shopId);
   },
 
-  async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10, data = {}) {
+  async addProduct(shopId, name, price, barcode, stock = 100, batchNumber = '', expiryDate = '', variants = '', reorderLevel = 10, extraData = {}) {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: data?.hsnCode || null, gst_rate: parseInt(data?.gstRate) || 0, cost_price: parseFloat(data?.costPrice) || 0 };
+        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0 };
         await enqueue({ table: 'products', action: 'insert', data: row });
         const db = getDB(); db.products = db.products || [];
-        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: data?.hsnCode || '', gstRate: parseInt(data?.gstRate) || 0, costPrice: parseFloat(data?.costPrice) || 0 });
+        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0 });
         saveDB(db); return toProduct(row);
       }
-      const { data, error } = await supabase.from('products').insert({
-        shop_id: shopId, 
-        name, 
-        price: parseFloat(price), 
-        barcode, 
+      const { data: prodRow, error } = await supabase.from('products').insert({
+        shop_id: shopId,
+        name,
+        price: parseFloat(price),
+        barcode,
         stock: parseInt(stock) || 0,
         batch_number: batchNumber || null,
         expiry_date: expiryDate || null,
         variants: variants || null,
         reorder_level: parseInt(reorderLevel) || 10,
-        hsn_code: data.hsnCode || null,
-        gst_rate: parseInt(data.gstRate) || 0,
-        cost_price: parseFloat(data.costPrice) || 0,
+        hsn_code: extraData.hsnCode || null,
+        gst_rate: parseInt(extraData.gstRate) || 0,
+        cost_price: parseFloat(extraData.costPrice) || 0,
       }).select().single();
       if (error) throw new Error(error.message);
-      return toProduct(data);
+      return toProduct(prodRow);
     }
     const db = getDB();
     const newProd = { 
@@ -480,7 +480,7 @@ export const api = {
   // ---- STAFF ----
   async addStaff(shopId, phone, pass, name) {
     if (isSupabaseConfigured) {
-      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).single();
+      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).maybeSingle();
       if (existing) throw new Error("Phone already exists");
       const { data, error } = await supabase.from('users').insert({ phone, pass, role: 'staff', name, status: 'active', staff_of: shopId }).select().single();
       if (error) throw new Error(error.message);
@@ -505,7 +505,7 @@ export const api = {
 
   async verifyAdminPin(shopId, pin) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('pass').eq('id', shopId).single();
+      const { data } = await supabase.from('users').select('pass').eq('id', shopId).maybeSingle();
       if (!data || data.pass !== pin) throw new Error("Invalid Admin PIN");
       return true;
     }
@@ -612,7 +612,7 @@ export const api = {
       if (items && Array.isArray(items)) {
         for (const item of items) {
           try {
-            const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).single();
+            const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).maybeSingle();
             if (prodData) {
               const currentStock = parseInt(prodData.stock) || 0;
               const newStock = Math.max(0, currentStock - (parseInt(item.qty) || 1));
@@ -784,7 +784,7 @@ export const api = {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
       if (isUUID) {
         try {
-          const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').single();
+          const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').maybeSingle();
           if (data) return toUser(data);
         } catch (err) {
           console.error("Supabase getShopById UUID lookup failed:", err);
@@ -793,7 +793,7 @@ export const api = {
       
       // Fallback: try matching by phone or search mockDB
       try {
-        const { data } = await supabase.from('users').select('*').eq('phone', shopId).eq('role', 'shop').single();
+        const { data } = await supabase.from('users').select('*').eq('phone', shopId).eq('role', 'shop').maybeSingle();
         if (data) return toUser(data);
       } catch (_err) {
         // Silent
@@ -1180,9 +1180,11 @@ export const api = {
     return newOrder;
   },
 
-  async getDistributorOrders() {
+  async getDistributorOrders(distributorId) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('stock_orders').select('*').order('created_at', { ascending: false });
+      let query = supabase.from('stock_orders').select('*').order('created_at', { ascending: false });
+      if (distributorId) query = query.eq('distributor_id', distributorId);
+      const { data } = await query;
       return (data || []).map(row => ({
         id: row.id, shopId: row.shop_id, shopName: row.shop_name,
         items: row.items, total: row.total, status: row.status, date: row.created_at
@@ -1211,12 +1213,12 @@ export const api = {
       await supabase.from('stock_orders').update({ status }).eq('id', orderId);
       // If accepted, also create a credit entry
       if (status === 'accepted') {
-        const { data: order } = await supabase.from('stock_orders').select('*').eq('id', orderId).single();
+        const { data: order } = await supabase.from('stock_orders').select('*').eq('id', orderId).maybeSingle();
         if (order) {
           await supabase.from('credits').insert({
             from_id: distributorId || order.shop_id,
             to_shop_id: order.shop_id,
-            description: `Inventory: ${order.items.map(i => `${i.name} (x${i.qty})`).join(', ')}`,
+            description: `Inventory: ${(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}`,
             amount: parseFloat(order.total)
           });
         }
@@ -1332,7 +1334,7 @@ export const api = {
     const realUsers = db.users.filter(u => !DEMO_IDS.has(u.id) && !DEMO_PHONES.has(u.phone));
     let usersMigrated = 0, productsMigrated = 0, skipped = 0;
     for (const user of realUsers) {
-      const { data: exists } = await supabase.from('users').select('id').eq('phone', user.phone).single();
+      const { data: exists } = await supabase.from('users').select('id').eq('phone', user.phone).maybeSingle();
       if (exists) { skipped++; continue; }
       const hashedPass = user.pass?.startsWith('$2b$') ? user.pass : await bcrypt.hash(user.pass || 'changeme', 10);
       const { data: newUser, error } = await supabase.from('users').insert({
