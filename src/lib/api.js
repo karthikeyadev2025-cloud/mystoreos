@@ -888,7 +888,7 @@ export const api = {
   // ---- SETTINGS ----
   async getSettings() {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('settings').select('*').eq('id', 1).single();
+      const { data } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
       return { razorpayKey: data?.razorpay_key || '' };
     }
     const db = getDB();
@@ -1361,41 +1361,56 @@ export const api = {
   },
 
   // ---- ACTIVE SESSIONS (multi-device enforcement) ----
+  async _getAuthUid() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user?.id || null;
+  },
+
   async registerSession(userId, deviceFingerprint) {
     if (!isSupabaseConfigured) return;
-    await supabase.from('active_sessions').insert({
-      user_id: userId,
-      session_token: crypto.randomUUID(),
-      device_fingerprint: deviceFingerprint,
-      last_seen_at: new Date().toISOString(),
-    });
+    try {
+      const authUid = await this._getAuthUid() || userId;
+      await supabase.from('active_sessions').insert({
+        user_id: authUid,
+        session_token: crypto.randomUUID(),
+        device_fingerprint: deviceFingerprint,
+        last_seen_at: new Date().toISOString(),
+      });
+    } catch { /* non-critical — ignore RLS failures for legacy accounts */ }
   },
 
   async getActiveSessions(userId) {
     if (!isSupabaseConfigured) return [];
-    // Prune stale sessions (>24 h silent)
-    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    await supabase.from('active_sessions').delete().eq('user_id', userId).lt('last_seen_at', cutoff);
-    const { data } = await supabase.from('active_sessions').select('*').eq('user_id', userId);
-    return (data || []).map(s => ({
-      id: s.id,
-      deviceFingerprint: s.device_fingerprint,
-      lastSeenAt: s.last_seen_at,
-      createdAt: s.created_at,
-    }));
+    try {
+      const authUid = await this._getAuthUid() || userId;
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      await supabase.from('active_sessions').delete().eq('user_id', authUid).lt('last_seen_at', cutoff);
+      const { data } = await supabase.from('active_sessions').select('*').eq('user_id', authUid);
+      return (data || []).map(s => ({
+        id: s.id,
+        deviceFingerprint: s.device_fingerprint,
+        lastSeenAt: s.last_seen_at,
+        createdAt: s.created_at,
+      }));
+    } catch { return []; }
   },
 
   async updateSessionLastSeen(sessionId) {
     if (!isSupabaseConfigured) return;
-    await supabase.from('active_sessions')
-      .update({ last_seen_at: new Date().toISOString() })
-      .eq('id', sessionId);
+    try {
+      await supabase.from('active_sessions')
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', sessionId);
+    } catch { /* non-critical */ }
   },
 
   async revokeOtherSessions(userId, keepFingerprint) {
     if (!isSupabaseConfigured) return;
-    await supabase.from('active_sessions')
-      .delete().eq('user_id', userId).neq('device_fingerprint', keepFingerprint);
+    try {
+      const authUid = await this._getAuthUid() || userId;
+      await supabase.from('active_sessions')
+        .delete().eq('user_id', authUid).neq('device_fingerprint', keepFingerprint);
+    } catch { /* non-critical */ }
   },
 
   // ---- RAZORPAY PAYMENT ----

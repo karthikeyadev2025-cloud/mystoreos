@@ -173,18 +173,18 @@ const ShopDashboard = () => {
   };
 
   const loadData = useCallback(async () => {
-    setProducts(await api.getShopProducts(targetShopId));
-    setOrders(await api.getShopOrders(targetShopId));
-    setWholesaleCatalog(await api.getDistributorProducts());
-    
+    setProducts((await api.getShopProducts(targetShopId)) || []);
+    setOrders((await api.getShopOrders(targetShopId)) || []);
+    setWholesaleCatalog((await api.getDistributorProducts()) || []);
+
     // Load Global Announcement
     const announce = await api.getSiteConfig('announcement', DEFAULT_ANNOUNCE);
     setAnnounceConfig(announce);
-    
+
     if (isOwner) {
-      setCredits(await api.getShopCredits(targetShopId));
-      setCustomerCredits(await api.getDistCredits(targetShopId));
-      setStockOrders(await api.getShopStockOrders(targetShopId));
+      setCredits((await api.getShopCredits(targetShopId)) || []);
+      setCustomerCredits((await api.getDistCredits(targetShopId)) || []);
+      setStockOrders((await api.getShopStockOrders(targetShopId)) || []);
       setSysSettings(await api.getSettings());
       setStaffList(await api.getShopStaff(targetShopId));
       setPlans(await api.getSubscriptionPlans());

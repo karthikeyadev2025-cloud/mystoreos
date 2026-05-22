@@ -877,7 +877,7 @@ const UserDashboard = () => {
                   <MapPin size={10} style={{ color: '#f43f5e' }} />
                   <span>
                     {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
-                      `${calculateDistance(coords.latitude, coords.longitude, shopInfo.latitude, shopInfo.longitude, shopInfo.id).toFixed(2)} km away`
+                      `${calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id).toFixed(2)} km away`
                     ) : (
                       'Calculating distance...'
                     )}
