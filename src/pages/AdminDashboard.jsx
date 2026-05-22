@@ -1,11 +1,13 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   LayoutDashboard, Store, Truck, Users, CreditCard, Globe, Palette,
-  MessageSquare, BarChart2, Download, Settings, LifeBuoy, LogOut, ChevronRight, Menu, X
+  MessageSquare, BarChart2, Download, Settings, LifeBuoy, LogOut, ChevronRight, Menu, X,
+  CheckCircle, XCircle, Clock
 } from 'lucide-react';
 
 const TabOverview     = lazy(() => import('./admin/TabOverview'));
@@ -49,6 +51,24 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile());
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+
+  useEffect(() => {
+    api.getPendingApprovals().then(arr => setPendingApprovals(arr || [])).catch(() => {});
+  }, []);
+
+  const approvePending = async (u) => {
+    await api.approveUser(u.id);
+    setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
+    const msg = encodeURIComponent(`Hi ${u.name}! 🎉 Your MyStore OS account has been approved. Login now at https://mystore-os.vercel.app/login — Welcome aboard!`);
+    window.open(`https://wa.me/91${u.phone}?text=${msg}`, '_blank');
+  };
+
+  const rejectPending = async (u) => {
+    if (!window.confirm(`Reject and delete application from ${u.name}?`)) return;
+    await api.deleteUser(u.id);
+    setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
+  };
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -98,6 +118,11 @@ export default function AdminDashboard() {
               }}>
               <Icon size={15} />
               <span style={{ flex: 1 }}>{label}</span>
+              {id === 'shops' && pendingApprovals.length > 0 && (
+                <span style={{ background: '#f43f5e', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                  {pendingApprovals.length}
+                </span>
+              )}
               {active && <ChevronRight size={13} />}
             </button>
           );
@@ -115,6 +140,7 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
       {sidebarOpen && sidebar}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
@@ -128,6 +154,39 @@ export default function AdminDashboard() {
         </div>
 
         <main style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+          {pendingApprovals.length > 0 && (
+            <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f43f5e', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+                <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px' }}>
+                  {pendingApprovals.length} Pending Approval{pendingApprovals.length > 1 ? 's' : ''}
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {pendingApprovals.map(u => (
+                  <div key={u.id} style={{ background: 'rgba(15,23,42,0.6)', borderRadius: '12px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                      {(u.name || 'U')[0].toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                      <div style={{ color: '#64748b', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Clock size={11} /> {u.role} · {u.phone}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                      <button onClick={() => approvePending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif' }}>
+                        <CheckCircle size={14} /> Approve
+                      </button>
+                      <button onClick={() => rejectPending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif' }}>
+                        <XCircle size={14} /> Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <Suspense fallback={<TabFallback />}>
             <ActiveComponent />
           </Suspense>

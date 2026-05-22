@@ -17,6 +17,8 @@ const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
+const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
+const WaitingScreen = lazy(() => import('./components/WaitingScreen'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -42,6 +44,10 @@ const PrivateRoute = ({ children, role }) => {
 const RoleRouter = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" />;
+  if (user.status === 'pending') {
+    const onboarded = localStorage.getItem(`onboarded_${user.id}`);
+    return onboarded ? <Navigate to="/waiting" /> : <Navigate to="/onboarding" />;
+  }
   switch (user.role) {
     case 'shop':        return <Navigate to="/shop" />;
     case 'staff':       return <Navigate to="/shop" />;
@@ -51,6 +57,14 @@ const RoleRouter = () => {
     case 'ca':          return <Navigate to="/ca" />;
     default:            return <Navigate to="/login" />;
   }
+};
+
+const PendingRoute = ({ children }) => {
+  const { user, authLoading } = useAuth();
+  if (authLoading) return <PageLoader />;
+  if (!user) return <Navigate to="/login" />;
+  if (user.status !== 'pending') return <Navigate to="/dashboard" />;
+  return children;
 };
 
 const AppLayout = ({ children }) => <div className="app-container">{children}</div>;
@@ -123,6 +137,21 @@ function App() {
                   <Suspense fallback={<DashboardSkeleton />}>
                     <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
                   </Suspense>
+                } />
+
+                <Route path="/onboarding" element={
+                  <PendingRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <ErrorBoundary fullPage><OnboardingWizard /></ErrorBoundary>
+                    </Suspense>
+                  </PendingRoute>
+                } />
+                <Route path="/waiting" element={
+                  <PendingRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <ErrorBoundary fullPage><WaitingScreen /></ErrorBoundary>
+                    </Suspense>
+                  </PendingRoute>
                 } />
 
                 <Route path="/dashboard" element={<RoleRouter />} />

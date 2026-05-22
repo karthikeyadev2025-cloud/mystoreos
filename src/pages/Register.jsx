@@ -29,12 +29,10 @@ const Register = () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
+      login(newUser);
       if (newUser && newUser.status === 'pending') {
-        toast.info('Application submitted! Admin will review and activate your account shortly.');
-        setTimeout(() => navigate('/login'), 3000);
+        navigate('/onboarding');
       } else {
-        toast.success('Welcome to MyStore OS! Logging you in...');
-        login(newUser);
         navigate('/dashboard');
       }
     } catch (err) {
