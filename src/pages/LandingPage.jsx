@@ -1475,6 +1475,9 @@ const LandingPage = () => {
         <div style={{ maxWidth: '1200px', margin: '0 auto', fontSize: '13.5px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <p style={{ margin: 0, color: '#94a3b8', fontWeight: 'bold' }}>⚡ MyStore OS — India's Smartest Pocket Retail Operating System</p>
           <p style={{ margin: 0 }}>© 2026 MyStore OS. Crafted with ❤️ in Guntur, Andhra Pradesh</p>
+          <div style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '11px', color: '#475569', lineHeight: 1.4, padding: '10px 16px', background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.04)', borderRadius: '12px' }}>
+            <strong>Entity Clarification:</strong> MyStore OS (mystoreos.in) is a standalone, offline-first mobile POS & retail billing software suite. We are completely independent, distinct, and not affiliated, associated, or connected with generic e-commerce shopping portals, the ONDC network, or the consumer store platform Mystore.in.
+          </div>
           <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '8px' }}>
             <span onClick={() => navigate('/login')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Login</span>
             <span onClick={() => navigate('/register')} style={{ cursor: 'pointer', color: '#64748b', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Register</span>
