@@ -163,8 +163,8 @@ function Navbar({ onLogin, onRegister }) {
 
         {/* Desktop links */}
         <div style={{ display: 'flex', gap: 32, alignItems: 'center' }} className="nav-desktop">
-          {['Features', 'Pricing', 'For Distributors'].map(l => (
-            <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`}
+          {[['Features', '#features'], ['Pricing', '#pricing'], ['For Distributors', '#pricing']].map(([l, href]) => (
+            <a key={l} href={href}
               style={{ color: '#94a3b8', fontSize: 14, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => e.target.style.color = '#fff'}
               onMouseLeave={e => e.target.style.color = '#94a3b8'}
@@ -186,8 +186,8 @@ function Navbar({ onLogin, onRegister }) {
         {menuOpen && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999, background: 'rgba(3,7,18,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {['Features', 'Pricing', 'For Distributors', 'FAQ'].map(l => (
-              <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`} onClick={() => setMenuOpen(false)}
+            {[['Features', '#features'], ['Pricing', '#pricing'], ['For Distributors', '#pricing'], ['FAQ', '#faq']].map(([l, href]) => (
+              <a key={l} href={href} onClick={() => setMenuOpen(false)}
                 style={{ color: '#cbd5e1', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{l}</a>
             ))}
             <button onClick={() => { setMenuOpen(false); onLogin(); }} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#cbd5e1', padding: '12px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Login</button>
@@ -402,6 +402,7 @@ function HeroSection({ config, onRegister }) {
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
               style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#cbd5e1', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
               {config?.cta2 || DEFAULT_HERO.cta2}
             </motion.button>
@@ -428,13 +429,16 @@ function HeroSection({ config, onRegister }) {
 
         {/* Right: phone + floating cards (desktop) */}
         <motion.div className="hero-phone"
-          initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.9, type: 'spring', stiffness: 80 }}
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', minHeight: 320 }}
-          animate={{ y: prefersReduced() ? 0 : [0, -12, 0] }}
-          transition={prefersReduced() ? {} : { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}>
+          initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.9, type: 'spring', stiffness: 80 }}
+          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', minHeight: 320 }}>
 
-          <motion.div style={{ transform: `perspective(800px) rotateY(${mousePos.x * -8}deg) rotateX(${mousePos.y * 4}deg)`, transition: 'transform 0.1s' }}>
-            <PhoneMockup screen="billing" />
+          <motion.div
+            animate={prefersReduced() ? {} : { y: [0, -12, 0] }}
+            transition={prefersReduced() ? {} : { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}>
+            <motion.div style={{ transform: `perspective(800px) rotateY(${mousePos.x * -8}deg) rotateX(${mousePos.y * 4}deg)`, transition: 'transform 0.1s' }}>
+              <PhoneMockup screen="billing" />
+            </motion.div>
           </motion.div>
 
           {/* Ambient glow */}
@@ -472,7 +476,7 @@ function StatsSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
-    <section ref={ref} style={{ padding: '0 24px', background: 'linear-gradient(180deg,#050814,#070d1a)' }}>
+    <section ref={ref} style={{ padding: 'clamp(40px,5vw,60px) 24px', background: 'linear-gradient(180deg,#050814,#070d1a)' }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', background: 'rgba(255,255,255,0.025)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px 24px', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 1 }} className="stats-grid">
         {DEFAULT_STATS.map((s, i) => (
           <motion.div key={i}
@@ -504,7 +508,7 @@ function StorySection() {
   }, [inView]);
 
   return (
-    <section ref={ref} id="features" style={{ padding: 'clamp(60px,8vw,100px) 24px', background: 'linear-gradient(180deg,#070d1a,#030712)' }}>
+    <section ref={ref} style={{ padding: 'clamp(60px,8vw,100px) 24px', background: 'linear-gradient(180deg,#070d1a,#030712)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginBottom: 60 }}>
@@ -637,7 +641,7 @@ function DemoSection() {
   ];
 
   return (
-    <section style={{ padding: 'clamp(60px,8vw,100px) 24px', background: 'linear-gradient(180deg,#050814,#030712)' }}>
+    <section id="demo" style={{ padding: 'clamp(60px,8vw,100px) 24px', background: 'linear-gradient(180deg,#050814,#030712)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -963,9 +967,9 @@ function Footer() {
           {/* Product */}
           <div>
             <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 }}>Product</h4>
-            {['Features', 'Pricing', 'For Distributors', 'For CA / Accountants'].map(l => (
+            {[['Features', '#features'], ['Pricing', '#pricing'], ['For Distributors', '#pricing'], ['For CA / Accountants', '#faq']].map(([l, href]) => (
               <div key={l} style={{ marginBottom: 10 }}>
-                <a href={`#${l.toLowerCase().replace(/ \//g,'').replace(/ /g,'-')}`} style={{ fontSize: 14, color: '#475569', textDecoration: 'none', transition: 'color 0.2s' }}
+                <a href={href} style={{ fontSize: 14, color: '#475569', textDecoration: 'none', transition: 'color 0.2s' }}
                   onMouseEnter={e => e.target.style.color = '#94a3b8'} onMouseLeave={e => e.target.style.color = '#475569'}>{l}</a>
               </div>
             ))}
@@ -987,7 +991,7 @@ function Footer() {
             <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 }}>Contact Us</h4>
             <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.8 }}>
               <div>📱 +91-8885490495</div>
-              <div>📧 support@mystore.app</div>
+              <div>📧 support@mystoreos.in</div>
               <div style={{ marginTop: 8, fontSize: 13 }}>📍 Andhra Pradesh, India</div>
             </div>
           </div>
