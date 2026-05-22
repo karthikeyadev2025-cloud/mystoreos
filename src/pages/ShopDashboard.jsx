@@ -3472,7 +3472,7 @@ const ShopDashboard = () => {
               paddingRight: '4px'
             }}>
               {plans.map(plan => {
-                const isCurrent = user.subscription === plan.id;
+                const isCurrent = user.subscriptionTier === plan.id && user.subscription === 'active';
                 const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
                 return (
                   <div 
@@ -3573,7 +3573,7 @@ const ShopDashboard = () => {
             </div>
             
             <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
-              🔒 Secure, encrypted transactions powered by **Razorpay PG**. Cancel or downgrade anytime instantly.
+              🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
             </div>
           </div>
         </div>

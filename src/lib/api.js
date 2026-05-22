@@ -868,6 +868,7 @@ export const api = {
       if (data.shopPhotos !== undefined) updateObj.shop_photos = data.shopPhotos;
       if (data.paymentQr !== undefined) updateObj.payment_qr = data.paymentQr;
       if (data.subscription !== undefined) updateObj.subscription = data.subscription;
+      if (data.subscriptionTier !== undefined) updateObj.subscription_tier = data.subscriptionTier;
       if (data.name !== undefined) updateObj.name = data.name;
       if (data.latitude !== undefined) updateObj.latitude = data.latitude;
       if (data.longitude !== undefined) updateObj.longitude = data.longitude;
@@ -980,6 +981,8 @@ export const api = {
           tallyExport: false,
           multiDevice: false,
           customInvoiceFooter: false,
+          loyaltyPoints: true,
+          flashSales: true,
         }
       },
       {
@@ -1006,6 +1009,8 @@ export const api = {
           tallyExport: true,
           multiDevice: true,
           customInvoiceFooter: true,
+          loyaltyPoints: true,
+          flashSales: true,
         }
       }
     ];
