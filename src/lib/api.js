@@ -175,7 +175,7 @@ export const api = {
     if (!user) throw new Error("Phone number not found. Please register first.");
     const localPassMatch = user.pass === pass;
     if (!localPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
-    if (user.status === 'pending') throw new Error("Account pending admin approval");
+    if (user.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
     return user;
   },
 
@@ -183,13 +183,13 @@ export const api = {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
       if (error || !data) throw new Error("Phone number not registered. Please register first.");
-      if (data.status === 'pending') throw new Error("Account pending admin approval");
+      if (data.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
       return toUser(data);
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not registered. Please register first.");
-    if (user.status === 'pending') throw new Error("Account pending admin approval");
+    if (user.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
     return user;
   },
 
@@ -242,8 +242,15 @@ export const api = {
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
     const subscription = role === 'shop' ? 'trial' : 'active';
-    const status = (role === 'shop' || role === 'distributor') ? 'pending' : 'active';
-    const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status, subscription };
+    const now = new Date().toISOString();
+    const newUser = {
+      id: 'u_' + generateId(), phone, pass, role, name,
+      status: 'active',
+      subscription,
+      subscriptionTier: role === 'shop' ? 'starter' : null,
+      trialStartedAt: role === 'shop' ? now : null,
+      planExpiresAt: role === 'shop' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null,
+    };
     db.users.push(newUser);
     saveDB(db);
     return newUser;

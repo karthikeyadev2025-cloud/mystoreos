@@ -70,7 +70,7 @@ serve(async (req) => {
     const { data: profileRow, error: insertErr } = await admin.from('users').insert({
       id: uid, phone,
       pass: await bcrypt.hash(password, 10),
-      role, name, status: (role === 'shop' || role === 'distributor') ? 'pending' : 'active',
+      role, name, status: 'active',
       subscription, subscription_tier, trial_started_at,
     }).select().single();
 

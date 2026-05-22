@@ -40,7 +40,7 @@ class ErrorBoundary extends Component {
         // Safe fallback
       }
 
-      let errorString = '';
+      let errorString;
       try {
         errorString = this.state.error ? String(this.state.error.message || this.state.error) : '';
       } catch {
