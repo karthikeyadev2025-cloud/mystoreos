@@ -155,7 +155,7 @@ const Login = () => {
             <div style={{ position: 'relative' }}>
               <input 
                 type={showPassword ? "text" : "password"} value={pass} onChange={(e) => setPass(e.target.value)}
-                placeholder="••••••••"
+                placeholder="••••••••" autoComplete="current-password"
                 style={{...inputStyle, paddingRight: '40px'}}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
