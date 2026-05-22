@@ -15,7 +15,6 @@ const Register = () => {
   const [businessType, setBusinessType] = useState('shop');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!name || !phone || !pass) return toast.error('Please fill all fields');
@@ -24,9 +23,16 @@ const Register = () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
-      toast.success("Welcome to MyStore OS! Logging you in...");
-      login(newUser);
-      navigate('/dashboard');
+      if (newUser && newUser.status === 'pending') {
+        toast.success("Business account applied successfully! Pending Admin approval.", { autoClose: 5000 });
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      } else {
+        toast.success("Welcome to MyStore OS! Logging you in...");
+        login(newUser);
+        navigate('/dashboard');
+      }
     } catch (err) {
       let msg = err.message || 'Registration failed';
       if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError')) {

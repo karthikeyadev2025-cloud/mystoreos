@@ -242,7 +242,8 @@ export const api = {
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
     const subscription = role === 'shop' ? 'trial' : 'active';
-    const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status: 'active', subscription };
+    const status = (role === 'shop' || role === 'distributor') ? 'pending' : 'active';
+    const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status, subscription };
     db.users.push(newUser);
     saveDB(db);
     return newUser;
