@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger);
 import {
   Receipt, Package, Wallet, Users, Truck, BarChart2,
   Check, ChevronDown, Star, Menu, X,
@@ -319,10 +324,52 @@ function PhoneMockup({ screen = 'billing' }) {
   );
 }
 
+// ─── BRAND TICKER (GSAP infinite scroll) ─────────────────────────────────────
+const BRAND_ITEMS = ['UPI Payments 🔴', 'WhatsApp Sharing 📲', 'GST Billing 🧾', 'Razorpay 💳', 'Tally Export 📊', 'Works Offline 📶', 'Android + iOS 📱', 'Bank-Grade Security 🔒', '30-Second Bills ⚡', 'Telugu + Hindi 🇮🇳'];
+
+function BrandTickerSection() {
+  const trackRef = useRef(null);
+
+  useGSAP(() => {
+    if (prefersReduced() || !trackRef.current) return;
+    gsap.to(trackRef.current, { xPercent: -50, ease: 'none', duration: 22, repeat: -1 });
+  }, []);
+
+  return (
+    <section style={{ padding: '14px 0', background: 'linear-gradient(90deg,#050814,#07101f,#050814)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', overflow: 'hidden' }} aria-hidden="true">
+      <div style={{ maskImage: 'linear-gradient(to right,transparent,black 8%,black 92%,transparent)', WebkitMaskImage: 'linear-gradient(to right,transparent,black 8%,black 92%,transparent)' }}>
+        <div ref={trackRef} style={{ display: 'flex', gap: 48, width: 'max-content', willChange: 'transform' }}>
+          {[...BRAND_ITEMS, ...BRAND_ITEMS].map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#475569', letterSpacing: 0.3 }}>{item}</span>
+              <span style={{ color: '#1e293b', fontSize: 20, lineHeight: 1, fontWeight: 300 }}>·</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── SECTION 1: HERO ─────────────────────────────────────────────────────────
 function HeroSection({ config, onRegister }) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const heroRef = useRef(null);
+  const glow1Ref = useRef(null);
+  const glow2Ref = useRef(null);
+
+  // GSAP ScrollTrigger parallax on hero background glows
+  useGSAP(() => {
+    if (prefersReduced() || !heroRef.current) return;
+    gsap.to(glow1Ref.current, {
+      y: -120, ease: 'none',
+      scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: 1.5 },
+    });
+    gsap.to(glow2Ref.current, {
+      y: -60, ease: 'none',
+      scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: 1 },
+    });
+  }, { scope: heroRef });
 
   const handleMouseMove = useCallback((e) => {
     if (prefersReduced()) return;
@@ -341,9 +388,9 @@ function HeroSection({ config, onRegister }) {
 
       <FloatingShapes />
 
-      {/* Glow orbs */}
-      <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(244,63,94,0.06) 0%,transparent 70%)', top: '-10%', left: '-10%', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(139,92,246,0.06) 0%,transparent 70%)', bottom: '0%', right: '-5%', pointerEvents: 'none' }} />
+      {/* Glow orbs — refs wired for GSAP scroll parallax */}
+      <div ref={glow1Ref} style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(244,63,94,0.06) 0%,transparent 70%)', top: '-10%', left: '-10%', pointerEvents: 'none' }} />
+      <div ref={glow2Ref} style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(139,92,246,0.06) 0%,transparent 70%)', bottom: '0%', right: '-5%', pointerEvents: 'none' }} />
 
       <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '80px 24px 40px', display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 48, position: 'relative', zIndex: 1 }} className="hero-grid">
 
@@ -1045,6 +1092,7 @@ const LandingPage = () => {
       <style>{CSS}</style>
       <Navbar onLogin={onLogin} onRegister={onRegister} />
       <HeroSection config={config} onRegister={onRegister} />
+      <BrandTickerSection />
       <StatsSection />
       <StorySection />
       <FeaturesSection />

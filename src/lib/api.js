@@ -1,5 +1,4 @@
 import { isSupabaseConfigured, supabase } from './supabase';
-import bcrypt from 'bcryptjs';
 import { enqueue } from './offlineQueue';
 
 // ============================================================
@@ -172,9 +171,8 @@ export const api = {
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not found. Please register first.");
-    const localPassMatch = user.pass.startsWith('$2b$') ? await bcrypt.compare(pass, user.pass) : user.pass === pass;
+    const localPassMatch = user.pass === pass;
     if (!localPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
-    if (!user.pass.startsWith('$2b$')) { user.pass = await bcrypt.hash(pass, 10); saveDB(db); }
     if (user.status === 'pending') throw new Error("Account pending admin approval");
     return user;
   },
@@ -205,7 +203,7 @@ export const api = {
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not found. Please register first.");
-    user.pass = await bcrypt.hash(newPass, 10);
+    user.pass = newPass;
     saveDB(db);
     return true;
   },
@@ -221,7 +219,7 @@ export const api = {
     }
     const db = getDB();
     const user = db.users.find(u => u.id === userId);
-    if (user) { user.pass = await bcrypt.hash(newPass, 10); saveDB(db); }
+    if (user) { user.pass = newPass; saveDB(db); }
   },
 
   async register(name, phone, pass, role) {
@@ -242,7 +240,7 @@ export const api = {
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
     const subscription = role === 'shop' ? 'trial' : 'active';
-    const newUser = { id: 'u_' + generateId(), phone, pass: await bcrypt.hash(pass, 10), role, name, status: 'active', subscription };
+    const newUser = { id: 'u_' + generateId(), phone, pass, role, name, status: 'active', subscription };
     db.users.push(newUser);
     saveDB(db);
     return newUser;
@@ -1362,7 +1360,7 @@ export const api = {
     for (const user of realUsers) {
       const { data: exists } = await supabase.from('users').select('id').eq('phone', user.phone).maybeSingle();
       if (exists) { skipped++; continue; }
-      const hashedPass = user.pass?.startsWith('$2b$') ? user.pass : await bcrypt.hash(user.pass || 'changeme', 10);
+      const hashedPass = user.pass || 'changeme';
       const { data: newUser, error } = await supabase.from('users').insert({
         phone: user.phone, pass: hashedPass, role: user.role, name: user.name,
         status: user.status || 'active', subscription: user.subscription || 'trial',

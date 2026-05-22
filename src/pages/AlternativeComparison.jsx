@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, X, ShieldAlert, ArrowLeft, Star, Users, Flame, Landmark, Coins } from 'lucide-react';
+import { Check, ArrowLeft, Star, Flame, Landmark } from 'lucide-react';
 
 const COMPARISON_DATA = {
   tally: {
