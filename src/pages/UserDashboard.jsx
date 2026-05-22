@@ -624,7 +624,7 @@ const UserDashboard = () => {
         const newTotal = prev + wonCoins;
         if (user) {
           const updatedUser = { ...user, coins: newTotal };
-          localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
+          try { localStorage.setItem('mystore_session', JSON.stringify(updatedUser)); } catch (_e) { /* ignore */ }
           api.updateProfile(user.id, { coins: newTotal }).catch(console.error);
         }
         return newTotal;

@@ -1259,7 +1259,7 @@ const ShopDashboard = () => {
       longitude: parseFloat(longitude) || null,
       gstin, stateCode, businessAddress
     };
-    localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
+    try { localStorage.setItem('mystore_session', JSON.stringify(updatedUser)); } catch (_e) { /* ignore */ }
     toast.success("Profile Updated successfully!");
   };
 

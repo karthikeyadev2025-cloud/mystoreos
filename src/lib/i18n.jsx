@@ -30,11 +30,11 @@ export function I18nProvider({ children }) {
   const [loadingLang, setLoadingLang] = useState(false);
 
   // Load initial non-English locale — runs once on mount only
-  useEffect(() => { // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
     if (locale !== 'en') {
       translationLoaders[locale]?.().then(t => setTranslations(t)).catch(() => {});
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setLocale = useCallback(async (code) => {
     if (!SUPPORTED_LOCALES.includes(code)) return;

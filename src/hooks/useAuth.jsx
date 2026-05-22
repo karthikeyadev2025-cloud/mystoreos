@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     // Keep session in sync: tab restore, token refresh, sign-out
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-        localStorage.removeItem('mystore_session');
+        try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
         setUser(null);
       }
       setAuthLoading(false);
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem('mystore_session', JSON.stringify(userData));
+    try { localStorage.setItem('mystore_session', JSON.stringify(userData)); } catch (_e) { /* ignore */ }
     setUser(userData);
   };
 
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
-    localStorage.removeItem('mystore_session');
+    try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
     setUser(null);
   };
 
