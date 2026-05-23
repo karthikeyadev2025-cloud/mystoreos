@@ -31,6 +31,8 @@ dist-ssr
 .claude/
 .claude-flow/
 .swarm/
+.agents/
+skills-lock.json
 ruvector.db
 CLAUDE.md
 

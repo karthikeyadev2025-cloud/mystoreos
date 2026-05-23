@@ -6,14 +6,17 @@ import { enqueue } from './offlineQueue';
 // Falls back to localStorage mock if Supabase is not configured
 // ============================================================
 
+// Admin password loaded from env var (production) with a dev fallback so local logins still work.
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || 'Mystore@karthi@2025';
+
 // ---- localStorage Mock (fallback for offline/dev) ----
 const mockDB = {
   users: [
-    { id: 'admin', phone: '8885490495', pass: 'demo-admin', role: 'admin', name: 'Super Admin', status: 'active' },
+    { id: 'admin', phone: '8885490495', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' },
     { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl', latitude: 16.3067, longitude: 80.4365, logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_4', phone: '9000000000', pass: '1234', role: 'shop', name: 'Balaji Kirana Store', status: 'active', subscription: 'active', upiId: '9000000000@ybl', latitude: 16.3120, longitude: 80.4450, logo: 'https://images.unsplash.com/photo-1601599561263-8a39304edeec?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
-    { id: 'u_3', phone: '8888888888', pass: '1234', role: 'distributor', name: 'Guntur FMCG Supply', status: 'active' },
+    { id: 'u_3', phone: '8888888888', pass: '1234', role: 'distributor', name: 'Wholesale FMCG Supply', status: 'active' },
     { id: 'u_staff1', phone: '7777777777', pass: '1234', role: 'staff', name: 'Ravi (Helper)', status: 'active', staff_of: 'u_1' },
     { id: 'u_ca1', phone: '1111111111', pass: '1234', role: 'ca', name: 'Srinivas & Co (CA)', status: 'active' }
   ],
@@ -57,7 +60,7 @@ try {
       if (db && db.users) {
         const hasAdmin = db.users.some(u => u.phone === '8885490495');
         if (!hasAdmin) {
-          db.users.push({ id: 'admin', phone: '8885490495', pass: 'demo-admin', role: 'admin', name: 'Super Admin', status: 'active' });
+          db.users.push({ id: 'admin', phone: '8885490495', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' });
           modified = true;
         }
         const hasCA = db.users.some(u => u.role === 'ca');
@@ -155,8 +158,39 @@ const formatApiError = (err, fallback = 'Operation failed') => {
   return new Error(message || fallback);
 };
 
+// ---- WhatsApp deeplink helper (opens wa.me in a new tab) ----
+// Domain-richer Cloud-API + SMS path lives in src/lib/notify.js — this helper
+// is the simple browser-deeplink variant used by the bill/credit/trial helpers.
+const sendWhatsApp = (phone, message) => {
+  const cleaned = (phone || '').replace(/\D/g, '').slice(-10);
+  if (!cleaned) return;
+  const url = `https://wa.me/91${cleaned}?text=${encodeURIComponent(message)}`;
+  if (typeof window !== 'undefined') window.open(url, '_blank');
+};
+
 // ============================================================
 export const api = {
+
+  // ---- WhatsApp templated messages (bill, credit reminder, trial reminder) ----
+  async sendBillWhatsApp(order, shop) {
+    const items = (order.items || []).map(i => `• ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('\n');
+    const date = new Date(order.createdAt || order.date || Date.now()).toLocaleDateString('en-IN');
+    const ref = (order.id || '').slice(0, 8) || 'N/A';
+    const gstLine = order.gstAmount ? `GST: ₹${order.gstAmount}\n` : '';
+    const msg = `🧾 *Bill from ${shop.name}*\n\nBill No: ${ref}\nDate: ${date}\n\nItems:\n${items}\n\n*Total: ₹${order.total}*\n${gstLine}\nPay via UPI: ${shop.upiId || 'Contact shop'}\n\nThank you! 🙏`;
+    sendWhatsApp(order.customerPhone || '', msg);
+  },
+
+  async sendCreditReminder(credit, shop) {
+    const days = Math.floor((Date.now() - new Date(credit.date).getTime()) / 86400000);
+    const msg = `🔔 *Payment Reminder from ${shop.name}*\n\nDear customer,\nYou have an outstanding balance of *₹${credit.amount}*\nDue since: ${days} days ago\n\nPlease pay via UPI:\n${shop.upiId || 'Contact shop'}\n\nFor queries: ${shop.phone}\n\nThank you 🙏`;
+    sendWhatsApp(credit.customerPhone || '', msg);
+  },
+
+  async sendTrialReminder(shop, daysLeft) {
+    const msg = `⏰ *MyStore OS Trial Ending*\n\nHi ${shop.name},\nYour free trial ends in *${daysLeft} day${daysLeft > 1 ? 's' : ''}*.\n\nUpgrade now to keep:\n✅ Unlimited billing\n✅ WhatsApp invoices\n✅ Inventory tracking\n\nUpgrade: mystoreos.in/login\n\nSupport: adexosindia@gmail.com`;
+    sendWhatsApp(shop.phone, msg);
+  },
 
   // ---- AUTH ----
   async login(phone, pass) {

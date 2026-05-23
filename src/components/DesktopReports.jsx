@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
-import { Book, Download, TrendingUp, TrendingDown, BarChart2, FileSpreadsheet } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Book, Download, TrendingUp, TrendingDown, BarChart2, FileSpreadsheet, Users } from 'lucide-react';
 import { PlanGate, LockedFeature } from './PlanGate';
 import { downloadGSTR1CSV } from '../lib/gstrExport';
+import { generateZohoContactsCSV, generateZohoLeadsCSV, downloadZohoCSV } from '../lib/ZohoExporter';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -94,6 +95,38 @@ const DesktopReports = ({
   const catMargins = useMemo(() => buildCatMargins(products), [products]);
 
   const total30 = revenueData.reduce((s, d) => s + d.revenue, 0);
+
+  // CRM export dropdown
+  const [crmMenuOpen, setCrmMenuOpen] = useState(false);
+
+  // Customers derived from customerCredits entries (desc encoded as "purpose:name:phone:details")
+  const zohoCustomers = useMemo(() => {
+    const map = new Map();
+    (customerCredits || []).forEach(c => {
+      const parts = (c.desc || '').split(':');
+      const name = parts[1] || 'Customer';
+      const phone = parts[2] || '';
+      const key = phone || name;
+      const existing = map.get(key) || { name, phone, shopName: user?.name || '', orderCount: 0, totalSpent: 0 };
+      existing.orderCount += 1;
+      existing.totalSpent += Number(c.amount || 0);
+      map.set(key, existing);
+    });
+    return Array.from(map.values());
+  }, [customerCredits, user]);
+
+  const handleZohoContacts = () => {
+    const csv = generateZohoContactsCSV(zohoCustomers);
+    downloadZohoCSV(csv, `zoho-contacts-${new Date().toISOString().slice(0, 10)}.csv`);
+    setCrmMenuOpen(false);
+  };
+
+  const handleZohoLeads = () => {
+    // For a single shopkeeper, the only "lead-shaped" record is themselves. Admins should use the admin export.
+    const csv = generateZohoLeadsCSV(user ? [user] : []);
+    downloadZohoCSV(csv, `zoho-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+    setCrmMenuOpen(false);
+  };
 
   const thisWeekRev = useMemo(() => {
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
@@ -192,6 +225,34 @@ const DesktopReports = ({
                 </button>
               </PlanGate>
             </div>
+          </div>
+
+          {/* Zoho CRM Exporter */}
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(245,158,11,0.3)', background: 'linear-gradient(135deg,rgba(245,158,11,0.06),rgba(217,119,6,0.02))', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+              <div>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#f59e0b' }}>🔗 Export to CRM</h3>
+                <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
+              </div>
+              <button onClick={() => setCrmMenuOpen(o => !o)}
+                style={{ background: '#f59e0b', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                <Users size={14} /> Export ▾
+              </button>
+            </div>
+            {crmMenuOpen && (
+              <div style={{ position: 'absolute', top: '52px', right: '20px', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', minWidth: '220px', zIndex: 30, boxShadow: '0 8px 24px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
+                <button onClick={handleZohoContacts}
+                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#f8fafc', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #334155' }}>
+                  📇 Zoho Contacts CSV
+                  <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>{zohoCustomers.length} customer{zohoCustomers.length === 1 ? '' : 's'} from credit ledger</div>
+                </button>
+                <button onClick={handleZohoLeads}
+                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#f8fafc', fontSize: '12px', cursor: 'pointer' }}>
+                  🎯 Zoho Leads CSV
+                  <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>Your shop as a Zoho lead</div>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
