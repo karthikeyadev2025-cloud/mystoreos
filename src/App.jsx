@@ -18,6 +18,9 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
 const AboutUs = lazy(() => import('./pages/AboutUs'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const ContactUs = lazy(() => import('./pages/ContactUs'));
 const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
 const WaitingScreen = lazy(() => import('./components/WaitingScreen'));
 
@@ -126,6 +129,21 @@ function App() {
                 <Route path="/about" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><AboutUs /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/privacy" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><PrivacyPolicy /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/terms" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><TermsOfService /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/contact" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><ContactUs /></ErrorBoundary>
                   </Suspense>
                 } />
 
