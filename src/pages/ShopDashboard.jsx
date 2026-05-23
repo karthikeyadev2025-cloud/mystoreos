@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -805,6 +805,16 @@ const ShopDashboard = () => {
   const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
 
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
+
+  // Predictive reorder: units sold per product in last 30 days
+  const salesData = useMemo(() => {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+    const map = {};
+    orders
+      .filter(o => o.status === 'Accepted' && o.date && new Date(o.date) >= cutoff)
+      .forEach(o => (o.items || []).forEach(item => { map[item.id] = (map[item.id] || 0) + (item.qty || 1); }));
+    return map;
+  }, [orders]);
 
   // Setup Camera Scanner — html5-qrcode loaded on demand
   useEffect(() => {
@@ -1640,6 +1650,7 @@ const ShopDashboard = () => {
               handleSetFlashSale={handleSetFlashSale}
               handleClearFlashSale={handleClearFlashSale}
               handleStockAdjust={handleStockAdjust}
+              salesData={salesData}
             />
           )}
 
@@ -1712,6 +1723,11 @@ const ShopDashboard = () => {
               orders={orders}
               downloadTallyXML={downloadTallyXML}
               user={user}
+              credits={credits}
+              customerCredits={customerCredits}
+              stockOrders={stockOrders}
+              dailyTarget={dailyTarget}
+              products={products}
             />
           )}
 

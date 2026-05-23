@@ -1,6 +1,22 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Users, Search, ShoppingBag, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Search, ShoppingBag, Star, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
 import { api } from '../lib/api';
+
+function getSegment(c) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thirtyAgo = new Date(now); thirtyAgo.setDate(now.getDate() - 30);
+  const thisMonthOrders = c.orders.filter(o => new Date(o.date) >= monthStart);
+  const thisMonthSpend = thisMonthOrders.filter(o => o.status === 'Accepted').reduce((s, o) => s + Number(o.total || 0), 0);
+  const allDates = c.orders.map(o => new Date(o.date));
+  const lastDate = allDates.length ? new Date(Math.max(...allDates)) : null;
+  const isNew = c.orders.every(o => new Date(o.date) >= monthStart);
+  if (thisMonthSpend >= 5000) return { label: '🌟 VIP', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)' };
+  if (thisMonthOrders.length >= 3) return { label: '🔄 Regular', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)' };
+  if (isNew && c.orders.length > 0) return { label: '🆕 New', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)' };
+  if (!lastDate || lastDate < thirtyAgo) return { label: '⚠️ At-risk', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' };
+  return null;
+}
 
 const StatCard = ({ icon, value, label, color }) => (
   <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -18,6 +34,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedKey, setExpandedKey] = useState(null);
   const [loyaltyMap, setLoyaltyMap] = useState({});
+  const [showVipPanel, setShowVipPanel] = useState(false);
   const loadedRef = useRef(false);
 
   const customers = useMemo(() => {
@@ -62,6 +79,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
   const totalRevenue = customers.reduce((s, c) => s + c.totalSpend, 0);
   const highValueCount = customers.filter(c => c.totalSpend >= 1000).length;
+  const vipCustomers = useMemo(() => customers.filter(c => getSegment(c)?.label === '🌟 VIP'), [customers]);
 
   return (
     <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -76,15 +94,47 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
             {customers.length} unique customers tracked from billing history
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
-          <Search size={16} color="#94a3b8" />
-          <input
-            type="text" placeholder="Search by name or phone..."
-            value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-            style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'white', outline: 'none', fontSize: '13px' }}
-          />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {vipCustomers.length > 0 && (
+            <button
+              onClick={() => setShowVipPanel(v => !v)}
+              style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <MessageSquare size={14} /> WhatsApp VIP ({vipCustomers.length})
+            </button>
+          )}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
+            <Search size={16} color="#94a3b8" />
+            <input
+              type="text" placeholder="Search by name or phone..."
+              value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+              style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'white', outline: 'none', fontSize: '13px' }}
+            />
+          </div>
         </div>
       </div>
+
+      {/* VIP bulk-message panel */}
+      {showVipPanel && vipCustomers.length > 0 && (
+        <div style={{ marginBottom: '20px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '14px', padding: '16px' }}>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#f59e0b' }}>🌟 VIP Customers — Send WhatsApp</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {vipCustomers.map(c => (
+              <button
+                key={c.phone || c.name}
+                onClick={() => {
+                  const msg = `Hi ${c.name}! 🌟 You are one of our VIP customers. Thank you for your loyalty! We have exclusive deals for you. Visit us soon!`;
+                  window.open(`https://wa.me/${c.phone ? c.phone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+                disabled={!c.phone}
+                style={{ background: '#25D366', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: c.phone ? 'pointer' : 'not-allowed', opacity: c.phone ? 1 : 0.4, display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                {c.name} {c.phone ? '' : '(no phone)'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
@@ -116,6 +166,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
             const pts = c.phone ? loyaltyMap[c.phone] : 0;
             const initials = c.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
             const avatarHue = (c.name.charCodeAt(0) * 7) % 360;
+            const segment = getSegment(c);
 
             return (
               <div key={key} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
@@ -129,7 +180,14 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h4 style={{ margin: 0, fontSize: '14px', color: 'white', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <h4 style={{ margin: 0, fontSize: '14px', color: 'white', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</h4>
+                      {segment && (
+                        <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', background: segment.bg, color: segment.color, border: `1px solid ${segment.border}`, fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          {segment.label}
+                        </span>
+                      )}
+                    </div>
                     <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#64748b' }}>
                       {c.phone ? `📞 ${c.phone}` : 'No phone'} · Last visit: {lastOrder?.date ? new Date(lastOrder.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
                     </p>

@@ -34,7 +34,13 @@ const DesktopInventory = ({
   handleSetFlashSale,
   handleClearFlashSale,
   handleStockAdjust,
+  salesData = {},
 }) => {
+  const computeDaysLeft = (p) => {
+    const sold = salesData[p.id] || 0;
+    if (sold === 0 || (p.stock || 0) <= 0) return null;
+    return Math.floor(p.stock / (sold / 30));
+  };
   const [searchTerm, setSearchTerm] = React.useState('');
   const [alertFilter, setAlertFilter] = React.useState('all');
   const [catFilter, setCatFilter] = React.useState('All');
@@ -293,6 +299,7 @@ const DesktopInventory = ({
           {filteredProducts.map(p => {
             const expStatus = checkExpiryStatus(p.expiryDate);
             const isLowStock = p.stock < (p.reorderLevel || 10);
+            const daysLeft = computeDaysLeft(p);
             return (
               <div key={p.id} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${flashSales[p.id] ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s' }}>
                 <div>
@@ -338,6 +345,21 @@ const DesktopInventory = ({
                     {expStatus.status === 'near' && (
                       <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)', fontWeight: 'bold' }}>
                         Exp Soon ({p.expiryDate})
+                      </span>
+                    )}
+                    {daysLeft !== null && daysLeft < 2 && (
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.35)', fontWeight: 'bold' }}>
+                        🔴 Order TODAY
+                      </span>
+                    )}
+                    {daysLeft !== null && daysLeft >= 2 && daysLeft < 7 && (
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)', fontWeight: 'bold' }}>
+                        ⚠️ Reorder in {daysLeft}d
+                      </span>
+                    )}
+                    {daysLeft !== null && daysLeft >= 7 && (
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.15)' }}>
+                        Stock ~{daysLeft}d
                       </span>
                     )}
                   </div>
