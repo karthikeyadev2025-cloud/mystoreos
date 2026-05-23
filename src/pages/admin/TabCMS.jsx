@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, FileText, Megaphone, X } from 'lucide-react';
+import { Save, Globe, FileText, Megaphone, X, CreditCard, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useSiteConfig } from '../../lib/siteConfig';
 import { toast } from 'react-toastify';
@@ -42,6 +42,7 @@ export default function TabCMS() {
   const [landing, setLanding] = useState({ heroHeadline: '', heroSubheadline: '', heroCtaText: '', heroCtaUrl: '' });
   const [seo, setSeo] = useState({ metaDescription: '', metaKeywords: '' });
   const [social, setSocial] = useState({ instagramUrl: '', twitterUrl: '' });
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -58,6 +59,10 @@ export default function TabCMS() {
       api.getAnnouncements().then(setAnnouncements).catch(() => {});
     }, 0);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    api.getSubscriptionPlans().then(setPlans).catch(() => {});
   }, []);
 
   const saveSection = async (key, fn) => {
@@ -97,6 +102,13 @@ export default function TabCMS() {
     await updateConfigs({ announcementActive: false, announcementText: '' });
     setAnnouncements([]);
   });
+
+  const savePlans = () => saveSection('plans', async () => {
+    await api.saveSubscriptionPlans(plans);
+    await api.logAdminAction('update_plans', 'cms', null, null);
+  });
+
+  const updatePlan = (idx, field, value) => setPlans(ps => ps.map((p, i) => i === idx ? { ...p, [field]: field === 'price' ? Number(value) : value } : p));
 
   return (
     <div style={{ maxWidth: '760px' }}>
@@ -204,6 +216,37 @@ export default function TabCMS() {
           </div>
         </div>
         <button onClick={saveSEO} disabled={busy.seo} style={S.saveBtn(busy.seo)}><Save size={14} />{busy.seo ? 'Saving...' : 'Save SEO & Social'}</button>
+      </div>
+
+      <div style={S.card}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+          <SectionHeader icon={CreditCard} title="Subscription Plans" sub="Edit plan names, prices, and descriptions shown on /pricing" color="#f43f5e" />
+          <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#8b5cf6', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px' }}>
+            Preview <ExternalLink size={12} />
+          </a>
+        </div>
+        {plans.map((plan, idx) => (
+          <div key={plan.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontSize: '12px', color: '#8b5cf6', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{plan.id}</div>
+            <div style={S.grid2}>
+              <div style={S.row}>
+                <label style={S.label}>Plan Name</label>
+                <input value={plan.name} onChange={e => updatePlan(idx, 'name', e.target.value)} style={S.input} />
+              </div>
+              <div style={S.row}>
+                <label style={S.label}>Price (₹/month)</label>
+                <input type="number" value={plan.price} onChange={e => updatePlan(idx, 'price', e.target.value)} style={S.input} />
+              </div>
+            </div>
+            <div style={S.row}>
+              <label style={S.label}>Description</label>
+              <textarea value={plan.description || ''} onChange={e => updatePlan(idx, 'description', e.target.value)} style={S.textarea} rows={2} />
+            </div>
+          </div>
+        ))}
+        {plans.length > 0 && (
+          <button onClick={savePlans} disabled={busy.plans} style={S.saveBtn(busy.plans)}><Save size={14} />{busy.plans ? 'Saving...' : 'Save Plans'}</button>
+        )}
       </div>
     </div>
   );
