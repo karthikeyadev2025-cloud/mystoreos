@@ -53,7 +53,7 @@ const BlogIndex = () => {
               <div style={{ width: '40px', height: '4px', background: p.accent, borderRadius: '2px', marginBottom: '20px' }} />
               <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>{p.title}</h2>
               <p style={{ fontSize: '13px', color: '#cbd5e1', margin: '0 0 24px', lineHeight: 1.6, flex: 1 }}>{p.summary}</p>
-              <span style={{ color: p.accent, fontSize: '13px', fontWeight: 700 }}>Read more →</span>
+              <Link to={`/blog/${p.slug}`} style={{ color: p.accent, fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>Read more →</Link>
             </article>
           ))}
         </div>

@@ -10,6 +10,14 @@ const STATE_DATA = {
   'rajasthan':      { name: 'Rajasthan',      lang: 'Hindi',    city: 'Jaipur',     shops: '1,500+', icon: '🏰', tagline: 'राजस्थान का #1 बिलिंग ऐप' },
   'andhra-pradesh': { name: 'Andhra Pradesh', lang: 'Telugu',   city: 'Vijayawada', shops: '3,000+', icon: '🌾', tagline: 'ఆంధ్రప్రదేశ్ #1 బిల్లింగ్ యాప్' },
   'telangana':      { name: 'Telangana',      lang: 'Telugu',   city: 'Hyderabad',  shops: '2,800+', icon: '💎', tagline: 'తెలంగాణ #1 బిల్లింగ్ యాప్' },
+  'uttar-pradesh':  { name: 'Uttar Pradesh',  lang: 'Hindi',    city: 'Lucknow',    shops: '6,000+', icon: '🕌', tagline: 'उत्तर प्रदेश का #1 बिलिंग ऐप' },
+  'madhya-pradesh': { name: 'Madhya Pradesh', lang: 'Hindi',    city: 'Indore',     shops: '2,200+', icon: '🌿', tagline: 'मध्य प्रदेश का #1 बिलिंग ऐप' },
+  'kerala':         { name: 'Kerala',         lang: 'Malayalam',city: 'Kochi',      shops: '3,500+', icon: '🌴', tagline: 'കേരളത്തിലെ #1 ബില്ലിംഗ് ആപ്പ്' },
+  'punjab':         { name: 'Punjab',         lang: 'Punjabi',  city: 'Ludhiana',   shops: '2,000+', icon: '🌾', tagline: 'ਪੰਜਾਬ ਦੀ #1 ਬਿਲਿੰਗ ਐਪ' },
+  'haryana':        { name: 'Haryana',        lang: 'Hindi',    city: 'Gurugram',   shops: '1,800+', icon: '🏙️', tagline: 'हरियाणा का #1 बिलिंग ऐप' },
+  'odisha':         { name: 'Odisha',         lang: 'Odia',     city: 'Bhubaneswar',shops: '1,600+', icon: '🐚', tagline: 'ଓଡ଼ିଶାର #1 ବିଲିଂ ଆପ୍' },
+  'bihar':          { name: 'Bihar',          lang: 'Hindi',    city: 'Patna',      shops: '2,400+', icon: '🏮', tagline: 'बिहार का #1 बिलिंग ऐप' },
+  'assam':          { name: 'Assam',          lang: 'Assamese', city: 'Guwahati',   shops: '1,200+', icon: '🍃', tagline: 'অসমৰ #1 বিলিং এপ্প' },
 };
 
 const FEATURES = [
@@ -30,6 +38,14 @@ const TESTIMONIALS = {
   'rajasthan':      { name: 'Vikram',       shop: 'Jaipur kirana',               text: 'पुराने हिसाब-किताब का दिन गया। अब फोन से ही सारा बिज़नेस।' },
   'andhra-pradesh': { name: 'Suresh',       shop: 'Vijayawada provision store',  text: 'రోజువారీ లెక్కలు ఇప్పుడు చాలా సులభం. WhatsApp బిల్లులు సూపర్.' },
   'telangana':      { name: 'Ramesh',       shop: 'Hyderabad supermarket',       text: 'GST ఫైలింగ్ ఇప్పుడు ౧౦ నిమిషాల్లో. మా CA కూడా హ్యాపీ.' },
+  'uttar-pradesh':  { name: 'Arun',         shop: 'Lucknow provision store',     text: 'WhatsApp पर बिल भेजते ही पेमेंट आ जाता है। पुराना बही-खाता अब काम नहीं आता।' },
+  'madhya-pradesh': { name: 'Govind',       shop: 'Indore kirana store',         text: 'रोज़ाना हिसाब अब 5 मिनट में होता है। GST रिटर्न भी आसान हो गई।' },
+  'kerala':         { name: 'Pradeep',      shop: 'Kochi grocery store',         text: 'ഒരു ടാപ്പിൽ WhatsApp ബിൽ. GST ഫയലിംഗ് 10 മിനിറ്റിൽ. ഇതിലും നല്ലത് ഇല്ല.' },
+  'punjab':         { name: 'Gurpreet',     shop: 'Ludhiana general store',      text: 'ਹੁਣ ਬਿੱਲ WhatsApp ਤੇ ਭੇਜਣਾ ਬਹੁਤ ਆਸਾਨ ਹੈ। ਗਾਹਕ ਵੀ ਖੁਸ਼ ਨੇ।' },
+  'haryana':        { name: 'Deepak',       shop: 'Gurugram supermarket',        text: 'App ने पूरा काम बदल दिया — बिलिंग, स्टॉक, उधार सब एक जगह।' },
+  'odisha':         { name: 'Subhash',      shop: 'Bhubaneswar provision store', text: 'ବ୍ୟବସାୟ ହିସାବ ଏବେ ଅନେକ ସହଜ। ଗ୍ରାହକଙ୍କୁ WhatsApp ରେ ବିଲ ମଧ୍ୟ ପଠାଇ ପାରୁଛି।' },
+  'bihar':          { name: 'Santosh',      shop: 'Patna kirana store',          text: 'GST बिलिंग और उधार का हिसाब — सब कुछ फोन से। बहुत आसान हो गया।' },
+  'assam':          { name: 'Bhupen',       shop: 'Guwahati grocery store',      text: 'বিল পঠোৱা আৰু উধাৰ হিচাপ ৰখা এতিয়া সহজ হৈ পৰিছে।' },
 };
 
 const setMeta = (name, content) => {

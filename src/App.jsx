@@ -25,6 +25,7 @@ const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
 const WaitingApproval = lazy(() => import('./pages/WaitingApproval'));
 const StateLanding = lazy(() => import('./pages/StateLanding'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -149,6 +150,11 @@ function App() {
                 <Route path="/blog" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><BlogIndex /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/blog/:slug" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><BlogPost /></ErrorBoundary>
                   </Suspense>
                 } />
                 <Route path="/in/:state" element={

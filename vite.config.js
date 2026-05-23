@@ -51,21 +51,25 @@ export default defineConfig({
     target: 'es2020',
     rollupOptions: {
       output: {
+        // Hybrid: explicit vendor splits (object form) + a function fallback so dashboards
+        // that are already lazy-imported still get their own named chunks.
         manualChunks: (id) => {
-          // Core React runtime — loads on every page
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) return 'react-core';
-          // Router
-          if (id.includes('node_modules/react-router')) return 'router';
-          // Toast notifications
-          if (id.includes('node_modules/react-toastify')) return 'toastify';
-          // QR Code display (small, load with pages that use it)
-          if (id.includes('node_modules/qrcode.react')) return 'qrcode';
-          // Supabase client
-          if (id.includes('node_modules/@supabase')) return 'supabase';
-          // Framer Motion
-          if (id.includes('node_modules/framer-motion')) return 'framer';
-          // Lucide icons
-          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/@lucide')) return 'icons';
+          if (id.includes('node_modules')) {
+            if (id.includes('/react-router')) return 'vendor-react';
+            if (id.includes('/react/') || id.includes('/react-dom/')) return 'vendor-react';
+            if (id.includes('/recharts')) return 'vendor-charts';
+            if (id.includes('/framer-motion')) return 'vendor-ui';
+            if (id.includes('/lucide-react') || id.includes('/@lucide')) return 'vendor-ui';
+            if (id.includes('/jspdf') || id.includes('/html2canvas')) return 'vendor-pdf';
+            if (id.includes('/@supabase')) return 'supabase';
+            if (id.includes('/react-toastify')) return 'toastify';
+            if (id.includes('/qrcode.react')) return 'qrcode';
+            return;
+          }
+          if (id.includes('/src/pages/ShopDashboard'))        return 'dashboard-shop';
+          if (id.includes('/src/pages/AdminDashboard'))       return 'dashboard-admin';
+          if (id.includes('/src/pages/DistributorDashboard')) return 'dashboard-dist';
+          if (id.includes('/src/pages/UserDashboard'))        return 'dashboard-user';
         },
       },
     },
