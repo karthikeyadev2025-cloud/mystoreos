@@ -78,6 +78,11 @@ const UserDashboard = () => {
   const [globalSearch, setGlobalSearch] = useState('');
   const [globalResults, setGlobalResults] = useState([]);
 
+  // Nearby shops filter
+  const [shopCategoryFilter, setShopCategoryFilter] = useState('all');
+  const [nearbySearch, setNearbySearch] = useState('');
+  const [nearbySearchResults, setNearbySearchResults] = useState([]);
+
   // simulated / real scanning
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
@@ -322,6 +327,19 @@ const UserDashboard = () => {
   }, [globalSearch]);
 
   useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!nearbySearch.trim()) {
+        setNearbySearchResults([]);
+        return;
+      }
+      const results = await api.searchGlobalProducts(nearbySearch);
+      const nearbyIds = new Set(shops.map(s => s.id));
+      setNearbySearchResults((results || []).filter(r => nearbyIds.has(r.shopId)));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [nearbySearch, shops]);
+
+  useEffect(() => {
     let active = true;
     let retryTimeout = null;
 
@@ -432,10 +450,29 @@ const UserDashboard = () => {
     return R * c;
   };
 
+  const inferShopCategory = (shop) => {
+    if (shop.shopCategory && shop.shopCategory !== 'general') return shop.shopCategory;
+    const n = (shop.name || '').toLowerCase();
+    if (n.includes('medical') || n.includes('pharma') || n.includes('drug') || n.includes('clinic')) return 'medical';
+    if (n.includes('electronic') || n.includes('mobile') || n.includes('laptop') || n.includes('computer')) return 'electronics';
+    if (n.includes('kirana') || n.includes('grocery') || n.includes('provision') || n.includes('super') || n.includes('mart')) return 'kirana';
+    return 'general';
+  };
+
+  const isShopOpenNow = (shop) => {
+    const h = new Date().getHours();
+    const open = shop.openingHour ?? 8;
+    const close = shop.closingHour ?? 21;
+    return h >= open && h < close;
+  };
+
   const getSortedShops = () => {
     return [...shops].map(shop => {
       const distance = calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
-      return { ...shop, distance };
+      return { ...shop, distance, category: inferShopCategory(shop), openNow: isShopOpenNow(shop) };
+    }).filter(shop => {
+      if (shopCategoryFilter !== 'all' && shop.category !== shopCategoryFilter) return false;
+      return true;
     }).sort((a, b) => {
       // 1. Featured PRO shops first
       const aPro = (a.subscription && a.subscription !== 'trial') ? 1 : 0;
@@ -1300,40 +1337,91 @@ const UserDashboard = () => {
                       </div>
                     )}
 
-                    <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#cbd5e1', marginBottom: '12px' }}>
+                    <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#cbd5e1', marginBottom: '10px' }}>
                       🏪 Discoverable Local Shops Nearby
                     </h2>
 
+                    {/* Mini product search */}
+                    <div style={{ position: 'relative', marginBottom: '10px' }}>
+                      <span style={{ position: 'absolute', left: '13px', top: '12px', color: '#64748b' }}><Search size={15} /></span>
+                      <input
+                        type="text"
+                        placeholder='Find items nearby — e.g. "eggs", "rice"'
+                        value={nearbySearch}
+                        onChange={e => setNearbySearch(e.target.value)}
+                        style={{ width: '100%', padding: '11px 12px 11px 36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }}
+                      />
+                    </div>
+
+                    {/* Category filter chips */}
+                    <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                      {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
+                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #f43f5e, #8b5cf6)' : 'rgba(255,255,255,0.06)', color: shopCategoryFilter === val ? '#fff' : '#94a3b8', transition: 'all 0.15s' }}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Nearby search results */}
+                    {nearbySearch.trim() && nearbySearchResults.length > 0 && (
+                      <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
+                        <p style={{ fontSize: '12px', color: '#60a5fa', fontWeight: '700', margin: '0 0 8px 0' }}>📦 Found in nearby shops:</p>
+                        {nearbySearchResults.slice(0, 5).map(r => (
+                          <div key={r.id} onClick={() => navigate(`/s/${r.shopId}?search=${encodeURIComponent(r.name)}`)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', borderRadius: '8px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '13px', color: '#f8fafc' }}>{r.name}</span>
+                            <span style={{ fontSize: '12px', color: '#10b981', fontWeight: '700' }}>₹{r.price} →</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {nearbySearch.trim() && nearbySearchResults.length === 0 && (
+                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px', textAlign: 'center' }}>No nearby shops carry "{nearbySearch}" right now.</p>
+                    )}
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {sortedShops.map(shop => {
-                        const dist = calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
+                        const dist = shop.distance ?? calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
+                        const waMsg = encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. Please share your catalogue. (via MyStore OS)`);
                         return (
-                          <div key={shop.id} className="glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                              {shop.logo ? (
-                                <img src={shop.logo} alt="Logo" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #8b5cf6' }} />
-                              ) : (
-                                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #f43f5e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🏪</div>
-                              )}
-                              <div>
-                                <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  {shop.name}
-                                  {shop.subscription && shop.subscription !== 'trial' && (
-                                    <span style={{ background: 'linear-gradient(135deg, #e11d48, #c084fc)', fontSize: '8px', padding: '2px 6px', borderRadius: '6px', fontWeight: '800' }}>PRO</span>
-                                  )}
-                                </h3>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
-                                  <MapPin size={11} style={{ color: '#f43f5e' }} />
-                                  <span>{shop.business_address || 'Local Street'} • {dist !== null ? `${dist.toFixed(2)} km away` : 'Estimating location...'}</span>
+                          <div key={shop.id} className="glass" style={{ padding: '14px', borderRadius: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                {shop.logo ? (
+                                  <img src={shop.logo} alt="Logo" style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #8b5cf6' }} />
+                                ) : (
+                                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #f43f5e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏪</div>
+                                )}
+                                <div>
+                                  <h3 style={{ fontSize: '15px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                    {shop.name}
+                                    {shop.subscription && shop.subscription !== 'trial' && (
+                                      <span style={{ background: 'linear-gradient(135deg, #e11d48, #c084fc)', fontSize: '8px', padding: '2px 5px', borderRadius: '6px', fontWeight: '800' }}>PRO</span>
+                                    )}
+                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)', color: shop.openNow ? '#10b981' : '#f43f5e' }}>
+                                      {shop.openNow ? '● Open' : '● Closed'}
+                                    </span>
+                                  </h3>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                                    <MapPin size={10} style={{ color: '#f43f5e' }} />
+                                    <span>{dist !== null ? `${dist.toFixed(2)} km away` : 'Estimating...'}</span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                            <button 
-                              onClick={() => navigate(`/s/${shop.id}`)}
-                              style={{ width: 'auto', padding: '10px 18px', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}
-                            >
-                              Open Catalogue 🏪
-                            </button>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => window.open(`https://wa.me/91${shop.phone}?text=${waMsg}`, '_blank')}
+                                style={{ flex: 1, padding: '8px', background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.25)', color: '#25D366', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                💬 WhatsApp Order
+                              </button>
+                              <button
+                                onClick={() => navigate(`/s/${shop.id}`)}
+                                style={{ flex: 1, padding: '8px', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                Open Catalogue 🏪
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
@@ -1341,7 +1429,7 @@ const UserDashboard = () => {
                       {sortedShops.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '40px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                           <AlertTriangle size={24} style={{ color: '#f59e0b', margin: '0 auto 8px' }} />
-                          <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>No local shops discoverable nearby.</p>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>No shops found{shopCategoryFilter !== 'all' ? ` in "${shopCategoryFilter}" category` : ' nearby'}.</p>
                         </div>
                       )}
                     </div>
@@ -2146,12 +2234,36 @@ const UserDashboard = () => {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justify: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#94a3b8', margin: 0 }}>
                     📍 Registered Nearby Stores
                   </h2>
                   <span style={{ fontSize: '11px', color: '#64748b' }}>Sorted by Proximity</span>
                 </div>
+                {/* Mini search */}
+                <div style={{ position: 'relative', marginBottom: '10px' }}>
+                  <span style={{ position: 'absolute', left: '13px', top: '12px', color: '#64748b' }}><Search size={15} /></span>
+                  <input type="text" placeholder='Find items nearby — e.g. "eggs"' value={nearbySearch} onChange={e => setNearbySearch(e.target.value)} style={{ width: '100%', padding: '11px 12px 11px 36px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }} />
+                </div>
+                {/* Category chips */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                  {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
+                    <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #f43f5e, #8b5cf6)' : 'rgba(255,255,255,0.05)', color: shopCategoryFilter === val ? '#fff' : '#94a3b8' }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {nearbySearch.trim() && nearbySearchResults.length > 0 && (
+                  <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', borderRadius: '10px', padding: '10px', marginBottom: '10px' }}>
+                    <p style={{ fontSize: '12px', color: '#60a5fa', fontWeight: '700', margin: '0 0 6px 0' }}>📦 Found in nearby shops:</p>
+                    {nearbySearchResults.slice(0, 5).map(r => (
+                      <div key={r.id} onClick={() => navigate(`/s/${r.shopId}?search=${encodeURIComponent(r.name)}`)} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 8px', borderRadius: '6px', cursor: 'pointer', background: 'rgba(255,255,255,0.03)', marginBottom: '3px' }}>
+                        <span style={{ fontSize: '13px', color: '#f8fafc' }}>{r.name}</span>
+                        <span style={{ fontSize: '12px', color: '#10b981', fontWeight: '700' }}>₹{r.price} →</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {sortedShops.map(shop => {
@@ -2204,16 +2316,24 @@ const UserDashboard = () => {
                           </div>
                         )}
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                          <span style={{ fontSize: '11px', color: '#64748b' }}>
-                            💬 WhatsApp Order Supported
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px', gap: '8px' }}>
+                          <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 9px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)', color: shop.openNow ? '#10b981' : '#f43f5e', flexShrink: 0 }}>
+                            {shop.openNow ? '● Open Now' : '● Closed'}
                           </span>
-                          <button 
-                            onClick={() => navigate(`/s/${shop.id}`)}
-                            style={{ width: 'auto', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                          >
-                            Browse Catalogue <ChevronRight size={13} />
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => window.open(`https://wa.me/91${shop.phone}?text=${encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. (via MyStore OS)`)}`, '_blank')}
+                              style={{ width: 'auto', background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.25)', color: '#25D366', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                            >
+                              💬 WhatsApp
+                            </button>
+                            <button
+                              onClick={() => navigate(`/s/${shop.id}`)}
+                              style={{ width: 'auto', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                            >
+                              Catalogue <ChevronRight size={13} />
+                            </button>
+                          </div>
                         </div>
 
                       </div>

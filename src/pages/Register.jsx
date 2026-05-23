@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff, Home } from 'lucide-react';
@@ -14,11 +14,12 @@ const authStyles = `
 
 const Register = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [pass, setPass] = useState('');
-  const [businessType, setBusinessType] = useState('shop');
+  const [businessType, setBusinessType] = useState(searchParams.get('type') || 'shop');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 

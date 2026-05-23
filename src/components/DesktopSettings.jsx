@@ -1,5 +1,6 @@
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useRef } from 'react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
 const DesktopSettings = ({
@@ -44,7 +45,10 @@ const DesktopSettings = ({
   invoicePrefix = 'INV',
   setInvoicePrefix,
   handleSaveInvoiceSettings,
+  hideFromSearch = false,
+  onToggleHideFromSearch,
 }) => {
+  const qrCanvasRef = useRef(null);
   if (!isOwner) {
     return (
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
@@ -282,23 +286,93 @@ const DesktopSettings = ({
           </div>
         )}
 
-        {/* Wall QR Poster */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: 'white', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={18} color="#ef4444" /> Wall QR Poster
+        {/* Store Discoverability Toggle */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {hideFromSearch ? <EyeOff size={18} color="#f43f5e" /> : <Eye size={18} color="#10b981" />} Store Discoverability
           </h3>
-          
-          <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px', border: '1px solid rgba(0,0,0,0.1)' }}>
-            <QRCodeSVG value={getShopUrl()} size={110} />
-          </div>
-          <p style={{ margin: '0 0 16px 0', fontSize: '13px', fontWeight: 'bold', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
-          
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={downloadQrPoster} style={{ flex: 1, background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <Printer size={14} /> Download PDF Poster
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px', lineHeight: '1.5' }}>
+            When ON, customers near your location can find and order from your store in the customer app.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.02)', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: hideFromSearch ? '#f43f5e' : '#10b981' }}>
+                {hideFromSearch ? '🔒 Hidden from search' : '🟢 Visible to nearby customers'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
+                {hideFromSearch ? 'Customers cannot discover your store' : 'Customers can find and browse your catalogue'}
+              </div>
+            </div>
+            <button
+              onClick={() => onToggleHideFromSearch && onToggleHideFromSearch(!hideFromSearch)}
+              style={{
+                width: '52px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', flexShrink: 0,
+                background: hideFromSearch ? '#374151' : '#10b981',
+                position: 'relative', transition: 'background 0.2s',
+              }}
+            >
+              <span style={{
+                position: 'absolute', top: '4px', width: '20px', height: '20px', borderRadius: '50%', background: '#fff',
+                transition: 'left 0.2s', left: hideFromSearch ? '4px' : '28px',
+              }} />
             </button>
-            <button onClick={handleShareShop} style={{ flex: 1, background: '#25D366', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <Share2 size={14} /> WhatsApp Share
+          </div>
+        </div>
+
+        {/* Your Store QR Code */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: 'white', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <QrCode size={18} color="#8b5cf6" /> Your Store QR Code
+          </h3>
+          <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'left', marginBottom: '16px' }}>Share this QR for customers to instantly open your catalogue.</p>
+
+          <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px' }}>
+            <QRCodeSVG value={getShopUrl()} size={120} />
+          </div>
+          {/* Hidden canvas for PNG export */}
+          <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+            <QRCodeCanvas ref={qrCanvasRef} value={getShopUrl()} size={300} />
+          </div>
+          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            <button
+              onClick={() => {
+                const canvas = qrCanvasRef.current;
+                if (canvas) {
+                  const dataUrl = canvas.toDataURL('image/png');
+                  const a = document.createElement('a');
+                  a.href = dataUrl;
+                  a.download = 'store-qr.png';
+                  a.click();
+                }
+              }}
+              style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+            >
+              ⬇ PNG
+            </button>
+            <button
+              onClick={handleShareShop}
+              style={{ background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.3)', color: '#25D366', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+            >
+              <Share2 size={12} /> Share
+            </button>
+            <button
+              onClick={() => {
+                const url = getShopUrl();
+                const win = window.open('', '_blank');
+                win.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff"><h2 style="color:#0f172a;margin-bottom:8px">${user?.name || 'My Store'}</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}" style="border:8px solid #f0f0f0;border-radius:12px"/><p style="color:#64748b;font-size:13px;margin-top:12px">${url}</p><script>window.onload=()=>window.print()</script></body></html>`);
+                win.document.close();
+              }}
+              style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+            >
+              <Printer size={12} /> Print
+            </button>
+          </div>
+
+          <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px' }}>
+            <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <FileText size={14} /> Download Full PDF Poster
             </button>
           </div>
         </div>

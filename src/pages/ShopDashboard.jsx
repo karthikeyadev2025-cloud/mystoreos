@@ -109,6 +109,7 @@ const ShopDashboard = () => {
   const [invoicePrefix, setInvoicePrefix] = useState('INV');
   const [dailyTarget, setDailyTarget] = useState(0);
   const [flashSales, setFlashSales] = useState({});
+  const [hideFromSearch, setHideFromSearch] = useState(user?.hideFromSearch || false);
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -1408,6 +1409,14 @@ const ShopDashboard = () => {
     }
   };
 
+  const handleToggleHideFromSearch = async (val) => {
+    setHideFromSearch(val);
+    try {
+      await api.updateProfile(user.id, { hideFromSearch: val });
+      toast.success(val ? 'Store hidden from nearby search' : 'Store is now discoverable by customers');
+    } catch { toast.error('Failed to save visibility setting'); }
+  };
+
   const handleShowUpiQr = () => {
     if (paymentQr || upiId) {
       setShowPaymentQrModal(true);
@@ -1748,6 +1757,8 @@ const ShopDashboard = () => {
               invoicePrefix={invoicePrefix}
               setInvoicePrefix={setInvoicePrefix}
               handleSaveInvoiceSettings={handleSaveInvoiceSettings}
+              hideFromSearch={hideFromSearch}
+              onToggleHideFromSearch={handleToggleHideFromSearch}
             />
           )}
         </div>

@@ -104,6 +104,10 @@ const toUser = (row) => row ? ({
   distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
   distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
   distributorTrialStartedAt: row.distributor_trial_started_at || null,
+  hideFromSearch: row.hide_from_search || false,
+  shopCategory: row.shop_category || 'general',
+  openingHour: row.opening_hour ?? 8,
+  closingHour: row.closing_hour ?? 21,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -844,10 +848,10 @@ export const api = {
   async getAllShops() {
     if (isSupabaseConfigured) {
       const { data } = await supabase.from('users').select('*').eq('role', 'shop');
-      return (data || []).map(toUser);
+      return (data || []).map(toUser).filter(u => !u.hideFromSearch);
     }
     const db = getDB();
-    return db.users.filter(u => u.role === 'shop');
+    return db.users.filter(u => u.role === 'shop' && !u.hideFromSearch);
   },
 
   // ---- FILE UPLOADS TO SUPABASE STORAGE ----
@@ -902,6 +906,8 @@ export const api = {
       if (data.businessAddress !== undefined) updateObj.business_address = data.businessAddress;
       if (data.distributorPlanTier !== undefined) updateObj.distributor_plan_tier = data.distributorPlanTier;
       if (data.distributorPlanExpiresAt !== undefined) updateObj.distributor_plan_expires_at = data.distributorPlanExpiresAt;
+      if (data.hideFromSearch !== undefined) updateObj.hide_from_search = data.hideFromSearch;
+      if (data.shopCategory !== undefined) updateObj.shop_category = data.shopCategory;
       await supabase.from('users').update(updateObj).eq('id', userId);
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       return toUser(updated);

@@ -51,7 +51,7 @@ const FAQS = [
 const STATS = [{ end: 500, suffix: '+', label: 'Active Businesses' }, { prefix: '₹', end: 2, suffix: 'Cr+ GMV', label: 'GMV Processed' }, { end: 12, suffix: '', label: 'Cities' }, { end: 99.9, suffix: '%', label: 'Uptime', decimals: 1 }];
 const TMLS = [{ name: 'Ravi Kumar', city: 'Vijayawada', type: 'Kirana Shop', stars: 5, quote: 'రోజువారీ లెక్కలు ఇప్పుడు చాలా సులభం! Best app ever.' }, { name: 'Suresh Babu', city: 'Guntur', type: 'Medical Store', stars: 5, quote: 'Credit customers ki WhatsApp reminder super useful!' }, { name: 'Priya Lakshmi', city: 'Hyderabad', type: 'Supermarket', stars: 5, quote: 'Expiry tracking saved me ₹8,000 this month alone.' }, { name: 'Mohammed Ali', city: 'Tirupati', type: 'General Store', stars: 5, quote: 'Staff management feature is excellent. Very secure.' }, { name: 'Venkat Rao', city: 'Warangal', type: 'CA / Accountant', stars: 5, quote: 'GST reports and Tally export in one click. Excellent!' }, { name: 'Lakshmi Devi', city: 'Nellore', type: 'Kirana', stars: 5, quote: 'Best app for small shop owners. Very easy to use.' }, { name: 'Arun Prasad', city: 'Visakhapatnam', type: 'Provision', stars: 5, quote: '7 day free trial lo convinced aipoya! Worth every rupee.' }, { name: 'Srinivas', city: 'Karimnagar', type: 'Grocery', stars: 5, quote: 'Offline mode works perfectly even without internet.' }, { name: 'Deepa Reddy', city: 'Kurnool', type: 'Fancy Store', stars: 5, quote: 'Reports ki WhatsApp share cheyyadam super convenient!' }, { name: 'Ramesh Naidu', city: 'Ongole', type: 'Kirana Shop', stars: 5, quote: 'Billing time 30 seconds — customers are very happy.' }, { name: 'Kavitha', city: 'Kakinada', type: 'Medical', stars: 5, quote: 'Batch number tracking saved me from expired goods issue.' }, { name: 'Pavan Kumar', city: 'Rajahmundry', type: 'Supermarket', stars: 5, quote: 'Multi-outlet sync is the best feature. Great app!' }];
 const FEATS = [{ icon: CreditCard, title: 'Billing & Cashflow', desc: '30-second bills. WhatsApp receipt. No printer. UPI payment links.', bdr: C.emerald }, { icon: Package, title: 'Smart Inventory', desc: 'Expiry tracking. Batch numbers. Auto-reorder alerts.', bdr: C.cobalt }, { icon: Users, title: 'Credit Khata', desc: 'Track who owes what. Send UPI links on WhatsApp. Auto reminders.', bdr: C.amber }, { icon: Shield, title: 'Staff Auditing', desc: 'PIN-locked staff access. Helper logs. Daily shift reports.', bdr: C.primary }, { icon: BarChart2, title: 'Profit Analytics', desc: 'Profit/loss gauge. Day book. GST reports. Tally export.', bdr: '#8b5cf6' }, { icon: Truck, title: 'Distributor Network', desc: 'Order from FMCG distributors. Credit ledger. Route planner.', bdr: '#06b6d4' }];
-const WHO = [{ emoji: '🏪', title: 'Retail Shops', color: C.emerald, features: ['30-sec billing', 'Expiry tracking', 'WhatsApp receipts'] }, { emoji: '🚚', title: 'Wholesale Distributors', color: '#3b82f6', features: ['Route planner', 'Bulk orders CSV', 'Multi-shop dashboard'] }, { emoji: '✂️', title: 'Service Providers', color: C.amber, features: ['Appointment billing', 'Staff commissions', 'Day summary reports'] }, { emoji: '🏭', title: 'Multi-outlet Chains', color: '#8b5cf6', features: ['5+ device sync', 'Consolidated P&L', 'Central inventory'] }];
+const WHO = [{ emoji: '🏪', title: 'Retail Shops', color: C.emerald, features: ['30-sec billing', 'Expiry tracking', 'WhatsApp receipts'] }, { emoji: '🚚', title: 'Wholesale Distributors', color: '#3b82f6', features: ['Route planner', 'Bulk orders CSV', 'Multi-shop dashboard'] }, { emoji: '🛍️', title: 'For Customers', color: C.amber, features: ['Find nearby shops', 'Scan & order instantly', 'Track your credit khata'] }, { emoji: '🏭', title: 'Multi-outlet Chains', color: '#8b5cf6', features: ['5+ device sync', 'Consolidated P&L', 'Central inventory'] }];
 const STEPS = [{ n: 1, title: 'Register in 2 min', desc: 'Sign up with phone number. No documents needed.', color: C.primary }, { n: 2, title: 'Setup Your Shop', desc: 'Add shop name, logo, and your first 5 products.', color: '#8b5cf6' }, { n: 3, title: 'Start Billing Today', desc: 'Create your first bill. Share instantly on WhatsApp.', color: C.emerald }];
 
 const CSS = `html{scroll-behavior:smooth}body{margin:0;font-family:'Outfit',sans-serif;background:#030712;color:#fff}*,*::before,*::after{box-sizing:border-box}
@@ -421,6 +421,42 @@ function Testimonials() {
   );
 }
 
+// ─── FOR SHOPPERS ─────────────────────────────────────────────────────────────
+function ForShoppers() {
+  const navigate = useNavigate();
+  const cards = [
+    { icon: '🔍', title: 'Find Nearby Shops', desc: 'Discover local stores, browse their catalogue, and order via WhatsApp — all in one tap.' },
+    { icon: '📱', title: 'Scan & Order', desc: 'Scan any shop\'s QR code to instantly view their menu and place an order without calling.' },
+    { icon: '💬', title: 'Track Your Credit', desc: 'See how much you owe to local shops — all in one place. Never lose track of your khata.' },
+  ];
+  return (
+    <section style={{ padding: 'clamp(56px,7vw,90px) 24px', background: `linear-gradient(180deg,${C.bg},#050814)` }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.amber, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>For Shoppers Too</div>
+          <h2 style={{ margin: 0, fontSize: 'clamp(22px,3.5vw,38px)', fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>Shop Smarter with MyStore OS</h2>
+          <p style={{ marginTop: 12, color: C.muted, fontSize: 16 }}>Not just for shop owners — customers love it too.</p>
+        </motion.div>
+        <div className="l3" style={{ display: 'grid', gap: 20, marginBottom: 40 }}>
+          {cards.map((c, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '28px 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: 42, marginBottom: 16 }}>{c.icon}</div>
+              <h3 style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800, color: '#fff' }}>{c.title}</h3>
+              <p style={{ margin: 0, fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{c.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <button onClick={() => navigate('/register?type=customer')} style={{ background: `linear-gradient(135deg,${C.amber},#d97706)`, border: 'none', color: '#000', padding: '14px 36px', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer' }}>
+            Create Free Customer Account →
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── PRICING ──────────────────────────────────────────────────────────────────
 function Pricing({ plans, distPlans }) {
   const [tab, setTab] = useState('biz');
@@ -624,6 +660,7 @@ export default function LandingPage() {
       <DayInLife />
       <RoiCalc />
       <CompMatrix />
+      <ForShoppers />
       <Testimonials />
       <Pricing plans={plans} distPlans={distPlans} />
       <HowItWorks />
