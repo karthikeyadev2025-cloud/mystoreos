@@ -62,16 +62,20 @@ serve(async (req) => {
       if (!authUser?.user) return json({ error: 'Auth user creation returned empty' }, 500);
       uid = authUser.user.id;
     }
-    const subscription = role === 'shop' ? 'trial' : 'active';
-    const subscription_tier = role === 'shop' ? 'starter' : null;
-    const trial_started_at = role === 'shop' ? new Date().toISOString() : null;
+    const requiresApproval = role === 'shop' || role === 'distributor';
+    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const subscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
+    const subscription_tier = role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null;
+    const trial_started_at = requiresApproval ? new Date().toISOString() : null;
+    const plan_expires_at = requiresApproval ? trialEnd : null;
 
     // Insert profile with id = auth UUID so RLS can use auth.uid() = id
     const { data: profileRow, error: insertErr } = await admin.from('users').insert({
       id: uid, phone,
       pass: await bcrypt.hash(password, 10),
-      role, name, status: 'active',
-      subscription, subscription_tier, trial_started_at,
+      role, name,
+      status: requiresApproval ? 'pending' : 'active',
+      subscription, subscription_tier, trial_started_at, plan_expires_at,
     }).select().single();
 
     if (insertErr) {
@@ -86,7 +90,7 @@ serve(async (req) => {
 
     const profile = {
       id: profileRow.id, phone: profileRow.phone, role: profileRow.role, name: profileRow.name,
-      status: profileRow.status, subscription: profileRow.subscription,
+      status: profileRow.status ?? (requiresApproval ? 'pending' : 'active'), subscription: profileRow.subscription,
       upiId: profileRow.upi_id, logo: profileRow.logo, shopPhotos: profileRow.shop_photos || [],
       paymentQr: profileRow.payment_qr, avatar: profileRow.avatar,
       staff_of: profileRow.staff_of, latitude: profileRow.latitude, longitude: profileRow.longitude,

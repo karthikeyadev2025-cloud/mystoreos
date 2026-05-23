@@ -22,7 +22,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const ContactUs = lazy(() => import('./pages/ContactUs'));
 const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
-const WaitingScreen = lazy(() => import('./components/WaitingScreen'));
+const WaitingApproval = lazy(() => import('./pages/WaitingApproval'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -48,10 +48,7 @@ const PrivateRoute = ({ children, role }) => {
 const RoleRouter = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" />;
-  if (user.status === 'pending') {
-    const onboarded = localStorage.getItem(`onboarded_${user.id}`);
-    return onboarded ? <Navigate to="/waiting" /> : <Navigate to="/onboarding" />;
-  }
+  if (user.status === 'pending') return <Navigate to="/waiting" />;
   switch (user.role) {
     case 'shop':        return <Navigate to="/shop" />;
     case 'staff':       return <Navigate to="/shop" />;
@@ -174,7 +171,7 @@ function App() {
                 <Route path="/waiting" element={
                   <PendingRoute>
                     <Suspense fallback={<PageLoader />}>
-                      <ErrorBoundary fullPage><WaitingScreen /></ErrorBoundary>
+                      <ErrorBoundary fullPage><WaitingApproval /></ErrorBoundary>
                     </Suspense>
                   </PendingRoute>
                 } />

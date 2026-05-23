@@ -179,7 +179,8 @@ export const api = {
     if (!user) throw new Error("Phone number not found. Please register first.");
     const localPassMatch = user.pass === pass;
     if (!localPassMatch) throw new Error("Wrong password. Try again or use Forgot Password.");
-    if (user.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
+    if (user.status === 'pending') throw new Error("Account pending admin approval. You'll be notified on WhatsApp once approved.");
+    if (user.status === 'suspended') throw new Error("Your account has been suspended. Contact support: adexosindia@gmail.com");
     return user;
   },
 
@@ -245,14 +246,15 @@ export const api = {
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
-    const trialStart = role === 'shop' ? new Date().toISOString() : null;
+    const requiresApproval = (role === 'shop' || role === 'distributor');
+    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const newUser = {
       id: 'u_' + generateId(), phone, pass, role, name,
-      status: role === 'customer' ? 'active' : 'pending',
-      subscription: role === 'shop' ? 'trial' : role === 'customer' ? 'active' : 'pending',
-      subscriptionTier: role === 'shop' ? 'starter' : null,
-      trialStartedAt: trialStart,
-      planExpiresAt: role === 'shop' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null,
+      status: requiresApproval ? 'pending' : 'active',
+      subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
+      subscriptionTier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+      trialStartedAt: requiresApproval ? new Date().toISOString() : null,
+      planExpiresAt: requiresApproval ? trialEnd : null,
     };
     db.users.push(newUser);
     saveDB(db);
@@ -267,8 +269,14 @@ export const api = {
     }
     const db = getDB();
     const user = db.users.find(u => u.id === userId);
-    if (user) user.status = 'active';
-    saveDB(db);
+    if (user) {
+      user.status = 'active';
+      saveDB(db);
+      if (user.phone && typeof window !== 'undefined') {
+        const msg = encodeURIComponent(`Welcome to MyStore OS! 🎉\nYour account has been approved.\nLogin now: mystoreos.in/login\nPhone: ${user.phone}\n\nYour 7-day PRO trial starts now!`);
+        window.open(`https://wa.me/91${user.phone}?text=${msg}`, '_blank');
+      }
+    }
   },
 
   async deleteUser(userId) {
@@ -288,6 +296,15 @@ export const api = {
     }
     const db = getDB();
     return db.users.filter(u => u.status === 'pending');
+  },
+
+  async getUserById(userId) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      return data ? toUser(data) : null;
+    }
+    const db = getDB();
+    return db.users.find(u => u.id === userId) || null;
   },
 
   async getAdminStats() {

@@ -31,10 +31,10 @@ const Register = () => {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
       login(newUser);
-      if (newUser && newUser.status === 'pending') {
-        navigate('/onboarding');
-      } else {
+      if (businessType === 'customer') {
         navigate('/dashboard');
+      } else {
+        navigate('/waiting');
       }
     } catch (err) {
       let msg = err.message || 'Registration failed';

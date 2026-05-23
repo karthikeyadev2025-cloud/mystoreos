@@ -60,8 +60,13 @@ export default function AdminDashboard() {
   const approvePending = async (u) => {
     await api.approveUser(u.id);
     setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
-    const msg = encodeURIComponent(`Hi ${u.name}! 🎉 Your MyStore OS account has been approved. Login now at https://mystore-os.vercel.app/login — Welcome aboard!`);
-    window.open(`https://wa.me/91${u.phone}?text=${msg}`, '_blank');
+  };
+
+  const approveAll = async () => {
+    for (const u of pendingApprovals) {
+      await api.approveUser(u.id);
+    }
+    setPendingApprovals([]);
   };
 
   const rejectPending = async (u) => {
@@ -171,9 +176,12 @@ export default function AdminDashboard() {
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f43f5e', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
-                <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px' }}>
-                  {pendingApprovals.length} Pending Approval{pendingApprovals.length > 1 ? 's' : ''}
+                <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px', flex: 1 }}>
+                  ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
+                <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif', flexShrink: 0 }}>
+                  <CheckCircle size={13} /> Approve All
+                </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {pendingApprovals.map(u => (
