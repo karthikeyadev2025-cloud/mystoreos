@@ -69,7 +69,7 @@ const UserDashboard = () => {
 
   // Shared / General states
   const [coords, setCoords] = useState({ latitude: 16.3067, longitude: 80.4365 }); // default Guntur Arundelpet
-  const [locationStatus, setLocationStatus] = useState('Default (Guntur)');
+  const [locationStatus, setLocationStatus] = useState('India');
   const [shops, setShops] = useState([]);
   const [activeTab, setActiveTab] = useState('explore'); // explore, search, scan, bills
   const [avatar, setAvatar] = useState(user?.avatar || '');
@@ -194,7 +194,7 @@ const UserDashboard = () => {
       },
       () => {
         console.warn('Geolocation denied or timed out. Defaulting...');
-        if (!silent) setLocationStatus('Default (Guntur)');
+        if (!silent) setLocationStatus('India');
       },
       { timeout: 8000 }
     );

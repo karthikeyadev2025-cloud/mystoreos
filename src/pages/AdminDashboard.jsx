@@ -77,8 +77,8 @@ export default function AdminDashboard() {
 
   const sidebar = (
     <div style={{
-      width: '240px', minWidth: '240px', background: 'rgba(15,23,42,0.95)', borderRight: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0, backdropFilter: 'blur(12px)'
+      width: '260px', minWidth: '260px', background: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.06)',
+      display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
       <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -110,8 +110,9 @@ export default function AdminDashboard() {
             <button key={id} onClick={() => { setActiveTab(id); if (isMobile()) setSidebarOpen(false); }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
-                borderRadius: '8px', border: 'none', cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
-                background: active ? 'rgba(244,63,94,0.12)' : 'transparent',
+                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #f43f5e' : '3px solid transparent',
+                cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
+                background: active ? 'rgba(244,63,94,0.1)' : 'transparent',
                 color: active ? '#f43f5e' : '#94a3b8',
                 fontWeight: active ? 600 : 400, fontSize: '13px', transition: 'all 0.15s',
                 fontFamily: 'Outfit, sans-serif'
@@ -140,8 +141,20 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
-      {sidebarOpen && sidebar}
+      <style>{`
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        @media(max-width:1023px){
+          .admin-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50}
+          .admin-sidebar-wrap{position:fixed;bottom:0;left:0;right:0;height:auto;max-height:85vh;border-radius:20px 20px 0 0;overflow:hidden;z-index:51}
+          .admin-sidebar-wrap > div{height:auto!important;max-height:85vh;position:relative!important;width:100%!important;min-width:100%!important}
+        }
+      `}</style>
+      {sidebarOpen && isMobile() && <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <div className={isMobile() ? 'admin-sidebar-wrap' : ''}>
+          {sidebar}
+        </div>
+      )}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <div style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 10 }}>
@@ -153,7 +166,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '32px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>

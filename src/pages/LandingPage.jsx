@@ -656,7 +656,7 @@ function Footer({ navigate: _navigate }) {
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: '#334155' }}>© 2026 MyStore OS · Made with ❤️ in Guntur, AP</span>
+            <span style={{ fontSize: 13, color: '#334155' }}>© 2026 MyStore OS · Made with ❤️ in India</span>
             <span style={{ fontSize: 12, color: '#1e293b' }}>Powered by K² ADEXOS GLOBAL TECHNOLOGIES</span>
           </div>
           <div style={{ fontSize: 11, color: '#1e293b', textAlign: 'center' }}>MyStore OS is independent and not affiliated with ONDC or Mystore.in</div>

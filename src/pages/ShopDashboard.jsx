@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -34,6 +35,7 @@ const safe = async (fn) => { try { return await fn(); } catch { return null; } }
 
 const ShopDashboard = () => {
   const { user, setUser, logout } = useAuth();
+  const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [products, setProducts] = useState([]);
@@ -1203,7 +1205,7 @@ const ShopDashboard = () => {
         toast.success("GPS Location successfully captured & locked!");
       },
       () => {
-        toast.warn("GPS request rejected. Defaulting to standard Guntur region coords.");
+        toast.warn("GPS request rejected. Using default location.");
         setLatitude(16.3067);
         setLongitude(80.4365);
       }
@@ -3084,6 +3086,37 @@ const ShopDashboard = () => {
                 <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   📤 Share Shop Link via WhatsApp
                 </button>
+              </div>
+            </div>
+
+            {/* LANGUAGE SELECTOR CARD */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>🌐 Language / భాష / भाषा</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                {[
+                  { code: 'en', label: 'English', native: 'English' },
+                  { code: 'hi', label: 'Hindi', native: 'हिंदी' },
+                  { code: 'te', label: 'Telugu', native: 'తెలుగు' },
+                  { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
+                  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' },
+                  { code: 'mr', label: 'Marathi', native: 'मराठी' },
+                  { code: 'bn', label: 'Bengali', native: 'বাংলা' },
+                ].map(({ code, label, native }) => (
+                  <button
+                    key={code}
+                    onClick={() => setLocale(code)}
+                    style={{
+                      padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? '#3b82f6' : '#334155'}`,
+                      background: locale === code ? 'rgba(59,130,246,0.15)' : 'transparent',
+                      color: locale === code ? '#60a5fa' : '#94a3b8',
+                      fontSize: '12px', fontWeight: locale === code ? 700 : 400, cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'
+                    }}
+                  >
+                    <span style={{ fontSize: '14px' }}>{native}</span>
+                    <span style={{ fontSize: '10px', opacity: 0.7 }}>{label}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
