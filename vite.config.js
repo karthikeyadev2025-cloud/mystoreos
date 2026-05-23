@@ -40,7 +40,9 @@ export default defineConfig({
       },
     }),
   ],
+  esbuild: { target: 'es2020' },
   build: {
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: (id) => {
