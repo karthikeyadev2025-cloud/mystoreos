@@ -26,6 +26,7 @@ const WaitingApproval = lazy(() => import('./pages/WaitingApproval'));
 const StateLanding = lazy(() => import('./pages/StateLanding'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
+const Pricing = lazy(() => import('./pages/Pricing'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -147,6 +148,11 @@ function App() {
                   </Suspense>
                 } />
 
+                <Route path="/pricing" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><Pricing /></ErrorBoundary>
+                  </Suspense>
+                } />
                 <Route path="/blog" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><BlogIndex /></ErrorBoundary>

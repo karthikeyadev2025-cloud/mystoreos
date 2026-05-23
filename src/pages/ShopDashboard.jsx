@@ -150,6 +150,9 @@ const ShopDashboard = () => {
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [trialBannerDismissed, setTrialBannerDismissed] = useState(
+    () => !!sessionStorage.getItem(`mystore_trial_banner_dismissed_${user.id}`)
+  );
 
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
   const isOwner = user.role === 'shop';
@@ -157,6 +160,11 @@ const ShopDashboard = () => {
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
   const loyaltyEnabled = hasFeature('loyaltyPoints');
+  const _now = new Date();
+  const trialDaysLeft = user.createdAt ? Math.max(0, 7 - Math.floor((_now - new Date(user.createdAt)) / 86400000)) : 7;
+  const planExpiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
+  const paidDaysLeft = planExpiresAt ? Math.max(0, Math.ceil((planExpiresAt - _now) / 86400000)) : null;
+  const isOnTrial = user.subscription === 'trial';
   const { deviceLimitExceeded, activeSessions, forceRevokeOthers } = useSessionGuard();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -1937,15 +1945,18 @@ const ShopDashboard = () => {
         </button>
       </div>
 
-      {isOwner && (user.subscription === 'trial' || !user.subscription) && (
-        <div style={{ background: 'linear-gradient(90deg, #f59e0b, #d97706)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', display: 'block' }}>Free Trial Active</span>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)' }}>Upgrade to Pro to remove limits</span>
+      {isOwner && isOnTrial && !trialBannerDismissed && (
+        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16a34a,#15803d)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#d97706,#b45309)' : 'linear-gradient(90deg,#dc2626,#b91c1c)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
+            ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
+            {trialDaysLeft <= 3 && <span style={{ marginLeft: '8px', opacity: 0.9, fontWeight: 400, fontSize: '12px' }}>— Upgrade to keep your data & features</span>}
+          </span>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: trialDaysLeft >= 5 ? '#16a34a' : trialDaysLeft >= 3 ? '#d97706' : '#dc2626', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Upgrade →
+            </button>
+            <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Outfit,sans-serif' }}>×</button>
           </div>
-          <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: '#d97706', border: 'none', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            Upgrade Plan
-          </button>
         </div>
       )}
 
@@ -2978,26 +2989,46 @@ const ShopDashboard = () => {
           <div style={{ padding: '16px' }}>
 
             {/* SaaS Subscription Info Card */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9))', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 8px 32px rgba(139,92,246,0.1)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  ⚡ SaaS Subscription
-                </h3>
-                {user.subscription && user.subscription !== 'trial' ? (
-                  <span style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>Active Paid Plan</span>
-                ) : (
-                  <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>Free Trial Mode</span>
-                )}
+            <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
+                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#fbbf24' : '#10b981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                  {isOnTrial ? `Trial — ${trialDaysLeft}d left` : 'Active'}
+                </span>
               </div>
-              <p style={{ fontSize: '12px', color: '#cbd5e1', margin: '0 0 16px 0' }}>
-                Your current active plan is: <b>{plans?.find(p => p.id === user.subscription)?.name || (user.subscription === 'active' ? 'Premium PRO' : 'Free Trial')}</b>. 
-                {plans?.find(p => p.id === user.subscription) && ` This plan charges ₹${plans.find(p => p.id === user.subscription)?.price}/mo and gives you full access.`}
-              </p>
-              <button 
-                onClick={() => setShowPlanSelectorModal(true)} 
-                style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PLAN</div>
+                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>{planLabel}</div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#ef4444' : isOnTrial && trialDaysLeft <= 4 ? '#f59e0b' : '#10b981' }}>
+                    {isOnTrial ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''}` : paidDaysLeft !== null ? `${paidDaysLeft}d` : '—'}
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PRODUCTS</div>
+                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>
+                    {products.length}{(capabilities?.maxProducts ?? 200) === -1 ? ' / ∞' : ` / ${capabilities?.maxProducts ?? 200}`}
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PRICE</div>
+                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>
+                    {plans?.find(p => p.id === (user.subscriptionTier || user.subscription))
+                      ? `₹${plans.find(p => p.id === (user.subscriptionTier || user.subscription)).price}/mo`
+                      : isOnTrial ? 'Free' : '—'}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowPlanSelectorModal(true)}
+                style={{ width: '100%', background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Outfit,sans-serif' }}
               >
-                Change or Upgrade Plan
+                {isOnTrial ? '⚡ Upgrade Plan Now' : '🔄 Change Plan'}
               </button>
             </div>
 
