@@ -425,7 +425,7 @@ function Testimonials() {
 const TRUST_ITEMS = [
   { icon: '🔐', title: 'Bank-Grade Security', desc: 'AES-256 encryption + TLS 1.3. Data isolated per shop with Row-Level Security.' },
   { icon: '📵', title: 'Works Offline', desc: 'Full billing & inventory without internet. Syncs automatically when reconnected.' },
-  { icon: '🏢', title: 'K² ADEXOS', desc: 'Built by Karthikeya Vempati in Guntur, AP. Proudly Indian product, Indian data centres.' },
+  { icon: '🏢', title: 'K² ADEXOS', desc: 'Built in India. Proudly Indian product, Indian data centres. Enterprise-grade reliability.' },
   { icon: '⚡', title: '99.9% Uptime', desc: 'Hosted on Vercel edge + Supabase with global failover. Built for mission-critical use.' },
 ];
 function TrustBar() {

@@ -7,12 +7,12 @@ const TIER_COLORS = { starter: '#f59e0b', pro: '#8b5cf6', enterprise: '#10b981',
 const TIER_LABELS = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise', trial: 'Trial' };
 
 const S = {
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '20px', marginBottom: '20px' },
-  badge: (tier) => ({ background: `${TIER_COLORS[tier] || '#64748b'}22`, color: TIER_COLORS[tier] || '#64748b', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 }),
-  btn: (color = '#f43f5e') => ({ background: `${color}22`, border: `1px solid ${color}44`, color, borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }),
+  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '24px', marginBottom: '24px' },
+  badge: (tier) => ({ background: `${TIER_COLORS[tier] || '#64748b'}22`, color: TIER_COLORS[tier] || '#64748b', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, whiteSpace: 'nowrap' }),
+  btn: (color = '#f43f5e') => ({ height: '36px', background: `${color}18`, border: `1px solid ${color}44`, color, borderRadius: '8px', padding: '0 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }),
   input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc', padding: '8px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none' },
-  th: { color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
-  td: { color: '#f8fafc', fontSize: '13px', padding: '12px', borderBottom: '1px solid rgba(255,255,255,0.04)', verticalAlign: 'middle' },
+  th: { color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 16px', textAlign: 'left', whiteSpace: 'nowrap' },
+  td: { color: '#f8fafc', fontSize: '13px', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', verticalAlign: 'middle' },
 };
 
 const FILTERS = ['all', 'trial', 'starter', 'pro', 'enterprise', 'pending'];
@@ -134,10 +134,10 @@ export default function TabShops() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 700 }}>Shop Management</h2>
-          <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>{shops.length} shops · {pending.filter(u=>u.role==='shop').length} pending · {expiredTrials.length} expired trials</p>
+          <h2 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 600, margin: 0 }}>Shop Management</h2>
+          <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px', margin: '4px 0 0' }}>{shops.length} shops · {pending.filter(u=>u.role==='shop').length} pending · {expiredTrials.length} expired trials</p>
         </div>
         <button onClick={load} style={S.btn('#94a3b8')}><RefreshCw size={13} />Refresh</button>
       </div>
@@ -191,7 +191,7 @@ export default function TabShops() {
                           ? <img src={shop.logo} alt="" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} />
                           : <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>{(shop.name||'S')[0]}</div>
                         }
-                        <span style={{ fontWeight: 500 }}>{shop.name}</span>
+                        <span title={shop.name} style={{ fontWeight: 500, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{shop.name}</span>
                       </div>
                     </td>
                     <td style={{ ...S.td, color: '#94a3b8' }}>{shop.phone}</td>

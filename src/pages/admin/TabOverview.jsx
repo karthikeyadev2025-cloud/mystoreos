@@ -5,14 +5,14 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  grid4: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' },
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '20px' },
+  grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' },
+  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
   cardLabel: { color: '#94a3b8', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' },
-  cardVal: { color: '#f8fafc', fontSize: '28px', fontWeight: 700, lineHeight: 1 },
-  cardSub: { color: '#64748b', fontSize: '12px', marginTop: '6px' },
-  sectionTitle: { color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '16px' },
-  chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px', marginBottom: '24px' },
-  chartCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '20px' },
+  cardVal: { color: '#f8fafc', fontSize: '32px', fontWeight: 700, lineHeight: 1 },
+  cardSub: { color: '#64748b', fontSize: '13px', marginTop: '8px' },
+  sectionTitle: { color: '#f8fafc', fontSize: '20px', fontWeight: 700, marginBottom: '16px' },
+  chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' },
+  chartCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
 };
 
 const PIE_COLORS = ['#f43f5e', '#8b5cf6', '#10b981', '#f59e0b'];
@@ -83,7 +83,7 @@ export default function TabOverview() {
         </button>
       </div>
 
-      <div style={S.grid4}>
+      <div style={S.grid4} className="overview-grid4">
         <StatCard icon={IndianRupee} label="Monthly Revenue" value={stats?.revenue || '₹0'} sub={`Shops ₹${stats?.shopMRR || 0} + Dist ₹${stats?.distMRR || 0}`} color="#f43f5e" />
         <StatCard icon={Store} label="Total Shops" value={stats?.totalShops || 0} sub={`${stats?.paidShops || 0} paid`} color="#8b5cf6" />
         <StatCard icon={Truck} label="Distributors" value={stats?.totalDistributors || 0} color="#10b981" />
@@ -153,7 +153,11 @@ export default function TabOverview() {
         </ResponsiveContainer>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media(max-width:900px){.overview-grid4{grid-template-columns:repeat(2,1fr)!important}}
+        @media(max-width:480px){.overview-grid4{grid-template-columns:1fr!important}}
+      `}</style>
     </div>
   );
 }
