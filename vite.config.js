@@ -52,12 +52,8 @@ export default defineConfig({
           if (id.includes('node_modules/react-router')) return 'router';
           // Toast notifications
           if (id.includes('node_modules/react-toastify')) return 'toastify';
-          // PDF generation — loaded only on billing
-          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas')) return 'pdf-libs';
           // QR Code display (small, load with pages that use it)
           if (id.includes('node_modules/qrcode.react')) return 'qrcode';
-          // Barcode rendering
-          if (id.includes('node_modules/react-barcode') || id.includes('node_modules/jsbarcode')) return 'barcode';
           // Supabase client
           if (id.includes('node_modules/@supabase')) return 'supabase';
           // Framer Motion

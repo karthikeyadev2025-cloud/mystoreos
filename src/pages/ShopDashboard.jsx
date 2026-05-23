@@ -1272,6 +1272,29 @@ const ShopDashboard = () => {
     }
   };
 
+  const downloadQrPng = () => {
+    const svgElement = document.querySelector('.qr-code-holder svg');
+    if (!svgElement) return toast.error('QR code not visible');
+    const xml = new XMLSerializer().serializeToString(svgElement);
+    const svg64 = btoa(unescape(encodeURIComponent(xml)));
+    const img = new Image();
+    img.src = 'data:image/svg+xml;base64,' + svg64;
+    img.onload = () => {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, size, size);
+      ctx.drawImage(img, 0, 0, size, size);
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `${user.name}_QR.png`;
+      a.click();
+      toast.success('QR downloaded as PNG');
+    };
+  };
+
   const handleSaveProfile = async () => {
     await safe(() => api.updateProfile(user.id, {
       upiId, logo, shopPhotos, paymentQr,
@@ -1763,6 +1786,7 @@ const ShopDashboard = () => {
               handleSaveProfile={handleSaveProfile}
               getShopUrl={getShopUrl}
               downloadQrPoster={downloadQrPoster}
+              downloadQrPng={downloadQrPng}
               handleShareShop={handleShareShop}
               staffList={staffList}
               newStaffName={newStaffName}
@@ -3051,6 +3075,9 @@ const ShopDashboard = () => {
               <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
               
               <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🖼️ Download QR Code (PNG)
+                </button>
                 <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖨️ Download Printable QR Poster (PDF)
                 </button>

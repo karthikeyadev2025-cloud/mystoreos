@@ -29,6 +29,7 @@ const DesktopSettings = ({
   handleGrabLocation,
   getShopUrl,
   downloadQrPoster,
+  downloadQrPng,
   handleShareShop,
   staffList,
   newStaffName,
@@ -370,7 +371,10 @@ const DesktopSettings = ({
             </button>
           </div>
 
-          <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px' }}>
+          <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <QrCode size={14} /> Download QR Code (PNG)
+            </button>
             <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <FileText size={14} /> Download Full PDF Poster
             </button>
