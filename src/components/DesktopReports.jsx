@@ -166,7 +166,11 @@ const DesktopReports = ({
                 <p style={{ margin: 0, fontSize: '11px', color: '#cbd5e1', lineHeight: '1.4' }}>Generate double-entry bookkeeping ledgers. Download compliant Sales XML.</p>
               </div>
               <PlanGate feature="tallyExport" fallback={<LockedFeature feature="tallyExport" compact />}>
-                <button onClick={() => downloadTallyXML(orders.filter(o => ['Accepted','accepted','Completed','completed'].includes(o.status)), user.name)}
+                <button onClick={() => downloadTallyXML(
+                    orders.filter(o => ['Accepted','accepted','Completed','completed'].includes(o.status)),
+                    user.name,
+                    { stockOrders, supplierCredits: credits, customerCredits, products }
+                  )}
                   style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <Download size={14} /> Export XML
                 </button>

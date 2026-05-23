@@ -14,6 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Barcode from 'react-barcode';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML } from '../lib/TallyExporter';
+import { sendWhatsApp, sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
 import DesktopSidebar from '../components/DesktopSidebar';
@@ -209,6 +210,18 @@ const ShopDashboard = () => {
   useRealtimeTable({ table: 'orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
   useRealtimeTable({ table: 'products', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
 
+  // Trial expiry reminder: day 5 and day 7 (once per day, tracked in localStorage)
+  useEffect(() => {
+    if (user.subscription !== 'trial' || !user.phone || !user.createdAt) return;
+    const daysSince = Math.floor((Date.now() - new Date(user.createdAt)) / 86400000);
+    if (daysSince !== 5 && daysSince !== 7) return;
+    const flagKey = `mystore_trial_notified_${user.id}_d${daysSince}`;
+    if (localStorage.getItem(flagKey)) return;
+    const daysLeft = Math.max(0, 7 - daysSince);
+    sendTrialReminder(user.phone, user.name, daysLeft);
+    localStorage.setItem(flagKey, '1');
+  }, [user.id, user.phone, user.subscription, user.createdAt, user.name]);
+
   useEffect(() => {
     let cancelled = false;
     const pts = loyaltyEnabled && customerPhone
@@ -353,19 +366,9 @@ const ShopDashboard = () => {
     const parts = c.desc.split(':');
     const custName = parts[1] || 'Valued Customer';
     const custPhone = parts[2] || '';
-    const custDesc = parts[3] || 'Pending Balance';
-    
-    const storeName = user.name;
     const upiIdForStore = upiId || user.upiId || '';
-    
-    if (!upiIdForStore) {
-      return toast.error("Configure your UPI ID in Settings to generate payment links.");
-    }
-    
-    const upiLink = `upi://pay?pa=${upiIdForStore}&pn=${encodeURIComponent(storeName)}&am=${c.amount}&cu=INR`;
-    const message = `Hello *${custName}*,\nThis is a friendly reminder from *${storeName}* regarding your pending outstanding balance of *₹${c.amount}* for *${custDesc}*.\n\nYou can pay instantly via any UPI App by clicking this link:\n${upiLink}\n\nThank you!`;
-    
-    window.open(`https://wa.me/${custPhone ? custPhone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(message)}`, '_blank');
+    // Use notify.js: WhatsApp Cloud API → wa.me fallback → SMS
+    sendCreditReminder(custPhone, custName, c.amount, user.name, upiIdForStore);
   };
 
   const handleLogout = () => {
@@ -760,9 +763,10 @@ const ShopDashboard = () => {
         billItems.forEach(i => msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} x${i.qty || 1}: Rs.${i.price * (i.qty || 1)}\n`);
         if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal: Rs.${total}\n`;
         if (billingMode === 'bill' && upiId) {
-          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&cu=INR\n`;
+          const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
+          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&tn=${ref}&cu=INR\n`;
         }
-        window.open(`https://wa.me/${customerPhone ? customerPhone.replace(/\D/g, '') : ''}?text=${encodeURIComponent(msg)}`, '_blank');
+        await sendWhatsApp(customerPhone, msg);
       } else {
         // Starter plan: save PDF locally instead of WhatsApp share
         doc.save(`${user.name}_bill.pdf`);
@@ -770,6 +774,10 @@ const ShopDashboard = () => {
       }
 
       toast.success(`${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Bill')} generated and sent successfully!`);
+      // Auto-send via WhatsApp Cloud API if configured (silent — no browser tab opened)
+      if (billingMode === 'bill' && customerPhone && hasWhatsAppAPI()) {
+        sendBillNotification(customerPhone, customerName || 'Customer', total, user.name, invoiceNo);
+      }
       setBillItems([]);
       setDiscountAmount(0);
       setPromoCode('');
@@ -803,7 +811,6 @@ const ShopDashboard = () => {
   const pendingOrders = orders.filter(o => o.status === 'Pending' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
   const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
-
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
   // Predictive reorder: units sold per product in last 30 days
@@ -1495,6 +1502,7 @@ const ShopDashboard = () => {
           setUser(updatedUser);
           localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           setShowPlanSelectorModal(false);
+          if (user.phone) sendPaymentConfirmation(user.phone, user.name, plan.name, plan.price);
         } catch (_e) {
           toast.error(`Upgrade failed. Contact support with ID: ${response.razorpay_payment_id}`);
         }
@@ -1789,9 +1797,9 @@ const ShopDashboard = () => {
                 {paymentQr ? (
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
-                  <QRCodeSVG 
-                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&cu=INR`} 
-                    size={240} 
+                  <QRCodeSVG
+                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&tn=Bill&cu=INR`}
+                    size={240}
                   />
                 )}
               </div>
@@ -2547,7 +2555,7 @@ const ShopDashboard = () => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => {
                             if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
-                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
+                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&tn=${encodeURIComponent('Credit-' + (c.id||'').slice(0,8))}&cu=INR`, '_blank');
                           }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>
@@ -3102,8 +3110,8 @@ const ShopDashboard = () => {
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
             ) : (
               <QRCodeSVG 
-                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&cu=INR`} 
-                size={260} 
+                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&tn=Bill&cu=INR`}
+                size={260}
               />
             )}
           </div>
