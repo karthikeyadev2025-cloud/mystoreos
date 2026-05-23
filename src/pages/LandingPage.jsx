@@ -76,7 +76,7 @@ function Nav({ navigate }) {
           <span style={{ fontWeight: 800, fontSize: 18, color: '#fff' }}>MyStore OS</span>
         </div>
         <div className="ln" style={{ gap: 32, alignItems: 'center' }}>
-          {[['Features', '#features'], ['Pricing', '#pricing'], ['Alternatives', '/alternative/vyapar']].map(([l, h]) => (
+          {[['Features', '#features'], ['Pricing', '#pricing'], ['About', '/about'], ['Alternatives', '/alternative/vyapar']].map(([l, h]) => (
             <a key={l} href={h} style={{ color: '#94a3b8', fontSize: 14, fontWeight: 500, textDecoration: 'none' }} onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; }}>{l}</a>
           ))}
         </div>
@@ -90,7 +90,7 @@ function Nav({ navigate }) {
         {open && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999, background: 'rgba(3,7,18,0.97)', backdropFilter: 'blur(20px)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[['Features', '#features'], ['Pricing', '#pricing'], ['Alternatives', '/alternative/vyapar']].map(([l, h]) => (
+            {[['Features', '#features'], ['Pricing', '#pricing'], ['About', '/about'], ['Alternatives', '/alternative/vyapar']].map(([l, h]) => (
               <a key={l} href={h} onClick={() => setOpen(false)} style={{ color: '#cbd5e1', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{l}</a>
             ))}
             <button onClick={() => { setOpen(false); navigate('/login'); }} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#cbd5e1', padding: 12, borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Login</button>
@@ -421,6 +421,36 @@ function Testimonials() {
   );
 }
 
+// ─── TRUST BAR ────────────────────────────────────────────────────────────────
+const TRUST_ITEMS = [
+  { icon: '🔐', title: 'Bank-Grade Security', desc: 'AES-256 encryption + TLS 1.3. Data isolated per shop with Row-Level Security.' },
+  { icon: '📵', title: 'Works Offline', desc: 'Full billing & inventory without internet. Syncs automatically when reconnected.' },
+  { icon: '🏢', title: 'K² ADEXOS', desc: 'Built by Karthikeya Vempati in Guntur, AP. Proudly Indian product, Indian data centres.' },
+  { icon: '⚡', title: '99.9% Uptime', desc: 'Hosted on Vercel edge + Supabase with global failover. Built for mission-critical use.' },
+];
+function TrustBar() {
+  return (
+    <section style={{ padding: 'clamp(48px,6vw,80px) 24px', background: '#030712', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Why Trust Us</div>
+          <h2 style={{ margin: 0, fontSize: 'clamp(20px,3vw,34px)', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>Built for the Long Run</h2>
+        </motion.div>
+        <div className="l4" style={{ display: 'grid', gap: 16 }}>
+          {TRUST_ITEMS.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '20px 18px', textAlign: 'center' }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>{t.icon}</div>
+              <h3 style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800, color: '#fff' }}>{t.title}</h3>
+              <p style={{ margin: 0, fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{t.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── FOR SHOPPERS ─────────────────────────────────────────────────────────────
 function ForShoppers() {
   const navigate = useNavigate();
@@ -662,6 +692,7 @@ export default function LandingPage() {
       <CompMatrix />
       <ForShoppers />
       <Testimonials />
+      <TrustBar />
       <Pricing plans={plans} distPlans={distPlans} />
       <HowItWorks />
       <Faq />

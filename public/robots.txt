@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /shop
+Disallow: /distributor
+Disallow: /ca
+Disallow: /onboarding
+Disallow: /waiting
+Disallow: /s/
+
+Sitemap: https://mystoreos.in/sitemap.xml

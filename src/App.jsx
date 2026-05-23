@@ -17,6 +17,7 @@ const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
 const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
 const WaitingScreen = lazy(() => import('./components/WaitingScreen'));
 
@@ -119,6 +120,12 @@ function App() {
                 <Route path="/alternative/:competitor" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><AlternativeComparison /></ErrorBoundary>
+                  </Suspense>
+                } />
+
+                <Route path="/about" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AboutUs /></ErrorBoundary>
                   </Suspense>
                 } />
 
