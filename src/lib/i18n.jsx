@@ -3,15 +3,19 @@
 import { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
 import en from './translations/en';
 
-// Lazy-load Hindi and Telugu to keep initial bundle small
+// Lazy-load non-English locales to keep initial bundle small
 const translationLoaders = {
   en: () => Promise.resolve(en),
   hi: () => import('./translations/hi').then(m => m.default),
   te: () => import('./translations/te').then(m => m.default),
+  ta: () => import('./translations/ta').then(m => m.default),
+  kn: () => import('./translations/kn').then(m => m.default),
+  mr: () => import('./translations/mr').then(m => m.default),
+  bn: () => import('./translations/bn').then(m => m.default),
 };
 
 const STORAGE_KEY = 'mystore_locale';
-const SUPPORTED_LOCALES = ['en', 'hi', 'te'];
+const SUPPORTED_LOCALES = ['en', 'hi', 'te', 'ta', 'kn', 'mr', 'bn'];
 
 function getInitialLocale() {
   try {

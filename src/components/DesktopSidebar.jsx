@@ -34,6 +34,10 @@ const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handl
             <option value="en" style={{ background: '#1e293b', color: '#f8fafc' }}>English (EN)</option>
             <option value="hi" style={{ background: '#1e293b', color: '#f8fafc' }}>हिन्दी (HI)</option>
             <option value="te" style={{ background: '#1e293b', color: '#f8fafc' }}>తెలుగు (TE)</option>
+            <option value="ta" style={{ background: '#1e293b', color: '#f8fafc' }}>தமிழ் (TA)</option>
+            <option value="kn" style={{ background: '#1e293b', color: '#f8fafc' }}>ಕನ್ನಡ (KN)</option>
+            <option value="mr" style={{ background: '#1e293b', color: '#f8fafc' }}>मराठी (MR)</option>
+            <option value="bn" style={{ background: '#1e293b', color: '#f8fafc' }}>বাংলা (BN)</option>
           </select>
           {loadingLang && <span style={{ fontSize: '10px', color: '#94a3b8' }}>⏳</span>}
         </div>
