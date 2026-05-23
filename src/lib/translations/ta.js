@@ -57,6 +57,10 @@ export default {
   'pos.totalProducts': 'மொத்த பொருட்கள்',
   'pos.newOrders': 'புதிய ஆர்டர்கள்',
   'pos.supplierCredit': 'சப்ளையர் கடன்',
+  'pos.total': 'மொத்தம்',
+  'pos.discount': 'தள்ளுபடி',
+  'pos.generateBill': 'பில் உருவாக்கு',
+  'pos.shareWhatsApp': 'WhatsApp-ல் பகிர்',
 
   // Products
   'products.title': 'பொருட்கள்',
@@ -65,6 +69,12 @@ export default {
   'products.price': 'விலை',
   'products.lowStock': 'இருப்பு குறைவு',
   'products.outOfStock': 'இருப்பு இல்லை',
+
+  // Inventory
+  'inventory.addProduct': 'பொருள் சேர்',
+  'inventory.stock': 'இருப்பு',
+  'inventory.price': 'விலை',
+  'inventory.expiry': 'காலாவதி தேதி',
 
   // Credit
   'credit.supplierPayables': 'சப்ளையருக்கு கொடுக்க வேண்டியது',
@@ -76,12 +86,15 @@ export default {
   'credit.outstanding': 'நிலுவையில் உள்ளது',
   'credit.paid': 'செலுத்தியது',
   'credit.unpaid': 'செலுத்தவில்லை',
+  'credits.amount': 'தொகை',
+  'credits.markPaid': 'செலுத்தியது என குறி',
 
   // Reports
   'reports.title': 'அறிக்கைகள்',
   'reports.revenue': 'வருவாய்',
   'reports.expenses': 'செலவுகள்',
   'reports.netProfit': 'நிகர லாபம்',
+  'reports.profit': 'லாபம்',
   'reports.export': 'பதிவிறக்கம்',
 
   // Settings

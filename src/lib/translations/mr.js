@@ -57,6 +57,10 @@ export default {
   'pos.totalProducts': 'एकूण उत्पादने',
   'pos.newOrders': 'नवीन ऑर्डर',
   'pos.supplierCredit': 'पुरवठादार उधार',
+  'pos.total': 'एकूण',
+  'pos.discount': 'सवलत',
+  'pos.generateBill': 'बिल तयार करा',
+  'pos.shareWhatsApp': 'WhatsApp वर शेअर करा',
 
   // Products
   'products.title': 'उत्पादने',
@@ -65,6 +69,12 @@ export default {
   'products.price': 'किंमत',
   'products.lowStock': 'साठा कमी',
   'products.outOfStock': 'साठा संपला',
+
+  // Inventory
+  'inventory.addProduct': 'उत्पादन जोडा',
+  'inventory.stock': 'साठा',
+  'inventory.price': 'किंमत',
+  'inventory.expiry': 'कालबाह्य तारीख',
 
   // Credit
   'credit.supplierPayables': 'पुरवठादाराला द्यायचे',
@@ -76,12 +86,15 @@ export default {
   'credit.outstanding': 'थकबाकी',
   'credit.paid': 'दिले',
   'credit.unpaid': 'दिले नाही',
+  'credits.amount': 'रक्कम',
+  'credits.markPaid': 'दिले म्हणून नोंदवा',
 
   // Reports
   'reports.title': 'अहवाल',
   'reports.revenue': 'उत्पन्न',
   'reports.expenses': 'खर्च',
   'reports.netProfit': 'निव्वळ नफा',
+  'reports.profit': 'नफा',
   'reports.export': 'डाउनलोड करा',
 
   // Settings

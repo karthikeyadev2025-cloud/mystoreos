@@ -57,6 +57,10 @@ export default {
   'pos.totalProducts': 'মোট পণ্য',
   'pos.newOrders': 'নতুন অর্ডার',
   'pos.supplierCredit': 'সরবরাহকারী ধার',
+  'pos.total': 'মোট',
+  'pos.discount': 'ছাড়',
+  'pos.generateBill': 'বিল তৈরি করুন',
+  'pos.shareWhatsApp': 'WhatsApp-এ শেয়ার করুন',
 
   // Products
   'products.title': 'পণ্য',
@@ -65,6 +69,12 @@ export default {
   'products.price': 'মূল্য',
   'products.lowStock': 'স্টক কম',
   'products.outOfStock': 'স্টক শেষ',
+
+  // Inventory
+  'inventory.addProduct': 'পণ্য যোগ করুন',
+  'inventory.stock': 'স্টক',
+  'inventory.price': 'মূল্য',
+  'inventory.expiry': 'মেয়াদ শেষের তারিখ',
 
   // Credit
   'credit.supplierPayables': 'সরবরাহকারীকে দিতে হবে',
@@ -76,12 +86,15 @@ export default {
   'credit.outstanding': 'বকেয়া',
   'credit.paid': 'পরিশোধ করা হয়েছে',
   'credit.unpaid': 'পরিশোধ হয়নি',
+  'credits.amount': 'পরিমাণ',
+  'credits.markPaid': 'পরিশোধিত হিসেবে চিহ্নিত করুন',
 
   // Reports
   'reports.title': 'রিপোর্ট',
   'reports.revenue': 'আয়',
   'reports.expenses': 'খরচ',
   'reports.netProfit': 'নিট মুনাফা',
+  'reports.profit': 'মুনাফা',
   'reports.export': 'ডাউনলোড করুন',
 
   // Settings

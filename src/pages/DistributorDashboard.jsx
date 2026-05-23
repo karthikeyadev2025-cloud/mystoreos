@@ -55,6 +55,9 @@ const DistributorDashboard = () => {
   // Responsive state & Widescreen helpers
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [visitedShops, setVisitedShops] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('dist_visited') || '{}'); } catch { return {}; }
+  });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -648,31 +651,70 @@ const DistributorDashboard = () => {
                 </div>
               ) : (
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>🗺️ Route Planner</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
-                    {shops.sort((a, b) => {
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#fff' }}>🗺️ Route Planner</h2>
+                  {(() => {
+                    const today = new Date();
+                    const sevenAgo = new Date(today); sevenAgo.setDate(today.getDate() - 7);
+                    const routeShops = [...shops].sort((a, b) => {
                       const aOwed = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
                       const bOwed = credits.filter(c => c.toShopId === b.id && !c.paid).reduce((s, c) => s + c.amount, 0);
-                      return bOwed - aOwed;
-                    }).map((shop, idx) => {
-                      const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
-                      return (
-                        <div key={shop.id} className="glass" style={{ padding: '16px', borderLeft: `4px solid ${owed > 5000 ? '#ef4444' : owed > 0 ? '#f59e0b' : '#10b981'}` }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                              <span style={{ fontSize: '11px', color: '#64748b' }}>Stop #{idx + 1}</span>
-                              <h4 style={{ margin: '2px 0', color: '#fff', fontSize: '14px' }}>{shop.name}</h4>
-                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>{shop.phone}</span>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? '#ef4444' : '#10b981' }}>₹{owed}</div>
-                              <div style={{ fontSize: '10px', color: '#94a3b8' }}>outstanding</div>
-                            </div>
-                          </div>
+                      const aPending = stockOrders.filter(o => o.shopId === a.id && o.status === 'pending').length;
+                      const bPending = stockOrders.filter(o => o.shopId === b.id && o.status === 'pending').length;
+                      const aLastVisit = visitedShops[a.id] ? new Date(visitedShops[a.id]) : null;
+                      const bLastVisit = visitedShops[b.id] ? new Date(visitedShops[b.id]) : null;
+                      const aNotVisited = !aLastVisit || aLastVisit < sevenAgo ? 1 : 0;
+                      const bNotVisited = !bLastVisit || bLastVisit < sevenAgo ? 1 : 0;
+                      return (bOwed + bPending * 100 + bNotVisited * 50) - (aOwed + aPending * 100 + aNotVisited * 50);
+                    });
+                    const totalToCollect = routeShops.reduce((s, sh) => s + credits.filter(c => c.toShopId === sh.id && !c.paid).reduce((a, c) => a + c.amount, 0), 0);
+                    const markVisited = (shopId) => {
+                      const updated = { ...visitedShops, [shopId]: new Date().toISOString() };
+                      setVisitedShops(updated);
+                      try { localStorage.setItem('dist_visited', JSON.stringify(updated)); } catch (_e) { /* ignore */ }
+                    };
+                    return (
+                      <>
+                        <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                          <span style={{ color: '#93c5fd', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
+                          <span style={{ color: '#fca5a5', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {routeShops.map((shop, idx) => {
+                            const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                            const pendingOrders = stockOrders.filter(o => o.shopId === shop.id && o.status === 'pending').length;
+                            const lastVisit = visitedShops[shop.id] ? new Date(visitedShops[shop.id]) : null;
+                            const notVisited7 = !lastVisit || lastVisit < sevenAgo;
+                            return (
+                              <div key={shop.id} className="glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#ef4444' : owed > 0 ? '#f59e0b' : '#10b981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                <div style={{ flex: 1, minWidth: '140px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                                    <span style={{ fontSize: '10px', color: '#64748b' }}>Stop #{idx + 1}</span>
+                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', fontWeight: 'bold' }}>Not visited 7d+</span>}
+                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'rgba(59,130,246,0.15)', color: '#60a5fa', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>{shop.name}</div>
+                                  <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                                    {shop.phone || 'No phone'} · Last: {lastVisit ? lastVisit.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Never'}
+                                  </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                  <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? '#ef4444' : '#10b981' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '10px', color: '#64748b' }}>outstanding</div>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
+                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: 'rgba(37,211,102,0.12)', color: '#4ade80', border: '1px solid rgba(37,211,102,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
+                                    <button onClick={() => markVisited(shop.id)} style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>✓ Visited</button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>

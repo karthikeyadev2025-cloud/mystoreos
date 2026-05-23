@@ -14,7 +14,8 @@ import 'react-toastify/dist/ReactToastify.css';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
 import { QRCodeSVG } from 'qrcode.react';
-import { downloadTallyXML } from '../lib/TallyExporter';
+import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { sendWhatsApp, sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
@@ -57,6 +58,7 @@ const ShopDashboard = () => {
   
   // Receipt Modal State
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [tallyMenuOpen, setTallyMenuOpen] = useState(false);
 
   // Products Management State
   const [showAddProductModal, setShowAddProductModal] = useState(false);
@@ -2851,18 +2853,85 @@ const ShopDashboard = () => {
 
               </div>
 
+              {/* MONTHLY CASH FLOW CHART */}
+              {(() => {
+                const now = new Date();
+                const monthLabels = Array.from({ length: 6 }, (_, i) => {
+                  const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+                  return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleString('default', { month: 'short' }) };
+                });
+                const cashFlowMonths = monthLabels.map(({ key, label }) => {
+                  const income = orders.filter(o => ['completed','Completed','Accepted','accepted'].includes(o.status) && (o.date || o.createdAt || '').startsWith(key))
+                    .reduce((s, o) => s + Number(o.total || o.totalAmount || 0), 0);
+                  const expenses = stockOrders.filter(so => ['accepted','Accepted'].includes(so.status) && (so.date || so.createdAt || '').startsWith(key))
+                    .reduce((s, so) => s + Number(so.total || 0), 0);
+                  return { label, income, expenses, profit: income - expenses };
+                });
+                const thisMonth = cashFlowMonths[cashFlowMonths.length - 1];
+                const totalIncome = cashFlowMonths.reduce((s, m) => s + m.income, 0);
+                const totalExpenses = cashFlowMonths.reduce((s, m) => s + m.expenses, 0);
+                const totalProfit = totalIncome - totalExpenses;
+                const margin = totalIncome > 0 ? Math.round((totalProfit / totalIncome) * 100) : 0;
+                return (
+                  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+                    <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>📊 6-Month Cash Flow</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '14px' }}>
+                      {[
+                        { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: '#10b981' },
+                        { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: '#ef4444' },
+                        { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? '#10b981' : '#ef4444' },
+                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10b981' : margin >= 0 ? '#f59e0b' : '#ef4444' },
+                      ].map(c => (
+                        <div key={c.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 12px' }}>
+                          <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '2px' }}>{c.label}</div>
+                          <div style={{ fontSize: '15px', fontWeight: '800', color: c.color }}>{c.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <BarChart data={cashFlowMonths} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barGap={2}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
+                        <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
+                        <Bar dataKey="income" fill="#10b981" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="expenses" fill="#ef4444" radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                );
+              })()}
+
               {/* TALLY EXPORT PANEL */}
               <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #10b981', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#10b981' }}>📊 Tally ERP / Prime Export</h3>
-                  <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Download Sales Vouchers as Tally-compatible XML for your CA.</p>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Export Tally XML, GSTR-1 CSV, or Monthly Summary for your CA.</p>
                 </div>
-                <button 
-                  onClick={() => downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name)} 
-                  style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
-                >
-                  📥 Export XML
-                </button>
+                <div style={{ position: 'relative' }}>
+                  <button
+                    onClick={() => setTallyMenuOpen(v => !v)}
+                    style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    📥 Export ▾
+                  </button>
+                  {tallyMenuOpen && (
+                    <div style={{ position: 'absolute', right: 0, top: '44px', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', zIndex: 50, minWidth: '200px', overflow: 'hidden' }}
+                      onMouseLeave={() => setTallyMenuOpen(false)}>
+                      {[
+                        { label: '📥 Tally XML', action: () => { downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name); setTallyMenuOpen(false); } },
+                        { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), user.gstNumber), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
+                        { label: '📊 Monthly Summary', action: () => { downloadCSV(generateMonthlySummaryCSV(orders.filter(o => o.status === 'completed')), `Summary_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
+                      ].map(item => (
+                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: '#f8fafc', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Day Book Transactions List */}

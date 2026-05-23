@@ -57,6 +57,10 @@ export default {
   'pos.totalProducts': 'ಒಟ್ಟು ಉತ್ಪನ್ನಗಳು',
   'pos.newOrders': 'ಹೊಸ ಆರ್ಡರ್‌ಗಳು',
   'pos.supplierCredit': 'ಸರಬರಾಜುದಾರ ಸಾಲ',
+  'pos.total': 'ಒಟ್ಟು',
+  'pos.discount': 'ರಿಯಾಯಿತಿ',
+  'pos.generateBill': 'ಬಿಲ್ ರಚಿಸು',
+  'pos.shareWhatsApp': 'WhatsApp-ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ',
 
   // Products
   'products.title': 'ಉತ್ಪನ್ನಗಳು',
@@ -65,6 +69,12 @@ export default {
   'products.price': 'ಬೆಲೆ',
   'products.lowStock': 'ಸ್ಟಾಕ್ ಕಡಿಮೆಯಿದೆ',
   'products.outOfStock': 'ಸ್ಟಾಕ್ ಇಲ್ಲ',
+
+  // Inventory
+  'inventory.addProduct': 'ಉತ್ಪನ್ನ ಸೇರಿಸು',
+  'inventory.stock': 'ಸ್ಟಾಕ್',
+  'inventory.price': 'ಬೆಲೆ',
+  'inventory.expiry': 'ಮುಕ್ತಾಯ ದಿನಾಂಕ',
 
   // Credit
   'credit.supplierPayables': 'ಸರಬರಾಜುದಾರನಿಗೆ ನೀಡಬೇಕಾದದ್ದು',
@@ -76,12 +86,15 @@ export default {
   'credit.outstanding': 'ಬಾಕಿ ಇದೆ',
   'credit.paid': 'ಪಾವತಿಸಲಾಗಿದೆ',
   'credit.unpaid': 'ಪಾವತಿಸಲಾಗಿಲ್ಲ',
+  'credits.amount': 'ಮೊತ್ತ',
+  'credits.markPaid': 'ಪಾವತಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸು',
 
   // Reports
   'reports.title': 'ವರದಿಗಳು',
   'reports.revenue': 'ಆದಾಯ',
   'reports.expenses': 'ವೆಚ್ಚಗಳು',
   'reports.netProfit': 'ನಿವ್ವಳ ಲಾಭ',
+  'reports.profit': 'ಲಾಭ',
   'reports.export': 'ಡೌನ್‌ಲೋಡ್',
 
   // Settings

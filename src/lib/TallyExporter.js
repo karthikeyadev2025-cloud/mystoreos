@@ -234,3 +234,65 @@ export const downloadTallyXML = (orders, shopName, options = {}) => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+export const generateGSTR1CSV = (orders = [], _shopGST = '') => {
+  const rows = [
+    ['GSTIN/UIN', 'Invoice Number', 'Invoice Date', 'Invoice Type', 'Place of Supply', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value'],
+  ];
+  orders.forEach(order => {
+    const { isB2B } = partyInfo(order);
+    const amount = Number(order.total || order.totalAmount || 0);
+    if (!amount) return;
+    const d = order.date || order.createdAt ? new Date(order.date || order.createdAt) : new Date();
+    const dateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const taxable = (amount / 1.18).toFixed(2);
+    const gst = (amount - Number(taxable)).toFixed(2);
+    const half = (Number(gst) / 2).toFixed(2);
+    rows.push([
+      isB2B ? (order.partyGST || 'URP') : '',
+      order.id?.slice(0, 8) || '',
+      dateStr,
+      isB2B ? 'B2B' : 'B2CS',
+      '36-Telangana',
+      taxable,
+      '0.00',
+      half,
+      half,
+      amount.toFixed(2),
+    ]);
+  });
+  return rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+};
+
+export const generateMonthlySummaryCSV = (orders = []) => {
+  const months = {};
+  orders.forEach(order => {
+    const amount = Number(order.total || order.totalAmount || 0);
+    if (!amount) return;
+    const d = order.date || order.createdAt ? new Date(order.date || order.createdAt) : new Date();
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!months[key]) months[key] = { sales: 0, orders: 0, cash: 0, credit: 0 };
+    months[key].sales += amount;
+    months[key].orders += 1;
+    const { ledger } = partyInfo(order);
+    if (ledger === 'Cash') months[key].cash += amount; else months[key].credit += amount;
+  });
+  const rows = [['Month', 'Total Sales', 'Total Orders', 'Avg Order Value', 'Cash Sales', 'Credit Sales']];
+  Object.entries(months).sort().forEach(([month, m]) => {
+    rows.push([month, m.sales.toFixed(2), m.orders, (m.sales / m.orders).toFixed(2), m.cash.toFixed(2), m.credit.toFixed(2)]);
+  });
+  return rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+};
+
+export const downloadCSV = (csvContent, filename) => {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.visibility = 'hidden';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
