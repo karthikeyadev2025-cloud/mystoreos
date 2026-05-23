@@ -98,7 +98,7 @@ const SECTIONS = [
   {
     icon: '⚖️', title: 'Governing Law',
     content: () => (
-      <p style={S.p}>These terms are governed by the laws of the <span style={S.highlight}>Republic of India</span>. Any disputes shall be subject to the exclusive jurisdiction of courts in <span style={S.highlight}>Guntur district, Andhra Pradesh</span>.</p>
+      <p style={S.p}>These terms are governed by the laws of the <span style={S.highlight}>Republic of India</span>. Any disputes shall be subject to the exclusive jurisdiction of courts in <span style={S.highlight}>Hyderabad, Telangana</span>.</p>
     ),
   },
   {
@@ -138,7 +138,7 @@ export default function TermsOfService() {
       </div>
 
       <footer style={S.footer}>
-        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Guntur, Andhra Pradesh, India
+        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Hyderabad, Telangana, India
       </footer>
     </div>
   );

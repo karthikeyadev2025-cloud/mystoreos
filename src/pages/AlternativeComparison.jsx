@@ -17,7 +17,7 @@ const COMPARISON_DATA = {
       'Zero learning curve — starts billing instantly in 30 seconds',
       'Runs smoothly on any basic ₹8,000 Android smartphone',
       '100% free paperless WhatsApp invoice delivery built-in',
-      'Dual language support (English & Telugu) tailored for Guntur Yard traders'
+      'Multi-language support (Hindi, Tamil, Telugu, Kannada, Marathi, Bengali) for shops across India'
     ]
   },
   vyapar: {
@@ -103,7 +103,7 @@ export default function AlternativeComparison() {
     const pageTitle = `MyStore OS vs ${data.name} — The Ultimate Free ${data.name} Alternative for Retailers`;
     document.title = pageTitle;
 
-    const desc = `Compare MyStore OS and ${data.name}. See why Indian shopkeepers and Guntur merchants are choosing MyStore OS for paperless WhatsApp invoicing, instant UPI payments, offline day book ledger, and zero yearly subscription fees.`;
+    const desc = `Compare MyStore OS and ${data.name}. See why shopkeepers across India are choosing MyStore OS for paperless WhatsApp invoicing, instant UPI payments, offline day book ledger, and zero yearly subscription fees.`;
     
     // Update Meta Description
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -325,7 +325,7 @@ export default function AlternativeComparison() {
           </div>
         </div>
 
-        {/* Local Guntur Yard Localization Card */}
+        {/* Wholesale & FMCG Localization Card */}
         <div style={{
           background: 'rgba(251,191,36,0.05)',
           border: '1px solid rgba(251,191,36,0.15)',
@@ -338,14 +338,14 @@ export default function AlternativeComparison() {
           gap: '12px'
         }}>
           <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-            <Landmark size={18} /> Guntur Market & Chilli Yard Special Integration
+            <Landmark size={18} /> FMCG Wholesale & Distributor Integration
           </h3>
           <p style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-            Unlike generic software like {data.name}, MyStore OS has built-in features optimized for heavy wholesale markets (such as Guntur Chilli Yard and local distributors).
-            Easily manage large bulk transport dispatch notes, track supplier credit ledger balances, and print receipt PDFs in both <strong>Telugu</strong> and <strong>English</strong>!
+            Unlike generic software like {data.name}, MyStore OS has built-in features optimised for wholesale markets and FMCG distributors across India.
+            Manage bulk dispatch notes, track supplier credit ledger balances, and print receipt PDFs in 6 regional languages.
           </p>
           <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 600 }}>
-            💡 Guntur local shopkeepers save up to ₹1,500 every single month on thermal rolls and printer rentals!
+            💡 Indian shopkeepers save up to ₹1,500 every month switching from thermal printers to WhatsApp billing.
           </span>
         </div>
 

@@ -68,7 +68,7 @@ const UserDashboard = () => {
   }, []);
 
   // Shared / General states
-  const [coords, setCoords] = useState({ latitude: 16.3067, longitude: 80.4365 }); // default Guntur Arundelpet
+  const [coords, setCoords] = useState({ latitude: 17.3850, longitude: 78.4867 }); // default Hyderabad
   const [locationStatus, setLocationStatus] = useState('India');
   const [shops, setShops] = useState([]);
   const [activeTab, setActiveTab] = useState('explore'); // explore, search, scan, bills

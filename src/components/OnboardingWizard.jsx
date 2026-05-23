@@ -139,7 +139,7 @@ export default function OnboardingWizard() {
             </div>
             <div style={S.row}>
               <label style={S.lbl}>City / District</label>
-              <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Guntur, Vijayawada" style={S.inp} />
+              <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Mumbai, Hyderabad" style={S.inp} />
             </div>
             <div style={{ marginBottom: 22 }}>
               <label style={S.lbl}>Shop Logo <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span></label>

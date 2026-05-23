@@ -128,7 +128,7 @@ export default function PrivacyPolicy() {
       </div>
 
       <footer style={S.footer}>
-        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Guntur, Andhra Pradesh, India
+        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Hyderabad, Telangana, India
       </footer>
     </div>
   );

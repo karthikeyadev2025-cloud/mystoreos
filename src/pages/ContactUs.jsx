@@ -84,7 +84,7 @@ export default function ContactUs() {
           <div style={S.card}>
             <div style={S.cardIcon}>📍</div>
             <div style={S.cardTitle}>Location</div>
-            <div style={S.cardDesc}>Guntur, Andhra Pradesh, India<br />Mon–Sat · 9 AM – 7 PM IST</div>
+            <div style={S.cardDesc}>Hyderabad, Telangana, India<br />Mon–Sat · 9 AM – 7 PM IST</div>
             <span style={{ ...S.cardBtn, background: 'rgba(255,255,255,0.08)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)', cursor: 'default' }}>India-Based Team</span>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function ContactUs() {
       </div>
 
       <footer style={S.footer}>
-        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Guntur, Andhra Pradesh, India
+        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Hyderabad, Telangana, India
       </footer>
     </div>
   );

@@ -1,0 +1,25 @@
+{
+  "appId": "in.mystoreos.app",
+  "appName": "MyStore OS",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "hostname": "mystoreos.in"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#030712",
+      "androidSplashResourceName": "splash",
+      "showSpinnerOnFullScreen": false
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#030712"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}
