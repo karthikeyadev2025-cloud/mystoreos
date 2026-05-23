@@ -12,13 +12,19 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 4_000_000,
         navigateFallback: '/index.html',
-        // Purge cached chunks from old deployments when SW updates — prevents
-        // the stale-hash MIME error where old index.html references chunks that
-        // no longer exist on the server
+        // Force new SW to take control immediately — evicts old cached bundles
+        skipWaiting: true,
+        clientsClaim: true,
         cleanupOutdatedCaches: true,
-        // Assets use content hashes — NetworkFirst ensures fresh chunks are
-        // always fetched when online, falls back to cache only when offline
         runtimeCaching: [
+          // Navigation: always fetch fresh index.html from network when online
+          // so old JS bundles can never be served after a deploy
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: { cacheName: 'navigation', networkTimeoutSeconds: 5 },
+          },
+          // Hashed assets: NetworkFirst so new chunk hashes are always fetched
           {
             urlPattern: /\/assets\/.+\.(js|css)$/,
             handler: 'NetworkFirst',
