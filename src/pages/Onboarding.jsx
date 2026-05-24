@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
@@ -95,8 +95,14 @@ export default function Onboarding() {
     }
   };
 
+  useEffect(() => {
+    if (step === 3) {
+      const t = setTimeout(() => navigate('/waiting'), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [step, navigate]);
+
   if (step === 3) {
-    setTimeout(() => navigate('/waiting'), 3000);
     return (
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0f0c29,#302b63)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>
         <div style={{ textAlign: 'center', color: '#f8fafc', padding: '24px' }}>
