@@ -2093,7 +2093,7 @@ const UserDashboard = () => {
 
           {/* Shopping Cart Bar Sticky Bottom */}
           {getCartTotals().count > 0 && (
-            <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, #0f172a, #020617)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1000, borderTopLeftRadius: '20px', borderTopRightRadius: '20px', boxShadow: '0 -10px 30px rgba(0,0,0,0.6)' }}>
+            <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, #0f172a, #020617)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 100, borderTopLeftRadius: '20px', borderTopRightRadius: '20px', boxShadow: '0 -10px 30px rgba(0,0,0,0.6)' }}>
               <div>
                 <h4 style={{ fontSize: '15px', fontWeight: '700', margin: 0, color: '#f8fafc' }}>🛒 {getCartTotals().count} Items Checked</h4>
                 <p style={{ fontSize: '13px', color: '#f59e0b', fontWeight: '800', margin: 0 }}>Total: ₹{getCartTotals().total}</p>
@@ -2584,7 +2584,7 @@ const UserDashboard = () => {
           </div>
 
           {/* General Customer Dashboard Bottom Navigation Bar */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-around', padding: '12px 0', background: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.06)', zIndex: 1000, maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-around', padding: '12px 0', background: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.06)', zIndex: 100, maxWidth: '480px', margin: '0 auto' }}>
             {[
               { id: 'explore', label: 'Explore', icon: Compass },
               { id: 'search', label: 'Global Find', icon: Search },

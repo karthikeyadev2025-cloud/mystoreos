@@ -149,8 +149,8 @@ export default function AdminDashboard() {
       <style>{`
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
-          .admin-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50}
-          .admin-sidebar-wrap{position:fixed;bottom:0;left:0;right:0;height:auto;max-height:85vh;border-radius:20px 20px 0 0;overflow:hidden;z-index:51}
+          .admin-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000}
+          .admin-sidebar-wrap{position:fixed;bottom:0;left:0;right:0;height:auto;max-height:85vh;border-radius:20px 20px 0 0;overflow:hidden;z-index:1001}
           .admin-sidebar-wrap > div{height:auto!important;max-height:85vh;position:relative!important;width:100%!important;min-width:100%!important}
         }
       `}</style>

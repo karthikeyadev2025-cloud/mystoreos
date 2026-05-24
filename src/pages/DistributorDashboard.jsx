@@ -1295,7 +1295,7 @@ const DistributorDashboard = () => {
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: '#0f172a', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 90 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: '#0f172a', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 100 }}>
         <div style={{ textAlign: 'center', color: activeTab === 'dashboard' ? '#3b82f6' : '#64748b', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
           <div style={{ fontSize: '20px' }}>📊</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Dashboard</span>

@@ -73,7 +73,7 @@ export default function LandingNav({ config, navigate }) {
       <AnimatePresence>
         {open && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
-            style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999, background: 'rgba(3,7,18,0.97)', backdropFilter: 'blur(20px)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 1001, background: 'rgba(3,7,18,0.97)', backdropFilter: 'blur(20px)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             {LINKS.map(l => (
               <button key={l.label} onClick={() => go(l.target, l.route)}
                 style={{ background: 'none', border: 'none', color: '#cbd5e1', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', padding: '12px 0', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
