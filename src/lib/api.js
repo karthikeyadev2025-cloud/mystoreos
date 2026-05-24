@@ -234,7 +234,9 @@ export const api = {
       if (error || !data) throw new Error('Phone number not found. Please register first.');
       if (data.status === 'suspended') throw new Error('Your account has been suspended. Contact support: adexosindia@gmail.com');
       if (data.status === 'pending') throw new Error("Account pending admin approval. You'll be notified on WhatsApp once approved.");
-      if (data.pass !== pass) throw new Error('Wrong password. Try again or use Forgot Password.');
+      // pass_verify = plain text stored on registration (bcrypt is in pass column)
+      const plainOk = data.pass_verify ? data.pass_verify === pass : data.pass === pass;
+      if (!plainOk) throw new Error('Wrong password. Try again or use Forgot Password.');
       return toUser(data);
     }
     const db = getDB();
