@@ -277,7 +277,18 @@ export const api = {
           refresh_token: data.session.refresh_token,
         });
       }
-      return data.profile;
+      const profile = data.profile;
+      // Edge function may return status='active' — enforce pending for non-customers
+      if (role !== 'customer' && profile?.id) {
+        const correctSubscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
+        await supabase.from('users').update({
+          status: 'pending',
+          subscription: correctSubscription,
+        }).eq('id', profile.id);
+        profile.status = 'pending';
+        profile.subscription = correctSubscription;
+      }
+      return profile;
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
