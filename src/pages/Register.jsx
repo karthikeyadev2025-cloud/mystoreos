@@ -34,7 +34,7 @@ const Register = () => {
       if (businessType === 'customer') {
         navigate('/dashboard');
       } else {
-        navigate('/waiting');
+        navigate('/onboarding');
       }
     } catch (err) {
       let msg = err.message || 'Registration failed';

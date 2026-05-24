@@ -120,6 +120,7 @@ const toProduct = (row) => row ? ({
   variants: row.variants, reorderLevel: row.reorder_level || 10,
   hsnCode: row.hsn_code, gstRate: row.gst_rate || 0,
   costPrice: parseFloat(row.cost_price) || 0,
+  image: row.image_url || null,
 }) : null;
 
 const toOrder = (row) => row ? ({
@@ -480,6 +481,7 @@ export const api = {
       hsnCode: extraData?.hsnCode || '',
       gstRate: parseInt(extraData?.gstRate) || 0,
       costPrice: parseFloat(extraData?.costPrice) || 0,
+      image: extraData?.image || null,
     };
     db.products.push(newProd);
     saveDB(db);
@@ -535,6 +537,7 @@ export const api = {
       if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
       if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
+      if (data.image !== undefined) prod.image = data.image;
       saveDB(db);
     }
     return prod;

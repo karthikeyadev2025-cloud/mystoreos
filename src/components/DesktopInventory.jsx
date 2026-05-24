@@ -304,7 +304,11 @@ const DesktopInventory = ({
               <div key={p.id} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${flashSales[p.id] ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                    <div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      {p.image && (
+                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
+                      )}
+                      <div>
                       <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{p.name}</h3>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
                         <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)', fontWeight: 'bold', letterSpacing: '0.3px' }}>
@@ -314,6 +318,7 @@ const DesktopInventory = ({
                           <span style={{ fontSize: '10px', color: '#94a3b8' }}>Batch: {p.batchNumber}</span>
                         )}
                       </div>
+                    </div>
                     </div>
                     <span style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</span>
                   </div>

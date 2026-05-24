@@ -72,6 +72,7 @@ const ShopDashboard = () => {
   const [newProdHsnCode, setNewProdHsnCode] = useState('');
   const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [newProdCostPrice, setNewProdCostPrice] = useState('0');
+  const [newProdImage, setNewProdImage] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -1068,7 +1069,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0 }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImage }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1083,6 +1084,7 @@ const ShopDashboard = () => {
       setNewProdHsnCode('');
       setNewProdGstRate('0');
       setNewProdCostPrice('0');
+      setNewProdImage('');
       loadData();
     } catch (e) {
       console.error(e);
@@ -1407,6 +1409,37 @@ const ShopDashboard = () => {
         toast.error("Failed to upload logo");
       }
     }
+  };
+
+  const handleLogoChange = async (base64) => {
+    setLogo(base64);
+    await safe(() => api.updateProfile(user.id, { logo: base64 }));
+    toast.success('Logo updated!');
+  };
+
+  const handleLogoRemove = async () => {
+    setLogo('');
+    await safe(() => api.updateProfile(user.id, { logo: '' }));
+    toast.success('Logo removed');
+  };
+
+  const handleNewProdImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(300 / img.width, 300 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        setNewProdImage(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleShopPhotoUpload = async (e) => {
@@ -1787,6 +1820,8 @@ const ShopDashboard = () => {
               setUpiId={setUpiId}
               logo={logo}
               handleLogoUpload={handleLogoUpload}
+              onLogoChange={handleLogoChange}
+              onLogoRemove={handleLogoRemove}
               shopPhotos={shopPhotos}
               handleShopPhotoUpload={handleShopPhotoUpload}
               removeShopPhoto={removeShopPhoto}
@@ -3452,8 +3487,26 @@ const ShopDashboard = () => {
               )}
             </div>
 
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Photo (Optional)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <input type="file" accept="image/*" id="new-prod-img" style={{ display: 'none' }} onChange={handleNewProdImage} />
+                <label htmlFor="new-prod-img" style={{ cursor: 'pointer' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#0f172a', border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    {newProdImage
+                      ? <img src={newProdImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
+                      : <span style={{ fontSize: '28px' }}>📸</span>
+                    }
+                  </div>
+                </label>
+                {newProdImage && (
+                  <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
+                )}
+              </div>
+            </div>
+
             <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-            <button onClick={() => setShowAddProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}

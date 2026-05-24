@@ -6,7 +6,7 @@ import { PlanGate, LockedFeature } from './PlanGate';
 const DesktopSettings = ({
   isOwner,
   logo,
-  handleLogoUpload,
+  handleLogoUpload: _handleLogoUpload,
   gstin,
   setGstin,
   stateCode,
@@ -48,8 +48,29 @@ const DesktopSettings = ({
   handleSaveInvoiceSettings,
   hideFromSearch = false,
   onToggleHideFromSearch,
+  onLogoChange,
+  onLogoRemove,
 }) => {
   const qrCanvasRef = useRef(null);
+  const logoFileRef = useRef(null);
+  const handleLogoFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(400 / img.width, 400 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        if (onLogoChange) onLogoChange(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
   if (!isOwner) {
     return (
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
@@ -75,14 +96,26 @@ const DesktopSettings = ({
           </h3>
           
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '20px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '12px' }}>
-            {logo ? (
-              <img src={logo} alt="Shop Logo" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #3b82f6' }} />
-            ) : (
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '11px', border: '1px solid #334155' }}>No Logo</div>
-            )}
+            <input type="file" accept="image/*" ref={logoFileRef} style={{ display: 'none' }} onChange={handleLogoFile} />
+            <div onClick={() => logoFileRef.current?.click()} style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
+              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.1)', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {logo
+                  ? <img src={logo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <span style={{ fontSize: '36px' }}>🏪</span>
+                }
+              </div>
+              <div style={{ position: 'absolute', bottom: '4px', right: '4px', width: '28px', height: '28px', background: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Camera size={14} color="#fff" />
+              </div>
+            </div>
             <div>
-              <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#cbd5e1', fontWeight: 'bold' }}>Shop Brand Logo</p>
-              <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ fontSize: '12px', color: '#94a3b8' }} />
+              <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#cbd5e1', fontWeight: 'bold' }}>Shop Brand Logo</p>
+              <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#475569' }}>Click circle to change</p>
+              {logo && (
+                <button onClick={onLogoRemove} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '4px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                  Remove Logo
+                </button>
+              )}
             </div>
           </div>
 

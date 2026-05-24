@@ -21,7 +21,7 @@ const AboutUs = lazy(() => import('./pages/AboutUs'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const ContactUs = lazy(() => import('./pages/ContactUs'));
-const OnboardingWizard = lazy(() => import('./components/OnboardingWizard'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
 const WaitingApproval = lazy(() => import('./pages/WaitingApproval'));
 const StateLanding = lazy(() => import('./pages/StateLanding'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
@@ -189,7 +189,7 @@ function App() {
                 <Route path="/onboarding" element={
                   <PendingRoute>
                     <Suspense fallback={<PageLoader />}>
-                      <ErrorBoundary fullPage><OnboardingWizard /></ErrorBoundary>
+                      <ErrorBoundary fullPage><Onboarding /></ErrorBoundary>
                     </Suspense>
                   </PendingRoute>
                 } />

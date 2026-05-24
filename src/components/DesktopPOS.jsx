@@ -223,6 +223,9 @@ const DesktopPOS = ({
                     </div>
                   )}
                   <div>
+                    {p.image && (
+                      <img src={p.image} alt={p.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px', border: '1px solid rgba(255,255,255,0.06)' }} />
+                    )}
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: 'white' }}>{p.name}</h4>
                     {activeSale ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
