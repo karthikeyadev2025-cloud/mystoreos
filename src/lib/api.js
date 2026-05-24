@@ -200,23 +200,16 @@ export const api = {
         const { data, error } = await supabase.functions.invoke('auth-login', {
           body: { phone, password: pass },
         });
-        if (!error && data && !data.error) {
-          if (data?.session) {
-            await supabase.auth.setSession({
-              access_token: data.session.access_token,
-              refresh_token: data.session.refresh_token,
-            });
-          }
-          if (data.profile) return data.profile;
+        if (!error && data && !data.error && data.profile) {
+          if (data?.session) await supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+          return data.profile;
         }
-      } catch (_efErr) { /* fall through to direct DB query */ }
-      const { data: row, error: dbErr } = await supabase
-        .from('users').select('*').eq('phone', phone).maybeSingle();
-      if (dbErr || !row) throw new Error('Phone number not found. Please register first.');
+      } catch (_e) { /* fall through to direct DB query */ }
+      const { data: row } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
+      if (!row) throw new Error('Phone number not found. Please register first.');
       if (row.status === 'suspended') throw new Error('Account suspended. Contact adexosindia@gmail.com');
       if (row.status === 'pending') throw new Error('Account pending admin approval');
-      const passOk = row.pass_verify === pass || row.pass === pass;
-      if (!passOk) throw new Error('Wrong password. Try again or use Forgot Password.');
+      if (row.pass_verify !== pass && row.pass !== pass) throw new Error('Wrong password. Try again or use Forgot Password.');
       return toUser(row);
     }
     const db = getDB();
