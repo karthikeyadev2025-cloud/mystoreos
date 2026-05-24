@@ -196,47 +196,28 @@ export const api = {
   // ---- AUTH ----
   async login(phone, pass) {
     if (isSupabaseConfigured) {
-      // Try Edge Function first
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-login`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-            },
-            body: JSON.stringify({ phone, password: pass }),
-          }
-        );
-        if (res.ok) {
-          const efData = await res.json();
-          if (efData?.session) {
+        const { data, error } = await supabase.functions.invoke('auth-login', {
+          body: { phone, password: pass },
+        });
+        if (!error && data && !data.error) {
+          if (data?.session) {
             await supabase.auth.setSession({
-              access_token: efData.session.access_token,
-              refresh_token: efData.session.refresh_token,
+              access_token: data.session.access_token,
+              refresh_token: data.session.refresh_token,
             });
           }
-          if (efData?.profile) return efData.profile;
-          if (efData?.user) return efData.user;
-          if (efData?.error) throw new Error(efData.error);
+          if (data.profile) return data.profile;
         }
-      } catch (efErr) {
-        console.warn('Edge Function login failed, using direct query:', efErr.message);
-      }
-
-      // Direct Supabase fallback — works even when Edge Function is down
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('phone', phone)
-        .maybeSingle();
-      if (error || !data) throw new Error('Phone number not found. Please register first.');
-      if (data.status === 'suspended') throw new Error('Your account has been suspended. Contact support: adexosindia@gmail.com');
-      if (data.status === 'pending') throw new Error("Account pending admin approval. You'll be notified on WhatsApp once approved.");
-      const passwordMatch = data.pass === pass || data.pass_verify === pass;
-      if (!passwordMatch) throw new Error('Wrong password. Try again or use Forgot Password.');
-      return toUser(data);
+      } catch (_efErr) { /* fall through to direct DB query */ }
+      const { data: row, error: dbErr } = await supabase
+        .from('users').select('*').eq('phone', phone).maybeSingle();
+      if (dbErr || !row) throw new Error('Phone number not found. Please register first.');
+      if (row.status === 'suspended') throw new Error('Account suspended. Contact adexosindia@gmail.com');
+      if (row.status === 'pending') throw new Error('Account pending admin approval');
+      const passOk = row.pass_verify === pass || row.pass === pass;
+      if (!passOk) throw new Error('Wrong password. Try again or use Forgot Password.');
+      return toUser(row);
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
@@ -278,7 +259,7 @@ export const api = {
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('id', userId);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message || 'Admin reset failed');
       return;
     }
     const db = getDB();
