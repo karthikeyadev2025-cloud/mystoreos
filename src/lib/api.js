@@ -295,33 +295,60 @@ export const api = {
 
   async register(name, phone, pass, role) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.functions.invoke('auth-register', {
-        body: { name, phone, password: pass, role },
-      });
-      if (error) throw formatApiError(error, 'Registration failed');
-      if (data?.error) throw formatApiError(data.error, 'Registration failed');
-      if (data?.session) {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        });
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-register`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ name, phone, password: pass, role }),
+          }
+        );
+        if (res.ok) {
+          const efData = await res.json();
+          if (efData?.error) throw new Error(efData.error);
+          if (efData?.session) {
+            await supabase.auth.setSession({
+              access_token: efData.session.access_token,
+              refresh_token: efData.session.refresh_token,
+            });
+          }
+          const profile = efData.profile || efData.user;
+          if (profile?.id) {
+            const isNonCustomer = role !== 'customer';
+            const correctStatus = isNonCustomer ? 'pending' : 'active';
+            const correctSubscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
+            await supabase.from('users').update({
+              role, status: correctStatus, subscription: correctSubscription,
+            }).eq('id', profile.id);
+            profile.role = role;
+            profile.status = correctStatus;
+            profile.subscription = correctSubscription;
+          }
+          if (profile) return profile;
+        }
+      } catch (efErr) {
+        console.warn('Edge Function register failed, using direct insert:', efErr.message);
       }
-      const profile = data.profile;
-      // Edge function may return wrong role/status — always enforce correct values
-      if (profile?.id) {
-        const isNonCustomer = role !== 'customer';
-        const correctStatus = isNonCustomer ? 'pending' : 'active';
-        const correctSubscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
-        await supabase.from('users').update({
-          role,
-          status: correctStatus,
-          subscription: correctSubscription,
-        }).eq('id', profile.id);
-        profile.role = role;
-        profile.status = correctStatus;
-        profile.subscription = correctSubscription;
-      }
-      return profile;
+      // Direct Supabase fallback — no bcrypt, stores plain text in pass + pass_verify
+      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).maybeSingle();
+      if (existing) throw new Error('Phone already registered. Please login.');
+      const requiresApproval = role === 'shop' || role === 'distributor';
+      const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const newUser = {
+        phone, pass, pass_verify: pass, role, name,
+        status: requiresApproval ? 'pending' : 'active',
+        subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
+        subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+        trial_started_at: requiresApproval ? new Date().toISOString() : null,
+        plan_expires_at: requiresApproval ? trialEnd : null,
+      };
+      const { data, error } = await supabase.from('users').insert(newUser).select().maybeSingle();
+      if (error) throw new Error('Registration failed: ' + error.message);
+      return toUser(data || newUser);
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
