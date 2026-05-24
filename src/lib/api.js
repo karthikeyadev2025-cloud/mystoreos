@@ -234,9 +234,8 @@ export const api = {
       if (error || !data) throw new Error('Phone number not found. Please register first.');
       if (data.status === 'suspended') throw new Error('Your account has been suspended. Contact support: adexosindia@gmail.com');
       if (data.status === 'pending') throw new Error("Account pending admin approval. You'll be notified on WhatsApp once approved.");
-      // pass_verify = plain text stored on registration (bcrypt is in pass column)
-      const plainOk = data.pass_verify ? data.pass_verify === pass : data.pass === pass;
-      if (!plainOk) throw new Error('Wrong password. Try again or use Forgot Password.');
+      const passwordMatch = data.pass === pass || data.pass_verify === pass;
+      if (!passwordMatch) throw new Error('Wrong password. Try again or use Forgot Password.');
       return toUser(data);
     }
     const db = getDB();
@@ -264,11 +263,8 @@ export const api = {
 
   async resetPassword(phone, newPass) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.functions.invoke('auth-reset-password', {
-        body: { phone, newPassword: newPass },
-      });
-      if (error) throw formatApiError(error, 'Reset failed');
-      if (data?.error) throw formatApiError(data.error, 'Reset failed');
+      const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('phone', phone);
+      if (error) throw new Error(error.message);
       return true;
     }
     const db = getDB();
@@ -281,11 +277,8 @@ export const api = {
 
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.functions.invoke('auth-reset-password', {
-        body: { userId, newPassword: newPass },
-      });
-      if (error) throw formatApiError(error, 'Admin reset failed');
-      if (data?.error) throw formatApiError(data.error, 'Admin reset failed');
+      const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('id', userId);
+      if (error) throw new Error(error.message);
       return;
     }
     const db = getDB();
