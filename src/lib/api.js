@@ -278,14 +278,18 @@ export const api = {
         });
       }
       const profile = data.profile;
-      // Edge function may return status='active' — enforce pending for non-customers
-      if (role !== 'customer' && profile?.id) {
+      // Edge function may return wrong role/status — always enforce correct values
+      if (profile?.id) {
+        const isNonCustomer = role !== 'customer';
+        const correctStatus = isNonCustomer ? 'pending' : 'active';
         const correctSubscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
         await supabase.from('users').update({
-          status: 'pending',
+          role,
+          status: correctStatus,
           subscription: correctSubscription,
         }).eq('id', profile.id);
-        profile.status = 'pending';
+        profile.role = role;
+        profile.status = correctStatus;
         profile.subscription = correctSubscription;
       }
       return profile;
