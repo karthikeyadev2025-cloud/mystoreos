@@ -37,7 +37,7 @@ export default function TabSettings() {
   const [busy, setBusy] = useState({});
 
   const [razorpayKey, setRazorpayKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
+  const [showKey, setShowKey] = useState(true);
 
   const [maintenance, setMaintenance] = useState(false);
   const [maintenanceMsg, setMaintenanceMsg] = useState('');
@@ -125,7 +125,7 @@ export default function TabSettings() {
         <div style={S.row}>
           <label style={S.label}>Razorpay Public Key (VITE_RAZORPAY_KEY)</label>
           <div style={{ position: 'relative' }}>
-            <input value={razorpayKey} onChange={e => setRazorpayKey(e.target.value)} type={showKey ? 'text' : 'password'} placeholder="rzp_live_..." style={{ ...S.input, paddingRight: '40px' }} />
+            <input value={razorpayKey} onChange={e => setRazorpayKey(e.target.value)} type={showKey ? 'text' : 'password'} placeholder="rzp_live_..." autoComplete="off" spellCheck="false" style={{ ...S.input, paddingRight: '40px' }} />
             <button type="button" onClick={() => setShowKey(s => !s)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}>
               {showKey ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
