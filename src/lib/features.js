@@ -44,7 +44,7 @@ export function hasDistCap(user, feature) {
 export const PLAN_CAPS = {
   starter: {
     maxProducts: 200, maxDevices: 1,
-    whatsappShare: false, batchExpiry: false, gst: false,
+    whatsappShare: true, batchExpiry: false, gst: false,
     staffAccounts: false, caPortal: false, tallyExport: false,
     multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
   },
@@ -64,7 +64,7 @@ export const PLAN_CAPS = {
 
 // Human-readable plan name required to unlock each feature (for UI labels)
 export const FEATURE_PLAN_LABEL = {
-  whatsappShare: 'Pro Plan',
+  whatsappShare: 'Starter Plan',
   batchExpiry: 'Pro Plan',
   staffAccounts: 'Pro Plan',
   gst: 'Enterprise Plan',
