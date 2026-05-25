@@ -422,11 +422,8 @@ const DesktopReports = ({
           )}
         </div>
       </div>
-    </div>
-  );
-};
 
-      {/* ── AI Demand Forecasting Section ── */}
+      {/* ── AI Demand Forecasting ── */}
       <div style={{ marginTop: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
@@ -435,5 +432,8 @@ const DesktopReports = ({
         </div>
         <AIDemandForecast orders={orders} products={products} user={user} />
       </div>
+    </div>
+  );
+};
 
 export default DesktopReports;
