@@ -159,7 +159,7 @@ export default function TabUsers() {
                     <td style={S.td}><span style={{ color: u.status === 'active' ? '#10b981' : '#f59e0b', fontSize: '12px', fontWeight: 600 }}>{u.status === 'active' ? '● Active' : '● Pending'}</span></td>
                     <td style={{ ...S.td, color: '#64748b', fontSize: '12px' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : '—'}</td>
                     <td style={S.td}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {u.status === 'active'
                           ? <button disabled={isBusy || u.role === 'admin'} onClick={() => suspend(u)} style={S.btn('#f59e0b')}><UserX size={12} />Suspend</button>
                           : <button disabled={isBusy} onClick={() => activate(u)} style={S.btn('#10b981')}><UserCheck size={12} />Activate</button>
