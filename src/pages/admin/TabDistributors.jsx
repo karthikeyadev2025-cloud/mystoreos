@@ -210,7 +210,7 @@ export default function TabDistributors() {
                     <td style={S.td}><span style={{ color: d.status === 'active' ? '#10b981' : '#f59e0b', fontSize: '12px', fontWeight: 600 }}>{d.status === 'active' ? '● Active' : '● Pending'}</span></td>
                     <td style={{ ...S.td, color: '#10b981', fontWeight: 600 }}>₹{TIER_PRICES[tier] || 0}</td>
                     <td style={S.td}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {d.status === 'active'
                           ? <button disabled={isBusy} onClick={() => suspend(d)} style={S.btn('#f59e0b')}><XCircle size={12} />Suspend</button>
                           : <button disabled={isBusy} onClick={() => activate(d)} style={S.btn('#10b981')}><CheckCircle size={12} />Activate</button>
