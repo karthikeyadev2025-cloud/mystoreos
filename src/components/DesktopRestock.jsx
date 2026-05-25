@@ -1,7 +1,7 @@
 import { Truck, ShoppingCart, ShieldAlert, Plus, Check } from 'lucide-react';
 
 const DesktopRestock = ({
-  products,
+  products = [],
   wholesaleCatalog,
   restockCart,
   handleRestockQtyChange,
