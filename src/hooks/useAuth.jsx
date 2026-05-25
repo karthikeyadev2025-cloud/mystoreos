@@ -1,38 +1,40 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { createContext, useContext, useState, useEffect } from "react";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('mystore_session');
+      const saved = localStorage.getItem("mystore_session");
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
     }
   });
-  // authLoading = true while Supabase resolves initial session (prevents flash redirect to /login)
   const [authLoading, setAuthLoading] = useState(!!isSupabaseConfigured);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
-    // Resolve any existing session on mount
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
+        // Only clear session if there is NO locally stored fallback user
+        // Fallback logins (DB direct) store user in localStorage without Supabase session
         if (!session) {
-          try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
-          setUser(null);
+          const localUser = localStorage.getItem("mystore_session");
+          if (!localUser) {
+            setUser(null);
+          }
+          // If localUser exists, keep them logged in (DB fallback login)
         }
         setAuthLoading(false);
       })
       .catch(() => setAuthLoading(false));
 
-    // Keep session in sync: tab restore, token refresh, sign-out
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-        try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
+      if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+        try { localStorage.removeItem("mystore_session"); } catch (_e) { /* ignore */ }
         setUser(null);
       }
       setAuthLoading(false);
@@ -41,11 +43,10 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Cross-tab sync for localStorage-only mode
   useEffect(() => {
     if (isSupabaseConfigured) return;
     const handleStorageChange = (e) => {
-      if (e.key === 'mystore_session') {
+      if (e.key === "mystore_session") {
         try {
           setUser(e.newValue ? JSON.parse(e.newValue) : null);
         } catch {
@@ -53,12 +54,12 @@ export const AuthProvider = ({ children }) => {
         }
       }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const login = (userData) => {
-    try { localStorage.setItem('mystore_session', JSON.stringify(userData)); } catch (_e) { /* ignore */ }
+    try { localStorage.setItem("mystore_session", JSON.stringify(userData)); } catch (_e) { /* ignore */ }
     setUser(userData);
   };
 
@@ -66,7 +67,7 @@ export const AuthProvider = ({ children }) => {
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
-    try { localStorage.removeItem('mystore_session'); } catch (_e) { /* ignore */ }
+    try { localStorage.removeItem("mystore_session"); } catch (_e) { /* ignore */ }
     setUser(null);
   };
 
@@ -80,6 +81,6 @@ export const AuthProvider = ({ children }) => {
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
