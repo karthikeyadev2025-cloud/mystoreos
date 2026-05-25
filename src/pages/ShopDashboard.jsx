@@ -191,7 +191,13 @@ const ShopDashboard = () => {
 
   const loadData = useCallback(async () => {
     setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
-    setOrders((await safe(() => api.getShopOrders(targetShopId))) || []);
+    const rawOrders = (await safe(() => api.getShopOrders(targetShopId))) || [];
+    // Normalize status capitalization for Tally/GST export filters
+    const normalizedOrders = rawOrders.map(o => ({
+      ...o,
+      status: o.status ? o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase() : o.status
+    }));
+    setOrders(normalizedOrders);
     setWholesaleCatalog((await safe(() => api.getDistributorProducts())) || []);
 
     // Load Global Announcement
@@ -747,7 +753,13 @@ const ShopDashboard = () => {
 
       yOffset += 6;
       doc.setTextColor(148, 163, 184);
-      doc.text("Generated via MyStore OS - The Paperless Retail Revolution", 15, yOffset);
+      doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text("Generated via MyStore OS — mystoreos.in | Paperless Retail Revolution", 15, yOffset);
+    yOffset += 4;
+    doc.setFontSize(7);
+    doc.setTextColor(200, 210, 220);
+    doc.text("Powered by MyStore OS © " + new Date().getFullYear(), 15, yOffset);
 
       if (user.subscription === 'trial' || user.subscription === 'expired') {
         doc.setTextColor(255, 0, 0);
@@ -1498,7 +1510,9 @@ const ShopDashboard = () => {
     setHideFromSearch(val);
     try {
       await api.updateProfile(user.id, { hideFromSearch: val });
-      toast.success(val ? 'Store hidden from nearby search' : 'Store is now discoverable by customers');
+      toast.success(val ? '🔒 Store hidden — customers cannot find you in search' : '✅ Store is now visible to nearby customers');
+    // Force refresh so customer app picks it up immediately
+    setHideFromSearch(val);
     } catch { toast.error('Failed to save visibility setting'); }
   };
 
