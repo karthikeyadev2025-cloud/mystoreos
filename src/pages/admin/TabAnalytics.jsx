@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, CartesianGrid } from 'recharts';
-import { RefreshCw, TrendingDown, TrendingUp, Target } from 'lucide-react';
+import { RefreshCw, TrendingDown, TrendingUp, Target, Brain, AlertTriangle, Package } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
