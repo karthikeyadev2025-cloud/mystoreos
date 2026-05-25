@@ -761,12 +761,21 @@ const ShopDashboard = () => {
     doc.setTextColor(200, 210, 220);
     doc.text("Powered by MyStore OS © " + new Date().getFullYear(), 15, yOffset);
 
-      if (user.subscription === 'trial' || user.subscription === 'expired') {
-        doc.setTextColor(255, 0, 0);
-        doc.setGState(new doc.GState({ opacity: 0.15 }));
-        doc.setFontSize(60);
-        doc.text('TRIAL VERSION', 105, 148, { angle: 45, align: 'center' });
+      // Watermark on trial bills
+      const isTrialBill = !user.subscriptionTier || user.subscriptionTier === 'trial' || user.subscription === 'trial' || user.subscription === 'expired';
+      if (isTrialBill) {
+        doc.setGState(new doc.GState({ opacity: 0.08 }));
+        doc.setTextColor(220, 38, 38);
+        doc.setFontSize(52);
+        doc.text('TRIAL', 105, 130, { angle: 45, align: 'center' });
+        doc.setGState(new doc.GState({ opacity: 0.06 }));
+        doc.setFontSize(28);
+        doc.text('mystoreos.in', 105, 168, { angle: 45, align: 'center' });
         doc.setGState(new doc.GState({ opacity: 1 }));
+        const wY = doc.internal.pageSize.height - 10;
+        doc.setFontSize(7);
+        doc.setTextColor(200, 50, 50);
+        doc.text('Trial Bill — Upgrade at mystoreos.in for professional invoices', 105, wY, { align: 'center' });
       }
 
       const pdfBlob = doc.output("blob");
@@ -2757,7 +2766,7 @@ const ShopDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-                <button onClick={() => window.print()} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
+                <button onClick={() => { document.getElementById('print-area') && window.print(); }} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
                 <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
               </div>
             </div>
