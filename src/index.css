@@ -382,5 +382,49 @@ input::-webkit-credentials-auto-fill-button {
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
+/* ============================================================
+   PRINT STYLES — only bill receipt prints, everything else hidden
+   ============================================================ */
+@media print {
+  body > *,
+  .no-print,
+  nav, aside, header,
+  [class*='sidebar'], [class*='Sidebar'],
+  [class*='nav-'], [class*='bottom-nav'],
+  [class*='toast'], [class*='Toast'],
+  button.no-print-btn {
+    display: none !important;
+  }
 
+  #print-area {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    min-height: 100vh !important;
+    background: white !important;
+    color: black !important;
+    z-index: 999999 !important;
+    padding: 24px 28px !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
 
+  #print-area * {
+    color: black !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #print-area .print-header-stripe {
+    background: #10b981 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #print-area .no-print { display: none !important; }
+
+  @page { size: A5; margin: 8mm; }
+}
