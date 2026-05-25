@@ -1901,6 +1901,10 @@ const ShopDashboard = () => {
                 )}
               </div>
               <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(244,63,94,0.08)', borderRadius: '8px', display: 'inline-block' }}>
+                <span style={{ fontSize: '10px', color: '#f43f5e', fontWeight: '700' }}>MyStore OS</span>
+                <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
+              </div>
               <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
                 Close
               </button>
@@ -3625,6 +3629,10 @@ const ShopDashboard = () => {
             )}
           </div>
           <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(244,63,94,0.08)', borderRadius: '8px', display: 'inline-block' }}>
+                <span style={{ fontSize: '10px', color: '#f43f5e', fontWeight: '700' }}>MyStore OS</span>
+                <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
+              </div>
           <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
             Close
           </button>
