@@ -12,7 +12,7 @@ const DesktopSettings = ({
   setStateCode,
   businessAddress,
   setBusinessAddress,
-  handleSaveProfile,
+  handleSaveProfile = () => {},
   upiId,
   setUpiId,
   paymentQr,
