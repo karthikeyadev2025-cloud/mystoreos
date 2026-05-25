@@ -7,6 +7,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
+import AIDemandForecast from './AIDemandForecast';
 
 const CAT_RX = {
   Grains: /\b(rice|wheat|atta|flour|dal|pulses|oats|maize|ragi|bajra)\b/i,
@@ -84,7 +85,7 @@ const TT_STYLE = { background: '#1e293b', border: '1px solid #334155', borderRad
 const fmt = v => v > 999 ? `${(v / 1000).toFixed(0)}k` : v;
 
 const DesktopReports = ({
-  reportsData, orders = [], downloadTallyXML, user,
+  reportsData, orders = [], downloadTallyXML, user, products = [],
   credits = [], customerCredits = [], stockOrders = [], dailyTarget = 0, products = [],
 }) => {
   const { cashIn, cashOut, netProfit, marginPercent, ledgerItems } = reportsData();
@@ -424,5 +425,15 @@ const DesktopReports = ({
     </div>
   );
 };
+
+      {/* ── AI Demand Forecasting Section ── */}
+      <div style={{ marginTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+          <span style={{ color: '#475569', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>AI Inventory Intelligence</span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+        </div>
+        <AIDemandForecast orders={orders} products={products} user={user} />
+      </div>
 
 export default DesktopReports;
