@@ -189,6 +189,42 @@ export default function TabAnalytics() {
         </div>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      {/* ── AI Demand Forecasting — Platform Overview ── */}
+      <div style={{ background: 'rgba(139,92,246,0.03)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: '12px', padding: '20px', marginTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <Brain size={20} color="#8b5cf6" />
+          <div>
+            <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '15px' }}>AI Demand Forecasting — Platform Feature</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>Available on Pro + Enterprise shop plans. Runs client-side — no API cost.</div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '12px', marginBottom: '16px' }}>
+          {[
+            { icon: '🧠', title: 'Algorithm', body: 'Exponential smoothing (α=0.3) + trend + day-of-week seasonality correction. Projects 7d (Pro) or 30d (Enterprise) demand per SKU.' },
+            { icon: '📦', title: 'Reorder Alerts', body: 'Reorder point = avgDaily × 3d lead time + 2d safety stock. Red URGENT badge when stock ≤ reorder point in shopkeeper Day Book.' },
+            { icon: '🔒', title: 'Plan Gating', body: 'Trial & Starter: locked with upgrade CTA. Pro ₹999/mo: 7-day · top 10 SKUs. Enterprise ₹2499/mo: 30-day · all SKUs.' },
+          ].map((item, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ fontSize: '18px', marginBottom: '6px' }}>{item.icon}</div>
+              <div style={{ color: '#f8fafc', fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{item.title}</div>
+              <div style={{ color: '#64748b', fontSize: '11px', lineHeight: 1.5 }}>{item.body}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {[
+            { label: 'Trial / Starter', badge: 'Locked', color: '#64748b' },
+            { label: 'Pro ₹999/mo', badge: '7-day · 10 SKUs', color: '#8b5cf6' },
+            { label: 'Enterprise ₹2499/mo', badge: '30-day · All SKUs', color: '#10b981' },
+          ].map((t, i) => (
+            <div key={i} style={{ background: `${t.color}18`, border: `1px solid ${t.color}30`, borderRadius: '8px', padding: '6px 14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ color: '#94a3b8', fontSize: '12px' }}>{t.label}</span>
+              <span style={{ color: t.color, fontWeight: 700, fontSize: '12px' }}>{t.badge}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
