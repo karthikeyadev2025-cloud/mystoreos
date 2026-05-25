@@ -84,7 +84,7 @@ const TT_STYLE = { background: '#1e293b', border: '1px solid #334155', borderRad
 const fmt = v => v > 999 ? `${(v / 1000).toFixed(0)}k` : v;
 
 const DesktopReports = ({
-  reportsData, orders, downloadTallyXML, user,
+  reportsData, orders = [], downloadTallyXML, user,
   credits = [], customerCredits = [], stockOrders = [], dailyTarget = 0, products = [],
 }) => {
   const { cashIn, cashOut, netProfit, marginPercent, ledgerItems } = reportsData();
