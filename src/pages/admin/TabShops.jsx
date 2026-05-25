@@ -202,8 +202,8 @@ export default function TabShops() {
                       </span>
                     </td>
                     <td style={{ ...S.td, color: '#64748b', fontSize: '12px' }}>{shop.createdAt ? new Date(shop.createdAt).toLocaleDateString('en-IN') : '—'}</td>
-                    <td style={S.td}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <td style={{ ...S.td, minWidth: '320px' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {shop.status === 'pending'
                           ? <button disabled={isBusy} onClick={() => approve(shop)} style={S.btn('#10b981')}><CheckCircle size={12} />Approve</button>
                           : shop.status === 'active'
