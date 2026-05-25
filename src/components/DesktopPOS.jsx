@@ -430,15 +430,16 @@ const DesktopPOS = ({
 
         {/* Promo discount & calculations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', padding: '4px 8px', borderRadius: '8px', border: '1px solid #334155' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', padding: '6px 10px', borderRadius: '10px', border: '1px solid #334155', position: 'relative', zIndex: 1 }}>
             <input 
               type="text" 
-              placeholder="Promo Code" 
+              placeholder="Promo / Coupon Code" 
               value={promoCode} 
               onChange={e => setPromoCode(e.target.value)}
-              style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '12px' }} 
+              onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
+              style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '12px', minWidth: 0 }} 
             />
-            <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '4px 8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer' }}>Apply</button>
+            <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '5px 10px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
 
           {discountAmount > 0 && (
@@ -491,37 +492,20 @@ const DesktopPOS = ({
 
         {/* Action triggers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <button 
-            onClick={sendWhatsAppBill}
-            disabled={billItems.length === 0}
-            style={{ 
-              background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : '#22c55e'), 
-              color: billingMode === 'estimate' ? '#000' : '#fff', 
-              opacity: billItems.length ? 1 : 0.5,
-              width: '100%', 
-              padding: '12px', 
-              border: 'none', 
-              borderRadius: '10px', 
-              fontWeight: '700', 
-              fontSize: '14px', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              gap: '8px', 
-              cursor: billItems.length ? 'pointer' : 'not-allowed',
-              transition: 'opacity 0.2s'
-            }}
-          >
-            <Share2 size={16} /> 
-            {billingMode === 'estimate' 
-              ? (canShare ? 'Generate Estimate & Share' : 'Generate Estimate (Download PDF) 🔒') 
-              : (billingMode === 'challan' 
-                  ? (canShare ? 'Generate Challan & Share' : 'Generate Challan (Download PDF) 🔒') 
-                  : 'Checkout & Print Bill')}
-          </button>
+          {/* Payment Method + Confirm flow */}
+          <PaymentConfirmPanel
+            billItems={billItems}
+            billTotal={billTotal}
+            discountAmount={discountAmount}
+            loyaltyDiscountRupees={loyaltyDiscountRupees}
+            billingMode={billingMode}
+            canShare={canShare}
+            onConfirm={sendWhatsAppBill}
+            handleShowUpiQr={handleShowUpiQr}
+          />
           
-          <button onClick={handleShowUpiQr} style={{ width: '100%', background: '#334155', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <QrCode size={16} /> Show Payment UPI QR
+          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(251,191,36,0.08)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <QrCode size={14} /> 📲 Show UPI QR to Customer
           </button>
         </div>
 
