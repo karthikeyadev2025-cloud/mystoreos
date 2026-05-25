@@ -156,7 +156,7 @@ const ShopDashboard = () => {
   );
 
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
-  const isOwner = user.role === 'shop';
+  const isOwner = user.role === 'shop' || user.role === 'admin';
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();

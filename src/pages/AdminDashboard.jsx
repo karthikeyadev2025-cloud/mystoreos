@@ -171,7 +171,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <main style={{ flex: 1, overflowY: 'auto', padding: '32px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>

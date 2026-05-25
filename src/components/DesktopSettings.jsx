@@ -4,7 +4,6 @@ import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
 const DesktopSettings = ({
-  isOwner,
   logo,
   handleLogoUpload: _handleLogoUpload,
   gstin,
@@ -71,7 +70,7 @@ const DesktopSettings = ({
     };
     reader.readAsDataURL(file);
   };
-  if (!isOwner) {
+  if (user.role !== 'shop' && user.role !== 'admin') {
     return (
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
         <ShieldAlert size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
