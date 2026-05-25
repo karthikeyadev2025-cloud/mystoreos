@@ -2043,6 +2043,201 @@ const ShopDashboard = () => {
             </div>
           </div>
         )}
+
+      {showPlanSelectorModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(16px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '20px',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '900px',
+            padding: isMobile ? '20px' : '32px',
+            boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+            position: 'relative',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }}>
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowPlanSelectorModal(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#cbd5e1',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '18px'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <span style={{
+                background: 'linear-gradient(90deg, #7c3aed, #2563eb)',
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                letterSpacing: '1px',
+                display: 'inline-block',
+                marginBottom: '10px'
+              }}>
+                MyStore OS SaaS pricing
+              </span>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Select Your Business Growth Plan
+              </h2>
+              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+                Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
+              </p>
+            </div>
+
+            {/* Plans Container */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+              gap: '20px',
+              overflowY: 'auto',
+              paddingRight: '4px'
+            }}>
+              {plans.map(plan => {
+                const isCurrent = user.subscriptionTier === plan.id && user.subscription === 'active';
+                const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+                return (
+                  <div 
+                    key={plan.id}
+                    style={{
+                      background: isPopular ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
+                      border: isPopular ? '2px solid #7c3aed' : '1px solid rgba(255, 255, 255, 0.06)',
+                      borderRadius: '20px',
+                      padding: '24px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                      position: 'relative',
+                      boxShadow: isPopular ? '0 12px 32px rgba(124, 58, 237, 0.15)' : 'none'
+                    }}
+                  >
+                    {isPopular && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
+                        color: 'white',
+                        fontSize: '9px',
+                        fontWeight: '800',
+                        textTransform: 'uppercase',
+                        padding: '4px 10px',
+                        borderRadius: '10px',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Most Popular Choice
+                      </span>
+                    )}
+
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
+                      <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
+                    </div>
+
+                    <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: 0 }} />
+
+                    {/* Features checklist */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
+                      {plan.features?.map((feat, idx) => (
+                        <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ color: '#10b981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {isCurrent ? (
+                      <button 
+                        disabled
+                        style={{
+                          width: '100%',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#94a3b8',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          cursor: 'not-allowed'
+                        }}
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleSubscribe(plan)}
+                        style={{
+                          width: '100%',
+                          background: isPopular ? 'linear-gradient(90deg, #7c3aed, #4f46e5)' : 'white',
+                          color: isPopular ? 'white' : '#0f172a',
+                          border: 'none',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        Subscribe
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+              🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
+            </div>
+          </div>
+        </div>
+      )}
+
       </div>
     );
   }
