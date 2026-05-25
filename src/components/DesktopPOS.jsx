@@ -492,17 +492,51 @@ const DesktopPOS = ({
 
         {/* Action triggers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {/* Payment Method + Confirm flow */}
-          <PaymentConfirmPanel
-            billItems={billItems}
-            billTotal={billTotal}
-            discountAmount={discountAmount}
-            loyaltyDiscountRupees={loyaltyDiscountRupees}
-            billingMode={billingMode}
-            canShare={canShare}
-            onConfirm={sendWhatsAppBill}
-            handleShowUpiQr={handleShowUpiQr}
-          />
+          {/* Payment method selector + Confirm */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Payment method quick-select */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+              {['Cash','UPI','Card','Credit'].map(method => (
+                <button
+                  key={method}
+                  onClick={() => method === 'UPI' ? handleShowUpiQr() : undefined}
+                  style={{ padding: '7px 4px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', fontSize: '10px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' }}
+                >
+                  {method === 'Cash' ? '💵' : method === 'UPI' ? '📱' : method === 'Card' ? '💳' : '📒'}<br />{method}
+                </button>
+              ))}
+            </div>
+            {/* Primary generate bill button */}
+            <button
+              onClick={sendWhatsAppBill}
+              disabled={billItems.length === 0}
+              style={{
+                background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : 'linear-gradient(135deg,#22c55e,#16a34a)'),
+                color: billingMode === 'estimate' ? '#000' : '#fff',
+                opacity: billItems.length ? 1 : 0.5,
+                width: '100%',
+                padding: '13px',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: '800',
+                fontSize: '14px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: billItems.length ? 'pointer' : 'not-allowed',
+                boxShadow: billItems.length ? '0 4px 15px rgba(34,197,94,0.25)' : 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Share2 size={16} />
+              {billingMode === 'estimate'
+                ? (canShare ? '✓ Generate & Share Estimate' : '✓ Download Estimate PDF')
+                : (billingMode === 'challan'
+                  ? (canShare ? '✓ Generate & Share Challan' : '✓ Download Challan PDF')
+                  : '✓ Confirm & Generate Bill')}
+            </button>
+          </div>
           
           <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(251,191,36,0.08)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <QrCode size={14} /> 📲 Show UPI QR to Customer
