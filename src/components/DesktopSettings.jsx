@@ -70,7 +70,8 @@ const DesktopSettings = ({
     };
     reader.readAsDataURL(file);
   };
-  if (user.role !== 'shop' && user.role !== 'admin') {
+  // Check if user is shop owner or admin
+  if (user.role !== 'shop' && user.role !== 'admin' && !user.isOwner) {
     return (
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
         <ShieldAlert size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />

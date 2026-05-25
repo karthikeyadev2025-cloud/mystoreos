@@ -185,7 +185,7 @@ export default function AdminDashboard() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {pendingApprovals.map(u => (
-                  <div key={u.id} style={{ background: 'rgba(15,23,42,0.6)', borderRadius: '12px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                  <div key={u.id} style={{ background: 'rgba(15,23,42,0.6)', borderRadius: '12px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                     <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
                       {(u.name || 'U')[0].toUpperCase()}
                     </div>
