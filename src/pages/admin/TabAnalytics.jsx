@@ -228,3 +228,5 @@ export default function TabAnalytics() {
     </div>
   );
 }
+
+export default TabAnalytics;
