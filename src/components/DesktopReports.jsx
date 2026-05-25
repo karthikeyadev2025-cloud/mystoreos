@@ -86,7 +86,7 @@ const fmt = v => v > 999 ? `${(v / 1000).toFixed(0)}k` : v;
 
 const DesktopReports = ({
   reportsData, orders = [], downloadTallyXML, user, products = [],
-  credits = [], customerCredits = [], stockOrders = [], dailyTarget = 0, products = [],
+  credits = [], customerCredits = [], stockOrders = [], dailyTarget = 0,
 }) => {
   const { cashIn, cashOut, netProfit, marginPercent, ledgerItems } = reportsData();
 
