@@ -22,6 +22,7 @@
       "androidSplashResourceName": "splash",
       "androidScaleType": "CENTER_CROP",
       "showSpinnerOnFullScreen": false,
+      "iosSpinnerStyle": "small",
       "spinnerColor": "#f43f5e"
     },
     "StatusBar": {
@@ -36,6 +37,9 @@
       "resize": "body",
       "style": "dark",
       "resizeOnFullScreen": true
+    },
+    "Camera": {
+      "saveToGallery": false
     }
   },
   "android": {
@@ -44,6 +48,8 @@
     "captureInput": true,
     "webContentsDebuggingEnabled": false,
     "buildOptions": {
+      "keystorePath": "mystore-release.keystore",
+      "keystoreAlias": "mystore-key",
       "releaseType": "AAB"
     }
   },
