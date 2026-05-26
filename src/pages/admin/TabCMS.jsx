@@ -249,5 +249,52 @@ export default function TabCMS() {
         )}
       </div>
     </div>
+
+      {/* ── App Store & Social Links ── */}
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '24px', marginTop: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <span style={{ fontSize: '20px' }}>📱</span>
+          <div>
+            <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '15px' }}>App Store & Social Links</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>These appear on the landing page. Leave blank to hide.</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '16px' }}>
+          {[
+            { key: 'playStoreUrl',  label: '🤖 Google Play Store URL',  placeholder: 'https://play.google.com/store/apps/details?id=in.mystoreos.app' },
+            { key: 'appStoreUrl',   label: '🍎 Apple App Store URL',     placeholder: 'https://apps.apple.com/in/app/mystore-os/id...' },
+            { key: 'instagramUrl',  label: '📸 Instagram URL',            placeholder: 'https://instagram.com/mystoreos' },
+            { key: 'facebookUrl',   label: '👥 Facebook Page URL',        placeholder: 'https://facebook.com/mystoreos' },
+            { key: 'twitterUrl',    label: '🐦 X / Twitter URL',          placeholder: 'https://x.com/mystoreos' },
+            { key: 'youtubeUrl',    label: '▶️ YouTube Channel URL',      placeholder: 'https://youtube.com/@mystoreos' },
+            { key: 'linkedinUrl',   label: '💼 LinkedIn Page URL',        placeholder: 'https://linkedin.com/company/mystoreos' },
+            { key: 'whatsappUrl',   label: '💬 WhatsApp Support URL',     placeholder: 'https://wa.me/918885490495' },
+          ].map(field => (
+            <div key={field.key}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>
+                {field.label}
+              </label>
+              <input
+                type="url"
+                value={cfg[field.key] || ''}
+                onChange={e => setCfg(prev => ({ ...prev, [field.key]: e.target.value }))}
+                placeholder={field.placeholder}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc', padding: '9px 12px', fontSize: '12px', fontFamily: 'Outfit, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={save}
+          disabled={saving}
+          style={{ marginTop: '20px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}
+        >
+          {saving ? 'Saving...' : '💾 Save App & Social Links'}
+        </button>
+      </div>
+
+
   );
 }
