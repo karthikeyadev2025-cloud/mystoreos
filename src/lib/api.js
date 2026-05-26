@@ -1014,7 +1014,17 @@ export const api = {
   async getSettings() {
     if (isSupabaseConfigured) {
       const { data } = await supabase.from('settings').select('*').eq('id', 1).maybeSingle();
-      return { razorpayKey: data?.razorpay_key || '' };
+      return {
+        razorpayKey:  data?.razorpay_key   || '',
+        playStoreUrl: data?.play_store_url  || '',
+        appStoreUrl:  data?.app_store_url   || '',
+        instagramUrl: data?.instagram_url   || '',
+        facebookUrl:  data?.facebook_url    || '',
+        twitterUrl:   data?.twitter_url     || '',
+        youtubeUrl:   data?.youtube_url     || '',
+        linkedinUrl:  data?.linkedin_url    || '',
+        whatsappUrl:  data?.whatsapp_url    || '',
+      };
     }
     const db = getDB();
     return db.settings || { razorpayKey: '' };
@@ -1023,7 +1033,15 @@ export const api = {
   async saveSettings(newSettings) {
     if (isSupabaseConfigured) {
       const updateObj = {};
-      if (newSettings.razorpayKey !== undefined) updateObj.razorpay_key = newSettings.razorpayKey;
+      if (newSettings.razorpayKey     !== undefined) updateObj.razorpay_key    = newSettings.razorpayKey;
+      if (newSettings.playStoreUrl   !== undefined) updateObj.play_store_url  = newSettings.playStoreUrl;
+      if (newSettings.appStoreUrl    !== undefined) updateObj.app_store_url   = newSettings.appStoreUrl;
+      if (newSettings.instagramUrl   !== undefined) updateObj.instagram_url   = newSettings.instagramUrl;
+      if (newSettings.facebookUrl    !== undefined) updateObj.facebook_url    = newSettings.facebookUrl;
+      if (newSettings.twitterUrl     !== undefined) updateObj.twitter_url     = newSettings.twitterUrl;
+      if (newSettings.youtubeUrl     !== undefined) updateObj.youtube_url     = newSettings.youtubeUrl;
+      if (newSettings.linkedinUrl    !== undefined) updateObj.linkedin_url    = newSettings.linkedinUrl;
+      if (newSettings.whatsappUrl    !== undefined) updateObj.whatsapp_url    = newSettings.whatsappUrl;
       await supabase.from('settings').update(updateObj).eq('id', 1);
       return newSettings;
     }
