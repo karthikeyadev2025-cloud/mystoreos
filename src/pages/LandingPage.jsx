@@ -103,7 +103,7 @@ export default function LandingPage() {
     <div style={{ background: '#030712', color: '#f8fafc', fontFamily: 'Outfit, sans-serif', overflowX: 'hidden', minWidth: 375 }}>
       <style>{GCSS}</style>
       <LandingNav config={config} navigate={navigate} />
-      <LandingHero hero={hero} navigate={navigate} />
+      <LandingHero hero={hero} navigate={navigate} config={config} />
       <LandingWhoFor />
       <LandingStats stats={stats} />
       <LandingFeatures />
