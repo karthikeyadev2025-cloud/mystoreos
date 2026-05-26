@@ -2,24 +2,56 @@
   "appId": "in.mystoreos.app",
   "appName": "MyStore OS",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "server": {
     "androidScheme": "https",
-    "iosScheme": "https",
-    "hostname": "mystoreos.in"
+    "hostname": "app",
+    "allowNavigation": [
+      "*.supabase.co",
+      "*.razorpay.com",
+      "checkout.razorpay.com",
+      "mystoreos.in",
+      "wa.me"
+    ]
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
       "backgroundColor": "#030712",
       "androidSplashResourceName": "splash",
-      "showSpinnerOnFullScreen": false
+      "androidScaleType": "CENTER_CROP",
+      "showSpinnerOnFullScreen": false,
+      "spinnerColor": "#f43f5e"
     },
     "StatusBar": {
-      "style": "dark",
-      "backgroundColor": "#030712"
+      "style": "Dark",
+      "backgroundColor": "#0f172a",
+      "overlaysWebView": false
     },
     "PushNotifications": {
       "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark",
+      "resizeOnFullScreen": true
     }
+  },
+  "android": {
+    "backgroundColor": "#030712",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "buildOptions": {
+      "releaseType": "AAB"
+    }
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "scrollEnabled": true,
+    "backgroundColor": "#030712",
+    "limitsNavigationsToAppBoundDomains": true,
+    "preferredContentMode": "mobile"
   }
 }
