@@ -8,7 +8,7 @@ const FLOAT_CARDS = [
 ];
 const FU = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true } };
 
-export default function LandingHero({ hero, navigate }) {
+export default function LandingHero({ hero, navigate, config = {} }) {
   const lines = (hero.headline || 'The Operating System\nfor Modern Business').split('\n');
   return (
     <section style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 64 }}>
@@ -64,7 +64,7 @@ export default function LandingHero({ hero, navigate }) {
 
             {/* Google Play button */}
             <a
-              href={hero.playStoreUrl || '#'}
+              href={config.playStoreUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -72,8 +72,8 @@ export default function LandingHero({ hero, navigate }) {
                 background: '#000', border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: 12, padding: '10px 18px', textDecoration: 'none',
                 color: '#fff', transition: 'border-color 0.2s, transform 0.15s',
-                cursor: hero.playStoreUrl && hero.playStoreUrl !== '#' ? 'pointer' : 'default',
-                opacity: hero.playStoreUrl && hero.playStoreUrl !== '#' ? 1 : 0.5,
+                cursor: config.playStoreUrl && config.playStoreUrl !== '#' ? 'pointer' : 'default',
+                opacity: config.playStoreUrl && config.playStoreUrl !== '#' ? 1 : 0.5,
               }}
               onClick={e => { if (!hero.playStoreUrl || hero.playStoreUrl === '#') e.preventDefault(); }}
             >
@@ -92,7 +92,7 @@ export default function LandingHero({ hero, navigate }) {
 
             {/* App Store button */}
             <a
-              href={hero.appStoreUrl || '#'}
+              href={config.appStoreUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -100,8 +100,8 @@ export default function LandingHero({ hero, navigate }) {
                 background: '#000', border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: 12, padding: '10px 18px', textDecoration: 'none',
                 color: '#fff', transition: 'border-color 0.2s, transform 0.15s',
-                cursor: hero.appStoreUrl && hero.appStoreUrl !== '#' ? 'pointer' : 'default',
-                opacity: hero.appStoreUrl && hero.appStoreUrl !== '#' ? 1 : 0.5,
+                cursor: config.appStoreUrl && config.appStoreUrl !== '#' ? 'pointer' : 'default',
+                opacity: config.appStoreUrl && config.appStoreUrl !== '#' ? 1 : 0.5,
               }}
               onClick={e => { if (!hero.appStoreUrl || hero.appStoreUrl === '#') e.preventDefault(); }}
             >
@@ -116,7 +116,7 @@ export default function LandingHero({ hero, navigate }) {
             </a>
 
             {/* Coming soon badge if both links empty */}
-            {(!hero.playStoreUrl || hero.playStoreUrl === '#') && (!hero.appStoreUrl || hero.appStoreUrl === '#') && (
+            {(!config.playStoreUrl || config.playStoreUrl === '#') && (!config.appStoreUrl || config.appStoreUrl === '#') && (
               <span style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginLeft: 4 }}>
                 (Links coming soon)
               </span>
