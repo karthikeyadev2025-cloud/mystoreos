@@ -1,111 +1,95 @@
-// Native bridge — wraps Capacitor plugins with web fallbacks
-// Works on web (no-op fallbacks) AND in iOS/Android Capacitor shell
+// Capacitor native bridge — uses window.Capacitor global (no npm imports)
+// Safe to include in web builds — all Capacitor APIs are optional and fall back gracefully.
 
-let Camera, Haptics, StatusBar, SplashScreen, PushNotifications, Share, Browser;
+const cap = () => window.Capacitor;
+export const isNative = () => !!(cap() && cap().isNativePlatform && cap().isNativePlatform());
+export const isAndroid = () => isNative() && cap().getPlatform() === 'android';
+export const isIOS = () => isNative() && cap().getPlatform() === 'ios';
 
-const isNative = () => !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-const isAndroid = () => isNative() && window.Capacitor.getPlatform() === 'android';
-const isIOS = () => isNative() && window.Capacitor.getPlatform() === 'ios';
-
-// Dynamically import Capacitor plugins only in native context
-async function loadPlugins() {
-  if (!isNative()) return;
-  try {
-    ({ Camera } = await import('@capacitor/camera'));
-    ({ Haptics } = await import('@capacitor/haptics'));
-    ({ StatusBar } = await import('@capacitor/status-bar'));
-    ({ SplashScreen } = await import('@capacitor/splash-screen'));
-    ({ PushNotifications } = await import('@capacitor/push-notifications'));
-    ({ Share } = await import('@capacitor/share'));
-    ({ Browser } = await import('@capacitor/browser'));
-  } catch (e) {
-    console.warn('Capacitor plugin load error:', e);
-  }
-}
-
-loadPlugins();
-
-// ── Camera / barcode ──────────────────────────────────────────────
-export async function takeBarcodePhoto() {
-  if (!isNative() || !Camera) return null;
-  try {
-    const { CameraResultType, CameraSource } = await import('@capacitor/camera');
-    const photo = await Camera.getPhoto({
-      quality: 90,
-      allowEditing: false,
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Camera,
-    });
-    return photo.webPath || photo.path;
-  } catch { return null; }
-}
+const getPlugin = (name) => cap()?.Plugins?.[name] || null;
 
 // ── Haptic feedback ───────────────────────────────────────────────
 export async function hapticSuccess() {
-  if (!isNative() || !Haptics) return;
-  try {
-    const { ImpactStyle } = await import('@capacitor/haptics');
-    await Haptics.impact({ style: ImpactStyle.Medium });
-  } catch {}
+  const H = getPlugin('Haptics');
+  if (!H) return;
+  try { await H.impact({ style: 'MEDIUM' }); } catch {}
 }
 
 export async function hapticError() {
-  if (!isNative() || !Haptics) return;
-  try {
-    await Haptics.vibrate({ duration: 200 });
-  } catch {}
+  const H = getPlugin('Haptics');
+  if (!H) return;
+  try { await H.vibrate({ duration: 200 }); } catch {}
 }
 
 // ── Status bar ────────────────────────────────────────────────────
 export async function setStatusBarDark() {
-  if (!isNative() || !StatusBar) return;
+  const S = getPlugin('StatusBar');
+  if (!S) return;
   try {
-    const { Style } = await import('@capacitor/status-bar');
-    await StatusBar.setStyle({ style: Style.Dark });
-    await StatusBar.setBackgroundColor({ color: '#0f172a' });
+    await S.setStyle({ style: 'DARK' });
+    await S.setBackgroundColor({ color: '#0f172a' });
   } catch {}
 }
 
 // ── Splash screen ─────────────────────────────────────────────────
 export async function hideSplash() {
-  if (!isNative() || !SplashScreen) return;
-  try { await SplashScreen.hide(); } catch {}
+  const S = getPlugin('SplashScreen');
+  if (!S) return;
+  try { await S.hide(); } catch {}
 }
 
-// ── Native share (WhatsApp bill) ──────────────────────────────────
+// ── Native share ──────────────────────────────────────────────────
 export async function nativeShare(title, text, url) {
-  if (!isNative() || !Share) return false;
+  const S = getPlugin('Share');
+  if (!S) return false;
   try {
-    await Share.share({ title, text, url, dialogTitle: 'Share Bill' });
+    await S.share({ title, text, url, dialogTitle: 'Share Bill' });
     return true;
   } catch { return false; }
 }
 
-// ── Open external URL in native browser ───────────────────────────
+// ── Open URL ──────────────────────────────────────────────────────
 export async function openUrl(url) {
-  if (isNative() && Browser) {
-    try { await Browser.open({ url }); return; } catch {}
+  const B = getPlugin('Browser');
+  if (isNative() && B) {
+    try { await B.open({ url }); return; } catch {}
   }
   window.open(url, '_blank');
 }
 
+// ── Camera photo ──────────────────────────────────────────────────
+export async function takeBarcodePhoto() {
+  const C = getPlugin('Camera');
+  if (!C) return null;
+  try {
+    const photo = await C.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: 'uri',
+      source: 'CAMERA',
+    });
+    return photo.webPath || photo.path || null;
+  } catch { return null; }
+}
+
 // ── Push notification setup ────────────────────────────────────────
 export async function setupPushNotifications(onReceive) {
-  if (!isNative() || !PushNotifications) return;
+  const P = getPlugin('PushNotifications');
+  if (!P) return;
   try {
-    const { PermissionState } = await import('@capacitor/push-notifications');
-    let perm = await PushNotifications.checkPermissions();
-    if (perm.receive === 'prompt') {
-      perm = await PushNotifications.requestPermissions();
-    }
+    let perm = await P.checkPermissions();
+    if (perm.receive === 'prompt') perm = await P.requestPermissions();
     if (perm.receive !== 'granted') return;
-    await PushNotifications.register();
-    PushNotifications.addListener('pushNotificationReceived', onReceive);
-    PushNotifications.addListener('registration', token => {
-      console.log('FCM Token:', token.value);
-      // Store token for server-side push
+    await P.register();
+    P.addListener('pushNotificationReceived', onReceive);
+    P.addListener('registration', token => {
+      console.log('[MyStore OS] FCM Token:', token.value);
     });
   } catch (e) { console.warn('Push setup failed:', e); }
 }
 
-export { isNative, isAndroid, isIOS };
+// Auto-init on load (web safe — no-ops if not in Capacitor shell)
+if (typeof window !== 'undefined') {
+  setStatusBarDark();
+  setTimeout(hideSplash, 400);
+}
