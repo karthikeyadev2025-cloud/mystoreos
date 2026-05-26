@@ -57,6 +57,71 @@ export default function LandingHero({ hero, navigate }) {
               <span key={b} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '5px 12px', fontSize: 12, color: '#94a3b8' }}>{b}</span>
             ))}
           </motion.div>
+
+          {/* ── App Store / Play Store download buttons ── */}
+          <motion.div {...FU} transition={{ delay: 0.5 }} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ color: '#475569', fontSize: 12, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', width: '100%', marginBottom: 2 }}>Download the App</div>
+
+            {/* Google Play button */}
+            <a
+              href={hero.playStoreUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                background: '#000', border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 12, padding: '10px 18px', textDecoration: 'none',
+                color: '#fff', transition: 'border-color 0.2s, transform 0.15s',
+                cursor: hero.playStoreUrl && hero.playStoreUrl !== '#' ? 'pointer' : 'default',
+                opacity: hero.playStoreUrl && hero.playStoreUrl !== '#' ? 1 : 0.5,
+              }}
+              onClick={e => { if (!hero.playStoreUrl || hero.playStoreUrl === '#') e.preventDefault(); }}
+            >
+              {/* Play Store SVG */}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3.18 23.5c.28.16.6.18.9.06l11.5-6.64L12.4 14l-9.22 9.5z" fill="#EA4335"/>
+                <path d="M20.82 10.37l-2.8-1.62L14.7 12l3.32 3.25 2.8-1.62A1.7 1.7 0 0 0 22 12a1.7 1.7 0 0 0-.88-1.49l-.3-.14z" fill="#FBBC04"/>
+                <path d="M3.18.5A1.68 1.68 0 0 0 2 2.06v19.88a1.68 1.68 0 0 0 1.18 1.56L12.4 14 3.18.5z" fill="#4285F4"/>
+                <path d="M3.18.5L12.4 10l3.22-3.25L4.12.44A1.3 1.3 0 0 0 3.18.5z" fill="#34A853"/>
+              </svg>
+              <div>
+                <div style={{ fontSize: 9, color: '#94a3b8', lineHeight: 1 }}>GET IT ON</div>
+                <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>Google Play</div>
+              </div>
+            </a>
+
+            {/* App Store button */}
+            <a
+              href={hero.appStoreUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                background: '#000', border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 12, padding: '10px 18px', textDecoration: 'none',
+                color: '#fff', transition: 'border-color 0.2s, transform 0.15s',
+                cursor: hero.appStoreUrl && hero.appStoreUrl !== '#' ? 'pointer' : 'default',
+                opacity: hero.appStoreUrl && hero.appStoreUrl !== '#' ? 1 : 0.5,
+              }}
+              onClick={e => { if (!hero.appStoreUrl || hero.appStoreUrl === '#') e.preventDefault(); }}
+            >
+              {/* Apple SVG */}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <div>
+                <div style={{ fontSize: 9, color: '#94a3b8', lineHeight: 1 }}>Download on the</div>
+                <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>App Store</div>
+              </div>
+            </a>
+
+            {/* Coming soon badge if both links empty */}
+            {(!hero.playStoreUrl || hero.playStoreUrl === '#') && (!hero.appStoreUrl || hero.appStoreUrl === '#') && (
+              <span style={{ fontSize: 11, color: '#475569', fontStyle: 'italic', marginLeft: 4 }}>
+                (Links coming soon)
+              </span>
+            )}
+          </motion.div>
         </div>
 
         <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}
