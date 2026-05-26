@@ -1486,8 +1486,7 @@ const ShopDashboard = () => {
   };
 
   const getShopUrl = () => {
-    const base = window.location.origin;
-    return `${base}/s/${targetShopId}`;
+    return `https://mystoreos.in/s/${targetShopId}`;
   };
 
   const handleShareShop = async () => {
