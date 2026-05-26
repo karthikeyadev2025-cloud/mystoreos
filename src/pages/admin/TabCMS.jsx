@@ -248,8 +248,6 @@ export default function TabCMS() {
           <button onClick={savePlans} disabled={busy.plans} style={S.saveBtn(busy.plans)}><Save size={14} />{busy.plans ? 'Saving...' : 'Save Plans'}</button>
         )}
       </div>
-    </div>
-
       {/* ── App Store & Social Links ── */}
       <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '24px', marginTop: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
@@ -295,6 +293,9 @@ export default function TabCMS() {
         </button>
       </div>
 
+
+
+    </div>
 
   );
 }
