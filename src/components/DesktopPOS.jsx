@@ -435,14 +435,14 @@ const DesktopPOS = ({
 
         {/* Promo discount & calculations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', padding: '6px 10px', borderRadius: '10px', border: '1px solid #334155', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#1e293b', padding: '6px 10px', borderRadius: '10px', border: '1px solid #475569', position: 'relative', zIndex: 1 }}>
             <input 
               type="text" 
               placeholder="Promo / Coupon Code" 
               value={promoCode} 
               onChange={e => setPromoCode(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
-              style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '12px', minWidth: 0 }} 
+              style={{ flex: 1, background: 'transparent', border: 'none', color: '#f1f5f9', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#f59e0b' }} 
             />
             <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '5px 10px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
