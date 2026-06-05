@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
+import { resolveUnit, UNIT_SUFFIX } from '../lib/units';
 
 const DesktopPOS = ({
   products,
@@ -50,6 +51,7 @@ const DesktopPOS = ({
   dailyTarget = 0,
   handleSetDailyTarget,
   flashSales = {},
+  shopCategory = 'general',
 }) => {
   const { hasFeature } = useSubscription();
   const canShare = hasFeature('whatsappShare');
@@ -412,7 +414,10 @@ const DesktopPOS = ({
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px' }}>-</button>
-                      <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '12px', textAlign: 'center' }}>{item.qty || 1}</span>
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '12px', textAlign: 'center' }}>
+                        {item.qty || 1}
+                        {(() => { const s = UNIT_SUFFIX[resolveUnit(item, shopCategory)]; return s ? <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 'normal', marginLeft: 2 }}>{s}</span> : null; })()}
+                      </span>
                       <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px' }}>+</button>
                       
                       <span style={{ fontWeight: 'bold', color: '#10b981', minWidth: '45px', textAlign: 'right', fontSize: '12px' }}>₹{item.price * (item.qty || 1)}</span>
