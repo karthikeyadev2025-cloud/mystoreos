@@ -49,6 +49,16 @@ const DesktopSettings = ({
   onToggleHideFromSearch,
   onLogoChange,
   onLogoRemove,
+  openingHour = 8,
+  setOpeningHour,
+  closingHour = 21,
+  setClosingHour,
+  weeklyHolidays = [],
+  setWeeklyHolidays,
+  shopBanner = { title: '', subtitle: '', discountPercent: 0, active: false },
+  setShopBanner,
+  handleSaveShopHours,
+  handleSaveShopBanner,
 }) => {
   const qrCanvasRef = useRef(null);
   const logoFileRef = useRef(null);
@@ -461,6 +471,72 @@ const DesktopSettings = ({
             </div>
           )}
           </PlanGate>
+        </div>
+
+        {/* Shop Hours */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: 'white' }}>🕐 Shop Hours</h3>
+          <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Opens at</label>
+              <select value={openingHour} onChange={e => setOpeningHour && setOpeningHour(Number(e.target.value))} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
+                {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12:00 AM' : i < 12 ? `${i}:00 AM` : i === 12 ? '12:00 PM' : `${i-12}:00 PM`}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Closes at</label>
+              <select value={closingHour} onChange={e => setClosingHour && setClosingHour(Number(e.target.value))} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
+                {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12:00 AM' : i < 12 ? `${i}:00 AM` : i === 12 ? '12:00 PM' : `${i-12}:00 PM`}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '6px', fontWeight: '600' }}>Weekly Holidays (tap to toggle closed days)</label>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(day => (
+                <button key={day} onClick={() => setWeeklyHolidays && setWeeklyHolidays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
+                  style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${weeklyHolidays.includes(day) ? '#f43f5e' : '#334155'}`, background: weeklyHolidays.includes(day) ? 'rgba(244,63,94,0.15)' : '#0f172a', color: weeklyHolidays.includes(day) ? '#f43f5e' : '#94a3b8' }}>
+                  {day.slice(0,3)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={handleSaveShopHours} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+            💾 Save Shop Hours
+          </button>
+        </div>
+
+        {/* Offer Banner */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: 'white' }}>🏷️ Offer Banner</h3>
+          <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Banner Title</label>
+              <input value={shopBanner?.title || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g. Diwali Mega Sale!" style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Subtitle (optional)</label>
+              <input value={shopBanner?.subtitle || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="e.g. Up to 40% off on all sweets" style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Discount %</label>
+                <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, discountPercent: Number(e.target.value) }))} style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Status</label>
+                <button onClick={() => setShopBanner && setShopBanner(prev => ({ ...prev, active: !prev?.active }))}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: `1px solid ${shopBanner?.active ? '#22c55e' : '#334155'}`, background: shopBanner?.active ? 'rgba(34,197,94,0.15)' : '#0f172a', color: shopBanner?.active ? '#22c55e' : '#94a3b8' }}>
+                  {shopBanner?.active ? '✅ Live' : '⬜ Inactive'}
+                </button>
+              </div>
+            </div>
+          </div>
+          <button onClick={handleSaveShopBanner} style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+            💾 Save Banner
+          </button>
         </div>
 
         {/* Gallery Images */}

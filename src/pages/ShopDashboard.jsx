@@ -124,6 +124,10 @@ const ShopDashboard = () => {
   const [dailyTarget, setDailyTarget] = useState(0);
   const [flashSales, setFlashSales] = useState({});
   const [hideFromSearch, setHideFromSearch] = useState(user?.hideFromSearch || false);
+  const [openingHour, setOpeningHour] = useState(user?.openingHour ?? 8);
+  const [closingHour, setClosingHour] = useState(user?.closingHour ?? 21);
+  const [weeklyHolidays, setWeeklyHolidays] = useState(user?.weeklyHolidays || []);
+  const [shopBanner, setShopBanner] = useState(user?.shopBanner || { title: '', subtitle: '', discountPercent: 0, active: false });
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -860,8 +864,15 @@ const ShopDashboard = () => {
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
   // Predictive reorder: units sold per product in last 30 days
-  const salesData = useMemo(() => {
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+  const isOpenNow = useMemo(() => {
+    const now = new Date();
+    const day = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+    if (weeklyHolidays.includes(day)) return false;
+    const h = now.getHours();
+    return h >= openingHour && h < closingHour;
+  }, [openingHour, closingHour, weeklyHolidays]);
+
+  const salesData = useMemo(() => {    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
     const map = {};
     orders
       .filter(o => o.status === 'Accepted' && o.date && new Date(o.date) >= cutoff)
@@ -1371,8 +1382,17 @@ const ShopDashboard = () => {
     toast.success("Profile Updated successfully!");
   };
 
-  const handleSetDailyTarget = async (targetAmount) => {
-    const val = parseInt(targetAmount) || 0;
+  const handleSaveShopHours = async () => {
+    await safe(() => api.updateProfile(user.id, { openingHour, closingHour, weeklyHolidays }));
+    toast.success('Shop hours saved!');
+  };
+
+  const handleSaveShopBanner = async () => {
+    await safe(() => api.updateProfile(user.id, { shopBanner }));
+    toast.success(shopBanner?.active ? '🏷️ Banner is live!' : 'Banner saved (inactive)');
+  };
+
+  const handleSetDailyTarget = async (targetAmount) => {    const val = parseInt(targetAmount) || 0;
     setDailyTarget(val);
     await safe(() => api.saveSiteConfig('dailyTarget_' + targetShopId, val));
   };
@@ -1902,6 +1922,16 @@ const ShopDashboard = () => {
               handleSaveInvoiceSettings={handleSaveInvoiceSettings}
               hideFromSearch={hideFromSearch}
               onToggleHideFromSearch={handleToggleHideFromSearch}
+              openingHour={openingHour}
+              setOpeningHour={setOpeningHour}
+              closingHour={closingHour}
+              setClosingHour={setClosingHour}
+              weeklyHolidays={weeklyHolidays}
+              setWeeklyHolidays={setWeeklyHolidays}
+              shopBanner={shopBanner}
+              setShopBanner={setShopBanner}
+              handleSaveShopHours={handleSaveShopHours}
+              handleSaveShopBanner={handleSaveShopBanner}
             />
           )}
         </div>
@@ -2321,6 +2351,9 @@ const ShopDashboard = () => {
             MyStore Pro
           </h2>
           <p style={{ margin: 0, fontSize: '12px', opacity: 0.9 }}>{user.name}</p>
+          <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ade80' : '#f87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
+            {isOpenNow ? '● Open Now' : `● Closed`}
+          </span>
         </div>
         <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
           <LogOut size={14} /> Logout
@@ -2344,6 +2377,19 @@ const ShopDashboard = () => {
 
       {activeTab === 'home' && (
         <>
+          {/* Offer Banner */}
+          {shopBanner?.active && shopBanner?.title && (
+            <div style={{ margin: '0 12px 12px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>🏷️ {shopBanner.title}</div>
+                {shopBanner.subtitle && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginTop: '3px' }}>{shopBanner.subtitle}</div>}
+              </div>
+              {shopBanner.discountPercent > 0 && (
+                <div style={{ flexShrink: 0, background: '#fff', color: '#f43f5e', borderRadius: '10px', padding: '6px 14px', fontWeight: 900, fontSize: '18px' }}>{shopBanner.discountPercent}% OFF</div>
+              )}
+            </div>
+          )}
+
           {/* AI Insights Card */}
           {products.filter(p => p.stock < 10).length > 0 && (
             <div style={{ margin: '12px', background: 'linear-gradient(145deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))', border: '1px solid #ef4444', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
