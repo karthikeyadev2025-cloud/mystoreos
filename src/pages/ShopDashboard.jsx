@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
+import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -73,6 +74,7 @@ const ShopDashboard = () => {
   const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [newProdCostPrice, setNewProdCostPrice] = useState('0');
   const [newProdImage, setNewProdImage] = useState('');
+  const [newProdUnit, setNewProdUnit] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -90,6 +92,12 @@ const ShopDashboard = () => {
   const [editProdGstRate, setEditProdGstRate] = useState('0');
   const [editProdCostPrice, setEditProdCostPrice] = useState('0');
   const [editProdBarcode, setEditProdBarcode] = useState('');
+  const [editProdUnit, setEditProdUnit] = useState('');
+
+  // Unit system — driven by the shop's business category
+  const shopCategory = user?.shopCategory || 'general';
+  const shopDefaultUnit = defaultUnitForCategory(shopCategory);
+  const unitOptions = unitOptionsForCategory(shopCategory);
 
   // Credit Ledger Toggle & Form States
   const [creditTabSub, setCreditTabSub] = useState('payable'); // 'payable' | 'receivable'
@@ -314,6 +322,7 @@ const ShopDashboard = () => {
     setEditProdGstRate(p.gstRate || '0');
     setEditProdCostPrice(p.costPrice !== undefined ? String(p.costPrice) : '0');
     setEditProdBarcode(p.barcode || '');
+    setEditProdUnit(p.unit || shopDefaultUnit);
     setShowEditProductModal(true);
   };
 
@@ -331,7 +340,8 @@ const ShopDashboard = () => {
         hsnCode: editProdHsnCode,
         gstRate: editProdGstRate,
         costPrice: parseFloat(editProdCostPrice) || 0,
-        barcode: editProdBarcode
+        barcode: editProdBarcode,
+        unit: editProdUnit || shopDefaultUnit
       }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
@@ -660,6 +670,8 @@ const ShopDashboard = () => {
       billItems.forEach((item) => {
         const qty = item.qty || 1;
         const amount = item.price * qty;
+        const unitSuffix = UNIT_SUFFIX[resolveUnit(item, shopCategory)] || '';
+        const qtyText = unitSuffix ? `${qty} ${unitSuffix}` : `${qty}`;
         
         if (showGstColumns) {
           const rate = parseInt(item.gstRate) || 0;
@@ -671,7 +683,7 @@ const ShopDashboard = () => {
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '') + hsnText;
           
           doc.text(itemFullName, 18, yOffset);
-          doc.text(`${qty}`, 85, yOffset);
+          doc.text(`${qtyText}`, 85, yOffset);
           doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
           
           if (isInterState) {
@@ -689,7 +701,7 @@ const ShopDashboard = () => {
         } else {
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
           doc.text(itemFullName, 18, yOffset);
-          doc.text(`${qty}`, 120, yOffset);
+          doc.text(`${qtyText}`, 120, yOffset);
           doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
           doc.text(`${amount.toFixed(2)}`, 175, yOffset);
         }
@@ -794,7 +806,7 @@ const ShopDashboard = () => {
         else msg += `*TAX INVOICE / RECEIPT*\n`;
         if (customerName) msg += `Customer: ${customerName}\n`;
         msg += `Total: Rs.${total}\n\n`;
-        billItems.forEach(i => msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} x${i.qty || 1}: Rs.${i.price * (i.qty || 1)}\n`);
+        billItems.forEach(i => { const u = UNIT_SUFFIX[resolveUnit(i, shopCategory)]; const qd = u ? `${i.qty || 1} ${u}` : `x${i.qty || 1}`; msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} ${qd}: Rs.${i.price * (i.qty || 1)}\n`; });
         if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal: Rs.${total}\n`;
         if (billingMode === 'bill' && upiId) {
           const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
@@ -1090,7 +1102,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImage }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImage, unit: newProdUnit || shopDefaultUnit }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1106,6 +1118,7 @@ const ShopDashboard = () => {
       setNewProdGstRate('0');
       setNewProdCostPrice('0');
       setNewProdImage('');
+      setNewProdUnit('');
       loadData();
     } catch (e) {
       console.error(e);
@@ -1735,6 +1748,7 @@ const ShopDashboard = () => {
               dailyTarget={dailyTarget}
               handleSetDailyTarget={handleSetDailyTarget}
               flashSales={flashSales}
+              shopCategory={shopCategory}
             />
           )}
 
@@ -1752,6 +1766,7 @@ const ShopDashboard = () => {
               handleClearFlashSale={handleClearFlashSale}
               handleStockAdjust={handleStockAdjust}
               salesData={salesData}
+              shopCategory={shopCategory}
             />
           )}
 
@@ -2022,6 +2037,13 @@ const ShopDashboard = () => {
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
                 <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+                <select value={newProdUnit || shopDefaultUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+                </select>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748b' }}>Default for your shop type: <b style={{ color: '#94a3b8' }}>{shopDefaultUnit}</b></p>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
@@ -3879,6 +3901,13 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+              </select>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
