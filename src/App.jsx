@@ -27,6 +27,7 @@ const StateLanding = lazy(() => import('./pages/StateLanding'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const Pricing = lazy(() => import('./pages/Pricing'));
+const AffiliateDashboard = lazy(() => import('./pages/AffiliateDashboard'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -60,6 +61,7 @@ const RoleRouter = () => {
     case 'distributor': return <Navigate to="/distributor" />;
     case 'admin':       return <Navigate to="/admin" />;
     case 'ca':          return <Navigate to="/ca" />;
+    case 'affiliate':   return <Navigate to="/affiliate" />;
     default:            return <Navigate to="/login" />;
   }
 };
@@ -234,6 +236,13 @@ function App() {
                   <PrivateRoute role="ca">
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><CADashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                <Route path="/affiliate/*" element={
+                  <PrivateRoute role="affiliate">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><AffiliateDashboard /></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />

@@ -36,6 +36,7 @@ export default function Onboarding() {
 
   const [logo, setLogo] = useState('');
   const [bizType, setBizType] = useState('grocery');
+  const [refCode, setRefCode] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
 
@@ -71,6 +72,10 @@ export default function Onboarding() {
           shopCategory: bizType,
           businessAddress: city ? `${city}\n${address}` : address,
         }));
+        // Attribute referral code if provided
+        if (refCode.trim()) {
+          try { await api.attributeReferral(refCode.trim(), user.id); } catch (_) {}
+        }
         setStep(1);
       } else if (step === 1) {
         await safe(() => api.updateProfile(user.id, {
@@ -167,6 +172,10 @@ export default function Onboarding() {
               <div>
                 <label style={lbl}>Shop Address</label>
                 <textarea value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. Shop No. 5, MG Road..." rows={2} style={{ ...inp, resize: 'vertical' }} />
+              </div>
+              <div>
+                <label style={lbl}>Referral Code (optional)</label>
+                <input type="text" value={refCode} onChange={e => setRefCode(e.target.value.toUpperCase())} placeholder="e.g. RAVI20 — enter if someone referred you" style={inp} />
               </div>
             </div>
           )}

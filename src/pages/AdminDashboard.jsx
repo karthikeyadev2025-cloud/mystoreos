@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {
   LayoutDashboard, Store, Truck, Users, CreditCard, Globe, Palette,
   MessageSquare, BarChart2, Download, Settings, LifeBuoy, LogOut, ChevronRight, Menu, X,
-  CheckCircle, XCircle, Clock
+  CheckCircle, XCircle, Clock, Link
 } from 'lucide-react';
 
 const TabOverview     = lazy(() => import('./admin/TabOverview'));
@@ -22,6 +22,7 @@ const TabAnalytics    = lazy(() => import('./admin/TabAnalytics'));
 const TabExports      = lazy(() => import('./admin/TabExports'));
 const TabSettings     = lazy(() => import('./admin/TabSettings'));
 const TabSupport      = lazy(() => import('./admin/TabSupport'));
+const TabAffiliate    = lazy(() => import('./admin/TabAffiliate'));
 
 const TABS = [
   { id: 'overview',      label: 'Command Center',     Icon: LayoutDashboard, Component: TabOverview },
@@ -36,6 +37,7 @@ const TABS = [
   { id: 'exports',       label: 'Data Exports',       Icon: Download,        Component: TabExports },
   { id: 'settings',      label: 'System Settings',    Icon: Settings,        Component: TabSettings },
   { id: 'support',       label: 'Support & Audit',    Icon: LifeBuoy,        Component: TabSupport },
+  { id: 'affiliate',     label: 'Affiliate & Referrals', Icon: Link,         Component: TabAffiliate },
 ];
 
 const isMobile = () => window.innerWidth < 1024;

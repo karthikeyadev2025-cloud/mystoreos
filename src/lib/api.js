@@ -2035,4 +2035,100 @@ export const api = {
     const rows = credits.map(c => [c.id, c.fromName || c.fromId, c.toName || c.toShopId, c.desc || '', c.amount, c.paid ? 'Yes' : 'No', c.date || '']);
     return this.buildCSV(headers, rows);
   },
+
+  // ─── Referral / Affiliate system ─────────────────────────────────────────
+
+  _genCode(name) {
+    const base = (name || 'REF').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 5) || 'REF';
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `${base}${rand}`;
+  },
+
+  async getOrCreateReferralCode(userId, userName) {
+    if (!isSupabaseConfigured) return { code: 'DEMO01', id: 'demo', commissionPct: 20 };
+    // Check if code already exists
+    const { data: existing } = await supabase
+      .from('referral_codes').select('*').eq('owner_id', userId).maybeSingle();
+    if (existing) return { id: existing.id, code: existing.code, commissionPct: existing.commission_pct };
+    // Create new code
+    const code = this._genCode(userName);
+    const { data: created, error } = await supabase
+      .from('referral_codes')
+      .insert({ code, owner_id: userId, is_active: true, commission_pct: 20 })
+      .select().maybeSingle();
+    if (error) throw new Error(error.message);
+    return { id: created.id, code: created.code, commissionPct: created.commission_pct };
+  },
+
+  async getReferralStats(userId) {
+    if (!isSupabaseConfigured) return { totalReferred: 0, pendingAmount: 0, approvedAmount: 0, referrals: [] };
+    const { data: refs } = await supabase
+      .from('referral_attributions').select('*, referred:referred_id(name,phone,subscription_tier,created_at)')
+      .eq('referrer_id', userId).order('created_at', { ascending: false });
+    const list = refs || [];
+    return {
+      totalReferred: list.length,
+      pendingAmount: list.filter(r => r.status === 'pending').reduce((s, r) => s + (r.commission_amount || 0), 0),
+      approvedAmount: list.filter(r => r.status === 'approved' || r.status === 'paid').reduce((s, r) => s + (r.commission_amount || 0), 0),
+      referrals: list.map(r => ({ id: r.id, code: r.code, name: r.referred?.name || 'Unknown', phone: r.referred?.phone, tier: r.referred?.subscription_tier, amount: r.commission_amount || 0, status: r.status, date: r.created_at })),
+    };
+  },
+
+  async attributeReferral(code, referredUserId) {
+    if (!isSupabaseConfigured || !code || !referredUserId) return null;
+    const { data: codeRow } = await supabase
+      .from('referral_codes').select('*').eq('code', code.toUpperCase()).eq('is_active', true).maybeSingle();
+    if (!codeRow) return null;
+    // Don't self-attribute
+    if (codeRow.owner_id === referredUserId) return null;
+    const { data: inserted } = await supabase.from('referral_attributions').insert({
+      code_id: codeRow.id, code: code.toUpperCase(),
+      referrer_id: codeRow.owner_id, referred_id: referredUserId,
+      commission_amount: 0, status: 'pending',
+    }).select().maybeSingle();
+    return inserted;
+  },
+
+  async getAllReferralCodes() {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase
+      .from('referral_codes').select('*, owner:owner_id(name,phone,role)')
+      .order('created_at', { ascending: false });
+    return (data || []).map(r => ({ id: r.id, code: r.code, ownerName: r.owner?.name, ownerPhone: r.owner?.phone, ownerRole: r.owner?.role, commissionPct: r.commission_pct, isActive: r.is_active, createdAt: r.created_at }));
+  },
+
+  async getAllReferralAttributions() {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase
+      .from('referral_attributions')
+      .select('*, referrer:referrer_id(name,phone), referred:referred_id(name,phone,subscription_tier,created_at)')
+      .order('created_at', { ascending: false });
+    return (data || []).map(r => ({ id: r.id, code: r.code, referrerName: r.referrer?.name, referrerPhone: r.referrer?.phone, referredName: r.referred?.name, referredPhone: r.referred?.phone, tier: r.referred?.subscription_tier, amount: r.commission_amount || 0, status: r.status, date: r.created_at }));
+  },
+
+  async approveReferralCommission(attributionId, amount) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('referral_attributions')
+      .update({ status: 'approved', commission_amount: amount }).eq('id', attributionId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async createAffiliateUser(phone, name) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.from('users').insert({
+      phone, name, role: 'affiliate', status: 'active',
+      subscription: 'active', subscription_tier: 'enterprise',
+      trial_started_at: new Date().toISOString(),
+    }).select().maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async toggleReferralCode(codeId, isActive) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('referral_codes').update({ is_active: isActive }).eq('id', codeId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
 };

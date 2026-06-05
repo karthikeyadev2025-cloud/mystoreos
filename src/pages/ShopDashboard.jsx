@@ -35,6 +35,46 @@ const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
 const safe = async (fn) => { try { return await fn(); } catch { return null; } };
 
+// ── Refer & Earn card — inline sub-component ──────────────────────────────
+function ReferAndEarnCard({ userId, userName }) {
+  const [code, setCode] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!userId) return;
+    api.getOrCreateReferralCode(userId, userName)
+      .then(c => { setCode(c); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [userId, userName]);
+  const link = code ? `https://mystoreos.in/register?ref=${code.code}` : '';
+  const copy = (text) => { navigator.clipboard.writeText(text); };
+  const shareWA = () => {
+    if (!link) return;
+    const msg = `Join MyStore OS — India's #1 billing app! 🛒\nUse my code to sign up free:\n${link}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+  return (
+    <div style={{ margin: '16px', background: 'linear-gradient(135deg,rgba(139,92,246,0.12),rgba(109,40,217,0.08))', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 16, padding: '20px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+        <span style={{ fontSize: 22 }}>🔗</span>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 15, color: '#f8fafc' }}>Refer & Earn</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>Share your code — earn 20% commission when referrals subscribe</div>
+        </div>
+      </div>
+      {loading ? <div style={{ color: '#64748b', fontSize: 12 }}>Generating your code...</div> : (
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ background: '#0f172a', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#a78bfa', letterSpacing: 3 }}>
+            {code?.code || '—'}
+          </div>
+          <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>📋 Copy Code</button>
+          <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>🔗 Copy Link</button>
+          <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>📲 Share on WhatsApp</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const ShopDashboard = () => {
   const { user, setUser, logout } = useAuth();
   const { locale, setLocale } = useI18n();
@@ -1778,6 +1818,11 @@ const ShopDashboard = () => {
               flashSales={flashSales}
               shopCategory={shopCategory}
             />
+          )}
+
+          {/* Refer & Earn — shown at bottom of home tab */}
+          {activeTab === 'home' && isOwner && (
+            <ReferAndEarnCard userId={user?.id} userName={user?.name} />
           )}
 
           {activeTab === 'products' && isOwner && (
