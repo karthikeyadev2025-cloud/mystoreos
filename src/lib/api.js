@@ -111,6 +111,8 @@ const toUser = (row) => row ? ({
   shopCategory: row.shop_category || 'general',
   openingHour: row.opening_hour ?? 8,
   closingHour: row.closing_hour ?? 21,
+  weeklyHolidays: row.weekly_holidays || [],
+  shopBanner: row.shop_banner || null,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -1021,7 +1023,21 @@ export const api = {
       if (data.distributorPlanExpiresAt !== undefined) updateObj.distributor_plan_expires_at = data.distributorPlanExpiresAt;
       if (data.hideFromSearch !== undefined) updateObj.hide_from_search = data.hideFromSearch;
       if (data.shopCategory !== undefined) updateObj.shop_category = data.shopCategory;
-      await supabase.from('users').update(updateObj).eq('id', userId);
+      if (data.openingHour !== undefined) updateObj.opening_hour = data.openingHour;
+      if (data.closingHour !== undefined) updateObj.closing_hour = data.closingHour;
+      if (data.weeklyHolidays !== undefined) updateObj.weekly_holidays = data.weeklyHolidays;
+      if (data.shopBanner !== undefined) updateObj.shop_banner = data.shopBanner;
+      // If any optional column does not yet exist in the DB, drop it and retry.
+      // Makes the feature work whether or not the latest ALTER TABLE has been applied.
+      let __attempt = { ...updateObj };
+      for (let __tries = 0; __tries < 10; __tries++) {
+        const { error: __upErr } = await supabase.from('users').update(__attempt).eq('id', userId);
+        if (!__upErr) break;
+        const __miss = (__upErr.message || '').match(/column (?:users\.)?["']?(\w+)["']? does not exist/i);
+        if (!__miss) { console.warn('[updateProfile]', __upErr.message); break; }
+        delete __attempt[__miss[1]];
+        if (Object.keys(__attempt).length === 0) break;
+      }
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       return toUser(updated);
     }
