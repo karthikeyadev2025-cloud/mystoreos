@@ -935,8 +935,16 @@ const ShopDashboard = () => {
     
     const cashOut = todayStockTotal + todayDistSettledTotal;
     
-    const netProfit = cashIn - cashOut;
-    const marginPercent = cashIn > 0 ? Math.round((netProfit / cashIn) * 100) : 0;
+    // True profit = revenue minus cost of goods sold (COGS).
+    // cashIn/cashOut still drive the ledger view, but "Profit Today" must
+    // compare what we earned today vs what those exact items cost us.
+    const productCost = Object.fromEntries((products || []).map(p => [p.id, parseFloat(p.costPrice) || 0]));
+    const revenue = todaySalesTotal;
+    const cogs = todaySalesOrders.reduce((sum, o) =>
+      sum + (o.items || []).reduce((s, it) =>
+        s + (productCost[it.id] || 0) * (it.qty || 1), 0), 0);
+    const netProfit = revenue - cogs;
+    const marginPercent = revenue > 0 ? Math.round(((revenue - cogs) / revenue) * 100) : 0;
     
     // Gather all ledger items for Today's Day Book
     const ledgerItems = [];
