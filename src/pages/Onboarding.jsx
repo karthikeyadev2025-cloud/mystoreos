@@ -152,6 +152,7 @@ export default function Onboarding() {
                   <option value="pharmacy">Pharmacy / Medical</option>
                   <option value="electronics">Electronics</option>
                   <option value="clothing">Clothing / Textiles</option>
+                  <option value="footwear">Footwear / Shoes</option>
                   <option value="restaurant">Restaurant / Hotel</option>
                   <option value="salon">Salon / Beauty</option>
                   <option value="hardware">Hardware / Tools</option>
