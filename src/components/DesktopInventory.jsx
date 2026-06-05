@@ -2,6 +2,7 @@ import React from 'react';
 import Barcode from 'react-barcode';
 import { Package, Search, Plus, AlertCircle, Calendar, RefreshCw, Zap, Upload, Flame } from 'lucide-react';
 import { PlanGate, LockedFeature } from './PlanGate';
+import { UNIT_SUFFIX, defaultUnitForCategory } from '../lib/units';
 
 const CSV_TEMPLATE = 'name,price,stock,reorderLevel,hsnCode,gstRate,batchNumber,expiryDate,variants\nRice 1kg,55,100,20,1006,5,BATCH01,2025-12-31,500g,1kg\nSugar 1kg,42,50,15,1701,5,,2026-06-30,';
 
@@ -35,6 +36,7 @@ const DesktopInventory = ({
   handleClearFlashSale,
   handleStockAdjust,
   salesData = {},
+  shopCategory = 'general',
 }) => {
   const computeDaysLeft = (p) => {
     const sold = salesData[p.id] || 0;
@@ -320,7 +322,10 @@ const DesktopInventory = ({
                       </div>
                     </div>
                     </div>
-                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24' }}>
+                      ₹{p.price}
+                      {(() => { const s = UNIT_SUFFIX[p.unit || defaultUnitForCategory(shopCategory)]; return s ? <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}> / {s}</span> : null; })()}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '12px 0' }}>
                     <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'), fontWeight: 'bold' }}>
