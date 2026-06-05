@@ -121,7 +121,14 @@ const toProduct = (row) => row ? ({
   hsnCode: row.hsn_code, gstRate: row.gst_rate || 0,
   costPrice: parseFloat(row.cost_price) || 0,
   image: row.image_url || null,
+  unit: row.unit || null,
 }) : null;
+
+// True when a Supabase error is caused by the optional `unit` column not
+// existing yet (schema not migrated). Lets us retry the write without it.
+const isMissingUnitColumn = (error) =>
+  !!error && typeof error.message === 'string' &&
+  /column .*unit.* does not exist|'unit' column|could not find the 'unit'/i.test(error.message);
 
 const toOrder = (row) => row ? ({
   id: row.id, userId: row.user_id, shopId: row.shop_id, items: row.items,
@@ -484,10 +491,10 @@ export const api = {
         const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0 };
         await enqueue({ table: 'products', action: 'insert', data: row });
         const db = getDB(); db.products = db.products || [];
-        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0 });
+        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
         saveDB(db); return toProduct(row);
       }
-      const { data: prodRow, error } = await supabase.from('products').insert({
+      const baseInsert = {
         shop_id: shopId,
         name,
         price: parseFloat(price),
@@ -500,7 +507,13 @@ export const api = {
         hsn_code: extraData.hsnCode || null,
         gst_rate: parseInt(extraData.gstRate) || 0,
         cost_price: parseFloat(extraData.costPrice) || 0,
-      }).select().maybeSingle();
+      };
+      const insertWithUnit = extraData.unit ? { ...baseInsert, unit: extraData.unit } : baseInsert;
+      let { data: prodRow, error } = await supabase.from('products').insert(insertWithUnit).select().maybeSingle();
+      // If the optional `unit` column hasn't been added to the DB yet, retry without it.
+      if (error && isMissingUnitColumn(error) && extraData.unit) {
+        ({ data: prodRow, error } = await supabase.from('products').insert(baseInsert).select().maybeSingle());
+      }
       if (error) throw new Error(error.message);
       return toProduct(prodRow);
     }
@@ -520,6 +533,7 @@ export const api = {
       gstRate: parseInt(extraData?.gstRate) || 0,
       costPrice: parseFloat(extraData?.costPrice) || 0,
       image: extraData?.image || null,
+      unit: extraData?.unit || null,
     };
     db.products.push(newProd);
     saveDB(db);
@@ -541,6 +555,7 @@ export const api = {
         if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
         if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
         if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
+        if (data.unit !== undefined) updateObj.unit = data.unit || null;
         await enqueue({ table: 'products', action: 'update', data: updateObj, match: { id: prodId } });
         const db = getDB(); const prod = db.products.find(p => p.id === prodId);
         if (prod) { Object.assign(prod, data); saveDB(db); } return prod;
@@ -558,7 +573,12 @@ export const api = {
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
 
-      const { data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().maybeSingle();
+      const updateWithUnit = data.unit !== undefined ? { ...updateObj, unit: data.unit || null } : updateObj;
+      let { data: updated, error } = await supabase.from('products').update(updateWithUnit).eq('id', prodId).select().maybeSingle();
+      // Retry without `unit` if that column hasn't been migrated yet.
+      if (error && isMissingUnitColumn(error) && data.unit !== undefined) {
+        ({ data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().maybeSingle());
+      }
       if (error) throw new Error(error.message);
       return toProduct(updated);
     }
@@ -576,6 +596,7 @@ export const api = {
       if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
       if (data.image !== undefined) prod.image = data.image;
+      if (data.unit !== undefined) prod.unit = data.unit || null;
       saveDB(db);
     }
     return prod;
