@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 const TRUST = ['🏦 UPI', '💬 WhatsApp', '💳 Razorpay', '📴 Works Offline', '🧾 GST Ready'];
 const FLOAT_CARDS = [
   { label: '₹1.2L', sub: "Today's Sales", color: '#10b981', top: '8%', right: '-36px' },
-  { label: '94 Bills', sub: 'Today', color: '#8b5cf6', top: '52%', right: '-42px' },
+  { label: '94 Bills', sub: 'Today', color: '#7C3AED', top: '52%', right: '-42px' },
   { label: '12', sub: 'Low Stock ⚠', color: '#f59e0b', bottom: '14%', left: '-28px' },
 ];
 const FU = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true } };
@@ -19,13 +19,13 @@ export default function LandingHero({ hero, navigate, config = {} }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <motion.div {...FU}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)', borderRadius: 100, padding: '6px 16px', width: 'fit-content' }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#f43f5e' }}>🏆 Trusted by 500+ Indian Businesses</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#2F7FFF' }}>🏆 Trusted by 500+ Indian Businesses</span>
           </motion.div>
 
           <motion.h1 {...FU} transition={{ delay: 0.1, duration: 0.6 }}
             style={{ margin: 0, fontSize: 'clamp(34px,6vw,62px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-1.5px', color: '#f8fafc' }}>
             {lines[0]}<br />
-            <span style={{ background: 'linear-gradient(90deg,#f43f5e,#8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(90deg,#2F7FFF,#7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               {lines[1] || 'for Modern Business'}
             </span>
           </motion.h1>
@@ -43,11 +43,11 @@ export default function LandingHero({ hero, navigate, config = {} }) {
 
           <motion.div {...FU} transition={{ delay: 0.3 }} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/register')}
-              style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 0 30px rgba(244,63,94,0.3)' }}>
+              style={{ background: 'linear-gradient(135deg,#2F7FFF,#7C3AED)', border: 'none', color: '#fff', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Sora', system-ui, sans-serif", boxShadow: '0 0 30px rgba(244,63,94,0.3)' }}>
               Start Free 7-Day Trial 🚀
             </button>
             <button onClick={() => navigate('/pricing')}
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Sora', system-ui, sans-serif" }}>
               View Pricing →
             </button>
           </motion.div>
@@ -130,7 +130,7 @@ export default function LandingHero({ hero, navigate, config = {} }) {
             <div className="lphone-notch" />
             <div style={{ padding: '3px 8px 2px', display: 'flex', justifyContent: 'space-between', fontSize: 7, color: '#64748b' }}><span>9:41</span><span>●●●</span></div>
             <div style={{ padding: '6px 10px' }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: '#f43f5e', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 5, marginBottom: 7 }}>Ravi Kirana Store</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#2F7FFF', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 5, marginBottom: 7 }}>Ravi Kirana Store</div>
               {[['Parle-G 200g', '₹30'], ['Sunflower Oil 1L', '₹145'], ['Toor Dal 500g', '₹68']].map(([n, p], i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#cbd5e1', marginBottom: 5 }}>
                   <span>{n}</span><span style={{ color: '#10b981', fontWeight: 700 }}>{p}</span>
@@ -158,9 +158,9 @@ export default function LandingHero({ hero, navigate, config = {} }) {
 
       <style>{`
         .lorb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;pointer-events:none;animation:lorbFloat 20s ease-in-out infinite}
-        .lorb1{width:600px;height:600px;background:#8b5cf6;top:-150px;left:-100px}
+        .lorb1{width:600px;height:600px;background:#7C3AED;top:-150px;left:-100px}
         .lorb2{width:400px;height:400px;background:#3b82f6;top:200px;right:-80px;animation-duration:15s;animation-direction:reverse}
-        .lorb3{width:320px;height:320px;background:#f43f5e;bottom:0;left:45%;animation-duration:18s;animation-delay:2s}
+        .lorb3{width:320px;height:320px;background:#2F7FFF;bottom:0;left:45%;animation-duration:18s;animation-delay:2s}
         .lgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
         .lphone{width:158px;background:#0a0f1e;border:6px solid #1e293b;border-radius:30px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 50px rgba(244,63,94,.1)}
         .lphone-notch{height:18px;background:#1e293b;display:flex;align-items:center;justify-content:center}
