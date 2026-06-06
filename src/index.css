@@ -629,3 +629,66 @@ td {
 [style*="backgroundColor: '#0f172a'"]:not([class*="sidebar"]) {
   background-color: #F0F4FA !important;
 }
+
+
+/* ── Fix quick action button labels on light canvas ── */
+/* Target buttons that contain both icon and text span */
+.enterprise-main button span,
+.enterprise-main button p,
+.enterprise-main button div,
+[class*="quick"] span,
+[class*="action"] span,
+[class*="shelf"] button span {
+  color: #374163 !important;
+}
+
+/* ── Fix POS product search bar (dark inline style override) ── */
+/* The search input uses inline dark styles — force light theme */
+input[placeholder*="Search products"],
+input[placeholder*="search products"],
+input[placeholder*="Scan or type"] {
+  background: #ffffff !important;
+  border: 1.5px solid #C4CFDF !important;
+  color: #0A0F1E !important;
+  border-radius: 8px !important;
+}
+input[placeholder*="Search products"]::placeholder {
+  color: #9AAAC4 !important;
+}
+
+/* ── Fix all dark-bg containers in enterprise-main ── */
+.enterprise-main [style*="background: #030712"],
+.enterprise-main [style*="background: #0f172a"],
+.enterprise-main [style*="background: rgb(15"],
+.enterprise-main [style*="backgroundColor: '#030712'"],
+.enterprise-main [style*="backgroundColor: '#0f172a'"] {
+  background: #ffffff !important;
+  border: 1.5px solid #D8E0EE !important;
+  border-radius: 10px !important;
+}
+
+/* ── Force text to dark on light canvas ── */
+.enterprise-main p,
+.enterprise-main span:not([class*="badge"]):not([class*="tag"]):not([class*="status"]),
+.enterprise-main label,
+.enterprise-main h1,
+.enterprise-main h2,
+.enterprise-main h3,
+.enterprise-main h4 {
+  color: #374163 !important;
+}
+
+/* ── Keep specific colored elements intact ── */
+.enterprise-main [style*="color: '#10b981'"],
+.enterprise-main [style*="color: '#22c55e'"],
+.enterprise-main [style*="color: '#f59e0b'"],
+.enterprise-main [style*="color: '#ef4444'"],
+.enterprise-main [style*="color: '#2F7FFF'"],
+.enterprise-main [style*="color: '#E8A020'"] {
+  color: inherit !important;
+}
+
+/* ── POS panel (right side) light theme ── */
+.enterprise-main [style*="background: 'rgba(15, 23, 42"] {
+  background: #ffffff !important;
+}
