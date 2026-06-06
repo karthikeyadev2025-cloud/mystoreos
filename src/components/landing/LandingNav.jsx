@@ -37,7 +37,7 @@ export default function LandingNav({ config, navigate }) {
         transition: 'background 0.3s',
       }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: 0 }}>
-          <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff' }}>M</div>
+          <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff' }}>M</div>
           <span style={{ fontWeight: 800, fontSize: 17, color: '#f8fafc' }}>{config.siteName || 'MyStore OS'}</span>
         </button>
 
@@ -59,7 +59,7 @@ export default function LandingNav({ config, navigate }) {
             Login
           </button>
           <button onClick={() => navigate('/register')}
-            style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
+            style={{ background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', border: 'none', color: '#fff', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}
             className="ln">
             Start Free Trial
           </button>
@@ -86,7 +86,7 @@ export default function LandingNav({ config, navigate }) {
                 Login
               </button>
               <button onClick={() => { setOpen(false); navigate('/register'); }}
-                style={{ flex: 1, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: 12, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                style={{ flex: 1, background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', border: 'none', color: '#fff', padding: 12, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                 Start Free Trial
               </button>
             </div>
