@@ -52,7 +52,7 @@ const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handl
             >
               {active && <div style={{ position:'absolute', left:0, top:'18%', bottom:'18%', width:3, borderRadius:'0 3px 3px 0', background:GOLD }} />}
               <Icon size={15} color={active?GOLD:'rgba(255,255,255,0.32)'} style={{ flexShrink:0, marginLeft:active?3:0 }} />
-              <span style={{ flex:1 }}>{t(key)||fb}</span>
+              <span style={{ flex:1 }}>{(t(key)&&!t(key).startsWith('nav.'))?t(key):fb}</span>
               {badge && pendingOrders > 0 && <span style={{ background:'#E53E3E', color:'#fff', borderRadius:10, padding:'1px 6px', fontSize:9, fontWeight:800 }}>{pendingOrders}</span>}
             </button>
           );
