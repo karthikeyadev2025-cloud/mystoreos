@@ -20,7 +20,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { sendWhatsApp, sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
-import DesktopSidebar from '../components/DesktopSidebar';
+import DesktopTopBar from '../components/DesktopTopBar';
 import DesktopPOS from '../components/DesktopPOS';
 import DesktopInventory from '../components/DesktopInventory';
 import DesktopBills from '../components/DesktopBills';
@@ -1721,7 +1721,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="dashboard-wrapper-flex" style={{ backgroundColor: '#0f172a', color: 'white', minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
+      <div className="enterprise-wrapper" style={{ backgroundColor: '#F0F4FA', color: '#0A0F1E', minHeight: '100vh', fontFamily: "'Sora', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
@@ -1756,7 +1756,7 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        <DesktopSidebar
+        <DesktopTopBar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isOwner={isOwner}
@@ -1766,7 +1766,7 @@ const ShopDashboard = () => {
           syncStatus={{ isOnline, pendingCount }}
         />
 
-        <div className="fluid-dashboard-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
+        <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
           {activeTab === 'home' && (
             <DesktopPOS 
               products={products}
