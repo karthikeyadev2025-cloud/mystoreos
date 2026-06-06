@@ -1,113 +1,79 @@
-import { Home, Package, Receipt, Wallet, Truck, Book, LogOut, Users, IndianRupee } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, Truck, Book, LogOut, Users, BarChart2, Settings } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 
-const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName, syncStatus }) => {
-  const { t, locale, setLocale, loadingLang } = useI18n();
+const INK  = '#0A0F1E';
+const GOLD = '#E8A020';
+const ACT  = 'rgba(255,255,255,0.13)';
+const HOV  = 'rgba(255,255,255,0.07)';
+const BRD  = 'rgba(255,255,255,0.07)';
+const FONT = "'Sora', system-ui, sans-serif";
 
+const NAV = [
+  { id:'home',      Icon:Home,      key:'nav.home',      fb:'POS / Home',   badge:false },
+  { id:'products',  Icon:Package,   key:'nav.products',  fb:'Products',     badge:false, ownerOnly:true },
+  { id:'bills',     Icon:Receipt,   key:'nav.bills',     fb:'All Bills',    badge:true  },
+  { id:'customers', Icon:Users,     key:'nav.customers', fb:'Customers',    badge:false },
+  { id:'expenses',  Icon:Wallet,    key:'nav.expenses',  fb:'Expenses',     badge:false },
+  { id:'credit',    Icon:Book,      key:'nav.credit',    fb:'Credit Book',  badge:false },
+  { id:'restock',   Icon:Truck,     key:'nav.restock',   fb:'Bulk Restock', badge:false },
+  { id:'reports',   Icon:BarChart2, key:'nav.reports',   fb:'Day Book',     badge:false },
+  { id:'settings',  Icon:Settings,  key:'nav.settings',  fb:'Settings',     badge:false },
+];
+
+const DesktopSidebar = ({ activeTab, setActiveTab, isOwner, pendingOrders, handleLogout, userName, syncStatus }) => {
+  const { t } = useI18n();
   return (
-    <div className="desktop-glass-sidebar">
-      <div style={{ marginBottom: '24px', padding: '0 8px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #fbbf24, #ef4444)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
-          MyStore Pro
-        </h2>
-        <p style={{ margin: '4px 0 12px 0', fontSize: '11px', color: '#94a3b8' }}>{userName}</p>
-        
-        {/* Sleek premium language selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '6px 10px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <span style={{ fontSize: '12px' }}>🌐</span>
-          <select 
-            value={locale} 
-            onChange={(e) => setLocale(e.target.value)} 
-            disabled={loadingLang}
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
-              color: '#f8fafc', 
-              fontSize: '12px', 
-              fontWeight: '500', 
-              outline: 'none', 
-              cursor: 'pointer',
-              width: '100%',
-              fontFamily: 'inherit'
-            }}
-          >
-            <option value="en" style={{ background: '#1e293b', color: '#f8fafc' }}>English (EN)</option>
-            <option value="hi" style={{ background: '#1e293b', color: '#f8fafc' }}>हिन्दी (HI)</option>
-            <option value="te" style={{ background: '#1e293b', color: '#f8fafc' }}>తెలుగు (TE)</option>
-            <option value="ta" style={{ background: '#1e293b', color: '#f8fafc' }}>தமிழ் (TA)</option>
-            <option value="kn" style={{ background: '#1e293b', color: '#f8fafc' }}>ಕನ್ನಡ (KN)</option>
-            <option value="mr" style={{ background: '#1e293b', color: '#f8fafc' }}>मराठी (MR)</option>
-            <option value="bn" style={{ background: '#1e293b', color: '#f8fafc' }}>বাংলা (BN)</option>
-          </select>
-          {loadingLang && <span style={{ fontSize: '10px', color: '#94a3b8' }}>⏳</span>}
+    <div style={{ width:224, minWidth:224, background:INK, display:'flex', flexDirection:'column', height:'100%', flexShrink:0, fontFamily:FONT }}>
+      <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid '+BRD, display:'flex', alignItems:'center', gap:11 }}>
+        <div style={{ width:34, height:34, background:GOLD, borderRadius:9, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:16, color:INK, letterSpacing:-1, flexShrink:0 }}>M</div>
+        <div>
+          <div style={{ color:'#fff', fontWeight:800, fontSize:14, lineHeight:1 }}>MyStore OS</div>
+          <div style={{ marginTop:4, background:'rgba(255,255,255,0.1)', borderRadius:4, padding:'2px 7px', display:'inline-block' }}>
+            <span style={{ color:'rgba(255,255,255,0.45)', fontSize:8, fontWeight:700, letterSpacing:'0.1em' }}>ENTERPRISE</span>
+          </div>
         </div>
       </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-        <button className={`sidebar-nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-          <Home size={18} /> {t('nav.home')}
-        </button>
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>
-            <Package size={18} /> {t('nav.products')}
-          </button>
-        )}
-        <button className={`sidebar-nav-item ${activeTab === 'bills' ? 'active' : ''}`} onClick={() => setActiveTab('bills')} style={{ position: 'relative' }}>
-          <Receipt size={18} /> {t('nav.bills')}
-          {pendingOrders > 0 && <span style={{ position: 'absolute', top: 12, right: 16, background: '#ef4444', width: 8, height: 8, borderRadius: '50%' }}></span>}
-        </button>
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>
-            <Users size={18} /> {t('nav.customers')}
-          </button>
-        )}
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>
-            <IndianRupee size={18} /> {t('nav.expenses')}
-          </button>
-        )}
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'credit' ? 'active' : ''}`} onClick={() => setActiveTab('credit')}>
-            <Wallet size={18} /> {t('nav.creditBook')}
-          </button>
-        )}
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'restock' ? 'active' : ''}`} onClick={() => setActiveTab('restock')}>
-            <Truck size={18} /> {t('nav.restock')}
-          </button>
-        )}
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
-            <Book size={18} /> {t('nav.dayBook')}
-          </button>
-        )}
-        {isOwner && (
-          <button className={`sidebar-nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
-            <span style={{ fontSize: '18px' }}>⚙️</span> {t('nav.settings')}
-          </button>
-        )}
+      <div style={{ padding:'10px 14px 8px', borderBottom:'1px solid '+BRD }}>
+        <div style={{ color:'#CBD5F0', fontSize:12, fontWeight:700 }}>{userName}</div>
+        <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:3 }}>
+          <div style={{ width:7, height:7, borderRadius:'50%', background:'#4ADE80', animation:'enterprise-pulse 2s infinite', flexShrink:0 }} />
+          <span style={{ color:'rgba(255,255,255,0.38)', fontSize:10 }}>Open now</span>
+        </div>
       </div>
-
-      {syncStatus && (syncStatus.pendingCount > 0 || !syncStatus.isOnline) && (
-        <div style={{ marginBottom: '8px' }}>
-          {!syncStatus.isOnline && (
-            <div style={{ fontSize: '11px', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'rgba(245,158,11,0.08)', borderRadius: '8px', marginBottom: '4px', border: '1px solid rgba(245,158,11,0.15)' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', flexShrink: 0 }}></span>
-              {t('common.offline')}
-            </div>
-          )}
-          {syncStatus.pendingCount > 0 && (
-            <div style={{ fontSize: '11px', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'rgba(59,130,246,0.08)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.15)' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#60a5fa', flexShrink: 0 }}></span>
-              {syncStatus.pendingCount} pending sync
-            </div>
-          )}
+      <nav style={{ flex:1, padding:'10px 8px', display:'flex', flexDirection:'column', gap:1, overflowY:'auto' }}>
+        {NAV.map(({ id, Icon, key, fb, badge, ownerOnly }) => {
+          if (ownerOnly && !isOwner) return null;
+          const active = activeTab === id;
+          return (
+            <button key={id} onClick={() => setActiveTab(id)}
+              style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:8, border:'none', cursor:'pointer', textAlign:'left', width:'100%', background:active?ACT:'transparent', color:active?'#fff':'rgba(255,255,255,0.48)', fontSize:12, fontWeight:active?700:400, fontFamily:FONT, position:'relative', transition:'all 0.15s' }}
+              onMouseEnter={e => { if(!active){ e.currentTarget.style.background=HOV; e.currentTarget.style.color='rgba(255,255,255,0.8)'; }}}
+              onMouseLeave={e => { if(!active){ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='rgba(255,255,255,0.48)'; }}}
+            >
+              {active && <div style={{ position:'absolute', left:0, top:'18%', bottom:'18%', width:3, borderRadius:'0 3px 3px 0', background:GOLD }} />}
+              <Icon size={15} color={active?GOLD:'rgba(255,255,255,0.32)'} style={{ flexShrink:0, marginLeft:active?3:0 }} />
+              <span style={{ flex:1 }}>{t(key)||fb}</span>
+              {badge && pendingOrders > 0 && <span style={{ background:'#E53E3E', color:'#fff', borderRadius:10, padding:'1px 6px', fontSize:9, fontWeight:800 }}>{pendingOrders}</span>}
+            </button>
+          );
+        })}
+      </nav>
+      {syncStatus && (
+        <div style={{ padding:'7px 14px', borderTop:'1px solid '+BRD, display:'flex', alignItems:'center', gap:6, fontSize:10, color:'rgba(255,255,255,0.3)' }}>
+          <div style={{ width:6, height:6, borderRadius:'50%', background:syncStatus==='synced'?'#4ADE80':'#F59E0B', flexShrink:0 }} />
+          {syncStatus==='synced' ? 'All synced' : 'Syncing…'}
         </div>
       )}
-
-      <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', background: 'rgba(239,68,68,0.05)', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', outline: 'none', width: '100%' }}>
-        <LogOut size={16} /> {t('nav.logout')}
-      </button>
+      <div style={{ padding:'10px', borderTop:'1px solid '+BRD }}>
+        <button onClick={handleLogout}
+          style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', borderRadius:8, border:'none', background:'transparent', color:'rgba(255,255,255,0.32)', fontSize:11, fontFamily:FONT, width:'100%', cursor:'pointer', transition:'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.color='rgba(255,255,255,0.65)'; e.currentTarget.style.background=HOV; }}
+          onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.32)'; e.currentTarget.style.background='transparent'; }}
+        >
+          <LogOut size={13} />
+          Logout
+        </button>
+      </div>
     </div>
   );
 };
