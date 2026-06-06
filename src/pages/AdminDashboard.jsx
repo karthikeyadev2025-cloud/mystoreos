@@ -84,13 +84,13 @@ export default function AdminDashboard() {
 
   const sidebar = (
     <div style={{
-      width: '260px', minWidth: '260px', background: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.06)',
+      width: '260px', minWidth: '260px', background: '#0A0F1E', borderRight: '1px solid rgba(255,255,255,0.06)',
       display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
       <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '16px' }}>MyStore OS</div>
+            <div style={{ color: '#E8A020', fontWeight: 800, fontSize: '16px' }}>MyStore OS</div>
             <div style={{ color: '#64748b', fontSize: '11px' }}>Admin Panel</div>
           </div>
           {isMobile() && (
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
           )}
         </div>
         <div style={{ marginTop: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
@@ -117,17 +117,17 @@ export default function AdminDashboard() {
             <button key={id} onClick={() => { setActiveTab(id); if (isMobile()) setSidebarOpen(false); }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
-                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #f43f5e' : '3px solid transparent',
+                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #2F7FFF' : '3px solid transparent',
                 cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
                 background: active ? 'rgba(244,63,94,0.1)' : 'transparent',
-                color: active ? '#f43f5e' : '#94a3b8',
+                color: active ? '#2F7FFF' : '#94a3b8',
                 fontWeight: active ? 600 : 400, fontSize: '13px', transition: 'all 0.15s',
-                fontFamily: 'Outfit, sans-serif'
+                fontFamily: "'Sora', system-ui, sans-serif"
               }}>
               <Icon size={15} />
               <span style={{ flex: 1 }}>{label}</span>
               {id === 'shops' && pendingApprovals.length > 0 && (
-                <span style={{ background: '#f43f5e', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                <span style={{ background: '#2F7FFF', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
                   {pendingApprovals.length}
                 </span>
               )}
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={{ padding: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: '#ef4444', fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>
+        <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: '#ef4444', fontSize: '13px', fontFamily: "'Sora', system-ui, sans-serif" }}>
           <LogOut size={15} />
           Sign Out
         </button>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A0F1E', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
@@ -177,8 +177,8 @@ export default function AdminDashboard() {
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f43f5e', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
-                <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px', flex: 1 }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#2F7FFF', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+                <div style={{ color: '#2F7FFF', fontWeight: 800, fontSize: '15px', flex: 1 }}>
                   ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
                 <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif', flexShrink: 0 }}>
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {pendingApprovals.map(u => (
                   <div key={u.id} style={{ background: 'rgba(15,23,42,0.6)', borderRadius: '12px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
                       {(u.name || 'U')[0].toUpperCase()}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
