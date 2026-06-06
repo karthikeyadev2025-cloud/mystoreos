@@ -1,22 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@keyframes enterprise-pulse{0%,100%{box-shadow:0 0 4px rgba(74,222,128,.4);}50%{box-shadow:0 0 10px rgba(74,222,128,.8);}}
 
 :root {
-  --primary: #f43f5e;
-  --primary-dark: #e11d48;
-  --secondary: #8b5cf6;
-  --bg-dark: #0f172a;
+  --primary:       #2F7FFF;
+  --primary-dark:  #1A5FCC;
+  --secondary:     #E8A020;
+  --bg-dark:       #0A0F1E;
   --surface: rgba(30, 41, 59, 0.7);
-  --surface-solid: #1e293b;
+  --surface-solid: #111827;
   --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --success: #10b981;
+  --text-muted:    #9AAAC4;
+  --success:       #16A34A;
   --warning: #f59e0b;
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border:  rgba(255,255,255,0.08);  --e-gold:#E8A020;  --e-blue:#2F7FFF;  --e-ink:#0A0F1E;
   /* SiteConfig live vars — overridden by SiteConfigProvider via JS */
   --card-bg: rgba(255, 255, 255, 0.03);
   --card-border: rgba(255, 255, 255, 0.06);
   --radius: 12px;
-  --font: 'Outfit';
+  --font: 'Sora';
 }
 
 * {
@@ -107,7 +108,7 @@ button {
 button:active { transform: scale(0.98); }
 
 button.primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--primary);
   color: white;
   box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
 }
@@ -239,17 +240,15 @@ textarea:-ms-input-placeholder { color: #64748b; opacity: 1; }
 }
 
 .desktop-glass-sidebar {
-  width: 260px;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-right: 1px solid var(--glass-border);
+  width: 224px;
+  background: #0A0F1E;
+  border-right: 1px solid rgba(255,255,255,0.07);
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 24px 16px;
+  padding: 0;
   box-sizing: border-box;
   z-index: 999;
 }
@@ -321,7 +320,7 @@ textarea:-ms-input-placeholder { color: #64748b; opacity: 1; }
   color: var(--text-muted);
   background: transparent;
   border: none;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   text-align: left;
@@ -337,10 +336,9 @@ textarea:-ms-input-placeholder { color: #64748b; opacity: 1; }
 }
 
 .sidebar-nav-item.active {
-  color: white;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.25);
-  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,0.13);
+  font-weight: 700;
 }
 
 /* Custom premium scrollbars for dark theme */
