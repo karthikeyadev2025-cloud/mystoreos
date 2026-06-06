@@ -602,3 +602,30 @@ td {
 .desktop-glass-sidebar {
   background: #0A0F1E !important;
 }
+
+
+/* ── Enterprise layout classes (DesktopTopBar + enterprise-main) ── */
+.enterprise-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #F0F4FA;
+}
+.enterprise-main {
+  flex: 1;
+  background: #F0F4FA;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+/* Legacy wrapper compatibility */
+.dashboard-wrapper-flex {
+  background: #F0F4FA !important;
+}
+.fluid-dashboard-main {
+  background: #F0F4FA !important;
+}
+/* Remove dark inline backgrounds from content areas */
+[style*="backgroundColor: '#0f172a'"]:not([class*="sidebar"]) {
+  background-color: #F0F4FA !important;
+}
