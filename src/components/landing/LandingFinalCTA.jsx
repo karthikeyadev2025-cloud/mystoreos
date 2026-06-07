@@ -6,7 +6,7 @@ export default function LandingFinalCTA() {
   return (
     <section style={{
       background: '#0D1117', padding: '80px 40px',
-      fontFamily: "'Inter',system-ui,sans-serif",
+      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       <div style={{
         maxWidth: 860, margin: '0 auto',
@@ -17,7 +17,7 @@ export default function LandingFinalCTA() {
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%,-50%)',
           width: 600, height: 400,
-          background: 'radial-gradient(ellipse,rgba(37,99,235,0.1),transparent 65%)',
+          background: 'radial-gradient(ellipse,rgba(79,70,229,0.1),transparent 65%)',
           pointerEvents: 'none',
         }}/>
         <div style={{ position: 'relative' }}>
@@ -42,11 +42,11 @@ export default function LandingFinalCTA() {
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/register')} style={{
-              background: '#2563EB', color: '#fff', border: 'none',
+              background: '#4F46E5', color: '#fff', border: 'none',
               padding: '13px 32px', borderRadius: 10, fontSize: 15, fontWeight: 700,
-              cursor: 'pointer', fontFamily: "'Inter',system-ui,sans-serif",
+              cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
               display: 'flex', alignItems: 'center', gap: 8,
-              boxShadow: '0 0 36px rgba(37,99,235,0.5)', transition: 'filter .15s',
+              boxShadow: '0 0 36px rgba(79,70,229,0.5)', transition: 'filter .15s',
             }}
               onMouseEnter={e => e.currentTarget.style.filter='brightness(1.12)'}
               onMouseLeave={e => e.currentTarget.style.filter='brightness(1)'}
@@ -57,7 +57,7 @@ export default function LandingFinalCTA() {
               background: 'transparent', color: 'rgba(255,255,255,0.65)',
               border: '1.5px solid rgba(255,255,255,0.18)',
               padding: '13px 32px', borderRadius: 10, fontSize: 15, fontWeight: 600,
-              cursor: 'pointer', fontFamily: "'Inter',system-ui,sans-serif",
+              cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
               transition: 'all .15s',
             }}
               onMouseEnter={e => { e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,0.4)'; }}
