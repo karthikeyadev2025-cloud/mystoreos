@@ -709,3 +709,154 @@ section[class*="landing"] > div,
 body:not(.has-enterprise-layout) {
   background: transparent !important;
 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   MYSTORE OS — ENTERPRISE THEME v3 (Complete Override System)
+   Built: Plus Jakarta Sans · #0F172A obsidian · #4F46E5 indigo · #F8FAFC canvas
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Typography: Plus Jakarta Sans global ── */
+*, *::before, *::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Enterprise wrapper and main content area ── */
+.enterprise-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  background: #F8FAFC !important;
+}
+.enterprise-main {
+  flex: 1 !important;
+  background: #F8FAFC !important;
+  min-width: 0 !important;
+}
+/* Fluid dashboard — same light canvas */
+.fluid-dashboard-main {
+  background: #F8FAFC !important;
+}
+/* Override any dark bg on dashboard wrapper */
+.dashboard-wrapper-flex {
+  background: #F8FAFC !important;
+}
+
+/* ── All premium glass cards → enterprise white ── */
+.premium-glass {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05),0 1px 2px -1px rgba(0,0,0,.04) !important;
+}
+.premium-glass h2,.premium-glass h3,.premium-glass h4,
+.premium-glass .card-title,.premium-glass .section-title {
+  color: #0F172A !important;
+}
+.premium-glass p,.premium-glass span:not([class*="badge"]):not([class*="tag"]):not([class*="status"]) {
+  color: #475569;
+}
+
+/* ── Inputs — enterprise clean ── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea, select {
+  font-family: 'Sora', system-ui, sans-serif !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0F172A !important;
+  border-radius: 8px !important;
+  transition: border-color .18s,box-shadow .18s !important;
+}
+input:focus,textarea:focus,select:focus {
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.1) !important;
+  outline: none !important;
+}
+input::placeholder,textarea::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+/* ── Numbers: JetBrains Mono ── */
+.mono,.price,.amount,.total,.revenue,.profit,
+[class*="price"],[class*="amount"],[class*="rupee"],
+[class*="gross"],[class*="final-amt"],[class*="revenue"] {
+  font-family: 'JetBrains Mono','Courier New',monospace !important;
+}
+
+/* ── Tables — enterprise clean ── */
+table { border-collapse: collapse !important; }
+thead th {
+  background: #F8FAFC !important;
+  color: #64748B !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+  padding: 10px 16px !important;
+  border-top: 1px solid #E2E8F0 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+tbody td {
+  color: #0F172A !important;
+  font-size: 13px !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+}
+tbody tr:hover td {
+  background: #F8FAFC !important;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ── Quick action buttons in POS ── */
+.premium-btn {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #374163 !important;
+  transition: all .18s ease !important;
+  border-radius: 12px !important;
+}
+.premium-btn:hover {
+  background: #F1F5F9 !important;
+  border-color: #4F46E5 !important;
+}
+.premium-btn span {
+  color: #374163 !important;
+}
+
+/* ── Status badges ── */
+.badge-success,.status-paid   { background:#ECFDF5!important;color:#059669!important;border:1px solid #6EE7B7!important; }
+.badge-warning,.status-credit { background:#FFFBEB!important;color:#D97706!important;border:1px solid #FCD34D!important; }
+.badge-error,.status-overdue  { background:#FEF2F2!important;color:#991B1B!important;border:1px solid #FCA5A5!important; }
+
+/* ── Enterprise section cards ── */
+.section-card,.data-card,.stat-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05) !important;
+}
+
+/* ── Mobile bottom nav ── */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    background: #0F172A !important;
+    border-top: 1px solid rgba(255,255,255,.08) !important;
+  }
+  .mobile-bottom-nav button.active {
+    color: #4F46E5 !important;
+  }
+}
+
+/* ── Override any remaining dark page backgrounds ── */
+[style*="background-color: rgb(15, 23, 42)"],
+[style*="backgroundColor: '#0f172a'"] {
+  background-color: #F8FAFC !important;
+}
