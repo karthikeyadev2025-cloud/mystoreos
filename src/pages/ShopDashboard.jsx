@@ -188,6 +188,7 @@ const ShopDashboard = () => {
   // Promo Code & Wholesale Restocking States
   const [promoCode, setPromoCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [manualDiscountPct, setManualDiscountPct] = useState(0); // manual % discount entered in POS
   const [wholesaleCatalog, setWholesaleCatalog] = useState([]);
   const [restockCart, setRestockCart] = useState({}); // { wholesaleProdId: qty }
 
@@ -515,7 +516,7 @@ const ShopDashboard = () => {
   const sendWhatsAppBill = async () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
-    const total = Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees);
+    const total = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
 
     if (!isOwner && total > 5000) {
       setPendingAction(() => () => executeSendWhatsAppBill());
@@ -528,7 +529,7 @@ const ShopDashboard = () => {
 
   const executeSendWhatsAppBill = async () => {
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10); // 10 pts = ₹1
-    const total = Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees);
+    const total = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
     
     try {
       let finalUserId = 'walk-in-customer';
@@ -773,7 +774,7 @@ const ShopDashboard = () => {
          }
       }
 
-      if (discountAmount > 0) {
+      if (discountAmount > 0 || manualDiscountAmt > 0) {
         doc.setFontSize(10);
         doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, 135, yOffset);
         yOffset += 5;
@@ -853,7 +854,7 @@ const ShopDashboard = () => {
         if (customerName) msg += `Customer: ${customerName}\n`;
         msg += `Total: Rs.${total}\n\n`;
         billItems.forEach(i => { const u = UNIT_SUFFIX[resolveUnit(i, shopCategory)]; const qd = u ? `${i.qty || 1} ${u}` : `x${i.qty || 1}`; msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} ${qd}: Rs.${i.price * (i.qty || 1)}\n`; });
-        if (discountAmount > 0) msg += `Discount: -Rs.${discountAmount}\nTotal: Rs.${total}\n`;
+        if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Discount: -Rs.${discountAmount + manualDiscountAmt}\nTotal: Rs.${total}\n`;
         if (billingMode === 'bill' && upiId) {
           const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
           msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&tn=${ref}&cu=INR\n`;
@@ -872,6 +873,7 @@ const ShopDashboard = () => {
       }
       setBillItems([]);
       setDiscountAmount(0);
+      setManualDiscountPct(0);
       setPromoCode('');
       setLoyaltyRedeem(0);
       setCustomerLoyaltyPoints(0);
@@ -903,6 +905,7 @@ const ShopDashboard = () => {
   const pendingOrders = orders.filter(o => o.status === 'Pending' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
   const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
+  const manualDiscountAmt = Math.round(billTotal * (manualDiscountPct / 100));
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
   // Predictive reorder: units sold per product in last 30 days
@@ -1793,6 +1796,9 @@ const ShopDashboard = () => {
               promoCode={promoCode}
               setPromoCode={setPromoCode}
               discountAmount={discountAmount}
+              manualDiscountPct={manualDiscountPct}
+              setManualDiscountPct={setManualDiscountPct}
+              manualDiscountAmt={manualDiscountAmt}
               billTotal={billTotal}
               search={search}
               setSearch={setSearch}
