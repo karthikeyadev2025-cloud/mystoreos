@@ -1140,3 +1140,12 @@ input[type=number] { -moz-appearance: textfield; }
 
 /* ── Smooth transitions everywhere ── */
 button, a, input, select, textarea { transition: all .15s ease; }
+
+/* ── Full-width page escape (login, register) ── */
+.app-container:has(.lp-root) {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+/* Fallback for browsers without :has() */
+.lp-root { position: fixed !important; top:0; left:0; right:0; bottom:0; z-index:999; }
