@@ -144,7 +144,7 @@ const DesktopSettings = ({
               <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoices)</label>
               <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={2} style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', resize: 'vertical' }}></textarea>
             </div>
-            <button onClick={handleSaveProfile} style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}>
+            <button onClick={handleSaveProfile} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}>
               💾 Save Identity Settings
             </button>
           </div>
@@ -169,7 +169,7 @@ const DesktopSettings = ({
                   style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
-              <button onClick={handleSaveProfile} style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Save UPI ID
               </button>
             </div>
@@ -220,7 +220,7 @@ const DesktopSettings = ({
             <button onClick={handleGrabLocation} style={{ flex: 1, background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', color: '#a78bfa', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               🛰️ Auto-Grab Coordinates
             </button>
-            <button onClick={handleSaveProfile} style={{ flex: 1, background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleSaveProfile} style={{ flex: 1, background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               Commit Coordinates
             </button>
           </div>
@@ -264,7 +264,7 @@ const DesktopSettings = ({
 
             <button
               onClick={handleSaveInvoiceSettings}
-              style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}
+              style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}
             >
               💾 Save Invoice Settings
             </button>
@@ -287,7 +287,7 @@ const DesktopSettings = ({
           </p>
           <button 
             onClick={() => setShowPlanSelectorModal(true)} 
-            style={{ width: '100%', background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+            style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             Change or Upgrade Plan
           </button>
@@ -391,13 +391,13 @@ const DesktopSettings = ({
                   a.click();
                 }
               }}
-              style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               ⬇ PNG
             </button>
             <button
               onClick={handleShareShop}
-              style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,211,102,0.3)', color: '#25D366', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(37,211,102,0.3)', color: '#25D366', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Share2 size={12} /> Share
             </button>
@@ -408,17 +408,17 @@ const DesktopSettings = ({
                 win.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff"><h2 style="color:#F8FAFC;margin-bottom:8px">${user?.name || 'My Store'}</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}" style="border:8px solid #f0f0f0;border-radius:12px"/><p style="color:#64748b;font-size:13px;margin-top:12px">${url}</p><script>window.onload=()=>window.print()</script></body></html>`);
                 win.document.close();
               }}
-              style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Printer size={12} /> Print
             </button>
           </div>
 
           <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button onClick={downloadQrPng} style={{ width: '100%', background: '#2563EB', color: '#fff', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <button onClick={downloadQrPng} style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <QrCode size={14} /> Download QR Code (PNG)
             </button>
-            <button onClick={downloadQrPoster} style={{ width: '100%', background: '#2563EB', color: '#000', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <button onClick={downloadQrPoster} style={{ width: '100%', background: '#4F46E5', color: '#000', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <FileText size={14} /> Download Full PDF Poster
             </button>
           </div>
@@ -449,7 +449,7 @@ const DesktopSettings = ({
                 style={{ padding: '8px 10px', background: '#F7F8FA', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
               />
             </div>
-            <button onClick={handleAddStaff} style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
+            <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
               + Register Helper (Default PIN: 1234)
             </button>
           </div>
@@ -465,7 +465,7 @@ const DesktopSettings = ({
                     <h5 style={{ margin: 0, fontSize: '12px', color: '#fff' }}>{s.name}</h5>
                     <p style={{ margin: 0, fontSize: '10px', color: '#6B7280' }}>Ph: {s.phone}</p>
                   </div>
-                  <span style={{ background: 'rgba(37,99,235,0.08)', color: '#22c55e', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active PIN: 1234</span>
+                  <span style={{ background: 'rgba(79,70,229,0.08)', color: '#22c55e', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active PIN: 1234</span>
                 </div>
               ))}
             </div>
@@ -502,7 +502,7 @@ const DesktopSettings = ({
               ))}
             </div>
           </div>
-          <button onClick={handleSaveShopHours} style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', width: 'auto' }}>
+          <button onClick={handleSaveShopHours} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', width: 'auto' }}>
             💾 Save Shop Hours
           </button>
         </div>
@@ -534,7 +534,7 @@ const DesktopSettings = ({
               </div>
             </div>
           </div>
-          <button onClick={handleSaveShopBanner} style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          <button onClick={handleSaveShopBanner} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
             💾 Save Banner
           </button>
         </div>
