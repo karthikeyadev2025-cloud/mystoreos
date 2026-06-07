@@ -82,7 +82,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
   const vipCustomers = useMemo(() => customers.filter(c => getSegment(c)?.label === '🌟 VIP'), [customers]);
 
   return (
-    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
@@ -103,7 +103,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
               <MessageSquare size={14} /> WhatsApp VIP ({vipCustomers.length})
             </button>
           )}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
             <Search size={16} color="#94a3b8" />
             <input
               type="text" placeholder="Search by name or phone..."
@@ -169,7 +169,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
             const segment = getSegment(c);
 
             return (
-              <div key={key} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
+              <div key={key} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #E2E8F0', borderRadius: '14px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
                 {/* Summary row */}
                 <div
                   style={{ padding: '14px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px' }}
