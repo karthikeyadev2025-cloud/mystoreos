@@ -17,15 +17,10 @@ export default function LandingNav({ config = {} }) {
     }}>
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          width: 34, height: 34, background: '#2563EB', borderRadius: 9,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 0 20px rgba(37,99,235,0.45)',
-        }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-        </div>
+        <img src="/logo.png" alt="MyStore OS" style={{
+          width: 38, height: 38, borderRadius: 9, objectFit: 'contain',
+          boxShadow: '0 0 20px rgba(37,99,235,0.35)',
+        }}/>
         <div>
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 17, letterSpacing: '-.02em' }}>
             {config.brandName || 'MyStore OS'}
