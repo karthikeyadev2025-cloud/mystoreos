@@ -103,11 +103,10 @@ export default function Login() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
-            <div style={{ width: 42, height: 42, background: '#2563EB', borderRadius: 11,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 28px rgba(37,99,235,0.5)' }}>
-              <Zap size={22} color="#fff" strokeWidth={2.5}/>
-            </div>
+            <img src="/logo.png" alt="MyStore OS" style={{
+              width: 48, height: 48, borderRadius: 11, objectFit: 'contain',
+              boxShadow: '0 0 24px rgba(37,99,235,0.4)'
+            }}/>
             <div>
               <div style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-.02em' }}>MyStore OS</div>
               <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, fontWeight: 700, letterSpacing: '.08em' }}>ENTERPRISE PLATFORM</div>
@@ -165,10 +164,9 @@ export default function Login() {
           {/* Mobile logo (hidden on desktop via CSS) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 36, justifyContent: 'center' }}
             className="mobile-logo">
-            <div style={{ width: 36, height: 36, background: '#2563EB', borderRadius: 9,
-              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={18} color="#fff" strokeWidth={2.5}/>
-            </div>
+            <img src="/logo.png" alt="MyStore OS" style={{
+              width: 36, height: 36, borderRadius: 9, objectFit: 'contain'
+            }}/>
             <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
           </div>
 
