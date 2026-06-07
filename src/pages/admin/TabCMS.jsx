@@ -1,19 +1,4 @@
-impo
-
-  const save = async () => {
-    setSaving(true);
-    try {
-      await Promise.all([
-        api.updateSiteConfig('social', { ...cfg }),
-      ]).catch(() => {});
-      toast.success('App & social links saved!');
-    } catch (e) {
-      toast.error('Save failed. Try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
-rt { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Globe, FileText, Megaphone, X, CreditCard, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useSiteConfig } from '../../lib/siteConfig';
