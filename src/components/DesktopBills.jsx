@@ -32,7 +32,7 @@ const DesktopBills = ({
     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: Search & Invoices List */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Receipt size={20} color="#fbbf24" /> Invoices Ledger
@@ -69,7 +69,7 @@ const DesktopBills = ({
         </div>
 
         {/* Search */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '10px', padding: '0 12px', border: '1px solid #334155' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '0 12px', border: '1px solid #334155' }}>
           <Search size={16} color="#94a3b8" />
           <input 
             type="text" 
@@ -139,7 +139,7 @@ const DesktopBills = ({
           else if (type === 'challan') receiptTitle = 'DELIVERY CHALLAN';
 
           return (
-            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
               
               {/* Receipt Canvas */}
               <div style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 40px rgba(0,0,0,0.4)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #e2e8f0' }}>
@@ -205,7 +205,7 @@ const DesktopBills = ({
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'center' }}>
                 <button 
                   onClick={() => window.print()} 
-                  style={{ background: '#0f172a', border: '1px solid #334155', color: '#fff', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  style={{ background: '#F8FAFC', border: '1px solid #334155', color: '#fff', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   <Printer size={16} /> Print Slip
                 </button>
@@ -241,7 +241,7 @@ const DesktopBills = ({
             </div>
           );
         })() : (
-          <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
+          <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid #E2E8F0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
             <Receipt size={48} style={{ opacity: 0.15, marginBottom: '16px', color: '#fbbf24' }} />
             <h3 style={{ color: 'white', margin: '0 0 6px 0' }}>No Invoice Selected</h3>
             <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0, maxWidth: '280px', lineHeight: '1.4' }}>
