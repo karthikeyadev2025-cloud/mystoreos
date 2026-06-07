@@ -2386,7 +2386,7 @@ const ShopDashboard = () => {
       {announceConfig.active && announceConfig.text && (
         <div style={{ background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>{announceConfig.text}</div>
-          <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}><X size={16} /></button>
+          <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
         </div>
       )}
       
@@ -2402,7 +2402,7 @@ const ShopDashboard = () => {
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
         </div>
-        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
           <LogOut size={14} /> Logout
         </button>
       </div>
@@ -2514,7 +2514,7 @@ const ShopDashboard = () => {
                 <button 
                   onClick={() => setBillingMode('bill')} 
                   style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
                     border: '1px solid ' + (billingMode === 'bill' ? '#10b981' : '#2a2f3d'),
                     background: billingMode === 'bill' ? 'rgba(16,185,129,0.15)' : '#1e222d',
                     color: billingMode === 'bill' ? '#10b981' : '#cbd5e1'
@@ -2525,7 +2525,7 @@ const ShopDashboard = () => {
                 <button 
                   onClick={() => setBillingMode('estimate')} 
                   style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
                     border: '1px solid ' + (billingMode === 'estimate' ? '#f59e0b' : '#2a2f3d'),
                     background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1e222d',
                     color: billingMode === 'estimate' ? '#f59e0b' : '#cbd5e1'
@@ -2536,7 +2536,7 @@ const ShopDashboard = () => {
                 <button 
                   onClick={() => setBillingMode('challan')} 
                   style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
+                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
                     border: '1px solid ' + (billingMode === 'challan' ? '#3b82f6' : '#2a2f3d'),
                     background: billingMode === 'challan' ? 'rgba(59,130,246,0.15)' : '#1e222d',
                     color: billingMode === 'challan' ? '#3b82f6' : '#cbd5e1'
@@ -2606,7 +2606,7 @@ const ShopDashboard = () => {
                   type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
                   style={{ width: '60px', background: 'transparent', border: 'none', color: '#f59e0b', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
                 />
-                <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Add</button>
+                <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
               </div>
 
               {/* Cart List */}
@@ -2637,13 +2637,13 @@ const ShopDashboard = () => {
                         </div>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>-</button>
+                          <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, minWidth: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>-</button>
                           <span style={{ fontSize: '13px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center' }}>{item.qty || 1}</span>
-                          <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>+</button>
+                          <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, minWidth: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>+</button>
                           
                           <span style={{ fontWeight: 'bold', color: '#22c55e', minWidth: '55px', textAlign: 'right', fontSize: '13px' }}>₹{item.price * (item.qty || 1)}</span>
                           
-                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', width: 'auto', flexShrink: 0 }}>
                             <X size={14} />
                           </button>
                         </div>
@@ -2662,7 +2662,7 @@ const ShopDashboard = () => {
                   onChange={e=>setPromoCode(e.target.value)}
                   style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px' }} 
                 />
-                <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>Apply</button>
+                <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
               </div>
 
               {discountAmount > 0 && (
@@ -2705,7 +2705,7 @@ const ShopDashboard = () => {
                       <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8' }}>₹{p.price}</p>
                     </div>
                   </div>
-                  <button style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => addToBill(p)}>+ Add</button>
+                  <button style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }} onClick={() => addToBill(p)}>+ Add</button>
                 </div>
               ))}
               {filteredProducts.length === 0 && <p style={{padding:16, color:'#94a3b8', fontSize:14, margin:0}}>No products found.</p>}
@@ -2811,24 +2811,24 @@ const ShopDashboard = () => {
                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                     <span style={{fontSize:18, fontWeight:'bold', color:'#fbbf24'}}>₹{o.total}</span>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px'}}>
+                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                         View Receipt
                       </button>
                       
                       {billsSubTab === 'drafts' && type === 'estimate' && (
-                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #fbbf24, #d97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #fbbf24, #d97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ⚡ Convert to Bill
                         </button>
                       )}
 
                       {o.status === 'Pending' && (
-                        <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px'}}>
+                        <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                           Accept
                         </button>
                       )}
                       
                       {o.status === 'Accepted' && (
-                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#ef4444', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#ef4444', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ↩️ Return
                         </button>
                       )}

@@ -2248,7 +2248,7 @@ const UserDashboard = () => {
                 {/* Category chips */}
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                   {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
-                    <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #f43f5e, #8b5cf6)' : 'rgba(255,255,255,0.05)', color: shopCategoryFilter === val ? '#fff' : '#94a3b8' }}>
+                    <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', width: 'auto', flexShrink: 0, background: shopCategoryFilter === val ? 'linear-gradient(135deg, #f43f5e, #8b5cf6)' : 'rgba(255,255,255,0.05)', color: shopCategoryFilter === val ? '#fff' : '#94a3b8' }}>
                       {label}
                     </button>
                   ))}
