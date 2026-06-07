@@ -42,6 +42,7 @@ export default function TabCMS() {
   const [landing, setLanding] = useState({ heroHeadline: '', heroSubheadline: '', heroCtaText: '', heroCtaUrl: '' });
   const [seo, setSeo] = useState({ metaDescription: '', metaKeywords: '' });
   const [social, setSocial] = useState({ instagramUrl: '', twitterUrl: '' });
+  const [cfg, setCfg] = useState({ playStoreUrl: '', appStoreUrl: '', instagramUrl: '', facebookUrl: '', twitterUrl: '', youtubeUrl: '', linkedinUrl: '', whatsappUrl: '' });
   const [plans, setPlans] = useState([]);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function TabCMS() {
       setLanding({ heroHeadline: config.heroHeadline || '', heroSubheadline: config.heroSubheadline || '', heroCtaText: config.heroCtaText || '', heroCtaUrl: config.heroCtaUrl || '' });
       setSeo({ metaDescription: config.metaDescription || '', metaKeywords: config.metaKeywords || '' });
       setSocial({ instagramUrl: config.instagramUrl || '', twitterUrl: config.twitterUrl || '' });
+      setCfg({ playStoreUrl: config.playStoreUrl || '', appStoreUrl: config.appStoreUrl || '', instagramUrl: config.instagramUrl || '', facebookUrl: config.facebookUrl || '', twitterUrl: config.twitterUrl || '', youtubeUrl: config.youtubeUrl || '', linkedinUrl: config.linkedinUrl || '', whatsappUrl: config.whatsappUrl || '' });
     }, 0);
     return () => clearTimeout(t);
   }, [config]);
@@ -71,6 +73,8 @@ export default function TabCMS() {
     catch { toast.error('Save failed'); }
     finally { setBusy(b => ({ ...b, [key]: false })); }
   };
+
+  const save = () => saveSection('cfg', () => updateConfigs(cfg));
 
   const saveBranding = () => saveSection('branding', async () => {
     await updateConfigs(branding);
