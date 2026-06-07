@@ -564,7 +564,7 @@ const DesktopPOS = ({
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>Final Payable</span>
-            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - countAmount - loyaltyDiscountRupees)}</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees)}</span>
           </div>
         </div>
 
