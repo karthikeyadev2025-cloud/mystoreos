@@ -402,7 +402,7 @@ const DesktopPOS = ({
                           <select 
                             value={item.selectedVariant || ''} 
                             onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
-                            style={{ background: '#1e293b', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}
+                            style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}
                           >
                             {variantList.map((v, vidx) => (
                               <option key={vidx} value={v}>{v}</option>
@@ -435,7 +435,7 @@ const DesktopPOS = ({
 
         {/* Promo discount & calculations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#1e293b', padding: '6px 10px', borderRadius: '10px', border: '1px solid #475569', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '10px', border: '1px solid #475569', position: 'relative', zIndex: 1 }}>
             <input 
               type="text" 
               placeholder="Promo / Coupon Code" 
