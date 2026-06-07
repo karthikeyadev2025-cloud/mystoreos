@@ -1,38 +1,76 @@
-import { motion } from 'framer-motion';
+import { IndianRupee, Truck, BookOpen, FileText, Package, BarChart2 } from 'lucide-react';
 
-const FEATURES = [
-  { icon: '⚡', title: '30-Second Billing', desc: 'Scan or search products. Bill instantly with UPI or cash. Receipt on WhatsApp in seconds.', color: '#f43f5e' },
-  { icon: '📦', title: 'Smart Inventory', desc: 'Barcode scanning, batch & expiry tracking, low-stock alerts. Never run out of hot items.', color: '#10b981' },
-  { icon: '💳', title: 'Credit Khata', desc: 'Track customer credit, send WhatsApp reminders, collect via UPI link. Zero awkward conversations.', color: '#8b5cf6' },
-  { icon: '📊', title: 'Live Analytics', desc: 'Sales by hour, top products, staff performance. Day-end P&L in one tap.', color: '#3b82f6' },
-  { icon: '🧾', title: 'GST & Tally', desc: 'Auto-compute CGST/SGST, generate GSTR-1 XML, push to Tally ERP. CA-ready in one click.', color: '#f59e0b' },
-  { icon: '📴', title: 'Works Offline', desc: 'Full functionality without internet. Auto-syncs to cloud when reconnected. No downtime ever.', color: '#06b6d4' },
-  { icon: '👥', title: 'Staff & PIN', desc: 'Role-based logins with PIN. Cashiers see only billing; managers see full reports.', color: '#ec4899' },
-  { icon: '🚚', title: 'Route Planning', desc: 'For distributors: drag-and-drop daily routes, delivery order management, collection tracking.', color: '#a78bfa' },
-  { icon: '🔗', title: 'Integrations', desc: 'UPI, Razorpay, WhatsApp Business, Tally ERP, GSTN portal, Zoho CRM. One ecosystem.', color: '#34d399' },
+const FEATS = [
+  {
+    icon: IndianRupee, color: '#2563EB', bg: 'rgba(37,99,235,0.12)', border: 'rgba(37,99,235,0.25)',
+    title: 'GST-Ready Smart Invoicing',
+    desc: 'Generate GSTIN-compliant bills in 2 seconds. Auto-send via WhatsApp. GSTR-1 & GSTR-3B export built in.',
+  },
+  {
+    icon: Truck, color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)',
+    title: 'Distributor & Route Management',
+    desc: 'Manage B2B networks, automate purchase orders, and track delivery routes across your supply chain.',
+  },
+  {
+    icon: BookOpen, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)',
+    title: 'Udhaar Ledger & Credit Tracking',
+    desc: 'Track customer balances in real-time. Automated WhatsApp reminders. Full P&L with drill-down.',
+  },
+  {
+    icon: FileText, color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.25)',
+    title: 'CA Portal & Tally ERP Export',
+    desc: 'Dedicated accountant access. One-click Tally ERP export. Automated tax return preparation.',
+  },
+  {
+    icon: Package, color: '#EF4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)',
+    title: 'Smart Inventory & Expiry Alerts',
+    desc: 'Track stock levels, set reorder points, and get expiry alerts before you face losses.',
+  },
+  {
+    icon: BarChart2, color: '#06B6D4', bg: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.25)',
+    title: 'Real-Time Analytics & Reports',
+    desc: 'Revenue trends, product performance, and customer insights — all in one live dashboard.',
+  },
 ];
 
 export default function LandingFeatures() {
   return (
-    <section id="features" style={{ padding: 'clamp(56px,7vw,90px) 24px', background: 'linear-gradient(180deg,#030712,#050814)' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Features</div>
-          <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#f8fafc', letterSpacing: '-1px' }}>Everything Your Business Needs</h2>
-          <p style={{ color: '#64748b', fontSize: 16, marginTop: 10 }}>One platform. No more juggling 5 different apps.</p>
-        </motion.div>
-        <div className="l3" style={{ display: 'grid', gap: 18 }}>
-          {FEATURES.map((f, i) => (
-            <motion.div key={f.title}
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-              whileHover={{ y: -6 }}
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '24px 20px', cursor: 'default', transition: 'box-shadow 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 20px 40px ${f.color}22`; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}>
-              <div style={{ fontSize: 30, marginBottom: 12 }}>{f.icon}</div>
-              <h3 style={{ color: '#f8fafc', fontSize: 15, fontWeight: 800, margin: '0 0 8px' }}>{f.title}</h3>
-              <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
-            </motion.div>
+    <section style={{
+      background: '#0D1117', padding: '80px 40px',
+      fontFamily: "'Inter',system-ui,sans-serif",
+    }}>
+      <style>{`
+        @keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        .feat-card{transition:all .2s ease;cursor:default}
+        .feat-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.3)!important}
+      `}</style>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <span style={{ color: '#2563EB', fontSize: 12, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase' }}>
+            Platform Features
+          </span>
+          <h2 style={{ color: '#fff', fontSize: 34, fontWeight: 800, margin: '10px 0 12px', letterSpacing: '-.025em' }}>
+            Everything You Need to Run Your Business
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 16, maxWidth: 500, margin: '0 auto', lineHeight: 1.68 }}>
+            One unified platform built for Indian retail — from single kirana to enterprise chains.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
+          {FEATS.map(({ icon: Icon, color, bg, border, title, desc }) => (
+            <div key={title} className="feat-card" style={{
+              background: 'rgba(255,255,255,0.03)', border: `1px solid rgba(255,255,255,0.08)`,
+              borderRadius: 14, padding: 28,
+            }}>
+              <div style={{
+                width: 50, height: 50, background: bg, border: `1px solid ${border}`,
+                borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
+              }}>
+                <Icon size={23} color={color} strokeWidth={1.8}/>
+              </div>
+              <h3 style={{ color: '#fff', fontSize: 15.5, fontWeight: 700, marginBottom: 8, lineHeight: 1.35 }}>{title}</h3>
+              <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{desc}</p>
+            </div>
           ))}
         </div>
       </div>
