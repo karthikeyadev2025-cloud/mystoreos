@@ -19,7 +19,7 @@ const DesktopRestock = ({
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: FMCG Wholesale Catalog */}
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
         <div style={{ marginBottom: '20px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Truck size={22} color="#3b82f6" /> Supply & FMCG Wholesale Catalog
@@ -80,7 +80,7 @@ const DesktopRestock = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Restock Basket */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ShoppingCart size={18} color="#10b981" /> Supply Cart
