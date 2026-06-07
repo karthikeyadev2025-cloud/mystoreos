@@ -569,7 +569,7 @@ const ShopDashboard = () => {
       let themeColor = '#10b981'; // emerald green for bill
       let modeTitle = 'TAX INVOICE';
       if (billingMode === 'estimate') {
-        themeColor = '#2563EB'; // amber orange for estimate
+        themeColor = '#4F46E5'; // amber orange for estimate
         modeTitle = 'PROFORMA ESTIMATE / QUOTATION';
       } else if (billingMode === 'challan') {
         themeColor = '#3b82f6'; // blue for challan
@@ -1695,7 +1695,7 @@ const ShopDashboard = () => {
 
   const getAnnounceColor = () => {
     switch(announceConfig.type) {
-      case 'warning': return '#2563EB';
+      case 'warning': return '#4F46E5';
       case 'success': return '#22c55e';
       case 'error': return '#ef4444';
       default: return '#3b82f6';
@@ -1707,7 +1707,7 @@ const ShopDashboard = () => {
     header: { background: 'linear-gradient(to right, #e53935, #b71c1c)', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: '#1e222d', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', border: '1px solid #2a2f3d' },
-    statNum: { fontSize: '20px', fontWeight: 'bold', color: '#2563EB', margin: 0 },
+    statNum: { fontSize: '20px', fontWeight: 'bold', color: '#4F46E5', margin: 0 },
     statLabel: { fontSize: '11px', color: '#94a3b8', margin: 0 },
     searchBar: { margin: '12px', display: 'flex', alignItems: 'center', backgroundColor: '#1e222d', borderRadius: '8px', padding: '0 12px', border: '1px solid #2a2f3d' },
     grid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '0 12px' },
@@ -2458,7 +2458,7 @@ const ShopDashboard = () => {
 
           {/* Stats Row */}
           <div style={styles.statRow}>
-            <div style={styles.statBox} onClick={() => setActiveTab('bills')}><p style={{...styles.statNum, color: pendingOrders > 0 ? '#ef4444' : '#2563EB'}}>{pendingOrders}</p><p style={styles.statLabel}>New Orders</p></div>
+            <div style={styles.statBox} onClick={() => setActiveTab('bills')}><p style={{...styles.statNum, color: pendingOrders > 0 ? '#ef4444' : '#4F46E5'}}>{pendingOrders}</p><p style={styles.statLabel}>New Orders</p></div>
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{sales}</p><p style={styles.statLabel}>Revenue</p></div>}
             <div style={styles.statBox} onClick={() => setActiveTab('products')}><p style={styles.statNum}>{products.length}</p><p style={styles.statLabel}>Products</p></div>
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{payable}</p><p style={styles.statLabel}>Credit Due</p></div>}
@@ -2532,9 +2532,9 @@ const ShopDashboard = () => {
                   onClick={() => setBillingMode('estimate')} 
                   style={{ 
                     flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'estimate' ? '#2563EB' : '#2a2f3d'),
+                    border: '1px solid ' + (billingMode === 'estimate' ? '#4F46E5' : '#2a2f3d'),
                     background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1e222d',
-                    color: billingMode === 'estimate' ? '#2563EB' : '#cbd5e1'
+                    color: billingMode === 'estimate' ? '#4F46E5' : '#cbd5e1'
                   }}
                 >
                   🟡 Estimate / Quote
@@ -2556,7 +2556,7 @@ const ShopDashboard = () => {
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid #2a2f3d', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8' }}>
-                    👤 Customer Details { (billingMode === 'estimate' || billingMode === 'challan') && <span style={{ color: '#2563EB' }}>(Recommended)</span> }
+                    👤 Customer Details { (billingMode === 'estimate' || billingMode === 'challan') && <span style={{ color: '#4F46E5' }}>(Recommended)</span> }
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -2610,7 +2610,7 @@ const ShopDashboard = () => {
                 />
                 <input 
                   type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
-                  style={{ width: '60px', background: 'transparent', border: 'none', color: '#2563EB', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
+                  style={{ width: '60px', background: 'transparent', border: 'none', color: '#4F46E5', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
                 />
                 <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
               </div>
@@ -2668,7 +2668,7 @@ const ShopDashboard = () => {
                   onChange={e=>setPromoCode(e.target.value)}
                   style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px' }} 
                 />
-                <button onClick={applyPromoCode} style={{ background: '#2563EB', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
+                <button onClick={applyPromoCode} style={{ background: '#4F46E5', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
               </div>
 
               {discountAmount > 0 && (
@@ -2679,10 +2679,10 @@ const ShopDashboard = () => {
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid #2a2f3d', paddingTop: '16px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563EB' }}>TOTAL</span>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>TOTAL</span>
                 <div>
                   {discountAmount > 0 && <span style={{ fontSize: '14px', color: '#94a3b8', textDecoration: 'line-through', marginRight: '8px' }}>₹{billTotal}</span>}
-                  <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#2563EB' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
+                  <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#4F46E5' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
                 </div>
               </div>
               <button style={{...styles.whatsappBtn, background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : '#22c55e'), color: billingMode === 'estimate' ? '#000' : '#fff', opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
@@ -2777,7 +2777,7 @@ const ShopDashboard = () => {
                   cardBorder = '1px solid rgba(245,158,11,0.4)';
                   cardBg = 'linear-gradient(145deg, #241d13, #0f172a)';
                   badgeText = 'Draft Estimate';
-                  badgeColor = '#2563EB';
+                  badgeColor = '#4F46E5';
                 } else if (type === 'challan') {
                   cardBorder = '1px solid rgba(59,130,246,0.4)';
                   cardBg = 'linear-gradient(145deg, #131c2d, #0f172a)';
@@ -2933,7 +2933,7 @@ const ShopDashboard = () => {
                         <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Batch: {p.batchNumber}</p>
                       )}
                     </div>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563EB' }}>₹{p.price}</span>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>₹{p.price}</span>
                   </div>
 
                   {/* Stock & Reorder Info */}
@@ -2952,7 +2952,7 @@ const ShopDashboard = () => {
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#2563EB', border: '1px solid #f59e0b', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#4F46E5', border: '1px solid #f59e0b', fontWeight: 'bold' }}>
                         {expStatus.text} ({p.expiryDate})
                       </span>
                     )}
@@ -3148,7 +3148,7 @@ const ShopDashboard = () => {
                           <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{custName}</span>
                           {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Ph: {custPhone}</p>}
                         </div>
-                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#2563EB' }}>
+                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#4F46E5' }}>
                           {c.paid ? '✅ Settled' : '⏳ Pending'}
                         </span>
                       </div>
@@ -3372,7 +3372,7 @@ const ShopDashboard = () => {
                         { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: '#10b981' },
                         { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: '#ef4444' },
                         { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? '#10b981' : '#ef4444' },
-                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10b981' : margin >= 0 ? '#2563EB' : '#ef4444' },
+                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10b981' : margin >= 0 ? '#4F46E5' : '#ef4444' },
                       ].map(c => (
                         <div key={c.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 12px' }}>
                           <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '2px' }}>{c.label}</div>
@@ -3485,7 +3485,7 @@ const ShopDashboard = () => {
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
                   <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#ef4444' : isOnTrial && trialDaysLeft <= 4 ? '#2563EB' : '#10b981' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#ef4444' : isOnTrial && trialDaysLeft <= 4 ? '#4F46E5' : '#10b981' }}>
                     {isOnTrial ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''}` : paidDaysLeft !== null ? `${paidDaysLeft}d` : '—'}
                   </div>
                 </div>
@@ -4056,46 +4056,46 @@ const ShopDashboard = () => {
 
       {/* Bottom Nav */}
       <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#11151c', padding: '12px 0', borderTop: '1px solid #2a2f3d', zIndex: 100 }}>
-        <div style={{...styles.navBtn, color: activeTab === 'home' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('home')}>
+        <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('home')}>
           <Home size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Home</p>
         </div>
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'products' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('products')}>
+          <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('products')}>
             <Package size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Products</p>
           </div>
         )}
         
-        <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#2563EB' : '#94a3b8', position: 'relative' }} onClick={() => setActiveTab('bills')}>
+        <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#4F46E5' : '#94a3b8', position: 'relative' }} onClick={() => setActiveTab('bills')}>
           <Receipt size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Bills</p>
           {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#ef4444', width:10, height:10, borderRadius:'50%'}}></span>}
         </div>
 
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('credit')}>
+          <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Credit</p>
           </div>
         )}
 
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('restock')}>
+          <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('restock')}>
             <Truck size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Restock</p>
           </div>
         )}
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('reports')}>
+          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('reports')}>
             <Book size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Reports</p>
           </div>
         )}
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#2563EB' : '#94a3b8' }} onClick={() => setActiveTab('profile')}>
+          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#4F46E5' : '#94a3b8' }} onClick={() => setActiveTab('profile')}>
             <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
             <p style={{ fontSize: '10px', margin: 0 }}>Settings</p>
           </div>
