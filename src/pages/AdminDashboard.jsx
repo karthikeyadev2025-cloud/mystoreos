@@ -119,7 +119,7 @@ export default function AdminDashboard() {
                 width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
                 borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #2F7FFF' : '3px solid transparent',
                 cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
-                background: active ? 'rgba(244,63,94,0.1)' : 'transparent',
+                background: active ? 'rgba(79,70,229,0.1)' : 'transparent',
                 color: active ? '#2F7FFF' : '#94a3b8',
                 fontWeight: active ? 600 : 400, fontSize: '13px', transition: 'all 0.15s',
                 fontFamily: "'Sora', system-ui, sans-serif"
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A0F1E', fontFamily: "'Sora', system-ui, sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F0F4FA', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
