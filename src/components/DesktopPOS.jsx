@@ -149,7 +149,7 @@ const DesktopPOS = ({
                   placeholder="e.g. 5000"
                   value={targetInput}
                   onChange={e => setTargetInput(e.target.value)}
-                  style={{ width: '90px', padding: '6px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                  style={{ width: '90px', padding: '6px 10px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
                 />
                 <button
                   onClick={() => { handleSetDailyTarget && handleSetDailyTarget(targetInput); setTargetInput(''); setShowTargetInput(false); }}
@@ -164,42 +164,42 @@ const DesktopPOS = ({
 
         {/* Search & Actions Panel */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0f172a', borderRadius: '12px', padding: '4px 16px', border: '1px solid #334155', marginBottom: '16px' }}>
-            <Search size={20} color="#94a3b8" />
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '1px solid #D8E0EE', marginBottom: '16px' }}>
+            <Search size={16} color="#9AAAC4" />
             <input 
               type="text" 
               placeholder="Search products to add to bill..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', padding: '12px 0', color: 'white', outline: 'none', fontSize: '15px' }} 
+              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', color: '#0A0F1E', width: '100%', padding: '12px 0', color: 'white', outline: 'none', fontSize: '15px' }} 
             />
           </div>
 
           {/* Action Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
               <ScanLine size={20} color="#3b82f6" />
-              <span style={{ fontSize: '11px', fontWeight: '600' }}>Barcode Scan</span>
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Barcode Scan</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
                 <Plus size={20} color="#10b981" />
-                <span style={{ fontSize: '11px', fontWeight: '600' }}>Add Product</span>
+                <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Add Product</span>
               </button>
             )}
-            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
               <IndianRupee size={20} color="#f59e0b" />
-              <span style={{ fontSize: '11px', fontWeight: '600' }}>UPI QR Code</span>
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>UPI QR Code</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
                 <Book size={20} color="#8b5cf6" />
-                <span style={{ fontSize: '11px', fontWeight: '600' }}>Credit Ledger</span>
+                <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Credit Ledger</span>
               </button>
             )}
-            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
               <Receipt size={20} color={pendingOrders > 0 ? '#ef4444' : '#cbd5e1'} />
-              <span style={{ fontSize: '11px', fontWeight: '600' }}>All Bills</span>
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>All Bills</span>
             </button>
           </div>
         </div>
@@ -285,7 +285,7 @@ const DesktopPOS = ({
         </div>
 
         {/* Billing Mode Segmented Control */}
-        <div style={{ display: 'flex', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
           <button 
             onClick={() => setBillingMode('bill')} 
             style={{ 
@@ -326,7 +326,7 @@ const DesktopPOS = ({
             placeholder="Customer Name" 
             value={customerName} 
             onChange={e => setCustomerName(e.target.value)}
-            style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
           />
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <input 
@@ -334,14 +334,14 @@ const DesktopPOS = ({
               placeholder="Mobile Number" 
               value={customerPhone} 
               onChange={e => setCustomerPhone(e.target.value)}
-              style={{ flex: '1 1 120px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }}
+              style={{ flex: '1 1 120px', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
             />
             <input 
               type="text" 
               placeholder="State" 
               value={customerStateCode} 
               onChange={e => setCustomerStateCode(e.target.value)}
-              style={{ width: '80px', flexGrow: 0, flexShrink: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', margin: 0 }}
+              style={{ width: '80px', flexGrow: 0, flexShrink: 0, padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
             />
           </div>
           {loyaltyEnabled && customerPhone && (
@@ -357,19 +357,19 @@ const DesktopPOS = ({
             placeholder="GSTIN (Optional)"
             value={customerGstin}
             onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-            style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
           />
           <input 
             type="text" 
             placeholder="Billing Address (Optional)" 
             value={customerAddress} 
             onChange={e => setCustomerAddress(e.target.value)}
-            style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
           />
         </div>
 
         {/* Add Miscellaneous / Custom Item */}
-        <div style={{ display: 'flex', gap: '8px', background: '#0f172a', padding: '8px 12px', borderRadius: '10px', border: '1px solid #334155', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', background: '#F1F5F9', padding: '8px 12px', borderRadius: '10px', border: '1px solid #D8E0EE', alignItems: 'center' }}>
           <input 
             type="text" placeholder="Custom item..." value={customItemName} onChange={e => setCustomItemName(e.target.value)}
             style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px', margin: 0, padding: '4px 0', width: 'auto' }} 
