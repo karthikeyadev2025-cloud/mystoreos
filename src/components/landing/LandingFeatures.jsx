@@ -2,7 +2,7 @@ import { IndianRupee, Truck, BookOpen, FileText, Package, BarChart2 } from 'luci
 
 const FEATS = [
   {
-    icon: IndianRupee, color: '#2563EB', bg: 'rgba(37,99,235,0.12)', border: 'rgba(37,99,235,0.25)',
+    icon: IndianRupee, color: '#4F46E5', bg: 'rgba(79,70,229,0.12)', border: 'rgba(79,70,229,0.25)',
     title: 'GST-Ready Smart Invoicing',
     desc: 'Generate GSTIN-compliant bills in 2 seconds. Auto-send via WhatsApp. GSTR-1 & GSTR-3B export built in.',
   },
@@ -37,7 +37,7 @@ export default function LandingFeatures() {
   return (
     <section style={{
       background: '#0D1117', padding: '80px 40px',
-      fontFamily: "'Inter',system-ui,sans-serif",
+      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       <style>{`
         @keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
@@ -46,7 +46,7 @@ export default function LandingFeatures() {
       `}</style>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 52 }}>
-          <span style={{ color: '#2563EB', fontSize: 12, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase' }}>
+          <span style={{ color: '#4F46E5', fontSize: 12, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase' }}>
             Platform Features
           </span>
           <h2 style={{ color: '#fff', fontSize: 34, fontWeight: 800, margin: '10px 0 12px', letterSpacing: '-.025em' }}>
