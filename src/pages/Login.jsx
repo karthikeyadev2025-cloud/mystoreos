@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { Eye, EyeOff, ShieldCheck, Zap, CheckCircle, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, CheckCircle, ArrowRight } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
