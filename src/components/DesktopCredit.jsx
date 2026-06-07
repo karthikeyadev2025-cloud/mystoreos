@@ -83,7 +83,7 @@ const DesktopCredit = ({
         </div>
 
         {/* Dynamic Segment Toggle */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#94a3b8', fontWeight: 'bold' }}>Choose Active Ledger</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button 
@@ -117,13 +117,13 @@ const DesktopCredit = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {creditTabSub === 'payable' ? (
-          <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white' }}>Supplier Accounts Ledger</h3>
                 <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>List of credit logs from FMCG Distributors.</p>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '8px', padding: '0 10px', border: '1px solid #334155' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '8px', padding: '0 10px', border: '1px solid #334155' }}>
                 <Search size={14} color="#94a3b8" />
                 <input 
                   type="text" 
@@ -185,7 +185,7 @@ const DesktopCredit = ({
         ) : (
           <>
             {/* Add New Customer Credit Form */}
-            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Plus size={18} color="#10b981" /> Log Customer Purchase on Credit / Debt
               </h3>
@@ -194,26 +194,26 @@ const DesktopCredit = ({
                 <input 
                   type="text" value={custCreditName} onChange={e => setCustCreditName(e.target.value)} 
                   placeholder="Customer Name" 
-                  style={{ padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
+                  style={{ padding: '10px 14px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
                 />
                 <input 
                   type="tel" value={custCreditPhone} onChange={e => setCustCreditPhone(e.target.value)} 
                   placeholder="Mobile Number (Optional)" 
-                  style={{ padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
+                  style={{ padding: '10px 14px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
 
               <input 
                 type="text" value={custCreditDesc} onChange={e => setCustCreditDesc(e.target.value)} 
                 placeholder="Reason / Purchase details (e.g. Milk packet, groceries)" 
-                style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', marginBottom: '12px' }} 
+                style={{ width: '100%', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', marginBottom: '12px' }} 
               />
 
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <input 
                   type="number" value={custCreditAmount} onChange={e => setCustCreditAmount(e.target.value)} 
                   placeholder="Debit Amount (₹)" 
-                  style={{ flex: 1, padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
+                  style={{ flex: 1, padding: '10px 14px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
                 />
                 <button onClick={handleAddCustomerCredit} style={{ background: '#10b981', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Send size={14} /> Log Debt
@@ -222,13 +222,13 @@ const DesktopCredit = ({
             </div>
 
             {/* Shopper Ledger */}
-            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white' }}>Shopper Credit Ledger</h3>
                   <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Log of pending shopper collections.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '8px', padding: '0 10px', border: '1px solid #334155' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '8px', padding: '0 10px', border: '1px solid #334155' }}>
                   <Search size={14} color="#94a3b8" />
                   <input 
                     type="text" 
@@ -265,7 +265,7 @@ const DesktopCredit = ({
                           </span>
                         </div>
                         
-                        <div style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px', background: '#0f172a', padding: '8px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.02)' }}>
+                        <div style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px', background: '#F8FAFC', padding: '8px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.02)' }}>
                           <b>Details:</b> {custDesc}
                         </div>
 
