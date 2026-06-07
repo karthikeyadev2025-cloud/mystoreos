@@ -6,7 +6,7 @@ const FLOAT_CARDS = [
   { label: '94 Bills', sub: 'Today', color: '#7C3AED', top: '52%', right: '-42px' },
   { label: '12', sub: 'Low Stock ⚠', color: '#f59e0b', bottom: '14%', left: '-28px' },
 ];
-const FU = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, ease: [0.4,0,0.2,1] } };
+const FU = { initial: { opacity: 1, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: [0.4,0,0.2,1] } };
 
 export default function LandingHero({ hero, navigate, config = {} }) {
   const lines = (hero.headline || 'The Operating System\nfor Modern Business').split('\n');
