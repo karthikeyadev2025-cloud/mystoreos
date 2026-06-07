@@ -144,7 +144,7 @@ const DesktopSettings = ({
               <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoices)</label>
               <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={2} style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', resize: 'vertical' }}></textarea>
             </div>
-            <button onClick={handleSaveProfile} style={{ background: '#10b981', color: '#0F172A', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}>
+            <button onClick={handleSaveProfile} style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}>
               💾 Save Identity Settings
             </button>
           </div>
@@ -169,7 +169,7 @@ const DesktopSettings = ({
                   style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
-              <button onClick={handleSaveProfile} style={{ background: '#10b981', color: '#0F172A', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Save UPI ID
               </button>
             </div>
@@ -220,7 +220,7 @@ const DesktopSettings = ({
             <button onClick={handleGrabLocation} style={{ flex: 1, background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', color: '#a78bfa', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               🛰️ Auto-Grab Coordinates
             </button>
-            <button onClick={handleSaveProfile} style={{ flex: 1, background: '#10b981', color: '#0F172A', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleSaveProfile} style={{ flex: 1, background: '#059669', color: '#FFFFFF', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               Commit Coordinates
             </button>
           </div>
@@ -264,7 +264,7 @@ const DesktopSettings = ({
 
             <button
               onClick={handleSaveInvoiceSettings}
-              style={{ background: '#8b5cf6', color: '#0F172A', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}
+              style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}
             >
               💾 Save Invoice Settings
             </button>
@@ -287,7 +287,7 @@ const DesktopSettings = ({
           </p>
           <button 
             onClick={() => setShowPlanSelectorModal(true)} 
-            style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#0F172A', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+            style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           >
             Change or Upgrade Plan
           </button>
@@ -449,7 +449,7 @@ const DesktopSettings = ({
                 style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
               />
             </div>
-            <button onClick={handleAddStaff} style={{ width: '100%', background: '#3b82f6', color: '#0F172A', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px' }}>
+            <button onClick={handleAddStaff} style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px' }}>
               + Register Helper (Default PIN: 1234)
             </button>
           </div>
@@ -502,7 +502,7 @@ const DesktopSettings = ({
               ))}
             </div>
           </div>
-          <button onClick={handleSaveShopHours} style={{ background: '#10b981', color: '#0F172A', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          <button onClick={handleSaveShopHours} style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
             💾 Save Shop Hours
           </button>
         </div>
@@ -534,7 +534,7 @@ const DesktopSettings = ({
               </div>
             </div>
           </div>
-          <button onClick={handleSaveShopBanner} style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: '#0F172A', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          <button onClick={handleSaveShopBanner} style={{ background: '#4F46E5', color: '#0F172A', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
             💾 Save Banner
           </button>
         </div>
