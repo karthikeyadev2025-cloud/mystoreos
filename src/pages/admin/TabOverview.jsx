@@ -8,9 +8,9 @@ const S = {
   grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' },
   card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
   cardLabel: { color: '#94a3b8', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' },
-  cardVal: { color: '#f8fafc', fontSize: '32px', fontWeight: 700, lineHeight: 1 },
+  cardVal: { color: '#374163', fontSize: '32px', fontWeight: 700, lineHeight: 1 },
   cardSub: { color: '#64748b', fontSize: '13px', marginTop: '8px' },
-  sectionTitle: { color: '#f8fafc', fontSize: '20px', fontWeight: 700, marginBottom: '16px' },
+  sectionTitle: { color: '#374163', fontSize: '20px', fontWeight: 700, marginBottom: '16px' },
   chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' },
   chartCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
 };
@@ -74,7 +74,7 @@ export default function TabOverview() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
+          <h2 style={{ color: '#374163', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
           <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>Platform-wide metrics at a glance</p>
         </div>
         <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#94a3b8', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
@@ -111,7 +111,7 @@ export default function TabOverview() {
               </defs>
               <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
-              <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc' }} formatter={v => [`₹${v}`, '']} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} formatter={v => [`₹${v}`, '']} />
               <Area type="monotone" dataKey="shops" name="Shops" stroke="#f43f5e" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
               <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#8b5cf6" fill="url(#distGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
@@ -125,7 +125,7 @@ export default function TabOverview() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3}>
                 {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc' }} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} />
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -145,7 +145,7 @@ export default function TabOverview() {
           <BarChart data={growthData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
             <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc' }} />
+            <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} />
             <Bar dataKey="shops" name="Shops" fill="#f43f5e" radius={[4, 4, 0, 0]} />
             <Bar dataKey="customers" name="Customers" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             <Bar dataKey="distributors" name="Distributors" fill="#10b981" radius={[4, 4, 0, 0]} />
