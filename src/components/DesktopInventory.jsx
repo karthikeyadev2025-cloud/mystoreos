@@ -135,7 +135,7 @@ const DesktopInventory = ({
   };
 
   return (
-    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
@@ -147,7 +147,7 @@ const DesktopInventory = ({
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#0f172a', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
             <Search size={16} color="#94a3b8" />
             <input
               type="text" placeholder="Search catalog..."
@@ -278,7 +278,7 @@ const DesktopInventory = ({
                           <RefreshCw size={10} />
                         </button>
                       )}
-                      <button onClick={() => handleOpenEditModal(p)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      <button onClick={() => handleOpenEditModal(p)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #E2E8F0', color: '#94a3b8', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
                         Edit
                       </button>
                     </div>
@@ -308,7 +308,7 @@ const DesktopInventory = ({
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                       {p.image && (
-                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
+                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
                       )}
                       <div>
                       <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{p.name}</h3>
@@ -431,9 +431,9 @@ const DesktopInventory = ({
                         placeholder="±delta (e.g. -5 or +10)"
                         value={adjustDelta}
                         onChange={e => setAdjustDelta(e.target.value)}
-                        style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
+                        style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
                       />
-                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
                         {['Correction','Damaged','Expired','Sample','Theft','Incoming'].map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
@@ -461,10 +461,10 @@ const DesktopInventory = ({
                   <div style={{ marginTop: '10px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <p style={{ margin: 0, fontSize: '11px', color: '#fca5a5', fontWeight: 'bold' }}>🔥 Set Flash Sale</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
                         {[5,10,15,20,25,30,40,50].map(d => <option key={d} value={d}>{d}% off</option>)}
                       </select>
-                      <select value={saleDuration} onChange={e => setSaleDuration(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={saleDuration} onChange={e => setSaleDuration(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
                         {[[1,'1 hour'],[2,'2 hours'],[4,'4 hours'],[6,'6 hours'],[12,'12 hours'],[24,'24 hours'],[48,'2 days']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
                       </select>
                     </div>
