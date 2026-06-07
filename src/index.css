@@ -1149,3 +1149,119 @@ button, a, input, select, textarea { transition: all .15s ease; }
 }
 /* Fallback for browsers without :has() */
 .lp-root { position: fixed !important; top:0; left:0; right:0; bottom:0; z-index:999; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   BRAND THEME — Single Source of Truth
+   Primary: #2563EB  Canvas: #F7F8FA  Cards: #FFFFFF
+   Text: #0D1117  Secondary: #64748B  Dark Nav: #0D1117
+   Active: #2563EB  Success: #10B981  Warning: #F59E0B
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Canvas backgrounds ── */
+.enterprise-wrapper { background: #F7F8FA !important; }
+.enterprise-main    { background: #F7F8FA !important; }
+
+/* ── All cards → white ── */
+.premium-glass,
+.card, [class*="card"],
+[class*="panel"],
+[class*="section"]:not(section) {
+  background: #FFFFFF !important;
+  border: 1px solid #E4E6EA !important;
+  color: #0D1117 !important;
+}
+
+/* ── ALL text must be visible ── */
+p, span, div, label, h1, h2, h3, h4, h5, li {
+  color: inherit;
+}
+/* Override any white text on white bg */
+.enterprise-main p,
+.enterprise-main span:not([style*="color"]),
+.enterprise-main div:not([style*="background:#0"]):not([style*="background: #0"]) > p,
+.enterprise-main label,
+.enterprise-main td,
+.enterprise-main th {
+  color: #0D1117;
+}
+
+/* ── Tables ── */
+thead tr { background: #F7F8FA !important; border-bottom: 1px solid #E4E6EA !important; }
+thead th { color: #64748B !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .05em !important; padding: 10px 14px !important; }
+tbody td { color: #0D1117 !important; font-size: 13px !important; border-bottom: 1px solid #F1F3F6 !important; padding: 11px 14px !important; }
+tbody tr:hover td { background: #F7F8FA !important; }
+
+/* ── Inputs ── */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea, select {
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0D1117 !important;
+  border-radius: 8px !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
+  outline: none !important;
+}
+input::placeholder, textarea::placeholder { color: #94A3B8 !important; }
+
+/* ── Buttons — brand blue ── */
+button[class*="premium-btn"] {
+  background: #FFFFFF !important;
+  border: 1px solid #E4E6EA !important;
+  color: #374163 !important;
+  border-radius: 10px !important;
+}
+button[class*="premium-btn"]:hover {
+  border-color: #2563EB !important;
+  color: #2563EB !important;
+}
+button[class*="premium-btn"] span { color: #374163 !important; }
+
+/* ── Active nav tabs ── */
+[class*="active-tab"], [data-active="true"],
+button[style*="border-bottom: 2px solid"] {
+  color: #2563EB !important;
+  border-color: #2563EB !important;
+}
+
+/* ── Mobile nav ── */
+@media (max-width: 768px) {
+  [class*="mobile-nav"] button,
+  [class*="bottom-nav"] button,
+  [class*="navBtn"] { color: #94A3B8 !important; }
+  [class*="mobile-nav"] button.active,
+  [class*="navBtn"][style*="#2563EB"] { color: #2563EB !important; }
+
+  /* Mobile header dark */
+  [class*="mobile-header"], [class*="shop-header"] {
+    background: #0D1117 !important;
+    color: #FFFFFF !important;
+  }
+  /* Mobile stat cards */
+  [class*="stat-card"] {
+    background: #FFFFFF !important;
+    border: 1px solid #E4E6EA !important;
+    color: #0D1117 !important;
+    border-radius: 12px !important;
+  }
+}
+
+/* ── Dark nav/topbar stays dark ── */
+[class*="topbar"], [class*="DesktopTopBar"],
+nav[style*="#0D1117"], nav[style*="#0f172a"],
+div[style*="background:#0D1117"], div[style*="background: #0D1117"],
+div[style*="background:#0f172a"], div[style*="background: #0f172a"] {
+  background: #0D1117 !important;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
+
+/* ── Remove number input spinners ── */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
