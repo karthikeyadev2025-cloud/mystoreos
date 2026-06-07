@@ -147,7 +147,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F0F4FA', fontFamily: "'Sora', system-ui, sans-serif" }}>
+    <div className="enterprise-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F0F4FA', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <div style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex' }}>
+          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', width: 'auto', padding: '4px' }}>
             <Menu size={20} />
           </button>
           <div>

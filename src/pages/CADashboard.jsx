@@ -76,7 +76,7 @@ const CADashboard = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#fff', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#0f172a', color: '#fff', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
       <ToastContainer theme="dark" position="top-center" />
 
       {/* Header */}

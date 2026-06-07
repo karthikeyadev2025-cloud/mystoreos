@@ -325,7 +325,7 @@ const DistributorDashboard = () => {
             <div className="glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}><Bell size={15} style={{ color: '#fbbf24' }} /> Notifications & Activity Stream</h3>
-                <button onClick={() => setShowNotifications(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px' }}>Dismiss</button>
+                <button onClick={() => setShowNotifications(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', width: 'auto', flexShrink: 0 }}>Dismiss</button>
               </div>
               {notifications.length === 0 ? (
                 <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', margin: 0 }}>No recent business events.</p>
@@ -705,7 +705,7 @@ const DistributorDashboard = () => {
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
                                     {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: 'rgba(37,211,102,0.12)', color: '#4ade80', border: '1px solid rgba(37,211,102,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
-                                    <button onClick={() => markVisited(shop.id)} style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>✓ Visited</button>
+                                    <button onClick={() => markVisited(shop.id)} style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
                                   </div>
                                 </div>
                               </div>
@@ -986,7 +986,7 @@ const DistributorDashboard = () => {
               </span>
             )}
           </button>
-          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Logout</button>
+          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto' }}>Logout</button>
         </div>
       </div>
 
@@ -995,7 +995,7 @@ const DistributorDashboard = () => {
         <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🔔 Live Notifications</h3>
-            <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>Close</button>
+            <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '13px', cursor: 'pointer', width: 'auto' }}>Close</button>
           </div>
           {getNotifications().length === 0 ? (
             <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No recent notifications.</p>

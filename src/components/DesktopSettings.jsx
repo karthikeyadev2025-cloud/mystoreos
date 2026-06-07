@@ -449,7 +449,7 @@ const DesktopSettings = ({
                 style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
               />
             </div>
-            <button onClick={handleAddStaff} style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px' }}>
+            <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
               + Register Helper (Default PIN: 1234)
             </button>
           </div>
@@ -496,13 +496,13 @@ const DesktopSettings = ({
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(day => (
                 <button key={day} onClick={() => setWeeklyHolidays && setWeeklyHolidays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
-                  style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${weeklyHolidays.includes(day) ? '#f43f5e' : '#334155'}`, background: weeklyHolidays.includes(day) ? 'rgba(244,63,94,0.15)' : '#F8FAFC', color: weeklyHolidays.includes(day) ? '#f43f5e' : '#94a3b8' }}>
+                  style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${weeklyHolidays.includes(day) ? '#f43f5e' : '#334155'}`, background: weeklyHolidays.includes(day) ? 'rgba(244,63,94,0.15)' : '#F8FAFC', color: weeklyHolidays.includes(day) ? '#f43f5e' : '#94a3b8', width: 'auto', flexShrink: 0 }}>
                   {day.slice(0,3)}
                 </button>
               ))}
             </div>
           </div>
-          <button onClick={handleSaveShopHours} style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          <button onClick={handleSaveShopHours} style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', width: 'auto' }}>
             💾 Save Shop Hours
           </button>
         </div>

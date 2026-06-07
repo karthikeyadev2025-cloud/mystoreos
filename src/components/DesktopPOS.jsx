@@ -209,7 +209,7 @@ const DesktopPOS = ({
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Package size={18} color="#fbbf24" /> Quick Shelf Explorer
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
               const lowStock = p.stock < (p.reorderLevel || 10);
               const sale = flashSales[p.id];
@@ -265,7 +265,11 @@ const DesktopPOS = ({
               );
             })}
             {filteredProducts.length === 0 && (
-              <p style={{ gridColumn: '1/-1', color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '24px 0' }}>No products found matching query.</p>
+              <div style={{ gridColumn: '1/-1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '40px 16px', color: '#94a3b8' }}>
+                <Package size={40} style={{ opacity: 0.2 }} />
+                <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#64748b' }}>No products found</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Try a different search, or add your first product</p>
+              </div>
             )}
           </div>
         </div>
@@ -328,22 +332,13 @@ const DesktopPOS = ({
             onChange={e => setCustomerName(e.target.value)}
             style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
           />
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <input 
-              type="tel" 
-              placeholder="Mobile Number" 
-              value={customerPhone} 
-              onChange={e => setCustomerPhone(e.target.value)}
-              style={{ flex: '1 1 120px', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
-            />
-            <input 
-              type="text" 
-              placeholder="State" 
-              value={customerStateCode} 
-              onChange={e => setCustomerStateCode(e.target.value)}
-              style={{ width: '80px', flexGrow: 0, flexShrink: 0, padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
-            />
-          </div>
+          <input 
+            type="tel" 
+            placeholder="Mobile Number" 
+            value={customerPhone} 
+            onChange={e => setCustomerPhone(e.target.value)}
+            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
+          />
           {loyaltyEnabled && customerPhone && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(139,92,246,0.06)', borderRadius: '6px', border: '1px solid rgba(139,92,246,0.2)' }}>
               <span style={{ fontSize: '11px' }}>⭐</span>
@@ -352,13 +347,22 @@ const DesktopPOS = ({
               </span>
             </div>
           )}
-          <input
-            type="text"
-            placeholder="GSTIN (Optional)"
-            value={customerGstin}
-            onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none' }}
-          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              type="text"
+              placeholder="GSTIN (Optional)"
+              value={customerGstin}
+              onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
+              style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
+            />
+            <input 
+              type="text" 
+              placeholder="State Code" 
+              value={customerStateCode} 
+              onChange={e => setCustomerStateCode(e.target.value)}
+              style={{ width: '80px', flexShrink: 0, padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
+            />
+          </div>
           <input 
             type="text" 
             placeholder="Billing Address (Optional)" 
@@ -384,9 +388,12 @@ const DesktopPOS = ({
         {/* Invoice Basket Items */}
         <div style={{ flex: 1, minHeight: '140px', overflowY: 'auto' }}>
           {billItems.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', padding: '32px 0' }}>
-              <Package size={24} style={{ opacity: 0.3, marginBottom: '8px' }} />
-              <p style={{ margin: 0 }}>Voucher Basket is Empty</p>
+            <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', padding: '28px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minHeight: '140px', justifyContent: 'center' }}>
+              <Package size={48} style={{ opacity: 0.2, color: '#94a3b8' }} />
+              <div>
+                <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#64748b', fontSize: '13px' }}>Cart is Empty</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Search products or add a custom item above</p>
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -435,16 +442,16 @@ const DesktopPOS = ({
 
         {/* Promo discount & calculations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '10px', border: '1px solid #475569', position: 'relative', zIndex: 1 }}>
+          <div className="promo-code-row" style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '10px', border: '1px solid #CBD5E1' }}>
             <input 
               type="text" 
               placeholder="Promo / Coupon Code" 
               value={promoCode} 
               onChange={e => setPromoCode(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
-              style={{ flex: 1, background: 'transparent', border: 'none', color: '#f1f5f9', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#f59e0b' }} 
+              style={{ flex: 1, background: 'transparent', border: 'none !important', boxShadow: 'none', color: '#0A0F1E', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#f59e0b', padding: '4px 0', margin: 0 }} 
             />
-            <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: 'black', border: 'none', padding: '5px 10px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
+            <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: '#000', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
 
           {discountAmount > 0 && (

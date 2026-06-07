@@ -71,7 +71,7 @@ export default function AffiliateDashboard() {
   }[s] || <span style={{ color: '#64748b', fontSize: 11 }}>{s}</span>);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
       <ToastContainer position="top-right" theme="dark" />
 
       {/* Header */}
@@ -98,14 +98,14 @@ export default function AffiliateDashboard() {
                   {codeInfo?.code || '—'}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <button onClick={copyCode} style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button onClick={copyCode} style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Copy size={13} /> Copy Code
                   </button>
-                  <button onClick={copyLink} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button onClick={copyLink} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Link size={13} /> Copy Link
                   </button>
                 </div>
-                <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '14px 22px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>
+                <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '14px 22px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>
                   📲 Share on WhatsApp
                 </button>
               </div>

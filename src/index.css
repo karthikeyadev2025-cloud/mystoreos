@@ -860,3 +860,181 @@ tbody tr:hover td {
 [style*="backgroundColor: '#0f172a'"] {
   background-color: #F8FAFC !important;
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   CRITICAL FIX: Global button { width: 100% } was designed for
+   the mobile .app-container only. Reset to auto for ALL desktop
+   enterprise layouts so buttons never stretch full-width.
+   ══════════════════════════════════════════════════════════════ */
+.enterprise-wrapper button,
+.enterprise-main button,
+.fluid-dashboard-main button {
+  width: auto;
+}
+
+/* Keep explicit full-width buttons working via inline style overrides
+   (e.g. style={{ width:'100%' }} which renders as a specific attribute) */
+
+/* Announcement banner / trial banner close buttons — explicit sizing */
+.enterprise-wrapper [style*="padding: '4px'"],
+.enterprise-main  [style*="padding: '4px'"] {
+  width: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Refer & Earn card: button row should not stretch ── */
+.refer-earn-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.refer-earn-actions button {
+  width: auto !important;
+  flex-shrink: 0;
+}
+
+/* ── POS right sidebar: promo/coupon row Apply button fix ── */
+.promo-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #F1F5F9;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid #CBD5E1;
+}
+.promo-code-row input {
+  flex: 1;
+  min-width: 0;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.promo-code-row button {
+  width: auto !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap;
+  padding: 5px 12px !important;
+}
+
+/* ── Customer Profiling: State field properly sized ── */
+.customer-profile-row {
+  display: flex;
+  gap: 8px;
+}
+.customer-profile-row .phone-input {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+.customer-profile-row .state-input {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+/* ── Quick Shelf Explorer: grid with graceful empty state ── */
+.quick-shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+.quick-shelf-grid:empty,
+.quick-shelf-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  gap: 8px;
+}
+
+/* ── Voucher Basket empty state: larger illustration ── */
+.voucher-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 12px;
+  min-height: 140px;
+}
+.voucher-empty svg {
+  opacity: 0.3;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* ── Mobile ShopDashboard: logout button in header fix ── */
+.app-container button:not([class]) {
+  /* Mobile: most buttons stay full-width (original intent) */
+}
+.app-container .header-action-btn {
+  width: auto !important;
+}
+
+/* ── Broader button width reset: any page that is NOT the mobile app-container ──
+   The global button{width:100%} was intended for .app-container (mobile) only.
+   Every other page/dashboard should get auto-sized buttons.              */
+body > #root > *:not(.app-container) button,
+.fluid-dashboard-main button,
+.enterprise-main button,
+.enterprise-wrapper button,
+[style*="minHeight: '100vh'"] button {
+  width: auto;
+}
+
+/* Keep full-width buttons when the developer explicitly set width:100% inline */
+/* (inline styles always win over class styles, so this is safe)             */
+
+/* ── Dashboard wrapper classes: reset button width ── */
+.dashboard-wrapper-flex button,
+[class*="dashboard"] button,
+[class*="enterprise"] button,
+[class*="fluid"] button {
+  width: auto;
+}
+
+/* ── DesktopSettings: weekly holiday chip buttons ──
+   These are flex-wrap buttons that should stay chip-sized */
+.enterprise-main .holiday-chip-row button,
+.enterprise-main [style*="flexWrap: 'wrap'"] button {
+  width: auto !important;
+  flex-shrink: 0;
+}
+
+/* ── DesktopSettings: QR download buttons should be full-width (explicit) ── */
+/* (These use style={{ width:'100%' }} inline — inline styles always win) */
+
+/* ── Admin dashboard: button width reset ── */
+[style*="minHeight: '100vh'"][style*="background: '#F0F4FA'"] button,
+[style*="minHeight: '100vh'"][style*="background: '#0f172a'"] button,
+[style*="minHeight: '100vh'"][style*="background: '#0b0f19'"] button,
+[style*="minHeight: '100vh'"][style*="background: 'linear-gradient"] button {
+  width: auto;
+}
+
+/* ── CA Dashboard: button width fix ── */
+[style*="minHeight: '100vh'"][style*="background: '#0f172a'"] button {
+  width: auto;
+}
+
+/* ── DesktopPOS: product grid 'Add to Cart' — keep full card width ── */
+.enterprise-main .quick-shelf-grid button[style*="width: '100%'"],
+.enterprise-main [style*="display: 'grid'"] button[style*="width: '100%'"] {
+  width: 100% !important;
+}
+
+/* ── Mobile app-container: restore original full-width buttons ── */
+.app-container button:not([style*="width: 'auto'"]):not([style*="width: auto"]) {
+  width: 100%;
+}
+
+/* ── Override: any button with explicit auto in inline style wins ── */
