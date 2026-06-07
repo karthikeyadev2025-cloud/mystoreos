@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { id:'credit',    Icon:Book,      label:'Credit Book',  badge:false },
   { id:'restock',   Icon:Truck,     label:'Restock',      badge:false },
   { id:'reports',   Icon:BarChart2, label:'Day Book',     badge:false },
-  { id:'settings',  Icon:Settings,  label:'Settings',     badge:false },
+  { id:'profile',   Icon:Settings,  label:'Settings',     badge:false },
 ];
 
 const DesktopTopBar = ({
