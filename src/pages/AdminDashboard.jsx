@@ -120,14 +120,14 @@ export default function AdminDashboard() {
                 borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #2F7FFF' : '3px solid transparent',
                 cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
                 background: active ? 'rgba(79,70,229,0.1)' : 'transparent',
-                color: active ? '#2563EB' : '#94a3b8',
+                color: active ? '#4F46E5' : '#94a3b8',
                 fontWeight: active ? 600 : 400, fontSize: '13px', transition: 'all 0.15s',
                 fontFamily: "'Sora', system-ui, sans-serif"
               }}>
               <Icon size={15} />
               <span style={{ flex: 1 }}>{label}</span>
               {id === 'shops' && pendingApprovals.length > 0 && (
-                <span style={{ background: '#2563EB', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                <span style={{ background: '#4F46E5', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
                   {pendingApprovals.length}
                 </span>
               )}
@@ -177,8 +177,8 @@ export default function AdminDashboard() {
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#2563EB', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
-                <div style={{ color: '#2563EB', fontWeight: 800, fontSize: '15px', flex: 1 }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#4F46E5', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+                <div style={{ color: '#4F46E5', fontWeight: 800, fontSize: '15px', flex: 1 }}>
                   ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
                 <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif', flexShrink: 0 }}>
