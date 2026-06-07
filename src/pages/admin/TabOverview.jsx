@@ -5,14 +5,14 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '24px' },
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
-  cardLabel: { color: '#94a3b8', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' },
-  cardVal: { color: '#374163', fontSize: '32px', fontWeight: 700, lineHeight: 1 },
-  cardSub: { color: '#64748b', fontSize: '13px', marginTop: '8px' },
-  sectionTitle: { color: '#374163', fontSize: '20px', fontWeight: 700, marginBottom: '16px' },
-  chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' },
-  chartCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '28px' },
+  grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' },
+  card: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' },
+  cardLabel: { color: '#94a3b8', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' },
+  cardVal: { color: '#f8fafc', fontSize: '30px', fontWeight: 800, lineHeight: 1 },
+  cardSub: { color: '#64748b', fontSize: '12px', marginTop: '8px' },
+  sectionTitle: { color: '#f1f5f9', fontSize: '16px', fontWeight: 700, marginBottom: '16px' },
+  chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' },
+  chartCard: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' },
 };
 
 const PIE_COLORS = ['#f43f5e', '#8b5cf6', '#10b981', '#f59e0b'];
@@ -59,8 +59,17 @@ export default function TabOverview() {
   useEffect(() => { const t = setTimeout(() => load(), 0); return () => clearTimeout(t); }, []);
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#94a3b8' }}>
-      Loading metrics...
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#94a3b8', fontSize: '14px' }}>
+      Loading metrics…
+    </div>
+  );
+
+  if (!stats && !loading) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
+      <div style={{ fontSize: '32px' }}>⚠️</div>
+      <div style={{ color: '#1E293B', fontWeight: 700, fontSize: '16px' }}>Failed to load metrics</div>
+      <div style={{ color: '#64748b', fontSize: '13px' }}>Check Supabase connection or admin permissions</div>
+      <button onClick={() => load()} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px', marginTop: '8px', width: 'auto' }}>Retry</button>
     </div>
   );
 
@@ -74,10 +83,10 @@ export default function TabOverview() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#374163', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
-          <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>Platform-wide metrics at a glance</p>
+          <h2 style={{ color: '#f1f5f9', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
+          <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Platform-wide metrics at a glance</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#94a3b8', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#94a3b8', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: 'auto', flexShrink: 0 }}>
           <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>

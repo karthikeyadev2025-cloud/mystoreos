@@ -147,7 +147,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="enterprise-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F0F4FA', fontFamily: "'Sora', system-ui, sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#080D1A', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <main style={{ flex: 1, overflowY: 'auto', padding: '32px 36px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '28px 32px', maxWidth: '1400px', width: '100%', margin: '0 auto', background: '#0D1525' }}>
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>

@@ -357,10 +357,10 @@ const DesktopPOS = ({
             />
             <input 
               type="text" 
-              placeholder="State Code" 
+              placeholder="State" 
               value={customerStateCode} 
               onChange={e => setCustomerStateCode(e.target.value)}
-              style={{ width: '80px', flexShrink: 0, padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
+              style={{ width: '72px', flexShrink: 0, padding: '8px 10px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
             />
           </div>
           <input 
