@@ -84,7 +84,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
   const sorted = [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   return (
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
@@ -97,7 +97,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
           </div>
           <input
             type="month" value={yearMonth} onChange={e => setYearMonth(e.target.value)}
-            style={{ padding: '8px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: 'white', fontSize: '13px', outline: 'none', cursor: 'pointer' }}
+            style={{ padding: '8px 14px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '10px', color: 'white', fontSize: '13px', outline: 'none', cursor: 'pointer' }}
           />
         </div>
 
@@ -121,17 +121,17 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
                 <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }}>
                   {EXPENSE_CATS.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <input type="text" placeholder="Description (optional)" value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
                 <input type="number" placeholder="Amount (₹)" value={form.amount} min="0"
                   onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px', outline: 'none' }} />
               </div>
               <button onClick={handleAdd} disabled={saving || !form.amount}
                 style={{ background: saving ? '#334155' : '#f43f5e', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: saving ? 'not-allowed' : 'pointer', opacity: !form.amount ? 0.5 : 1 }}>
