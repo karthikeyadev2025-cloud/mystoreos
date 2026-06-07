@@ -1,803 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-@keyframes enterprise-pulse{0%,100%{box-shadow:0 0 4px rgba(74,222,128,.4);}50%{box-shadow:0 0 10px rgba(74,222,128,.8);}}
 
-:root {
-  --primary:       #2F7FFF;
-  --primary-dark:  #1A5FCC;
-  --secondary:     #E8A020;
-  --bg-dark:       #0A0F1E;
-  --surface: rgba(30, 41, 59, 0.7);
-  --surface-solid: #111827;
-  --text: #f8fafc;
-  --text-muted:    #9AAAC4;
-  --success:       #16A34A;
-  --warning: #f59e0b;
-  --glass-border:  rgba(255,255,255,0.08);  --e-gold:#E8A020;  --e-blue:#2F7FFF;  --e-ink:#0A0F1E;
-  /* SiteConfig live vars — overridden by SiteConfigProvider via JS */
-  --card-bg: rgba(255, 255, 255, 0.03);
-  --card-border: rgba(255, 255, 255, 0.06);
-  --radius: 12px;
-  --font: 'Sora';
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Outfit', sans-serif;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
-  background-color: var(--bg-dark);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  padding-top: env(safe-area-inset-top, 0px);
-  background-image: radial-gradient(circle at top right, rgba(244, 63, 94, 0.15), transparent 40%),
-                    radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent 40%);
-  background-attachment: fixed;
-}
-
-/* Glassmorphism utilities */
-.glass {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-}
-
-.card {
-  padding: 16px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.app-container {
-  max-width: 480px;
-  margin: 0 auto;
-  position: relative;
-  min-height: 100vh;
-  box-shadow: 0 0 30px rgba(0,0,0,0.8);
-  border-left: 1px solid rgba(255,255,255,0.05);
-  border-right: 1px solid rgba(255,255,255,0.05);
-  background-color: var(--bg-dark);
-  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-  overflow-x: hidden;
-}
-
-@media (max-width: 480px) {
-  .app-container {
-    box-shadow: none;
-    border: none;
-  }
-}
-
-h1, h2, h3 { font-weight: 600; margin-bottom: 8px; }
-p { color: var(--text-muted); font-weight: 300; }
-
-input, select {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 16px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  color: white;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-input:focus, select:focus { border-color: var(--primary); }
-
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.1s, opacity 0.2s;
-}
-
-button:active { transform: scale(0.98); }
-
-button.primary {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
-}
-
-button.secondary {
-  background: transparent;
-  border: 1px solid var(--primary);
-  color: var(--primary);
-}
-
-button.small { padding: 8px 12px; font-size: 14px; border-radius: 8px; width: auto; }
-
-.row-between { display: flex; justify-content: space-between; align-items: center; }
-.row-center { display: flex; justify-content: center; align-items: center; gap: 8px; }
-.flex-col { display: flex; flex-direction: column; gap: 8px; }
-
-.text-primary { color: var(--primary); }
-.text-success { color: var(--success); }
-.text-error { color: var(--primary-dark); }
-.text-warning { color: var(--warning); }
-.font-bold { font-weight: 700; }
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.bg-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-.bg-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-  background: rgba(30, 41, 59, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--glass-border);
-  z-index: 1000;
-  max-width: 480px;
-  margin: 0 auto;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--text-muted);
-  font-size: 12px;
-  cursor: pointer;
-  transition: color 0.2s;
-  background: transparent;
-  border: none;
-  outline: none;
-}
-
-.nav-item.active { color: var(--primary); }
-.nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
-
-/* Grid stats */
-.stat-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
-}
-
-.stat-box {
-  text-align: center; padding: 16px;
-}
-.stat-box h3 { font-size: 24px; color: var(--primary); margin:0; }
-.stat-box p { font-size: 12px; margin:0; }
-
-/* Hide native browser password reveal and clear buttons to prevent overlapping custom eye toggles */
-input::-ms-reveal,
-input::-ms-clear {
-  display: none !important;
-}
-
-input::-webkit-contacts-auto-fill-button,
-input::-webkit-credentials-auto-fill-button {
-  visibility: hidden;
-  display: none !important;
-  pointer-events: none;
-}
-
-/* Ensure placeholder text is always readable in dark-theme inputs */
-input::placeholder,
-textarea::placeholder {
-  color: #64748b;
-  opacity: 1;
-}
-input::-webkit-input-placeholder,
-textarea::-webkit-input-placeholder { color: #64748b; opacity: 1; }
-input:-ms-input-placeholder,
-textarea:-ms-input-placeholder { color: #64748b; opacity: 1; }
-
-/* ==========================================================================
-   PHASE 7: RESPONSIVE OVERLAYS & GLASS-SIDEBARS UTILITIES
-   ========================================================================== */
-
-/* Responsive Widescreen App Shell */
-@media (min-width: 1024px) {
-  .app-container.wide-layout {
-    max-width: 100% !important;
-    border-left: none;
-    border-right: none;
-    box-shadow: none;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* Sidebar and Dashboard Flex Layouts */
-.dashboard-wrapper-flex {
-  display: flex;
-  flex-direction: row;
-  min-height: 100vh;
-  width: 100%;
-}
-
-@media (max-width: 1023px) {
-  .dashboard-wrapper-flex {
-    flex-direction: column;
-    padding-bottom: 80px; /* Space for mobile bottom bar */
-  }
-}
-
-.desktop-glass-sidebar {
-  width: 224px;
-  background: #0A0F1E;
-  border-right: 1px solid rgba(255,255,255,0.07);
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  padding: 0;
-  box-sizing: border-box;
-  z-index: 999;
-}
-
-.fluid-dashboard-main {
-  flex: 1;
-  padding: 24px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .fluid-dashboard-main {
-    padding: 16px;
-  }
-}
-
-/* Widescreen Responsive Grids */
-.responsive-split-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-@media (min-width: 1024px) {
-  .responsive-split-grid {
-    grid-template-columns: 2fr 1fr;
-  }
-  .responsive-split-grid.equal-cols {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.responsive-three-column-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-@media (min-width: 1024px) {
-  .responsive-three-column-grid {
-    grid-template-columns: 240px 1fr 340px;
-  }
-}
-
-.premium-product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
-}
-
-@media (min-width: 768px) {
-  .premium-product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 16px;
-  }
-}
-
-/* Sidebar Nav Items */
-.sidebar-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: var(--text-muted);
-  background: transparent;
-  border: none;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  margin-bottom: 6px;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.sidebar-nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.sidebar-nav-item.active {
-  color: #fff;
-  background: rgba(255,255,255,0.13);
-  font-weight: 700;
-}
-
-/* Custom premium scrollbars for dark theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Prevent global input margins from distorting modern flex/grid layouts inside glass cards */
-.premium-glass input,
-.premium-glass select,
-.premium-glass textarea {
-  margin-bottom: 0;
-}
-
-/* Mobile modal safety */
-@media (max-width: 600px) {
-  [style*="position: fixed"][style*="z-index"],
-  [style*="position:fixed"][style*="z-index"] {
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-}
-
-/* DesktopPOS cart bottom-sheet on very small screens */
-@media (max-width: 480px) {
-  .responsive-split-grid {
-    display: flex !important;
-    flex-direction: column !important;
-  }
-}
-
-/* Bottom nav safe area offset */
-.bottom-nav {
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-}
-
-/* ============================================================
-   PRINT STYLES — only bill receipt prints, everything else hidden
-   ============================================================ */
-@media print {
-  body > *,
-  .no-print,
-  nav, aside, header,
-  [class*='sidebar'], [class*='Sidebar'],
-  [class*='nav-'], [class*='bottom-nav'],
-  [class*='toast'], [class*='Toast'],
-  button.no-print-btn {
-    display: none !important;
-  }
-
-  #print-area {
-    display: block !important;
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    min-height: 100vh !important;
-    background: white !important;
-    color: black !important;
-    z-index: 999999 !important;
-    padding: 24px 28px !important;
-    font-family: Arial, sans-serif !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-  }
-
-  #print-area * {
-    color: black !important;
-    background: transparent !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  #print-area .print-header-stripe {
-    background: #10b981 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  #print-area .no-print { display: none !important; }
-
-  @page { size: A5; margin: 8mm; }
-}
-
-
-/* ═══════════════════════════════════════════════════════════
-   ENTERPRISE THEME OVERRIDES — MyStore OS v2.0
-   #0A0F1E header · #2F7FFF primary · #E8A020 gold · #F0F4FA canvas
-   ═══════════════════════════════════════════════════════════ */
-
-/* ── Global canvas & typography ── */
-body {
-  font-family: 'Sora', system-ui, sans-serif !important;
-  background: #F0F4FA !important;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── Fluid dashboard: remove old dark bg ── */
-.fluid-dashboard-main {
-  background: #F0F4FA !important;
-}
-
-/* ── All premium-glass cards → enterprise white cards ── */
-.premium-glass {
-  background: #FFFFFF !important;
-  border: 1.5px solid #D8E0EE !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 1px 4px rgba(14,27,51,0.07) !important;
-}
-
-/* ── Card text → dark for light bg ── */
-.premium-glass h2, .premium-glass h3, .premium-glass h4,
-.premium-glass label, .premium-glass p {
-  color: #374163;
-}
-
-/* ── Buttons: enterprise blue primary ── */
-.btn-primary, .primary-btn, [class*="confirm"], [class*="generate"] {
-  background: #2F7FFF !important;
-  border-color: #2F7FFF !important;
-}
-
-/* ── Confirm/generate bill button — green enterprise ── */
-button[style*="Confirm"] {
-  background: #16A34A !important;
-}
-
-/* ── Input fields — proper enterprise styling ── */
-input:not([type="checkbox"]):not([type="radio"]),
-textarea,
-select {
-  font-family: 'Sora', system-ui, sans-serif !important;
-  border: 1.5px solid #C4CFDF !important;
-  border-radius: 8px !important;
-  background: #fff !important;
-  color: #0A0F1E !important;
-  transition: border-color 0.18s !important;
-}
-input:not([type="checkbox"]):not([type="radio"]):focus,
-textarea:focus, select:focus {
-  border-color: #2F7FFF !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(47,127,255,0.1) !important;
-}
-input::placeholder, textarea::placeholder {
-  color: #9AAAC4 !important;
-  opacity: 1 !important;
-}
-
-/* ── Numbers use JetBrains Mono ── */
-[class*="price"], [class*="amount"], [class*="total"],
-[class*="rupee"], [class*="gross"], [class*="final"],
-.mono-num {
-  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
-}
-
-/* ── Stat card section dark bg ── */
-.enterprise-stat-strip {
-  background: #0A0F1E;
-}
-
-/* ── Tables — enterprise clean ── */
-table {
-  border-collapse: collapse !important;
-}
-th {
-  background: #FAFBFD !important;
-  color: #6473A0 !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  padding: 9px 14px !important;
-  border-bottom: 1.5px solid #D8E0EE !important;
-}
-td {
-  color: #0A0F1E !important;
-  font-size: 12px !important;
-  padding: 10px 14px !important;
-  border-bottom: 1px solid #F0F4FA !important;
-}
-
-/* ── Status tags ── */
-.tag-success { background: rgba(22,163,74,0.1) !important; color: #16A34A !important; }
-.tag-warning { background: rgba(217,119,6,0.1) !important; color: #D97706 !important; }
-.tag-error   { background: rgba(229,62,62,0.1) !important; color: #E53E3E !important; }
-
-/* ── Scrollbars ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #F0F4FA; }
-::-webkit-scrollbar-thumb { background: #C4CFDF; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #9AAAC4; }
-
-/* ── Mobile responsive — enterprise ── */
-@media (max-width: 768px) {
-  .fluid-dashboard-main {
-    padding: 12px !important;
-    padding-top: 12px !important;
-  }
-  .premium-glass {
-    border-radius: 10px !important;
-    padding: 14px !important;
-  }
-}
-
-/* ── Landing page enterprise ── */
-.landing-hero-btn, .hero-cta, [class*="start-trial"],
-[class*="StartFree"], [class*="hero"] button {
-  background: #2F7FFF !important;
-  border-color: #2F7FFF !important;
-  font-family: 'Sora', system-ui, sans-serif !important;
-}
-
-/* ── Remove leftover dark backgrounds from main content ── */
-.dashboard-wrapper-flex {
-  background: #F0F4FA !important;
-}
-
-/* ── Quick action buttons ── */
-.quick-action-btn, [class*="quickAction"], [class*="actionBtn"] {
-  background: #fff !important;
-  border: 1.5px solid #D8E0EE !important;
-  color: #374163 !important;
-  border-radius: 10px !important;
-}
-.quick-action-btn:hover {
-  border-color: #2F7FFF !important;
-  color: #2F7FFF !important;
-}
-
-/* ── POS product cards ── */
-.product-card, [class*="productCard"], [class*="prod-card"] {
-  background: #fff !important;
-  border: 1.5px solid #D8E0EE !important;
-  border-radius: 10px !important;
-  transition: all 0.18s !important;
-}
-.product-card:hover, [class*="productCard"]:hover {
-  border-color: #2F7FFF !important;
-  box-shadow: 0 4px 14px rgba(47,127,255,0.12) !important;
-}
-
-/* ── Admin/distributor sidebar keep enterprise dark ── */
-.desktop-glass-sidebar {
-  background: #0A0F1E !important;
-}
-
-
-/* ── Enterprise layout classes (DesktopTopBar + enterprise-main) ── */
-.enterprise-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: #F0F4FA;
-}
-.enterprise-main {
-  flex: 1;
-  background: #F0F4FA;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-/* Legacy wrapper compatibility */
-.dashboard-wrapper-flex {
-  background: #F0F4FA !important;
-}
-.fluid-dashboard-main {
-  background: #F0F4FA !important;
-}
-/* Remove dark inline backgrounds from content areas */
-[style*="backgroundColor: '#0f172a'"]:not([class*="sidebar"]) {
-  background-color: #F0F4FA !important;
-}
-
-
-/* ── Fix quick action button labels on light canvas ── */
-/* Target buttons that contain both icon and text span */
-.enterprise-main button span,
-.enterprise-main button p,
-.enterprise-main button div,
-[class*="quick"] span,
-[class*="action"] span,
-[class*="shelf"] button span {
-  color: #374163 !important;
-}
-
-/* ── Fix POS product search bar (dark inline style override) ── */
-/* The search input uses inline dark styles — force light theme */
-input[placeholder*="Search products"],
-input[placeholder*="search products"],
-input[placeholder*="Scan or type"] {
-  background: #ffffff !important;
-  border: 1.5px solid #C4CFDF !important;
-  color: #0A0F1E !important;
-  border-radius: 8px !important;
-}
-input[placeholder*="Search products"]::placeholder {
-  color: #9AAAC4 !important;
-}
-
-/* ── Fix all dark-bg containers in enterprise-main ── */
-.enterprise-main [style*="background: #030712"],
-.enterprise-main [style*="background: #0f172a"],
-.enterprise-main [style*="background: rgb(15"],
-.enterprise-main [style*="backgroundColor: '#030712'"],
-.enterprise-main [style*="backgroundColor: '#0f172a'"] {
-  background: #ffffff !important;
-  border: 1.5px solid #D8E0EE !important;
-  border-radius: 10px !important;
-}
-
-/* ── Force text to dark on light canvas ── */
-.enterprise-main p,
-.enterprise-main span:not([class*="badge"]):not([class*="tag"]):not([class*="status"]),
-.enterprise-main label,
-.enterprise-main h1,
-.enterprise-main h2,
-.enterprise-main h3,
-.enterprise-main h4 {
-  color: #374163 !important;
-}
-
-/* ── Keep specific colored elements intact ── */
-.enterprise-main [style*="color: '#10b981'"],
-.enterprise-main [style*="color: '#22c55e'"],
-.enterprise-main [style*="color: '#f59e0b'"],
-.enterprise-main [style*="color: '#ef4444'"],
-.enterprise-main [style*="color: '#2F7FFF'"],
-.enterprise-main [style*="color: '#E8A020'"] {
-  color: inherit !important;
-}
-
-/* ── POS panel (right side) light theme ── */
-.enterprise-main [style*="background: 'rgba(15, 23, 42"] {
-  background: #ffffff !important;
-}
-
-
-/* ── Landing page: ensure all sections render visible (framer-motion fallback) ──
-   framer-motion whileInView elements stay at opacity:0 until IntersectionObserver fires.
-   This override ensures content is always readable even if animations don't trigger. */
-.landing-page section > div,
-.landing-page section > div > div,
-section[class*="landing"] > div,
-.landing-root > section { opacity: 1 !important; }
-
-/* ── Widen any framer-motion stuck elements on landing ── */
-[data-framer-appear-id] { opacity: 1 !important; transform: none !important; }
-
-/* ── Landing page background fix: ensure body bg doesn't affect non-enterprise pages ── */
-body:not(.has-enterprise-layout) {
-  background: transparent !important;
-}
-
-
-/* ════════════════════════════════════════════════════════════════════
-   MYSTORE OS — ENTERPRISE THEME v3 (Complete Override System)
-   Built: Plus Jakarta Sans · #0F172A obsidian · #4F46E5 indigo · #F8FAFC canvas
-   ════════════════════════════════════════════════════════════════════ */
-
-/* ── Typography: Plus Jakarta Sans global ── */
-*, *::before, *::after {
+/* ══════════════════════════════════════════════════════════════
+   MYSTOREOS — OFFICIAL BRAND SYSTEM v4
+   PRIMARY:  #4F46E5  OBSIDIAN: #0F172A  CANVAS: #F8FAFC
+   FONT:     Plus Jakarta Sans  MONO: JetBrains Mono
+   ══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Base reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body, #root {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  background: #F8FAFC !important;
+  color: #0F172A !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Enterprise wrapper and main content area ── */
-.enterprise-wrapper {
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 100vh !important;
-  background: #F8FAFC !important;
-}
-.enterprise-main {
-  flex: 1 !important;
-  background: #F8FAFC !important;
-  min-width: 0 !important;
-}
-/* Fluid dashboard — same light canvas */
-.fluid-dashboard-main {
-  background: #F8FAFC !important;
-}
-/* Override any dark bg on dashboard wrapper */
-.dashboard-wrapper-flex {
-  background: #F8FAFC !important;
-}
+/* ── Enterprise wrapper / canvas ── */
+.enterprise-wrapper { background: #F8FAFC !important; min-height: 100vh; }
+.enterprise-main    { background: #F8FAFC !important; flex: 1; }
 
-/* ── All premium glass cards → enterprise white ── */
-.premium-glass {
+/* ── Cards → always white ── */
+.premium-glass,
+[class*="card"],
+[class*="Card"],
+[class*="panel"],
+[class*="Panel"] {
   background: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05),0 1px 2px -1px rgba(0,0,0,.04) !important;
-}
-.premium-glass h2,.premium-glass h3,.premium-glass h4,
-.premium-glass .card-title,.premium-glass .section-title {
+  border-radius: 12px !important;
   color: #0F172A !important;
 }
-.premium-glass p,.premium-glass span:not([class*="badge"]):not([class*="tag"]):not([class*="status"]) {
-  color: #475569;
+
+/* ── Primary brand INDIGO #4F46E5 everywhere ── */
+/* Replace any stray blue #2563EB references via class overrides */
+.btn-primary, button[style*="#2563EB"], a[style*="#2563EB"] { background: #4F46E5 !important; }
+button[style*="background: rgb(37, 99, 235)"] { background: #4F46E5 !important; }
+
+/* ── Text hierarchy ── */
+h1,h2,h3,h4,h5,h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; color: #0F172A; }
+p, span, div, li, td, th, label { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+[class*="mono"], [class*="price"], [class*="amount"], [class*="rupee"],
+[style*="JetBrains"], [style*="Courier"] { font-family: 'JetBrains Mono', 'Courier New', monospace !important; }
+
+/* ── Focus ring → indigo ── */
+*:focus-visible { outline: 2px solid #4F46E5 !important; outline-offset: 2px !important; }
+input:focus, textarea:focus, select:focus {
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.12) !important;
+  outline: none !important;
 }
 
-/* ── Inputs — enterprise clean ── */
+/* ── Inputs ── */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 textarea, select {
-  font-family: 'Sora', system-ui, sans-serif !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
   background: #FFFFFF !important;
   border: 1.5px solid #CBD5E1 !important;
   color: #0F172A !important;
   border-radius: 8px !important;
-  transition: border-color .18s,box-shadow .18s !important;
 }
-input:focus,textarea:focus,select:focus {
-  border-color: #4F46E5 !important;
-  box-shadow: 0 0 0 3px rgba(79,70,229,.1) !important;
-  outline: none !important;
-}
-input::placeholder,textarea::placeholder {
-  color: #94A3B8 !important;
-  opacity: 1 !important;
+input::placeholder, textarea::placeholder { color: #94A3B8 !important; }
+
+/* ── Buttons: primary indigo ── */
+button.btn-indigo, [class*="btn-primary"] {
+  background: #4F46E5 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 8px !important;
 }
 
-/* ── Numbers: JetBrains Mono ── */
-.mono,.price,.amount,.total,.revenue,.profit,
-[class*="price"],[class*="amount"],[class*="rupee"],
-[class*="gross"],[class*="final-amt"],[class*="revenue"] {
-  font-family: 'JetBrains Mono','Courier New',monospace !important;
+/* ── Premium btn: quick actions in POS ── */
+.premium-btn {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #334155 !important;
+  border-radius: 10px !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  transition: all .18s ease !important;
 }
+.premium-btn:hover { border-color: #4F46E5 !important; color: #4F46E5 !important; }
+.premium-btn span  { color: #334155 !important; }
 
-/* ── Tables — enterprise clean ── */
-table { border-collapse: collapse !important; }
+/* ── Status badges ── */
+.badge-success, [class*="status-paid"]    { background:#ECFDF5!important;color:#059669!important;border:1px solid #6EE7B7!important; }
+.badge-warning, [class*="status-credit"]  { background:#FFFBEB!important;color:#D97706!important;border:1px solid #FCD34D!important; }
+.badge-error,   [class*="status-overdue"] { background:#FEF2F2!important;color:#991B1B!important;border:1px solid #FCA5A5!important; }
+
+/* ── Tables → enterprise clean ── */
+table  { border-collapse: collapse !important; width: 100%; }
+thead tr { background: #F8FAFC !important; border-top: 1px solid #E2E8F0 !important; border-bottom: 1px solid #E2E8F0 !important; }
 thead th {
-  background: #F8FAFC !important;
   color: #64748B !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: .06em !important;
   padding: 10px 16px !important;
-  border-top: 1px solid #E2E8F0 !important;
-  border-bottom: 1px solid #E2E8F0 !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
 }
 tbody td {
   color: #0F172A !important;
@@ -805,463 +106,75 @@ tbody td {
   padding: 12px 16px !important;
   border-bottom: 1px solid #F1F5F9 !important;
 }
-tbody tr:hover td {
-  background: #F8FAFC !important;
-}
+tbody tr:hover td { background: #F8FAFC !important; }
 
-/* ── Scrollbars ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-/* ── Quick action buttons in POS ── */
-.premium-btn {
-  background: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-  color: #374163 !important;
-  transition: all .18s ease !important;
-  border-radius: 12px !important;
-}
-.premium-btn:hover {
-  background: #F1F5F9 !important;
-  border-color: #4F46E5 !important;
-}
-.premium-btn span {
-  color: #374163 !important;
-}
+/* ── Number input — no spinners ── */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
 
-/* ── Status badges ── */
-.badge-success,.status-paid   { background:#ECFDF5!important;color:#059669!important;border:1px solid #6EE7B7!important; }
-.badge-warning,.status-credit { background:#FFFBEB!important;color:#D97706!important;border:1px solid #FCD34D!important; }
-.badge-error,.status-overdue  { background:#FEF2F2!important;color:#991B1B!important;border:1px solid #FCA5A5!important; }
-
-/* ── Enterprise section cards ── */
-.section-card,.data-card,.stat-card {
-  background: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05) !important;
-}
-
-/* ── Mobile bottom nav ── */
+/* ── Mobile — enterprise dark nav ── */
 @media (max-width: 768px) {
-  .mobile-bottom-nav {
+  [class*="bottom-nav"], [class*="mobile-nav"], [class*="navBar"] {
     background: #0F172A !important;
-    border-top: 1px solid rgba(255,255,255,.08) !important;
+    border-top: 1px solid rgba(255,255,255,.07) !important;
   }
-  .mobile-bottom-nav button.active {
-    color: #4F46E5 !important;
-  }
-}
+  [class*="navBtn"] { color: #64748B !important; font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+  [class*="navBtn"][style*="#4F46E5"],
+  [class*="navBtn"][style*="#2563EB"] { color: #4F46E5 !important; }
 
-/* ── Override any remaining dark page backgrounds ── */
-[style*="background-color: rgb(15, 23, 42)"],
-[style*="backgroundColor: '#0f172a'"] {
-  background-color: #F8FAFC !important;
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   CRITICAL FIX: Global button { width: 100% } was designed for
-   the mobile .app-container only. Reset to auto for ALL desktop
-   enterprise layouts so buttons never stretch full-width.
-   ══════════════════════════════════════════════════════════════ */
-.enterprise-wrapper button,
-.enterprise-main button,
-.fluid-dashboard-main button {
-  width: auto;
-}
-
-/* Keep explicit full-width buttons working via inline style overrides
-   (e.g. style={{ width:'100%' }} which renders as a specific attribute) */
-
-/* Announcement banner / trial banner close buttons — explicit sizing */
-.enterprise-wrapper [style*="padding: '4px'"],
-.enterprise-main  [style*="padding: '4px'"] {
-  width: auto !important;
-  flex-shrink: 0 !important;
-}
-
-/* ── Refer & Earn card: button row should not stretch ── */
-.refer-earn-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.refer-earn-actions button {
-  width: auto !important;
-  flex-shrink: 0;
-}
-
-/* ── POS right sidebar: promo/coupon row Apply button fix ── */
-.promo-code-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: #F1F5F9;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid #CBD5E1;
-}
-.promo-code-row input {
-  flex: 1;
-  min-width: 0;
-  margin: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.promo-code-row button {
-  width: auto !important;
-  flex-shrink: 0 !important;
-  white-space: nowrap;
-  padding: 5px 12px !important;
-}
-
-/* ── Customer Profiling: State field properly sized ── */
-.customer-profile-row {
-  display: flex;
-  gap: 8px;
-}
-.customer-profile-row .phone-input {
-  flex: 1 1 120px;
-  min-width: 0;
-}
-.customer-profile-row .state-input {
-  width: 80px;
-  flex-shrink: 0;
-}
-
-/* ── Quick Shelf Explorer: grid with graceful empty state ── */
-.quick-shelf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
-}
-.quick-shelf-grid:empty,
-.quick-shelf-empty {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  color: #94a3b8;
-  font-size: 13px;
-  text-align: center;
-  gap: 8px;
-}
-
-/* ── Voucher Basket empty state: larger illustration ── */
-.voucher-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 0;
-  gap: 10px;
-  color: #94a3b8;
-  font-size: 12px;
-  min-height: 140px;
-}
-.voucher-empty svg {
-  opacity: 0.3;
-  width: 48px !important;
-  height: 48px !important;
-}
-
-/* ── Mobile ShopDashboard: logout button in header fix ── */
-.app-container button:not([class]) {
-  /* Mobile: most buttons stay full-width (original intent) */
-}
-.app-container .header-action-btn {
-  width: auto !important;
-}
-
-/* ── Broader button width reset: any page that is NOT the mobile app-container ──
-   The global button{width:100%} was intended for .app-container (mobile) only.
-   Every other page/dashboard should get auto-sized buttons.              */
-body > #root > *:not(.app-container) button,
-.fluid-dashboard-main button,
-.enterprise-main button,
-.enterprise-wrapper button,
-[style*="minHeight: '100vh'"] button {
-  width: auto;
-}
-
-/* Keep full-width buttons when the developer explicitly set width:100% inline */
-/* (inline styles always win over class styles, so this is safe)             */
-
-/* ── Dashboard wrapper classes: reset button width ── */
-.dashboard-wrapper-flex button,
-[class*="dashboard"] button,
-[class*="enterprise"] button,
-[class*="fluid"] button {
-  width: auto;
-}
-
-/* ── DesktopSettings: weekly holiday chip buttons ──
-   These are flex-wrap buttons that should stay chip-sized */
-.enterprise-main .holiday-chip-row button,
-.enterprise-main [style*="flexWrap: 'wrap'"] button {
-  width: auto !important;
-  flex-shrink: 0;
-}
-
-/* ── DesktopSettings: QR download buttons should be full-width (explicit) ── */
-/* (These use style={{ width:'100%' }} inline — inline styles always win) */
-
-/* ── Admin dashboard: button width reset ── */
-[style*="minHeight: '100vh'"][style*="background: '#F0F4FA'"] button,
-[style*="minHeight: '100vh'"][style*="background: '#0f172a'"] button,
-[style*="minHeight: '100vh'"][style*="background: '#0b0f19'"] button,
-[style*="minHeight: '100vh'"][style*="background: 'linear-gradient"] button {
-  width: auto;
-}
-
-/* ── CA Dashboard: button width fix ── */
-[style*="minHeight: '100vh'"][style*="background: '#0f172a'"] button {
-  width: auto;
-}
-
-/* ── DesktopPOS: product grid 'Add to Cart' — keep full card width ── */
-.enterprise-main .quick-shelf-grid button[style*="width: '100%'"],
-.enterprise-main [style*="display: 'grid'"] button[style*="width: '100%'"] {
-  width: 100% !important;
-}
-
-/* ── Mobile app-container: restore original full-width buttons ── */
-.app-container button:not([style*="width: 'auto'"]):not([style*="width: auto"]) {
-  width: 100%;
-}
-
-/* ── Override: any button with explicit auto in inline style wins ── */
-
-
-/* ════════════════════════════════════════════════════════════
-   MOBILE ENTERPRISE UI — Complete Override
-   ════════════════════════════════════════════════════════════ */
-
-/* ── Base mobile typography ── */
-@media (max-width: 768px) {
-  body { font-size: 14px !important; }
-
-  /* Bottom nav enterprise style */
-  .mobile-nav, [class*="bottom-nav"], [class*="mobile-bottom"] {
-    background: #0D1117 !important;
-    border-top: 1px solid rgba(255,255,255,0.08) !important;
-    backdrop-filter: blur(12px) !important;
-  }
-  .mobile-nav button, [class*="bottom-nav"] button {
-    color: rgba(255,255,255,0.4) !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    gap: 4px !important;
-  }
-  .mobile-nav button.active, [class*="bottom-nav"] button.active,
-  .mobile-nav button[aria-selected="true"] {
-    color: #2563EB !important;
-  }
-
-  /* Mobile cards */
-  .mobile-card, [class*="mobile-card"] {
-    background: #FFFFFF !important;
-    border: 1px solid #E4E6EA !important;
-    border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-  }
-
-  /* Mobile header */
-  .shop-header, [class*="shop-header"], [class*="mobile-header"] {
-    background: #0D1117 !important;
-    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
-    box-shadow: 0 1px 12px rgba(0,0,0,0.3) !important;
-  }
-
-  /* Action buttons */
-  button[class*="action"], button[class*="quick"], .action-btn {
-    background: #FFFFFF !important;
-    border: 1px solid #E4E6EA !important;
-    border-radius: 12px !important;
-    color: #374163 !important;
-    font-weight: 600 !important;
-    min-height: 44px !important;
-  }
-
-  /* Search bar */
-  input[type="text"], input[type="search"], input[placeholder*="Search"], 
-  input[placeholder*="search"] {
-    background: #F7F8FA !important;
-    border: 1.5px solid #E4E6EA !important;
-    border-radius: 10px !important;
-    color: #0D1117 !important;
-    padding: 10px 14px !important;
-    font-size: 14px !important;
-  }
-}
-
-/* ── Enterprise stat cards ── */
-.stat-card, [class*="stat-card"] {
-  background: #FFFFFF !important;
-  border: 1px solid #E4E6EA !important;
-  border-radius: 12px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04) !important;
-}
-
-/* ── Tab bar active state ── */
-[class*="tab-bar"] button.active, [class*="tab"] button[data-active="true"] {
-  color: #2563EB !important;
-  border-bottom: 2px solid #2563EB !important;
-}
-
-/* ── Tables enterprise ── */
-table thead th {
-  background: #F7F8FA !important;
-  color: #8B96A3 !important;
-  font-size: 10.5px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .06em !important;
-  border-bottom: 1px solid #E4E6EA !important;
-}
-table tbody td {
-  color: #0D1117 !important;
-  font-size: 13px !important;
-  border-bottom: 1px solid #F1F3F6 !important;
-}
-table tbody tr:hover td { background: #F7F8FA !important; }
-
-/* ── Remove spinner on number inputs ── */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
-
-/* ── Smooth transitions everywhere ── */
-button, a, input, select, textarea { transition: all .15s ease; }
-
-/* ── Full-width page escape (login, register) ── */
-.app-container:has(.lp-root) {
-  max-width: 100% !important;
-  overflow: hidden !important;
-  padding: 0 !important;
-}
-/* Fallback for browsers without :has() */
-.lp-root { position: fixed !important; top:0; left:0; right:0; bottom:0; z-index:999; }
-
-
-/* ════════════════════════════════════════════════════════════════
-   BRAND THEME — Single Source of Truth
-   Primary: #2563EB  Canvas: #F7F8FA  Cards: #FFFFFF
-   Text: #0D1117  Secondary: #64748B  Dark Nav: #0D1117
-   Active: #2563EB  Success: #10B981  Warning: #F59E0B
-   ════════════════════════════════════════════════════════════════ */
-
-/* ── Canvas backgrounds ── */
-.enterprise-wrapper { background: #F7F8FA !important; }
-.enterprise-main    { background: #F7F8FA !important; }
-
-/* ── All cards → white ── */
-.premium-glass,
-.card, [class*="card"],
-[class*="panel"],
-[class*="section"]:not(section) {
-  background: #FFFFFF !important;
-  border: 1px solid #E4E6EA !important;
-  color: #0D1117 !important;
-}
-
-/* ── ALL text must be visible ── */
-p, span, div, label, h1, h2, h3, h4, h5, li {
-  color: inherit;
-}
-/* Override any white text on white bg */
-.enterprise-main p,
-.enterprise-main span:not([style*="color"]),
-.enterprise-main div:not([style*="background:#0"]):not([style*="background: #0"]) > p,
-.enterprise-main label,
-.enterprise-main td,
-.enterprise-main th {
-  color: #0D1117;
-}
-
-/* ── Tables ── */
-thead tr { background: #F7F8FA !important; border-bottom: 1px solid #E4E6EA !important; }
-thead th { color: #64748B !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .05em !important; padding: 10px 14px !important; }
-tbody td { color: #0D1117 !important; font-size: 13px !important; border-bottom: 1px solid #F1F3F6 !important; padding: 11px 14px !important; }
-tbody tr:hover td { background: #F7F8FA !important; }
-
-/* ── Inputs ── */
-input:not([type="checkbox"]):not([type="radio"]),
-textarea, select {
-  background: #FFFFFF !important;
-  border: 1.5px solid #CBD5E1 !important;
-  color: #0D1117 !important;
-  border-radius: 8px !important;
-}
-input:focus, textarea:focus, select:focus {
-  border-color: #2563EB !important;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
-  outline: none !important;
-}
-input::placeholder, textarea::placeholder { color: #94A3B8 !important; }
-
-/* ── Buttons — brand blue ── */
-button[class*="premium-btn"] {
-  background: #FFFFFF !important;
-  border: 1px solid #E4E6EA !important;
-  color: #374163 !important;
-  border-radius: 10px !important;
-}
-button[class*="premium-btn"]:hover {
-  border-color: #2563EB !important;
-  color: #2563EB !important;
-}
-button[class*="premium-btn"] span { color: #374163 !important; }
-
-/* ── Active nav tabs ── */
-[class*="active-tab"], [data-active="true"],
-button[style*="border-bottom: 2px solid"] {
-  color: #2563EB !important;
-  border-color: #2563EB !important;
-}
-
-/* ── Mobile nav ── */
-@media (max-width: 768px) {
-  [class*="mobile-nav"] button,
-  [class*="bottom-nav"] button,
-  [class*="navBtn"] { color: #94A3B8 !important; }
-  [class*="mobile-nav"] button.active,
-  [class*="navBtn"][style*="#2563EB"] { color: #2563EB !important; }
-
-  /* Mobile header dark */
-  [class*="mobile-header"], [class*="shop-header"] {
-    background: #0D1117 !important;
-    color: #FFFFFF !important;
-  }
   /* Mobile stat cards */
-  [class*="stat-card"] {
+  [class*="stat"], [class*="Stat"] {
     background: #FFFFFF !important;
-    border: 1px solid #E4E6EA !important;
-    color: #0D1117 !important;
+    border: 1px solid #E2E8F0 !important;
     border-radius: 12px !important;
+    color: #0F172A !important;
+  }
+  /* Mobile search bar */
+  input[type="text"], input[type="search"] {
+    background: #F8FAFC !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    color: #0F172A !important;
+  }
+  /* Mobile action buttons */
+  .premium-btn {
+    min-height: 44px !important;
+    font-size: 12px !important;
   }
 }
 
-/* ── Dark nav/topbar stays dark ── */
-[class*="topbar"], [class*="DesktopTopBar"],
-nav[style*="#0D1117"], nav[style*="#0f172a"],
-div[style*="background:#0D1117"], div[style*="background: #0D1117"],
-div[style*="background:#0f172a"], div[style*="background: #0f172a"] {
-  background: #0D1117 !important;
+/* ── Animation utilities ── */
+@keyframes fadeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+@keyframes pulseLive { 0%,100%{opacity:.45;transform:scale(1)} 50%{opacity:1;transform:scale(1.18)} }
+@keyframes countUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+.su  { animation: fadeSlide .38s cubic-bezier(.4,0,.2,1) both }
+.su1 { animation: fadeSlide .38s .05s cubic-bezier(.4,0,.2,1) both }
+.su2 { animation: fadeSlide .38s .10s cubic-bezier(.4,0,.2,1) both }
+.su3 { animation: fadeSlide .38s .15s cubic-bezier(.4,0,.2,1) both }
+.fi  { animation: fadeIn .3s ease both }
+.cu  { animation: countUp .42s ease both }
+.pulse { animation: pulseLive 2.2s ease-in-out infinite }
+.lift { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,.14) }
+.lift:active { transform: scale(.97) }
+.rh:hover { background: #F1F5F9 !important; transition: background .14s ease; }
+.ni { transition: all .18s ease; cursor: pointer; border-radius: 8px; }
+.ni:hover { background: rgba(255,255,255,.07) !important; }
+.grad-text {
+  background: linear-gradient(135deg, #4F46E5, #818CF8, #C7D2FE);
+  background-size: 200%;
+  animation: gradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-
-/* ── Scrollbars ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
-
-/* ── Remove number input spinners ── */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
