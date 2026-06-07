@@ -6,12 +6,12 @@ const FLOAT_CARDS = [
   { label: '94 Bills', sub: 'Today', color: '#7C3AED', top: '52%', right: '-42px' },
   { label: '12', sub: 'Low Stock ⚠', color: '#f59e0b', bottom: '14%', left: '-28px' },
 ];
-const FU = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true } };
+const FU = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, ease: [0.4,0,0.2,1] } };
 
 export default function LandingHero({ hero, navigate, config = {} }) {
   const lines = (hero.headline || 'The Operating System\nfor Modern Business').split('\n');
   return (
-    <section style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 64 }}>
+    <section style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 64, background: '#0F172A', color: '#fff' }}>
       <div className="lorb lorb1" /><div className="lorb lorb2" /><div className="lorb lorb3" />
       <div className="lgrid" />
 
