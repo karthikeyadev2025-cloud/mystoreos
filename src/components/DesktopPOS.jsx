@@ -462,9 +462,9 @@ const DesktopPOS = ({
                 style={{
                   flex: 1,
                   padding: '7px 4px',
-                  background: manualDiscountPct === d ? '#2563EB' : 'rgba(255,255,255,0.07)',
+                  background: manualDiscountPct === d ? '#4F46E5' : 'rgba(255,255,255,0.07)',
                   color: manualDiscountPct === d ? '#fff' : '#94a3b8',
-                  border: `1px solid ${manualDiscountPct === d ? '#2563EB' : 'rgba(255,255,255,0.1)'}`,
+                  border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : 'rgba(255,255,255,0.1)'}`,
                   borderRadius: '7px',
                   fontSize: '11px',
                   fontWeight: '600',
@@ -491,9 +491,9 @@ const DesktopPOS = ({
                   width: '100%',
                   padding: '7px 22px 7px 8px',
                   background: manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
-                    ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.07)',
+                    ? 'rgba(79,70,229,0.15)' : 'rgba(255,255,255,0.07)',
                   border: `1.5px solid ${manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
-                    ? '#2563EB' : 'rgba(255,255,255,0.12)'}`,
+                    ? '#4F46E5' : 'rgba(255,255,255,0.12)'}`,
                   borderRadius: '7px',
                   color: '#fff',
                   fontSize: '12px',
