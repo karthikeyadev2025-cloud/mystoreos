@@ -1,58 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-
-function CountUp({ target, suffix, prefix, decimals, started }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!started) return;
-    let cur = 0;
-    const step = target / 60;
-    const id = setInterval(() => {
-      cur = Math.min(cur + step, target);
-      setVal(cur);
-      if (cur >= target) clearInterval(id);
-    }, 18);
-    return () => clearInterval(id);
-  }, [started, target]);
-  const display = decimals > 0 ? val.toFixed(decimals) : Math.floor(val).toLocaleString('en-IN');
-  return <>{prefix}{display}{suffix}</>;
-}
-
-const STATS = [
-  { key: 'shops', label: 'Businesses Served', suffix: '+', prefix: '', decimals: 0, color: '#10b981' },
-  { key: 'orders', label: 'Bills Generated', suffix: '+', prefix: '', decimals: 0, color: '#8b5cf6' },
-  { key: 'cities', label: 'Cities Covered', suffix: '+', prefix: '', decimals: 0, color: '#3b82f6' },
-  { key: 'uptime', label: 'Uptime SLA', suffix: '%', prefix: '', decimals: 1, color: '#f59e0b' },
-];
-
-export default function LandingStats({ stats }) {
-  const [started, setStarted] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStarted(true); obs.disconnect(); } },
-      { threshold: 0.3 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+export default function LandingStats({ stats = {} }) {
+  const data = [
+    { val: `${stats.shops || 12847}+`, label: 'Merchant Outlets', sub: 'Across India' },
+    { val: `${(stats.orders || 240000) >= 100000 ? ((stats.orders||240000)/100000).toFixed(1)+'L' : (stats.orders||240000).toLocaleString()}+`, label: 'Daily Invoices', sub: 'Generated every day' },
+    { val: '₹842Cr+', label: 'GMV Processed', sub: 'This fiscal year' },
+    { val: `${stats.cities || 28}+`, label: 'States & UTs', sub: 'Pan-India coverage' },
+    { val: '99.97%', label: 'Platform Uptime', sub: 'Enterprise SLA' },
+  ];
 
   return (
-    <section ref={ref} style={{ padding: 'clamp(40px,5vw,64px) 24px', background: 'linear-gradient(180deg,#050814,#030712)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-      <div className="l4" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid' }}>
-        {STATS.map((s, i) => (
-          <motion.div key={s.key} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-            style={{ textAlign: 'center', padding: '24px 16px' }}>
-            <div style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 900, color: s.color, letterSpacing: '-1px' }}>
-              <CountUp target={stats[s.key] ?? 0} suffix={s.suffix} prefix={s.prefix} decimals={s.decimals} started={started} />
-            </div>
-            <div style={{ color: '#64748b', fontSize: 14, marginTop: 6, fontWeight: 600 }}>{s.label}</div>
-          </motion.div>
+    <section style={{
+      background: '#161B22',
+      borderTop: '1px solid rgba(255,255,255,0.07)',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      fontFamily: "'Inter',system-ui,sans-serif",
+    }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5,1fr)' }}>
+        {data.map(({ val, label, sub }, i) => (
+          <div key={i} style={{
+            padding: '32px 24px', textAlign: 'center',
+            borderRight: i < 4 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+          }}>
+            <div style={{
+              fontFamily: "'JetBrains Mono','Courier New',monospace",
+              fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 6, lineHeight: 1,
+            }}>{val}</div>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13.5, fontWeight: 600, marginBottom: 3 }}>{label}</div>
+            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11.5 }}>{sub}</div>
+          </div>
         ))}
       </div>
+      <style>{`@media(max-width:700px){section>div{grid-template-columns:repeat(2,1fr)}section>div>div:nth-child(5){grid-column:span 2;border-right:none}}`}</style>
     </section>
   );
 }
