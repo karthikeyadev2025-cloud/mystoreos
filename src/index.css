@@ -178,3 +178,66 @@ input[type=number] { -moz-appearance: textfield; }
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   ENTERPRISE DESKTOP OVERRIDE
+   Force full-width layout when enterprise content is present
+   ══════════════════════════════════════════════════════════════ */
+
+/* Override app-container max-width for enterprise dashboard */
+.app-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+/* Enterprise wrapper takes full viewport */
+.enterprise-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #F8FAFC !important;
+}
+
+/* The enterprise main content area */
+.enterprise-main {
+  flex: 1 !important;
+  background: #F8FAFC !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-y: auto !important;
+}
+
+/* ── Topbar / desktop nav bar — always full width ── */
+[class*="DesktopTopBar"],
+[class*="topbar"],
+[class*="top-bar"],
+[style*="position: sticky"][style*="top: 0"],
+[style*="position:sticky"][style*="top:0"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* ── Re-apply mobile only for < 768px ── */
+@media (max-width: 768px) {
+  .app-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .enterprise-wrapper { width: 100% !important; }
+}
+
+/* ── Plus Jakarta Sans everywhere (final enforcement) ── */
+*, button, input, textarea, select, label, td, th, p, span, div, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+[class*="mono"], [style*="JetBrains"], [style*="monospace"],
+[style*="Courier"] {
+  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+}
