@@ -53,6 +53,11 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         pointerEvents: 'none',
       }}/>
 
+      {/* Logo */}
+      <div style={{ marginBottom: 20, animation: 'fadeSlide .3s ease both' }}>
+        <img src="/logo.png" alt="MyStore OS" style={{ height: 56, objectFit: 'contain', display: 'block', margin: '0 auto' }}/>
+      </div>
+
       {/* Trust badge */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 7,
