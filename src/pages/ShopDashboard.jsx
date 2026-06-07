@@ -1726,7 +1726,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ backgroundColor: '#F0F4FA', color: '#0A0F1E', minHeight: '100vh', fontFamily: "'Sora', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ backgroundColor: '#F0F4FA', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
