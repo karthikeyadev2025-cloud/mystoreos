@@ -12,14 +12,14 @@ export default function LandingFooter({ config = {} }) {
   return (
     <footer style={{
       background: '#0D1117', borderTop: '1px solid rgba(255,255,255,0.07)',
-      fontFamily: "'Inter',system-ui,sans-serif", padding: '56px 40px 32px',
+      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif", padding: '56px 40px 32px',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 40, marginBottom: 48 }}>
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <div style={{ width: 34, height: 34, background: '#2563EB', borderRadius: 9,
+              <div style={{ width: 34, height: 34, background: '#4F46E5', borderRadius: 9,
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap size={17} color="#fff" strokeWidth={2.5}/>
               </div>
