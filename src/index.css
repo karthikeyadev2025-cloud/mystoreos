@@ -692,3 +692,20 @@ input[placeholder*="Search products"]::placeholder {
 .enterprise-main [style*="background: 'rgba(15, 23, 42"] {
   background: #ffffff !important;
 }
+
+
+/* ── Landing page: ensure all sections render visible (framer-motion fallback) ──
+   framer-motion whileInView elements stay at opacity:0 until IntersectionObserver fires.
+   This override ensures content is always readable even if animations don't trigger. */
+.landing-page section > div,
+.landing-page section > div > div,
+section[class*="landing"] > div,
+.landing-root > section { opacity: 1 !important; }
+
+/* ── Widen any framer-motion stuck elements on landing ── */
+[data-framer-appear-id] { opacity: 1 !important; transform: none !important; }
+
+/* ── Landing page background fix: ensure body bg doesn't affect non-enterprise pages ── */
+body:not(.has-enterprise-layout) {
+  background: transparent !important;
+}
