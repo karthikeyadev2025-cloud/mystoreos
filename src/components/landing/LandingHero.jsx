@@ -36,7 +36,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       justifyContent: 'center', textAlign: 'center',
       padding: '80px 40px 60px', position: 'relative', overflow: 'hidden',
-      fontFamily: "'Inter',system-ui,sans-serif",
+      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       {/* Background grid */}
       <div style={{
@@ -49,7 +49,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         position: 'absolute', top: '38%', left: '50%',
         transform: 'translate(-50%,-50%)',
         width: 700, height: 700,
-        background: 'radial-gradient(ellipse,rgba(37,99,235,0.13),transparent 65%)',
+        background: 'radial-gradient(ellipse,rgba(79,70,229,0.13),transparent 65%)',
         pointerEvents: 'none',
       }}/>
 
@@ -61,7 +61,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
       {/* Trust badge */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 7,
-        background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.35)',
+        background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.35)',
         borderRadius: 20, padding: '5px 16px', marginBottom: 28,
         animation: 'fadeSlide .4s ease both',
       }}>
@@ -100,10 +100,10 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         marginBottom: 36, animation: 'fadeSlide .4s .18s ease both',
       }}>
         <button onClick={() => navigate('/register')} style={{
-          background: '#2563EB', color: '#fff', border: 'none',
+          background: '#4F46E5', color: '#fff', border: 'none',
           padding: '13px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700,
-          cursor: 'pointer', fontFamily: "'Inter',system-ui,sans-serif",
-          boxShadow: '0 0 36px rgba(37,99,235,0.55)',
+          cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+          boxShadow: '0 0 36px rgba(79,70,229,0.55)',
           display: 'flex', alignItems: 'center', gap: 8,
           transition: 'filter .15s',
         }}
@@ -119,7 +119,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
           background: 'transparent', color: 'rgba(255,255,255,0.75)',
           border: '1.5px solid rgba(255,255,255,0.22)',
           padding: '13px 28px', borderRadius: 10, fontSize: 15, fontWeight: 600,
-          cursor: 'pointer', fontFamily: "'Inter',system-ui,sans-serif",
+          cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
           display: 'flex', alignItems: 'center', gap: 8,
           transition: 'border-color .15s, color .15s',
         }}
