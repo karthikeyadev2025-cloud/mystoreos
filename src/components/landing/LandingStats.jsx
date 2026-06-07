@@ -9,10 +9,10 @@ export default function LandingStats({ stats = {} }) {
 
   return (
     <section style={{
-      background: '#161B22',
+      background: '#1E293B',
       borderTop: '1px solid rgba(255,255,255,0.07)',
       borderBottom: '1px solid rgba(255,255,255,0.07)',
-      fontFamily: "'Inter',system-ui,sans-serif",
+      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5,1fr)' }}>
         {data.map(({ val, label, sub }, i) => (
