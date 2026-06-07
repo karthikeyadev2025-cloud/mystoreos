@@ -40,6 +40,9 @@ const DesktopPOS = ({
   updateBillItemVariant,
   removeBillItem,
   applyPromoCode,
+  manualDiscountPct = 0,
+  setManualDiscountPct,
+  manualDiscountAmt = 0,
   sendWhatsAppBill,
   addToBill,
   setActiveTab,
@@ -440,6 +443,69 @@ const DesktopPOS = ({
           )}
         </div>
 
+        {/* ── Manual Discount (% entry) ── */}
+        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', flex: 1 }}>Discount %</span>
+            {manualDiscountPct > 0 && (
+              <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '700', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '5px', padding: '2px 7px' }}>
+                -₹{manualDiscountAmt.toLocaleString('en-IN')}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            {/* Quick preset buttons */}
+            {[0, 5, 10, 15, 20].map(d => (
+              <button
+                key={d}
+                onClick={() => setManualDiscountPct && setManualDiscountPct(d)}
+                style={{
+                  flex: 1,
+                  padding: '7px 4px',
+                  background: manualDiscountPct === d ? '#2563EB' : 'rgba(255,255,255,0.07)',
+                  color: manualDiscountPct === d ? '#fff' : '#94a3b8',
+                  border: `1px solid ${manualDiscountPct === d ? '#2563EB' : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: '7px',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {d}%
+              </button>
+            ))}
+            {/* Manual input */}
+            <div style={{ position: 'relative', flexShrink: 0, width: '68px' }}>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="0"
+                value={manualDiscountPct === 0 ? '' : String(manualDiscountPct)}
+                onChange={e => {
+                  const v = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                  setManualDiscountPct && setManualDiscountPct(v);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '7px 22px 7px 8px',
+                  background: manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
+                    ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.07)',
+                  border: `1.5px solid ${manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
+                    ? '#2563EB' : 'rgba(255,255,255,0.12)'}`,
+                  borderRadius: '7px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  textAlign: 'right',
+                }}
+              />
+              <span style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#64748b', fontWeight: '600', pointerEvents: 'none' }}>%</span>
+            </div>
+          </div>
+        </div>
+
         {/* Promo discount & calculations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
           <div className="promo-code-row" style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '10px', border: '1px solid #CBD5E1' }}>
@@ -454,10 +520,10 @@ const DesktopPOS = ({
             <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: '#000', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
 
-          {discountAmount > 0 && (
+          {(discountAmount > 0 || manualDiscountAmt > 0) && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#10b981', fontWeight: '500' }}>
-              <span>Promo Discount:</span>
-              <span>-₹{discountAmount}</span>
+              <span>Discount:</span>
+              <span>-₹{(discountAmount + manualDiscountAmt).toLocaleString('en-IN')}</span>
             </div>
           )}
 
@@ -493,12 +559,12 @@ const DesktopPOS = ({
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#94a3b8' }}>Gross Total</span>
-            <span style={{ fontSize: '14px', color: '#cbd5e1', textDecoration: (discountAmount > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
+            <span style={{ fontSize: '14px', color: '#cbd5e1', textDecoration: (discountAmount > 0 || manualDiscountAmt > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>Final Payable</span>
-            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - discountAmount - loyaltyDiscountRupees)}</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - countAmount - loyaltyDiscountRupees)}</span>
           </div>
         </div>
 
