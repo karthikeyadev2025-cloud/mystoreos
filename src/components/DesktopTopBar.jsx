@@ -1,10 +1,10 @@
 import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users, LogOut, Bell, TrendingUp, Coins, IndianRupee } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 
-const INK  = '#0A0F1E';
-const GOLD = '#E8A020';
+const INK  = '#0F172A'; // obsidian — exact demo token
+const GOLD = '#4F46E5'; // indigo — exact demo token (was gold)
 const BRD  = 'rgba(255,255,255,0.08)';
-const FONT = "'Sora', system-ui, sans-serif";
+const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 const NAV_ITEMS = [
   { id:'home',      Icon:Home,      label:'POS / Home',   badge:false },
@@ -50,7 +50,7 @@ const DesktopTopBar = ({
           {/* Sync indicator */}
           {syncStatus && (
             <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:10, color:'rgba(255,255,255,0.38)' }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:syncStatus.isOnline?'#4ADE80':'#F59E0B', flexShrink:0 }} />
+              <div style={{ width:6, height:6, borderRadius:'50%', background:syncStatus.isOnline?'#059669':'#F59E0B', flexShrink:0 }} />
               {syncStatus.isOnline ? (syncStatus.pendingCount>0?'Syncing…':'Synced') : 'Offline'}
             </div>
           )}
@@ -81,22 +81,22 @@ const DesktopTopBar = ({
           const active = activeTab === id;
           return (
             <button key={id} onClick={() => setActiveTab(id)}
-              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'#0A0F1E':' #6473A0', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
-              onMouseEnter={e => { if(!active) e.currentTarget.style.color='#2F7FFF'; }}
-              onMouseLeave={e => { if(!active) e.currentTarget.style.color='#6473A0'; }}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'#0F172A':' #6473A0', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
+              onMouseEnter={e => { if(!active) e.currentTarget.style.color='#4F46E5'; }}
+              onMouseLeave={e => { if(!active) e.currentTarget.style.color='#64748B'; }}
             >
               <Icon size={14} color={active?GOLD:'currentColor'} style={{ flexShrink:0 }} />
               {label}
               {badge && pendingOrders > 0 && (
                 <span style={{ background:'#E53E3E', color:'#fff', borderRadius:10, padding:'1px 5px', fontSize:9, fontWeight:800, marginLeft:2 }}>{pendingOrders}</span>
               )}
-              {active && <div style={{ position:'absolute', bottom:0, left:8, right:8, height:2.5, borderRadius:'2px 2px 0 0', background:'#0A0F1E' }} />}
+              {active && <div style={{ position:'absolute', bottom:0, left:8, right:8, height:2.5, borderRadius:'2px 2px 0 0', background:'#0F172A' }} />}
             </button>
           );
         })}
         {/* New Bill CTA */}
         <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:6, paddingRight:4 }}>
-          <button onClick={() => setActiveTab('home')} style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 14px', borderRadius:7, border:'none', background:'#2F7FFF', color:'#fff', fontSize:11, fontWeight:700, fontFamily:FONT, cursor:'pointer', transition:'all 0.15s' }}>
+          <button onClick={() => setActiveTab('home')} style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 14px', borderRadius:7, border:'none', background:'#4F46E5', color:'#fff', fontSize:11, fontWeight:700, fontFamily:FONT, cursor:'pointer', transition:'all 0.15s' }}>
             + New Bill
           </button>
         </div>
