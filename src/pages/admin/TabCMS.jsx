@@ -1,4 +1,19 @@
-import { useState, useEffect } from 'react';
+impo
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await Promise.all([
+        api.updateSiteConfig('social', { ...cfg }),
+      ]).catch(() => {});
+      toast.success('App & social links saved!');
+    } catch (e) {
+      toast.error('Save failed. Try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+rt { useState, useEffect } from 'react';
 import { Save, Globe, FileText, Megaphone, X, CreditCard, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useSiteConfig } from '../../lib/siteConfig';
@@ -44,6 +59,7 @@ export default function TabCMS() {
   const [social, setSocial] = useState({ instagramUrl: '', twitterUrl: '' });
   const [cfg, setCfg] = useState({ playStoreUrl: '', appStoreUrl: '', instagramUrl: '', facebookUrl: '', twitterUrl: '', youtubeUrl: '', linkedinUrl: '', whatsappUrl: '' });
   const [plans, setPlans] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -291,7 +307,7 @@ export default function TabCMS() {
         <button
           onClick={save}
           disabled={saving}
-          style={{ marginTop: '20px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}
+          style={{ marginTop: '20px', background: '#2563EB', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: '10px', fontWeight: 700, fontSize: '13px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}
         >
           {saving ? 'Saving...' : '💾 Save App & Social Links'}
         </button>
