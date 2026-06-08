@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import MLogo from '../components/MLogo';
 
 const STORY = [
   { year: '2023', icon: '💡', title: 'The Problem', body: 'Every evening, thousands of shop owners across India sat hunched over paper ledgers — manually tallying sales, losing track of credit, missing expired stock. A single missed entry could wipe out a week\'s profit. There had to be a better way.' },
@@ -97,7 +98,7 @@ export default function AboutUs() {
         transition: 'all 0.4s ease',
       }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: 14 }}>M</div>
+          <MLogo size={34} radius={9} />
           <span style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>MyStore OS</span>
         </button>
         <button className="cta-btn" onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', borderRadius: 10, padding: '9px 20px', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s ease' }}>

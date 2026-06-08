@@ -35,32 +35,40 @@ const FEATS = [
 
 export default function LandingFeatures() {
   return (
-    <section style={{
-      background: '#0F172A', padding: '80px 40px',
+    <section id="features" style={{
+      background: '#0F172A', padding: 'clamp(56px,7vw,88px) clamp(16px,5vw,40px)',
       fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       <style>{`
         @keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
         .feat-card{transition:all .2s ease;cursor:default}
         .feat-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.3)!important}
+        .feat-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+          gap: 16px;
+        }
+        @media(max-width:540px){
+          .feat-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 52 }}>
           <span style={{ color: '#4F46E5', fontSize: 12, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase' }}>
             Platform Features
           </span>
-          <h2 style={{ color: '#fff', fontSize: 34, fontWeight: 800, margin: '10px 0 12px', letterSpacing: '-.025em' }}>
+          <h2 style={{ color: '#fff', fontSize: 'clamp(24px,4vw,34px)', fontWeight: 800, margin: '10px 0 12px', letterSpacing: '-.025em' }}>
             Everything You Need to Run Your Business
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 16, maxWidth: 500, margin: '0 auto', lineHeight: 1.68 }}>
             One unified platform built for Indian retail — from single kirana to enterprise chains.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 16 }}>
+        <div className="feat-grid">
           {FEATS.map(({ icon: Icon, color, bg, border, title, desc }) => (
             <div key={title} className="feat-card" style={{
               background: 'rgba(255,255,255,0.03)', border: `1px solid rgba(255,255,255,0.08)`,
-              borderRadius: 14, padding: 28,
+              borderRadius: 14, padding: 'clamp(20px,3vw,28px)',
             }}>
               <div style={{
                 width: 50, height: 50, background: bg, border: `1px solid ${border}`,

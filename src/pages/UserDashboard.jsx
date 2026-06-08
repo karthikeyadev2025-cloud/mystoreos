@@ -1279,7 +1279,7 @@ const UserDashboard = () => {
                   <div style={{ color: '#cbd5e1', fontWeight: 'bold' }}>{locationStatus}</div>
                   <button 
                     onClick={() => grabLiveLocation(false)} 
-                    style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#f43f5e', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justify: 'center', gap: '4px' }}
+                    style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#f43f5e', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                   >
                     <Compass size={10} /> Refocus GPS
                   </button>
@@ -2118,7 +2118,7 @@ const UserDashboard = () => {
           {/* Modern Visual Header banner */}
           <div style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #0f172a, #1e1b4b, #090514)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative' }}>
             
-            <div style={{ display: 'flex', justify: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
                 <span style={{ color: '#f43f5e', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   ✨ Consumer Portal
@@ -2157,7 +2157,7 @@ const UserDashboard = () => {
             </div>
 
             {/* GPS Widget banner */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '16px', padding: '12px 14px', display: 'flex', justify: 'space-between', alignItems: 'center', backdropFilter: 'blur(8px)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '16px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backdropFilter: 'blur(8px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MapPin size={16} style={{ color: '#f43f5e' }} />
                 <div>

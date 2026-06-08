@@ -8,7 +8,7 @@ const STEPS = [
 
 export default function LandingHowItWorks({ navigate }) {
   return (
-    <section style={{ padding: 'clamp(56px,7vw,90px) 24px', background: 'linear-gradient(180deg,#030712,#050814)' }}>
+    <section style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'linear-gradient(180deg,#030712,#050814)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 56 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#10b981', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>How It Works</div>
@@ -16,11 +16,11 @@ export default function LandingHowItWorks({ navigate }) {
           <p style={{ color: '#64748b', fontSize: 16, marginTop: 10 }}>No training needed. No IT team. Just sign up and go.</p>
         </motion.div>
 
-        <div className="l3" style={{ display: 'grid', gap: 32 }}>
+        <div className="hiw-grid">
           {STEPS.map((s, i) => (
             <motion.div key={s.num}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-              style={{ textAlign: 'center', padding: '32px 24px', background: '#1E293B', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 20, position: 'relative', overflow: 'hidden' }}>
+              style={{ textAlign: 'center', padding: 'clamp(24px,3vw,32px) clamp(16px,2.5vw,24px)', background: '#1E293B', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 20, position: 'relative', overflow: 'hidden' }}>
               <motion.div
                 initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.15 + 0.3, duration: 0.5 }}
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${s.color},${s.color}00)`, transformOrigin: 'left' }} />
@@ -34,12 +34,20 @@ export default function LandingHowItWorks({ navigate }) {
 
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => navigate('/register')}
-            style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '16px 40px', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 0 40px rgba(244,63,94,0.25)' }}>
+            style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: 'clamp(12px,2vw,16px) clamp(24px,4vw,40px)', borderRadius: 14, fontSize: 'clamp(14px,2vw,16px)', fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 0 40px rgba(244,63,94,0.25)' }}>
             Start Your Free 7-Day Trial 🚀
           </button>
           <div style={{ color: '#475569', fontSize: 12, marginTop: 10 }}>No credit card required · Cancel anytime</div>
         </motion.div>
       </div>
+      <style>{`
+        .hiw-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        @media(max-width:768px) { .hiw-grid { grid-template-columns: 1fr !important; gap: 20px !important; } }
+      `}</style>
     </section>
   );
 }

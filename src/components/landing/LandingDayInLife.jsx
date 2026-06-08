@@ -15,17 +15,20 @@ export default function LandingDayInLife() {
   const beat = BEATS[active];
 
   return (
-    <section style={{ padding: 'clamp(56px,7vw,90px) 24px', background: 'linear-gradient(180deg,#050814,#030712)' }}>
+    <section style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'linear-gradient(180deg,#050814,#030712)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#f43f5e', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>A Day in the Life</div>
           <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#f8fafc', letterSpacing: '-1px' }}>One App, All Day Long</h2>
         </motion.div>
-        <div className="lh" style={{ display: 'grid', gap: 32, alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+        {/* Desktop: side-by-side | Mobile: stacked (phone preview first) */}
+        <div className="dayinlife-grid">
+          {/* Button list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, order: 2 }}>
             {BEATS.map((b, i) => (
               <button key={i} onClick={() => setActive(i)}
-                style={{ background: active === i ? 'rgba(244,63,94,0.1)' : '#1E293B', border: `1px solid ${active === i ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12, padding: '14px 18px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: 14, alignItems: 'center', transition: 'all 0.2s', fontFamily: 'Outfit, sans-serif' }}>
+                style={{ background: active === i ? 'rgba(244,63,94,0.1)' : '#1E293B', border: `1px solid ${active === i ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12, padding: 'clamp(10px,2vw,14px) clamp(12px,2vw,18px)', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: 14, alignItems: 'center', transition: 'all 0.2s', fontFamily: 'Outfit, sans-serif' }}>
                 <span style={{ fontSize: 20 }}>{b.icon}</span>
                 <div>
                   <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{b.time}</div>
@@ -35,7 +38,8 @@ export default function LandingDayInLife() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+          {/* Phone preview */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, order: 1 }}>
             <AnimatePresence mode="wait">
               <motion.div key={active}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.25 }}
@@ -58,6 +62,21 @@ export default function LandingDayInLife() {
           </div>
         </div>
       </div>
+      <style>{`
+        .dayinlife-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 32px;
+          align-items: center;
+        }
+        @media(max-width:768px) {
+          .dayinlife-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .dayinlife-grid > div:first-child { order: 1 !important; }
+          .dayinlife-grid > div:last-child { order: 2 !important; }
+        }
+      `}</style>
     </section>
   );
 }

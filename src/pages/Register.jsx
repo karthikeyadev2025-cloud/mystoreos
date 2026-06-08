@@ -3,14 +3,108 @@ import { api } from '../lib/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ToastContainer, toast } from 'react-toastify';
-import { Eye, EyeOff, Home } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Zap, ShieldCheck } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
+import MLogo from '../components/MLogo';
 
-const authStyles = `
-  .auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);padding:20px}
-  .auth-card{background:rgba(30,41,59,0.8);backdrop-filter:blur(10px);padding:32px 28px;border-radius:24px;border:1px solid rgba(255,255,255,0.1);max-width:420px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,0.5)}
-  @media(max-width:480px){.auth-page{padding:12px;align-items:flex-start;padding-top:24px}.auth-card{padding:24px 16px;border-radius:20px}}
+const CSS = `
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .reg-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0D1117;
+    padding: clamp(16px, 4vw, 32px);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  .reg-card {
+    background: #161B22;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px);
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .reg-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 9px;
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    transition: border-color .18s, box-shadow .18s;
+    outline: none;
+  }
+  .reg-input:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.18);
+  }
+  .reg-input::placeholder { color: rgba(255,255,255,0.28); }
+  .reg-label {
+    display: block;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 7px;
+    letter-spacing: .04em;
+  }
+  .reg-submit {
+    width: 100%;
+    padding: 14px;
+    background: #4F46E5;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: filter .15s, transform .1s;
+    box-shadow: 0 0 24px rgba(79,70,229,0.4);
+  }
+  .reg-submit:hover:not(:disabled) { filter: brightness(1.1); }
+  .reg-submit:active { transform: scale(.98); }
+  .reg-submit:disabled { opacity: .6; cursor: not-allowed; }
+  .reg-type-btn {
+    flex: 1;
+    padding: 11px 8px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.45);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    text-align: center;
+    transition: all .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .reg-type-btn.active {
+    background: rgba(79,70,229,0.15);
+    border-color: rgba(79,70,229,0.4);
+    color: #fff;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn .3s ease both; }
 `;
+
+const TYPES = [
+  { value: 'shop', icon: '🏪', label: 'Retail Shop' },
+  { value: 'distributor', icon: '🚚', label: 'Distributor' },
+  { value: 'customer', icon: '🛒', label: 'Customer' },
+];
 
 const Register = () => {
   const navigate = useNavigate();
@@ -39,72 +133,135 @@ const Register = () => {
     } catch (err) {
       let msg = err.message || 'Registration failed';
       if (msg.includes('Edge Function') || msg.includes('non-2xx') || msg.includes('Failed to fetch') || msg.includes('TypeError'))
-        msg = "Oops! We couldn't connect to our registration service. Please verify your internet connection and try again shortly!";
+        msg = "Couldn't connect to our servers. Please check your internet and try again.";
       toast.error(msg);
     } finally { setLoading(false); }
   };
 
-  const inp = {
-    width: '100%', padding: '13px 14px', background: 'rgba(0,0,0,0.3)',
-    border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
-    color: '#fff', fontSize: '15px', outline: 'none', boxSizing: 'border-box',
-  };
-  const lbl = { display: 'block', color: '#cbd5e1', fontSize: '13px', marginBottom: 8, fontWeight: 'bold' };
-
   return (
     <>
-      <style>{authStyles}</style>
-      <div className="auth-page">
-        <ToastContainer theme="dark" />
-        <div className="auth-card">
-
-          {/* Home button */}
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', padding: 0, marginBottom: '20px', fontWeight: 500 }}>
-            <Home size={14} /> Home
+      <style>{CSS}</style>
+      <div className="reg-page">
+        <ToastContainer theme="dark" position="top-center"/>
+        <div className="reg-card fade-in">
+          {/* Back */}
+          <button onClick={() => navigate('/')} style={{
+            background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 13, padding: 0, marginBottom: 24, fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+            fontWeight: 500,
+          }}>
+            <ArrowLeft size={14}/> Back to Home
           </button>
 
+          {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <h1 style={{ fontSize: '26px', color: '#fff', margin: '0 0 10px 0', fontWeight: 900 }}>
-              {businessType === 'customer' ? 'Create Shopper Account' : 'Create Business'}
+            <div style={{ width: 52, height: 52, background: 'rgba(79,70,229,0.15)',
+              border: '1px solid rgba(79,70,229,0.3)', borderRadius: 14,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+              <Zap size={24} color="#4F46E5" strokeWidth={2}/>
+            </div>
+            <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
+              {businessType === 'customer' ? 'Create Shopper Account' : 'Start Your Free Trial'}
             </h1>
-            <p style={{ color: '#94a3b8', margin: 0 }}>Join the paperless revolution</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
+              {businessType === 'customer' ? 'Join the digital shopping revolution' : 'No credit card · 7 days free · Cancel anytime'}
+            </p>
           </div>
 
           <form onSubmit={handleRegister}>
-            <div style={{ marginBottom: 18 }}>
-              <label style={lbl}>{businessType === 'customer' ? 'Your Full Name' : 'Business Name'}</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={businessType === 'customer' ? 'Enter your full name' : 'e.g. Sai Supermarket or Ravi Tailors'} style={inp} />
+            {/* Business Type Selector */}
+            <div style={{ marginBottom: 20 }}>
+              <label className="reg-label">ACCOUNT TYPE</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {TYPES.map(({ value, icon, label }) => (
+                  <button key={value} type="button"
+                    onClick={() => setBusinessType(value)}
+                    className={`reg-type-btn${businessType === value ? ' active' : ''}`}
+                  >
+                    <span style={{ fontSize: 20 }}>{icon}</span>
+                    <span style={{ fontSize: 11 }}>{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div style={{ marginBottom: 18 }}>
-              <label style={lbl}>Mobile Number</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit mobile number" maxLength={10} style={inp} />
+
+            {/* Name */}
+            <div style={{ marginBottom: 16 }}>
+              <label className="reg-label">
+                {businessType === 'customer' ? 'YOUR FULL NAME' : 'BUSINESS NAME'}
+              </label>
+              <input
+                className="reg-input"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder={businessType === 'customer' ? 'Enter your full name' : 'e.g. Sai Supermarket or Ravi Traders'}
+              />
             </div>
-            <div style={{ marginBottom: 18 }}>
-              <label style={lbl}>Create Password</label>
+
+            {/* Phone */}
+            <div style={{ marginBottom: 16 }}>
+              <label className="reg-label">MOBILE NUMBER</label>
+              <input
+                className="reg-input"
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="10-digit mobile number"
+                maxLength={10}
+                inputMode="numeric"
+              />
+            </div>
+
+            {/* Password */}
+            <div style={{ marginBottom: 24 }}>
+              <label className="reg-label">CREATE PASSWORD</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPassword ? 'text' : 'password'} value={pass} onChange={(e) => setPass(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: '48px' }} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', zIndex: 10 }}>
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                <input
+                  className="reg-input"
+                  type={showPassword ? 'text' : 'password'}
+                  value={pass}
+                  onChange={e => setPass(e.target.value)}
+                  placeholder="Min 4 characters"
+                  style={{ paddingRight: 44 }}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
+                  position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 4, lineHeight: 0,
+                }}>
+                  {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
                 </button>
               </div>
             </div>
-            <div style={{ marginBottom: 28 }}>
-              <label style={lbl}>Account Type</label>
-              <select value={businessType} onChange={(e) => setBusinessType(e.target.value)} style={{ ...inp, background: '#0f172a' }}>
-                <option value="shop">Retail Shop / Service (Salon, Tailor)</option>
-                <option value="distributor">Wholesale / Distributor</option>
-                <option value="customer">Customer / Shopper</option>
-              </select>
-            </div>
-            <button disabled={loading} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#dc2626,#f59e0b)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 900, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 10px 20px rgba(220,38,38,0.3)' }}>
-              {loading ? 'Submitting...' : (businessType === 'customer' ? 'Create Account' : 'Start Free 7-Day Trial 🚀')}
+
+            <button className="reg-submit" type="submit" disabled={loading}>
+              {loading ? 'Creating account…' : (
+                businessType === 'customer'
+                  ? <><ShieldCheck size={16}/>Create Account</>
+                  : <><Zap size={16}/>Start Free 7-Day Trial</>
+              )}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', marginTop: 20, marginBottom: 0 }}>
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 13, marginTop: 20 }}>
             Already have an account?{' '}
-            <span onClick={() => navigate('/login')} style={{ color: '#fbbf24', cursor: 'pointer', fontWeight: 'bold' }}>Login here</span>
+            <button onClick={() => navigate('/login')} style={{
+              background: 'none', border: 'none', color: '#60A5FA',
+              fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>Sign in →</button>
           </p>
+
+          {/* Trust */}
+          <div style={{ marginTop: 24, padding: '12px 14px', background: 'rgba(16,185,129,0.06)',
+            border: '1px solid rgba(16,185,129,0.18)', borderRadius: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
+            <div>
+              <div style={{ color: '#6EE7B7', fontSize: 11, fontWeight: 700, marginBottom: 1 }}>Safe & Secure</div>
+              <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: 10.5 }}>256-bit SSL · Your data is private</div>
+            </div>
+          </div>
         </div>
       </div>
     </>

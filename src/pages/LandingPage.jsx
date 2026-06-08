@@ -48,26 +48,20 @@ const DEFAULT_FAQ = [
   { q: 'What languages are supported?', a: 'Hindi, Telugu, Tamil, Kannada, Marathi, and Bengali — in addition to English.' },
 ];
 const DSP_FB = [
-  { id: 'starter', name: 'Starter', price: 499, popular: false, features: ['Up to 200 products', 'Standard billing', 'Basic day book', 'Single device'] },
+  { id: 'free', name: 'Free', price: 0, popular: false, features: ['Up to 50 products', 'Basic billing', '100 bills/month', 'Single device', 'Free forever'] },
+  { id: 'starter', name: 'Starter', price: 499, popular: false, features: ['Up to 500 products', 'Standard billing', 'Basic day book', 'WhatsApp sharing', 'Single device'] },
   { id: 'pro', name: 'PRO', price: 999, popular: true, features: ['Unlimited products', 'WhatsApp sharing', 'Staff accounts', 'Batch & expiry tracking', 'UPI payment links'] },
   { id: 'enterprise', name: 'Enterprise', price: 2499, popular: false, features: ['Everything in PRO', 'GST compliance billing', 'CA Portal access', 'Tally ERP export', 'Multi-device sync'] },
 ];
 const DDP_FB = [
-  { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger'] },
+  { id: 'free_dist', name: 'Free', price: 0, popular: false, features: ['Up to 3 shops', 'Basic order mgmt', 'Credit ledger', 'Free forever'] },
+  { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
   { id: 'pro_dist', name: 'PRO', price: 2499, popular: true, features: ['Up to 50 shops', 'Route planner', 'Bulk order CSV', 'Tally export', 'Analytics'] },
   { id: 'enterprise_dist', name: 'Enterprise', price: 4999, popular: false, features: ['Unlimited shops', 'Multi-branch', 'API access', 'Staff accounts'] },
 ];
 
 const GCSS = `
 html{scroll-behavior:smooth}*,*::before,*::after{box-sizing:border-box}
-.ln{display:none}.mb{display:flex}
-.lh{grid-template-columns:1fr}.l4{grid-template-columns:repeat(2,1fr)}.l3{grid-template-columns:1fr}
-@media(min-width:768px){
-  .ln{display:flex}.mb{display:none}
-  .lh{grid-template-columns:1fr 1fr}
-  .l4{grid-template-columns:repeat(4,1fr)}
-  .l3{grid-template-columns:repeat(3,1fr)}
-}
 @keyframes ml{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes mr{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
@@ -89,8 +83,21 @@ export default function LandingPage() {
     safe(() => api.getSiteConfig('landingTestimonials', DEFAULT_TESTIMONIALS)).then(d => d && setTestimonials(d));
     safe(() => api.getSiteConfig('landingFAQ', DEFAULT_FAQ)).then(d => d && setFaq(d));
     safe(() => api.seedSubscriptionPlans());
-    safe(() => api.getSubscriptionPlans()).then(d => d && setPlans(d));
-    safe(() => api.getDistributorSubscriptionPlans()).then(d => d && setDistPlans(d));
+    safe(() => api.getSubscriptionPlans()).then(d => {
+      if (d && d.length) {
+        // Always ensure Free plan is first
+        const hasFree = d.some(p => p.price === 0 || p.id === 'free');
+        const basePlans = hasFree ? d : [DSP_FB[0], ...d];
+        setPlans(basePlans);
+      }
+    });
+    safe(() => api.getDistributorSubscriptionPlans()).then(d => {
+      if (d && d.length) {
+        const hasFree = d.some(p => p.price === 0 || p.id === 'free_dist');
+        const basePlans = hasFree ? d : [DDP_FB[0], ...d];
+        setDistPlans(basePlans);
+      }
+    });
   }, []);
 
   useEffect(() => {

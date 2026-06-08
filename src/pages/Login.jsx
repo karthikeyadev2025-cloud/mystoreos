@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Eye, EyeOff, ShieldCheck, CheckCircle, ArrowRight } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import MLogo from '../components/MLogo';
 
 const FEATURES = [
   'GST-Ready invoicing in under 2 seconds',
@@ -22,29 +23,109 @@ const METRICS = [
 ];
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-.lp-root{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;display:flex;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#0D1117;z-index:999;overflow:hidden}
-.lp-brand{flex:1;background:#0D1117;display:flex;flex-direction:column;justify-content:center;padding:60px 56px;position:relative;overflow:hidden;border-right:1px solid rgba(255,255,255,0.07);overflow-y:auto}
-.lp-brand::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.lp-brand::after{content:'';position:absolute;top:30%;left:40%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(ellipse,rgba(79,70,229,0.15),transparent 65%);pointer-events:none}
-.lp-form-side{width:480px;min-width:480px;background:#161B22;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 44px;overflow-y:auto}
-.lp-input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:9px;color:#fff;font-size:14px;font-family:'Plus Jakarta Sans',system-ui,sans-serif;transition:border-color .18s,box-shadow .18s;outline:none}
-.lp-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(79,70,229,0.18)}
-.lp-input::placeholder{color:rgba(255,255,255,0.3)}
-.lp-btn{width:100%;padding:13px;background:#2563EB;color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s,transform .1s;box-shadow:0 0 24px rgba(79,70,229,0.4)}
-.lp-btn:hover:not(:disabled){filter:brightness(1.1)}
-.lp-btn:active{transform:scale(.98)}
-.lp-btn:disabled{opacity:.6;cursor:not-allowed}
-.lp-feat{display:flex;align-items:center;gap:10px;padding:7px 0}
-.lp-metric{text-align:center;padding:16px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px}
-.fade-in{animation:fadeIn .35s ease both}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
-@media(max-width:900px){
-  .lp-root{flex-direction:column}
-  .lp-brand{display:none}
-  .lp-form-side{width:100%;min-width:unset;padding:40px 24px;background:#0D1117;min-height:100vh;justify-content:center}
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+*, *::before, *::after { box-sizing: border-box; }
+.lp-root {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #0D1117;
+  overflow-x: hidden;
+}
+.lp-brand {
+  flex: 1;
+  background: #0D1117;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px,6vw,60px) clamp(32px,5vw,56px);
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.lp-brand::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+  background-size: 40px 40px; pointer-events: none;
+}
+.lp-brand::after {
+  content: '';
+  position: absolute; top: 30%; left: 40%; transform: translate(-50%,-50%);
+  width: 500px; height: 500px;
+  background: radial-gradient(ellipse, rgba(79,70,229,0.15), transparent 65%);
+  pointer-events: none;
+}
+.lp-form-side {
+  width: min(480px, 100%);
+  background: #161B22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(32px,5vw,48px) clamp(20px,5vw,44px);
+  min-height: 100vh;
+  overflow-y: auto;
+}
+.lp-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px;
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  transition: border-color .18s, box-shadow .18s;
+  outline: none;
+}
+.lp-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
+.lp-input::placeholder { color: rgba(255,255,255,0.3); }
+.lp-btn {
+  width: 100%;
+  padding: 13px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter .15s, transform .1s;
+  box-shadow: 0 0 24px rgba(79,70,229,0.4);
+}
+.lp-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.lp-btn:active { transform: scale(.98); }
+.lp-btn:disabled { opacity: .6; cursor: not-allowed; }
+.lp-feat { display: flex; align-items: center; gap: 10; padding: 7px 0; }
+.lp-metric {
+  text-align: center;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+.fade-in { animation: fadeIn .35s ease both; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.3)} }
+
+/* Mobile: hide brand panel, full-width form */
+@media(max-width:900px) {
+  .lp-root { flex-direction: column; }
+  .lp-brand { display: none !important; }
+  .lp-form-side {
+    width: 100% !important;
+    min-width: unset !important;
+    padding: clamp(32px,7vw,48px) clamp(20px,6vw,40px) !important;
+    background: #0D1117 !important;
+  }
 }
 `;
 
@@ -103,10 +184,7 @@ export default function Login() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
-            <img src="/logo.png" alt="MyStore OS" style={{
-              width: 48, height: 48, borderRadius: 11, objectFit: 'contain',
-              boxShadow: '0 0 24px rgba(79,70,229,0.4)'
-            }}/>
+            <MLogo size={48} radius={13} />
             <div>
               <div style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-.02em' }}>MyStore OS</div>
               <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, fontWeight: 700, letterSpacing: '.08em' }}>ENTERPRISE PLATFORM</div>
@@ -114,7 +192,7 @@ export default function Login() {
           </div>
 
           {/* Headline */}
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15,
+          <h1 style={{ fontSize: 'clamp(26px,3vw,36px)', fontWeight: 800, color: '#fff', lineHeight: 1.15,
             letterSpacing: '-.025em', marginBottom: 14, maxWidth: 460 }}>
             India's Most Powerful<br/>
             <span style={{ background: 'linear-gradient(135deg,#2563EB,#60A5FA)',
@@ -161,12 +239,9 @@ export default function Login() {
       <div className="lp-form-side">
         <div className="fade-in" style={{ width: '100%', maxWidth: 360 }}>
 
-          {/* Mobile logo (hidden on desktop via CSS) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 36, justifyContent: 'center' }}
-            className="mobile-logo">
-            <img src="/logo.png" alt="MyStore OS" style={{
-              width: 36, height: 36, borderRadius: 9, objectFit: 'contain'
-            }}/>
+          {/* Mobile logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}>
+            <MLogo size={36} radius={10} />
             <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
           </div>
 

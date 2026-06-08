@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Check, ArrowLeft, Star, Flame, Landmark } from 'lucide-react';
+import MLogo from '../components/MLogo';
 
 const COMPARISON_DATA = {
   tally: {
@@ -192,20 +193,7 @@ export default function AlternativeComparison() {
       <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
         {/* Brand Header */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <img 
-            src="/logo.png" 
-            alt="MyStore OS Logo" 
-            style={{ 
-              height: '42px', 
-              borderRadius: '10px', 
-              boxShadow: '0 0 15px rgba(251,191,36,0.3)',
-              border: '1.5px solid rgba(251,191,36,0.4)' 
-            }} 
-            onError={(e) => {
-              // fallback if logo.png not loaded in public folder
-              e.target.style.display = 'none';
-            }}
-          />
+          <MLogo size={42} radius={10} />
           <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '1px', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             MYSTORE <span style={{ color: '#fbbf24' }}>OS</span>
           </span>
