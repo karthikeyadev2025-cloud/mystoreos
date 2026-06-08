@@ -22,7 +22,7 @@ export default function LandingTrust() {
           {BADGES.map((b, i) => (
             <motion.div key={b.title}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${b.color}33`, borderRadius: 16, padding: '24px 20px', textAlign: 'center' }}>
+              style={{ background: '#1E293B', border: `1px solid ${b.color}33`, borderRadius: 16, padding: '24px 20px', textAlign: 'center' }}>
               <div style={{ fontSize: 36, marginBottom: 10 }}>{b.icon}</div>
               <div style={{ color: b.color, fontWeight: 800, fontSize: 15, marginBottom: 4 }}>{b.title}</div>
               <div style={{ color: '#64748b', fontSize: 12 }}>{b.sub}</div>
@@ -34,7 +34,7 @@ export default function LandingTrust() {
           <div style={{ color: '#475569', fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Integrated with</div>
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 12 }}>
             {LOGOS.map(l => (
-              <div key={l} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '10px 20px', color: '#64748b', fontSize: 13, fontWeight: 600 }}>{l}</div>
+              <div key={l} style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '10px 20px', color: '#64748b', fontSize: 13, fontWeight: 600 }}>{l}</div>
             ))}
           </div>
         </motion.div>
