@@ -43,7 +43,7 @@ const TABS = [
 const isMobile = () => window.innerWidth < 1024;
 
 const TabFallback = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#94a3b8', fontSize: '14px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#6B7280', fontSize: '14px' }}>
     Loading tab...
   </div>
 );
@@ -84,17 +84,17 @@ export default function AdminDashboard() {
 
   const sidebar = (
     <div style={{
-      width: '260px', minWidth: '260px', background: '#0A0F1E', borderRight: '1px solid rgba(255,255,255,0.06)',
+      width: '260px', minWidth: '260px', background: '#0F172A', borderRight: '1px solid rgba(255,255,255,0.06)',
       display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
       <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ color: '#E8A020', fontWeight: 800, fontSize: '16px' }}>MyStore OS</div>
+            <div style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '16px' }}>MyStore OS</div>
             <div style={{ color: '#64748b', fontSize: '11px' }}>Admin Panel</div>
           </div>
           {isMobile() && (
-            <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+            <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer' }}>
               <X size={18} />
             </button>
           )}
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ color: '#0F172A', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
+            <div style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
             <div style={{ color: '#64748b', fontSize: '10px' }}>Super Admin</div>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
             <button key={id} onClick={() => { setActiveTab(id); if (isMobile()) setSidebarOpen(false); }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
-                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #2F7FFF' : '3px solid transparent',
+                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #4F46E5' : '3px solid transparent',
                 cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
                 background: active ? 'rgba(79,70,229,0.1)' : 'transparent',
                 color: active ? '#4F46E5' : '#94a3b8',
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <div style={{ background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', width: 'auto', padding: '4px' }}>
+          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', display: 'flex', width: 'auto', padding: '4px' }}>
             <Menu size={20} />
           </button>
           <div>
