@@ -542,8 +542,16 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Razorpay SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+    <!-- Razorpay SDK — loaded dynamically to avoid SRI version-lock issues -->
+    <script>
+      (function(){
+        var rz = document.createElement('script');
+        rz.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        rz.defer = true;
+        rz.crossOrigin = 'anonymous';
+        document.head.appendChild(rz);
+      })();
+    </script>
 
     <!-- Sentry error tracking (lazy) -->
     <script>
