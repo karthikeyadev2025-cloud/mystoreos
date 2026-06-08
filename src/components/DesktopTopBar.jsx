@@ -26,7 +26,7 @@ const DesktopTopBar = ({
   return (
     <div style={{ position:'sticky', top:0, zIndex:999, fontFamily:FONT }}>
       {/* ── Brand bar ── */}
-      <div style={{ background:INK, height:52, display:'flex', alignItems:'center', padding:'0 20px', gap:14, borderBottom:'1px solid '+BRD }}>
+      <div style={{ background:INK, height:56, display:'flex', alignItems:'center', padding:'0 20px', gap:14, borderBottom:'1px solid '+BRD }}>
         {/* Logo */}
         <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
           <div style={{ width:32, height:32, background:GOLD, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:15, color:INK, letterSpacing:-1 }}>M</div>
