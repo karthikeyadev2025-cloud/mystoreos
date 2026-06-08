@@ -258,6 +258,93 @@ export const api = {
     return true;
   },
 
+  // ── Google OAuth (Supabase native) ──
+  // Starts the Google sign-in redirect flow. On return, Supabase lands the
+  // user back at /auth/callback with a session; AuthCallback.jsx links it to
+  // a profile. redirectTo MUST be in Supabase Dashboard → Auth → URL Config.
+  async signInWithGoogle() {
+    if (!isSupabaseConfigured) throw new Error('Sign-in is not available right now.');
+    const redirectTo = `${window.location.origin}/auth/callback`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, queryParams: { prompt: 'select_account' } },
+    });
+    if (error) throw new Error(error.message);
+    return data; // browser redirects to Google
+  },
+
+  // After the OAuth redirect returns, resolve the local profile for the
+  // authenticated Google user. Called by AuthCallback.jsx.
+  //   - existing email match  -> { profile, isNew:false }
+  //   - no match              -> { isNew:true, email, name } so the callback
+  //                              can send them to account-type selection.
+  // We do NOT auto-create here; new Google users pick shop/distributor/customer
+  // first (matching the normal onboarding/approval flow).
+  async resolveOAuthProfile() {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) throw new Error('No active session after sign-in.');
+    const authUser = session.user;
+    const email = (authUser.email || '').toLowerCase();
+    if (!email) throw new Error('Google account did not return an email.');
+
+    const { data: profile } = await supabase.from('users')
+      .select('*').ilike('email', email).maybeSingle();
+    if (profile) {
+      if (profile.status === 'suspended') throw new Error('Account suspended. Contact support.');
+      return { profile: toUser(profile), isNew: false };
+    }
+    const name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || email.split('@')[0];
+    return { isNew: true, email, name, authUid: authUser.id };
+  },
+
+  // Create the profile for a brand-new Google user AFTER they pick a role.
+  // shop/distributor land in 'pending' (admin approval); customer is active.
+  async createOAuthProfile({ email, name, role, authUid }) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const cleanEmail = (email || '').toLowerCase();
+    const needsApproval = role === 'shop' || role === 'distributor';
+    const { data, error } = await supabase.from('users').insert({
+      id: authUid, email: cleanEmail, name, role,
+      status: needsApproval ? 'pending' : 'active',
+      auth_provider: 'google', email_verified: true,
+      pass: 'oauth_no_password',
+      subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
+      subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+      trial_started_at: new Date().toISOString(),
+    }).select().maybeSingle();
+    if (error) throw new Error(error.message);
+    return toUser(data);
+  },
+
+  // ── Secure email password reset (Supabase native) ──
+  // Only works for accounts that have a real email on file. Sends a reset
+  // link to that inbox; the link lands on /auth/reset where the user sets a
+  // new password. Replaces the old insecure phone-only reset.
+  async requestPasswordReset(email) {
+    if (!isSupabaseConfigured) throw new Error('Password reset is not available right now.');
+    const clean = (email || '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean)) throw new Error('Enter a valid email address.');
+    // Look up whether a profile with this email exists (so we can tell phone-only
+    // users to contact admin). We do NOT reveal existence to avoid enumeration —
+    // always show the same success message regardless.
+    const redirectTo = `${window.location.origin}/auth/reset`;
+    const { error } = await supabase.auth.resetPasswordForEmail(clean, { redirectTo });
+    // Intentionally ignore "user not found" style errors — same response either way.
+    if (error && !/not found|no user/i.test(error.message)) throw new Error(error.message);
+    return true;
+  },
+
+  // Called on /auth/reset after the user clicks the email link (session is
+  // already established by the link). Sets the new password in Supabase Auth.
+  async completePasswordReset(newPassword) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    if (!newPassword || newPassword.length < 6) throw new Error('Password must be at least 6 characters.');
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('id', userId);

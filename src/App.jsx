@@ -9,6 +9,8 @@ import { DashboardSkeleton } from './components/Skeleton';
 
 // Route-level code splitting — each page loads only when navigated to
 const Login = lazy(() => import('./pages/Login'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const AuthReset = lazy(() => import('./pages/AuthReset'));
 const Register = lazy(() => import('./pages/Register'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ShopDashboard = lazy(() => import('./pages/ShopDashboard'));
@@ -179,6 +181,17 @@ function App() {
                 <Route path="/register" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><AppLayout><Register /></AppLayout></ErrorBoundary>
+                  </Suspense>
+                } />
+
+                <Route path="/auth/callback" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AuthCallback /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/auth/reset" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><AuthReset /></ErrorBoundary>
                   </Suspense>
                 } />
 

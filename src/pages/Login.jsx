@@ -134,11 +134,11 @@ export default function Login() {
   const [pass,  setPass]  = useState('');
   const [err,   setErr]   = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPw,  setShowPw]  = useState(false);
   const [showForgot, setShowForgot] = useState(false);
-  const [forgotPhone, setForgotPhone] = useState('');
-  const [newPass, setNewPass]  = useState('');
-  const [confPass,setConfPass] = useState('');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
   const { login } = useAuth();
   const navigate  = useNavigate();
 
@@ -159,19 +159,24 @@ export default function Login() {
     } finally { setLoading(false); }
   };
 
+  const handleGoogle = async () => {
+    try {
+      setGoogleLoading(true); setErr('');
+      await api.signInWithGoogle(); // redirects to Google
+    } catch (ex) {
+      setErr(ex.message || 'Google sign-in is unavailable right now.');
+      setGoogleLoading(false);
+    }
+  };
+
   const handleForgot = async e => {
     e.preventDefault();
-    if (!/^\d{10}$/.test(forgotPhone)) return setErr('Enter a valid 10-digit mobile number');
-    if (newPass.length < 4) return setErr('Password must be at least 4 characters');
-    if (newPass !== confPass) return setErr('Passwords do not match');
     try {
       setLoading(true); setErr('');
-      await api.resetPassword(forgotPhone, newPass);
-      toast.success('Password reset! Login with your new password.');
-      setShowForgot(false);
-      setPhone(forgotPhone); setPass('');
+      await api.requestPasswordReset(forgotEmail);
+      setForgotSent(true);
     } catch (ex) {
-      setErr(ex.message || 'Reset failed. Try again.');
+      setErr(ex.message || 'Could not send reset link. Try again.');
     } finally { setLoading(false); }
   };
 
@@ -300,6 +305,26 @@ export default function Login() {
                 </button>
               </form>
 
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11.5, fontWeight: 600 }}>OR</span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+              </div>
+
+              <button type="button" onClick={handleGoogle} disabled={googleLoading}
+                style={{ width: '100%', padding: 12, background: '#fff', color: '#1f2937',
+                  border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  opacity: googleLoading ? 0.6 : 1, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                  <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z"/>
+                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+                </svg>
+                {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+              </button>
+
               <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>New to MyStore OS? </span>
                 <button onClick={() => navigate('/register')}
@@ -325,40 +350,54 @@ export default function Login() {
             <>
               <div style={{ marginBottom: 28, textAlign: 'center' }}>
                 <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Reset Password</h2>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Enter your registered mobile number</p>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
+                  {forgotSent ? 'Check your inbox' : 'Enter your registered email address'}
+                </p>
               </div>
 
-              <form onSubmit={handleForgot}>
-                {[
-                  { label:'MOBILE NUMBER', type:'tel', val:forgotPhone, set:setForgotPhone, ph:'10-digit mobile' },
-                  { label:'NEW PASSWORD',  type:'password', val:newPass,  set:setNewPass,  ph:'Min 4 characters' },
-                  { label:'CONFIRM PASSWORD', type:'password', val:confPass, set:setConfPass, ph:'Re-enter password' },
-                ].map(({label,type,val,set,ph}) => (
-                  <div key={label} style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12,
-                      fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                    <input className="lp-input" type={type} placeholder={ph} value={val}
-                      onChange={e => set(e.target.value)}/>
+              {forgotSent ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)',
+                    borderRadius: 10, padding: '16px 18px', marginBottom: 18, color: '#6EE7B7', fontSize: 13.5, lineHeight: 1.6 }}>
+                    If an account with that email exists, we've sent a password-reset link. Open it to choose a new password.
                   </div>
-                ))}
+                  <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginBottom: 18 }}>
+                    No email? Accounts created with a phone number only can be reset by contacting support.
+                  </p>
+                  <button onClick={() => { setShowForgot(false); setForgotSent(false); setErr(''); }}
+                    style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    ← Back to login
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <form onSubmit={handleForgot}>
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12,
+                        fontWeight: 600, marginBottom: 6 }}>EMAIL ADDRESS</label>
+                      <input className="lp-input" type="email" placeholder="you@example.com"
+                        value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
+                    </div>
 
-                {err && (
-                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
-                    borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
-                    {err}
+                    {err && (
+                      <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
+                        borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
+                        {err}
+                      </div>
+                    )}
+
+                    <button className="lp-btn" type="submit" disabled={loading}>
+                      {loading ? 'Sending…' : 'Send reset link'}
+                    </button>
+                  </form>
+
+                  <div style={{ textAlign: 'center', marginTop: 16 }}>
+                    <button onClick={() => { setShowForgot(false); setErr(''); }}
+                      style={{ background: 'none', border: 'none', color: '#818CF8',
+                        fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
                   </div>
-                )}
-
-                <button className="lp-btn" type="submit" disabled={loading}>
-                  {loading ? 'Resetting…' : 'Reset Password'}
-                </button>
-              </form>
-
-              <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <button onClick={() => { setShowForgot(false); setErr(''); }}
-                  style={{ background: 'none', border: 'none', color: '#818CF8',
-                    fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
-              </div>
+                </>
+              )}
             </>
           )}
         </div>
