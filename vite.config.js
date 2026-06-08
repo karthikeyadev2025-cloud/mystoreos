@@ -48,8 +48,8 @@ export default defineConfig({
   ],
   esbuild: {
     target: 'es2020',
-    // Strip console.log/debug/info in production builds — prevents info leakage
     drop: ['console', 'debugger'],
+    pure: ['console.log', 'console.warn', 'console.error', 'console.info', 'console.debug', 'console.trace'],
   },
   build: {
     target: 'es2020',
