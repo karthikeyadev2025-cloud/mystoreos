@@ -46,7 +46,11 @@ export default defineConfig({
       },
     }),
   ],
-  esbuild: { target: 'es2020' },
+  esbuild: {
+    target: 'es2020',
+    // Strip console.log/debug/info in production builds — prevents info leakage
+    drop: ['console', 'debugger'],
+  },
   build: {
     target: 'es2020',
     rollupOptions: {

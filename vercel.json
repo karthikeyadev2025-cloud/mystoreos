@@ -2,24 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/assets/(.*)",
-      "destination": "/assets/$1"
-    },
-    {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -36,8 +18,54 @@
         { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=(self)" },
         { "key": "X-XSS-Protection", "value": "1; mode=block" },
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://checkout.razorpay.com https://www.googletagmanager.com https://graph.facebook.com https://api.msg91.com; frame-src https://api.razorpay.com https://checkout.razorpay.com; object-src 'none'; base-uri 'self'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://checkout.razorpay.com https://www.googletagmanager.com https://graph.facebook.com https://api.msg91.com; frame-src https://api.razorpay.com https://checkout.razorpay.com; object-src 'none'; base-uri 'self'" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://mystoreos.in" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/favicon.svg", "destination": "/favicon.svg" },
+    { "source": "/logo.png", "destination": "/logo.png" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/.env",              "destination": "/404", "permanent": false },
+    { "source": "/.env.local",        "destination": "/404", "permanent": false },
+    { "source": "/.env.production",   "destination": "/404", "permanent": false },
+    { "source": "/.env.development",  "destination": "/404", "permanent": false },
+    { "source": "/.env.:path*",       "destination": "/404", "permanent": false },
+    { "source": "/.git/:path*",       "destination": "/404", "permanent": false },
+    { "source": "/.git",              "destination": "/404", "permanent": false },
+    { "source": "/.gitconfig",        "destination": "/404", "permanent": false },
+    { "source": "/wp-config.php",     "destination": "/404", "permanent": false },
+    { "source": "/phpinfo.php",       "destination": "/404", "permanent": false },
+    { "source": "/.htaccess",         "destination": "/404", "permanent": false },
+    { "source": "/debug",             "destination": "/404", "permanent": false },
+    { "source": "/_debug",            "destination": "/404", "permanent": false },
+    { "source": "/graphiql",          "destination": "/404", "permanent": false },
+    { "source": "/graphql",           "destination": "/404", "permanent": false },
+    { "source": "/api/admin",         "destination": "/404", "permanent": false },
+    { "source": "/api/admin/:path*",  "destination": "/404", "permanent": false },
+    { "source": "/api-docs",          "destination": "/404", "permanent": false },
+    { "source": "/swagger",           "destination": "/404", "permanent": false },
+    { "source": "/swagger-ui.html",   "destination": "/404", "permanent": false },
+    { "source": "/storybook",         "destination": "/404", "permanent": false },
+    { "source": "/storybook/:path*",  "destination": "/404", "permanent": false },
+    { "source": "/backup.zip",        "destination": "/404", "permanent": false },
+    { "source": "/backup.sql",        "destination": "/404", "permanent": false },
+    { "source": "/database.sql",      "destination": "/404", "permanent": false },
+    { "source": "/db.sql",            "destination": "/404", "permanent": false },
+    { "source": "/dump.sql",          "destination": "/404", "permanent": false },
+    { "source": "/backup.tar.gz",     "destination": "/404", "permanent": false },
+    { "source": "/.env.bak",          "destination": "/404", "permanent": false },
+    { "source": "/site.zip",          "destination": "/404", "permanent": false },
+    { "source": "/www.zip",           "destination": "/404", "permanent": false },
+    { "source": "/backup",            "destination": "/404", "permanent": false },
+    { "source": "/.DS_Store",         "destination": "/404", "permanent": false },
+    { "source": "/package.json",      "destination": "/404", "permanent": false },
+    { "source": "/package-lock.json", "destination": "/404", "permanent": false }
   ]
 }

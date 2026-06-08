@@ -405,9 +405,15 @@ const DesktopSettings = ({
             <button
               onClick={() => {
                 const url = getShopUrl();
-                const win = window.open('', '_blank');
-                win.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff"><h2 style="color:#0F172A;margin-bottom:8px">${user?.name || 'My Store'}</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}" style="border:8px solid #f0f0f0;border-radius:12px"/><p style="color:#64748b;font-size:13px;margin-top:12px">${url}</p><script>window.onload=()=>window.print()</script></body></html>`);
-                win.document.close();
+                const qrHtml = '<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff">'
+                  + '<h2 style="color:#0F172A;margin-bottom:8px">' + (user?.name || 'My Store') + '</h2>'
+                  + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid #f0f0f0;border-radius:12px"/>'
+                  + '<p style="color:#64748b;font-size:13px;margin-top:12px">' + url + '</p>'
+                  + '</body></html>';
+                const blob = new Blob([qrHtml], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                const win = window.open(blobUrl, '_blank');
+                if (win) win.addEventListener('load', () => { win.print(); URL.revokeObjectURL(blobUrl); });
               }}
               style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
