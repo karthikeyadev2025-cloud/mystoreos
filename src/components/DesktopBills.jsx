@@ -32,24 +32,24 @@ const DesktopBills = ({
     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: Search & Invoices List */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Receipt size={20} color="#fbbf24" /> Invoices Ledger
           </h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748B' }}>
             Filter, search, or convert estimates/quotes and track returns.
           </p>
         </div>
 
         {/* Tab Selection */}
-        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', background: '#F1F5F9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
           <button 
             onClick={() => { setBillsSubTab('sales'); setSelectedBill(null); }}
             style={{
               flex: 1, padding: '10px 6px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
-              background: billsSubTab === 'sales' ? 'rgba(34,197,94,0.15)' : 'transparent',
-              color: billsSubTab === 'sales' ? '#22c55e' : '#94a3b8',
+              background: billsSubTab === 'sales' ? '#ECFDF5' : 'transparent',
+              color: billsSubTab === 'sales' ? '#10B981' : '#64748B',
               transition: 'all 0.2s'
             }}
           >
@@ -59,8 +59,8 @@ const DesktopBills = ({
             onClick={() => { setBillsSubTab('drafts'); setSelectedBill(null); }}
             style={{
               flex: 1, padding: '10px 6px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
-              background: billsSubTab === 'drafts' ? 'rgba(245,158,11,0.15)' : 'transparent',
-              color: billsSubTab === 'drafts' ? '#fbbf24' : '#94a3b8',
+              background: billsSubTab === 'drafts' ? '#FFF7ED' : 'transparent',
+              color: billsSubTab === 'drafts' ? '#EA580C' : '#64748B',
               transition: 'all 0.2s'
             }}
           >
@@ -69,21 +69,21 @@ const DesktopBills = ({
         </div>
 
         {/* Search */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '0 12px', border: '1px solid #334155' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '0 12px', border: '1px solid #E2E8F0' }}>
           <Search size={16} color="#94a3b8" />
           <input 
             type="text" 
             placeholder="Search customer, phone, or bill ID..." 
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'white', outline: 'none', fontSize: '13px' }} 
+            style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: '#0F172A', outline: 'none', fontSize: '13px' }} 
           />
         </div>
 
         {/* Orders list container */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {filteredOrders.length === 0 ? (
-            <p style={{ color: '#94a3b8', fontSize: '12px', textAlign: 'center', padding: '32px 0' }}>
+            <p style={{ color: '#64748B', fontSize: '12px', textAlign: 'center', padding: '32px 0' }}>
               No {billsSubTab === 'sales' ? 'sales invoices' : 'proforma drafts'} found.
             </p>
           ) : (
@@ -91,9 +91,9 @@ const DesktopBills = ({
               const { type, name } = decodeOrderUserId(o.userId);
               const isSelected = selectedBill && selectedBill.id === o.id;
               
-              let cardBorder = isSelected ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.04)';
-              let cardBg = isSelected ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.01)';
-              let badgeColor = billsSubTab === 'drafts' ? (type === 'estimate' ? '#f59e0b' : '#3b82f6') : '#22c55e';
+              let cardBorder = isSelected ? '1px solid #D97706' : '1px solid #E2E8F0';
+              let cardBg = isSelected ? '#FFFBEB' : '#FFFFFF';
+              let badgeColor = billsSubTab === 'drafts' ? (type === 'estimate' ? '#f59e0b' : '#3b82f6') : '#10B981';
               
               return (
                 <div 
@@ -105,13 +105,14 @@ const DesktopBills = ({
                     border: cardBorder, 
                     background: cardBg, 
                     cursor: 'pointer',
-                    transition: 'all 0.15s'
+                    transition: 'all 0.15s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.01)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                     <div>
-                      <span style={{ fontWeight: '700', fontSize: '13px', color: 'white' }}>{name}</span>
-                      <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8' }}>ID: #{o.id.substring(0, 8).toUpperCase()}</p>
+                      <span style={{ fontWeight: '700', fontSize: '13px', color: '#0F172A' }}>{name}</span>
+                      <p style={{ margin: 0, fontSize: '10px', color: '#64748B' }}>ID: #{o.id.substring(0, 8).toUpperCase()}</p>
                     </div>
                     <span style={{ fontSize: '10px', background: badgeColor + '15', color: badgeColor, padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}>
                       {billsSubTab === 'drafts' ? (type === 'estimate' ? 'Estimate' : 'Challan') : o.status}
@@ -119,8 +120,8 @@ const DesktopBills = ({
                   </div>
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: '800', color: '#fbbf24' }}>₹{o.total}</span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>{new Date(o.date).toLocaleDateString()}</span>
+                    <span style={{ fontSize: '15px', fontWeight: '800', color: '#0F172A' }}>₹{o.total}</span>
+                    <span style={{ fontSize: '10px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()}</span>
                   </div>
                 </div>
               );
@@ -139,13 +140,13 @@ const DesktopBills = ({
           else if (type === 'challan') receiptTitle = 'DELIVERY CHALLAN';
 
           return (
-            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
               
               {/* Receipt Canvas */}
-              <div style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 40px rgba(0,0,0,0.4)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #e2e8f0' }}>
+              <div style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #e2e8f0' }}>
                 
                 {/* Decorative Jagged Edges */}
-                <div style={{ position: 'absolute', top: -6, left: 0, right: 0, height: 6, background: 'repeating-linear-gradient(45deg, transparent, transparent 4px, #fff 4px, #fff 8px)', filter: 'drop-shadow(0 -2px 2px rgba(0,0,0,0.1))' }}></div>
+                <div style={{ position: 'absolute', top: -6, left: 0, right: 0, height: 6, background: 'repeating-linear-gradient(45deg, transparent, transparent 4px, #fff 4px, #fff 8px)', filter: 'drop-shadow(0 -2px 2px rgba(0,0,0,0.05))' }}></div>
                 
                 <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '14px', marginBottom: '14px' }}>
                   <h2 style={{ margin: '0 0 4px 0', fontSize: '18px', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '1px' }}>{user.name}</h2>
@@ -198,14 +199,14 @@ const DesktopBills = ({
                 </div>
                 
                 {/* Decorative Bottom Edge */}
-                <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 6, background: 'repeating-linear-gradient(45deg, transparent, transparent 4px, #fff 4px, #fff 8px)', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))' }}></div>
+                <div style={{ position: 'absolute', bottom: -6, left: 0, right: 0, height: 6, background: 'repeating-linear-gradient(45deg, transparent, transparent 4px, #fff 4px, #fff 8px)', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }}></div>
               </div>
 
               {/* Action Buttons for selected receipt */}
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'center' }}>
                 <button 
                   onClick={() => window.print()} 
-                  style={{ background: '#F8FAFC', border: '1px solid #334155', color: '#fff', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#475569', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   <Printer size={16} /> Print Slip
                 </button>
@@ -213,7 +214,7 @@ const DesktopBills = ({
                 {billsSubTab === 'drafts' && type === 'estimate' && (
                   <button 
                     onClick={() => handleConvertEstimateToBill(selectedBill)} 
-                    style={{ background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    style={{ background: '#D97706', color: '#FFFFFF', border: 'none', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     <ArrowRight size={16} /> Convert to Active Bill
                   </button>
@@ -222,7 +223,7 @@ const DesktopBills = ({
                 {selectedBill.status === 'Pending' && (
                   <button 
                     onClick={() => { acceptOrder(selectedBill.id); setSelectedBill(null); }} 
-                    style={{ background: '#22c55e', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    style={{ background: '#10B981', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     <Check size={16} /> Accept Order
                   </button>
@@ -231,7 +232,7 @@ const DesktopBills = ({
                 {selectedBill.status === 'Accepted' && (
                   <button 
                     onClick={() => handleOpenReturnModal(selectedBill)} 
-                    style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     <CornerUpLeft size={16} /> Process Return
                   </button>
@@ -241,10 +242,10 @@ const DesktopBills = ({
             </div>
           );
         })() : (
-          <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid #E2E8F0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
+          <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <Receipt size={48} style={{ opacity: 0.15, marginBottom: '16px', color: '#fbbf24' }} />
-            <h3 style={{ color: 'white', margin: '0 0 6px 0' }}>No Invoice Selected</h3>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0, maxWidth: '280px', lineHeight: '1.4' }}>
+            <h3 style={{ color: '#0F172A', margin: '0 0 6px 0' }}>No Invoice Selected</h3>
+            <p style={{ color: '#64748B', fontSize: '13px', margin: 0, maxWidth: '280px', lineHeight: '1.4' }}>
               Click on any sales invoice or proforma draft on the left to see its high-fidelity thermal receipt preview and complete actions.
             </p>
           </div>

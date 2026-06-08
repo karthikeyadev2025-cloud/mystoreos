@@ -114,12 +114,12 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
 
   if (!hasAccess) {
     return (
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '48px 32px', textAlign: 'center' }}>
-        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '48px 32px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
+        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '1px solid #DDD6FE' }}>
           <Brain size={32} color="#8b5cf6" />
         </div>
-        <h3 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 700, margin: '0 0 8px' }}>AI Demand Forecasting</h3>
-        <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '480px', margin: '0 auto 20px', lineHeight: 1.6 }}>
+        <h3 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700, margin: '0 0 8px' }}>AI Demand Forecasting</h3>
+        <p style={{ color: '#475569', fontSize: '14px', maxWidth: '480px', margin: '0 auto 20px', lineHeight: 1.6 }}>
           Stop guessing reorders. Our AI analyses your 30-day sales history, detects weekly seasonality patterns,
           and predicts exactly which SKUs will run out — before they do. Save money on overstocking and never lose
           a sale to stockout again.
@@ -130,15 +130,15 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
             { icon: '🔔', text: 'Low-stock alerts with days-left counter' },
             { icon: '📦', text: 'Smart reorder quantity suggestions' },
           ].map((f, i) => (
-            <div key={i} style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '10px', padding: '12px 8px' }}>
+            <div key={i} style={{ background: '#FFFFFF', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '12px 8px' }}>
               <div style={{ fontSize: '20px', marginBottom: '6px' }}>{f.icon}</div>
-              <div style={{ color: '#c4b5fd', fontSize: '11px', lineHeight: 1.4 }}>{f.text}</div>
+              <div style={{ color: '#7C3AED', fontSize: '11px', lineHeight: 1.4 }}>{f.text}</div>
             </div>
           ))}
         </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '10px', padding: '10px 20px' }}>
-          <Lock size={14} color="#a78bfa" />
-          <span style={{ color: '#a78bfa', fontSize: '13px', fontWeight: 600 }}>Available on Pro Plan (₹999/mo) and above</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '10px 20px' }}>
+          <Lock size={14} color="#7C3AED" />
+          <span style={{ color: '#7C3AED', fontSize: '13px', fontWeight: 600 }}>Available on Pro Plan (₹999/mo) and above</span>
         </div>
       </div>
     );
@@ -153,35 +153,35 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
             <Brain size={22} color={tier.color} />
           </div>
           <div>
-            <h3 style={{ color: '#f8fafc', fontSize: '17px', fontWeight: 700, margin: 0 }}>AI Demand Forecasting</h3>
+            <h3 style={{ color: '#0F172A', fontSize: '17px', fontWeight: 700, margin: 0 }}>AI Demand Forecasting</h3>
             <div style={{ color: tier.color, fontSize: '11px', fontWeight: 600, marginTop: '2px' }}>
               ● {tier.label} · {topProducts.length} SKUs analysed
             </div>
           </div>
         </div>
-        <div style={{ fontSize: '11px', color: '#475569', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 12px' }}>
+        <div style={{ fontSize: '11px', color: '#64748B', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 12px' }}>
           Exp. Smoothing + Day-of-Week Seasonality
         </div>
       </div>
 
       {/* Urgent alerts */}
       {urgentItems.length > 0 && (
-        <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '16px 20px' }}>
+        <div style={{ background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: '12px', padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <AlertTriangle size={16} color="#ef4444" />
-            <span style={{ color: '#fca5a5', fontWeight: 700, fontSize: '14px' }}>Reorder Now — {urgentItems.length} item{urgentItems.length > 1 ? 's' : ''} at or below reorder point</span>
+            <span style={{ color: '#991B1B', fontWeight: 700, fontSize: '14px' }}>Reorder Now — {urgentItems.length} item{urgentItems.length > 1 ? 's' : ''} at or below reorder point</span>
           </div>
           {urgentItems.map(item => (
-            <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', padding: '10px 14px', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+            <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', borderRadius: '8px', padding: '10px 14px', marginBottom: '6px', flexWrap: 'wrap', gap: '8px', border: '1px solid #FCA5A5' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Package size={14} color="#f87171" />
-                <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '13px' }}>{item.name}</span>
-                {item.currentStock !== null && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px' }}>Stock: {item.currentStock}</span>}
+                <Package size={14} color="#ef4444" />
+                <span style={{ color: '#0F172A', fontWeight: 600, fontSize: '13px' }}>{item.name}</span>
+                {item.currentStock !== null && <span style={{ background: '#FEF2F2', color: '#DC2626', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', border: '1px solid #FCA5A5' }}>Stock: {item.currentStock}</span>}
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ color: '#94a3b8', fontSize: '11px' }}>~{item.rec.avgDaily}/day</span>
+                <span style={{ color: '#64748B', fontSize: '11px' }}>~{item.rec.avgDaily}/day</span>
                 {item.rec.daysLeft !== null && <span style={{ color: '#ef4444', fontSize: '11px', fontWeight: 700 }}>⚠ {item.rec.daysLeft}d left</span>}
-                <span style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '6px' }}>Order {item.rec.suggestedQty} units</span>
+                <span style={{ background: '#ECFDF5', color: '#10b981', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '6px', border: '1px solid #A7F3D0' }}>Order {item.rec.suggestedQty} units</span>
               </div>
             </div>
           ))}
@@ -190,12 +190,12 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
 
       {/* Out-soon warnings */}
       {outSoonItems.length > 0 && (
-        <div style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ background: '#FFF7ED', border: '1px solid #FFEDD5', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <AlertTriangle size={14} color="#f59e0b" />
-          <span style={{ color: '#fcd34d', fontWeight: 700, fontSize: '13px' }}>Running Low:</span>
+          <span style={{ color: '#C2410C', fontWeight: 700, fontSize: '13px' }}>Running Low:</span>
           {outSoonItems.map(item => (
-            <span key={item.id} style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '8px', padding: '4px 10px', color: '#f8fafc', fontSize: '12px' }}>
-              {item.name} <span style={{ color: '#f59e0b' }}>({item.rec.daysLeft}d)</span>
+            <span key={item.id} style={{ background: '#FFFFFF', border: '1px solid #FFEDD5', borderRadius: '8px', padding: '4px 10px', color: '#0F172A', fontSize: '12px' }}>
+              {item.name} <span style={{ color: '#EA580C' }}>({item.rec.daysLeft}d)</span>
             </span>
           ))}
         </div>
@@ -203,30 +203,30 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
 
       {/* Per-product cards */}
       {forecasts.slice(0, 8).map(item => (
-        <div key={item.id} style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${item.rec?.urgent ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '14px', padding: '18px 20px' }}>
+        <div key={item.id} style={{ background: '#FFFFFF', border: `1px solid ${item.rec?.urgent ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '14px', padding: '18px 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#f8fafc', fontWeight: 700, fontSize: '14px' }}>{item.name}</span>
-              {item.rec?.urgent && <span style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px' }}>URGENT</span>}
+              <span style={{ color: '#0F172A', fontWeight: 700, fontSize: '14px' }}>{item.name}</span>
+              {item.rec?.urgent && <span style={{ background: '#FEF2F2', color: '#EF4444', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', border: '1px solid #FCA5A5' }}>URGENT</span>}
             </div>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Sold 30d</div>
-                <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: '15px' }}>{item.totalSold}</div>
+                <div style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase' }}>Sold 30d</div>
+                <div style={{ color: '#D97706', fontWeight: 700, fontSize: '15px' }}>{item.totalSold}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Revenue</div>
-                <div style={{ color: '#10b981', fontWeight: 700, fontSize: '15px' }}>₹{item.totalRevenue.toLocaleString('en-IN')}</div>
+                <div style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase' }}>Revenue</div>
+                <div style={{ color: '#059669', fontWeight: 700, fontSize: '15px' }}>₹{item.totalRevenue.toLocaleString('en-IN')}</div>
               </div>
               {item.currentStock !== null && (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Stock</div>
-                  <div style={{ color: item.rec?.urgent ? '#f87171' : '#f8fafc', fontWeight: 700, fontSize: '15px' }}>{item.currentStock}</div>
+                  <div style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase' }}>Stock</div>
+                  <div style={{ color: item.rec?.urgent ? '#ef4444' : '#0F172A', fontWeight: 700, fontSize: '15px' }}>{item.currentStock}</div>
                 </div>
               )}
               {item.rec?.daysLeft !== null && (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Days Left</div>
+                  <div style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase' }}>Days Left</div>
                   <div style={{ color: item.rec.daysLeft <= 3 ? '#ef4444' : item.rec.daysLeft <= 7 ? '#f59e0b' : '#10b981', fontWeight: 700, fontSize: '15px' }}>{item.rec.daysLeft}d</div>
                 </div>
               )}
@@ -238,7 +238,7 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
                 <BarChart data={item.forecast} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
                   <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: 11 }} labelStyle={{ color: '#94a3b8' }} formatter={v => [`${v} units`, 'Predicted']} />
+                  <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: 11, color: '#0F172A' }} labelStyle={{ color: '#64748B' }} formatter={v => [`${v} units`, 'Predicted']} />
                   <Bar dataKey="predicted" radius={[4,4,0,0]} maxBarSize={28}>
                     {item.forecast.map((_, i) => (
                       <Cell key={i} fill={item.rec?.urgent ? '#ef4444' : tier.color} fillOpacity={0.55 + i * 0.03} />
@@ -249,11 +249,11 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
             </div>
           )}
           {item.rec && (
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', padding: '8px 12px' }}>
-              <span style={{ color: '#475569', fontSize: '11px' }}>📦 Reorder trigger: {item.rec.reorderPoint} units</span>
-              <span style={{ color: '#334155', fontSize: '11px' }}>·</span>
-              <span style={{ color: '#475569', fontSize: '11px' }}>Avg demand: {item.rec.avgDaily}/day</span>
-              <span style={{ color: '#334155', fontSize: '11px' }}>·</span>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: '#F8FAFC', borderRadius: '8px', padding: '8px 12px', border: '1px solid #E2E8F0' }}>
+              <span style={{ color: '#64748B', fontSize: '11px' }}>📦 Reorder trigger: {item.rec.reorderPoint} units</span>
+              <span style={{ color: '#cbd5e1', fontSize: '11px' }}>·</span>
+              <span style={{ color: '#64748B', fontSize: '11px' }}>Avg demand: {item.rec.avgDaily}/day</span>
+              <span style={{ color: '#cbd5e1', fontSize: '11px' }}>·</span>
               <span style={{ background: `rgba(${tierKey === 'enterprise' ? '16,185,129' : '139,92,246'},0.15)`, color: tier.color, fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '6px' }}>
                 Suggest: {item.rec.suggestedQty} units (2-week supply)
               </span>
@@ -263,15 +263,15 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
       ))}
 
       {tierKey === 'pro' && productSales.length > 10 && (
-        <div style={{ textAlign: 'center', padding: '14px', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '12px' }}>
-          <span style={{ color: '#64748b', fontSize: '13px' }}>
+        <div style={{ textAlign: 'center', padding: '14px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '12px' }}>
+          <span style={{ color: '#047857', fontSize: '13px' }}>
             Showing top 10 SKUs. <span style={{ color: '#10b981', fontWeight: 600 }}>Upgrade to Enterprise for all {productSales.length} SKUs + 30-day forecast.</span>
           </span>
         </div>
       )}
 
       {forecasts.length === 0 && (
-        <div style={{ textAlign: 'center', color: '#475569', padding: '40px', fontSize: '13px' }}>
+        <div style={{ textAlign: 'center', color: '#64748B', padding: '40px', fontSize: '13px' }}>
           No sales history yet. Start billing customers — AI forecasts appear automatically after a few orders.
         </div>
       )}

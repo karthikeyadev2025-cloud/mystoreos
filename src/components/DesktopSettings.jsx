@@ -80,10 +80,11 @@ const DesktopSettings = ({
     };
     reader.readAsDataURL(file);
   };
+
   // Check if user is shop owner or admin
   if (user.role !== 'shop' && user.role !== 'admin' && !user.isOwner) {
     return (
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <ShieldAlert size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
         <h3 style={{ color: '#0F172A', margin: '0 0 8px 0' }}>Access Denied</h3>
         <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>
@@ -100,15 +101,15 @@ const DesktopSettings = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Brand Logo & Business Info */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Award size={18} color="#fbbf24" /> Shop Identity
           </h3>
           
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '20px', background: '#FFFFFF', padding: '16px', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '20px', background: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
             <input type="file" accept="image/*" ref={logoFileRef} style={{ display: 'none' }} onChange={handleLogoFile} />
             <div onClick={() => logoFileRef.current?.click()} style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
-              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.1)', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {logo
                   ? <img src={logo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   : <span style={{ fontSize: '36px' }}>🏪</span>
@@ -119,10 +120,10 @@ const DesktopSettings = ({
               </div>
             </div>
             <div>
-              <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#374163', fontWeight: 'bold' }}>Shop Brand Logo</p>
-              <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#374163' }}>Click circle to change</p>
+              <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#475569', fontWeight: 'bold' }}>Shop Brand Logo</p>
+              <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#64748B' }}>Click circle to change</p>
               {logo && (
-                <button onClick={onLogoRemove} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '4px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                <button onClick={onLogoRemove} style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#B91C1C', padding: '4px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}>
                   Remove Logo
                 </button>
               )}
@@ -132,17 +133,17 @@ const DesktopSettings = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '12px' }}>
               <div style={{ flex: 2 }}>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
-                <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
+                <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
-                <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
+                <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoices)</label>
-              <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={2} style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', resize: 'vertical' }}></textarea>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoices)</label>
+              <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={2} style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', resize: 'vertical' }}></textarea>
             </div>
             <button onClick={handleSaveProfile} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginTop: '4px' }}>
               💾 Save Identity Settings
@@ -151,22 +152,22 @@ const DesktopSettings = ({
         </div>
 
         {/* UPI Payments setup */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={18} color="#10b981" /> UPI Payments Setup
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
+          <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Configure your merchant payments to receive settlements instantly from customers directly in your bank account.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', alignItems: 'start' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>UPI Payment ID</label>
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>UPI Payment ID</label>
                 <input 
                   type="text" value={upiId} onChange={e => setUpiId(e.target.value)} 
                   placeholder="e.g. 9876543210@ybl" 
-                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} 
+                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
               <button onClick={handleSaveProfile} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -178,16 +179,16 @@ const DesktopSettings = ({
               {paymentQr ? (
                 <>
                   <img src={paymentQr} alt="Payment QR" style={{ width: '100px', height: '100px', objectFit: 'contain', background: '#fff', padding: '4px', borderRadius: '8px', border: '2px solid #10b981' }} />
-                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', cursor: 'pointer' }}>Remove</button>
+                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
                 </>
               ) : (
-                <div style={{ width: '100px', height: '100px', borderRadius: '8px', background: '#FFFFFF', border: '2px dashed #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>
+                <div style={{ width: '100px', height: '100px', borderRadius: '8px', background: '#FFFFFF', border: '2px dashed #CBD5E1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
                   <Camera size={20} />
                   <span style={{ fontSize: '9px', marginTop: '4px' }}>No QR</span>
                 </div>
               )}
               <div style={{ display: 'flex', gap: '4px', width: '100%' }}>
-                <label style={{ flex: 1, background: '#3b82f6', color: '#0F172A', padding: '6px', borderRadius: '6px', fontSize: '9px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: '#3b82f6', color: '#FFFFFF', padding: '6px', borderRadius: '6px', fontSize: '9px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   Upload
                   <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
@@ -197,27 +198,27 @@ const DesktopSettings = ({
         </div>
 
         {/* GPS Location Grabber */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <MapPin size={18} color="#8b5cf6" /> Geolocation Coordinate lock
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
+          <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Lock your storefront satellite coordinates so nearby customers can navigate to your store and order goods.
           </p>
 
           <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px' }}>Latitude</label>
-              <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} />
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px' }}>Latitude</label>
+              <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px' }}>Longitude</label>
-              <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }} />
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px' }}>Longitude</label>
+              <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
             </div>
           </div>
           
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={handleGrabLocation} style={{ flex: 1, background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', color: '#a78bfa', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleGrabLocation} style={{ flex: 1, background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               🛰️ Auto-Grab Coordinates
             </button>
             <button onClick={handleSaveProfile} style={{ flex: 1, background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -227,37 +228,37 @@ const DesktopSettings = ({
         </div>
 
         {/* Invoice Customization */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileText size={18} color="#a78bfa" /> Invoice Customization
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
+          <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Customize the invoice number prefix and the footer message printed on every bill PDF.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Invoice Number Prefix</label>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Invoice Number Prefix</label>
               <input
                 type="text"
                 value={invoicePrefix}
                 onChange={e => setInvoicePrefix && setInvoicePrefix(e.target.value.toUpperCase())}
                 placeholder="e.g. INV"
                 maxLength={10}
-                style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }}
               />
-              <p style={{ fontSize: '10px', color: '#374163', margin: '4px 0 0 0' }}>Bills will be numbered: {invoicePrefix || 'INV'}-0001, {invoicePrefix || 'INV'}-0002, …</p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '4px 0 0 0' }}>Bills will be numbered: {invoicePrefix || 'INV'}-0001, {invoicePrefix || 'INV'}-0002, …</p>
             </div>
 
             <PlanGate feature="customInvoiceFooter" fallback={<LockedFeature feature="customInvoiceFooter" />}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: 'bold' }}>Custom Invoice Footer Message</label>
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Custom Invoice Footer Message</label>
                 <textarea
                   value={invoiceFooter}
                   onChange={e => setInvoiceFooter && setInvoiceFooter(e.target.value)}
                   placeholder="e.g. Thank you for shopping with us! GST registered. All sales final."
                   rows={3}
-                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#fff', fontSize: '13px', outline: 'none', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', resize: 'vertical' }}
                 />
               </div>
             </PlanGate>
@@ -277,11 +278,11 @@ const DesktopSettings = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* SaaS Subscription Info Card */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', background: '#F7F8FA' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             ⚡ SaaS Subscription Plan
           </h3>
-          <p style={{ fontSize: '12px', color: '#374163', marginBottom: '16px', lineHeight: '1.4' }}>
+          <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Your current active plan is: <b>{plans?.find(p => p.id === user?.subscription)?.name || (user?.subscription === 'active' ? 'Premium PRO' : 'Free Trial')}</b>. 
             {plans?.find(p => p.id === user?.subscription) && ` This plan charges ₹${plans.find(p => p.id === user?.subscription)?.price}/mo and gives you full access.`}
           </p>
@@ -295,18 +296,18 @@ const DesktopSettings = ({
 
         {/* Billing History */}
         {paymentHistory.length > 0 && (
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CreditCard size={16} color="#10b981" /> Billing History
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
               {paymentHistory.map(payment => (
-                <div key={payment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div key={payment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '10px 12px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <div>
                     <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#0F172A', textTransform: 'capitalize' }}>
                       {payment.planId?.replace('_', ' ')} Plan
                     </p>
-                    <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: '#374163' }}>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: '#475569' }}>
                       {new Date(payment.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                       {payment.paymentId && ` · ${payment.paymentId.slice(-8)}`}
                     </p>
@@ -317,8 +318,8 @@ const DesktopSettings = ({
                     </p>
                     <span style={{
                       fontSize: '9px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '8px',
-                      background: payment.status === 'success' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-                      color: payment.status === 'success' ? '#10b981' : '#ef4444',
+                      background: payment.status === 'success' ? '#DCFCE7' : '#FEE2E2',
+                      color: payment.status === 'success' ? '#15803D' : '#B91C1C',
                       textTransform: 'uppercase',
                     }}>
                       {payment.status}
@@ -331,19 +332,19 @@ const DesktopSettings = ({
         )}
 
         {/* Store Discoverability Toggle */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             {hideFromSearch ? <EyeOff size={18} color="#f43f5e" /> : <Eye size={18} color="#10b981" />} Store Discoverability
           </h3>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.5' }}>
             When ON, customers near your location can find and order from your store in the customer app.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: '700', color: hideFromSearch ? '#f43f5e' : '#10b981' }}>
                 {hideFromSearch ? '🔒 Hidden from search' : '🟢 Visible to nearby customers'}
               </div>
-              <div style={{ fontSize: '11px', color: '#374163', marginTop: '3px' }}>
+              <div style={{ fontSize: '11px', color: '#475569', marginTop: '3px' }}>
                 {hideFromSearch ? 'Customers cannot discover your store' : 'Customers can find and browse your catalogue'}
               </div>
             </div>
@@ -351,7 +352,7 @@ const DesktopSettings = ({
               onClick={() => onToggleHideFromSearch && onToggleHideFromSearch(!hideFromSearch)}
               style={{
                 width: '52px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', flexShrink: 0,
-                background: hideFromSearch ? '#374151' : '#10b981',
+                background: hideFromSearch ? '#94A3B8' : '#10b981',
                 position: 'relative', transition: 'background 0.2s',
               }}
             >
@@ -364,20 +365,20 @@ const DesktopSettings = ({
         </div>
 
         {/* Your Store QR Code */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={18} color="#8b5cf6" /> Your Store QR Code
           </h3>
           <p style={{ fontSize: '12px', color: '#6B7280', textAlign: 'left', marginBottom: '16px' }}>Share this QR for customers to instantly open your catalogue.</p>
 
-          <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px' }}>
+          <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px', border: '1px solid #E2E8F0' }}>
             <QRCodeSVG value={getShopUrl()} size={120} />
           </div>
           {/* Hidden canvas for PNG export */}
           <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
             <QRCodeCanvas ref={qrCanvasRef} value={getShopUrl()} size={300} />
           </div>
-          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
+          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#2563EB', wordBreak: 'break-all', fontWeight: '500' }}>{getShopUrl()}</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
             <button
@@ -391,13 +392,13 @@ const DesktopSettings = ({
                   a.click();
                 }
               }}
-              style={{ background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               ⬇ PNG
             </button>
             <button
               onClick={handleShareShop}
-              style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(37,211,102,0.3)', color: '#25D366', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Share2 size={12} /> Share
             </button>
@@ -405,27 +406,27 @@ const DesktopSettings = ({
               onClick={() => {
                 const url = getShopUrl();
                 const win = window.open('', '_blank');
-                win.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff"><h2 style="color:#F8FAFC;margin-bottom:8px">${user?.name || 'My Store'}</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}" style="border:8px solid #f0f0f0;border-radius:12px"/><p style="color:#64748b;font-size:13px;margin-top:12px">${url}</p><script>window.onload=()=>window.print()</script></body></html>`);
+                win.document.write(`<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff"><h2 style="color:#0F172A;margin-bottom:8px">${user?.name || 'My Store'}</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}" style="border:8px solid #f0f0f0;border-radius:12px"/><p style="color:#64748b;font-size:13px;margin-top:12px">${url}</p><script>window.onload=()=>window.print()</script></body></html>`);
                 win.document.close();
               }}
-              style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Printer size={12} /> Print
             </button>
           </div>
 
-          <div style={{ marginTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ marginTop: '14px', borderTop: '1px solid #E2E8F0', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button onClick={downloadQrPng} style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <QrCode size={14} /> Download QR Code (PNG)
             </button>
-            <button onClick={downloadQrPoster} style={{ width: '100%', background: '#4F46E5', color: '#000', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <button onClick={downloadQrPoster} style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '11px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <FileText size={14} /> Download Full PDF Poster
             </button>
           </div>
         </div>
 
         {/* Staff Helpers management */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} color="#3b82f6" /> Staff Management (సహాయకులు)</span>
             <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" compact />}>{null}</PlanGate>
@@ -435,68 +436,68 @@ const DesktopSettings = ({
           </p>
 
           <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" />}>
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <p style={{ margin: 0, fontSize: '11px', color: '#374163', fontWeight: 'bold' }}>Add Helper Account</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <input 
-                type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
-                placeholder="Helper Name" 
-                style={{ padding: '8px 10px', background: '#F7F8FA', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
-              />
-              <input 
-                type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
-                placeholder="Mobile Login ID" 
-                style={{ padding: '8px 10px', background: '#F7F8FA', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
-              />
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <p style={{ margin: 0, fontSize: '11px', color: '#475569', fontWeight: 'bold' }}>Add Helper Account</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <input 
+                  type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
+                  placeholder="Helper Name" 
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }} 
+                />
+                <input 
+                  type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
+                  placeholder="Mobile Login ID" 
+                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }} 
+                />
+              </div>
+              <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
+                + Register Helper (Default PIN: 1234)
+              </button>
             </div>
-            <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
-              + Register Helper (Default PIN: 1234)
-            </button>
-          </div>
 
-          <h4 style={{ fontSize: '12px', color: '#374163', marginBottom: '10px', fontWeight: 'bold' }}>Active Staff roster</h4>
-          {staffList.length === 0 ? (
-            <p style={{ color: '#6B7280', fontSize: '11px', margin: 0 }}>No assistant accounts registered.</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {staffList.map(s => (
-                <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                  <div>
-                    <h5 style={{ margin: 0, fontSize: '12px', color: '#fff' }}>{s.name}</h5>
-                    <p style={{ margin: 0, fontSize: '10px', color: '#6B7280' }}>Ph: {s.phone}</p>
+            <h4 style={{ fontSize: '12px', color: '#475569', marginBottom: '10px', fontWeight: 'bold' }}>Active Staff roster</h4>
+            {staffList.length === 0 ? (
+              <p style={{ color: '#64748B', fontSize: '11px', margin: 0 }}>No assistant accounts registered.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {staffList.map(s => (
+                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                    <div>
+                      <h5 style={{ margin: 0, fontSize: '12px', color: '#0F172A' }}>{s.name}</h5>
+                      <p style={{ margin: 0, fontSize: '10px', color: '#475569' }}>Ph: {s.phone}</p>
+                    </div>
+                    <span style={{ background: '#DCFCE7', color: '#15803D', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active PIN: 1234</span>
                   </div>
-                  <span style={{ background: 'rgba(79,70,229,0.08)', color: '#22c55e', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active PIN: 1234</span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
           </PlanGate>
         </div>
 
         {/* Shop Hours */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🕐 Shop Hours</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Opens at</label>
-              <select value={openingHour} onChange={e => setOpeningHour && setOpeningHour(Number(e.target.value))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#fff', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Opens at</label>
+              <select value={openingHour} onChange={e => setOpeningHour && setOpeningHour(Number(e.target.value))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
                 {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12:00 AM' : i < 12 ? `${i}:00 AM` : i === 12 ? '12:00 PM' : `${i-12}:00 PM`}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Closes at</label>
-              <select value={closingHour} onChange={e => setClosingHour && setClosingHour(Number(e.target.value))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#fff', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Closes at</label>
+              <select value={closingHour} onChange={e => setClosingHour && setClosingHour(Number(e.target.value))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '8px 10px', borderRadius: '8px', fontSize: '13px' }}>
                 {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12:00 AM' : i < 12 ? `${i}:00 AM` : i === 12 ? '12:00 PM' : `${i-12}:00 PM`}</option>)}
               </select>
             </div>
           </div>
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '6px', fontWeight: '600' }}>Weekly Holidays (tap to toggle closed days)</label>
+            <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: '600' }}>Weekly Holidays (tap to toggle closed days)</label>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(day => (
                 <button key={day} onClick={() => setWeeklyHolidays && setWeeklyHolidays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
-                  style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${weeklyHolidays.includes(day) ? '#f43f5e' : '#334155'}`, background: weeklyHolidays.includes(day) ? 'rgba(244,63,94,0.15)' : '#F8FAFC', color: weeklyHolidays.includes(day) ? '#f43f5e' : '#94a3b8', width: 'auto', flexShrink: 0 }}>
+                  style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: `1px solid ${weeklyHolidays.includes(day) ? '#FCA5A5' : '#E2E8F0'}`, background: weeklyHolidays.includes(day) ? '#FEE2E2' : '#FFFFFF', color: weeklyHolidays.includes(day) ? '#B91C1C' : '#475569', width: 'auto', flexShrink: 0 }}>
                   {day.slice(0,3)}
                 </button>
               ))}
@@ -508,27 +509,27 @@ const DesktopSettings = ({
         </div>
 
         {/* Offer Banner */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🏷️ Offer Banner</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Banner Title</label>
-              <input value={shopBanner?.title || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g. Diwali Mega Sale!" style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Banner Title</label>
+              <input value={shopBanner?.title || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g. Diwali Mega Sale!" style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Subtitle (optional)</label>
-              <input value={shopBanner?.subtitle || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="e.g. Up to 40% off on all sweets" style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Subtitle (optional)</label>
+              <input value={shopBanner?.subtitle || ''} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="e.g. Up to 40% off on all sweets" style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Discount %</label>
-                <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, discountPercent: Number(e.target.value) }))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#fff', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Discount %</label>
+                <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner && setShopBanner(prev => ({ ...prev, discountPercent: Number(e.target.value) }))} style={{ width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', color: '#374163', marginBottom: '4px', fontWeight: '600' }}>Status</label>
+                <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '600' }}>Status</label>
                 <button onClick={() => setShopBanner && setShopBanner(prev => ({ ...prev, active: !prev?.active }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: `1px solid ${shopBanner?.active ? '#22c55e' : '#334155'}`, background: shopBanner?.active ? 'rgba(34,197,94,0.15)' : '#F8FAFC', color: shopBanner?.active ? '#22c55e' : '#94a3b8' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: `1px solid ${shopBanner?.active ? '#86EFAC' : '#E2E8F0'}`, background: shopBanner?.active ? '#DCFCE7' : '#FFFFFF', color: shopBanner?.active ? '#166534' : '#475569' }}>
                   {shopBanner?.active ? '✅ Live' : '⬜ Inactive'}
                 </button>
               </div>
@@ -540,14 +541,14 @@ const DesktopSettings = ({
         </div>
 
         {/* Gallery Images */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>📸 Shop Photos (Max 6)</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Upload photos of your storefront or inventory products.</p>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
             {shopPhotos.map((photo, idx) => (
               <div key={idx} style={{ position: 'relative' }}>
-                <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '70px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }} />
+                <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '70px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
                 <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', cursor: 'pointer', lineHeight: '18px', padding: 0 }}>×</button>
               </div>
             ))}

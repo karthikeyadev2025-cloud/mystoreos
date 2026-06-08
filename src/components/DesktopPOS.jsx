@@ -78,11 +78,11 @@ const DesktopPOS = ({
         
         {/* AI Insights Card */}
         {lowStockProducts.length > 0 && (
-          <div className="premium-glass" style={{ background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.08))', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="premium-glass" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '32px' }}>🤖</span>
             <div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#fca5a5', fontWeight: 'bold' }}>AI Inventory Warning</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: '#f87171', lineHeight: '1.4' }}>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: '#7F1D1D', lineHeight: '1.4' }}>
                 You are running low on <b>{lowStockProducts.map(p => p.name).join(', ')}</b>. Based on your weekend sales trend, you will run out by Sunday.
               </p>
             </div>
@@ -91,46 +91,46 @@ const DesktopPOS = ({
 
         {/* Stats Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'transform 0.2s' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#ef4444' : '#fbbf24', margin: 0 }}>{pendingOrders}</p>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>New Orders</p>
+          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #e5e7eb', background: '#ffffff', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#ef4444' : '#D97706', margin: 0 }}>{pendingOrders}</p>
+            <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>New Orders</p>
           </div>
           {isOwner && (
-            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #e5e7eb', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981', margin: 0 }}>₹{sales}</p>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Today's Sales</p>
+              <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Today's Sales</p>
             </div>
           )}
-          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #e5e7eb', background: '#ffffff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6', margin: 0 }}>{products.length}</p>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Total Products</p>
+            <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Total Products</p>
           </div>
           {isOwner && (
-            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #e5e7eb', background: '#ffffff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>₹{payable}</p>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Supplier Credit</p>
+              <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Supplier Credit</p>
             </div>
           )}
         </div>
 
         {/* Daily Target Progress Ring */}
         {isOwner && (
-          <div className="premium-glass" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div className="premium-glass" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid #e5e7eb', background: '#ffffff', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {dailyTarget > 0 ? (
               <>
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
-                  <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="7" />
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#e2e8f0" strokeWidth="7" />
                   <circle cx="40" cy="40" r="28" fill="none" stroke={ringColor} strokeWidth="7"
                     strokeDasharray={CIRC} strokeDashoffset={ringOffset}
                     strokeLinecap="round" transform="rotate(-90 40 40)"
                     style={{ transition: 'stroke-dashoffset 0.6s ease' }}
                   />
-                  <text x="40" y="45" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="Outfit, sans-serif">{targetPctInt}%</text>
+                  <text x="40" y="45" textAnchor="middle" fill="#0f172a" fontSize="13" fontWeight="bold" fontFamily="Outfit, sans-serif">{targetPctInt}%</text>
                 </svg>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: 'white', marginBottom: '2px' }}>{motivation}</div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>₹{sales.toLocaleString('en-IN')} of ₹{dailyTarget.toLocaleString('en-IN')} daily target</div>
-                  <button onClick={() => setShowTargetInput(v => !v)} style={{ fontSize: '10px', color: '#64748b', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', marginBottom: '2px' }}>{motivation}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>₹{sales.toLocaleString('en-IN')} of ₹{dailyTarget.toLocaleString('en-IN')} daily target</div>
+                  <button onClick={() => setShowTargetInput(v => !v)} style={{ fontSize: '10px', color: '#4F46E5', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
                     Change Target
                   </button>
                 </div>
@@ -139,14 +139,14 @@ const DesktopPOS = ({
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '28px' }}>🎯</span>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>Set a Daily Sales Target</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>Set a Daily Sales Target</div>
                   <div style={{ fontSize: '11px', color: '#64748b' }}>Track your progress toward a daily revenue goal</div>
                 </div>
               </div>
             )}
             {(showTargetInput || dailyTarget === 0) && (
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                <span style={{ color: '#94a3b8', fontSize: '13px' }}>₹</span>
+                <span style={{ color: '#64748b', fontSize: '13px' }}>₹</span>
                 <input
                   type="number"
                   placeholder="e.g. 5000"
@@ -156,7 +156,7 @@ const DesktopPOS = ({
                 />
                 <button
                   onClick={() => { handleSetDailyTarget && handleSetDailyTarget(targetInput); setTargetInput(''); setShowTargetInput(false); }}
-                  style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                  style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                 >
                   Set
                 </button>
@@ -166,7 +166,7 @@ const DesktopPOS = ({
         )}
 
         {/* Search & Actions Panel */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #e5e7eb', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '1px solid #D8E0EE', marginBottom: '16px' }}>
             <Search size={16} color="#9AAAC4" />
             <input 
@@ -174,43 +174,43 @@ const DesktopPOS = ({
               placeholder="Search products to add to bill..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', color: '#0A0F1E', width: '100%', padding: '12px 0', color: 'white', outline: 'none', fontSize: '15px' }} 
+              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', color: '#0f172a', width: '100%', padding: '12px 0', outline: 'none', fontSize: '15px' }} 
             />
           </div>
 
           {/* Action Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
-              <ScanLine size={20} color="#3b82f6" />
-              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Barcode Scan</span>
+            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <ScanLine size={20} color="#4f46e5" />
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Barcode Scan</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
+              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
                 <Plus size={20} color="#10b981" />
-                <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Add Product</span>
+                <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Add Product</span>
               </button>
             )}
-            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
-              <IndianRupee size={20} color="#f59e0b" />
-              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>UPI QR Code</span>
+            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <IndianRupee size={20} color="#d97706" />
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>UPI QR Code</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
-                <Book size={20} color="#8b5cf6" />
-                <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>Credit Ledger</span>
+              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                <Book size={20} color="#6366f1" />
+                <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Credit Ledger</span>
               </button>
             )}
-            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', background: '#FFFFFF', border: '1px solid #D8E0EE', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', color: 'white' }}>
-              <Receipt size={20} color={pendingOrders > 0 ? '#ef4444' : '#cbd5e1'} />
-              <span style={{ fontSize: '11px', fontWeight: '600', color: '#374163' }}>All Bills</span>
+            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0f172a', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <Receipt size={20} color={pendingOrders > 0 ? '#ef4444' : '#64748b'} />
+              <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>All Bills</span>
             </button>
           </div>
         </div>
 
         {/* Product Grid Catalog (Quick Add) */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Package size={18} color="#fbbf24" /> Quick Shelf Explorer
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #e5e7eb', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Package size={18} color="#d97706" /> Quick Shelf Explorer
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
@@ -221,7 +221,7 @@ const DesktopPOS = ({
               const minsLeft = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '14px', borderRadius: '12px', background: activeSale ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${activeSale ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.05)'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative' }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '14px', borderRadius: '12px', background: activeSale ? '#FEF2F2' : '#ffffff', border: `1px solid ${activeSale ? '#FCA5A5' : '#e5e7eb'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
                   {activeSale && (
                     <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#ef4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
                       🔥 -{sale.discount}% · {timeLabel}
@@ -229,27 +229,27 @@ const DesktopPOS = ({
                   )}
                   <div>
                     {p.image && (
-                      <img src={p.image} alt={p.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px', border: '1px solid rgba(255,255,255,0.06)' }} />
+                      <img src={p.image} alt={p.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px', border: '1px solid #e5e7eb' }} />
                     )}
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: 'white' }}>{p.name}</h4>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>{p.name}</h4>
                     {activeSale ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#ef4444' }}>₹{salePrice}</p>
                         <p style={{ margin: 0, fontSize: '11px', color: '#64748b', textDecoration: 'line-through' }}>₹{p.price}</p>
                       </div>
                     ) : (
-                      <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#fbbf24' }}>₹{p.price}</p>
+                      <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#4f46e5' }}>₹{p.price}</p>
                     )}
-                    <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: lowStock ? '#ef4444' : '#94a3b8', fontWeight: lowStock ? 'bold' : 'normal' }}>
+                    <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: lowStock ? '#ef4444' : '#64748b', fontWeight: lowStock ? 'bold' : 'normal' }}>
                       Stock: {p.stock || 0}
                     </p>
                   </div>
                   <button 
                     onClick={() => addToBill(p)}
                     style={{ 
-                      background: 'rgba(59, 130, 246, 0.1)', 
-                      border: '1px solid rgba(59, 130, 246, 0.3)', 
-                      color: '#3b82f6', 
+                      background: 'rgba(79, 70, 229, 0.08)', 
+                      border: '1px solid rgba(79, 70, 229, 0.25)', 
+                      color: '#4f46e5', 
                       width: '100%', 
                       padding: '8px', 
                       borderRadius: '8px', 
@@ -259,8 +259,8 @@ const DesktopPOS = ({
                       marginTop: '12px',
                       transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'; e.currentTarget.style.color = '#3b82f6'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(79, 70, 229, 0.08)'; e.currentTarget.style.color = '#4f46e5'; }}
                   >
                     + Add to Cart
                   </button>
@@ -268,7 +268,7 @@ const DesktopPOS = ({
               );
             })}
             {filteredProducts.length === 0 && (
-              <div style={{ gridColumn: '1/-1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '40px 16px', color: '#94a3b8' }}>
+              <div style={{ gridColumn: '1/-1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '40px 16px', color: '#64748b' }}>
                 <Package size={40} style={{ opacity: 0.2 }} />
                 <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#64748b' }}>No products found</p>
                 <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Try a different search, or add your first product</p>
@@ -280,10 +280,10 @@ const DesktopPOS = ({
       </div>
 
       {/* Right Column (1/3 width): Checkout Cart */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #e5e7eb', background: '#ffffff', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Receipt size={20} color="#10b981" /> POS Terminal
           </h3>
           <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
@@ -292,13 +292,13 @@ const DesktopPOS = ({
         </div>
 
         {/* Billing Mode Segmented Control */}
-        <div style={{ display: 'flex', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <button 
             onClick={() => setBillingMode('bill')} 
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'bill' ? 'rgba(16,185,129,0.2)' : 'transparent',
-              color: billingMode === 'bill' ? '#10b981' : '#94a3b8',
+              color: billingMode === 'bill' ? '#10b981' : '#64748b',
             }}
           >
             Bill
@@ -308,7 +308,7 @@ const DesktopPOS = ({
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'estimate' ? 'rgba(245,158,11,0.2)' : 'transparent',
-              color: billingMode === 'estimate' ? '#f59e0b' : '#94a3b8',
+              color: billingMode === 'estimate' ? '#d97706' : '#64748b',
             }}
           >
             Estimate
@@ -318,7 +318,7 @@ const DesktopPOS = ({
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'challan' ? 'rgba(59,130,246,0.2)' : 'transparent',
-              color: billingMode === 'challan' ? '#3b82f6' : '#94a3b8',
+              color: billingMode === 'challan' ? '#3b82f6' : '#64748b',
             }}
           >
             Challan
@@ -326,8 +326,8 @@ const DesktopPOS = ({
         </div>
 
         {/* Customer Details Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '12px' }}>
-          <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#cbd5e1' }}>Customer Profiling</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
+          <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>Customer Profiling</p>
           <input 
             type="text" 
             placeholder="Customer Name" 
@@ -343,9 +343,9 @@ const DesktopPOS = ({
             style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #D8E0EE', borderRadius: '8px', color: '#0A0F1E', fontSize: '13px', outline: 'none', margin: 0 }}
           />
           {loyaltyEnabled && customerPhone && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(139,92,246,0.06)', borderRadius: '6px', border: '1px solid rgba(139,92,246,0.2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid #C7D2FE' }}>
               <span style={{ fontSize: '11px' }}>⭐</span>
-              <span style={{ fontSize: '11px', color: '#a78bfa', fontWeight: '600' }}>
+              <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: '600' }}>
                 {customerLoyaltyPoints > 0 ? `${customerLoyaltyPoints} loyalty pts` : 'No loyalty pts yet'}
               </span>
             </div>
@@ -379,23 +379,23 @@ const DesktopPOS = ({
         <div style={{ display: 'flex', gap: '8px', background: '#F1F5F9', padding: '8px 12px', borderRadius: '10px', border: '1px solid #D8E0EE', alignItems: 'center' }}>
           <input 
             type="text" placeholder="Custom item..." value={customItemName} onChange={e => setCustomItemName(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px', margin: 0, padding: '4px 0', width: 'auto' }} 
+            style={{ flex: 1, background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '13px', margin: 0, padding: '4px 0', width: 'auto' }} 
           />
           <input 
             type="number" placeholder="₹" value={customItemPrice} onChange={e => setCustomItemPrice(e.target.value)}
-            style={{ width: '60px', background: 'transparent', border: 'none', color: '#fbbf24', outline: 'none', fontSize: '13px', fontWeight: 'bold', margin: 0, padding: '4px 0' }} 
+            style={{ width: '60px', background: 'transparent', border: 'none', color: '#d97706', outline: 'none', fontSize: '13px', fontWeight: 'bold', margin: 0, padding: '4px 0' }} 
           />
-          <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', width: 'auto', margin: 0 }}>Add</button>
+          <button onClick={addCustomItem} style={{ background: '#4f46e5', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', width: 'auto', margin: 0 }}>Add</button>
         </div>
 
         {/* Invoice Basket Items */}
         <div style={{ flex: 1, minHeight: '140px', overflowY: 'auto' }}>
           {billItems.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', padding: '28px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minHeight: '140px', justifyContent: 'center' }}>
-              <Package size={48} style={{ opacity: 0.2, color: '#94a3b8' }} />
+            <div style={{ textAlign: 'center', color: '#64748b', fontSize: '13px', padding: '28px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minHeight: '140px', justifyContent: 'center' }}>
+              <Package size={48} style={{ opacity: 0.2, color: '#64748b' }} />
               <div>
                 <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#64748b', fontSize: '13px' }}>Cart is Empty</p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Search products or add a custom item above</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#64748b' }}>Search products or add a custom item above</p>
               </div>
             </div>
           ) : (
@@ -403,16 +403,16 @@ const DesktopPOS = ({
               {billItems.map((item, idx) => {
                 const variantList = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
                 return (
-                  <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.01)', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                     <div style={{ flex: 1, marginRight: '4px' }}>
-                      <p style={{ margin: 0, fontWeight: '700', fontSize: '12px', color: '#fff' }}>{item.name}</p>
+                      <p style={{ margin: 0, fontWeight: '700', fontSize: '12px', color: '#0f172a' }}>{item.name}</p>
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px' }}>
-                        <span style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 'bold' }}>₹{item.price}</span>
+                        <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 'bold' }}>₹{item.price}</span>
                         {variantList.length > 0 && (
                           <select 
-                            value={item.selectedVariant || ''} 
-                            onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
-                            style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}
+                             value={item.selectedVariant || ''} 
+                             onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
+                             style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}
                           >
                             {variantList.map((v, vidx) => (
                               <option key={vidx} value={v}>{v}</option>
@@ -423,12 +423,12 @@ const DesktopPOS = ({
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px' }}>-</button>
-                      <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '12px', textAlign: 'center' }}>
+                      <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#e2e8f0', border: 'none', color: '#0f172a', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>-</button>
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '12px', textAlign: 'center', color: '#0f172a' }}>
                         {item.qty || 1}
-                        {(() => { const s = UNIT_SUFFIX[resolveUnit(item, shopCategory)]; return s ? <span style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 'normal', marginLeft: 2 }}>{s}</span> : null; })()}
+                        {(() => { const s = UNIT_SUFFIX[resolveUnit(item, shopCategory)]; return s ? <span style={{ fontSize: '9px', color: '#64748b', fontWeight: 'normal', marginLeft: 2 }}>{s}</span> : null; })()}
                       </span>
-                      <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px' }}>+</button>
+                      <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#e2e8f0', border: 'none', color: '#0f172a', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>+</button>
                       
                       <span style={{ fontWeight: 'bold', color: '#10b981', minWidth: '45px', textAlign: 'right', fontSize: '12px' }}>₹{item.price * (item.qty || 1)}</span>
                       
@@ -444,9 +444,9 @@ const DesktopPOS = ({
         </div>
 
         {/* ── Manual Discount (% entry) ── */}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+        <div style={{ padding: '12px 16px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', flex: 1 }}>Discount %</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: '#475569', flex: 1 }}>Discount %</span>
             {manualDiscountPct > 0 && (
               <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '700', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '5px', padding: '2px 7px' }}>
                 -₹{manualDiscountAmt.toLocaleString('en-IN')}
@@ -462,9 +462,9 @@ const DesktopPOS = ({
                 style={{
                   flex: 1,
                   padding: '7px 4px',
-                  background: manualDiscountPct === d ? '#4F46E5' : 'rgba(255,255,255,0.07)',
-                  color: manualDiscountPct === d ? '#fff' : '#94a3b8',
-                  border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : 'rgba(255,255,255,0.1)'}`,
+                  background: manualDiscountPct === d ? '#4F46E5' : '#ffffff',
+                  color: manualDiscountPct === d ? '#ffffff' : '#475569',
+                  border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : '#e2e8f0'}`,
                   borderRadius: '7px',
                   fontSize: '11px',
                   fontWeight: '600',
@@ -490,12 +490,11 @@ const DesktopPOS = ({
                 style={{
                   width: '100%',
                   padding: '7px 22px 7px 8px',
-                  background: manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
-                    ? 'rgba(79,70,229,0.15)' : 'rgba(255,255,255,0.07)',
+                  background: '#ffffff',
                   border: `1.5px solid ${manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
-                    ? '#4F46E5' : 'rgba(255,255,255,0.12)'}`,
+                    ? '#4F46E5' : '#e2e8f0'}`,
                   borderRadius: '7px',
-                  color: '#fff',
+                  color: '#0f172a',
                   fontSize: '12px',
                   fontFamily: 'JetBrains Mono, monospace',
                   textAlign: 'right',
@@ -507,7 +506,7 @@ const DesktopPOS = ({
         </div>
 
         {/* Promo discount & calculations */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
           <div className="promo-code-row" style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F1F5F9', padding: '6px 10px', borderRadius: '10px', border: '1px solid #CBD5E1' }}>
             <input 
               type="text" 
@@ -515,9 +514,9 @@ const DesktopPOS = ({
               value={promoCode} 
               onChange={e => setPromoCode(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
-              style={{ flex: 1, background: 'transparent', border: 'none !important', boxShadow: 'none', color: '#0A0F1E', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#f59e0b', padding: '4px 0', margin: 0 }} 
+              style={{ flex: 1, background: 'transparent', border: 'none !important', boxShadow: 'none', color: '#0A0F1E', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#4f46e5', padding: '4px 0', margin: 0 }} 
             />
-            <button onClick={applyPromoCode} style={{ background: '#f59e0b', color: '#000', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
+            <button onClick={applyPromoCode} style={{ background: '#d97706', color: '#ffffff', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
 
           {(discountAmount > 0 || manualDiscountAmt > 0) && (
@@ -528,12 +527,12 @@ const DesktopPOS = ({
           )}
 
           {loyaltyEnabled && customerLoyaltyPoints > 0 && (
-            <div style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ background: '#F5F3FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#a78bfa', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4F46E5', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   ⭐ Loyalty Points
                 </span>
-                <span style={{ fontSize: '11px', color: '#c4b5fd', fontWeight: '700' }}>{customerLoyaltyPoints} pts available</span>
+                <span style={{ fontSize: '11px', color: '#6366f1', fontWeight: '700' }}>{customerLoyaltyPoints} pts available</span>
               </div>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <input
@@ -543,28 +542,28 @@ const DesktopPOS = ({
                   step={10}
                   value={loyaltyRedeem}
                   onChange={e => setLoyaltyRedeem && setLoyaltyRedeem(parseInt(e.target.value))}
-                  style={{ flex: 1, accentColor: '#8b5cf6' }}
+                  style={{ flex: 1, accentColor: '#4f46e5' }}
                 />
-                <span style={{ fontSize: '11px', color: '#c4b5fd', minWidth: '50px', textAlign: 'right' }}>{loyaltyRedeem} pts</span>
+                <span style={{ fontSize: '11px', color: '#6366f1', minWidth: '50px', textAlign: 'right' }}>{loyaltyRedeem} pts</span>
               </div>
               {loyaltyDiscountRupees > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#a78bfa', fontWeight: '600' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#4F46E5', fontWeight: '600' }}>
                   <span>Points Redeemed:</span>
                   <span>-₹{loyaltyDiscountRupees}</span>
                 </div>
               )}
-              <p style={{ margin: 0, fontSize: '9px', color: '#7c3aed' }}>10 pts = ₹1 off • Slide to redeem</p>
+              <p style={{ margin: 0, fontSize: '9px', color: '#4F46E5' }}>10 pts = ₹1 off • Slide to redeem</p>
             </div>
           )}
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#94a3b8' }}>Gross Total</span>
-            <span style={{ fontSize: '14px', color: '#cbd5e1', textDecoration: (discountAmount > 0 || manualDiscountAmt > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
+            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#475569' }}>Gross Total</span>
+            <span style={{ fontSize: '14px', color: '#0f172a', textDecoration: (discountAmount > 0 || manualDiscountAmt > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fbbf24' }}>Final Payable</span>
-            <span style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees)}</span>
+            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#d97706' }}>Final Payable</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#d97706' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees)}</span>
           </div>
         </div>
 
@@ -578,7 +577,7 @@ const DesktopPOS = ({
                 <button
                   key={method}
                   onClick={() => method === 'UPI' ? handleShowUpiQr() : undefined}
-                  style={{ padding: '7px 4px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', fontSize: '10px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' }}
+                  style={{ padding: '7px 4px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff', color: '#475569', fontSize: '10px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}
                 >
                   {method === 'Cash' ? '💵' : method === 'UPI' ? '📱' : method === 'Card' ? '💳' : '📒'}<br />{method}
                 </button>
@@ -589,8 +588,8 @@ const DesktopPOS = ({
               onClick={sendWhatsAppBill}
               disabled={billItems.length === 0}
               style={{
-                background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : 'linear-gradient(135deg,#22c55e,#16a34a)'),
-                color: billingMode === 'estimate' ? '#000' : '#fff',
+                background: billingMode === 'estimate' ? '#d97706' : (billingMode === 'challan' ? '#4f46e5' : 'linear-gradient(135deg,#22c55e,#16a34a)'),
+                color: '#fff',
                 opacity: billItems.length ? 1 : 0.5,
                 width: '100%',
                 padding: '13px',
@@ -616,7 +615,7 @@ const DesktopPOS = ({
             </button>
           </div>
           
-          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(251,191,36,0.08)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(217,119,6,0.08)', color: '#d97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <QrCode size={14} /> 📲 Show UPI QR to Customer
           </button>
         </div>

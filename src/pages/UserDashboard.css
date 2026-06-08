@@ -36,7 +36,7 @@
   background: #fbfbf7;
   color: #0f172a;
   font-family: 'Courier New', Courier, monospace;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
   animation: receipt-unroll 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: top center;
   position: relative;
@@ -73,46 +73,46 @@
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: #F1F5F9;
   border-radius: 10px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #CBD5E1;
   border-radius: 10px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #94A3B8;
 }
 
 .pro-featured-card {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.5), rgba(76, 29, 149, 0.18)) !important;
-  border: 1px solid rgba(139, 92, 246, 0.45) !important;
-  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.12) !important;
+  background: linear-gradient(145deg, #FAF5FF, #F3E8FF) !important;
+  border: 1px solid #E9D5FF !important;
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pro-featured-card:hover {
-  border-color: rgba(139, 92, 246, 0.7) !important;
-  box-shadow: 0 12px 36px rgba(139, 92, 246, 0.22) !important;
+  border-color: #C084FC !important;
+  box-shadow: 0 12px 36px rgba(139, 92, 246, 0.15) !important;
   transform: translateY(-2px);
 }
 
 .standard-shop-card {
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .standard-shop-card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(30, 41, 59, 0.45);
+  border-color: #CBD5E1;
+  background: #F8FAFC;
   transform: translateY(-2px);
 }
 
 .shimmer-loading {
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
   background-size: 200% 100%;
   animation: shimmer-bg 1.5s infinite linear;
 }
@@ -134,4 +134,3 @@
   touch-action: none;
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>') 12 12, pointer;
 }
-

@@ -4,9 +4,9 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '24px', marginBottom: '16px' },
-  input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc', padding: '9px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none' },
-  dlBtn: (busy, color = '#f43f5e') => ({ background: busy ? 'rgba(100,116,139,0.2)' : `${color}22`, border: `1px solid ${busy ? 'rgba(100,116,139,0.3)' : color + '44'}`, color: busy ? '#64748b' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '9px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none' },
+  dlBtn: (busy, color = '#4f46e5') => ({ background: busy ? '#f1f5f9' : `${color}10`, border: `1px solid ${busy ? '#cbd5e1' : color + '30'}`, color: busy ? '#64748b' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
 };
 
 function downloadCSV(csv, filename) {
@@ -23,9 +23,9 @@ function ExportCard({ icon: Icon, title, description, color, action, children })
   return (
     <div style={S.card}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-        <div style={{ background: `${color}22`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
+        <div style={{ background: `${color}15`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
         <div style={{ flex: 1 }}>
-          <div style={{ color: '#f8fafc', fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>{title}</div>
+          <div style={{ color: '#0f172a', fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>{title}</div>
           <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '14px' }}>{description}</div>
           {children}
           <div style={{ marginTop: '14px' }}>{action}</div>
@@ -103,8 +103,8 @@ export default function TabExports() {
   return (
     <div style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 700 }}>Data Exports</h2>
-        <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>Download platform data as UTF-8 CSV (Telugu name safe)</p>
+        <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Data Exports</h2>
+        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Download platform data as UTF-8 CSV (Telugu name safe)</p>
       </div>
 
       <ExportCard icon={Users} title="All Users" description="Full user directory across all roles with subscription and join date." color="#3b82f6"
@@ -123,11 +123,11 @@ export default function TabExports() {
         action={<button onClick={exportOrders} disabled={busy.orders} style={S.dlBtn(busy.orders, '#8b5cf6')}><Download size={14} />{busy.orders ? 'Exporting...' : 'Download Orders CSV'}</button>}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div>
-            <label style={{ color: '#94a3b8', fontSize: '11px', display: 'block', marginBottom: '4px' }}>From</label>
+            <label style={{ color: '#475569', fontSize: '11px', display: 'block', marginBottom: '4px' }}>From</label>
             <input type="date" value={dateRange.start} onChange={e => setDateRange(r => ({ ...r, start: e.target.value }))} style={S.input} />
           </div>
           <div>
-            <label style={{ color: '#94a3b8', fontSize: '11px', display: 'block', marginBottom: '4px' }}>To</label>
+            <label style={{ color: '#475569', fontSize: '11px', display: 'block', marginBottom: '4px' }}>To</label>
             <input type="date" value={dateRange.end} onChange={e => setDateRange(r => ({ ...r, end: e.target.value }))} style={S.input} />
           </div>
           {(dateRange.start || dateRange.end) && (

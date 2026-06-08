@@ -5,22 +5,22 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' },
-  card: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' },
-  cardLabel: { color: '#94a3b8', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' },
-  cardVal: { color: '#f8fafc', fontSize: '30px', fontWeight: 800, lineHeight: 1 },
-  cardSub: { color: '#64748b', fontSize: '12px', marginTop: '8px' },
-  sectionTitle: { color: '#f1f5f9', fontSize: '16px', fontWeight: 700, marginBottom: '16px' },
-  chartsRow: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' },
-  chartCard: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '24px' },
+  grid4: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' },
+  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  cardLabel: { color: '#64748B', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' },
+  cardVal: { color: '#0F172A', fontSize: '26px', fontWeight: 800, lineHeight: 1.2 },
+  cardSub: { color: '#64748B', fontSize: '12px', marginTop: '8px' },
+  sectionTitle: { color: '#0F172A', fontSize: '16px', fontWeight: 700, marginBottom: '16px' },
+  chartsRow: { display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '24px' },
+  chartCard: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
 };
 
-const PIE_COLORS = ['#f43f5e', '#8b5cf6', '#10b981', '#f59e0b'];
+const PIE_COLORS = ['#4F46E5', '#8B5CF6', '#10B981', '#F59E0B'];
 
-const StatCard = ({ icon: Icon, label, value, sub, color = '#f43f5e' }) => (
+const StatCard = ({ icon: Icon, label, value, sub, color = '#4F46E5' }) => (
   <div style={S.card}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-      <div style={{ background: `${color}22`, borderRadius: '8px', padding: '8px', display: 'flex' }}>
+      <div style={{ background: `${color}15`, borderRadius: '8px', padding: '8px', display: 'flex' }}>
         <Icon size={18} color={color} />
       </div>
       <span style={S.cardLabel}>{label}</span>
@@ -59,7 +59,7 @@ export default function TabOverview() {
   useEffect(() => { const t = setTimeout(() => load(), 0); return () => clearTimeout(t); }, []);
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#94a3b8', fontSize: '14px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#64748B', fontSize: '14px' }}>
       Loading metrics…
     </div>
   );
@@ -67,8 +67,8 @@ export default function TabOverview() {
   if (!stats && !loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '12px' }}>
       <div style={{ fontSize: '32px' }}>⚠️</div>
-      <div style={{ color: '#1E293B', fontWeight: 700, fontSize: '16px' }}>Failed to load metrics</div>
-      <div style={{ color: '#64748b', fontSize: '13px' }}>Check Supabase connection or admin permissions</div>
+      <div style={{ color: '#0F172A', fontWeight: 700, fontSize: '16px' }}>Failed to load metrics</div>
+      <div style={{ color: '#64748B', fontSize: '13px' }}>Check Supabase connection or admin permissions</div>
       <button onClick={() => load()} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '13px', marginTop: '8px', width: 'auto' }}>Retry</button>
     </div>
   );
@@ -83,46 +83,46 @@ export default function TabOverview() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#f1f5f9', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
-          <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Platform-wide metrics at a glance</p>
+          <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Command Center</h2>
+          <p style={{ color: '#64748B', fontSize: '13px', marginTop: '4px' }}>Platform-wide metrics at a glance</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#94a3b8', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: 'auto', flexShrink: 0 }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', width: 'auto', flexShrink: 0, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
           <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>
       </div>
 
-      <div style={S.grid4} className="overview-grid4">
-        <StatCard icon={IndianRupee} label="Monthly Revenue" value={stats?.revenue || '₹0'} sub={`Shops ₹${stats?.shopMRR || 0} + Dist ₹${stats?.distMRR || 0}`} color="#f43f5e" />
-        <StatCard icon={Store} label="Total Shops" value={stats?.totalShops || 0} sub={`${stats?.paidShops || 0} paid`} color="#8b5cf6" />
-        <StatCard icon={Truck} label="Distributors" value={stats?.totalDistributors || 0} color="#10b981" />
-        <StatCard icon={Users} label="Customers" value={stats?.totalUsers || 0} color="#f59e0b" />
-        <StatCard icon={ShoppingCart} label="Total Orders" value={stats?.totalOrders || 0} color="#3b82f6" />
-        <StatCard icon={AlertCircle} label="Active Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues" color="#ef4444" />
-        <StatCard icon={TrendingUp} label="Shop MRR" value={`₹${stats?.shopMRR || 0}`} color="#06b6d4" />
-        <StatCard icon={TrendingUp} label="Distributor MRR" value={`₹${stats?.distMRR || 0}`} color="#84cc16" />
+      <div className="overview-grid4" style={S.grid4}>
+        <StatCard icon={IndianRupee} label="Monthly Revenue" value={stats?.revenue || '₹0'} sub={`Shops ₹${stats?.shopMRR || 0} + Dist ₹${stats?.distMRR || 0}`} color="#4F46E5" />
+        <StatCard icon={Store} label="Total Shops" value={stats?.totalShops || 0} sub={`${stats?.paidShops || 0} paid`} color="#8B5CF6" />
+        <StatCard icon={Truck} label="Distributors" value={stats?.totalDistributors || 0} color="#10B981" />
+        <StatCard icon={Users} label="Customers" value={stats?.totalUsers || 0} color="#F59E0B" />
+        <StatCard icon={ShoppingCart} label="Total Orders" value={stats?.totalOrders || 0} color="#3B82F6" />
+        <StatCard icon={AlertCircle} label="Active Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues" color="#EF4444" />
+        <StatCard icon={TrendingUp} label="Shop MRR" value={`₹${stats?.shopMRR || 0}`} color="#06B6D4" />
+        <StatCard icon={TrendingUp} label="Distributor MRR" value={`₹${stats?.distMRR || 0}`} color="#84CC16" />
       </div>
 
-      <div style={S.chartsRow}>
+      <div className="admin-charts-grid">
         <div style={S.chartCard}>
           <div style={S.sectionTitle}>Revenue (Last 6 Months)</div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={revenueData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
               <defs>
                 <linearGradient id="shopGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="distGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
-              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} formatter={v => [`₹${v}`, '']} />
-              <Area type="monotone" dataKey="shops" name="Shops" stroke="#f43f5e" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#8b5cf6" fill="url(#distGrad)" strokeWidth={2} dot={false} />
+              <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A' }} formatter={v => [`₹${v}`, '']} />
+              <Area type="monotone" dataKey="shops" name="Shops" stroke="#4F46E5" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#8B5CF6" fill="url(#distGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -134,39 +134,38 @@ export default function TabOverview() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3}>
                 {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A' }} />
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             {pieData.map((d, i) => (
-              <span key={d.name} style={{ fontSize: '11px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span key={d.name} style={{ fontSize: '11px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: PIE_COLORS[i], display: 'inline-block' }} />
                 {d.name}: {d.value}
               </span>
             ))}
           </div>
         </div>
-      </div>
 
-      <div style={S.chartCard}>
-        <div style={S.sectionTitle}>User Growth (Last 6 Months)</div>
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={growthData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
-            <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#374163' }} />
-            <Bar dataKey="shops" name="Shops" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="customers" name="Customers" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="distributors" name="Distributors" fill="#10b981" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div style={S.chartCard}>
+          <div style={S.sectionTitle}>User Growth (Last 6 Months)</div>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={growthData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
+              <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A' }} />
+              <Bar dataKey="shops" name="Shops" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="customers" name="Customers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="distributors" name="Distributors" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media(max-width:900px){.overview-grid4{grid-template-columns:repeat(2,1fr)!important}}
-        @media(max-width:480px){.overview-grid4{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   );
 }
+

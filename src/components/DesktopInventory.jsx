@@ -128,41 +128,41 @@ const DesktopInventory = ({
     : alerts.filter(a => a.alertType === alertFilter);
 
   const alertConfig = {
-    expired: { label: 'Expired', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)' },
-    expiring7: { label: 'Exp. in 7d', color: '#f97316', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.25)' },
-    expiring30: { label: 'Exp. in 30d', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)' },
-    lowstock: { label: 'Low Stock', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.2)' },
+    expired: { label: 'Expired', color: '#ef4444', bg: '#FEF2F2', border: '#FCA5A5' },
+    expiring7: { label: 'Exp. in 7d', color: '#f97316', bg: '#FFF7ED', border: '#FFEDD5' },
+    expiring30: { label: 'Exp. in 30d', color: '#f59e0b', bg: '#FEF3C7', border: '#FDE68A' },
+    lowstock: { label: 'Low Stock', color: '#2563eb', bg: '#EFF6FF', border: '#BFDBFE' },
   };
 
   return (
-    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+    <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Package size={22} color="#fbbf24" /> Shop Inventory & Catalog
           </h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>
             Manage your store shelf items, stock status, barcode labels, and bulk restock actions.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '2px 12px', border: '1px solid #334155', width: '260px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '2px 12px', border: '1px solid #E2E8F0', width: '260px' }}>
             <Search size={16} color="#94a3b8" />
             <input
               type="text" placeholder="Search catalog..."
               value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'white', outline: 'none', fontSize: '13px' }}
+              style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: '#0F172A', outline: 'none', fontSize: '13px' }}
             />
           </div>
-          <button onClick={downloadTemplate} title="Download CSV template" style={{ background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid #334155', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={downloadTemplate} title="Download CSV template" style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             📋 Template
           </button>
-          <button onClick={() => csvInputRef.current?.click()} style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={() => csvInputRef.current?.click()} style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Upload size={14} /> Import CSV
           </button>
           <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={onCsvFileChange} style={{ display: 'none' }} />
-          <button onClick={() => setShowAddProductModal(true)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={() => setShowAddProductModal(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={16} /> Add Product
           </button>
         </div>
@@ -174,7 +174,7 @@ const DesktopInventory = ({
           <button
             key={cat}
             onClick={() => setCatFilter(cat)}
-            style={{ padding: '4px 12px', borderRadius: '20px', border: `1px solid ${catFilter === cat ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`, background: catFilter === cat ? 'rgba(139,92,246,0.15)' : 'transparent', color: catFilter === cat ? '#a78bfa' : '#64748b', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.15s' }}
+            style={{ padding: '4px 12px', borderRadius: '20px', border: `1px solid ${catFilter === cat ? '#4F46E5' : '#E2E8F0'}`, background: catFilter === cat ? '#EEF2FF' : '#F8FAFC', color: catFilter === cat ? '#4F46E5' : '#64748B', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.15s' }}
           >
             {cat}
           </button>
@@ -183,39 +183,39 @@ const DesktopInventory = ({
 
       {/* Quick Summary Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ background: 'rgba(79, 70, 229, 0.1)', color: '#4F46E5', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Package size={18} />
           </div>
           <div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'white' }}>{products.length}</h4>
-            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Total Unique SKUs</p>
+            <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A' }}>{products.length}</h4>
+            <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Total Unique SKUs</p>
           </div>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <AlertCircle size={18} />
           </div>
           <div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'white' }}>{products.filter(p => p.stock < (p.reorderLevel || 10)).length}</h4>
-            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Low Stock Warnings</p>
+            <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A' }}>{products.filter(p => p.stock < (p.reorderLevel || 10)).length}</h4>
+            <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Low Stock Warnings</p>
           </div>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Calendar size={18} />
           </div>
           <div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'white' }}>
+            <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A' }}>
               {products.filter(p => checkExpiryStatus(p.expiryDate).status !== 'ok').length}
             </h4>
-            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Near Expiry Items</p>
+            <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Near Expiry Items</p>
           </div>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>%</div>
           <div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'white' }}>
+            <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A' }}>
               {(() => {
                 const priced = products.filter(p => p.costPrice > 0 && p.price > 0);
                 if (!priced.length) return '—';
@@ -223,7 +223,7 @@ const DesktopInventory = ({
                 return Math.round(avg) + '%';
               })()}
             </h4>
-            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Avg Margin</p>
+            <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Avg Margin</p>
           </div>
         </div>
       </div>
@@ -238,20 +238,20 @@ const DesktopInventory = ({
             </div>
           }
         >
-          <div style={{ marginBottom: '24px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '16px', padding: '20px' }}>
+          <div style={{ marginBottom: '24px', background: '#FFF5F5', border: '1px solid #FEE2E2', borderRadius: '16px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Zap size={16} color="#f59e0b" /> Inventory Alert Center
-                <span style={{ background: 'rgba(239,68,68,0.2)', color: '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                <span style={{ background: '#FEE2E2', color: '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
                   {alerts.length} action{alerts.length !== 1 ? 's' : ''}
                 </span>
               </h3>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#ef4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#f97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#f59e0b'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#3b82f6']].map(([val, label, color]) => (
+                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#ef4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#f97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#f59e0b'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#2563eb']].map(([val, label, color]) => (
                   <button
                     key={val}
                     onClick={() => setAlertFilter(val)}
-                    style={{ padding: '4px 10px', borderRadius: '6px', border: `1px solid ${alertFilter === val ? (color || '#475569') : 'rgba(255,255,255,0.08)'}`, background: alertFilter === val ? `${color || '#475569'}22` : 'transparent', color: alertFilter === val ? (color || '#94a3b8') : '#64748b', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                    style={{ padding: '4px 10px', borderRadius: '6px', border: `1px solid ${alertFilter === val ? (color || '#475569') : '#E2E8F0'}`, background: alertFilter === val ? `${color || '#475569'}22` : '#FFFFFF', color: alertFilter === val ? (color || '#475569') : '#64748b', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
                   >
                     {label}
                   </button>
@@ -264,7 +264,7 @@ const DesktopInventory = ({
                 return (
                   <div key={`${p.id}-${p.alertType}-${idx}`} style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: '10px', padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                      <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
                       <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: cfg.color, fontWeight: 'bold' }}>
                         {p.alertType === 'expired' && `Expired: ${p.expiryDate}`}
                         {p.alertType === 'expiring7' && `Exp: ${p.expiryDate}`}
@@ -278,7 +278,7 @@ const DesktopInventory = ({
                           <RefreshCw size={10} />
                         </button>
                       )}
-                      <button onClick={() => handleOpenEditModal(p)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #E2E8F0', color: '#94a3b8', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      <button onClick={() => handleOpenEditModal(p)} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#475569', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
                         Edit
                       </button>
                     </div>
@@ -292,9 +292,9 @@ const DesktopInventory = ({
 
       {filteredProducts.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <Package size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
-          <h3 style={{ color: '#fff', margin: '0 0 4px 0' }}>No Products Found</h3>
-          <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>Add products to get started or clear your search query.</p>
+          <Package size={48} style={{ opacity: 0.2, marginBottom: '16px', color: '#64748B' }} />
+          <h3 style={{ color: '#0F172A', margin: '0 0 4px 0' }}>No Products Found</h3>
+          <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Add products to get started or clear your search query.</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
@@ -303,7 +303,7 @@ const DesktopInventory = ({
             const isLowStock = p.stock < (p.reorderLevel || 10);
             const daysLeft = computeDaysLeft(p);
             return (
-              <div key={p.id} className="premium-glass" style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${flashSales[p.id] ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s' }}>
+              <div key={p.id} className="premium-glass" style={{ background: '#FFFFFF', border: `1px solid ${flashSales[p.id] ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.01)' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
@@ -311,36 +311,36 @@ const DesktopInventory = ({
                         <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
                       )}
                       <div>
-                      <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{p.name}</h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                        <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)', fontWeight: 'bold', letterSpacing: '0.3px' }}>
-                          {autoCategory(p.name)}
-                        </span>
-                        {p.batchNumber && (
-                          <span style={{ fontSize: '10px', color: '#94a3b8' }}>Batch: {p.batchNumber}</span>
-                        )}
+                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>{p.name}</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                          <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', fontWeight: 'bold', letterSpacing: '0.3px' }}>
+                            {autoCategory(p.name)}
+                          </span>
+                          {p.batchNumber && (
+                            <span style={{ fontSize: '10px', color: '#64748B' }}>Batch: {p.batchNumber}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    </div>
-                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#fbbf24' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>
                       ₹{p.price}
-                      {(() => { const s = UNIT_SUFFIX[p.unit || defaultUnitForCategory(shopCategory)]; return s ? <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}> / {s}</span> : null; })()}
+                      {(() => { const s = UNIT_SUFFIX[p.unit || defaultUnitForCategory(shopCategory)]; return s ? <span style={{ fontSize: '10px', color: '#64748B', fontWeight: '600' }}> / {s}</span> : null; })()}
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '12px 0' }}>
-                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'), fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? '#FEF2F2' : '#ECFDF5', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? '#FCA5A5' : '#A7F3D0'), fontWeight: 'bold' }}>
                       Stock: {p.stock || 0}
                     </span>
                     {p.reorderLevel !== undefined && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0' }}>
                         Min: {p.reorderLevel}
                       </span>
                     )}
                     {p.costPrice > 0 && p.price > 0 && (() => {
                       const margin = Math.round((p.price - p.costPrice) / p.price * 100);
                       const color = margin >= 20 ? '#10b981' : margin >= 10 ? '#f59e0b' : '#ef4444';
-                      const bg = margin >= 20 ? 'rgba(16,185,129,0.12)' : margin >= 10 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
-                      const border = margin >= 20 ? 'rgba(16,185,129,0.25)' : margin >= 10 ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)';
+                      const bg = margin >= 20 ? '#ECFDF5' : margin >= 10 ? '#FEF3C7' : '#FEF2F2';
+                      const border = margin >= 20 ? '#A7F3D0' : margin >= 10 ? '#FDE68A' : '#FCA5A5';
                       return (
                         <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: bg, color, border: `1px solid ${border}`, fontWeight: 'bold' }}>
                           Margin: {margin}%
@@ -348,27 +348,27 @@ const DesktopInventory = ({
                       );
                     })()}
                     {expStatus.status === 'expired' && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#ef4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
                         Expired ({p.expiryDate})
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#f59e0b', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
                         Exp Soon ({p.expiryDate})
                       </span>
                     )}
                     {daysLeft !== null && daysLeft < 2 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.35)', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#ef4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
                         🔴 Order TODAY
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 2 && daysLeft < 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#f59e0b', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
                         ⚠️ Reorder in {daysLeft}d
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.15)' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#ECFDF5', color: '#10b981', border: '1px solid #A7F3D0' }}>
                         Stock ~{daysLeft}d
                       </span>
                     )}
@@ -376,7 +376,7 @@ const DesktopInventory = ({
                   {p.variants && (
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '12px' }}>
                       {p.variants.split(',').map((v, vidx) => (
-                        <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.02)' }}>
+                        <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0' }}>
                           {v.trim()}
                         </span>
                       ))}
@@ -388,52 +388,52 @@ const DesktopInventory = ({
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', borderTop: '1px solid #E2E8F0', paddingTop: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => handleOneClickRestock(p)}
-                    style={{ background: isLowStock ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.03)', border: isLowStock ? 'none' : '1px solid rgba(255,255,255,0.1)', color: isLowStock ? '#000' : '#fff', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: isLowStock ? '0 4px 12px rgba(245,158,11,0.2)' : 'none' }}
+                    style={{ background: isLowStock ? '#F59E0B' : '#F8FAFC', border: isLowStock ? 'none' : '1px solid #E2E8F0', color: isLowStock ? '#FFFFFF' : '#475569', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <RefreshCw size={11} /> Restock
                   </button>
                   <PlanGate feature="flashSales" fallback={
-                    <button title="Flash Sales require Pro Plan" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#64748b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button title="Flash Sales require Pro Plan" style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#64748b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Flame size={11} /> Sale 🔒
                     </button>
                   }>
                     {flashSales[p.id] ? (
-                      <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         🔥 End Sale
                       </button>
                     ) : (
-                      <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Flame size={11} /> Sale
                       </button>
                     )}
                   </PlanGate>
-                  <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', color: '#a78bfa', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', color: '#7C3AED', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Adjust
                   </button>
-                  <button onClick={() => handleOpenEditModal(p)} style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#3b82f6', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => handleOpenEditModal(p)} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Edit
                   </button>
-                  <button onClick={() => handleDeleteProduct(p.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => handleDeleteProduct(p.id)} style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Delete
                   </button>
                 </div>
 
                 {/* Inline stock adjustment form */}
                 {adjustTarget === p.id && (
-                  <div style={{ marginTop: '10px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#a78bfa', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
+                  <div style={{ marginTop: '10px', background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#7C3AED', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="number"
                         placeholder="±delta (e.g. -5 or +10)"
                         value={adjustDelta}
                         onChange={e => setAdjustDelta(e.target.value)}
-                        style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
+                        style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #DDD6FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
                       />
-                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #DDD6FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {['Correction','Damaged','Expired','Sample','Theft','Incoming'].map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
@@ -445,11 +445,11 @@ const DesktopInventory = ({
                           handleStockAdjust && handleStockAdjust(p, d, adjustReason);
                           setAdjustTarget(null);
                         }}
-                        style={{ flex: 1, background: '#8b5cf6', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                        style={{ flex: 1, background: '#7C3AED', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
                       >
                         Apply
                       </button>
-                      <button onClick={() => setAdjustTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #334155', color: '#64748b', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                      <button onClick={() => setAdjustTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #DDD6FE', color: '#7C3AED', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>
@@ -458,21 +458,21 @@ const DesktopInventory = ({
 
                 {/* Inline flash sale setter */}
                 {saleTarget === p.id && (
-                  <div style={{ marginTop: '10px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#fca5a5', fontWeight: 'bold' }}>🔥 Set Flash Sale</p>
+                  <div style={{ marginTop: '10px', background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#EF4444', fontWeight: 'bold' }}>🔥 Set Flash Sale</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {[5,10,15,20,25,30,40,50].map(d => <option key={d} value={d}>{d}% off</option>)}
                       </select>
-                      <select value={saleDuration} onChange={e => setSaleDuration(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#F8FAFC', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}>
+                      <select value={saleDuration} onChange={e => setSaleDuration(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {[[1,'1 hour'],[2,'2 hours'],[4,'4 hours'],[6,'6 hours'],[12,'12 hours'],[24,'24 hours'],[48,'2 days']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
                       </select>
                     </div>
                     <div style={{ display: 'flex', gap: '6px' }}>
-                      <button onClick={() => { handleSetFlashSale && handleSetFlashSale(p.id, salePct, parseInt(saleDuration)); setSaleTarget(null); }} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      <button onClick={() => { handleSetFlashSale && handleSetFlashSale(p.id, salePct, parseInt(saleDuration)); setSaleTarget(null); }} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                         Launch Sale
                       </button>
-                      <button onClick={() => setSaleTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #334155', color: '#64748b', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                      <button onClick={() => setSaleTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #FCA5A5', color: '#EF4444', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>

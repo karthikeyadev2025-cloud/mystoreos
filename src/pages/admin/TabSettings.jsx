@@ -4,14 +4,14 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '24px', marginBottom: '20px' },
-  label: { color: '#94a3b8', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
-  input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#f8fafc', padding: '10px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none', width: '100%' },
+  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  label: { color: '#475569', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
+  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '10px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none', width: '100%' },
   row: { marginBottom: '18px' },
-  sectionTitle: { color: '#f8fafc', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
+  sectionTitle: { color: '#0f172a', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
   sectionSub: { color: '#64748b', fontSize: '12px', marginBottom: '18px' },
-  saveBtn: (busy) => ({ background: busy ? '#64748b' : '#f43f5e', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
-  toggle: (on) => ({ width: '40px', height: '22px', borderRadius: '11px', background: on ? '#f43f5e' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }),
+  saveBtn: (busy) => ({ background: busy ? '#94a3b8' : '#4f46e5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  toggle: (on) => ({ width: '40px', height: '22px', borderRadius: '11px', background: on ? '#4f46e5' : '#cbd5e1', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }),
   toggleKnob: (on) => ({ position: 'absolute', top: '3px', left: on ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }),
 };
 
@@ -23,10 +23,10 @@ function Toggle({ on, onChange }) {
   );
 }
 
-function SectionHeader({ icon: Icon, title, sub, color = '#f43f5e' }) {
+function SectionHeader({ icon: Icon, title, sub, color = '#4f46e5' }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
-      <div style={{ background: `${color}22`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
+      <div style={{ background: `${color}15`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
       <div><div style={S.sectionTitle}>{title}</div><div style={S.sectionSub}>{sub}</div></div>
     </div>
   );
@@ -111,13 +111,13 @@ export default function TabSettings() {
     finally { setBusy(b => ({ ...b, adminPass: false })); }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', color: '#94a3b8', padding: '60px' }}>Loading settings...</div>;
+  if (loading) return <div style={{ textAlign: 'center', color: '#64748b', padding: '60px' }}>Loading settings...</div>;
 
   return (
     <div style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: 700 }}>System Settings</h2>
-        <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>Platform configuration and security settings</p>
+        <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>System Settings</h2>
+        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Platform configuration and security settings</p>
       </div>
 
       <div style={S.card}>
@@ -139,8 +139,8 @@ export default function TabSettings() {
         <SectionHeader icon={AlertTriangle} title="Maintenance & Access" sub="Take the site offline for non-admin users during upgrades" color="#ef4444" />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: 'rgba(239,68,68,0.05)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.15)' }}>
           <div>
-            <div style={{ color: '#f8fafc', fontSize: '13px', fontWeight: 600 }}>Maintenance Mode</div>
-            <div style={{ color: '#94a3b8', fontSize: '12px' }}>All users except admins will see a maintenance screen</div>
+            <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: 600 }}>Maintenance Mode</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>All users except admins will see a maintenance screen</div>
           </div>
           <Toggle on={maintenance} onChange={setMaintenance} />
         </div>
@@ -150,10 +150,10 @@ export default function TabSettings() {
             <input value={maintenanceMsg} onChange={e => setMaintenanceMsg(e.target.value)} placeholder="We are performing scheduled maintenance. Back soon!" style={S.input} />
           </div>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <div>
-            <div style={{ color: '#f8fafc', fontSize: '13px', fontWeight: 600 }}>Registration Open</div>
-            <div style={{ color: '#94a3b8', fontSize: '12px' }}>Allow new users to register on the platform</div>
+            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Registration Open</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>Allow new users to register on the platform</div>
           </div>
           <Toggle on={registrationOpen} onChange={setRegistrationOpen} />
         </div>
@@ -188,9 +188,9 @@ export default function TabSettings() {
             <label style={S.label}>Confirm Password</label>
             <input value={adminPassConfirm} onChange={e => setAdminPassConfirm(e.target.value)} type="password" placeholder="Repeat new password" style={S.input} required />
           </div>
-          <div style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', padding: '12px', marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-            <Users size={14} color="#8b5cf6" style={{ marginTop: '2px', flexShrink: 0 }} />
-            <span style={{ color: '#a78bfa', fontSize: '12px' }}>This changes the super admin password only. Staff and shop passwords are managed in their respective management tabs.</span>
+          <div style={{ background: 'rgba(79, 70, 229, 0.05)', border: '1px solid rgba(79, 70, 229, 0.15)', borderRadius: '8px', padding: '12px', marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+            <Users size={14} color="#4f46e5" style={{ marginTop: '2px', flexShrink: 0 }} />
+            <span style={{ color: '#4f46e5', fontSize: '12px' }}>This changes the super admin password only. Staff and shop passwords are managed in their respective management tabs.</span>
           </div>
           <button type="submit" disabled={busy.adminPass} style={S.saveBtn(busy.adminPass)}><Shield size={14} />{busy.adminPass ? 'Updating...' : 'Update Admin Password'}</button>
         </form>

@@ -8,12 +8,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Copy, Link, LogOut, TrendingUp, Users, IndianRupee, Clock, CheckCircle } from 'lucide-react';
 
 const S = {
-  card: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '24px' },
-  label: { color: '#64748b', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
-  val: { color: '#f8fafc', fontSize: 28, fontWeight: 800 },
-  sub: { color: '#64748b', fontSize: 12, marginTop: 4 },
-  th: { color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
-  td: { color: '#f8fafc', fontSize: 13, padding: '11px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)' },
+  card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  label: { color: '#475569', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
+  val: { color: '#0F172A', fontSize: 28, fontWeight: 800 },
+  sub: { color: '#64748B', fontSize: 12, marginTop: 4 },
+  th: { color: '#475569', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
+  td: { color: '#0F172A', fontSize: 13, padding: '11px 12px', borderBottom: '1px solid #F1F5F9' },
 };
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
@@ -65,14 +65,14 @@ export default function AffiliateDashboard() {
   };
 
   const statusChip = (s) => ({
-    pending: <span style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
-    approved: <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved ✅</span>,
-    paid: <span style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid 🎉</span>,
-  }[s] || <span style={{ color: '#64748b', fontSize: 11 }}>{s}</span>);
+    pending: <span style={{ background: '#FEF3C7', color: '#B45309', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
+    approved: <span style={{ background: '#DCFCE7', color: '#15803D', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved ✅</span>,
+    paid: <span style={{ background: '#D1FAE5', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid 🎉</span>,
+  }[s] || <span style={{ color: '#64748B', fontSize: 11 }}>{s}</span>);
 
   return (
-    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>
-      <ToastContainer position="top-right" theme="dark" />
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F4F5F7', fontFamily: 'Outfit, sans-serif' }}>
+      <ToastContainer position="top-right" theme="light" />
 
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -91,17 +91,17 @@ export default function AffiliateDashboard() {
         ) : (
           <>
             {/* Referral Code Card */}
-            <div style={{ ...S.card, background: 'linear-gradient(135deg,rgba(139,92,246,0.15),rgba(109,40,217,0.1))', border: '1px solid rgba(139,92,246,0.3)', marginBottom: 24 }}>
-              <h3 style={{ margin: '0 0 16px', color: '#f8fafc', fontSize: 18, fontWeight: 800 }}>Your Referral Code</h3>
+            <div style={{ ...S.card, background: 'linear-gradient(135deg,#FAF5FF,#F3E8FF)', border: '1px solid #E9D5FF', marginBottom: 24 }}>
+              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 18, fontWeight: 800 }}>Your Referral Code</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ background: '#0f172a', border: '2px solid rgba(139,92,246,0.5)', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: '#a78bfa', letterSpacing: 4 }}>
+                <div style={{ background: '#FFFFFF', border: '2px solid #C084FC', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: '#7E22CE', letterSpacing: 4 }}>
                   {codeInfo?.code || '—'}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <button onClick={copyCode} style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
+                  <button onClick={copyCode} style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Copy size={13} /> Copy Code
                   </button>
-                  <button onClick={copyLink} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
+                  <button onClick={copyLink} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Link size={13} /> Copy Link
                   </button>
                 </div>
@@ -109,24 +109,24 @@ export default function AffiliateDashboard() {
                   📲 Share on WhatsApp
                 </button>
               </div>
-              <div style={{ marginTop: 14, background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#94a3b8', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              <div style={{ marginTop: 14, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {referralLink}
               </div>
-              <p style={{ margin: '10px 0 0', fontSize: 12, color: '#64748b' }}>
-                Commission: <strong style={{ color: '#a78bfa' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
+              <p style={{ margin: '10px 0 0', fontSize: 12, color: '#475569' }}>
+                Commission: <strong style={{ color: '#7E22CE' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
               </p>
             </div>
 
             {/* Stats Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 24 }}>
-              <StatCard icon={Users} label="Total Referred" value={stats?.totalReferred || 0} sub="Users who signed up via your link" color="#3b82f6" />
-              <StatCard icon={Clock} label="Pending Commission" value={`₹${stats?.pendingAmount || 0}`} sub="Awaiting admin approval" color="#f59e0b" />
-              <StatCard icon={IndianRupee} label="Approved Earnings" value={`₹${stats?.approvedAmount || 0}`} sub="Ready for payout" color="#10b981" />
+              <StatCard icon={Users} label="Total Referred" value={stats?.totalReferred || 0} sub="Users who signed up via your link" color="#2563EB" />
+              <StatCard icon={Clock} label="Pending Commission" value={`₹${stats?.pendingAmount || 0}`} sub="Awaiting admin approval" color="#D97706" />
+              <StatCard icon={IndianRupee} label="Approved Earnings" value={`₹${stats?.approvedAmount || 0}`} sub="Ready for payout" color="#059669" />
             </div>
 
             {/* How it works */}
             <div style={{ ...S.card, marginBottom: 24 }}>
-              <h3 style={{ margin: '0 0 16px', color: '#f8fafc', fontSize: 16, fontWeight: 800 }}>💡 How It Works</h3>
+              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>💡 How It Works</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 14 }}>
                 {[
                   ['1️⃣', 'Share your link', 'Send your unique referral link to shop owners via WhatsApp, social media, or in-person.'],
@@ -134,10 +134,10 @@ export default function AffiliateDashboard() {
                   ['3️⃣', 'They subscribe', 'When they upgrade to any paid plan, your commission is calculated.'],
                   ['4️⃣', 'You get paid', 'Admin approves and pays your commission every month.'],
                 ].map(([emoji, title, desc]) => (
-                  <div key={title} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 14 }}>
+                  <div key={title} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{emoji}</div>
-                    <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{title}</div>
-                    <div style={{ color: '#64748b', fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
+                    <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{title}</div>
+                    <div style={{ color: '#475569', fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
                   </div>
                 ))}
               </div>
@@ -146,11 +146,11 @@ export default function AffiliateDashboard() {
             {/* Referrals table */}
             {stats?.referrals?.length > 0 && (
               <div style={S.card}>
-                <h3 style={{ margin: '0 0 16px', color: '#f8fafc', fontSize: 16, fontWeight: 800 }}>Your Referrals</h3>
+                <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>Your Referrals</h3>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                      <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                         {['Name', 'Phone', 'Plan', 'Commission', 'Status', 'Date'].map(h => <th key={h} style={S.th}>{h}</th>)}
                       </tr>
                     </thead>
@@ -158,11 +158,11 @@ export default function AffiliateDashboard() {
                       {stats.referrals.map(r => (
                         <tr key={r.id}>
                           <td style={S.td}><strong>{r.name}</strong></td>
-                          <td style={S.td}><span style={{ color: '#64748b' }}>{r.phone || '—'}</span></td>
-                          <td style={S.td}><span style={{ color: '#8b5cf6', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
-                          <td style={S.td}><span style={{ color: '#10b981', fontWeight: 700 }}>₹{r.amount}</span></td>
+                          <td style={S.td}><span style={{ color: '#475569' }}>{r.phone || '—'}</span></td>
+                          <td style={S.td}><span style={{ color: '#7C3AED', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
+                          <td style={S.td}><span style={{ color: '#059669', fontWeight: 700 }}>₹{r.amount}</span></td>
                           <td style={S.td}>{statusChip(r.status)}</td>
-                          <td style={S.td}><span style={{ color: '#64748b', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
+                          <td style={S.td}><span style={{ color: '#64748B', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
                         </tr>
                       ))}
                     </tbody>
@@ -174,8 +174,8 @@ export default function AffiliateDashboard() {
             {(!stats?.referrals?.length) && (
               <div style={{ ...S.card, textAlign: 'center', padding: '48px 24px' }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>🚀</div>
-                <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>No referrals yet</div>
-                <div style={{ color: '#64748b', fontSize: 13 }}>Share your referral link above to start earning commissions!</div>
+                <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>No referrals yet</div>
+                <div style={{ color: '#475569', fontSize: 13 }}>Share your referral link above to start earning commissions!</div>
               </div>
             )}
           </>
