@@ -1703,30 +1703,30 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: '#11151c', minHeight: '100vh', color: 'white', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' },
+    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', color: '#111827', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' },
     header: { background: 'linear-gradient(to right, #e53935, #b71c1c)', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
-    statBox: { backgroundColor: '#1e222d', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', border: '1px solid #2a2f3d' },
-    statNum: { fontSize: '20px', fontWeight: 'bold', color: '#4F46E5', margin: 0 },
-    statLabel: { fontSize: '11px', color: '#94a3b8', margin: 0 },
-    searchBar: { margin: '12px', display: 'flex', alignItems: 'center', backgroundColor: '#1e222d', borderRadius: '8px', padding: '0 12px', border: '1px solid #2a2f3d' },
+    statBox: { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', border: '1px solid #2a2f3d' },
+    statNum: { fontSize: '22px', fontWeight: '800', color: '#111827', fontFamily: "'JetBrains Mono', monospace", margin: 0 },
+    statLabel: { fontSize: '11px', color: '#6B7280', fontWeight: '600', margin: 0 },
+    searchBar: { margin: '12px', display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', border: '1.5px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', borderRadius: '8px', padding: '0 12px', border: '1px solid #2a2f3d' },
     grid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '0 12px' },
-    gridBtn: { backgroundColor: '#1e222d', border: '1px solid #2a2f3d', borderRadius: '8px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' },
+    gridBtn: { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' },
     gridIcon: { color: '#8b5cf6' },
-    gridTitle: { fontSize: '12px', fontWeight: 'bold', color: 'white', margin: 0 },
-    gridSub: { fontSize: '10px', color: '#94a3b8', margin: 0 },
-    section: { margin: '16px 12px', backgroundColor: '#1e222d', borderRadius: '8px', border: '1px solid #2a2f3d', overflow: 'hidden' },
+    gridTitle: { fontSize: '12px', fontWeight: '700', color: '#111827', margin: 0 },
+    gridSub: { fontSize: '10px', color: '#6B7280', margin: 0 },
+    section: { margin: '16px 12px', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #2a2f3d', overflow: 'hidden' },
     sectionHeader: { backgroundColor: '#1e222d', padding: '12px', fontSize: '14px', fontWeight: 'bold', borderBottom: '1px solid #2a2f3d', display: 'flex', alignItems: 'center', gap: '8px' },
     whatsappBtn: { backgroundColor: '#22c55e', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
     upiBtn: { backgroundColor: '#334155', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
-    prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #2a2f3d' },
+    prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #2a2f3d' },
     orderCard: { background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', margin: '12px' },
     navBtn: { textAlign: 'center', cursor: 'pointer' }
   };
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ backgroundColor: '#F0F4FA', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ backgroundColor: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
