@@ -19,7 +19,7 @@ export default function LandingWhoFor() {
         <div className="l4" style={{ display: 'grid', gap: 18 }}>
           {TYPES.map((t, i) => (
             <motion.div key={t.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${t.color}`, borderRadius: 16, padding: '22px 18px', cursor: 'default', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${t.color}`, borderRadius: 16, padding: '22px 18px', cursor: 'default', transition: 'transform 0.2s, box-shadow 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = `0 20px 40px ${t.color}22`; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>{t.icon}</div>
