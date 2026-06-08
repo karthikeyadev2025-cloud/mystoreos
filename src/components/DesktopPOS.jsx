@@ -89,7 +89,7 @@ const DesktopPOS = ({
           </div>
         )}
 
-        {        {/* Stats Row — enterprise KPI cards */}
+        {        {/* Stats Row — enterprise KPI cards */
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
           {/* New Orders */}
           <div className="premium-glass lift" onClick={() => setActiveTab('bills')}
