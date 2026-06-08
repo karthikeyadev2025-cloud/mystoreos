@@ -70,8 +70,10 @@ serve(async (req) => {
       return json({ session: signIn1.session, profile: rowToProfile(profile) });
     }
 
-    // User not in auth.users — create or update
+    // User not in auth.users — create with the SAME id as the profile
+    // so auth.uid() === public.users.id and RLS policies resolve correctly.
     const { data: created, error: createErr } = await admin.auth.admin.createUser({
+      id: profile.id,
       email, password, email_confirm: true,
     });
 
