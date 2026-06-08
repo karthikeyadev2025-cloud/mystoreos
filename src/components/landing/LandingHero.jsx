@@ -21,7 +21,8 @@ function Counter({ target, duration = 1800 }) {
 }
 
 export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
-  const navigate = nav || useNavigate();
+  const routerNavigate = useNavigate();
+  const navigate = nav || routerNavigate;
   const headline = (hero.headline || 'The Operating System\nfor Modern Business').split('\n');
 
   const METRICS = [
