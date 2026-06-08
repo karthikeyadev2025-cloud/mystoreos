@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
-import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty } from '../lib/units';
+import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
