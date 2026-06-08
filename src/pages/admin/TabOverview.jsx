@@ -6,13 +6,13 @@ import { toast } from 'react-toastify';
 
 const S = {
   grid4: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' },
-  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(14px)', border: '1px solid rgba(226, 232, 240, 0.8)', borderRadius: '16px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' },
   cardLabel: { color: '#64748B', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' },
   cardVal: { color: '#0F172A', fontSize: '26px', fontWeight: 800, lineHeight: 1.2 },
   cardSub: { color: '#64748B', fontSize: '12px', marginTop: '8px' },
   sectionTitle: { color: '#0F172A', fontSize: '16px', fontWeight: 700, marginBottom: '16px' },
   chartsRow: { display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '24px' },
-  chartCard: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  chartCard: { background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(14px)', border: '1px solid rgba(226, 232, 240, 0.8)', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' },
 };
 
 const PIE_COLORS = ['#4F46E5', '#818CF8', '#10B981', '#F59E0B'];
@@ -20,7 +20,7 @@ const PIE_COLORS = ['#4F46E5', '#818CF8', '#10B981', '#F59E0B'];
 const StatCard = ({ icon: Icon, label, value, sub, color = '#4F46E5' }) => (
   <div style={S.card}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-      <div style={{ background: `${color}15`, borderRadius: '8px', padding: '8px', display: 'flex' }}>
+      <div style={{ background: `${color}15`, border: `1px solid ${color}30`, borderRadius: '10px', padding: '8px', display: 'flex', boxShadow: `0 0 10px ${color}10` }}>
         <Icon size={18} color={color} />
       </div>
       <span style={S.cardLabel}>{label}</span>

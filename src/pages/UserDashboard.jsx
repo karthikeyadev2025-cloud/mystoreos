@@ -1065,7 +1065,7 @@ const UserDashboard = () => {
 
                 {/* Right Column: Checkout cart bill sheet & payments */}
                 <div>
-                  <div className="glass" style={{ padding: '20px', position: 'sticky', top: '24px' }}>
+                  <div className="premium-glass-card" style={{ padding: '20px', position: 'sticky', top: '24px' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#4F46E5', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <ShoppingCart size={18} /> Active Checkout Cart
                     </h3>
@@ -1198,7 +1198,7 @@ const UserDashboard = () => {
                             placeholder="Enter 12-Digit Ref ID" 
                             value={paymentProof} 
                             onChange={e => setPaymentProof(e.target.value)} 
-                            style={{ width: '100%', padding: '10px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', margin: 0, outline: 'none' }}
+                            style={{ width: '100%', padding: '10px', background: '#FFFFFF', border: '1.5px solid #CBD5E1', borderRadius: '8px', color: '#0F172A', fontSize: '13px', margin: 0, outline: 'none', transition: 'all 0.15s ease' }}
                           />
                         </div>
 
@@ -1356,7 +1356,7 @@ const UserDashboard = () => {
                     {/* Category filter chips */}
                     <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                       {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
-                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #4F46E5)' : 'rgba(255,255,255,0.06)', color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B', transition: 'all 0.15s' }}>
+                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#475569', boxShadow: shopCategoryFilter === val ? '0 4px 12px rgba(79,70,229,0.2)' : 'none', transition: 'all 0.15s' }}>
                           {label}
                         </button>
                       ))}
@@ -1383,7 +1383,7 @@ const UserDashboard = () => {
                         const dist = shop.distance ?? calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
                         const waMsg = encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. Please share your catalogue. (via MyStore OS)`);
                         return (
-                          <div key={shop.id} className="glass" style={{ padding: '14px', borderRadius: '16px' }}>
+                          <div key={shop.id} className="premium-glass-card premium-glass-card-hover" style={{ padding: '16px', position: 'relative' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                 {shop.logo ? (
@@ -1437,7 +1437,7 @@ const UserDashboard = () => {
 
                   {/* Right block: Loyalty Coins */}
                   <div>
-                    <div className="glass" style={{ padding: '20px' }}>
+                    <div className="premium-glass-card" style={{ padding: '20px', position: 'relative' }}>
                       <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#4F46E5', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
                         <Gift size={16} /> loyalty Coins Rewards
                       </h3>
@@ -1588,7 +1588,7 @@ const UserDashboard = () => {
                   {/* Right Column: physical receipt preview */}
                   <div>
                     {selectedOrder ? (
-                      <div className="glass" style={{ padding: '20px' }}>
+                      <div className="premium-glass-card" style={{ padding: '20px', position: 'relative' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                           <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: 'bold' }}>🗒️ INVOICE RECEIPT CANVAS</span>
                           <button 
