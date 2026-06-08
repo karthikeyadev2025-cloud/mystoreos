@@ -12,7 +12,7 @@ export default function LandingPricingPreview({ plans, distPlans, navigate }) {
           <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Pricing</div>
           <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#f8fafc', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>
           <p style={{ color: '#64748b', fontSize: 16, marginTop: 10 }}>Start free. Upgrade when ready. Cancel anytime.</p>
-          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
+          <div style={{ display: 'inline-flex', background: '#1E293B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
             {['shop', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#f8fafc' : '#64748b', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}>
@@ -26,7 +26,7 @@ export default function LandingPricingPreview({ plans, distPlans, navigate }) {
           {active.map((p, i) => (
             <motion.div key={p.id || i}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              style={{ background: p.popular ? 'linear-gradient(135deg,rgba(244,63,94,0.08),rgba(139,92,246,0.08))' : 'rgba(255,255,255,0.025)', border: `1px solid ${p.popular ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 20, padding: '28px 24px', position: 'relative', overflow: 'hidden' }}>
+              style={{ background: p.popular ? 'linear-gradient(135deg,rgba(244,63,94,0.08),rgba(139,92,246,0.08))' : '#1E293B', border: `1px solid ${p.popular ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 20, padding: '28px 24px', position: 'relative', overflow: 'hidden' }}>
               {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#f43f5e,#8b5cf6)' }} />}
               {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: '#fff', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20 }}>POPULAR</div>}
               <div style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc', marginBottom: 6 }}>{p.name}</div>
