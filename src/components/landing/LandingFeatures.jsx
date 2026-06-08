@@ -36,7 +36,7 @@ const FEATS = [
 export default function LandingFeatures() {
   return (
     <section style={{
-      background: '#0D1117', padding: '80px 40px',
+      background: '#0F172A', padding: '80px 40px',
       fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
     }}>
       <style>{`
