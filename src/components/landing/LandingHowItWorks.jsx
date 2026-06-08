@@ -20,7 +20,7 @@ export default function LandingHowItWorks({ navigate }) {
           {STEPS.map((s, i) => (
             <motion.div key={s.num}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-              style={{ textAlign: 'center', padding: '32px 24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 20, position: 'relative', overflow: 'hidden' }}>
+              style={{ textAlign: 'center', padding: '32px 24px', background: '#1E293B', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 20, position: 'relative', overflow: 'hidden' }}>
               <motion.div
                 initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.15 + 0.3, duration: 0.5 }}
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${s.color},${s.color}00)`, transformOrigin: 'left' }} />
