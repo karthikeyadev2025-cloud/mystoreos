@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 function TmlCard({ t }) {
   return (
-    <div style={{ minWidth: 260, maxWidth: 280, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '20px 18px', flexShrink: 0 }}>
+    <div style={{ minWidth: 260, maxWidth: 280, background: '#1E293B', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '20px 18px', flexShrink: 0 }}>
       <div style={{ display: 'flex', gap: 3, marginBottom: 10 }}>
         {Array.from({ length: t.stars }, (_, i) => <span key={i} style={{ color: '#f59e0b', fontSize: 13 }}>★</span>)}
       </div>
