@@ -2117,8 +2117,11 @@ export const api = {
 
   async createAffiliateUser(phone, name) {
     if (!isSupabaseConfigured) return null;
+    // pass is NOT NULL in the schema. Affiliates are created by an admin and
+    // are told to set their own password via "Forgot Password" (or admin
+    // resets it from User Directory), so seed a default placeholder here.
     const { data, error } = await supabase.from('users').insert({
-      phone, name, role: 'affiliate', status: 'active',
+      phone, name, role: 'affiliate', status: 'active', pass: 'changeme',
       subscription: 'active', subscription_tier: 'enterprise',
       trial_started_at: new Date().toISOString(),
     }).select().maybeSingle();
