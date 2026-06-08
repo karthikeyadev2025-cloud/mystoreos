@@ -87,7 +87,7 @@ const StateLanding = () => {
           </p>
           <p style={{ fontSize: '15px', color: '#94a3b8', margin: '0 0 32px', fontStyle: 'italic' }}>{data.tagline}</p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" style={{ background: '#f43f5e', color: 'white', padding: '14px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
+            <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '14px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
               Start Free Trial
             </Link>
             <Link to="/login" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 28px', borderRadius: '10px', fontWeight: 600, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
@@ -117,7 +117,7 @@ const StateLanding = () => {
       {/* Testimonial */}
       {testimonial && (
         <section style={{ padding: '0 24px 64px', maxWidth: '720px', margin: '0 auto' }}>
-          <div style={{ background: 'linear-gradient(135deg,rgba(244,63,94,0.08),rgba(139,92,246,0.06))', border: '1px solid rgba(244,63,94,0.2)', borderRadius: '16px', padding: '32px' }}>
+          <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.08),rgba(129,140,248,0.06))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '16px', padding: '32px' }}>
             <p style={{ fontSize: '17px', lineHeight: 1.6, margin: '0 0 16px', color: '#f8fafc' }}>"{testimonial.text}"</p>
             <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>
               — {testimonial.name}, {testimonial.shop}
@@ -129,7 +129,7 @@ const StateLanding = () => {
       {/* Footer CTA */}
       <section style={{ padding: '48px 24px 72px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 16px' }}>Ready to go paperless?</h2>
-        <Link to="/register" style={{ background: '#f43f5e', color: 'white', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
+        <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
           Start Free 7-Day Trial
         </Link>
         <p style={{ marginTop: '20px', fontSize: '12px', color: '#64748b' }}>

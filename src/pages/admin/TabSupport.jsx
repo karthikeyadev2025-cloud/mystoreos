@@ -5,9 +5,9 @@ import { toast } from 'react-toastify';
 
 const ACTION_COLORS = {
   delete_user: '#ef4444', suspend_user: '#f59e0b', activate_user: '#10b981',
-  upgrade_plan: '#8b5cf6', reset_password: '#3b82f6', update_razorpay_key: '#f59e0b',
+  upgrade_plan: '#4F46E5', reset_password: '#3b82f6', update_razorpay_key: '#f59e0b',
   maintenance_mode: '#ef4444', send_announcement: '#f43f5e', update_branding: '#10b981',
-  update_theme: '#8b5cf6', export_users_csv: '#3b82f6', export_orders_csv: '#3b82f6',
+  update_theme: '#4F46E5', export_users_csv: '#3b82f6', export_orders_csv: '#3b82f6',
   admin_password_change: '#ef4444', default: '#64748b',
 };
 

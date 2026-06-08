@@ -13,7 +13,7 @@ export default function MLogo({ size = 34, radius = 9, style = {} }) {
       width: size,
       height: size,
       borderRadius: radius,
-      background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)',
+      background: 'linear-gradient(135deg, #4F46E5, #818CF8)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -23,7 +23,7 @@ export default function MLogo({ size = 34, radius = 9, style = {} }) {
       letterSpacing: '-0.03em',
       flexShrink: 0,
       fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-      boxShadow: `0 0 ${Math.round(size * 0.5)}px rgba(244, 63, 94, 0.35)`,
+      boxShadow: `0 0 ${Math.round(size * 0.5)}px rgba(79, 70, 229, 0.25)`,
       userSelect: 'none',
       ...style,
     }}>

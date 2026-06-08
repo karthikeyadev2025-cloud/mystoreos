@@ -73,7 +73,7 @@ const POSTS = {
   'gst-filing-10-minutes': {
     title: 'GST Filing in 10 Minutes — How MyStore OS Helped 50 Shops',
     description: 'GSTR-1 export, HSN auto-fill, CA portal access — see how small retailers cut their monthly GST routine from a day to under an hour.',
-    accent: '#8b5cf6',
+    accent: '#4F46E5',
     location: 'Across India',
     shopType: 'Retail — Grocery, Pharmacy, Stationery',
     savingsHighlight: 'Full day → 10 minutes',
@@ -164,10 +164,10 @@ const BlogPost = () => {
         ))}
 
         {/* CTA */}
-        <div style={{ marginTop: '56px', padding: '36px', background: 'linear-gradient(135deg,rgba(244,63,94,0.1),rgba(139,92,246,0.08))', border: '1px solid rgba(244,63,94,0.2)', borderRadius: '16px', textAlign: 'center' }}>
+        <div style={{ marginTop: '56px', padding: '36px', background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(129,140,248,0.08))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '16px', textAlign: 'center' }}>
           <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 8px' }}>Ready to see similar results?</h3>
           <p style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 24px' }}>Start your free 7-day trial — no credit card required.</p>
-          <Link to="/register" style={{ background: '#f43f5e', color: 'white', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '14px', textDecoration: 'none', display: 'inline-block', marginRight: '12px' }}>
+          <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '14px', textDecoration: 'none', display: 'inline-block', marginRight: '12px' }}>
             Start Free Trial
           </Link>
           <Link to="/blog" style={{ color: '#94a3b8', fontSize: '14px', textDecoration: 'none' }}>← More stories</Link>

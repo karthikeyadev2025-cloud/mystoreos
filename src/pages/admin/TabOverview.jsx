@@ -15,7 +15,7 @@ const S = {
   chartCard: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
 };
 
-const PIE_COLORS = ['#4F46E5', '#8B5CF6', '#10B981', '#F59E0B'];
+const PIE_COLORS = ['#4F46E5', '#818CF8', '#10B981', '#F59E0B'];
 
 const StatCard = ({ icon: Icon, label, value, sub, color = '#4F46E5' }) => (
   <div style={S.card}>
@@ -94,7 +94,7 @@ export default function TabOverview() {
 
       <div className="overview-grid4" style={S.grid4}>
         <StatCard icon={IndianRupee} label="Monthly Revenue" value={stats?.revenue || '₹0'} sub={`Shops ₹${stats?.shopMRR || 0} + Dist ₹${stats?.distMRR || 0}`} color="#4F46E5" />
-        <StatCard icon={Store} label="Total Shops" value={stats?.totalShops || 0} sub={`${stats?.paidShops || 0} paid`} color="#8B5CF6" />
+        <StatCard icon={Store} label="Total Shops" value={stats?.totalShops || 0} sub={`${stats?.paidShops || 0} paid`} color="#818CF8" />
         <StatCard icon={Truck} label="Distributors" value={stats?.totalDistributors || 0} color="#10B981" />
         <StatCard icon={Users} label="Customers" value={stats?.totalUsers || 0} color="#F59E0B" />
         <StatCard icon={ShoppingCart} label="Total Orders" value={stats?.totalOrders || 0} color="#3B82F6" />
@@ -114,15 +114,15 @@ export default function TabOverview() {
                   <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="distGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#818CF8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#818CF8" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
               <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A' }} formatter={v => [`₹${v}`, '']} />
               <Area type="monotone" dataKey="shops" name="Shops" stroke="#4F46E5" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#8B5CF6" fill="url(#distGrad)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#818CF8" fill="url(#distGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -155,7 +155,7 @@ export default function TabOverview() {
               <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A' }} />
               <Bar dataKey="shops" name="Shops" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="customers" name="Customers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="customers" name="Customers" fill="#818CF8" radius={[4, 4, 0, 0]} />
               <Bar dataKey="distributors" name="Distributors" fill="#10B981" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

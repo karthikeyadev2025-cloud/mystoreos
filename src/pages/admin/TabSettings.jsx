@@ -178,7 +178,7 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Shield} title="Admin Security" sub="Change the super-admin account password" color="#8b5cf6" />
+        <SectionHeader icon={Shield} title="Admin Security" sub="Change the super-admin account password" color="#4f46e5" />
         <form onSubmit={changeAdminPassword}>
           <div style={S.row}>
             <label style={S.label}>New Admin Password</label>

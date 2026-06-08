@@ -18,7 +18,7 @@ const POSTS = [
     slug: 'gst-filing-10-minutes',
     title: 'GST Filing in 10 Minutes — How MyStore OS Helped 50 Shops',
     summary: 'GSTR-1 export, HSN auto-fill, CA portal access — see how small retailers cut their monthly GST routine from a day to under an hour.',
-    accent: '#8b5cf6',
+    accent: '#4F46E5',
   },
 ];
 

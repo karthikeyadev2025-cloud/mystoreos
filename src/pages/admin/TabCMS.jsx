@@ -152,7 +152,7 @@ export default function TabCMS() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Globe} title="Branding" sub="Site name, tagline, and logo used across the platform" color="#8B5CF6" />
+        <SectionHeader icon={Globe} title="Branding" sub="Site name, tagline, and logo used across the platform" color="#4F46E5" />
         <div className="admin-grid-2col">
           <div style={S.row}>
             <label style={S.label}>Site Name</label>

@@ -75,7 +75,7 @@ export default function AffiliateDashboard() {
       <ToastContainer position="top-right" theme="light" />
 
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ fontWeight: 800, fontSize: 20, color: '#fff' }}>🔗 Affiliate Portal</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Welcome, {user?.name} · Partner</div>
@@ -91,14 +91,14 @@ export default function AffiliateDashboard() {
         ) : (
           <>
             {/* Referral Code Card */}
-            <div style={{ ...S.card, background: 'linear-gradient(135deg,#FAF5FF,#F3E8FF)', border: '1px solid #E9D5FF', marginBottom: 24 }}>
+            <div style={{ ...S.card, background: 'linear-gradient(135deg,#EEF2FF,#FFFFFF)', border: '1px solid #C7D2FE', marginBottom: 24 }}>
               <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 18, fontWeight: 800 }}>Your Referral Code</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ background: '#FFFFFF', border: '2px solid #C084FC', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: '#7E22CE', letterSpacing: 4 }}>
+                <div style={{ background: '#FFFFFF', border: '2px solid #818CF8', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: '#4F46E5', letterSpacing: 4 }}>
                   {codeInfo?.code || '—'}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <button onClick={copyCode} style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
+                  <button onClick={copyCode} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4F46E5', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Copy size={13} /> Copy Code
                   </button>
                   <button onClick={copyLink} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
@@ -113,7 +113,7 @@ export default function AffiliateDashboard() {
                 {referralLink}
               </div>
               <p style={{ margin: '10px 0 0', fontSize: 12, color: '#475569' }}>
-                Commission: <strong style={{ color: '#7E22CE' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
+                Commission: <strong style={{ color: '#4F46E5' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
               </p>
             </div>
 
@@ -159,10 +159,10 @@ export default function AffiliateDashboard() {
                         <tr key={r.id}>
                           <td style={S.td}><strong>{r.name}</strong></td>
                           <td style={S.td}><span style={{ color: '#475569' }}>{r.phone || '—'}</span></td>
-                          <td style={S.td}><span style={{ color: '#7C3AED', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
+                          <td style={S.td}><span style={{ color: '#4F46E5', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
                           <td style={S.td}><span style={{ color: '#059669', fontWeight: 700 }}>₹{r.amount}</span></td>
                           <td style={S.td}>{statusChip(r.status)}</td>
-                          <td style={S.td}><span style={{ color: '#64748B', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
+                          <td style={S.td}><span style={{ color: '#6366F1', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
                         </tr>
                       ))}
                     </tbody>

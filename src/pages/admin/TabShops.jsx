@@ -3,7 +3,7 @@ import { Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw, Chev
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_COLORS = { starter: '#f59e0b', pro: '#8b5cf6', enterprise: '#10b981', trial: '#64748b' };
+const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', trial: '#64748b' };
 const TIER_LABELS = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise', trial: 'Trial' };
 
 const S = {
@@ -210,7 +210,7 @@ export default function TabShops() {
                             ? <button disabled={isBusy} onClick={() => suspend(shop)} style={S.btn('#F59E0B')}><XCircle size={12} />Suspend</button>
                             : <button disabled={isBusy} onClick={() => unsuspend(shop)} style={S.btn('#10B981')}><ShieldCheck size={12} />Activate</button>
                         }
-                        <button disabled={isBusy} onClick={() => setUpgradeModal(shop)} style={S.btn('#8B5CF6')}><ChevronDown size={12} />Plan</button>
+                        <button disabled={isBusy} onClick={() => setUpgradeModal(shop)} style={S.btn('#4F46E5')}><ChevronDown size={12} />Plan</button>
                         <button disabled={isBusy} onClick={() => setResetModal(shop)} style={S.btn('#475569')}><Key size={12} />Reset PW</button>
                         <button disabled={isBusy} onClick={() => del(shop)} style={S.btn('#EF4444')}><Trash2 size={12} />Delete</button>
                       </div>

@@ -167,7 +167,7 @@ const CADashboard = () => {
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={handleExportGSTR1} disabled={loading || filteredOrders.length === 0} style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>
+                  <button onClick={handleExportGSTR1} disabled={loading || filteredOrders.length === 0} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>
                     <FileSpreadsheet size={14} /> GSTR-1 CSV
                   </button>
                   <button onClick={handleExportXML} disabled={loading || filteredOrders.length === 0} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>

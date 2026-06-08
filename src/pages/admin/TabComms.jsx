@@ -155,7 +155,7 @@ export default function TabComms() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={RefreshCw} title="Bulk WhatsApp Campaign" sub="Target a segment and open WhatsApp with a pre-filled message" color="#8B5CF6" />
+        <SectionHeader icon={RefreshCw} title="Bulk WhatsApp Campaign" sub="Target a segment and open WhatsApp with a pre-filled message" color="#4F46E5" />
         <div className="admin-grid-2col" style={{ marginBottom: '14px' }}>
           <div>
             <label style={S.label}>User Role</label>
@@ -177,7 +177,7 @@ export default function TabComms() {
           <textarea value={bulkMsg} onChange={e => setBulkMsg(e.target.value)} placeholder="Hello! This is a message from MyStore OS…" style={S.textarea} rows={3} />
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button onClick={previewBulk} disabled={busyBulk} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#8B5CF6', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', fontWeight: 600 }}>{busyBulk ? 'Counting...' : 'Preview Audience'}</button>
+          <button onClick={previewBulk} disabled={busyBulk} style={{ background: 'rgba(79, 70, 229, 0.15)', border: '1px solid rgba(79, 70, 229, 0.3)', color: '#4F46E5', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', fontWeight: 600 }}>{busyBulk ? 'Counting...' : 'Preview Audience'}</button>
           {bulkStats && (
             <>
               <span style={{ color: '#10B981', fontSize: '13px', fontWeight: 600 }}>{bulkStats.count} users targeted</span>

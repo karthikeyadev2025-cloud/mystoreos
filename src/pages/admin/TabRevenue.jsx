@@ -6,8 +6,8 @@ import { toast } from 'react-toastify';
 
 const TIER_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
 const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
-const TIER_COLORS = { starter: '#f59e0b', pro: '#8b5cf6', enterprise: '#10b981' };
-const DIST_COLORS = { basic_distributor: '#64748b', pro_distributor: '#8b5cf6', enterprise_distributor: '#10b981' };
+const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981' };
+const DIST_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
 
 const S = {
   card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
@@ -79,7 +79,7 @@ export default function TabRevenue() {
 
   const funnelData = [
     { name: 'Total Shops', value: shops.length, fill: '#4F46E5' },
-    { name: 'Active (paid)', value: shops.filter(s => s.subscriptionTier !== 'trial' && s.subscription !== 'trial').length, fill: '#8B5CF6' },
+    { name: 'Active (paid)', value: shops.filter(s => s.subscriptionTier !== 'trial' && s.subscription !== 'trial').length, fill: '#818CF8' },
     { name: 'Pro+', value: shops.filter(s => ['pro', 'enterprise'].includes(s.subscriptionTier)).length, fill: '#10B981' },
     { name: 'Enterprise', value: shops.filter(s => s.subscriptionTier === 'enterprise').length, fill: '#F59E0B' },
   ];
@@ -101,7 +101,7 @@ export default function TabRevenue() {
 
       <div style={S.grid}>
         <StatCard icon={IndianRupee} label="Total MRR" value={`₹${totalMRR.toLocaleString()}`} sub="Shops + Distributors" color="#4F46E5" />
-        <StatCard icon={Store} label="Shop MRR" value={`₹${(stats?.shopMRR || 0).toLocaleString()}`} sub={`${stats?.paidShops || 0} paid shops`} color="#8B5CF6" />
+        <StatCard icon={Store} label="Shop MRR" value={`₹${(stats?.shopMRR || 0).toLocaleString()}`} sub={`${stats?.paidShops || 0} paid shops`} color="#818CF8" />
         <StatCard icon={Truck} label="Distributor MRR" value={`₹${(stats?.distMRR || 0).toLocaleString()}`} sub={`${distributors.length} distributors`} color="#10B981" />
         <StatCard icon={TrendingUp} label="Annualized ARR" value={`₹${(totalMRR * 12).toLocaleString()}`} color="#F59E0B" />
         <StatCard icon={CreditCard} label="Outstanding Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues across platform" color="#EF4444" />
@@ -118,15 +118,15 @@ export default function TabRevenue() {
                 <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="rDist" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#818CF8" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#818CF8" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
             <Tooltip contentStyle={CHART_STYLE} formatter={v => [`₹${v}`, '']} />
             <Area type="monotone" dataKey="shops" name="Shops" stroke="#4F46E5" fill="url(#rShop)" strokeWidth={2} dot={false} />
-            <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#8B5CF6" fill="url(#rDist)" strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#818CF8" fill="url(#rDist)" strokeWidth={2} dot={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

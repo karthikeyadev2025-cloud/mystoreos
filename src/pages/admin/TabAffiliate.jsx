@@ -172,7 +172,7 @@ export default function TabAffiliate() {
                           <td style={S.td}><span style={{ fontFamily: 'monospace', color: '#4F46E5', fontWeight: 700 }}>{a.code}</span></td>
                           <td style={S.td}><div style={{ fontWeight: 600 }}>{a.referrerName || '—'}</div><div style={{ color: '#64748B', fontSize: 11 }}>{a.referrerPhone}</div></td>
                           <td style={S.td}><div style={{ fontWeight: 600 }}>{a.referredName || '—'}</div><div style={{ color: '#64748B', fontSize: 11 }}>{a.referredPhone}</div></td>
-                          <td style={S.td}><span style={{ color: '#8B5CF6', fontSize: 12 }}>{a.tier || 'trial'}</span></td>
+                          <td style={S.td}><span style={{ color: '#4F46E5', fontSize: 12 }}>{a.tier || 'trial'}</span></td>
                           <td style={S.td}><span style={{ color: '#10B981', fontWeight: 700 }}>₹{a.amount || 0}</span></td>
                           <td style={S.td}>{statusChip(a.status)}</td>
                           <td style={S.td}>

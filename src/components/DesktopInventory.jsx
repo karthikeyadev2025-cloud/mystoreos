@@ -313,7 +313,7 @@ const DesktopInventory = ({
                       <div>
                         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>{p.name}</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                          <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', fontWeight: 'bold', letterSpacing: '0.3px' }}>
+                          <span style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', fontWeight: 'bold', letterSpacing: '0.3px' }}>
                             {autoCategory(p.name)}
                           </span>
                           {p.batchNumber && (
@@ -410,7 +410,7 @@ const DesktopInventory = ({
                       </button>
                     )}
                   </PlanGate>
-                  <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', color: '#7C3AED', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4F46E5', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Adjust
                   </button>
                   <button onClick={() => handleOpenEditModal(p)} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -423,17 +423,17 @@ const DesktopInventory = ({
 
                 {/* Inline stock adjustment form */}
                 {adjustTarget === p.id && (
-                  <div style={{ marginTop: '10px', background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#7C3AED', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
+                  <div style={{ marginTop: '10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#4F46E5', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="number"
                         placeholder="±delta (e.g. -5 or +10)"
                         value={adjustDelta}
                         onChange={e => setAdjustDelta(e.target.value)}
-                        style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #DDD6FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
+                        style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
                       />
-                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #DDD6FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
+                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {['Correction','Damaged','Expired','Sample','Theft','Incoming'].map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
@@ -445,11 +445,11 @@ const DesktopInventory = ({
                           handleStockAdjust && handleStockAdjust(p, d, adjustReason);
                           setAdjustTarget(null);
                         }}
-                        style={{ flex: 1, background: '#7C3AED', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                        style={{ flex: 1, background: '#4F46E5', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
                       >
                         Apply
                       </button>
-                      <button onClick={() => setAdjustTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #DDD6FE', color: '#7C3AED', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                      <button onClick={() => setAdjustTarget(null)} style={{ padding: '6px 10px', background: 'transparent', border: '1px solid #C7D2FE', color: '#4F46E5', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>

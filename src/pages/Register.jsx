@@ -248,7 +248,7 @@ const Register = () => {
           <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 13, marginTop: 20 }}>
             Already have an account?{' '}
             <button onClick={() => navigate('/login')} style={{
-              background: 'none', border: 'none', color: '#60A5FA',
+              background: 'none', border: 'none', color: '#818CF8',
               fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>Sign in →</button>
           </p>

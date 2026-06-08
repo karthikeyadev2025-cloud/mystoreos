@@ -103,7 +103,7 @@ function Cell({ val }) {
 function PlanCard({ plan, idx, popular, onCta }) {
   const TIER_STYLES = [
     { border: 'rgba(100,116,139,0.5)', glow: '' },
-    { border: '#8b5cf6', glow: '0 0 40px rgba(139,92,246,0.25)' },
+    { border: '#4F46E5', glow: '0 0 40px rgba(79,70,229,0.25)' },
     { border: 'rgba(245,158,11,0.7)', glow: '' },
   ];
   const ts = TIER_STYLES[idx] || TIER_STYLES[0];
@@ -124,7 +124,7 @@ function PlanCard({ plan, idx, popular, onCta }) {
       flex: 1, minWidth: '260px',
     }}>
       {popular && (
-        <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#8b5cf6,#f43f5e)', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 14px', borderRadius: '99px', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(139,92,246,0.5)', animation: 'pulse 2s ease-in-out infinite' }}>
+        <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#818CF8,#4F46E5)', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '4px 14px', borderRadius: '99px', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(79,70,229,0.5)', animation: 'pulse 2s ease-in-out infinite' }}>
           ⭐ Most Popular
         </div>
       )}
@@ -148,7 +148,7 @@ function PlanCard({ plan, idx, popular, onCta }) {
 
       <Link to="/register" onClick={onCta}
         style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: '10px', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-          background: popular ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.06)',
+          background: popular ? 'linear-gradient(135deg,#4F46E5,#818CF8)' : 'rgba(255,255,255,0.06)',
           border: popular ? 'none' : `1px solid ${ts.border}`,
           color: '#fff', transition: 'opacity 0.2s',
         }}>
@@ -240,16 +240,16 @@ export default function Pricing() {
 
       {/* Nav */}
       <nav style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', maxWidth: '1200px', margin: '0 auto' }}>
-        <Link to="/" style={{ color: '#f43f5e', fontWeight: 900, fontSize: '18px', textDecoration: 'none' }}>MyStore OS</Link>
+        <Link to="/" style={{ color: '#4F46E5', fontWeight: 900, fontSize: '18px', textDecoration: 'none' }}>MyStore OS</Link>
         <div style={{ display: 'flex', gap: '12px' }}>
           <Link to="/login" style={{ color: '#94a3b8', fontSize: '14px', textDecoration: 'none', padding: '8px 16px' }}>Sign In</Link>
-          <Link to="/register" style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: '#fff', fontSize: '14px', fontWeight: 700, textDecoration: 'none', padding: '8px 18px', borderRadius: '8px' }}>Start Free</Link>
+          <Link to="/register" style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', fontSize: '14px', fontWeight: 700, textDecoration: 'none', padding: '8px 18px', borderRadius: '8px' }}>Start Free</Link>
         </div>
       </nav>
 
       {/* Hero */}
       <section style={{ padding: '80px 24px 56px', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ display: 'inline-block', background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '99px', padding: '4px 14px', fontSize: '12px', fontWeight: 700, color: '#a78bfa', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '24px' }}>
+        <div style={{ display: 'inline-block', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '99px', padding: '4px 14px', fontSize: '12px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '24px' }}>
           Pricing
         </div>
         <h1 style={{ fontSize: 'clamp(32px,6vw,56px)', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1 }}>
@@ -264,7 +264,7 @@ export default function Pricing() {
           {['shops', 'distributors'].map(m => (
             <button key={m} onClick={() => setMode(m)}
               style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 700, fontFamily: 'Outfit,sans-serif', transition: 'all 0.2s',
-                background: mode === m ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'transparent',
+                background: mode === m ? 'linear-gradient(135deg,#4F46E5,#818CF8)' : 'transparent',
                 color: mode === m ? '#fff' : '#94a3b8' }}>
               {m === 'shops' ? '🏪 For Shops' : '🚚 For Distributors'}
             </button>
@@ -292,7 +292,7 @@ export default function Pricing() {
                   <tr>
                     <th style={{ ...S.th, textAlign: 'left', width: '40%' }}>Feature</th>
                     <th style={S.th}>Starter</th>
-                    <th style={{ ...S.th, color: '#a78bfa' }}>PRO</th>
+                    <th style={{ ...S.th, color: '#818CF8' }}>PRO</th>
                     <th style={{ ...S.th, color: '#fbbf24' }}>Enterprise</th>
                   </tr>
                 </thead>
@@ -320,14 +320,14 @@ export default function Pricing() {
 
       {/* Trial CTA banner */}
       <section style={{ padding: '0 24px 96px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ background: 'linear-gradient(135deg,rgba(244,63,94,0.1),rgba(139,92,246,0.08))', border: '1px solid rgba(244,63,94,0.25)', borderRadius: '24px', padding: '48px 32px' }}>
+        <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(129,140,248,0.08))', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '24px', padding: '48px 32px' }}>
           <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎁</div>
           <h2 style={{ fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, margin: '0 0 12px' }}>All plans start with 7 days FREE on PRO features</h2>
           <p style={{ fontSize: '15px', color: '#94a3b8', margin: '0 0 32px' }}>
             No credit card required &nbsp;•&nbsp; Cancel anytime &nbsp;•&nbsp; Instant setup
           </p>
           <Link to="/register"
-            style={{ display: 'inline-block', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: '#fff', fontWeight: 800, fontSize: '16px', padding: '16px 40px', borderRadius: '12px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(244,63,94,0.3)' }}>
+            style={{ display: 'inline-block', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', fontWeight: 800, fontSize: '16px', padding: '16px 40px', borderRadius: '12px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(79,70,229,0.3)' }}>
             Start Your Free Trial →
           </Link>
           <p style={{ marginTop: '16px', fontSize: '12px', color: '#475569' }}>

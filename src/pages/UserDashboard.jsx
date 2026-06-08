@@ -900,14 +900,14 @@ const UserDashboard = () => {
                     <img 
                       src={shopInfo.logo} 
                       alt="Logo" 
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '2px solid #f43f5e' }} 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} 
                     />
                     {shopInfo.subscription && shopInfo.subscription !== 'trial' && (
                       <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', padding: '2px 6px', borderRadius: '8px', fontSize: '8px', fontWeight: '800' }}>PRO</span>
                     )}
                   </div>
                 ) : (
-                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '10px' }}>🏪</div>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '10px' }}>🏪</div>
                 )}
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0 }}>{shopInfo?.name}</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748B', marginTop: '4px' }}>
@@ -981,7 +981,7 @@ const UserDashboard = () => {
                   <div style={{ position: 'relative', height: '80px', background: '#FFFFFF', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', padding: '0 20px' }}>
                     <svg width="100%" height="40" style={{ position: 'absolute', top: '20px', left: 0, overflow: 'visible' }}>
                       <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="rgba(139, 92, 246, 0.25)" strokeWidth="3" />
-                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="6, 6" />
+                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="#4F46E5" strokeWidth="3" strokeDasharray="6, 6" />
                     </svg>
                     <div style={{ position: 'absolute', top: '5px', left: '50px', fontSize: '20px', animation: 'walk-along-path 8s infinite linear', zIndex: 5 }}>🚶</div>
                     <div style={{ position: 'absolute', left: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>👤 <span style={{ fontSize: '11px', fontWeight: 'bold' }}>You</span></div>
@@ -1010,10 +1010,10 @@ const UserDashboard = () => {
                       onClick={() => handleVoiceSearch('local')}
                       style={{
                         width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                        background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                        background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
                         color: isListeningLocal ? '#fff' : '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                         flexShrink: 0, transition: 'all 0.3s',
-                        boxShadow: isListeningLocal ? '0 0 12px #f43f5e' : 'none'
+                        boxShadow: isListeningLocal ? '0 0 12px #4F46E5' : 'none'
                       }}
                     >
                       <Mic size={18} />
@@ -1026,7 +1026,7 @@ const UserDashboard = () => {
 
                   {isLocatingCatalog ? (
                     <div style={{ padding: '40px 0', textAlign: 'center', color: '#64748B' }}>
-                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #f43f5e', borderTopColor: 'transparent', margin: '0 auto 12px', animation: 'laser-sweep 1s infinite linear' }}></div>
+                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #4F46E5', borderTopColor: 'transparent', margin: '0 auto 12px', animation: 'laser-sweep 1s infinite linear' }}></div>
                       Loading catalogue...
                     </div>
                   ) : (
@@ -1227,7 +1227,7 @@ const UserDashboard = () => {
                   <img 
                     src={avatar || 'https://ui-avatars.com/api/?name=' + (user?.name || 'Guest') + '&background=random'} 
                     alt="User" 
-                    style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #8b5cf6', objectFit: 'cover' }} 
+                    style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #4F46E5', objectFit: 'cover' }} 
                   />
                   <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                 </label>
@@ -1279,7 +1279,7 @@ const UserDashboard = () => {
                   <div style={{ color: '#475569', fontWeight: 'bold' }}>{locationStatus}</div>
                   <button 
                     onClick={() => grabLiveLocation(false)} 
-                    style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                    style={{ width: '100%', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                   >
                     <Compass size={10} /> Refocus GPS
                   </button>
@@ -1317,7 +1317,7 @@ const UserDashboard = () => {
                   {/* Left block: local shops list */}
                   <div>
                     {activeCartsList.length > 0 && (
-                      <div className="glass" style={{ padding: '14px', marginBottom: '20px', border: '1px solid rgba(244, 63, 94, 0.25)' }}>
+                      <div className="glass" style={{ padding: '14px', marginBottom: '20px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
                         <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#E11D48', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <ShoppingCart size={13} /> Active Carts Pending Checkout
                         </h4>
@@ -1327,7 +1327,7 @@ const UserDashboard = () => {
                               <span style={{ color: '#475569' }}>You have <strong>{cartItem.count} items</strong> at {cartItem.shopName}</span>
                               <button 
                                 onClick={() => navigate(`/s/${cartItem.shopId}`)}
-                                style={{ width: 'auto', padding: '4px 10px', fontSize: '11px', background: '#f43f5e', color: '#fff', borderRadius: '6px', fontWeight: 'bold' }}
+                                style={{ width: 'auto', padding: '4px 10px', fontSize: '11px', background: '#4F46E5', color: '#fff', borderRadius: '6px', fontWeight: 'bold' }}
                               >
                                 Resume Checkout
                               </button>
@@ -1356,7 +1356,7 @@ const UserDashboard = () => {
                     {/* Category filter chips */}
                     <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                       {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
-                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #f43f5e, #8b5cf6)' : 'rgba(255,255,255,0.06)', color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B', transition: 'all 0.15s' }}>
+                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #4F46E5)' : 'rgba(255,255,255,0.06)', color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B', transition: 'all 0.15s' }}>
                           {label}
                         </button>
                       ))}
@@ -1387,9 +1387,9 @@ const UserDashboard = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                 {shop.logo ? (
-                                  <img src={shop.logo} alt="Logo" style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #8b5cf6' }} />
+                                  <img src={shop.logo} alt="Logo" style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} />
                                 ) : (
-                                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #f43f5e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏪</div>
+                                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏪</div>
                                 )}
                                 <div>
                                   <h3 style={{ fontSize: '15px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -1397,7 +1397,7 @@ const UserDashboard = () => {
                                     {shop.subscription && shop.subscription !== 'trial' && (
                                       <span style={{ background: 'linear-gradient(135deg, #e11d48, #c084fc)', fontSize: '8px', padding: '2px 5px', borderRadius: '6px', fontWeight: '800' }}>PRO</span>
                                     )}
-                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)', color: shop.openNow ? '#10b981' : '#f43f5e' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)', color: shop.openNow ? '#10b981' : '#4F46E5' }}>
                                       {shop.openNow ? '● Open' : '● Closed'}
                                     </span>
                                   </h3>
@@ -1417,7 +1417,7 @@ const UserDashboard = () => {
                               </button>
                               <button
                                 onClick={() => navigate(`/s/${shop.id}`)}
-                                style={{ flex: 1, padding: '8px', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                                style={{ flex: 1, padding: '8px', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
                               >
                                 Open Catalogue 🏪
                               </button>
@@ -1478,10 +1478,10 @@ const UserDashboard = () => {
                       onClick={() => handleVoiceSearch('global')}
                       style={{
                         width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                        background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                        background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
                         color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                         flexShrink: 0, transition: 'all 0.3s',
-                        boxShadow: isListeningGlobal ? '0 0 12px #f43f5e' : 'none'
+                        boxShadow: isListeningGlobal ? '0 0 12px #4F46E5' : 'none'
                       }}
                     >
                       <Mic size={18} />
@@ -1704,7 +1704,7 @@ const UserDashboard = () => {
               </div>
               <input type="text" placeholder="Your Full Name" value={guestName} onChange={e=>setGuestName(e.target.value)} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '12px' }} />
               <input type="tel" placeholder="10-Digit Mobile Number" value={guestPhone} onChange={e=>setGuestPhone(e.target.value)} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '20px' }} />
-              <button onClick={handleGuestLogin} style={{ background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', padding: '12px' }}>Submit & Proceed</button>
+              <button onClick={handleGuestLogin} style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', padding: '12px' }}>Submit & Proceed</button>
               <button onClick={() => setShowGuestModal(false)} style={{ background: 'transparent', color: '#64748b', padding: '10px', marginTop: '6px' }}>Cancel</button>
             </div>
           </div>
@@ -1776,7 +1776,7 @@ const UserDashboard = () => {
       {isStoreMode ? (
         !shopInfo ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', background: 'transparent', color: '#64748B' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(244, 63, 94, 0.2)', borderTopColor: '#f43f5e', animation: 'laser-sweep 1s infinite linear', marginBottom: '16px' }}></div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(244, 63, 94, 0.2)', borderTopColor: '#4F46E5', animation: 'laser-sweep 1s infinite linear', marginBottom: '16px' }}></div>
             <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', letterSpacing: '0.5px' }}>Loading Store Profile...</p>
           </div>
         ) : (
@@ -1815,7 +1815,7 @@ const UserDashboard = () => {
                     <img 
                       src={shopInfo?.logo} 
                       alt="Logo" 
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f43f5e', boxShadow: '0 8px 24px rgba(244, 63, 94, 0.3)' }} 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #4F46E5', boxShadow: '0 8px 24px rgba(79, 70, 229, 0.25)' }} 
                     />
                     {shopInfo?.subscription && shopInfo?.subscription !== 'trial' && (
                       <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', border: '2px solid #FFFFFF', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
@@ -1824,7 +1824,7 @@ const UserDashboard = () => {
                     )}
                   </div>
                 ) : (
-                  <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', marginBottom: '12px', boxShadow: '0 8px 20px rgba(139, 92, 246, 0.2)' }}>
+                  <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', marginBottom: '12px', boxShadow: '0 8px 20px rgba(139, 92, 246, 0.2)' }}>
                     🏪
                   </div>
                 )}
@@ -1847,7 +1847,7 @@ const UserDashboard = () => {
 
               {/* Badges row */}
               <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
-                <span style={{ background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
+                <span style={{ background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
                   🏪 Scan & Shop
                 </span>
                 <span style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
@@ -1918,7 +1918,7 @@ const UserDashboard = () => {
                       <path 
                         d="M 35 30 Q 130 5, 225 30" 
                         fill="none" 
-                        stroke="#8b5cf6" 
+                        stroke="#4F46E5" 
                         strokeWidth="3" 
                         strokeDasharray="6, 6" 
                       />
@@ -1984,10 +1984,10 @@ const UserDashboard = () => {
                 onClick={() => handleVoiceSearch('local')}
                 style={{
                   width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                  background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                  background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
                   color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                   flexShrink: 0, transition: 'all 0.3s',
-                  boxShadow: isListeningLocal ? '0 0 12px #f43f5e' : 'none'
+                  boxShadow: isListeningLocal ? '0 0 12px #4F46E5' : 'none'
                 }}
                 title="Voice Search"
               >
@@ -2023,7 +2023,7 @@ const UserDashboard = () => {
 
             {isLocatingCatalog ? (
               <div style={{ padding: '40px 0', textAlignment: 'center', color: '#64748B' }}>
-                <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #f43f5e', borderTopColor: 'transparent', margin: '0 auto 12px', animation: 'laser-sweep 1s infinite linear' }}></div>
+                <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #4F46E5', borderTopColor: 'transparent', margin: '0 auto 12px', animation: 'laser-sweep 1s infinite linear' }}></div>
                 Loading catalogue items...
               </div>
             ) : (
@@ -2136,7 +2136,7 @@ const UserDashboard = () => {
                     <img 
                       src={avatar || 'https://ui-avatars.com/api/?name=' + user.name + '&background=random'} 
                       alt="User" 
-                      style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #8b5cf6', objectFit: 'cover' }} 
+                      style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #4F46E5', objectFit: 'cover' }} 
                     />
                     <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                   </label>
@@ -2150,7 +2150,7 @@ const UserDashboard = () => {
               ) : (
                 <button 
                   onClick={() => navigate('/login')}
-                  style={{ background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '16px', fontSize: '12px', width: 'auto', fontWeight: 'bold', cursor: 'pointer' }}
+                  style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '16px', fontSize: '12px', width: 'auto', fontWeight: 'bold', cursor: 'pointer' }}
                 >
                   Sign In
                 </button>
@@ -2170,7 +2170,7 @@ const UserDashboard = () => {
               </div>
               <button 
                 onClick={() => grabLiveLocation(false)} 
-                style={{ width: 'auto', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#E11D48', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ width: 'auto', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.25)', color: '#E11D48', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 <Compass size={12} /> Refocus GPS
               </button>
@@ -2225,7 +2225,7 @@ const UserDashboard = () => {
                           <span style={{ color: '#475569' }}>You have <strong style={{ color: '#0F172A' }}>{cartItem.count} saved items</strong> at {cartItem.shopName}</span>
                           <button 
                             onClick={() => navigate(`/s/${cartItem.shopId}`)}
-                            style={{ width: 'auto', padding: '5px 12px', fontSize: '10px', background: '#f43f5e', border: 'none', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                            style={{ width: 'auto', padding: '5px 12px', fontSize: '10px', background: '#4F46E5', border: 'none', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                           >
                             Resume checkout
                           </button>
@@ -2283,7 +2283,7 @@ const UserDashboard = () => {
                         }}
                       >
                         {isPro && (
-                          <div style={{ position: 'absolute', top: '14px', right: '14px', background: 'linear-gradient(135deg, #cbd5e1, #8b5cf6)', color: '#0f172a', fontSize: '8px', fontWeight: '900', padding: '3px 8px', borderRadius: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                          <div style={{ position: 'absolute', top: '14px', right: '14px', background: 'linear-gradient(135deg, #cbd5e1, #4F46E5)', color: '#0f172a', fontSize: '8px', fontWeight: '900', padding: '3px 8px', borderRadius: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                             ★ PRO FEATURED
                           </div>
                         )}
@@ -2292,7 +2292,7 @@ const UserDashboard = () => {
                           {shop.logo ? (
                             <img src={shop.logo} alt="Logo" style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #E2E8F0' }} />
                           ) : (
-                            <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                            <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
                               🏪
                             </div>
                           )}
@@ -2318,7 +2318,7 @@ const UserDashboard = () => {
                         )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '10px', gap: '8px' }}>
-                          <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 9px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)', color: shop.openNow ? '#10b981' : '#f43f5e', flexShrink: 0 }}>
+                          <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 9px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)', color: shop.openNow ? '#10b981' : '#4F46E5', flexShrink: 0 }}>
                             {shop.openNow ? '● Open Now' : '● Closed'}
                           </span>
                           <div style={{ display: 'flex', gap: '8px' }}>
@@ -2330,7 +2330,7 @@ const UserDashboard = () => {
                             </button>
                             <button
                               onClick={() => navigate(`/s/${shop.id}`)}
-                              style={{ width: 'auto', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                              style={{ width: 'auto', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
                             >
                               Catalogue <ChevronRight size={13} />
                             </button>
@@ -2369,10 +2369,10 @@ const UserDashboard = () => {
                     onClick={() => handleVoiceSearch('global')}
                     style={{
                       width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                      background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                      background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
                       color: isListeningGlobal ? '#fff' : '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                       flexShrink: 0, transition: 'all 0.3s',
-                      boxShadow: isListeningGlobal ? '0 0 12px #f43f5e' : 'none'
+                      boxShadow: isListeningGlobal ? '0 0 12px #4F46E5' : 'none'
                     }}
                     title="Voice Search"
                   >
@@ -2772,7 +2772,7 @@ const UserDashboard = () => {
             
             <button 
               onClick={handleGuestLogin} 
-              style={{ width: '100%', background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(244, 63, 94, 0.2)' }}
+              style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(244, 63, 94, 0.2)' }}
             >
               Submit & Proceed
             </button>

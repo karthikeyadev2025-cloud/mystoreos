@@ -5,8 +5,8 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const DEFAULTS = {
-  primaryColor: '#f43f5e',
-  accentColor: '#8b5cf6',
+  primaryColor: '#4F46E5',
+  accentColor: '#818CF8',
   bgColor: '#0f172a',
   cardBg: 'rgba(255,255,255,0.03)',
   cardBorder: 'rgba(255,255,255,0.06)',
@@ -20,7 +20,7 @@ const DEFAULTS = {
 };
 
 const PRESETS = [
-  { name: 'Rose Dark (Default)', primaryColor: '#f43f5e', accentColor: '#8b5cf6', bgColor: '#0f172a' },
+  { name: 'Indigo Premium (Default)', primaryColor: '#4F46E5', accentColor: '#818CF8', bgColor: '#0f172a' },
   { name: 'Ocean Blue', primaryColor: '#3b82f6', accentColor: '#06b6d4', bgColor: '#0a1628' },
   { name: 'Forest Green', primaryColor: '#10b981', accentColor: '#6ee7b7', bgColor: '#0a1f0a' },
   { name: 'Amber Warm', primaryColor: '#f59e0b', accentColor: '#fbbf24', bgColor: '#1a0f00' },

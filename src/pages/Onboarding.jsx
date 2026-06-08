@@ -109,7 +109,7 @@ export default function Onboarding() {
 
   if (step === 3) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0f0c29,#302b63)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#090514,#120F2D)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>
         <div style={{ textAlign: 'center', color: '#f8fafc', padding: '24px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
           <h2 style={{ fontSize: '28px', fontWeight: 900, margin: '0 0 12px' }}>You're all set!</h2>
@@ -125,17 +125,17 @@ export default function Onboarding() {
   return (
     <>
       <style>{`.onb-hidden{display:none}`}</style>
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
 
           <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
             {[0, 1, 2].map(i => (
-              <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i <= step ? 'linear-gradient(90deg,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+              <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i <= step ? 'linear-gradient(90deg,#4F46E5,#818CF8)' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
             ))}
           </div>
 
-          <div style={{ marginBottom: '4px', fontSize: '11px', color: '#f43f5e', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Step {step + 1} of 3</div>
+          <div style={{ marginBottom: '4px', fontSize: '11px', color: '#4F46E5', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Step {step + 1} of 3</div>
           <h2 style={{ margin: '0 0 24px', fontSize: '22px', fontWeight: 900, color: '#f8fafc' }}>{STEPS[step]}</h2>
 
           {step === 0 && (
@@ -143,10 +143,10 @@ export default function Onboarding() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <input type="file" accept="image/*" className="onb-hidden" id="onb-logo" onChange={handleLogoFile} />
                 <label htmlFor="onb-logo" style={{ cursor: 'pointer', position: 'relative', display: 'inline-block' }}>
-                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: '#0f172a', border: '2px dashed rgba(244,63,94,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: '#0f172a', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {logo ? <img src={logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '28px' }}>📷</span>}
                   </div>
-                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', background: '#f43f5e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff', fontWeight: 800 }}>+</div>
+                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', background: '#4F46E5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff', fontWeight: 800 }}>+</div>
                 </label>
                 <span style={{ color: '#64748b', fontSize: '11px' }}>Tap to upload shop logo</span>
               </div>
@@ -200,7 +200,7 @@ export default function Onboarding() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                 <input type="file" accept="image/*" className="onb-hidden" id="onb-prod-img" onChange={handleProdImageFile} />
                 <label htmlFor="onb-prod-img" style={{ cursor: 'pointer', position: 'relative' }}>
-                  <div style={{ width: '70px', height: '70px', borderRadius: '12px', background: '#0f172a', border: '2px dashed rgba(139,92,246,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '12px', background: '#0f172a', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {prodImage ? <img src={prodImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '24px' }}>🖼</span>}
                   </div>
                 </label>
@@ -229,7 +229,7 @@ export default function Onboarding() {
                 Back
               </button>
             )}
-            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}>
+            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', border: 'none', color: '#fff', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}>
               {saving ? 'Saving...' : step === 2 ? 'Finish Setup 🚀' : 'Next →'}
             </button>
           </div>

@@ -1687,7 +1687,7 @@ const ShopDashboard = () => {
         }
       },
       prefill: { name: user.name, contact: user.phone },
-      theme: { color: "#7c3aed" }
+      theme: { color: "#4F46E5" }
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
@@ -1746,7 +1746,7 @@ const ShopDashboard = () => {
               <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, #ef4444, #b91c1c)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
                 Use This Device (Revoke Others)
               </button>
-              <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+              <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
                 Upgrade for More Devices →
               </button>
             </div>
@@ -2006,8 +2006,8 @@ const ShopDashboard = () => {
                 )}
               </div>
               <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
-              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(244,63,94,0.08)', borderRadius: '8px', display: 'inline-block' }}>
-                <span style={{ fontSize: '10px', color: '#f43f5e', fontWeight: '700' }}>MyStore OS</span>
+              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
+                <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
                 <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
               </div>
               <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
@@ -2243,7 +2243,7 @@ const ShopDashboard = () => {
             {/* Header */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <span style={{
-                background: 'linear-gradient(90deg, #7c3aed, #2563eb)',
+                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
                 color: 'white',
                 fontSize: '11px',
                 fontWeight: 'bold',
@@ -2279,15 +2279,15 @@ const ShopDashboard = () => {
                   <div 
                     key={plan.id}
                     style={{
-                      background: isPopular ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
-                      border: isPopular ? '2px solid #7c3aed' : '1px solid rgba(255, 255, 255, 0.06)',
+                      background: isPopular ? 'linear-gradient(180deg, rgba(79, 70, 229, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
+                      border: isPopular ? '2px solid #4F46E5' : '1px solid rgba(255, 255, 255, 0.06)',
                       borderRadius: '20px',
                       padding: '24px',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '20px',
                       position: 'relative',
-                      boxShadow: isPopular ? '0 12px 32px rgba(124, 58, 237, 0.15)' : 'none'
+                      boxShadow: isPopular ? '0 12px 32px rgba(79, 70, 229, 0.15)' : 'none'
                     }}
                   >
                     {isPopular && (
@@ -2296,7 +2296,7 @@ const ShopDashboard = () => {
                         top: '-12px',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
+                        background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
                         color: 'white',
                         fontSize: '9px',
                         fontWeight: '800',
@@ -2353,7 +2353,7 @@ const ShopDashboard = () => {
                         onClick={() => handleSubscribe(plan)}
                         style={{
                           width: '100%',
-                          background: isPopular ? 'linear-gradient(90deg, #7c3aed, #4f46e5)' : 'white',
+                          background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
                           color: isPopular ? 'white' : '#0f172a',
                           border: 'none',
                           padding: '12px',
@@ -2432,13 +2432,13 @@ const ShopDashboard = () => {
         <>
           {/* Offer Banner */}
           {shopBanner?.active && shopBanner?.title && (
-            <div style={{ margin: '0 12px 12px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+            <div style={{ margin: '0 12px 12px', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
               <div>
                 <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>🏷️ {shopBanner.title}</div>
                 {shopBanner.subtitle && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginTop: '3px' }}>{shopBanner.subtitle}</div>}
               </div>
               {shopBanner.discountPercent > 0 && (
-                <div style={{ flexShrink: 0, background: '#fff', color: '#f43f5e', borderRadius: '10px', padding: '6px 14px', fontWeight: 900, fontSize: '18px' }}>{shopBanner.discountPercent}% OFF</div>
+                <div style={{ flexShrink: 0, background: '#fff', color: '#4F46E5', borderRadius: '10px', padding: '6px 14px', fontWeight: 900, fontSize: '18px' }}>{shopBanner.discountPercent}% OFF</div>
               )}
             </div>
           )}
@@ -2484,7 +2484,7 @@ const ShopDashboard = () => {
             </div>
             {isOwner && (
               <div style={styles.gridBtn} onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }}>
-                <Plus size={24} color="#8b5cf6" />
+                <Plus size={24} color="#4F46E5" />
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
               </div>
             )}
@@ -3507,7 +3507,7 @@ const ShopDashboard = () => {
 
               <button
                 onClick={() => setShowPlanSelectorModal(true)}
-                style={{ width: '100%', background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Outfit,sans-serif' }}
+                style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Outfit,sans-serif' }}
               >
                 {isOnTrial ? '⚡ Upgrade Plan Now' : '🔄 Change Plan'}
               </button>
@@ -3595,7 +3595,7 @@ const ShopDashboard = () => {
                   📁 Upload from Gallery
                   <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
-                <label style={{ flex: 1, background: '#8b5cf6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: '#4F46E5', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   📷 Take Photo
                   <input type="file" accept="image/*" capture="environment" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
@@ -3637,7 +3637,7 @@ const ShopDashboard = () => {
                 </div>
               </div>
               
-              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
+              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #6d28d9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
                 🛰️ Auto-Grab Live Shop Coordinates
               </button>
               
@@ -3757,8 +3757,8 @@ const ShopDashboard = () => {
             )}
           </div>
           <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
-              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(244,63,94,0.08)', borderRadius: '8px', display: 'inline-block' }}>
-                <span style={{ fontSize: '10px', color: '#f43f5e', fontWeight: '700' }}>MyStore OS</span>
+              <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
+                <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
                 <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
               </div>
           <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -4160,7 +4160,7 @@ const ShopDashboard = () => {
             {/* Header */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <span style={{
-                background: 'linear-gradient(90deg, #7c3aed, #2563eb)',
+                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
                 color: 'white',
                 fontSize: '11px',
                 fontWeight: 'bold',
@@ -4196,15 +4196,15 @@ const ShopDashboard = () => {
                   <div 
                     key={plan.id}
                     style={{
-                      background: isPopular ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
-                      border: isPopular ? '2px solid #7c3aed' : '1px solid rgba(255, 255, 255, 0.06)',
+                      background: isPopular ? 'linear-gradient(180deg, rgba(79, 70, 229, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
+                      border: isPopular ? '2px solid #4F46E5' : '1px solid rgba(255, 255, 255, 0.06)',
                       borderRadius: '20px',
                       padding: '24px',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '20px',
                       position: 'relative',
-                      boxShadow: isPopular ? '0 12px 32px rgba(124, 58, 237, 0.15)' : 'none'
+                      boxShadow: isPopular ? '0 12px 32px rgba(79, 70, 229, 0.15)' : 'none'
                     }}
                   >
                     {isPopular && (
@@ -4213,7 +4213,7 @@ const ShopDashboard = () => {
                         top: '-12px',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: 'linear-gradient(90deg, #7c3aed, #4f46e5)',
+                        background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
                         color: 'white',
                         fontSize: '9px',
                         fontWeight: '800',
@@ -4270,7 +4270,7 @@ const ShopDashboard = () => {
                         onClick={() => handleSubscribe(plan)}
                         style={{
                           width: '100%',
-                          background: isPopular ? 'linear-gradient(90deg, #7c3aed, #4f46e5)' : 'white',
+                          background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
                           color: isPopular ? 'white' : '#0f172a',
                           border: 'none',
                           padding: '12px',

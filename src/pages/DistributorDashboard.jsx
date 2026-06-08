@@ -725,11 +725,11 @@ const DistributorDashboard = () => {
           {activeTab === 'analytics' && (
             <div>
               {!hasDistCap(user, 'advancedAnalytics') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#F3E8FF', border: '1px solid #E9D5FF', borderRadius: '20px' }}>
-                  <TrendingUp size={40} style={{ color: '#7C3AED', marginBottom: '16px' }} />
-                  <h3 style={{ color: '#6D28D9', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
-                  <p style={{ color: '#6D28D9', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
+                  <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
+                  <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
+                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>

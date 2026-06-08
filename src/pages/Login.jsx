@@ -81,12 +81,12 @@ const CSS = `
   transition: border-color .18s, box-shadow .18s;
   outline: none;
 }
-.lp-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
+.lp-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
 .lp-input::placeholder { color: rgba(255,255,255,0.3); }
 .lp-btn {
   width: 100%;
   padding: 13px;
-  background: #2563EB;
+  background: #4F46E5;
   color: #fff;
   border: none;
   border-radius: 9px;
@@ -195,7 +195,7 @@ export default function Login() {
           <h1 style={{ fontSize: 'clamp(26px,3vw,36px)', fontWeight: 800, color: '#fff', lineHeight: 1.15,
             letterSpacing: '-.025em', marginBottom: 14, maxWidth: 460 }}>
             India's Most Powerful<br/>
-            <span style={{ background: 'linear-gradient(135deg,#2563EB,#60A5FA)',
+            <span style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Retail Operating System
             </span>
@@ -284,7 +284,7 @@ export default function Login() {
 
                 <div style={{ textAlign: 'right', marginBottom: 20 }}>
                   <button type="button" onClick={() => { setShowForgot(true); setErr(''); }}
-                    style={{ background: 'none', border: 'none', color: '#60A5FA', fontSize: 12,
+                    style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 12,
                       fontWeight: 600, cursor: 'pointer' }}>Forgot password?</button>
                 </div>
 
@@ -303,7 +303,7 @@ export default function Login() {
               <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>New to MyStore OS? </span>
                 <button onClick={() => navigate('/register')}
-                  style={{ background: 'none', border: 'none', color: '#60A5FA', fontSize: 13,
+                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13,
                     fontWeight: 700, cursor: 'pointer' }}>Create account →</button>
               </div>
 
@@ -356,7 +356,7 @@ export default function Login() {
 
               <div style={{ textAlign: 'center', marginTop: 16 }}>
                 <button onClick={() => { setShowForgot(false); setErr(''); }}
-                  style={{ background: 'none', border: 'none', color: '#60A5FA',
+                  style={{ background: 'none', border: 'none', color: '#818CF8',
                     fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
               </div>
             </>

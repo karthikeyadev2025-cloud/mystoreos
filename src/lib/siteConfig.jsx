@@ -9,8 +9,8 @@ const DEFAULTS = {
   siteLogo: '',
   faviconUrl: '',
   // Colors
-  primaryColor: '#f43f5e',
-  accentColor: '#8b5cf6',
+  primaryColor: '#4F46E5',
+  accentColor: '#818CF8',
   bgColor: '#0f172a',
   cardBg: 'rgba(255,255,255,0.03)',
   cardBorder: 'rgba(255,255,255,0.06)',

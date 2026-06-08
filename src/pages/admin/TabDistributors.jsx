@@ -3,7 +3,7 @@ import { Search, RefreshCw, Trash2, Key, ChevronDown, CheckCircle, XCircle, Tren
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_COLORS = { basic_distributor: '#64748b', pro_distributor: '#8b5cf6', enterprise_distributor: '#10b981' };
+const TIER_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
 const TIER_LABELS = { basic_distributor: 'Basic', pro_distributor: 'Pro', enterprise_distributor: 'Enterprise' };
 const TIER_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
 const TIERS = ['basic_distributor', 'pro_distributor', 'enterprise_distributor'];
@@ -215,7 +215,7 @@ export default function TabDistributors() {
                           ? <button disabled={isBusy} onClick={() => suspend(d)} style={S.btn('#F59E0B')}><XCircle size={12} />Suspend</button>
                           : <button disabled={isBusy} onClick={() => activate(d)} style={S.btn('#10B981')}><CheckCircle size={12} />Activate</button>
                         }
-                        <button disabled={isBusy} onClick={() => setUpgradeModal(d)} style={S.btn('#8B5CF6')}><ChevronDown size={12} />Plan</button>
+                        <button disabled={isBusy} onClick={() => setUpgradeModal(d)} style={S.btn('#4F46E5')}><ChevronDown size={12} />Plan</button>
                         <button disabled={isBusy} onClick={() => setResetModal(d)} style={S.btn('#475569')}><Key size={12} />Reset PW</button>
                         <button disabled={isBusy} onClick={() => del(d)} style={S.btn('#EF4444')}><Trash2 size={12} />Delete</button>
                       </div>

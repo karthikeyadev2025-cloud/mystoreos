@@ -81,8 +81,8 @@ export default function TabAnalytics() {
                 <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="aCust" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#818CF8" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#818CF8" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -90,7 +90,7 @@ export default function TabAnalytics() {
             <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={CHART_STYLE} />
             <Area type="monotone" dataKey="shops" name="Shops" stroke="#4F46E5" fill="url(#aShop)" strokeWidth={2} dot={false} />
-            <Area type="monotone" dataKey="customers" name="Customers" stroke="#8B5CF6" fill="url(#aCust)" strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="customers" name="Customers" stroke="#818CF8" fill="url(#aCust)" strokeWidth={2} dot={false} />
             <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#10B981" strokeWidth={2} dot={false} fill="transparent" />
           </AreaChart>
         </ResponsiveContainer>
@@ -104,7 +104,7 @@ export default function TabAnalytics() {
             <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
             <Tooltip contentStyle={CHART_STYLE} formatter={v => [`₹${v}`, '']} />
             <Bar dataKey="shops" name="Shops" fill="#4F46E5" stackId="a" radius={[0, 0, 0, 0]} />
-            <Bar dataKey="distributors" name="Distributors" fill="#8B5CF6" stackId="a" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="distributors" name="Distributors" fill="#818CF8" stackId="a" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -128,7 +128,7 @@ export default function TabAnalytics() {
 
         <div style={S.card}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <Target size={15} color="#8B5CF6" />
+            <Target size={15} color="#818CF8" />
             <span style={S.sectionTitle}>Top Distributors by Credit</span>
           </div>
           {topDists.length === 0 ? <div style={{ color: '#64748B', fontSize: '13px' }}>No credit data yet</div> : (
@@ -136,7 +136,7 @@ export default function TabAnalytics() {
               <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < topDists.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
                 <span style={{ color: '#64748B', fontSize: '11px', width: '18px', flexShrink: 0 }}>#{i + 1}</span>
                 <span style={{ color: '#0F172A', fontSize: '13px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
-                <span style={{ color: '#8B5CF6', fontWeight: 600, fontSize: '12px', flexShrink: 0 }}>₹{Number(d.total).toLocaleString()}</span>
+                <span style={{ color: '#818CF8', fontWeight: 600, fontSize: '12px', flexShrink: 0 }}>₹{Number(d.total).toLocaleString()}</span>
               </div>
             ))
           )}

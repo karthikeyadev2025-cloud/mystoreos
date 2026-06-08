@@ -140,8 +140,8 @@ export default function AlternativeComparison() {
       color: '#f8fafc',
       fontFamily: 'Outfit, sans-serif',
       padding: '24px 16px 80px',
-      backgroundImage: `radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 45%),
-                        radial-gradient(circle at bottom left, rgba(244, 63, 94, 0.1), transparent 45%)`,
+      backgroundImage: `radial-gradient(circle at top right, rgba(79, 70, 229, 0.15), transparent 45%),
+                        radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.1), transparent 45%)`,
       backgroundAttachment: 'fixed'
     }}>
       {/* Top sticky-ish back bar */}
@@ -177,7 +177,7 @@ export default function AlternativeComparison() {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          background: 'linear-gradient(135deg, rgba(251,191,36,0.1), rgba(244,63,94,0.1))',
+          background: 'linear-gradient(135deg, rgba(251,191,36,0.1), rgba(79,70,229,0.1))',
           border: '1px solid rgba(251,191,36,0.2)',
           padding: '6px 12px',
           borderRadius: '20px',
@@ -205,7 +205,7 @@ export default function AlternativeComparison() {
           fontWeight: 800,
           lineHeight: 1.15,
           marginBottom: '16px',
-          background: 'linear-gradient(135deg, #f8fafc 40%, #c084fc 100%)',
+          background: 'linear-gradient(135deg, #f8fafc 40%, #818CF8 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent'
         }}>
@@ -293,7 +293,7 @@ export default function AlternativeComparison() {
         {/* Why MyStore OS is the Undisputed Winner */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '40px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(139,92,246,0.05) 100%)',
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(79,70,229,0.05) 100%)',
             border: '1.5px dashed rgba(16,185,129,0.3)',
             borderRadius: '20px',
             padding: '24px',
@@ -375,7 +375,7 @@ export default function AlternativeComparison() {
 
         {/* Global CTA */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(244,63,94,0.15) 100%)',
+          background: 'linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(129,140,248,0.15) 100%)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: '24px',
           padding: '32px 24px',
@@ -393,7 +393,7 @@ export default function AlternativeComparison() {
           <button
             onClick={() => navigate('/register')}
             style={{
-              background: 'linear-gradient(135deg, #f43f5e, #8b5cf6)',
+              background: 'linear-gradient(135deg, #4F46E5, #818CF8)',
               color: 'white',
               border: 'none',
               padding: '14px 28px',
@@ -401,7 +401,7 @@ export default function AlternativeComparison() {
               fontWeight: 600,
               fontSize: '15px',
               width: 'auto',
-              boxShadow: '0 4px 20px rgba(244,63,94,0.3)',
+              boxShadow: '0 4px 20px rgba(79,70,229,0.3)',
               cursor: 'pointer'
             }}
           >
