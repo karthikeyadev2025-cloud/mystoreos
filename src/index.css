@@ -1,22 +1,24 @@
 
-/* ══════════════════════════════════════════════════════════════
-   MYSTOREOS — OFFICIAL BRAND SYSTEM v5 (CLEAN)
-   PRIMARY:  #4F46E5  OBSIDIAN: #0F172A  CANVAS: #F8FAFC
-   FONT:     Plus Jakarta Sans  MONO: JetBrains Mono
-   ══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   MYSTOREOS ENTERPRISE — Production Design System
+   Zoho-quality UI: clean hierarchy, proper spacing, joy to use
+   Primary: #4F46E5  Canvas: #F4F5F7  White: #FFFFFF
+   ═══════════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
+html { font-size: 16px; scroll-behavior: smooth; }
 body, #root {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
-  background: #F8FAFC;
-  color: #0F172A;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: #F4F5F7;
+  color: #1A202C;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
-/* ── App container: full width for enterprise layout ── */
+/* ── App Container: full width enterprise ── */
 .app-container {
   max-width: 100% !important;
   width: 100% !important;
@@ -24,142 +26,360 @@ body, #root {
   overflow: visible !important;
 }
 
-/* ── Enterprise wrapper ── */
+/* ── Enterprise Wrapper ── */
 .enterprise-wrapper {
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 100vh !important;
-  display: flex !important;
-  flex-direction: column !important;
-  background: #F8FAFC !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #F4F5F7;
 }
 .enterprise-main {
-  flex: 1 !important;
-  background: #F8FAFC !important;
-  width: 100% !important;
+  flex: 1;
+  background: #F4F5F7;
+  width: 100%;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-/* ── ONLY inside enterprise dashboard: white cards ── */
-.enterprise-main .premium-glass,
-.enterprise-main [class*="card"],
-.enterprise-main [class*="Card"] {
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE SPLIT GRID — POS two-column layout
+   ══════════════════════════════════════════════════════ */
+.responsive-split-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 380px !important;
+  gap: 0 !important;
+  height: calc(100vh - 88px) !important;
+  overflow: hidden !important;
+}
+.responsive-split-grid > *:first-child {
+  overflow-y: auto;
+  padding: 24px;
+  background: #F4F5F7;
+}
+.responsive-split-grid > *:last-child {
+  overflow-y: auto;
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
+  border-left: 1px solid #E5E7EB;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.04);
 }
 
-/* ── ONLY inside enterprise dashboard: dark text ── */
-.enterprise-main h1,
-.enterprise-main h2,
-.enterprise-main h3,
-.enterprise-main h4 { color: #0F172A; }
-.enterprise-main p   { color: #475569; }
-.enterprise-main td  { color: #0F172A !important; font-size: 13px !important; }
-.enterprise-main th  {
-  color: #64748B !important;
+/* ══════════════════════════════════════════════════════
+   KPI / STAT CARDS — enterprise data cards
+   ══════════════════════════════════════════════════════ */
+.premium-glass {
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+.premium-glass:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+  transform: translateY(-1px);
+}
+/* Colored left accent bar on stat cards */
+.premium-glass[onclick]::before,
+.premium-glass[style*="cursor: pointer"]::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: #4F46E5;
+  border-radius: 3px 0 0 3px;
+}
+
+/* ══════════════════════════════════════════════════════
+   PREMIUM ACTION BUTTONS — Barcode Scan, Add Product etc
+   ══════════════════════════════════════════════════════ */
+.premium-btn {
+  background: #FFFFFF !important;
+  border: 1.5px solid #E5E7EB !important;
+  border-radius: 10px !important;
+  padding: 14px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  min-height: 72px !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+.premium-btn:hover {
+  border-color: #4F46E5 !important;
+  background: #EEF2FF !important;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.15) !important;
+  transform: translateY(-2px) !important;
+}
+.premium-btn:active {
+  transform: scale(0.97) !important;
+}
+.premium-btn span {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  letter-spacing: 0.01em !important;
+}
+.premium-btn:hover span { color: #4F46E5 !important; }
+.premium-btn svg { transition: transform 0.18s ease !important; }
+.premium-btn:hover svg { transform: scale(1.1) !important; }
+
+/* ══════════════════════════════════════════════════════
+   ENTERPRISE TOP BAR
+   ══════════════════════════════════════════════════════ */
+[class*="DesktopTopBar"],
+.enterprise-wrapper > div:first-child {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+/* ══════════════════════════════════════════════════════
+   ENTERPRISE TABLE STYLES
+   ══════════════════════════════════════════════════════ */
+.enterprise-main table,
+.enterprise-main .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.enterprise-main thead tr {
+  background: #F9FAFB !important;
+  border-bottom: 2px solid #E5E7EB !important;
+}
+.enterprise-main thead th {
+  color: #6B7280 !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: .06em !important;
+  letter-spacing: 0.06em !important;
+  padding: 12px 16px !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+.enterprise-main tbody td {
+  padding: 13px 16px !important;
+  border-bottom: 1px solid #F3F4F6 !important;
+  color: #111827 !important;
+  font-size: 13px !important;
+  vertical-align: middle !important;
+}
+.enterprise-main tbody tr:hover td {
+  background: #F9FAFB !important;
+}
+.enterprise-main tbody tr:last-child td {
+  border-bottom: none !important;
 }
 
-/* ── POS quick action buttons ── */
-.premium-btn {
+/* ══════════════════════════════════════════════════════
+   INPUTS — enterprise form fields
+   ══════════════════════════════════════════════════════ */
+.enterprise-main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.enterprise-main textarea,
+.enterprise-main select {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-size: 13px !important;
+  color: #111827 !important;
   background: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-  color: #334155 !important;
-  border-radius: 10px !important;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
-  transition: all .18s ease !important;
+  border: 1.5px solid #D1D5DB !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  transition: all 0.15s ease !important;
 }
-.premium-btn:hover { border-color: #4F46E5 !important; color: #4F46E5 !important; }
-.premium-btn span  { color: #334155 !important; }
-
-/* ── Tables only in enterprise main ── */
-.enterprise-main table { border-collapse: collapse !important; width: 100%; }
-.enterprise-main thead tr {
-  background: #F8FAFC !important;
-  border-top: 1px solid #E2E8F0 !important;
-  border-bottom: 1px solid #E2E8F0 !important;
-}
-.enterprise-main tbody td { border-bottom: 1px solid #F1F5F9 !important; padding: 12px 16px !important; }
-.enterprise-main tbody tr:hover td { background: #F8FAFC !important; }
-
-/* ── Inputs (global — applies everywhere) ── */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-textarea, select {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
-}
-input:focus, textarea:focus, select:focus {
+.enterprise-main input:focus,
+.enterprise-main textarea:focus,
+.enterprise-main select:focus {
   border-color: #4F46E5 !important;
-  box-shadow: 0 0 0 3px rgba(79,70,229,.12) !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.12) !important;
   outline: none !important;
 }
-input::placeholder, textarea::placeholder { color: #94A3B8 !important; }
+.enterprise-main input::placeholder,
+.enterprise-main textarea::placeholder {
+  color: #9CA3AF !important;
+}
+/* The POS product search bar */
+.enterprise-main input[style*="transparent"],
+.enterprise-main input[style*="background: transparent"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
-/* ── Number input — no spinners ── */
+/* ══════════════════════════════════════════════════════
+   BILL PANEL (right side of POS) — clean light design
+   ══════════════════════════════════════════════════════ */
+.responsive-split-grid > *:last-child input {
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+.responsive-split-grid > *:last-child input::placeholder {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* ══════════════════════════════════════════════════════
+   STATUS BADGES
+   ══════════════════════════════════════════════════════ */
+.badge-success { background: #ECFDF5 !important; color: #059669 !important; border: 1px solid #A7F3D0 !important; border-radius: 6px !important; padding: 2px 8px !important; font-size: 11px !important; font-weight: 700 !important; }
+.badge-warning { background: #FFFBEB !important; color: #D97706 !important; border: 1px solid #FCD34D !important; border-radius: 6px !important; padding: 2px 8px !important; font-size: 11px !important; font-weight: 700 !important; }
+.badge-error   { background: #FEF2F2 !important; color: #DC2626 !important; border: 1px solid #FCA5A5 !important; border-radius: 6px !important; padding: 2px 8px !important; font-size: 11px !important; font-weight: 700 !important; }
+.badge-info    { background: #EEF2FF !important; color: #4F46E5 !important; border: 1px solid #C7D2FE !important; border-radius: 6px !important; padding: 2px 8px !important; font-size: 11px !important; font-weight: 700 !important; }
+
+/* ══════════════════════════════════════════════════════
+   SECTION CARDS — content containers
+   ══════════════════════════════════════════════════════ */
+.enterprise-main [class*="section"],
+.enterprise-main .content-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE — < 1024px optimized layout
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .app-container { max-width: 100% !important; }
+  .enterprise-wrapper { background: #F4F5F7; }
+  
+  /* Mobile stat boxes */
+  [style*="backgroundColor: '#1e222d'"],
+  [style*="background-color: rgb(30, 34, 45)"] {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
+  }
+  
+  /* Mobile bottom nav */
+  div[style*="position: fixed"][style*="bottom: 0"] {
+    background: #FFFFFF !important;
+    border-top: 1px solid #E5E7EB !important;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08) !important;
+  }
+  
+  /* Mobile search bar */
+  div[style*="backgroundColor: '#1e222d'"] {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E5E7EB !important;
+    border-radius: 12px !important;
+  }
+  
+  /* Mobile action grid buttons */
+  div[style*="backgroundColor: '#1e222d'"][style*="borderRadius: '8px'"] {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E5E7EB !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
+  }
+  
+  /* Mobile body background */
+  div[style*="backgroundColor: '#11151c'"],
+  div[style*="background-color: rgb(17, 21, 28)"] {
+    background: #F4F5F7 !important;
+  }
+  
+  /* Mobile section */
+  div[style*="backgroundColor: '#1e222d'"] {
+    background: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: 12px !important;
+  }
+  
+  /* Mobile text colors on light bg */
+  div[style*="color: 'white'"],
+  div[style*="color: white"],
+  p[style*="color: 'white'"],
+  p[style*="color: white"],
+  h1[style*="color: white"],
+  h2[style*="color: white"],
+  h3[style*="color: white"],
+  h4[style*="color: white"] {
+    color: #111827 !important;
+  }
+  p[style*="color: '#94a3b8'"] { color: #6B7280 !important; }
+  p[style*="color: '#64748b'"] { color: #6B7280 !important; }
+}
+
+/* ══════════════════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* ══════════════════════════════════════════════════════
+   NUMBER INPUTS
+   ══════════════════════════════════════════════════════ */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+/* ══════════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════════ */
+@keyframes fadeSlide  { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+@keyframes pulseLive  { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.2)} }
+@keyframes countUp    { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes gradShift  { 0%,100%{background-position:0 50%} 50%{background-position:100% 50%} }
+@keyframes slideLeft  { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+@keyframes successBounce { 0%{transform:scale(.85)} 60%{transform:scale(1.1)} 100%{transform:scale(1)} }
+@keyframes shimmerLoad { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
 
-/* ── Mobile nav ── */
-@media (max-width: 768px) {
-  [class*="bottom-nav"], [class*="mobile-nav"] {
-    background: #0F172A !important;
-    border-top: 1px solid rgba(255,255,255,.07) !important;
-  }
-}
-
-/* ── Animation utilities ── */
-@keyframes fadeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
-@keyframes pulseLive { 0%,100%{opacity:.45;transform:scale(1)} 50%{opacity:1;transform:scale(1.18)} }
-@keyframes countUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-@keyframes slideInLeft { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
-@keyframes successBounce { 0%{transform:scale(.8)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
-@keyframes gradMove { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-@keyframes shimmer  { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
-
-.su  { animation: fadeSlide .38s cubic-bezier(.4,0,.2,1) both }
-.su1 { animation: fadeSlide .38s .05s cubic-bezier(.4,0,.2,1) both }
-.su2 { animation: fadeSlide .38s .10s cubic-bezier(.4,0,.2,1) both }
-.su3 { animation: fadeSlide .38s .15s cubic-bezier(.4,0,.2,1) both }
-.su4 { animation: fadeSlide .38s .20s cubic-bezier(.4,0,.2,1) both }
-.su5 { animation: fadeSlide .38s .25s cubic-bezier(.4,0,.2,1) both }
+.su  { animation: fadeSlide .35s cubic-bezier(.4,0,.2,1) both }
+.su1 { animation: fadeSlide .35s .05s cubic-bezier(.4,0,.2,1) both }
+.su2 { animation: fadeSlide .35s .10s cubic-bezier(.4,0,.2,1) both }
+.su3 { animation: fadeSlide .35s .15s cubic-bezier(.4,0,.2,1) both }
+.su4 { animation: fadeSlide .35s .20s cubic-bezier(.4,0,.2,1) both }
+.su5 { animation: fadeSlide .35s .25s cubic-bezier(.4,0,.2,1) both }
 .fi  { animation: fadeIn .3s ease both }
-.sil { animation: slideInLeft .3s ease both }
-.cu  { animation: countUp .42s ease both }
+.sil { animation: slideLeft .3s ease both }
+.cu  { animation: countUp .4s ease both }
 .sb  { animation: successBounce .5s cubic-bezier(.4,0,.2,1) both }
 .pulse { animation: pulseLive 2.2s ease-in-out infinite }
 
-.lift { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease }
-.lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,.14) }
-.lift:active { transform: scale(.97) }
-.rh:hover { background: #F1F5F9 !important; transition: background .14s ease; }
+.lift { transition: transform .18s ease, box-shadow .18s ease }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,.14) !important; }
+.lift:active { transform: scale(.97); }
+.rh:hover { background: #F9FAFB !important; }
 .ni { transition: all .18s ease; cursor: pointer; border-radius: 8px; }
 .ni:hover { background: rgba(255,255,255,.07) !important; }
-.btn { transition: all .16s ease; cursor: pointer; border: none;
-  display: inline-flex; align-items: center; gap: 6px;
+
+/* Standard button */
+.btn {
+  transition: all .16s ease;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-weight: 600; white-space: nowrap; }
-.btn:hover { opacity: .92; transform: translateY(-1px) scale(1.015); }
+  font-weight: 600;
+  white-space: nowrap;
+}
+.btn:hover { opacity: .92; transform: translateY(-1px) scale(1.01); }
 .btn:active { transform: scale(.96); }
 
+/* Gradient text utility */
 .grad-text {
   background: linear-gradient(135deg, #4F46E5, #818CF8, #C7D2FE);
   background-size: 200%;
-  animation: gradientShift 4s ease infinite;
+  animation: gradShift 4s ease infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Landing page dark section utilities */
 .grid-bg {
   background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
@@ -169,10 +389,57 @@ input[type=number] { -moz-appearance: textfield; }
   background: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(79,70,229,.2), transparent);
 }
 
-/* ── Plus Jakarta Sans: ONLY apply to enterprise/dashboard elements ── */
-/* Landing page has its own fonts via inline styles — don't override */
-.enterprise-wrapper *, .enterprise-main *,
-.lp-root *, .lp-brand *, .lp-form-side *,
-button.btn, .premium-btn {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+/* ══════════════════════════════════════════════════════
+   LANDING PAGE — responsive mobile fixes
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Landing hero heading */
+  h1[style*="fontSize: 54px"],
+  h1[style*="font-size: 54px"] { font-size: 32px !important; }
+  
+  /* Landing nav: stack to hamburger feel */
+  header[style*="padding: '0 48px'"],
+  header[style*="padding: 0 48px"] {
+    padding: 0 16px !important;
+  }
+  
+  /* Stats strip: 2 cols on mobile */
+  div[style*="gridTemplateColumns: 'repeat(4,1fr)'"],
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  
+  /* Feature cards: single col */
+  div[style*="gridTemplateColumns: 'repeat(2,1fr)'"],
+  div[style*="grid-template-columns: repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Hero CTA buttons: stack */
+  div[style*="justifyContent: 'center'"][style*="flexWrap: 'wrap'"] {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  /* Landing section padding */
+  section[style*="padding: '88px 48px'"] {
+    padding: 56px 20px !important;
+  }
+  section[style*="padding: '80px 48px'"] {
+    padding: 56px 20px !important;
+  }
+  
+  /* Hero section */
+  section[style*="padding: '100px 48px 120px'"] {
+    padding: 60px 20px 80px !important;
+  }
+  
+  /* Who For cards: 2 col */
+  .l4[style*="grid"] { grid-template-columns: 1fr 1fr !important; }
+  
+  /* Trust strip */
+  div[style*="justifyContent: 'center'"][style*="gap: 32"] {
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+  }
 }
