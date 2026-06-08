@@ -244,20 +244,6 @@ export const api = {
     return user;
   },
 
-  async resetPassword(phone, newPass) {
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('phone', phone);
-      if (error) throw new Error(error.message);
-      return true;
-    }
-    const db = getDB();
-    const user = db.users.find(u => u.phone === phone);
-    if (!user) throw new Error("Phone number not found. Please register first.");
-    user.pass = newPass;
-    saveDB(db);
-    return true;
-  },
-
   // ── Google OAuth (Supabase native) ──
   // Starts the Google sign-in redirect flow. On return, Supabase lands the
   // user back at /auth/callback with a session; AuthCallback.jsx links it to
