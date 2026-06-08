@@ -547,7 +547,8 @@ const ShopDashboard = () => {
         price: b.price,
         qty: b.qty || 1,
         selectedVariant: b.selectedVariant || ''
-      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode }));
+      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode },
+      billingMode === 'bill' ? 'Accepted' : 'Pending'));
 
       let loyaltyResult = null;
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {

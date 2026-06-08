@@ -717,14 +717,14 @@ export const api = {
     }).reverse();
   },
 
-  async placeOrder(userId, shopId, items, total, customerData = {}) {
+  async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending') {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status: 'Pending', customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null };
+        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status, customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null };
         await enqueue({ table: 'orders', action: 'insert', data: row });
         const db = getDB(); db.orders = db.orders || [];
-        db.orders.push({ id: tempId, userId, shopId, items, total, status: 'Pending', date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '' });
+        db.orders.push({ id: tempId, userId, shopId, items, total, status, date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '' });
         saveDB(db); return toOrder({ ...row, created_at: new Date().toISOString() });
       }
       let resolvedId = shopId;
@@ -745,6 +745,7 @@ export const api = {
         shop_id: resolvedId,
         items,
         total,
+        status,
         customer_gstin: customerData.gstin || null,
         customer_address: customerData.address || null,
         customer_state_code: customerData.stateCode || null
@@ -776,7 +777,7 @@ export const api = {
       shopId, 
       items, 
       total, 
-      status: 'Pending', 
+      status, 
       date: new Date().toISOString(),
       customerGstin: customerData.gstin || '',
       customerAddress: customerData.address || '',
