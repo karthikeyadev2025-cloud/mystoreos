@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
+import { useSiteConfig } from '../lib/siteConfig';
 import { Eye, EyeOff, ShieldCheck, CheckCircle, ArrowRight } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -140,7 +141,9 @@ export default function Login() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
   const { login } = useAuth();
+  const { config } = useSiteConfig();
   const navigate  = useNavigate();
+  const googleEnabled = config?.googleLoginEnabled === true || config?.googleLoginEnabled === 'true';
 
   const handleLogin = async e => {
     e.preventDefault();
@@ -305,25 +308,29 @@ export default function Login() {
                 </button>
               </form>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
-                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
-                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11.5, fontWeight: 600 }}>OR</span>
-                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
-              </div>
+              {googleEnabled && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11.5, fontWeight: 600 }}>OR</span>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+                  </div>
 
-              <button type="button" onClick={handleGoogle} disabled={googleLoading}
-                style={{ width: '100%', padding: 12, background: '#fff', color: '#1f2937',
-                  border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                  opacity: googleLoading ? 0.6 : 1, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
-                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
-                  <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z"/>
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
-                </svg>
-                {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-              </button>
+                  <button type="button" onClick={handleGoogle} disabled={googleLoading}
+                    style={{ width: '100%', padding: 12, background: '#fff', color: '#1f2937',
+                      border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      opacity: googleLoading ? 0.6 : 1, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+                    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+                      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                      <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z"/>
+                      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+                    </svg>
+                    {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+                  </button>
+                </>
+              )}
 
               <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>New to MyStore OS? </span>

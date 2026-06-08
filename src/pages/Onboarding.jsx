@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const STEPS = ['Profile', 'Business', 'First Product', 'Done'];
+
+const OAUTH_ROLES = [
+  { value: 'shop',        icon: '🏪', label: 'Retail Shop',  desc: 'Bill customers, manage inventory' },
+  { value: 'distributor', icon: '🚚', label: 'Distributor',  desc: 'Supply shops wholesale' },
+  { value: 'customer',    icon: '🛒', label: 'Customer',     desc: 'Order from local shops' },
+];
 
 function resizeImage(file, maxSize, quality) {
   return new Promise((resolve) => {
@@ -30,9 +36,47 @@ const safe = async (fn) => { try { return await fn(); } catch { return null; } }
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  // OAuth (Google) new-user flow: a brand-new Google sign-in arrives here with
+  // ?oauth=1 and an oauth_pending blob in sessionStorage, but NO profile/user
+  // yet. We first show a role picker, create the profile, then continue.
+  const isOAuthNew = searchParams.get('oauth') === '1' && !user;
+  const [oauthPending] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('oauth_pending') || 'null'); }
+    catch { return null; }
+  });
+  const [pickingRole, setPickingRole] = useState(isOAuthNew && !!oauthPending);
+
+  const chooseRole = async (role) => {
+    if (!oauthPending) return;
+    setSaving(true);
+    try {
+      const profile = await api.createOAuthProfile({
+        email: oauthPending.email,
+        name: oauthPending.name,
+        authUid: oauthPending.authUid,
+        role,
+      });
+      sessionStorage.removeItem('oauth_pending');
+      login(profile);
+      setPickingRole(false);
+      if (role === 'customer') {
+        navigate('/dashboard', { replace: true });   // active immediately
+      } else if (role === 'distributor') {
+        navigate('/waiting', { replace: true });      // pending approval
+      } else {
+        setStep(0);                                   // shop → continue onboarding
+      }
+    } catch (ex) {
+      toast.error(ex.message || 'Could not create your account. Try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const [logo, setLogo] = useState('');
   const [bizType, setBizType] = useState('grocery');
@@ -121,6 +165,39 @@ export default function Onboarding() {
 
   const inp = { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Outfit, sans-serif' };
   const lbl = { display: 'block', fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' };
+
+  // ── OAuth new-user role picker ──
+  if (pickingRole) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+        <ToastContainer theme="dark" />
+        <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: '#f8fafc' }}>Welcome{oauthPending?.name ? `, ${oauthPending.name.split(' ')[0]}` : ''}! 👋</h2>
+          <p style={{ color: '#94a3b8', fontSize: '13.5px', margin: '0 0 24px', lineHeight: 1.6 }}>
+            How will you use MyStore OS? Pick your account type to get started.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {OAUTH_ROLES.map(({ value, icon, label, desc }) => (
+              <button key={value} onClick={() => chooseRole(value)} disabled={saving}
+                style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left',
+                  padding: '16px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.12)',
+                  borderRadius: '14px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1,
+                  fontFamily: 'Outfit, sans-serif', transition: 'border-color .15s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#4F46E5'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>
+                <span style={{ fontSize: '28px' }}>{icon}</span>
+                <span>
+                  <span style={{ display: 'block', color: '#f8fafc', fontWeight: 800, fontSize: '15px' }}>{label}</span>
+                  <span style={{ display: 'block', color: '#94a3b8', fontSize: '12.5px', marginTop: '2px' }}>{desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+          {saving && <p style={{ color: '#818CF8', fontSize: '12px', textAlign: 'center', marginTop: '16px' }}>Creating your account…</p>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

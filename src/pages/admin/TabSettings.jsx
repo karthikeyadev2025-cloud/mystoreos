@@ -43,6 +43,7 @@ export default function TabSettings() {
   const [maintenanceMsg, setMaintenanceMsg] = useState('');
 
   const [registrationOpen, setRegistrationOpen] = useState(true);
+  const [googleLoginEnabled, setGoogleLoginEnabled] = useState(false);
 
   const [supportEmail, setSupportEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
@@ -62,6 +63,7 @@ export default function TabSettings() {
         setMaintenance(theme.maintenanceMode === true || theme.maintenanceMode === 'true');
         setMaintenanceMsg(theme.maintenanceMessage || '');
         setRegistrationOpen(theme.registrationOpen !== false);
+        setGoogleLoginEnabled(theme.googleLoginEnabled === true || theme.googleLoginEnabled === 'true');
         setSupportEmail(theme.supportEmail || '');
         setContactPhone(theme.contactPhone || '');
         setWhatsappSupport(theme.whatsappSupport || '');
@@ -94,6 +96,12 @@ export default function TabSettings() {
     const current = await api.getSiteTheme();
     await api.saveSiteTheme({ ...current, supportEmail, contactPhone, whatsappSupport });
     await api.logAdminAction('update_contact_settings', 'settings', null, 'updated');
+  });
+
+  const saveAuth = () => saveSection('auth', async () => {
+    const current = await api.getSiteTheme();
+    await api.saveSiteTheme({ ...current, googleLoginEnabled });
+    await api.logAdminAction('update_auth_settings', 'settings', null, googleLoginEnabled ? 'google_on' : 'google_off');
   });
 
   const changeAdminPassword = async (e) => {
@@ -175,6 +183,45 @@ export default function TabSettings() {
           <input value={whatsappSupport} onChange={e => setWhatsappSupport(e.target.value)} placeholder="9876543210 (no country code)" style={S.input} />
         </div>
         <button onClick={saveContact} disabled={busy.contact} style={S.saveBtn(busy.contact)}><Save size={14} />{busy.contact ? 'Saving...' : 'Save Contact Info'}</button>
+      </div>
+
+      <div style={S.card}>
+        <SectionHeader icon={Key} title="Authentication & Sign-in" sub="Google login and the URLs to configure it" color="#10b981" />
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+          <div>
+            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Enable "Continue with Google"</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>Show the Google sign-in button on the login screen</div>
+          </div>
+          <Toggle on={googleLoginEnabled} onChange={setGoogleLoginEnabled} />
+        </div>
+
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', margin: '16px 0' }}>
+          <div style={{ color: '#475569', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>
+            Setup reference — paste these into Supabase &amp; Google Cloud:
+          </div>
+          {[
+            { label: 'Supabase → Auth → Redirect URLs', val: `${window.location.origin}/auth/callback` },
+            { label: 'Supabase → Auth → Redirect URLs', val: `${window.location.origin}/auth/reset` },
+            { label: 'Google Cloud → Authorized redirect URI', val: 'https://zdertmpzervgjicuwsfz.supabase.co/auth/v1/callback' },
+            { label: 'Google Cloud → Authorized JS origin', val: window.location.origin },
+          ].map(({ label, val }, i) => (
+            <div key={i} style={{ marginBottom: '10px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '3px' }}>{label}</div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <code style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: '#0f172a', overflowX: 'auto', whiteSpace: 'nowrap' }}>{val}</code>
+                <button type="button" onClick={() => { navigator.clipboard?.writeText(val); toast.success('Copied'); }}
+                  style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0 10px', cursor: 'pointer', fontSize: '12px', color: '#475569', flexShrink: 0 }}>Copy</button>
+              </div>
+            </div>
+          ))}
+          <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '6px', lineHeight: 1.5 }}>
+            The Google Client ID &amp; Secret are stored in Supabase (Auth → Providers → Google), never in the app.
+            Password-reset emails are sent via the SMTP provider configured in Supabase.
+          </div>
+        </div>
+
+        <button onClick={saveAuth} disabled={busy.auth} style={S.saveBtn(busy.auth)}><Save size={14} />{busy.auth ? 'Saving...' : 'Save Auth Settings'}</button>
       </div>
 
       <div style={S.card}>

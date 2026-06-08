@@ -25,6 +25,7 @@ const DEFAULTS = {
   maintenanceMode: false,
   maintenanceMessage: 'We are performing scheduled maintenance. Back soon!',
   registrationOpen: true,
+  googleLoginEnabled: false,
   // Announcement banner
   announcementText: '',
   announcementType: 'info',
