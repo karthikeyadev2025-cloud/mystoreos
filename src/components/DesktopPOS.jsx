@@ -89,31 +89,75 @@ const DesktopPOS = ({
           </div>
         )}
 
-        {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'transform 0.2s' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#ef4444' : '#fbbf24', margin: 0 }}>{pendingOrders}</p>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>New Orders</p>
-          </div>
-          {isOwner && (
-            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981', margin: 0 }}>₹{sales}</p>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Today's Sales</p>
+        {        {/* Stats Row — enterprise KPI cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
+          {/* New Orders */}
+          <div className="premium-glass lift" onClick={() => setActiveTab('bills')}
+            style={{ padding: '18px 20px', borderRadius: '12px', cursor: 'pointer',
+              borderLeft: `3px solid ${pendingOrders > 0 ? '#EF4444' : '#4F46E5'}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: pendingOrders > 0 ? '#FEF2F2' : '#EEF2FF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={pendingOrders > 0 ? '#EF4444' : '#4F46E5'} strokeWidth="2.2" strokeLinecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: pendingOrders > 0 ? '#EF4444' : '#6B7280',
+                background: pendingOrders > 0 ? '#FEF2F2' : '#F9FAFB', padding: '2px 7px', borderRadius: 20 }}>
+                {pendingOrders > 0 ? 'PENDING' : 'LIVE'}
+              </span>
             </div>
-          )}
-          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6', margin: 0 }}>{products.length}</p>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Total Products</p>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#111827', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{pendingOrders}</div>
+            <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 600, marginTop: 5 }}>New Orders</div>
           </div>
-          {isOwner && (
-            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>₹{payable}</p>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: '500' }}>Supplier Credit</p>
-            </div>
-          )}
-        </div>
 
-        {/* Daily Target Progress Ring */}
+          {/* Today's Revenue */}
+          {isOwner && (
+            <div className="premium-glass lift"
+              style={{ padding: '18px 20px', borderRadius: '12px', borderLeft: '3px solid #059669' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#ECFDF5',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9.5h4.5a1.5 1.5 0 010 3H10.5a1.5 1.5 0 000 3H15"/></svg>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#059669',
+                  background: '#ECFDF5', padding: '2px 7px', borderRadius: 20 }}>TODAY</span>
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#111827', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>₹{sales?.toLocaleString?.('en-IN') ?? sales}</div>
+              <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 600, marginTop: 5 }}>Today's Revenue</div>
+            </div>
+          )}
+
+          {/* Total Products */}
+          <div className="premium-glass lift" onClick={() => setActiveTab('products')}
+            style={{ padding: '18px 20px', borderRadius: '12px', cursor: 'pointer', borderLeft: '3px solid #6366F1' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#EEF2FF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2.2" strokeLinecap="round"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#6366F1',
+                background: '#EEF2FF', padding: '2px 7px', borderRadius: 20 }}>SKUs</span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#111827', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{products.length}</div>
+            <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 600, marginTop: 5 }}>Total Products</div>
+          </div>
+
+          {/* Supplier Credit */}
+          {isOwner && (
+            <div className="premium-glass lift" onClick={() => setActiveTab('credit')}
+              style={{ padding: '18px 20px', borderRadius: '12px', cursor: 'pointer', borderLeft: '3px solid #D97706' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#FFFBEB',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#D97706',
+                  background: '#FFFBEB', padding: '2px 7px', borderRadius: 20 }}>CREDIT</span>
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#111827', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>₹{payable?.toLocaleString?.('en-IN') ?? payable}</div>
+              <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 600, marginTop: 5 }}>Supplier Credit</div>
+            </div>
+          )}
+        </div>        {/* Daily Target Progress Ring */}
         {isOwner && (
           <div className="premium-glass" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '20px' }}>
             {dailyTarget > 0 ? (
