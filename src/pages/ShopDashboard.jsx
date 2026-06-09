@@ -3040,14 +3040,14 @@ const ShopDashboard = () => {
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Credit Book (బకాయిలు)</h2>
             
             {/* Toggle Payable vs Receivable */}
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
               <button 
                 onClick={() => setCreditTabSub('payable')}
                 style={{
-                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'payable' ? 'rgba(255,255,255,0.1)' : 'transparent',
                   color: creditTabSub === 'payable' ? '#ef4444' : '#94a3b8',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
                 💸 Supplier Payables (₹{payable})
@@ -3055,10 +3055,10 @@ const ShopDashboard = () => {
               <button 
                 onClick={() => setCreditTabSub('receivable')}
                 style={{
-                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                  flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'receivable' ? 'rgba(255,255,255,0.1)' : 'transparent',
                   color: creditTabSub === 'receivable' ? '#10b981' : '#94a3b8',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
                 🟢 Customer Receivables (₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)})
