@@ -1556,20 +1556,36 @@ const ShopDashboard = () => {
   const handleShopPhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (shopPhotos.length + files.length > 6) return toast.error('Maximum 6 photos allowed');
-    
+
+    const added = [];
     for (const file of files) {
       try {
         const url = await safe(() => api.uploadAsset(file, user.id, 'shop_photos'));
-        setShopPhotos(prev => [...prev, url]);
+        if (url) added.push(url);
       } catch {
         toast.error(`Failed to upload ${file.name}`);
       }
     }
-    toast.success("Photos uploaded successfully!");
+    if (added.length) {
+      const next = [...shopPhotos, ...added];
+      setShopPhotos(next);
+      await safe(() => api.updateProfile(user.id, { shopPhotos: next }));
+      try {
+        const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
+        localStorage.setItem('mystore_session', JSON.stringify({ ...sess, shopPhotos: next }));
+      } catch (_e) { /* ignore */ }
+      toast.success("Photos saved!");
+    }
   };
 
-  const removeShopPhoto = (index) => {
-    setShopPhotos(prev => prev.filter((_, i) => i !== index));
+  const removeShopPhoto = async (index) => {
+    const next = shopPhotos.filter((_, i) => i !== index);
+    setShopPhotos(next);
+    await safe(() => api.updateProfile(user.id, { shopPhotos: next }));
+    try {
+      const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
+      localStorage.setItem('mystore_session', JSON.stringify({ ...sess, shopPhotos: next }));
+    } catch (_e) { /* ignore */ }
   };
 
   const getShopUrl = () => {
@@ -1628,7 +1644,13 @@ const ShopDashboard = () => {
       try {
         const url = await safe(() => api.uploadAsset(file, user.id, 'payment_qrs'));
         setPaymentQr(url);
-        toast.success("Payment QR uploaded successfully!");
+        // Persist immediately so it survives re-login without a separate Save tap.
+        await safe(() => api.updateProfile(user.id, { paymentQr: url }));
+        try {
+          const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
+          localStorage.setItem('mystore_session', JSON.stringify({ ...sess, paymentQr: url }));
+        } catch (_e) { /* ignore */ }
+        toast.success("Payment QR saved!");
       } catch {
         toast.error("Failed to upload Payment QR");
       }
@@ -2257,7 +2279,7 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
                 Select Your Business Growth Plan
               </h2>
               <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -3647,6 +3669,93 @@ const ShopDashboard = () => {
               </button>
             </div>
 
+            {/* Shop Visibility */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>👁️ Shop Visibility</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                When ON, your shop appears in the public customer search and storefront. Turn OFF to hide it temporarily.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>
+                  {hideFromSearch ? 'Hidden from customers' : 'Visible to customers'}
+                </span>
+                <button
+                  onClick={() => handleToggleHideFromSearch(!hideFromSearch)}
+                  style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', border: 'none',
+                    cursor: 'pointer', background: hideFromSearch ? '#475569' : '#16a34a', transition: 'background .2s', flexShrink: 0 }}
+                  aria-label="Toggle shop visibility">
+                  <span style={{ position: 'absolute', top: '3px', left: hideFromSearch ? '3px' : '25px',
+                    width: '24px', height: '24px', borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Shop Timings */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🕒 Shop Timings</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Set opening and closing times. An "Open Now" badge shows on your dashboard based on these.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Opens at</label>
+                  <select value={openingHour} onChange={e => setOpeningHour(Number(e.target.value))}
+                    style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Closes at</label>
+                  <select value={closingHour} onChange={e => setClosingHour(Number(e.target.value))}
+                    style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button onClick={handleSaveShopHours} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                💾 Save Shop Timings
+              </button>
+            </div>
+
+            {/* Promotional Banner */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🎉 Promotional Offer Banner</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Show a promotional banner on your storefront. Turn it on and set your offer text.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '14px' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>
+                  {shopBanner?.active ? 'Banner is showing' : 'Banner is off'}
+                </span>
+                <button
+                  onClick={() => setShopBanner({ ...(shopBanner || {}), active: !(shopBanner?.active) })}
+                  style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', border: 'none',
+                    cursor: 'pointer', background: shopBanner?.active ? '#16a34a' : '#475569', transition: 'background .2s', flexShrink: 0 }}
+                  aria-label="Toggle promotional banner">
+                  <span style={{ position: 'absolute', top: '3px', left: shopBanner?.active ? '25px' : '3px',
+                    width: '24px', height: '24px', borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
+                </button>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Banner Title</label>
+                <input type="text" value={shopBanner?.title || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), title: e.target.value })}
+                  placeholder="e.g. Diwali Sale!" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Subtitle</label>
+                <input type="text" value={shopBanner?.subtitle || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), subtitle: e.target.value })}
+                  placeholder="e.g. Up to 20% off on all items" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+              </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Discount %</label>
+                <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner({ ...(shopBanner || {}), discountPercent: Number(e.target.value) })}
+                  placeholder="0" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+              </div>
+              <button onClick={handleSaveShopBanner} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                💾 Save Promotional Banner
+              </button>
+            </div>
+
             {/* Shop Link & QR */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🔗 Your Printable Shop QR Poster</h3>
@@ -4174,7 +4283,7 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
                 Select Your Business Growth Plan
               </h2>
               <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
