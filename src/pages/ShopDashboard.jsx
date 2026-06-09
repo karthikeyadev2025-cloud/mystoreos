@@ -1733,12 +1733,15 @@ const ShopDashboard = () => {
             userId: targetShopId,
           }));
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
-          const updatedUser = await safe(() => api.updateProfile(targetShopId, {
-            subscription: 'active',
-            subscriptionTier: plan.id
-          }));
-          setUser(updatedUser);
-          localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
+          // The verify-payment edge function grants the tier server-side after
+          // verifying the signature. Re-fetch the authoritative profile rather
+          // than setting the tier on the client (clients can't change billing
+          // columns — that's enforced by the DB trigger).
+          const updatedUser = await safe(() => api.getUserById(targetShopId));
+          if (updatedUser) {
+            setUser(updatedUser);
+            localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
+          }
           setShowPlanSelectorModal(false);
           if (user.phone) sendPaymentConfirmation(user.phone, user.name, plan.name, plan.price);
         } catch (_e) {
