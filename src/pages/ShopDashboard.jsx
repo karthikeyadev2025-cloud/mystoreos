@@ -2422,11 +2422,11 @@ const ShopDashboard = () => {
       {/* Header */}
       <div style={styles.header}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
             <div style={{ width: 12, height: 12, background: 'white', borderRadius: '50%' }}></div>
             MyStore Pro
           </h2>
-          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9 }}>{user.name}</p>
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#cbd5e1' }}>{user.name}</p>
           <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ade80' : '#f87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
@@ -2730,7 +2730,7 @@ const ShopDashboard = () => {
                       <Package size={16} color="#94a3b8" />
                     </div>
                     <div>
-                      <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{p.name}</p>
+                      <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: '#0F172A' }}>{p.name}</p>
                       <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8' }}>₹{p.price}</p>
                     </div>
                   </div>
@@ -2813,7 +2813,7 @@ const ShopDashboard = () => {
                 <div key={o.id} style={{ ...styles.orderCard, border: cardBorder, background: cardBg }}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:12, alignItems: 'center'}}>
                     <div>
-                      <span style={{fontWeight:'bold', fontSize: '15px'}}>{name}</span>
+                      <span style={{fontWeight:'bold', fontSize: '15px', color: '#fff'}}>{name}</span>
                       {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8'}}>Ph: {phone}</p>}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
@@ -2951,7 +2951,7 @@ const ShopDashboard = () => {
                 <div key={p.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{p.name}</h3>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#fff' }}>{p.name}</h3>
                       {p.batchNumber && (
                         <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Batch: {p.batchNumber}</p>
                       )}
@@ -3083,7 +3083,7 @@ const ShopDashboard = () => {
                 {credits.map(c => (
                   <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{c.distName || 'Distributor'}</span>
+                      <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{c.distName || 'Distributor'}</span>
                       <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#ef4444' }}>
                         {c.paid ? '✅ Settled' : '⏳ Unpaid'}
                       </span>
@@ -3168,7 +3168,7 @@ const ShopDashboard = () => {
                     <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <div>
-                          <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{custName}</span>
+                          <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{custName}</span>
                           {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Ph: {custPhone}</p>}
                         </div>
                         <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#4F46E5' }}>
@@ -3891,7 +3891,7 @@ const ShopDashboard = () => {
       {showStaffModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px' }}>
           <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #334155' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
               Add Staff Member
               <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
             </h2>
