@@ -2588,14 +2588,14 @@ const ShopDashboard = () => {
                     placeholder="Customer Name" 
                     value={customerName} 
                     onChange={e => setCustomerName(e.target.value)}
-                    style={{ flex: 1, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                   <input 
                     type="tel" 
                     placeholder="Mobile Number" 
                     value={customerPhone} 
                     onChange={e => setCustomerPhone(e.target.value)}
-                    style={{ width: '130px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -2604,14 +2604,14 @@ const ShopDashboard = () => {
                     placeholder="GSTIN (Optional)" 
                     value={customerGstin} 
                     onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-                    style={{ flex: 1, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                   <input 
                     type="text" 
                     placeholder="State Code" 
                     value={customerStateCode} 
                     onChange={e => setCustomerStateCode(e.target.value)}
-                    style={{ width: '90px', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                    style={{ width: '90px', flexShrink: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ marginTop: '6px' }}>
