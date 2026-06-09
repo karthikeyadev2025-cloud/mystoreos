@@ -2747,7 +2747,7 @@ const ShopDashboard = () => {
       {activeTab === 'bills' && (
         <div style={{paddingBottom: 40}}>
           <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Online Orders & Bills</h2>
+            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Online Orders & Bills</h2>
             
             {/* Glassmorphic Sub-tab toggle */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -2936,7 +2936,7 @@ const ShopDashboard = () => {
       {activeTab === 'products' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Inventory</h2>
+            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Inventory</h2>
             <button onClick={() => setShowAddProductModal(true)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
           </div>
           
@@ -3037,7 +3037,7 @@ const ShopDashboard = () => {
       {activeTab === 'credit' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Credit Book (బకాయిలు)</h2>
+            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Credit Book (బకాయిలు)</h2>
             
             {/* Toggle Payable vs Receivable */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -3211,7 +3211,7 @@ const ShopDashboard = () => {
       {isOwner && activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
           <div style={{ background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d' }}>
-            <h2 style={{ margin: 0, fontSize: 18, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ margin: 0, fontSize: 18, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Truck size={20} color="#3b82f6" /> Supply & Wholesale Restock
             </h2>
             <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Order wholesale goods on credit directly from FMCG Distributors.</p>
@@ -3310,7 +3310,7 @@ const ShopDashboard = () => {
         return (
           <div style={{paddingBottom: 80}}>
             <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
-              <h2 style={{margin:0, fontSize: 18}}>Retail Day Book & Reports</h2>
+              <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Retail Day Book & Reports</h2>
               <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
             </div>
             
@@ -3488,7 +3488,7 @@ const ShopDashboard = () => {
       {isOwner && activeTab === 'profile' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
-            <h2 style={{margin:0, fontSize: 18}}>Shop Profile & Payments</h2>
+            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
 
