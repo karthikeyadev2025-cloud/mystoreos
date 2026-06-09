@@ -118,7 +118,7 @@ const DistributorDashboard = () => {
 
   const loadData = useCallback(async () => {
     setCredits(await safe(() => api.getDistCredits(user.id)));
-    setShops(await safe(() => api.getAllShops()));
+    setShops(await safe(() => api.getMyRetailShops(user.id)));
     setStockOrders(await safe(() => api.getDistributorOrders(user.id)));
     setWholesaleProducts(await safe(() => api.getDistributorProducts()));
     setDistPlans(await safe(() => api.getDistributorSubscriptionPlans()));
@@ -455,9 +455,12 @@ const DistributorDashboard = () => {
           {/* ================= SHOPS TAB ================= */}
           {activeTab === 'shops' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>🏪 Registered Retail Stores ({shops.length})</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>🏪 Your Retail Shops ({shops.length})</h2>
               {shops.length === 0 ? (
-                <p style={{ color: '#64748B', textAlign: 'center' }}>No shops linked to your distribution line.</p>
+                <p style={{ color: '#64748B', textAlign: 'center', lineHeight: 1.6, padding: '20px' }}>
+                  No shops yet. Shops appear here once they place a wholesale order from your catalog.
+                  Publish products in your Wholesale Catalog so nearby shops can find and order from you.
+                </p>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                   {shops.map(shop => {

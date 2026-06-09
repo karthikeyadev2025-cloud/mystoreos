@@ -113,6 +113,7 @@ const toUser = (row) => row ? ({
   closingHour: row.closing_hour ?? 21,
   weeklyHolidays: row.weekly_holidays || [],
   shopBanner: row.shop_banner || null,
+  caId: row.ca_id || null,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -1065,6 +1066,52 @@ export const api = {
     }
     const db = getDB();
     return db.users.filter(u => u.role === 'shop' && !u.hideFromSearch);
+  },
+
+  // ── Shop assigns / views / removes their CA (by CA phone) ──
+  async assignCAByPhone(shopId, caPhone) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const clean = (caPhone || '').trim();
+    if (!/^\d{10}$/.test(clean)) throw new Error('Enter a valid 10-digit CA mobile number.');
+    const { data: ca } = await supabase.from('users').select('id, role, name').eq('phone', clean).maybeSingle();
+    if (!ca) throw new Error('No account found with that number. Ask your CA to register first.');
+    if (ca.role !== 'ca') throw new Error('That number is not registered as a Chartered Accountant.');
+    const { error } = await supabase.from('users').update({ ca_id: ca.id }).eq('id', shopId);
+    if (error) throw new Error(error.message);
+    return { id: ca.id, name: ca.name };
+  },
+
+  async getMyCA(shopId) {
+    if (!isSupabaseConfigured) return null;
+    const { data: shop } = await supabase.from('users').select('ca_id').eq('id', shopId).maybeSingle();
+    if (!shop?.ca_id) return null;
+    const { data: ca } = await supabase.from('users').select('id, name, phone').eq('id', shop.ca_id).maybeSingle();
+    return ca || null;
+  },
+
+  async removeCA(shopId) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { error } = await supabase.from('users').update({ ca_id: null }).eq('id', shopId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // ── CA: only shops that assigned this CA ──
+  async getMyClients(caId) {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase.from('users').select('*').eq('role', 'shop').eq('ca_id', caId);
+    return (data || []).map(toUser);
+  },
+
+  // ── Distributor: only shops with a wholesale relationship (a stock_orders link) ──
+  async getMyRetailShops(distributorId) {
+    if (!isSupabaseConfigured) return [];
+    const { data: orders } = await supabase
+      .from('stock_orders').select('shop_id').eq('distributor_id', distributorId);
+    const shopIds = [...new Set((orders || []).map(o => o.shop_id).filter(Boolean))];
+    if (shopIds.length === 0) return [];
+    const { data: shops } = await supabase.from('users').select('*').in('id', shopIds);
+    return (shops || []).map(toUser);
   },
 
   // ---- FILE UPLOADS TO SUPABASE STORAGE ----

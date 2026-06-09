@@ -170,6 +170,9 @@ const ShopDashboard = () => {
   const [closingHour, setClosingHour] = useState(user?.closingHour ?? 21);
   const [weeklyHolidays, setWeeklyHolidays] = useState(user?.weeklyHolidays || []);
   const [shopBanner, setShopBanner] = useState(user?.shopBanner || { title: '', subtitle: '', discountPercent: 0, active: false });
+  const [myCA, setMyCA] = useState(null);
+  const [caPhoneInput, setCaPhoneInput] = useState('');
+  const [caBusy, setCaBusy] = useState(false);
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -1436,6 +1439,39 @@ const ShopDashboard = () => {
   const handleSaveShopBanner = async () => {
     await safe(() => api.updateProfile(user.id, { shopBanner }));
     toast.success(shopBanner?.active ? '🏷️ Banner is live!' : 'Banner saved (inactive)');
+  };
+
+  // Load the shop's currently-assigned CA on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    api.getMyCA(user.id).then(ca => setMyCA(ca)).catch(() => {});
+  }, [user?.id]);
+
+  const handleAssignCA = async () => {
+    setCaBusy(true);
+    try {
+      const ca = await api.assignCAByPhone(user.id, caPhoneInput);
+      setMyCA({ id: ca.id, name: ca.name, phone: caPhoneInput.trim() });
+      setCaPhoneInput('');
+      toast.success(`${ca.name} is now your accountant. They can see your books.`);
+    } catch (ex) {
+      toast.error(ex.message || 'Could not assign CA.');
+    } finally {
+      setCaBusy(false);
+    }
+  };
+
+  const handleRemoveCA = async () => {
+    setCaBusy(true);
+    try {
+      await api.removeCA(user.id);
+      setMyCA(null);
+      toast.success('Accountant removed. They can no longer see your books.');
+    } catch (ex) {
+      toast.error(ex.message || 'Could not remove CA.');
+    } finally {
+      setCaBusy(false);
+    }
   };
 
   const handleSetDailyTarget = async (targetAmount) => {    const val = parseInt(targetAmount) || 0;
@@ -3754,6 +3790,36 @@ const ShopDashboard = () => {
               <button onClick={handleSaveShopBanner} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Promotional Banner
               </button>
+            </div>
+
+            {/* My Accountant (CA) */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🧾 My Accountant (CA)</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Assign your Chartered Accountant by their mobile number. Only the CA you assign can view your sales books and file your GST returns.
+              </p>
+              {myCA ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '14px' }}>
+                  <div>
+                    <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{myCA.name}</div>
+                    <div style={{ color: '#94a3b8', fontSize: '12px' }}>{myCA.phone}</div>
+                  </div>
+                  <button onClick={handleRemoveCA} disabled={caBusy}
+                    style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input type="tel" value={caPhoneInput} onChange={e => setCaPhoneInput(e.target.value)}
+                    placeholder="CA's 10-digit mobile number"
+                    style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <button onClick={handleAssignCA} disabled={caBusy}
+                    style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    {caBusy ? '...' : 'Assign'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Shop Link & QR */}

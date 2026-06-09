@@ -25,11 +25,12 @@ const CADashboard = () => {
   const [filterYear, setFilterYear] = useState(now.getFullYear());
 
   useEffect(() => {
-    safe(() => api.getAllShops(), []).then(data => {
+    if (!user?.id) return;
+    safe(() => api.getMyClients(user.id), []).then(data => {
       if (data) setShops(data);
-      else toast.error('Failed to load shops');
+      else toast.error('Failed to load clients');
     });
-  }, []);
+  }, [user?.id]);
 
   const handleSelectShop = async (shop) => {
     setSelectedShop(shop);
@@ -99,6 +100,15 @@ const CADashboard = () => {
             <Store size={18} color="#3b82f6" /> Select a Client Shop ({shops.length})
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }}>
+            {shops.length === 0 && (
+              <div style={{ gridColumn: '1 / -1', background: '#FFFFFF', border: '1px dashed #CBD5E1', borderRadius: '12px', padding: '28px', textAlign: 'center' }}>
+                <p style={{ color: '#0F172A', fontWeight: 700, margin: '0 0 6px' }}>No clients yet</p>
+                <p style={{ color: '#64748B', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>
+                  Shops add you as their accountant from their own Settings using your mobile number.
+                  Once a shop assigns you, their books will appear here.
+                </p>
+              </div>
+            )}
             {shops.map(shop => (
               <div
                 key={shop.id}
