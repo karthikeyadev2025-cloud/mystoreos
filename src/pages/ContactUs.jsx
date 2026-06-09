@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSiteConfig } from '../lib/siteConfig';
 
 const S = {
   page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Outfit, sans-serif' },
@@ -42,6 +43,10 @@ const FAQS = [
 
 export default function ContactUs() {
   const navigate = useNavigate();
+  const { config } = useSiteConfig();
+  const supportEmail = config?.supportEmail || 'adexosindia@gmail.com';
+  const waNumber = (config?.whatsappSupport || '8885490495').replace(/\D/g, '');
+  const waFull = waNumber.length === 10 ? `91${waNumber}` : waNumber;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
@@ -49,7 +54,7 @@ export default function ContactUs() {
   const handleSendWhatsApp = () => {
     if (!name.trim() || !message.trim()) return;
     const msg = `Hi MyStore OS Team!%0AName: ${encodeURIComponent(name)}%0APhone: ${encodeURIComponent(phone)}%0AMessage: ${encodeURIComponent(message)}`;
-    window.open(`https://wa.me/918885490495?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${waFull}?text=${msg}`, '_blank');
   };
 
   return (
@@ -71,14 +76,14 @@ export default function ContactUs() {
             <div style={S.cardIcon}>💬</div>
             <div style={S.cardTitle}>WhatsApp</div>
             <div style={S.cardDesc}>Chat with us instantly. Fastest response — usually within 30 minutes during business hours.</div>
-            <a href="https://wa.me/918885490495" target="_blank" rel="noopener noreferrer" style={{ ...S.cardBtn, background: '#25D366', color: '#fff' }}>Open WhatsApp</a>
+            <a href={`https://wa.me/${waFull}`} target="_blank" rel="noopener noreferrer" style={{ ...S.cardBtn, background: '#25D366', color: '#fff' }}>Open WhatsApp</a>
           </div>
 
           <div style={S.card}>
             <div style={S.cardIcon}>✉️</div>
             <div style={S.cardTitle}>Email</div>
-            <div style={S.cardDesc}>adexosindia@gmail.com<br />For billing queries, legal notices, or feature requests.</div>
-            <a href="mailto:adexosindia@gmail.com" style={{ ...S.cardBtn, background: 'rgba(255,255,255,0.08)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.12)' }}>Send Email</a>
+            <div style={S.cardDesc}>{supportEmail}<br />For billing queries, legal notices, or feature requests.</div>
+            <a href={`mailto:${supportEmail}`} style={{ ...S.cardBtn, background: 'rgba(255,255,255,0.08)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.12)' }}>Send Email</a>
           </div>
 
           <div style={S.card}>
