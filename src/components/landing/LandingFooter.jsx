@@ -3,6 +3,22 @@ import MLogo from '../MLogo';
 
 export default function LandingFooter({ config = {} }) {
   const navigate = useNavigate();
+
+  // Social + store links come from admin CMS settings; each shows only if set.
+  const socials = [
+    { key: 'instagramUrl', label: 'Instagram', icon: '📷' },
+    { key: 'facebookUrl',  label: 'Facebook',  icon: '📘' },
+    { key: 'twitterUrl',   label: 'X',         icon: '✖️' },
+    { key: 'youtubeUrl',   label: 'YouTube',   icon: '▶️' },
+    { key: 'linkedinUrl',  label: 'LinkedIn',  icon: '💼' },
+    { key: 'whatsappUrl',  label: 'WhatsApp',  icon: '💬' },
+  ].filter(s => config[s.key]);
+
+  const stores = [
+    { key: 'playStoreUrl', label: '▶ Get it on Google Play' },
+    { key: 'appStoreUrl',  label: ' Download on the App Store' },
+  ].filter(s => config[s.key]);
+
   const LINKS = {
     Product: [
       { label: 'Features', action: () => { document.querySelector('#features')?.scrollIntoView({ behavior:'smooth' }); } },
@@ -61,6 +77,32 @@ export default function LandingFooter({ config = {} }) {
                 }}>{t}</span>
               ))}
             </div>
+
+            {socials.length > 0 && (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
+                {socials.map(s => (
+                  <a key={s.key} href={config[s.key]} target="_blank" rel="noopener noreferrer"
+                    title={s.label} aria-label={s.label}
+                    style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', fontSize: 15, textDecoration: 'none' }}>
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {stores.length > 0 && (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+                {stores.map(s => (
+                  <a key={s.key} href={config[s.key]} target="_blank" rel="noopener noreferrer"
+                    style={{ background: '#000', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 8,
+                      padding: '8px 14px', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Link groups */}

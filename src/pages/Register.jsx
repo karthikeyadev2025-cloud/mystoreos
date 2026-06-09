@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from '../lib/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useSiteConfig } from '../lib/siteConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff, ArrowLeft, Zap, ShieldCheck } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
@@ -110,6 +111,8 @@ const Register = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
+  const { config } = useSiteConfig();
+  const registrationClosed = config?.registrationOpen === false;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [pass, setPass] = useState('');
@@ -119,6 +122,7 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (registrationClosed) return toast.error('New registrations are temporarily closed. Please check back later.');
     if (!name || !phone || !pass) return toast.error('Please fill all fields');
     if (!/^\d{10}$/.test(phone)) return toast.error('Enter valid 10-digit mobile number (digits only)');
     try {
@@ -236,7 +240,13 @@ const Register = () => {
               </div>
             </div>
 
-            <button className="reg-submit" type="submit" disabled={loading}>
+            {registrationClosed && (
+              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '12px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 13, textAlign: 'center' }}>
+                New registrations are temporarily closed. Please check back later.
+              </div>
+            )}
+
+            <button className="reg-submit" type="submit" disabled={loading || registrationClosed}>
               {loading ? 'Creating account…' : (
                 businessType === 'customer'
                   ? <><ShieldCheck size={16}/>Create Account</>
