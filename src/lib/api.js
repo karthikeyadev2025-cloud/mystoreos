@@ -205,21 +205,45 @@ export const api = {
   // ---- AUTH ----
   async login(phone, pass) {
     if (isSupabaseConfigured) {
+      // The auth-login edge function can cold-start after inactivity (2-10s).
+      // The direct-DB fallback no longer works for most roles (RLS only lets
+      // anon read shop rows), so instead we give the function a generous first
+      // try, then ONE fast retry (the function is warm by then), and surface a
+      // clear message rather than hanging on "Signing in…".
+      const callOnce = (ms) => {
+        const invoke = supabase.functions.invoke('auth-login', { body: { phone, password: pass } });
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('edge_timeout')), ms));
+        return Promise.race([invoke, timeout]);
+      };
+
+      let data, error, timedOut = false;
       try {
-        const { data, error } = await supabase.functions.invoke('auth-login', {
-          body: { phone, password: pass },
-        });
-        if (!error && data && !data.error && data.profile) {
-          if (data?.session) await supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
-          return data.profile;
+        ({ data, error } = await callOnce(9000));      // first try: allow for cold start
+      } catch (_e) {
+        timedOut = true;
+      }
+
+      // First attempt timed out → retry once (function is now warming/warm).
+      if (timedOut) {
+        try {
+          ({ data, error } = await callOnce(8000));
+        } catch (_e2) {
+          throw new Error('The server is taking longer than usual to wake up. Please tap Sign In once more.');
         }
-      } catch (_e) { /* fall through to direct DB query */ }
-      const { data: row } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
-      if (!row) throw new Error('Phone number not found. Please register first.');
-      if (row.status === 'suspended') throw new Error('Account suspended. Contact adexosindia@gmail.com');
-      if (row.status === 'pending') throw new Error('Account pending admin approval');
-      if (row.pass_verify !== pass && row.pass !== pass) throw new Error('Wrong password. Try again or use Forgot Password.');
-      return toUser(row);
+      }
+
+      if (error || !data || data.error || !data.profile) {
+        // Edge function responded but rejected — surface its reason.
+        const msg = data?.error || error?.message || '';
+        if (/pending/i.test(msg)) throw new Error('Account pending admin approval');
+        if (/suspend/i.test(msg)) throw new Error('Account suspended. Contact adexosindia@gmail.com');
+        if (/password|credential|wrong/i.test(msg)) throw new Error('Wrong password. Try again or use Forgot Password.');
+        if (/not found|no user|register/i.test(msg)) throw new Error('Phone number not found. Please register first.');
+        throw new Error(msg || 'Could not sign in. Please try again.');
+      }
+
+      if (data?.session) await supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+      return data.profile;
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
