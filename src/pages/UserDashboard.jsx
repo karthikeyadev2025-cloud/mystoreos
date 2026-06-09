@@ -1527,7 +1527,7 @@ const UserDashboard = () => {
                     <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                       <QrCode size={30} style={{ color: '#E11D48' }} />
                     </div>
-                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>Scan Shop printed QR Poster</h3>
+                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', marginBottom: '8px' }}>Scan Shop printed QR Poster</h3>
                     <p style={{ fontSize: '12px', color: '#475569', marginBottom: '20px', lineHeight: '1.4' }}>
                       Enable camera permission, hold the phone up to the shopkeeper's barcode poster to auto load their catalogue.
                     </p>
@@ -1952,7 +1952,7 @@ const UserDashboard = () => {
                   <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#475569' }}>
                       <Compass size={13} style={{ color: '#4F46E5' }} />
-                      <span>Bearing: <strong style={{ color: '#fff' }}>North-East</strong></span>
+                      <span>Bearing: <strong style={{ color: '#0F172A' }}>North-East</strong></span>
                     </div>
                     <div style={{ color: '#4F46E5', fontWeight: 'bold' }}>
                       Est. Time: ~3 mins
