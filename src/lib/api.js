@@ -114,6 +114,7 @@ const toUser = (row) => row ? ({
   weeklyHolidays: row.weekly_holidays || [],
   shopBanner: row.shop_banner || null,
   caId: row.ca_id || null,
+  publicCode: row.public_code || null,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -498,6 +499,65 @@ export const api = {
     }
     const db = getDB();
     return db.users.find(u => u.id === userId) || null;
+  },
+
+  // ── Mutual shop↔distributor linking by public code ──
+  // A distributor adds a shop by the shop's SHP- code; a shop adds a
+  // distributor by the distributor's DST- code. Either creates the same link.
+  async linkByPublicCode(myId, myRole, code) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const clean = (code || '').trim().toUpperCase();
+    if (!clean) throw new Error('Enter a code.');
+    const { data: target } = await supabase.from('users')
+      .select('id, role, name, public_code').eq('public_code', clean).maybeSingle();
+    if (!target) throw new Error('No shop or distributor found with that code.');
+
+    let shop_id, distributor_id;
+    if (myRole === 'distributor') {
+      if (target.role !== 'shop') throw new Error('That code is not a shop code.');
+      shop_id = target.id; distributor_id = myId;
+    } else if (myRole === 'shop') {
+      if (target.role !== 'distributor') throw new Error('That code is not a distributor code.');
+      shop_id = myId; distributor_id = target.id;
+    } else {
+      throw new Error('Only shops and distributors can link.');
+    }
+
+    const { error } = await supabase.from('shop_distributor_links')
+      .insert({ shop_id, distributor_id, created_by: myId });
+    if (error) {
+      if (/duplicate|unique/i.test(error.message)) throw new Error(`Already linked with ${target.name}.`);
+      throw new Error(error.message);
+    }
+    return { name: target.name, code: target.public_code };
+  },
+
+  async getLinkedDistributors(shopId) {
+    if (!isSupabaseConfigured) return [];
+    const { data: links } = await supabase.from('shop_distributor_links')
+      .select('distributor_id').eq('shop_id', shopId);
+    const ids = [...new Set((links || []).map(l => l.distributor_id))];
+    if (!ids.length) return [];
+    const { data } = await supabase.from('users').select('*').in('id', ids);
+    return (data || []).map(toUser);
+  },
+
+  async getLinkedShops(distributorId) {
+    if (!isSupabaseConfigured) return [];
+    const { data: links } = await supabase.from('shop_distributor_links')
+      .select('shop_id').eq('distributor_id', distributorId);
+    const ids = [...new Set((links || []).map(l => l.shop_id))];
+    if (!ids.length) return [];
+    const { data } = await supabase.from('users').select('*').in('id', ids);
+    return (data || []).map(toUser);
+  },
+
+  async unlinkShopDistributor(shopId, distributorId) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { error } = await supabase.from('shop_distributor_links')
+      .delete().eq('shop_id', shopId).eq('distributor_id', distributorId);
+    if (error) throw new Error(error.message);
+    return true;
   },
 
   async setShopVisibility(shopId, hidden) {
@@ -1136,12 +1196,17 @@ export const api = {
     return (data || []).map(toUser);
   },
 
-  // ── Distributor: only shops with a wholesale relationship (a stock_orders link) ──
+  // ── Distributor: shops with a wholesale order OR an explicit code link ──
   async getMyRetailShops(distributorId) {
     if (!isSupabaseConfigured) return [];
     const { data: orders } = await supabase
       .from('stock_orders').select('shop_id').eq('distributor_id', distributorId);
-    const shopIds = [...new Set((orders || []).map(o => o.shop_id).filter(Boolean))];
+    const { data: links } = await supabase
+      .from('shop_distributor_links').select('shop_id').eq('distributor_id', distributorId);
+    const shopIds = [...new Set([
+      ...(orders || []).map(o => o.shop_id),
+      ...(links || []).map(l => l.shop_id),
+    ].filter(Boolean))];
     if (shopIds.length === 0) return [];
     const { data: shops } = await supabase.from('users').select('*').in('id', shopIds);
     return (shops || []).map(toUser);
