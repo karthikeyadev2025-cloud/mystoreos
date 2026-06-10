@@ -1368,6 +1368,53 @@ export const api = {
     saveDB(db);
   },
 
+  // ── Unified pricing (single source of truth) ──
+  // site_config 'pricing_v2':
+  // { tiers: { starter:{monthly,quarterly,yearly}, pro:{...}, enterprise:{...} },
+  //   discounts: { quarterly: %, yearly: % },   // promo discount per cycle
+  //   offer: { enabled, percent, cap, remaining }, // launch offer (first N)
+  //   enabledCycles: { monthly:true, quarterly:true, yearly:true } }
+  // The discounted price for a cycle = base[cycle] * (1 - discounts[cycle]/100),
+  // with an extra offer.percent off while offer.remaining > 0.
+  async getPricing() {
+    const def = {
+      tiers: {
+        starter:    { monthly: 499,  quarterly: 1347, yearly: 4790 },
+        pro:        { monthly: 999,  quarterly: 2697, yearly: 9590 },
+        enterprise: { monthly: 2499, quarterly: 6747, yearly: 23990 },
+      },
+      discounts: { quarterly: 10, yearly: 20 },
+      offer: { enabled: false, percent: 50, cap: 1000, remaining: 1000 },
+      enabledCycles: { monthly: true, quarterly: true, yearly: true },
+    };
+    const stored = await this.getSiteConfig('pricing_v2', null);
+    if (!stored) return def;
+    // shallow-merge so new keys always exist
+    return {
+      tiers: { ...def.tiers, ...(stored.tiers || {}) },
+      discounts: { ...def.discounts, ...(stored.discounts || {}) },
+      offer: { ...def.offer, ...(stored.offer || {}) },
+      enabledCycles: { ...def.enabledCycles, ...(stored.enabledCycles || {}) },
+    };
+  },
+
+  async savePricing(cfg) {
+    await this.saveSiteConfig('pricing_v2', cfg);
+    return cfg;
+  },
+
+  // Compute the final price for a tier+cycle given pricing config.
+  // Returns { base, afterCycleDiscount, final, offerOn }.
+  computePrice(pricing, tier, cycle) {
+    const base = Number(pricing?.tiers?.[tier]?.[cycle]) || 0;
+    if (!base) return null;
+    const cycleDisc = cycle === 'monthly' ? 0 : (Number(pricing?.discounts?.[cycle]) || 0);
+    const afterCycle = Math.round(base * (1 - cycleDisc / 100));
+    const offerOn = !!pricing?.offer?.enabled && Number(pricing?.offer?.remaining) > 0 && Number(pricing?.offer?.percent) > 0;
+    const final = offerOn ? Math.round(afterCycle * (1 - Number(pricing.offer.percent) / 100)) : afterCycle;
+    return { base, afterCycleDiscount: afterCycle, final, offerOn, cycleDisc, offerPercent: Number(pricing?.offer?.percent) || 0 };
+  },
+
   async getSubscriptionPlans() {
     const defaultPlans = [
       {

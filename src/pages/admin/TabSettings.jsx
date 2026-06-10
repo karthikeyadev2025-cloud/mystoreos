@@ -44,7 +44,7 @@ export default function TabSettings() {
 
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [googleLoginEnabled, setGoogleLoginEnabled] = useState(false);
-  const [yearly, setYearly] = useState({ enabled: false, offerPercent: 50, offerCap: 1000, offerRemaining: 1000, prices: { starter: '', pro: '', enterprise: '' } });
+  const [pricing, setPricing] = useState(null);
 
   const [supportEmail, setSupportEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
@@ -65,8 +65,8 @@ export default function TabSettings() {
         setMaintenanceMsg(theme.maintenanceMessage || '');
         setRegistrationOpen(theme.registrationOpen !== false);
         setGoogleLoginEnabled(theme.googleLoginEnabled === true || theme.googleLoginEnabled === 'true');
-        const yc = await api.getYearlyConfig();
-        if (yc) setYearly({ enabled: !!yc.enabled, offerPercent: yc.offerPercent ?? 50, offerCap: yc.offerCap ?? 1000, offerRemaining: yc.offerRemaining ?? 1000, prices: { starter: yc.prices?.starter ?? '', pro: yc.prices?.pro ?? '', enterprise: yc.prices?.enterprise ?? '' } });
+        const yc = await api.getPricing();
+        if (yc) setPricing(yc);
         setSupportEmail(theme.supportEmail || '');
         setContactPhone(theme.contactPhone || '');
         setWhatsappSupport(theme.whatsappSupport || '');
@@ -107,19 +107,9 @@ export default function TabSettings() {
     await api.logAdminAction('update_auth_settings', 'settings', null, googleLoginEnabled ? 'google_on' : 'google_off');
   });
 
-  const saveYearly = () => saveSection('yearly', async () => {
-    await api.saveYearlyConfig({
-      enabled: !!yearly.enabled,
-      offerPercent: Math.max(0, Math.min(100, Number(yearly.offerPercent) || 0)),
-      offerCap: Math.max(0, Number(yearly.offerCap) || 0),
-      offerRemaining: Math.max(0, Number(yearly.offerRemaining) || 0),
-      prices: {
-        starter: Number(yearly.prices.starter) || 0,
-        pro: Number(yearly.prices.pro) || 0,
-        enterprise: Number(yearly.prices.enterprise) || 0,
-      },
-    });
-    await api.logAdminAction('update_yearly_plans', 'settings', null, yearly.enabled ? 'enabled' : 'disabled');
+  const savePricing = () => saveSection('pricing', async () => {
+    await api.savePricing(pricing);
+    await api.logAdminAction('update_pricing', 'settings', null, pricing?.offer?.enabled ? 'offer_on' : 'offer_off');
   });
 
   const changeAdminPassword = async (e) => {
@@ -243,53 +233,102 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Save} title="Yearly Plans & Launch Offer" sub="Annual pricing + a limited first-N-users discount" color="#f59e0b" />
+        <SectionHeader icon={Save} title="Subscription Pricing & Launch Offer" sub="Monthly / quarterly / yearly prices, discounts and the first-N-users offer — the single source of truth shown everywhere" color="#f59e0b" />
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
-          <div>
-            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Enable yearly plans</div>
-            <div style={{ color: '#64748b', fontSize: '12px' }}>Show a Monthly/Yearly toggle on the plan selector</div>
-          </div>
-          <Toggle on={yearly.enabled} onChange={(v) => setYearly(y => ({ ...y, enabled: v }))} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', margin: '16px 0' }}>
-          {['starter', 'pro', 'enterprise'].map(tier => (
-            <div key={tier}>
-              <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px', textTransform: 'capitalize' }}>{tier} yearly ₹</label>
-              <input type="number" min="0" value={yearly.prices[tier]}
-                onChange={e => setYearly(y => ({ ...y, prices: { ...y.prices, [tier]: e.target.value } }))}
-                placeholder="e.g. 5999"
-                style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+        {!pricing ? (
+          <p style={{ color: '#94a3b8', fontSize: '13px', padding: '12px 0' }}>Loading pricing…</p>
+        ) : (
+          <>
+            {/* Which billing cycles customers can choose */}
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px' }}>
+              {['monthly', 'quarterly', 'yearly'].map(c => (
+                <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={pricing.enabledCycles?.[c] ?? false}
+                    onChange={e => setPricing(p => ({ ...p, enabledCycles: { ...p.enabledCycles, [c]: e.target.checked } }))} />
+                  <span style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, textTransform: 'capitalize' }}>{c}</span>
+                </label>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-          <div>
-            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Offer discount %</label>
-            <input type="number" min="0" max="100" value={yearly.offerPercent}
-              onChange={e => setYearly(y => ({ ...y, offerPercent: e.target.value }))}
-              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Offer cap (first N)</label>
-            <input type="number" min="0" value={yearly.offerCap}
-              onChange={e => setYearly(y => ({ ...y, offerCap: e.target.value }))}
-              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Slots remaining</label>
-            <input type="number" min="0" value={yearly.offerRemaining}
-              onChange={e => setYearly(y => ({ ...y, offerRemaining: e.target.value }))}
-              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
-          </div>
-        </div>
-        <p style={{ color: '#94a3b8', fontSize: '11px', margin: '0 0 14px', lineHeight: 1.5 }}>
-          The offer applies the discount to yearly prices while slots remain. "Slots remaining" auto-decrements on each successful yearly payment; you can also adjust it here manually.
-        </p>
+            {/* Base prices per tier x cycle */}
+            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '460px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Tier</th>
+                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Monthly ₹</th>
+                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Quarterly ₹</th>
+                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Yearly ₹</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {['starter', 'pro', 'enterprise'].map(tier => (
+                    <tr key={tier}>
+                      <td style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, padding: '6px 8px', textTransform: 'capitalize' }}>{tier}</td>
+                      {['monthly', 'quarterly', 'yearly'].map(cycle => (
+                        <td key={cycle} style={{ padding: '4px 6px' }}>
+                          <input type="number" min="0" value={pricing.tiers?.[tier]?.[cycle] ?? ''}
+                            onChange={e => setPricing(p => ({ ...p, tiers: { ...p.tiers, [tier]: { ...p.tiers[tier], [cycle]: Number(e.target.value) || 0 } } }))}
+                            style={{ width: '100%', padding: '8px 9px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        <button onClick={saveYearly} disabled={busy.yearly} style={S.saveBtn(busy.yearly)}><Save size={14} />{busy.yearly ? 'Saving...' : 'Save Yearly Plans'}</button>
+            {/* Promo discount per cycle */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Quarterly discount %</label>
+                <input type="number" min="0" max="100" value={pricing.discounts?.quarterly ?? 0}
+                  onChange={e => setPricing(p => ({ ...p, discounts: { ...p.discounts, quarterly: Number(e.target.value) || 0 } }))}
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Yearly discount %</label>
+                <input type="number" min="0" max="100" value={pricing.discounts?.yearly ?? 0}
+                  onChange={e => setPricing(p => ({ ...p, discounts: { ...p.discounts, yearly: Number(e.target.value) || 0 } }))}
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+
+            {/* Launch offer (first N users) */}
+            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
+                <input type="checkbox" checked={pricing.offer?.enabled ?? false}
+                  onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, enabled: e.target.checked } }))} />
+                <span style={{ color: '#92400E', fontSize: '13px', fontWeight: 700 }}>Enable launch offer (extra discount for first N users)</span>
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Extra discount %</label>
+                  <input type="number" min="0" max="100" value={pricing.offer?.percent ?? 0}
+                    onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, percent: Number(e.target.value) || 0 } }))}
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Cap (first N)</label>
+                  <input type="number" min="0" value={pricing.offer?.cap ?? 0}
+                    onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, cap: Number(e.target.value) || 0 } }))}
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Slots remaining</label>
+                  <input type="number" min="0" value={pricing.offer?.remaining ?? 0}
+                    onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, remaining: Number(e.target.value) || 0 } }))}
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <p style={{ color: '#a16207', fontSize: '11px', margin: '10px 0 0', lineHeight: 1.5 }}>
+                Slots remaining auto-decrements on each successful quarterly/yearly payment; you can also adjust it here. When it hits 0 the extra offer stops automatically (cycle discounts still apply).
+              </p>
+            </div>
+
+            <button onClick={savePricing} disabled={busy.pricing} style={S.saveBtn(busy.pricing)}><Save size={14} />{busy.pricing ? 'Saving...' : 'Save Pricing'}</button>
+          </>
+        )}
       </div>
 
       <div style={S.card}>

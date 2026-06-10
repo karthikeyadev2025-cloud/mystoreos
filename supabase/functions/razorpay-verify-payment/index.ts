@@ -7,10 +7,12 @@ const CORS = {
 };
 
 const PLAN_AMOUNTS: Record<string, number> = { starter: 499, pro: 999, enterprise: 2499 };
+const baseTier = (planId: string) => planId.replace(/_(quarterly|yearly)$/, '');
 const PLAN_TIER: Record<string, string> = {
   starter: 'starter', pro: 'pro', enterprise: 'enterprise',
-  starter_yearly: 'starter', pro_yearly: 'pro', enterprise_yearly: 'enterprise',
 };
+const cycleOf = (planId: string) =>
+  planId.endsWith('_yearly') ? 'yearly' : planId.endsWith('_quarterly') ? 'quarterly' : 'monthly';
 const isYearlyPlan = (planId: string) => planId.endsWith('_yearly');
 
 serve(async (req) => {
@@ -63,9 +65,9 @@ serve(async (req) => {
       .maybeSingle();
 
     if (!existing) {
-      const tier = PLAN_TIER[planId] ?? 'pro';
-      const yearly = isYearlyPlan(planId);
-      const days = yearly ? 365 : 30;
+      const tier = PLAN_TIER[baseTier(planId)] ?? 'pro';
+      const cycle = cycleOf(planId);
+      const days = cycle === 'yearly' ? 365 : cycle === 'quarterly' ? 90 : 30;
       const planExpiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
       await supabase.from('users').update({
@@ -74,15 +76,15 @@ serve(async (req) => {
         plan_expires_at: planExpiresAt,
       }).eq('id', userId);
 
-      // Auto-decrement the launch-offer counter on a successful YEARLY payment.
-      if (yearly) {
+      // Decrement the launch-offer counter on any discounted (non-monthly) plan.
+      if (cycle !== 'monthly') {
         const { data: cfgRow } = await supabase
-          .from('site_config').select('value').eq('key', 'yearly_plans').maybeSingle();
+          .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
         const cfg = cfgRow?.value;
-        if (cfg && Number(cfg.offerRemaining) > 0) {
-          cfg.offerRemaining = Math.max(0, Number(cfg.offerRemaining) - 1);
+        if (cfg?.offer && Number(cfg.offer.remaining) > 0) {
+          cfg.offer.remaining = Math.max(0, Number(cfg.offer.remaining) - 1);
           await supabase.from('site_config')
-            .upsert({ key: 'yearly_plans', value: cfg }, { onConflict: 'key' });
+            .upsert({ key: 'pricing_v2', value: cfg }, { onConflict: 'key' });
         }
       }
 

@@ -212,7 +212,7 @@ const ShopDashboard = () => {
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly');
-  const [yearlyCfg, setYearlyCfg] = useState(null);
+  const [pricing, setPricing] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [trialBannerDismissed, setTrialBannerDismissed] = useState(
     () => !!sessionStorage.getItem(`mystore_trial_banner_dismissed_${user.id}`)
@@ -274,7 +274,7 @@ const ShopDashboard = () => {
       setSysSettings(await safe(() => api.getSettings()));
       setStaffList(await safe(() => api.getShopStaff(targetShopId)));
       setPlans(await safe(() => api.getSubscriptionPlans()));
-      setYearlyCfg(await safe(() => api.getYearlyConfig()));
+      setPricing(await safe(() => api.getPricing()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
       setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
       setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
@@ -1734,12 +1734,9 @@ const ShopDashboard = () => {
   // Yearly price helper: base price from admin config, discounted while the
   // launch offer has remaining slots. Server recomputes this in the edge
   // function, so a tampered client price can't change what's charged.
-  const yearlyPriceFor = (planId) => {
-    const base = Number(yearlyCfg?.prices?.[planId]) || 0;
-    if (!base) return null;
-    const offerOn = !!yearlyCfg?.enabled && Number(yearlyCfg?.offerRemaining) > 0 && Number(yearlyCfg?.offerPercent) > 0;
-    const final = offerOn ? Math.round(base * (1 - Number(yearlyCfg.offerPercent) / 100)) : base;
-    return { base, final, offerOn, percent: Number(yearlyCfg?.offerPercent) || 0, remaining: Number(yearlyCfg?.offerRemaining) || 0 };
+  const priceFor = (planId, cycle = billingCycle) => {
+    if (!pricing) return null;
+    return api.computePrice(pricing, planId, cycle);
   };
 
   const handleSubscribe = async (plan) => {
@@ -1748,11 +1745,11 @@ const ShopDashboard = () => {
       return toast.error("Admin has not configured Razorpay yet.");
     }
 
-    const isYearly = billingCycle === 'yearly';
-    const yp = isYearly ? yearlyPriceFor(plan.id) : null;
-    if (isYearly && !yp) return toast.error('Yearly pricing is not available for this plan yet.');
-    const payPlanId = isYearly ? `${plan.id}_yearly` : plan.id;
-    const payPrice = isYearly ? yp.final : plan.price;
+    const cycle = billingCycle;
+    const pr = priceFor(plan.id, cycle);
+    if (!pr || !pr.final) return toast.error('Pricing is not available for this plan yet.');
+    const payPlanId = cycle === 'monthly' ? plan.id : `${plan.id}_${cycle}`;
+    const payPrice = pr.final;
 
     // Create server-side Razorpay order. This is REQUIRED — without a server
     // order_id the payment can't be signature-verified, so we must NOT fall
@@ -1775,7 +1772,7 @@ const ShopDashboard = () => {
       amount: (payPrice * 100).toString(),
       currency: "INR",
       name: "MyStore OS",
-      description: `${plan.name} ${isYearly ? 'Yearly' : ''} Subscription`,
+      description: `${plan.name} ${cycle !== 'monthly' ? cycle : ''} Subscription`,
       order_id: orderId,
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
       handler: async function (response) {
@@ -1820,24 +1817,29 @@ const ShopDashboard = () => {
   };
 
   const renderBillingToggle = () => {
-    const hasYearly = yearlyCfg?.enabled && Object.values(yearlyCfg?.prices || {}).some(v => Number(v) > 0);
-    if (!hasYearly) return null;
-    const offerLeft = Number(yearlyCfg?.offerRemaining) || 0;
-    const pct = Number(yearlyCfg?.offerPercent) || 0;
+    if (!pricing) return null;
+    const cycles = ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]);
+    if (cycles.length <= 1) return null;
+    const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
+    const cycleLabel = { monthly: 'Monthly', quarterly: 'Quarterly', yearly: 'Yearly' };
     return (
       <div style={{ textAlign: 'center', marginBottom: '18px' }}>
-        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '4px' }}>
-          {['monthly', 'yearly'].map(c => (
-            <button key={c} onClick={() => setBillingCycle(c)}
-              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
-                background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94a3b8', textTransform: 'capitalize' }}>
-              {c}
-            </button>
-          ))}
+        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '4px', flexWrap: 'wrap' }}>
+          {cycles.map(c => {
+            const disc = c !== 'monthly' ? Number(pricing.discounts?.[c]) || 0 : 0;
+            return (
+              <button key={c} onClick={() => setBillingCycle(c)}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
+                  background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94a3b8', position: 'relative' }}>
+                {cycleLabel[c]}
+                {disc > 0 && <span style={{ marginLeft: 5, fontSize: '10px', color: billingCycle === c ? '#fff' : '#10b981', fontWeight: 800 }}>-{disc}%</span>}
+              </button>
+            );
+          })}
         </div>
-        {billingCycle === 'yearly' && pct > 0 && offerLeft > 0 && (
+        {offerOn && billingCycle !== 'monthly' && (
           <div style={{ marginTop: '10px', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
-            🎉 Launch offer: {pct}% OFF yearly — only {offerLeft} slots left!
+            🎉 Launch offer: extra {pricing.offer.percent}% OFF — only {pricing.offer.remaining} slots left!
           </div>
         )}
       </div>
@@ -1845,24 +1847,29 @@ const ShopDashboard = () => {
   };
 
   const renderPlanPrice = (plan) => {
-    if (billingCycle === 'yearly') {
-      const yp = yearlyPriceFor(plan.id);
-      if (!yp) return <span style={{ fontSize: '13px', color: '#94a3b8' }}>Yearly coming soon</span>;
+    const cycleSuffix = { monthly: '/ mo', quarterly: '/ 3 mo', yearly: '/ yr' };
+    const pr = priceFor(plan.id, billingCycle);
+    if (!pr || !pr.final) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            {yp.offerOn && <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{yp.base}</span>}
-            <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{yp.final}</span>
-            <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ year</span>
-          </div>
-          {yp.offerOn && <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>Save {yp.percent}% — limited launch offer</span>}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+          <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
+          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
         </div>
       );
     }
+    const showStrike = pr.final < pr.base;
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-        <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
-        <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+          {showStrike && <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{pr.base}</span>}
+          <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{pr.final}</span>
+          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{cycleSuffix[billingCycle]}</span>
+        </div>
+        {billingCycle !== 'monthly' && (
+          <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>
+            {pr.offerOn ? `Save ${pr.cycleDisc + pr.offerPercent}% total — launch offer` : pr.cycleDisc > 0 ? `Save ${pr.cycleDisc}% vs monthly` : ''}
+          </span>
+        )}
       </div>
     );
   };

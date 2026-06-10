@@ -19,23 +19,27 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // For YEARLY plans, recompute the price server-side from admin config so a
-    // tampered client amount can't change what's charged (or bypass the offer).
+    // For discounted (quarterly/yearly) plans, recompute the price server-side
+    // from admin config (pricing_v2) so a tampered client amount can't change
+    // what's charged or bypass the offer.
     let chargeAmount = amount;
-    if (planId.endsWith('_yearly')) {
+    const m = planId.match(/^(starter|pro|enterprise)_(quarterly|yearly)$/);
+    if (m) {
       try {
         const sb = createClient(
           Deno.env.get('SUPABASE_URL')!,
           Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
         );
         const { data: cfgRow } = await sb
-          .from('site_config').select('value').eq('key', 'yearly_plans').maybeSingle();
+          .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
         const cfg = cfgRow?.value;
-        const tier = planId.replace('_yearly', '');
-        const base = Number(cfg?.prices?.[tier]) || 0;
+        const tier = m[1]; const cycle = m[2];
+        const base = Number(cfg?.tiers?.[tier]?.[cycle]) || 0;
         if (base > 0) {
-          const offerOn = !!cfg?.enabled && Number(cfg?.offerRemaining) > 0 && Number(cfg?.offerPercent) > 0;
-          chargeAmount = offerOn ? Math.round(base * (1 - Number(cfg.offerPercent) / 100)) : base;
+          const cycleDisc = Number(cfg?.discounts?.[cycle]) || 0;
+          const afterCycle = Math.round(base * (1 - cycleDisc / 100));
+          const offerOn = !!cfg?.offer?.enabled && Number(cfg?.offer?.remaining) > 0 && Number(cfg?.offer?.percent) > 0;
+          chargeAmount = offerOn ? Math.round(afterCycle * (1 - Number(cfg.offer.percent) / 100)) : afterCycle;
         }
       } catch (_e) { /* fall back to client amount */ }
     }
