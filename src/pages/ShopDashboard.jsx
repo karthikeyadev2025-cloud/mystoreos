@@ -2607,7 +2607,7 @@ const ShopDashboard = () => {
               placeholder="Search products to bill..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', padding: '12px', color:'white', outline:'none' }} 
+              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', minWidth: 0, padding: '12px', color:'#0F172A', outline:'none' }} 
             />
           </div>
 
@@ -2738,14 +2738,14 @@ const ShopDashboard = () => {
               </div>
 
               {/* Universal Custom Billing Input */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155', boxSizing: 'border-box' }}>
                 <input 
                   type="text" placeholder="Item Name (e.g. Haircut)" value={customItemName} onChange={e=>setCustomItemName(e.target.value)}
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '14px' }} 
+                  style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '14px' }} 
                 />
                 <input 
                   type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
-                  style={{ width: '60px', background: 'transparent', border: 'none', color: '#4F46E5', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
+                  style={{ width: '54px', flexShrink: 0, background: 'transparent', border: 'none', color: '#4F46E5', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
                 />
                 <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
               </div>

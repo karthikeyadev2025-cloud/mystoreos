@@ -2890,8 +2890,8 @@ const UserDashboard = () => {
                     </div>
                   )}
 
-                  {/* UPI ID (copyable) shown below the scanner */}
-                  {shopInfo?.upiId && (
+                  {/* UPI ID (copyable) — only when there's no uploaded scanner */}
+                  {shopInfo?.upiId && !shopInfo?.paymentQr && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '8px 12px', marginBottom: '14px', fontSize: '12px' }}>
                     <span style={{ color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo?.upiId}</span>
                     <button
@@ -2910,7 +2910,7 @@ const UserDashboard = () => {
                   )}
 
                   {/* Deep link to pay — secondary; may be declined by banks for personal VPAs */}
-                  {shopInfo?.upiId && isMobileDevice ? (
+                  {shopInfo?.upiId && isMobileDevice && !shopInfo?.paymentQr ? (
                     <a 
                       href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
                       style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s' }}
