@@ -30,6 +30,8 @@ const DistributorDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
+  const [shopCodeInput, setShopCodeInput] = useState('');
+  const [shopLinkBusy, setShopLinkBusy] = useState(false);
   
   // Stock Orders & Wholesale Catalog states
   const [stockOrders, setStockOrders] = useState([]);
@@ -125,6 +127,20 @@ const DistributorDashboard = () => {
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
+
+  const handleLinkShop = async () => {
+    setShopLinkBusy(true);
+    try {
+      const res = await api.linkByPublicCode(user.id, 'distributor', shopCodeInput);
+      setShopCodeInput('');
+      setShops(await safe(() => api.getMyRetailShops(user.id)));
+      toast.success(`Linked with shop ${res.name}`);
+    } catch (ex) {
+      toast.error(ex.message || 'Could not link.');
+    } finally {
+      setShopLinkBusy(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -459,6 +475,30 @@ const DistributorDashboard = () => {
           {activeTab === 'shops' && (
             <div>
               <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>🏪 Your Retail Shops ({shops.length})</h2>
+
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                {user?.publicCode && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ color: '#64748B', fontSize: '11px' }}>Your distributor code (share with shops)</div>
+                      <div style={{ color: '#0F172A', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
+                    </div>
+                    <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); toast.success('Code copied!'); }}
+                      style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                      Copy
+                    </button>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input type="text" value={shopCodeInput} onChange={e => setShopCodeInput(e.target.value.toUpperCase())}
+                    placeholder="Add a shop by code (SHP-XXXXXX)"
+                    style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                  <button onClick={handleLinkShop} disabled={shopLinkBusy}
+                    style={{ background: '#16a34a', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    {shopLinkBusy ? '...' : 'Add'}
+                  </button>
+                </div>
+              </div>
               {shops.length === 0 ? (
                 <p style={{ color: '#64748B', textAlign: 'center', lineHeight: 1.6, padding: '20px' }}>
                   No shops yet. Shops appear here once they place a wholesale order from your catalog.

@@ -173,6 +173,9 @@ const ShopDashboard = () => {
   const [myCA, setMyCA] = useState(null);
   const [caPhoneInput, setCaPhoneInput] = useState('');
   const [caBusy, setCaBusy] = useState(false);
+  const [myDistributors, setMyDistributors] = useState([]);
+  const [distCodeInput, setDistCodeInput] = useState('');
+  const [distLinkBusy, setDistLinkBusy] = useState(false);
 
   // System Settings (Razorpay Key & Announcement)
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
@@ -1448,7 +1451,32 @@ const ShopDashboard = () => {
   useEffect(() => {
     if (!user?.id) return;
     api.getMyCA(user.id).then(ca => setMyCA(ca)).catch(() => {});
+    api.getLinkedDistributors(user.id).then(d => setMyDistributors(d || [])).catch(() => {});
   }, [user?.id]);
+
+  const handleLinkDistributor = async () => {
+    setDistLinkBusy(true);
+    try {
+      const res = await api.linkByPublicCode(user.id, 'shop', distCodeInput);
+      setDistCodeInput('');
+      setMyDistributors(await api.getLinkedDistributors(user.id));
+      toast.success(`Linked with distributor ${res.name}`);
+    } catch (ex) {
+      toast.error(ex.message || 'Could not link.');
+    } finally {
+      setDistLinkBusy(false);
+    }
+  };
+
+  const handleUnlinkDistributor = async (distId) => {
+    try {
+      await api.unlinkShopDistributor(user.id, distId);
+      setMyDistributors(await api.getLinkedDistributors(user.id));
+      toast.success('Distributor unlinked');
+    } catch (ex) {
+      toast.error(ex.message || 'Could not unlink.');
+    }
+  };
 
   const handleAssignCA = async () => {
     setCaBusy(true);
@@ -3895,6 +3923,59 @@ const ShopDashboard = () => {
                     {caBusy ? '...' : 'Assign'}
                   </button>
                 </div>
+              )}
+            </div>
+
+            {/* My Distributors (mutual code linking) */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🚚 My Distributors</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '14px' }}>
+                Link with your distributors so they can supply you. Share your shop code, or add a distributor using their code.
+              </p>
+
+              {/* Own shop code */}
+              {user?.publicCode && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <div style={{ color: '#94a3b8', fontSize: '11px' }}>Your shop code</div>
+                    <div style={{ color: '#fff', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
+                  </div>
+                  <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); toast.success('Code copied!'); }}
+                    style={{ background: '#334155', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    Copy
+                  </button>
+                </div>
+              )}
+
+              {/* Add distributor by code */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                <input type="text" value={distCodeInput} onChange={e => setDistCodeInput(e.target.value.toUpperCase())}
+                  placeholder="Enter distributor code (DST-XXXXXX)"
+                  style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                <button onClick={handleLinkDistributor} disabled={distLinkBusy}
+                  style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                  {distLinkBusy ? '...' : 'Add'}
+                </button>
+              </div>
+
+              {/* Linked distributors list */}
+              {myDistributors.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {myDistributors.map(d => (
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                      <div>
+                        <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
+                        <div style={{ color: '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
+                      </div>
+                      <button onClick={() => handleUnlinkDistributor(d.id)}
+                        style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
               )}
             </div>
 
