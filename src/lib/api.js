@@ -461,7 +461,20 @@ export const api = {
 
   async deleteUser(userId) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').delete().eq('id', userId);
+      // Use the delete-user edge function so the Supabase Auth user is removed
+      // too (not just the profile row). Otherwise the auth user {phone}@mystore
+      // .internal lingers and the same phone can't re-register cleanly.
+      try {
+        const { data, error } = await supabase.functions.invoke('delete-user', { body: { userId } });
+        if (!error && data?.success) return;
+        // If the function returned an error payload, surface it.
+        if (data?.error) throw new Error(data.error);
+      } catch (e) {
+        // Fallback: if the edge function isn't deployed, at least delete the
+        // profile row (legacy behaviour) so the admin action isn't a no-op.
+        const { error: delErr } = await supabase.from('users').delete().eq('id', userId);
+        if (delErr) throw new Error(delErr.message);
+      }
       return;
     }
     const db = getDB();

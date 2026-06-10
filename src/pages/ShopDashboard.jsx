@@ -3814,7 +3814,7 @@ const ShopDashboard = () => {
                 </div>
               ) : (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input type="tel" value={caPhoneInput} onChange={e => setCaPhoneInput(e.target.value)}
+                  <input type="tel" inputMode="numeric" maxLength={10} value={caPhoneInput} onChange={e => setCaPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="CA's 10-digit mobile number"
                     style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
                   <button onClick={handleAssignCA} disabled={caBusy}

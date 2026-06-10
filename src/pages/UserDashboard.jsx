@@ -679,7 +679,7 @@ const UserDashboard = () => {
   };
 
   const handleGuestLogin = async () => {
-    if (!guestName || guestPhone.length < 10) return alert('Enter valid Name and 10-digit Phone');
+    if (!guestName || !/^\d{10}$/.test(guestPhone)) return alert('Enter a valid name and 10-digit phone number');
     try {
       let loggedInUser;
       try {
@@ -1129,31 +1129,35 @@ const UserDashboard = () => {
 
                         {/* Dynamic payment options */}
                         {paymentMethod === 'upi' ? (
-                          shopInfo?.upiId ? (
+                          (shopInfo?.paymentQr || shopInfo?.upiId) ? (
                             <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '12px', padding: '14px', marginBottom: '16px', textAlign: 'center' }}>
                               <h4 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                <CreditCard size={13} /> Scan QR to Pay UPI
+                                <CreditCard size={13} /> Scan QR to Pay
                               </h4>
-                              <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-block', marginBottom: '8px' }}>
-                                <QRCodeSVG value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`} size={100} />
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 10px', marginBottom: '10px', fontSize: '11px' }}>
-                                <span style={{ color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo.upiId}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(shopInfo.upiId);
-                                    toast.success("UPI ID copied!");
-                                  }}
-                                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px', width: 'auto' }}
-                                >
-                                  Copy
-                                </button>
-                              </div>
-                              {shopInfo.paymentQr && (
-                                <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '10px' }}>
-                                  <p style={{ fontSize: '10px', color: '#64748B', marginBottom: '6px' }}>Shopkeeper's QR poster:</p>
-                                  <img src={shopInfo.paymentQr} alt="QR Poster" style={{ maxWidth: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px' }} />
+                              {/* PRIMARY: shop's own uploaded scanner/QR poster, if they set one */}
+                              {shopInfo?.paymentQr ? (
+                                <div style={{ background: '#fff', padding: '10px', borderRadius: '10px', display: 'inline-block', marginBottom: '10px', border: '2px solid #10b981' }}>
+                                  <img src={shopInfo.paymentQr} alt="Shop payment QR" style={{ maxWidth: '220px', width: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '6px' }} />
+                                </div>
+                              ) : (
+                                <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-block', marginBottom: '8px' }}>
+                                  <QRCodeSVG value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`} size={140} />
+                                </div>
+                              )}
+                              {/* SECONDARY: UPI ID below the scanner (copyable) */}
+                              {shopInfo?.upiId && (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 10px', marginBottom: '4px', fontSize: '11px' }}>
+                                  <span style={{ color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo.upiId}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(shopInfo.upiId);
+                                      toast.success("UPI ID copied!");
+                                    }}
+                                    style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#0F172A', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '10px', width: 'auto' }}
+                                  >
+                                    Copy
+                                  </button>
                                 </div>
                               )}
                             </div>
@@ -1184,7 +1188,7 @@ const UserDashboard = () => {
                               type="tel" 
                               placeholder="10-Digit Mobile Number" 
                               value={guestPhone} 
-                              onChange={e=>setGuestPhone(e.target.value)} 
+                              onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} 
                               style={{ padding: '10px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', marginBottom: '0', outline: 'none' }} 
                             />
                           </div>
@@ -1703,7 +1707,7 @@ const UserDashboard = () => {
                 <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px 0', color: '#0F172A' }}>Customer Onboarding 🚀</h2>
               </div>
               <input type="text" placeholder="Your Full Name" value={guestName} onChange={e=>setGuestName(e.target.value)} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '12px' }} />
-              <input type="tel" placeholder="10-Digit Mobile Number" value={guestPhone} onChange={e=>setGuestPhone(e.target.value)} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '20px' }} />
+              <input type="tel" placeholder="10-Digit Mobile Number" value={guestPhone} onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '20px' }} />
               <button onClick={handleGuestLogin} style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', padding: '12px' }}>Submit & Proceed</button>
               <button onClick={() => setShowGuestModal(false)} style={{ background: 'transparent', color: '#64748b', padding: '10px', marginTop: '6px' }}>Cancel</button>
             </div>
@@ -2766,7 +2770,7 @@ const UserDashboard = () => {
               type="tel" 
               placeholder="10-Digit Mobile Number" 
               value={guestPhone} 
-              onChange={e=>setGuestPhone(e.target.value)} 
+              onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} 
               style={{ width: '100%', padding: '14px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '15px', marginBottom: '20px', outline: 'none' }} 
             />
             
@@ -2868,15 +2872,26 @@ const UserDashboard = () => {
                     <CreditCard size={14} /> Scan or Tap to Pay UPI
                   </h4>
 
-                  {/* Draw QR deep-link code SVG */}
-                  <div style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>
-                    <QRCodeSVG 
-                      value={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`} 
-                      size={110} 
-                    />
-                  </div>
+                  {/* PRIMARY: the shop owner's own uploaded scanner / QR poster.
+                      Banks often decline app-initiated upi:// deep links to personal
+                      VPAs 'for security reasons', so the shop's real merchant QR is
+                      the most reliable way to pay — show it first and biggest. */}
+                  {shopInfo?.paymentQr ? (
+                    <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px', border: '2px solid #10b981' }}>
+                      <img src={shopInfo.paymentQr} alt="Shop payment scanner" style={{ maxWidth: '240px', width: '100%', maxHeight: '260px', objectFit: 'contain', borderRadius: '8px' }} />
+                      <p style={{ fontSize: '11px', color: '#10b981', fontWeight: 700, margin: '8px 0 0' }}>Scan with any UPI app to pay ₹{getCartTotals().total}</p>
+                    </div>
+                  ) : (
+                    <div style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>
+                      <QRCodeSVG
+                        value={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
+                        size={150}
+                      />
+                    </div>
+                  )}
 
-                  {/* Copy UPI ID utility */}
+                  {/* UPI ID (copyable) shown below the scanner */}
+                  {shopInfo?.upiId && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '8px 12px', marginBottom: '14px', fontSize: '12px' }}>
                     <span style={{ color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>{shopInfo?.upiId}</span>
                     <button
@@ -2892,9 +2907,10 @@ const UserDashboard = () => {
                       <Copy size={12} /> Copy
                     </button>
                   </div>
+                  )}
 
-                  {/* Desktop / Mobile Aware Deep links */}
-                  {isMobileDevice ? (
+                  {/* Deep link to pay — secondary; may be declined by banks for personal VPAs */}
+                  {shopInfo?.upiId && isMobileDevice ? (
                     <a 
                       href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
                       style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s' }}
@@ -2903,14 +2919,14 @@ const UserDashboard = () => {
                     >
                       💳 Tap to Pay with PhonePe / Paytm / GPay
                     </a>
-                  ) : (
+                  ) : shopInfo?.upiId && !shopInfo?.paymentQr ? (
                     <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#4F46E5', padding: '10px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <Info size={12} /> Desktop detected: Scan this UPI QR code using your mobile camera or scanner app
+                      <Info size={12} /> Scan this UPI QR code using your mobile camera or scanner app
                     </div>
-                  )}
+                  ) : null}
 
-                  {/* Display Custom uploaded Shopkeeper QR Poster image if available */}
-                  {shopInfo?.paymentQr && (
+                  {/* (legacy poster block removed — the uploaded scanner is now primary above) */}
+                  {false && shopInfo?.paymentQr && (
                     <div style={{ marginTop: '14px', borderTop: '1px solid #E2E8F0', paddingTop: '12px' }}>
                       <p style={{ fontSize: '11px', color: '#64748B', marginBottom: '8px' }}>Or scan the shop's printed barcode poster:</p>
                       <img src={shopInfo?.paymentQr} alt="Payment QR" style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
