@@ -54,7 +54,7 @@ export default function LandingFinalCTA() {
               onMouseEnter={e => e.currentTarget.style.filter='brightness(1.12)'}
               onMouseLeave={e => e.currentTarget.style.filter='brightness(1)'}
             >
-              <Zap size={16} strokeWidth={2.5}/>Start Free 7-Day Trial
+              <Zap size={16} strokeWidth={2.5}/>Start Free 15-Day Trial
             </button>
             <button onClick={() => navigate('/contact')} style={{
               background: 'transparent', color: 'rgba(255,255,255,0.65)',

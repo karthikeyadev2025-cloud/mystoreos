@@ -121,7 +121,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          Start Free 7-Day Trial
+          Start Free 15-Day Trial
         </button>
         <button onClick={() => navigate('/login')} style={{
           background: 'transparent', color: 'rgba(255,255,255,0.75)',

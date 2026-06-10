@@ -222,7 +222,7 @@ const ShopDashboard = () => {
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
   const loyaltyEnabled = hasFeature('loyaltyPoints');
   const _now = new Date();
-  const trialDaysLeft = user.createdAt ? Math.max(0, 7 - Math.floor((_now - new Date(user.createdAt)) / 86400000)) : 7;
+  const trialDaysLeft = user.createdAt ? Math.max(0, 15 - Math.floor((_now - new Date(user.createdAt)) / 86400000)) : 15;
   const planExpiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
   const paidDaysLeft = planExpiresAt ? Math.max(0, Math.ceil((planExpiresAt - _now) / 86400000)) : null;
   const isOnTrial = user.subscription === 'trial';

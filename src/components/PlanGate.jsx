@@ -49,7 +49,7 @@ export function TrialExpiredOverlay({ planLabel, onUpgrade }) {
           Your Trial Has Ended
         </h2>
         <p style={{ margin: '0 0 28px 0', fontSize: '14px', color: '#94a3b8', lineHeight: '1.6' }}>
-          Your 7-day free trial is over. Upgrade to keep your billing, inventory, and reports — all your data is safe.
+          Your 15-day free trial is over. Upgrade to keep your billing, inventory, and reports — all your data is safe.
         </p>
         <button
           onClick={onUpgrade}

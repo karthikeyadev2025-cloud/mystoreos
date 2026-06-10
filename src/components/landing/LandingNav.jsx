@@ -192,7 +192,7 @@ export default function LandingNav({ config = {} }) {
             padding: '14px 16px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
             fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
             boxShadow: '0 0 20px rgba(79,70,229,0.4)',
-          }}>⚡ Start Free 7-Day Trial</button>
+          }}>⚡ Start Free 15-Day Trial</button>
         </div>
       )}
 

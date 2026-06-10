@@ -63,7 +63,7 @@ serve(async (req) => {
       uid = authUser.user.id;
     }
     const requiresApproval = role === 'shop' || role === 'distributor';
-    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const trialEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
     const subscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
     const subscription_tier = role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null;
     const trial_started_at = requiresApproval ? new Date().toISOString() : null;

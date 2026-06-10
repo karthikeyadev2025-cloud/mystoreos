@@ -149,7 +149,7 @@ export const isTrialExpired = (user) => {
   if (!user || user.subscription !== 'trial') return false;
   if (!user.trialStartedAt) return false;
   const daysSinceStart = (Date.now() - new Date(user.trialStartedAt).getTime()) / (1000 * 60 * 60 * 24);
-  return daysSinceStart > 7;
+  return daysSinceStart > 15;
 };
 // Helper to intercept and format technical database/edge-function errors into friendly user messages
 const formatApiError = (err, fallback = 'Operation failed') => {
@@ -411,7 +411,7 @@ export const api = {
       const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).maybeSingle();
       if (existing) throw new Error('Phone already registered. Please login.');
       const requiresApproval = role === 'shop' || role === 'distributor';
-      const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const trialEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
       const newUser = {
         phone, pass, pass_verify: pass, role, name,
         status: requiresApproval ? 'pending' : 'active',
@@ -427,7 +427,7 @@ export const api = {
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already registered");
     const requiresApproval = (role === 'shop' || role === 'distributor');
-    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const trialEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
     const newUser = {
       id: 'u_' + generateId(), phone, pass, role, name,
       status: requiresApproval ? 'pending' : 'active',
@@ -453,7 +453,7 @@ export const api = {
       user.status = 'active';
       saveDB(db);
       if (user.phone && typeof window !== 'undefined') {
-        const msg = encodeURIComponent(`Welcome to MyStore OS! 🎉\nYour account has been approved.\nLogin now: mystoreos.in/login\nPhone: ${user.phone}\n\nYour 7-day PRO trial starts now!`);
+        const msg = encodeURIComponent(`Welcome to MyStore OS! 🎉\nYour account has been approved.\nLogin now: mystoreos.in/login\nPhone: ${user.phone}\n\nYour 15-day PRO trial starts now!`);
         window.open(`https://wa.me/91${user.phone}?text=${msg}`, '_blank');
       }
     }
@@ -2072,7 +2072,7 @@ export const api = {
   },
 
   async getExpiredTrials() {
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const cutoff = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
     if (isSupabaseConfigured) {
       const { data } = await supabase.from('users').select('*')
         .eq('role', 'shop').eq('subscription', 'trial').lt('trial_started_at', cutoff);

@@ -31,7 +31,7 @@ const DEFAULT_TESTIMONIALS = [
   { name: 'Mohammed Ali', city: 'Tirupati', stars: 5, quote: 'Staff management feature is excellent. Very secure.' },
   { name: 'Venkat Rao', city: 'Warangal', stars: 5, quote: 'GST reports and Tally export in one click. Excellent!' },
   { name: 'Lakshmi Devi', city: 'Nellore', stars: 5, quote: 'Best app for small shop owners. Very easy to use.' },
-  { name: 'Arun Prasad', city: 'Visakhapatnam', stars: 5, quote: '7 day free trial lo convinced aipoya! Worth every rupee.' },
+  { name: 'Arun Prasad', city: 'Visakhapatnam', stars: 5, quote: '15 day free trial lo convinced aipoya! Worth every rupee.' },
   { name: 'Srinivas', city: 'Karimnagar', stars: 5, quote: 'Offline mode works perfectly even without internet.' },
   { name: 'Deepa Reddy', city: 'Kurnool', stars: 5, quote: 'Reports ki WhatsApp share cheyyadam super convenient!' },
   { name: 'Ramesh Naidu', city: 'Ongole', stars: 5, quote: 'Billing time 30 seconds — customers are very happy.' },
@@ -39,7 +39,7 @@ const DEFAULT_TESTIMONIALS = [
   { name: 'Pavan Kumar', city: 'Rajahmundry', stars: 5, quote: 'Multi-outlet sync is the best feature. Great app!' },
 ];
 const DEFAULT_FAQ = [
-  { q: 'Is there a free trial?', a: 'Yes! Every new account gets a 7-day free PRO trial — no credit card required.' },
+  { q: 'Is there a free trial?', a: 'Yes! Every new account gets a 15-day free PRO trial — no credit card required.' },
   { q: 'Does it work offline?', a: 'Fully offline capable. All data syncs automatically when your internet is restored.' },
   { q: 'Can I use it on my phone?', a: "It's a mobile-first PWA. Install on Android/iPhone from your browser. No app store needed." },
   { q: 'How does WhatsApp billing work?', a: 'After creating a bill, tap "Share on WhatsApp". The customer receives a formatted receipt instantly.' },

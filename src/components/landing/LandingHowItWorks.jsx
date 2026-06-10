@@ -35,7 +35,7 @@ export default function LandingHowItWorks({ navigate }) {
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginTop: 44 }}>
           <button onClick={() => navigate('/register')}
             style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: 'clamp(12px,2vw,16px) clamp(24px,4vw,40px)', borderRadius: 14, fontSize: 'clamp(14px,2vw,16px)', fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 0 40px rgba(244,63,94,0.25)' }}>
-            Start Your Free 7-Day Trial 🚀
+            Start Your Free 15-Day Trial 🚀
           </button>
           <div style={{ color: '#475569', fontSize: 12, marginTop: 10 }}>No credit card required · Cancel anytime</div>
         </motion.div>

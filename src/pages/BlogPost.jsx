@@ -166,7 +166,7 @@ const BlogPost = () => {
         {/* CTA */}
         <div style={{ marginTop: '56px', padding: '36px', background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(129,140,248,0.08))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '16px', textAlign: 'center' }}>
           <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 8px' }}>Ready to see similar results?</h3>
-          <p style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 24px' }}>Start your free 7-day trial — no credit card required.</p>
+          <p style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 24px' }}>Start your free 15-day trial — no credit card required.</p>
           <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '12px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '14px', textDecoration: 'none', display: 'inline-block', marginRight: '12px' }}>
             Start Free Trial
           </Link>

@@ -833,7 +833,7 @@ const DistributorDashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#0F172A' }}>Distributor Subscription Plans</h2>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>7-day free trial on Pro Distributor plan</p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>15-day free trial on Pro Distributor plan</p>
                 </div>
                 <button onClick={() => setShowUpgradePlanModal(false)} style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Close</button>
               </div>
