@@ -44,6 +44,7 @@ export default function TabSettings() {
 
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [googleLoginEnabled, setGoogleLoginEnabled] = useState(false);
+  const [yearly, setYearly] = useState({ enabled: false, offerPercent: 50, offerCap: 1000, offerRemaining: 1000, prices: { starter: '', pro: '', enterprise: '' } });
 
   const [supportEmail, setSupportEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
@@ -64,6 +65,8 @@ export default function TabSettings() {
         setMaintenanceMsg(theme.maintenanceMessage || '');
         setRegistrationOpen(theme.registrationOpen !== false);
         setGoogleLoginEnabled(theme.googleLoginEnabled === true || theme.googleLoginEnabled === 'true');
+        const yc = await api.getYearlyConfig();
+        if (yc) setYearly({ enabled: !!yc.enabled, offerPercent: yc.offerPercent ?? 50, offerCap: yc.offerCap ?? 1000, offerRemaining: yc.offerRemaining ?? 1000, prices: { starter: yc.prices?.starter ?? '', pro: yc.prices?.pro ?? '', enterprise: yc.prices?.enterprise ?? '' } });
         setSupportEmail(theme.supportEmail || '');
         setContactPhone(theme.contactPhone || '');
         setWhatsappSupport(theme.whatsappSupport || '');
@@ -102,6 +105,21 @@ export default function TabSettings() {
     const current = await api.getSiteTheme();
     await api.saveSiteTheme({ ...current, googleLoginEnabled });
     await api.logAdminAction('update_auth_settings', 'settings', null, googleLoginEnabled ? 'google_on' : 'google_off');
+  });
+
+  const saveYearly = () => saveSection('yearly', async () => {
+    await api.saveYearlyConfig({
+      enabled: !!yearly.enabled,
+      offerPercent: Math.max(0, Math.min(100, Number(yearly.offerPercent) || 0)),
+      offerCap: Math.max(0, Number(yearly.offerCap) || 0),
+      offerRemaining: Math.max(0, Number(yearly.offerRemaining) || 0),
+      prices: {
+        starter: Number(yearly.prices.starter) || 0,
+        pro: Number(yearly.prices.pro) || 0,
+        enterprise: Number(yearly.prices.enterprise) || 0,
+      },
+    });
+    await api.logAdminAction('update_yearly_plans', 'settings', null, yearly.enabled ? 'enabled' : 'disabled');
   });
 
   const changeAdminPassword = async (e) => {
@@ -222,6 +240,56 @@ export default function TabSettings() {
         </div>
 
         <button onClick={saveAuth} disabled={busy.auth} style={S.saveBtn(busy.auth)}><Save size={14} />{busy.auth ? 'Saving...' : 'Save Auth Settings'}</button>
+      </div>
+
+      <div style={S.card}>
+        <SectionHeader icon={Save} title="Yearly Plans & Launch Offer" sub="Annual pricing + a limited first-N-users discount" color="#f59e0b" />
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+          <div>
+            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Enable yearly plans</div>
+            <div style={{ color: '#64748b', fontSize: '12px' }}>Show a Monthly/Yearly toggle on the plan selector</div>
+          </div>
+          <Toggle on={yearly.enabled} onChange={(v) => setYearly(y => ({ ...y, enabled: v }))} />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', margin: '16px 0' }}>
+          {['starter', 'pro', 'enterprise'].map(tier => (
+            <div key={tier}>
+              <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px', textTransform: 'capitalize' }}>{tier} yearly ₹</label>
+              <input type="number" min="0" value={yearly.prices[tier]}
+                onChange={e => setYearly(y => ({ ...y, prices: { ...y.prices, [tier]: e.target.value } }))}
+                placeholder="e.g. 5999"
+                style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <div>
+            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Offer discount %</label>
+            <input type="number" min="0" max="100" value={yearly.offerPercent}
+              onChange={e => setYearly(y => ({ ...y, offerPercent: e.target.value }))}
+              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Offer cap (first N)</label>
+            <input type="number" min="0" value={yearly.offerCap}
+              onChange={e => setYearly(y => ({ ...y, offerCap: e.target.value }))}
+              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Slots remaining</label>
+            <input type="number" min="0" value={yearly.offerRemaining}
+              onChange={e => setYearly(y => ({ ...y, offerRemaining: e.target.value }))}
+              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+          </div>
+        </div>
+        <p style={{ color: '#94a3b8', fontSize: '11px', margin: '0 0 14px', lineHeight: 1.5 }}>
+          The offer applies the discount to yearly prices while slots remain. "Slots remaining" auto-decrements on each successful yearly payment; you can also adjust it here manually.
+        </p>
+
+        <button onClick={saveYearly} disabled={busy.yearly} style={S.saveBtn(busy.yearly)}><Save size={14} />{busy.yearly ? 'Saving...' : 'Save Yearly Plans'}</button>
       </div>
 
       <div style={S.card}>

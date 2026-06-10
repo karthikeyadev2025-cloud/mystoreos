@@ -1247,6 +1247,19 @@ export const api = {
   },
 
   // ---- CMS (Site Config) ----
+  // ── Yearly plans & launch offer (admin-managed) ──
+  // Stored in site_config under 'yearly_plans':
+  // { enabled, offerPercent, offerCap, offerRemaining, prices: {starter, pro, enterprise} }
+  async getYearlyConfig() {
+    const d = await this.getSiteConfig('yearly_plans', null);
+    return d || { enabled: false, offerPercent: 50, offerCap: 1000, offerRemaining: 1000, prices: {} };
+  },
+
+  async saveYearlyConfig(cfg) {
+    await this.saveSiteConfig('yearly_plans', cfg);
+    return cfg;
+  },
+
   async getSiteConfig(key, defaultData) {
     try {
       if (isSupabaseConfigured) {

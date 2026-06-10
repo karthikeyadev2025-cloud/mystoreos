@@ -7,7 +7,11 @@ const CORS = {
 };
 
 const PLAN_AMOUNTS: Record<string, number> = { starter: 499, pro: 999, enterprise: 2499 };
-const PLAN_TIER: Record<string, string> = { starter: 'starter', pro: 'pro', enterprise: 'enterprise' };
+const PLAN_TIER: Record<string, string> = {
+  starter: 'starter', pro: 'pro', enterprise: 'enterprise',
+  starter_yearly: 'starter', pro_yearly: 'pro', enterprise_yearly: 'enterprise',
+};
+const isYearlyPlan = (planId: string) => planId.endsWith('_yearly');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -60,13 +64,27 @@ serve(async (req) => {
 
     if (!existing) {
       const tier = PLAN_TIER[planId] ?? 'pro';
-      const planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const yearly = isYearlyPlan(planId);
+      const days = yearly ? 365 : 30;
+      const planExpiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
       await supabase.from('users').update({
         subscription: 'active',
         subscription_tier: tier,
         plan_expires_at: planExpiresAt,
       }).eq('id', userId);
+
+      // Auto-decrement the launch-offer counter on a successful YEARLY payment.
+      if (yearly) {
+        const { data: cfgRow } = await supabase
+          .from('site_config').select('value').eq('key', 'yearly_plans').maybeSingle();
+        const cfg = cfgRow?.value;
+        if (cfg && Number(cfg.offerRemaining) > 0) {
+          cfg.offerRemaining = Math.max(0, Number(cfg.offerRemaining) - 1);
+          await supabase.from('site_config')
+            .upsert({ key: 'yearly_plans', value: cfg }, { onConflict: 'key' });
+        }
+      }
 
       await supabase.from('payment_history').insert({
         user_id: userId,

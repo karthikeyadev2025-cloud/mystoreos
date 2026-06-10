@@ -208,6 +208,8 @@ const ShopDashboard = () => {
   // SaaS Subscription States
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
+  const [billingCycle, setBillingCycle] = useState('monthly');
+  const [yearlyCfg, setYearlyCfg] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [trialBannerDismissed, setTrialBannerDismissed] = useState(
     () => !!sessionStorage.getItem(`mystore_trial_banner_dismissed_${user.id}`)
@@ -269,6 +271,7 @@ const ShopDashboard = () => {
       setSysSettings(await safe(() => api.getSettings()));
       setStaffList(await safe(() => api.getShopStaff(targetShopId)));
       setPlans(await safe(() => api.getSubscriptionPlans()));
+      setYearlyCfg(await safe(() => api.getYearlyConfig()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
       setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
       setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
@@ -1700,16 +1703,33 @@ const ShopDashboard = () => {
     toast.success('Razorpay key saved.');
   };
 
+  // Yearly price helper: base price from admin config, discounted while the
+  // launch offer has remaining slots. Server recomputes this in the edge
+  // function, so a tampered client price can't change what's charged.
+  const yearlyPriceFor = (planId) => {
+    const base = Number(yearlyCfg?.prices?.[planId]) || 0;
+    if (!base) return null;
+    const offerOn = !!yearlyCfg?.enabled && Number(yearlyCfg?.offerRemaining) > 0 && Number(yearlyCfg?.offerPercent) > 0;
+    const final = offerOn ? Math.round(base * (1 - Number(yearlyCfg.offerPercent) / 100)) : base;
+    return { base, final, offerOn, percent: Number(yearlyCfg?.offerPercent) || 0, remaining: Number(yearlyCfg?.offerRemaining) || 0 };
+  };
+
   const handleSubscribe = async (plan) => {
     if (!plan) return;
     if (!sysSettings.razorpayKey) {
       return toast.error("Admin has not configured Razorpay yet.");
     }
 
+    const isYearly = billingCycle === 'yearly';
+    const yp = isYearly ? yearlyPriceFor(plan.id) : null;
+    if (isYearly && !yp) return toast.error('Yearly pricing is not available for this plan yet.');
+    const payPlanId = isYearly ? `${plan.id}_yearly` : plan.id;
+    const payPrice = isYearly ? yp.final : plan.price;
+
     // Create server-side Razorpay order for signature verification
     let orderId = null;
     try {
-      const orderData = await safe(() => api.createRazorpayOrder(plan.id, plan.price));
+      const orderData = await safe(() => api.createRazorpayOrder(payPlanId, payPrice));
       orderId = orderData?.orderId;
     } catch (_e) {
       // Edge function not deployed yet — fall back to client-only flow
@@ -1717,10 +1737,10 @@ const ShopDashboard = () => {
 
     const options = {
       key: sysSettings.razorpayKey,
-      amount: (plan.price * 100).toString(),
+      amount: (payPrice * 100).toString(),
       currency: "INR",
       name: "MyStore OS",
-      description: `${plan.name} Subscription`,
+      description: `${plan.name} ${isYearly ? 'Yearly' : ''} Subscription`,
       ...(orderId ? { order_id: orderId } : {}),
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
       handler: async function (response) {
@@ -1729,7 +1749,7 @@ const ShopDashboard = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
-            planId: plan.id,
+            planId: payPlanId,
             userId: targetShopId,
           }));
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
@@ -1743,7 +1763,7 @@ const ShopDashboard = () => {
             localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
           }
           setShowPlanSelectorModal(false);
-          if (user.phone) sendPaymentConfirmation(user.phone, user.name, plan.name, plan.price);
+          if (user.phone) sendPaymentConfirmation(user.phone, user.name, plan.name, payPrice);
         } catch (_e) {
           toast.error(`Upgrade failed. Contact support with ID: ${response.razorpay_payment_id}`);
         }
@@ -1762,6 +1782,54 @@ const ShopDashboard = () => {
       case 'error': return '#ef4444';
       default: return '#3b82f6';
     }
+  };
+
+  const renderBillingToggle = () => {
+    const hasYearly = yearlyCfg?.enabled && Object.values(yearlyCfg?.prices || {}).some(v => Number(v) > 0);
+    if (!hasYearly) return null;
+    const offerLeft = Number(yearlyCfg?.offerRemaining) || 0;
+    const pct = Number(yearlyCfg?.offerPercent) || 0;
+    return (
+      <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '4px' }}>
+          {['monthly', 'yearly'].map(c => (
+            <button key={c} onClick={() => setBillingCycle(c)}
+              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
+                background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94a3b8', textTransform: 'capitalize' }}>
+              {c}
+            </button>
+          ))}
+        </div>
+        {billingCycle === 'yearly' && pct > 0 && offerLeft > 0 && (
+          <div style={{ marginTop: '10px', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+            🎉 Launch offer: {pct}% OFF yearly — only {offerLeft} slots left!
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPlanPrice = (plan) => {
+    if (billingCycle === 'yearly') {
+      const yp = yearlyPriceFor(plan.id);
+      if (!yp) return <span style={{ fontSize: '13px', color: '#94a3b8' }}>Yearly coming soon</span>;
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            {yp.offerOn && <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{yp.base}</span>}
+            <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{yp.final}</span>
+            <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ year</span>
+          </div>
+          {yp.offerOn && <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>Save {yp.percent}% — limited launch offer</span>}
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+        <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
+        <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
+      </div>
+    );
   };
 
   const styles = {
@@ -2326,6 +2394,7 @@ const ShopDashboard = () => {
               </p>
             </div>
 
+            {renderBillingToggle()}
             {/* Plans Container */}
             <div style={{
               display: 'grid',
@@ -2376,10 +2445,7 @@ const ShopDashboard = () => {
                       <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                      <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
-                      <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
-                    </div>
+                    {renderPlanPrice(plan)}
 
                     <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: 0 }} />
 
@@ -4360,6 +4426,7 @@ const ShopDashboard = () => {
               </p>
             </div>
 
+            {renderBillingToggle()}
             {/* Plans Container */}
             <div style={{
               display: 'grid',
@@ -4410,10 +4477,7 @@ const ShopDashboard = () => {
                       <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                      <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
-                      <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
-                    </div>
+                    {renderPlanPrice(plan)}
 
                     <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: 0 }} />
 

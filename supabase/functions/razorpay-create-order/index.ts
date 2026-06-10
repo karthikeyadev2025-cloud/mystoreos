@@ -19,6 +19,27 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // For YEARLY plans, recompute the price server-side from admin config so a
+    // tampered client amount can't change what's charged (or bypass the offer).
+    let chargeAmount = amount;
+    if (planId.endsWith('_yearly')) {
+      try {
+        const sb = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+        );
+        const { data: cfgRow } = await sb
+          .from('site_config').select('value').eq('key', 'yearly_plans').maybeSingle();
+        const cfg = cfgRow?.value;
+        const tier = planId.replace('_yearly', '');
+        const base = Number(cfg?.prices?.[tier]) || 0;
+        if (base > 0) {
+          const offerOn = !!cfg?.enabled && Number(cfg?.offerRemaining) > 0 && Number(cfg?.offerPercent) > 0;
+          chargeAmount = offerOn ? Math.round(base * (1 - Number(cfg.offerPercent) / 100)) : base;
+        }
+      } catch (_e) { /* fall back to client amount */ }
+    }
+
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');
     const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
     if (!keyId || !keySecret) {
@@ -52,7 +73,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        amount: Math.round(amount * 100),
+        amount: Math.round(chargeAmount * 100),
         currency,
         receipt: `mso_${planId}_${Date.now()}`,
         notes: {
