@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw, ChevronDown, AlertTriangle } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw, ChevronDown, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
@@ -122,6 +122,11 @@ export default function TabShops() {
   const approve = (u) => act(u.id, () => api.approveUser(u.id), `${u.name} approved`);
   const suspend = (u) => act(u.id, async () => { await api.suspendUser(u.id); await api.logAdminAction('suspend_user', u.id, 'active', 'pending'); }, `${u.name} suspended`);
   const unsuspend = (u) => act(u.id, async () => { await api.unsuspendUser(u.id); await api.logAdminAction('unsuspend_user', u.id, 'pending', 'active'); }, `${u.name} activated`);
+  const toggleVisibility = (u) => act(u.id, async () => {
+    const next = !u.hideFromSearch;
+    await api.setShopVisibility(u.id, next);
+    await api.logAdminAction('set_shop_visibility', u.id, u.hideFromSearch ? 'hidden' : 'visible', next ? 'hidden' : 'visible');
+  }, u.hideFromSearch ? `${u.name} is now visible to customers` : `${u.name} hidden from customers`);
   const del = (u) => {
     if (!window.confirm(`Delete ${u.name}? This is permanent.`)) return;
     act(u.id, async () => { await api.deleteUser(u.id); await api.logAdminAction('delete_user', u.id, null, null); }, `${u.name} deleted`);
@@ -211,6 +216,7 @@ export default function TabShops() {
                             : <button disabled={isBusy} onClick={() => unsuspend(shop)} style={S.btn('#10B981')}><ShieldCheck size={12} />Activate</button>
                         }
                         <button disabled={isBusy} onClick={() => setUpgradeModal(shop)} style={S.btn('#4F46E5')}><ChevronDown size={12} />Plan</button>
+                        <button disabled={isBusy} onClick={() => toggleVisibility(shop)} style={S.btn(shop.hideFromSearch ? '#64748B' : '#0EA5E9')}>{shop.hideFromSearch ? <><EyeOff size={12} />Hidden</> : <><Eye size={12} />Visible</>}</button>
                         <button disabled={isBusy} onClick={() => setResetModal(shop)} style={S.btn('#475569')}><Key size={12} />Reset PW</button>
                         <button disabled={isBusy} onClick={() => del(shop)} style={S.btn('#EF4444')}><Trash2 size={12} />Delete</button>
                       </div>

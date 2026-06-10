@@ -500,6 +500,15 @@ export const api = {
     return db.users.find(u => u.id === userId) || null;
   },
 
+  async setShopVisibility(shopId, hidden) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    // Admin RLS allows updating any user row; hide_from_search controls whether
+    // the shop appears in customer search/storefront.
+    const { error } = await supabase.from('users').update({ hide_from_search: !!hidden }).eq('id', shopId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async getAdminStats() {
     const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999, dist_basic: 999, dist_pro: 2499, dist_enterprise: 4999 };
     const SHOP_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
