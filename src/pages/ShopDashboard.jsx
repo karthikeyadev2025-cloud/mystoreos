@@ -1726,13 +1726,20 @@ const ShopDashboard = () => {
     const payPlanId = isYearly ? `${plan.id}_yearly` : plan.id;
     const payPrice = isYearly ? yp.final : plan.price;
 
-    // Create server-side Razorpay order for signature verification
+    // Create server-side Razorpay order. This is REQUIRED — without a server
+    // order_id the payment can't be signature-verified, so we must NOT fall
+    // back to a client-only charge (that path can take money without granting
+    // the plan, or be tampered). Hard-fail with a clear message instead.
     let orderId = null;
     try {
-      const orderData = await safe(() => api.createRazorpayOrder(payPlanId, payPrice));
+      const orderData = await api.createRazorpayOrder(payPlanId, payPrice);
       orderId = orderData?.orderId;
-    } catch (_e) {
-      // Edge function not deployed yet — fall back to client-only flow
+    } catch (e) {
+      orderId = null;
+    }
+    if (!orderId) {
+      toast.error('Payment could not be started securely right now. Please try again in a moment or contact support.');
+      return;
     }
 
     const options = {
@@ -1741,7 +1748,7 @@ const ShopDashboard = () => {
       currency: "INR",
       name: "MyStore OS",
       description: `${plan.name} ${isYearly ? 'Yearly' : ''} Subscription`,
-      ...(orderId ? { order_id: orderId } : {}),
+      order_id: orderId,
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
       handler: async function (response) {
         try {

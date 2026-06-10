@@ -186,16 +186,19 @@ const DistributorDashboard = () => {
     if (!sysSettings.razorpayKey) return toast.error("Payment gateway not configured yet.");
     let orderId = null;
     try {
-      const orderData = await safe(() => api.createRazorpayOrder(plan.id, plan.price));
+      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
       orderId = orderData?.orderId;
-    } catch (_e) { /* proceed without server order if edge fn unavailable */ }
+    } catch (_e) { orderId = null; }
+    if (!orderId) {
+      return toast.error('Payment could not be started securely right now. Please try again shortly.');
+    }
     const options = {
       key: sysSettings.razorpayKey,
       amount: (plan.price * 100).toString(),
       currency: "INR",
       name: "MyStore OS — Distributor",
       description: plan.name,
-      order_id: orderId || undefined,
+      order_id: orderId,
       handler: async (response) => {
         try {
           await safe(() => api.verifyRazorpayPayment({
