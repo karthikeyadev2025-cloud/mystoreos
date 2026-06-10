@@ -27,9 +27,28 @@ function SectionHeader({ icon: Icon, title, sub, color = '#4F46E5' }) {
 }
 
 export default function TabComms() {
-  const { updateConfigs } = useSiteConfig();
+  const { config, updateConfigs } = useSiteConfig();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [cs, setCs] = useState({
+    comingSoon1Active: false, comingSoon1Title: '', comingSoon1Sub: '',
+    comingSoon2Active: false, comingSoon2Title: '', comingSoon2Sub: '',
+  });
+  const [busyCs, setBusyCs] = useState(false);
+  useEffect(() => {
+    if (!config) return;
+    setCs({
+      comingSoon1Active: !!config.comingSoon1Active, comingSoon1Title: config.comingSoon1Title || '', comingSoon1Sub: config.comingSoon1Sub || '',
+      comingSoon2Active: !!config.comingSoon2Active, comingSoon2Title: config.comingSoon2Title || '', comingSoon2Sub: config.comingSoon2Sub || '',
+    });
+  }, [config]);
+  const saveComingSoon = async () => {
+    setBusyCs(true);
+    try { await updateConfigs(cs); toast.success('Coming-soon banners updated'); }
+    catch { toast.error('Could not save'); }
+    finally { setBusyCs(false); }
+  };
 
   const [annText, setAnnText] = useState('');
   const [annType, setAnnType] = useState('info');
@@ -135,6 +154,30 @@ export default function TabComms() {
           </div>
         )}
         {loading && <div style={{ color: '#64748B', fontSize: '12px', marginTop: '12px' }}>Loading history...</div>}
+      </div>
+
+      <div style={S.card}>
+        <SectionHeader icon={Bell} title="Shopper 'Coming Soon' Banners" sub="Promo banners shown to shoppers on the storefront (e.g. Local Billion Days, Luxury products)" color="#7C3AED" />
+        {[1, 2].map(n => (
+          <div key={n} style={{ borderTop: n === 2 ? '1px solid #f1f5f9' : 'none', paddingTop: n === 2 ? '14px' : 0, marginTop: n === 2 ? '14px' : 0 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+              <input type="checkbox" checked={cs[`comingSoon${n}Active`]}
+                onChange={e => setCs(s => ({ ...s, [`comingSoon${n}Active`]: e.target.checked }))} />
+              <span style={{ color: '#0f172a', fontSize: '13px', fontWeight: 700 }}>Banner {n} active</span>
+            </label>
+            <input type="text" value={cs[`comingSoon${n}Title`]}
+              onChange={e => setCs(s => ({ ...s, [`comingSoon${n}Title`]: e.target.value }))}
+              placeholder={n === 1 ? 'Title (e.g. Local Billion Days)' : 'Title (e.g. Luxury products)'}
+              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: '8px' }} />
+            <input type="text" value={cs[`comingSoon${n}Sub`]}
+              onChange={e => setCs(s => ({ ...s, [`comingSoon${n}Sub`]: e.target.value }))}
+              placeholder="Subtitle (optional)"
+              style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+          </div>
+        ))}
+        <button onClick={saveComingSoon} disabled={busyCs} style={{ ...S.sendBtn(busyCs), marginTop: '16px' }}>
+          {busyCs ? 'Saving...' : 'Save Banners'}
+        </button>
       </div>
 
       <div style={S.card}>
