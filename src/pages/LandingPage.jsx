@@ -76,6 +76,7 @@ export default function LandingPage() {
   const [faq, setFaq] = useState(DEFAULT_FAQ);
   const [plans, setPlans] = useState(DSP_FB);
   const [distPlans, setDistPlans] = useState(DDP_FB);
+  const [pricing, setPricing] = useState(null);
 
   useEffect(() => {
     safe(() => api.getSiteConfig('landingHero', DEFAULT_HERO)).then(d => d && setHero(d));
@@ -83,6 +84,7 @@ export default function LandingPage() {
     safe(() => api.getSiteConfig('landingTestimonials', DEFAULT_TESTIMONIALS)).then(d => d && setTestimonials(d));
     safe(() => api.getSiteConfig('landingFAQ', DEFAULT_FAQ)).then(d => d && setFaq(d));
     safe(() => api.seedSubscriptionPlans());
+    safe(() => api.getPricing()).then(d => d && setPricing(d));
     safe(() => api.getSubscriptionPlans()).then(d => {
       if (d && d.length) {
         // Always ensure Free plan is first
@@ -115,7 +117,7 @@ export default function LandingPage() {
       <LandingStats stats={stats} />
       <LandingFeatures />
       <LandingDayInLife />
-      <LandingPricingPreview plans={plans} distPlans={distPlans} navigate={navigate} />
+      <LandingPricingPreview plans={plans} distPlans={distPlans} pricing={pricing} navigate={navigate} />
       <LandingTrust />
       <LandingTestimonials testimonials={testimonials} />
       <LandingHowItWorks navigate={navigate} />
