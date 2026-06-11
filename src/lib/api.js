@@ -572,26 +572,30 @@ export const api = {
   async getAdminStats() {
     const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999, dist_basic: 999, dist_pro: 2499, dist_enterprise: 4999 };
     const SHOP_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
-    // A shop counts as PAID only if it has a real tier AND a future plan expiry.
-    // (subscription='active' alone is NOT enough — trial & approved-but-unpaid
-    //  accounts also carry 'active', which previously inflated revenue.)
-    const isPaid = (u) => !!u.subscription_tier && SHOP_PRICES[u.subscription_tier] != null
+    // A shop counts as PAID only if subscription === 'active' (a real payment)
+    // AND it has a future plan expiry. Trials carry subscription='trial' with a
+    // future plan_expires_at (the trial end) and a default tier, so checking the
+    // tier/expiry alone wrongly counted every trial as revenue.
+    const isPaidShop = (u) => u.subscription === 'active'
+      && !!u.subscription_tier && SHOP_PRICES[u.subscription_tier] != null
       && u.plan_expires_at && new Date(u.plan_expires_at) > new Date();
+    // A distributor counts as PAID only if subscription === 'active' AND it has a
+    // future distributor_plan_expires_at. (Every account carries a default
+    // distributor_plan_tier of 'basic_distributor', so tier alone means nothing.)
+    const isPaidDist = (u) => u.subscription === 'active'
+      && !!u.distributor_plan_tier && DIST_PRICES[u.distributor_plan_tier] != null
+      && u.distributor_plan_expires_at && new Date(u.distributor_plan_expires_at) > new Date();
     if (isSupabaseConfigured) {
-      const { data: users } = await supabase.from('users').select('role, subscription, subscription_tier, plan_expires_at, distributor_plan_tier');
+      const { data: users } = await supabase.from('users').select('role, subscription, subscription_tier, plan_expires_at, distributor_plan_tier, distributor_plan_expires_at');
       const { data: orders } = await supabase.from('orders').select('total');
       const { data: credits } = await supabase.from('credits').select('amount, paid');
       const allUsers = users || [];
       const shops = allUsers.filter(u => u.role === 'shop');
-      const paidShopRows = shops.filter(isPaid);
+      const paidShopRows = shops.filter(isPaidShop);
       const paidShops = paidShopRows.length;
       const shopMRR = paidShopRows.reduce((sum, s) => sum + (SHOP_PRICES[s.subscription_tier] || 0), 0);
       const distributors = allUsers.filter(u => u.role === 'distributor');
-      // Distributors: only count those with a real future-dated paid plan too.
-      const distMRR = distributors.reduce((sum, d) => {
-        const paid = d.distributor_plan_tier && (d.plan_expires_at ? new Date(d.plan_expires_at) > new Date() : false);
-        return sum + (paid ? (DIST_PRICES[d.distributor_plan_tier] || 0) : 0);
-      }, 0);
+      const distMRR = distributors.reduce((sum, d) => sum + (isPaidDist(d) ? (DIST_PRICES[d.distributor_plan_tier] || 0) : 0), 0);
       const activeCredit = (credits || []).filter(c => !c.paid).reduce((a, b) => a + Number(b.amount), 0);
       return {
         totalUsers: allUsers.filter(u => u.role === 'customer').length,
