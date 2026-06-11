@@ -2573,7 +2573,10 @@ const ShopDashboard = () => {
             <div style={{ width: 12, height: 12, background: 'white', borderRadius: '50%' }}></div>
             MyStore Pro
           </h2>
-          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#cbd5e1' }}>{user.name}</p>
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#cbd5e1' }}>
+            {user.name}
+            {user?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818cf8', fontWeight: 700 }}>· {user.publicCode}</span>}
+          </p>
           <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ade80' : '#f87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
@@ -3816,24 +3819,20 @@ const ShopDashboard = () => {
               </button>
             </div>
 
-            {/* Shop Visibility */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>👁️ Shop Visibility</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                When ON, your shop appears in the public customer search and storefront. Turn OFF to hide it temporarily.
+            {/* Shop Visibility — admin-controlled premium feature (coming soon) */}
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>👁️ Shop Visibility</h3>
+                <span style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
+              </div>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '14px', lineHeight: 1.5 }}>
+                Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>
-                  {hideFromSearch ? 'Hidden from customers' : 'Visible to customers'}
-                </span>
-                <button
-                  onClick={() => handleToggleHideFromSearch(!hideFromSearch)}
-                  style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', border: 'none',
-                    cursor: 'pointer', background: hideFromSearch ? '#475569' : '#16a34a', transition: 'background .2s', flexShrink: 0 }}
-                  aria-label="Toggle shop visibility">
-                  <span style={{ position: 'absolute', top: '3px', left: hideFromSearch ? '3px' : '25px',
-                    width: '24px', height: '24px', borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', opacity: 0.5, pointerEvents: 'none' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>Featured in customer search</span>
+                <div style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', background: '#475569', flexShrink: 0 }}>
+                  <span style={{ position: 'absolute', top: '3px', left: '3px', width: '24px', height: '24px', borderRadius: '50%', background: '#fff' }} />
+                </div>
               </div>
             </div>
 
