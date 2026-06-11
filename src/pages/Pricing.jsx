@@ -78,7 +78,7 @@ const COMPARE = [
 ];
 
 const FAQS = [
-  { q: 'Is there a free trial?', a: 'Yes — every account starts with a 7-day free trial on PRO features. No credit card required.' },
+  { q: 'Is there a free trial?', a: 'Yes — every account starts with a 15-day free trial on PRO features. No credit card required.' },
   { q: 'Can I change my plan anytime?', a: 'Absolutely. Upgrade or downgrade at any time. Upgrades take effect immediately; downgrades apply at the next renewal.' },
   { q: 'How does billing work?', a: 'Plans are billed monthly via Razorpay (UPI, cards, net banking). You\'ll receive a digital receipt by WhatsApp.' },
   { q: 'What happens when my trial ends?', a: 'Your data is safe. Billing is paused and you\'ll be prompted to choose a plan. Existing bills and inventory remain accessible.' },
@@ -100,7 +100,7 @@ function Cell({ val }) {
   return <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '13px' }}>{val}</span>;
 }
 
-function PlanCard({ plan, idx, popular, onCta }) {
+function PlanCard({ plan, idx, popular, onCta, cycle = 'monthly', pricing = null, isShop = true }) {
   const TIER_STYLES = [
     { border: 'rgba(100,116,139,0.5)', glow: '' },
     { border: '#4F46E5', glow: '0 0 40px rgba(79,70,229,0.25)' },
@@ -130,10 +130,38 @@ function PlanCard({ plan, idx, popular, onCta }) {
       )}
       <div style={{ marginBottom: '20px' }}>
         <div style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>{plan.name}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-          <span style={{ fontSize: '42px', fontWeight: 900, color: '#f8fafc' }}>₹{(plan.price || 0).toLocaleString('en-IN')}</span>
-          <span style={{ color: '#64748b', fontSize: '14px' }}>/month</span>
-        </div>
+        {(() => {
+          const cycleSuffix = { monthly: '/month', quarterly: '/3 months', yearly: '/year' };
+          let pr = null;
+          if (isShop && pricing && cycle !== 'monthly') {
+            const base = Number(pricing.tiers?.[plan.id]?.[cycle]) || 0;
+            if (base) {
+              const cd = Number(pricing.discounts?.[cycle]) || 0;
+              const afterCycle = Math.round(base * (1 - cd / 100));
+              const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
+              const final = offerOn ? Math.round(afterCycle * (1 - Number(pricing.offer.percent) / 100)) : afterCycle;
+              pr = { base, final, totalPct: cd + (offerOn ? Number(pricing.offer.percent) : 0) };
+            }
+          }
+          if (pr) {
+            return (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '22px', color: '#64748b', textDecoration: 'line-through', fontWeight: 700 }}>₹{pr.base.toLocaleString('en-IN')}</span>
+                  <span style={{ fontSize: '42px', fontWeight: 900, color: '#f8fafc' }}>₹{pr.final.toLocaleString('en-IN')}</span>
+                  <span style={{ color: '#64748b', fontSize: '14px' }}>{cycleSuffix[cycle]}</span>
+                </div>
+                <div style={{ color: '#10b981', fontSize: '13px', fontWeight: 700, marginTop: 4 }}>Save {pr.totalPct}% vs monthly</div>
+              </div>
+            );
+          }
+          return (
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+              <span style={{ fontSize: '42px', fontWeight: 900, color: '#f8fafc' }}>₹{(plan.price || 0).toLocaleString('en-IN')}</span>
+              <span style={{ color: '#64748b', fontSize: '14px' }}>{cycleSuffix.monthly}</span>
+            </div>
+          );
+        })()}
         {plan.description && <p style={{ fontSize: '13px', color: '#64748b', marginTop: '10px', lineHeight: 1.5 }}>{plan.description}</p>}
       </div>
 
@@ -194,12 +222,15 @@ function FAQ({ q, a }) {
 export default function Pricing() {
   const [mode, setMode] = useState('shops');
   const [plans, setPlans] = useState([]);
+  const [pricing, setPricing] = useState(null);
+  const [cycle, setCycle] = useState('monthly');
 
   useEffect(() => {
     const prev = document.title;
-    document.title = 'Pricing — MyStore OS | Free 7-Day Trial';
+    document.title = 'Pricing — MyStore OS | Free 15-Day Trial';
     setMeta('description', 'Simple, transparent pricing for Indian shopkeepers and FMCG distributors. Start free, upgrade anytime. Plans from ₹499/month.');
     safe(() => api.getSubscriptionPlans()).then(p => { if (p?.length) setPlans(p); });
+    safe(() => api.getPricing()).then(d => d && setPricing(d));
     return () => { document.title = prev; };
   }, []);
 
@@ -274,9 +305,34 @@ export default function Pricing() {
 
       {/* Plan Cards */}
       <section style={{ padding: '0 24px 72px', maxWidth: '1100px', margin: '0 auto' }}>
+        {mode === 'shops' && pricing && (() => {
+          const cycles = ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]);
+          if (cycles.length <= 1) return null;
+          const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
+          const lbl = { monthly: 'Monthly', quarterly: 'Quarterly', yearly: 'Yearly' };
+          return (
+            <div style={{ textAlign: 'center', marginBottom: 28 }}>
+              <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
+                {cycles.map(c => {
+                  const d = c !== 'monthly' ? Number(pricing.discounts?.[c]) || 0 : 0;
+                  return (
+                    <button key={c} onClick={() => setCycle(c)} style={{ background: cycle === c ? 'linear-gradient(135deg,#818CF8,#4F46E5)' : 'transparent', border: 'none', color: cycle === c ? '#fff' : '#94a3b8', padding: '10px 22px', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                      {lbl[c]}{d > 0 && <span style={{ marginLeft: 6, fontSize: 11, color: cycle === c ? '#fff' : '#10b981', fontWeight: 800 }}>-{d}%</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {offerOn && cycle !== 'monthly' && (
+                <div style={{ marginTop: 12, display: 'inline-block', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', color: '#10b981', borderRadius: 20, padding: '6px 18px', fontSize: 13, fontWeight: 800 }}>
+                  🎉 Launch offer: extra {pricing.offer.percent}% OFF — only {pricing.offer.remaining} slots left!
+                </div>
+              )}
+            </div>
+          );
+        })()}
         <div className="plan-grid" style={{ display: 'flex', gap: '24px', alignItems: 'stretch', justifyContent: 'center', flexWrap: 'wrap' }}>
           {(mode === 'shops' ? shopPlans : DIST_PLANS).map((plan, i) => (
-            <PlanCard key={plan.id} plan={plan} idx={i} popular={plan.popular || (mode === 'shops' ? plan.id === 'pro' : plan.id === 'pro_distributor')} />
+            <PlanCard key={plan.id} plan={plan} idx={i} cycle={cycle} pricing={pricing} isShop={mode === 'shops'} popular={plan.popular || (mode === 'shops' ? plan.id === 'pro' : plan.id === 'pro_distributor')} />
           ))}
         </div>
       </section>
@@ -322,7 +378,7 @@ export default function Pricing() {
       <section style={{ padding: '0 24px 96px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
         <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(129,140,248,0.08))', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '24px', padding: '48px 32px' }}>
           <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎁</div>
-          <h2 style={{ fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, margin: '0 0 12px' }}>All plans start with 7 days FREE on PRO features</h2>
+          <h2 style={{ fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, margin: '0 0 12px' }}>All plans start with 15 days FREE on PRO features</h2>
           <p style={{ fontSize: '15px', color: '#94a3b8', margin: '0 0 32px' }}>
             No credit card required &nbsp;•&nbsp; Cancel anytime &nbsp;•&nbsp; Instant setup
           </p>

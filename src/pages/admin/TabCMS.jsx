@@ -224,7 +224,7 @@ export default function TabCMS() {
 
       <div style={S.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-          <SectionHeader icon={CreditCard} title="Subscription Plans" sub="Edit plan names, prices, and descriptions shown on /pricing" color="#F43F5E" />
+          <SectionHeader icon={CreditCard} title="Plan Names & Descriptions" sub="Edit plan display names and descriptions. Prices, discounts & cycles are managed in Settings → Subscription Pricing." color="#F43F5E" />
           <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#4F46E5', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
             Preview <ExternalLink size={12} />
           </a>
@@ -232,15 +232,9 @@ export default function TabCMS() {
         {plans.map((plan, idx) => (
           <div key={plan.id} style={{ background: '#F9FAFB', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
             <div style={{ fontSize: '12px', color: '#4F46E5', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{plan.id}</div>
-            <div className="admin-grid-2col">
-              <div style={S.row}>
-                <label style={S.label}>Plan Name</label>
-                <input value={plan.name} onChange={e => updatePlan(idx, 'name', e.target.value)} style={S.input} />
-              </div>
-              <div style={S.row}>
-                <label style={S.label}>Price (₹/month)</label>
-                <input type="number" value={plan.price} onChange={e => updatePlan(idx, 'price', e.target.value)} style={S.input} />
-              </div>
+            <div style={S.row}>
+              <label style={S.label}>Plan Name</label>
+              <input value={plan.name} onChange={e => updatePlan(idx, 'name', e.target.value)} style={S.input} />
             </div>
             <div style={S.row}>
               <label style={S.label}>Description</label>
