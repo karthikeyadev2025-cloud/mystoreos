@@ -27,15 +27,19 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // Config-driven cycles + offer (shop only)
+  // Config-driven cycles + offer (both shop and distributor read pricing_v2)
   const cycles = pricing ? ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]) : ['monthly'];
   const offerOn = !!pricing?.offer?.enabled && Number(pricing?.offer?.remaining) > 0 && Number(pricing?.offer?.percent) > 0;
   const cycleSuffix = { monthly: '/mo', quarterly: '/3mo', yearly: '/yr' };
   const cycleLabel = { monthly: 'Monthly', quarterly: 'Quarterly', yearly: 'Yearly' };
 
+  // Resolve the monthly base price for a plan from pricing_v2 (falls back to the
+  // plan's own .price). Works for both shop and distributor tiers.
+  const monthlyBase = (p) => Number(pricing?.tiers?.[p.id]?.monthly) || Number(p.price) || 0;
+
   // Compute a tier's price for the selected cycle from pricing_v2.
   const tierPrice = (p) => {
-    if (tab !== 'shop' || !pricing || cycle === 'monthly' || p.price === 0 || p.id === 'free') return null;
+    if (!pricing || cycle === 'monthly' || p.price === 0 || p.id === 'free') return null;
     const base = Number(pricing.tiers?.[p.id]?.[cycle]) || 0;
     if (!base) return null;
     const cycleDisc = Number(pricing.discounts?.[cycle]) || 0;
@@ -61,7 +65,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           </div>
 
           {/* Billing cycle toggle (shop only, config-driven) */}
-          {tab === 'shop' && cycles.length > 1 && (
+          {cycles.length > 1 && (
             <div style={{ marginTop: 18 }}>
               <div style={{ display: 'inline-flex', background: '#1E293B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
                 {cycles.map(c => {
@@ -104,7 +108,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
                       <span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{cycleSuffix[cycle]}</span>
                     </span>
                   ) : (
-                    <span>₹{(p.price || 0).toLocaleString('en-IN')}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>/mo</span></span>
+                    <span>₹{monthlyBase(p).toLocaleString('en-IN')}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>/mo</span></span>
                   )
                 )}
               </div>

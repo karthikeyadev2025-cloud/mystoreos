@@ -239,9 +239,9 @@ export default function OnboardingWizard() {
               ))}
             </div>
 
-            <a href="https://wa.me/918885490495?text=Hi%2C%20I%20just%20registered%20on%20MyStore%20OS." target="_blank" rel="noreferrer"
+            <a href="/support"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '11px', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: '10px', color: '#25d366', fontSize: '13px', fontWeight: 600, textDecoration: 'none', marginBottom: '12px' }}>
-              💬 Support: +91-8885490495
+              💬 Open Support
             </a>
 
             <button onClick={() => navigate('/waiting')} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>

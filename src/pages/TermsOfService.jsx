@@ -107,7 +107,7 @@ const SECTIONS = [
       <>
         <p style={S.p}>For questions about these terms, contact us:</p>
         <p style={S.p}><span style={S.highlight}>Email:</span> adexosindia@gmail.com</p>
-        <p style={S.p}><span style={S.highlight}>WhatsApp:</span> +91 88854 90495</p>
+        <p style={S.p}><span style={S.highlight}>Support:</span> Raise a ticket in-app at /support</p>
       </>
     ),
   },

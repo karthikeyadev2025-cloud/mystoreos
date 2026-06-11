@@ -83,7 +83,6 @@ export default function WaitingScreen() {
   };
 
   const RoleIcon = user?.role === 'distributor' ? Truck : Store;
-  const waText = encodeURIComponent(`Hi, I registered on MyStore OS as ${user?.name || 'a business'}. My mobile is ${user?.phone || ''}. Please approve my account.`);
 
   return (
     <>
@@ -133,7 +132,7 @@ export default function WaitingScreen() {
 
           {/* WhatsApp support */}
           <a
-            href={`https://wa.me/918885490495?text=${waText}`}
+            href="/support"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -144,7 +143,7 @@ export default function WaitingScreen() {
             }}
           >
             <Phone size={15} />
-            Contact Support on WhatsApp
+            Contact Support
           </a>
         </div>
       </div>

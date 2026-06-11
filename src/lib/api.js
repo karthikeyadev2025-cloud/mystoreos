@@ -260,13 +260,13 @@ export const api = {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
       if (error || !data) throw new Error("Phone number not registered. Please register first.");
-      if (data.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
+      if (data.status === 'suspended') throw new Error("Account suspended. Please raise a ticket at /support");
       return toUser(data);
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
     if (!user) throw new Error("Phone number not registered. Please register first.");
-    if (user.status === 'suspended') throw new Error("Account suspended. Contact support at +91-8885490495");
+    if (user.status === 'suspended') throw new Error("Account suspended. Please raise a ticket at /support");
     return user;
   },
 

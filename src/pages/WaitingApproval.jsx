@@ -51,7 +51,7 @@ export default function WaitingApproval() {
 
         <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 24px' }}>
           Typical approval time: within 24 hours<br />
-          Support: <a href="https://wa.me/918885490495" style={{ color: '#10b981' }}>WhatsApp us</a>
+          Support: <a href="/support" style={{ color: '#10b981' }}>Open Support</a>
         </p>
 
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>

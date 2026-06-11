@@ -96,7 +96,7 @@ const SECTIONS = [
       <>
         <p style={S.p}>For any privacy-related requests — data deletion, data export, or questions about this policy — contact us:</p>
         <p style={S.p}><span style={S.highlight}>Email:</span> adexosindia@gmail.com</p>
-        <p style={S.p}><span style={S.highlight}>WhatsApp:</span> +91 88854 90495</p>
+        <p style={S.p}><span style={S.highlight}>Support:</span> Raise a ticket in-app at /support</p>
         <p style={S.p}>We respond to all privacy requests within 48 hours.</p>
       </>
     ),
