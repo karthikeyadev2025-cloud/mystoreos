@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { isSupabaseConfigured, supabase } from './supabase';
 import { api } from './api';
 
@@ -74,6 +74,8 @@ function applyToDOM(cfg) {
 
 export function SiteConfigProvider({ children }) {
   const [config, setConfig] = useState(DEFAULTS);
+  const configRef = useRef(DEFAULTS);
+  useEffect(() => { configRef.current = config; }, [config]);
 
   useEffect(() => {
     api.getSiteConfig('site_theme', null).then(stored => {
@@ -118,23 +120,20 @@ export function SiteConfigProvider({ children }) {
   }, []);
 
   const updateConfig = useCallback(async (key, value) => {
-    setConfig(prev => {
-      const next = { ...prev, [key]: value };
-      applyToDOM(next);
-      api.saveSiteConfig('site_theme', next).catch(() => {});
-      window.dispatchEvent(new CustomEvent('site-config-updated', { detail: { [key]: value } }));
-      return next;
-    });
+    const next = { ...configRef.current, [key]: value };
+    applyToDOM(next);
+    setConfig(next);
+    window.dispatchEvent(new CustomEvent('site-config-updated', { detail: { [key]: value } }));
+    await api.saveSiteConfig('site_theme', next);
   }, []);
 
   const updateConfigs = useCallback(async (obj) => {
-    setConfig(prev => {
-      const next = { ...prev, ...obj };
-      applyToDOM(next);
-      api.saveSiteConfig('site_theme', next).catch(() => {});
-      window.dispatchEvent(new CustomEvent('site-config-updated', { detail: obj }));
-      return next;
-    });
+    const next = { ...configRef.current, ...obj };
+    applyToDOM(next);
+    setConfig(next);
+    window.dispatchEvent(new CustomEvent('site-config-updated', { detail: obj }));
+    // Await the actual DB write so callers know if it failed (no silent catch).
+    await api.saveSiteConfig('site_theme', next);
   }, []);
 
   return (
