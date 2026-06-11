@@ -61,7 +61,7 @@ const StateLanding = () => {
   useEffect(() => {
     if (!data) return;
     const title = `Best Billing Software in ${data.name} | Free GST App | MyStore OS`;
-    const desc = `MyStore OS is the #1 GST billing & inventory app for shops in ${data.name}. Trusted by ${data.shops} businesses in ${data.city}. Free 7-day trial.`;
+    const desc = `MyStore OS is the #1 GST billing & inventory app for shops in ${data.name}. Trusted by ${data.shops} businesses in ${data.city}. Free 15-day trial.`;
     const prevTitle = document.title;
     document.title = title;
     setMeta('description', desc);
@@ -130,7 +130,7 @@ const StateLanding = () => {
       <section style={{ padding: '48px 24px 72px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 16px' }}>Ready to go paperless?</h2>
         <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
-          Start Free 7-Day Trial
+          Start Free 15-Day Trial
         </Link>
         <p style={{ marginTop: '20px', fontSize: '12px', color: '#64748b' }}>
           <Link to="/" style={{ color: '#94a3b8', textDecoration: 'none' }}>← Back to MyStore OS</Link>

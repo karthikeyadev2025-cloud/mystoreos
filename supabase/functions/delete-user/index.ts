@@ -18,24 +18,21 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-
-    // Verify the CALLER is an admin, using their JWT (never trust the client).
-    const authHeader = req.headers.get('Authorization') || '';
-    const callerClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-    const { data: { user: caller } } = await callerClient.auth.getUser();
-    if (!caller) return json({ error: 'Not authenticated' }, 401);
 
     const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Confirm caller's profile role is admin. Primary: id == auth uid (that's
-    // how we register). Fallback: match by the {phone}@mystore.internal email,
-    // in case an older admin row has a non-uid id.
+    // Verify the CALLER's JWT using the service client (anon key is deprecated
+    // in this project, so we pass the bearer token straight to getUser()).
+    const authHeader = req.headers.get('Authorization') || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    if (!token) return json({ error: 'Not authenticated (no token)' }, 401);
+    const { data: { user: caller }, error: callerErr } = await admin.auth.getUser(token);
+    if (callerErr || !caller) return json({ error: 'Not authenticated', detail: callerErr?.message }, 401);
+
+    // Confirm caller's profile role is admin. Primary: id == auth uid.
+    // Fallbacks: match by {phone}@mystore.internal email -> users.phone.
     let callerRole: string | null = null;
     const { data: byId } = await admin
       .from('users').select('role').eq('id', caller.id).maybeSingle();
@@ -49,7 +46,7 @@ serve(async (req) => {
     }
 
     if (callerRole !== 'admin') {
-      return json({ error: 'Only admins can delete users' }, 403);
+      return json({ error: 'Only admins can delete users', detail: { callerId: caller.id, callerEmail: caller.email, foundRole: callerRole } }, 403);
     }
 
     // Look up the target so we can delete the matching auth user too.

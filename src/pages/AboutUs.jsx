@@ -272,7 +272,7 @@ export default function AboutUs() {
             </h2>
             <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 36px' }}>500+ businesses already use MyStore OS every day.</p>
             <button className="cta-btn" onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', borderRadius: 14, padding: '15px 40px', color: '#fff', fontSize: 16, fontWeight: 700, cursor: 'pointer', boxShadow: '0 0 40px rgba(244,63,94,0.25)', transition: 'all 0.3s ease' }}>
-              Start Free 7-Day Trial 🚀
+              Start Free 15-Day Trial 🚀
             </button>
           </div>
         </AnimatedSection>

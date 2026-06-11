@@ -39,7 +39,7 @@ const SECTIONS = [
     icon: '🎁', title: 'Free Trial',
     content: () => (
       <>
-        <p style={S.p}>New accounts receive a <span style={S.highlight}>7-day free trial</span> of PRO features. No credit card is required to start a trial.</p>
+        <p style={S.p}>New accounts receive a <span style={S.highlight}>15-day free trial</span> of PRO features. No credit card is required to start a trial.</p>
         <p style={S.p}>After the trial period, your account will be downgraded to the Starter plan unless you subscribe. Your data is retained regardless of plan.</p>
       </>
     ),
@@ -61,7 +61,7 @@ const SECTIONS = [
   {
     icon: '↩️', title: 'Refund Policy',
     content: () => (
-      <p style={S.p}><span style={S.warn}>No refunds are issued after the 7-day trial period.</span> We encourage you to fully test all features during the trial before subscribing. In exceptional circumstances (billing errors, double charges), contact us within 7 days of the charge for a review.</p>
+      <p style={S.p}><span style={S.warn}>No refunds are issued after the 15-day trial period.</span> We encourage you to fully test all features during the trial before subscribing. In exceptional circumstances (billing errors, double charges), contact us within 7 days of the charge for a review.</p>
     ),
   },
   {
