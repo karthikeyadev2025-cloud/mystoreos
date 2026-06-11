@@ -33,10 +33,22 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Confirm caller's profile role is admin
-    const { data: callerProfile } = await admin
+    // Confirm caller's profile role is admin. Primary: id == auth uid (that's
+    // how we register). Fallback: match by the {phone}@mystore.internal email,
+    // in case an older admin row has a non-uid id.
+    let callerRole: string | null = null;
+    const { data: byId } = await admin
       .from('users').select('role').eq('id', caller.id).maybeSingle();
-    if (callerProfile?.role !== 'admin') {
+    callerRole = byId?.role ?? null;
+
+    if (callerRole !== 'admin' && caller.email) {
+      const phone = caller.email.replace('@mystore.internal', '');
+      const { data: byPhone } = await admin
+        .from('users').select('role').eq('phone', phone).maybeSingle();
+      callerRole = byPhone?.role ?? callerRole;
+    }
+
+    if (callerRole !== 'admin') {
       return json({ error: 'Only admins can delete users' }, 403);
     }
 
