@@ -23,7 +23,7 @@ Deno.serve(async (req: Request) => {
     // from admin config (pricing_v2) so a tampered client amount can't change
     // what's charged or bypass the offer.
     let chargeAmount = amount;
-    const m = planId.match(/^(starter|pro|enterprise)_(quarterly|yearly)$/);
+    const m = planId.match(/^(starter|pro|enterprise|basic_distributor|pro_distributor|enterprise_distributor)_(quarterly|yearly)$/);
     if (m) {
       try {
         const sb = createClient(

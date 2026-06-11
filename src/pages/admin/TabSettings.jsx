@@ -262,9 +262,9 @@ export default function TabSettings() {
                   </tr>
                 </thead>
                 <tbody>
-                  {['starter', 'pro', 'enterprise'].map(tier => (
+                  {['starter', 'pro', 'enterprise', 'basic_distributor', 'pro_distributor', 'enterprise_distributor'].map(tier => (
                     <tr key={tier}>
-                      <td style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, padding: '6px 8px', textTransform: 'capitalize' }}>{tier}</td>
+                      <td style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, padding: '6px 8px' }}>{tier.replace('_distributor', ' (Dist)').replace(/^\w/, c => c.toUpperCase())}</td>
                       {['monthly', 'quarterly', 'yearly'].map(cycle => (
                         <td key={cycle} style={{ padding: '4px 6px' }}>
                           <input type="number" min="0" value={pricing.tiers?.[tier]?.[cycle] ?? ''}

@@ -32,6 +32,8 @@ const DistributorDashboard = () => {
   const [shops, setShops] = useState([]);
   const [shopCodeInput, setShopCodeInput] = useState('');
   const [shopLinkBusy, setShopLinkBusy] = useState(false);
+  const [pricing, setPricing] = useState(null);
+  const [distCycle, setDistCycle] = useState('monthly');
   
   // Stock Orders & Wholesale Catalog states
   const [stockOrders, setStockOrders] = useState([]);
@@ -124,6 +126,7 @@ const DistributorDashboard = () => {
     setStockOrders(await safe(() => api.getDistributorOrders(user.id)));
     setWholesaleProducts(await safe(() => api.getDistributorProducts()));
     setDistPlans(await safe(() => api.getDistributorSubscriptionPlans()));
+    setPricing(await safe(() => api.getPricing()));
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
@@ -200,9 +203,13 @@ const DistributorDashboard = () => {
   const handleDistSubscribe = async (plan) => {
     if (!plan) return;
     if (!sysSettings.razorpayKey) return toast.error("Payment gateway not configured yet.");
+    const cycle = distCycle;
+    const pr = pricing ? api.computePrice(pricing, plan.id, cycle) : null;
+    const payPlanId = cycle === 'monthly' ? plan.id : `${plan.id}_${cycle}`;
+    const payPrice = pr?.final || plan.price;
     let orderId = null;
     try {
-      const orderData = await api.createRazorpayOrder(plan.id, plan.price);
+      const orderData = await api.createRazorpayOrder(payPlanId, payPrice);
       orderId = orderData?.orderId;
     } catch (_e) { orderId = null; }
     if (!orderId) {
@@ -210,10 +217,10 @@ const DistributorDashboard = () => {
     }
     const options = {
       key: sysSettings.razorpayKey,
-      amount: (plan.price * 100).toString(),
+      amount: (payPrice * 100).toString(),
       currency: "INR",
       name: "MyStore OS — Distributor",
-      description: plan.name,
+      description: `${plan.name} ${cycle !== 'monthly' ? cycle : ''}`,
       order_id: orderId,
       handler: async (response) => {
         try {
@@ -221,7 +228,7 @@ const DistributorDashboard = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
-            planId: plan.id,
+            planId: payPlanId,
             userId: user.id,
           }));
           await safe(() => api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' }));
@@ -880,6 +887,29 @@ const DistributorDashboard = () => {
                 </div>
                 <button onClick={() => setShowUpgradePlanModal(false)} style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Close</button>
               </div>
+              {pricing && (() => {
+                const cycles = ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]);
+                if (cycles.length <= 1) return null;
+                const lbl = { monthly: 'Monthly', quarterly: 'Quarterly', yearly: 'Yearly' };
+                const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
+                return (
+                  <div style={{ textAlign: 'center', marginBottom: 18 }}>
+                    <div style={{ display: 'inline-flex', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4, gap: 4 }}>
+                      {cycles.map(c => {
+                        const d = c !== 'monthly' ? Number(pricing.discounts?.[c]) || 0 : 0;
+                        return (
+                          <button key={c} onClick={() => setDistCycle(c)} style={{ background: distCycle === c ? '#4F46E5' : 'transparent', border: 'none', color: distCycle === c ? '#fff' : '#64748B', padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                            {lbl[c]}{d > 0 && <span style={{ marginLeft: 5, fontSize: 10, color: distCycle === c ? '#fff' : '#16a34a', fontWeight: 800 }}>-{d}%</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {offerOn && distCycle !== 'monthly' && (
+                      <div style={{ marginTop: 10, color: '#16a34a', fontSize: 12, fontWeight: 700 }}>🎉 Launch offer: extra {pricing.offer.percent}% OFF — {pricing.offer.remaining} slots left!</div>
+                    )}
+                  </div>
+                );
+              })()}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
                 {distPlans.map(plan => {
                   const isCurrent = (user.distributorPlanTier || 'basic_distributor') === plan.id;
@@ -888,7 +918,22 @@ const DistributorDashboard = () => {
                     <div key={plan.id} style={{ background: isPro ? '#EEF2FF' : '#FFFFFF', border: `1px solid ${isPro ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
                       {isPro && <div style={{ position: 'absolute', top: -12, right: 20, background: '#4F46E5', color: '#fff', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', fontWeight: 800 }}>RECOMMENDED</div>}
                       <div style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{plan.name}</div>
-                      <div style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A' }}>₹{plan.price}<span style={{ fontSize: '13px', color: '#64748B' }}>/mo</span></div>
+                      {(() => {
+                        const cs = { monthly: '/mo', quarterly: '/3mo', yearly: '/yr' };
+                        const pr = pricing ? api.computePrice(pricing, plan.id, distCycle) : null;
+                        if (pr && pr.final && distCycle !== 'monthly' && pr.final < pr.base) {
+                          return (
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: 18, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 700 }}>₹{pr.base}</span>
+                                <span style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A' }}>₹{pr.final}</span>
+                                <span style={{ fontSize: '13px', color: '#64748B' }}>{cs[distCycle]}</span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return <div style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A' }}>₹{pr?.final || plan.price}<span style={{ fontSize: '13px', color: '#64748B' }}>{cs[distCycle]}</span></div>;
+                      })()}
                       <p style={{ fontSize: '12px', color: '#475569', margin: '8px 0 16px 0' }}>{plan.description}</p>
                       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {(plan.features || []).map((f, i) => (

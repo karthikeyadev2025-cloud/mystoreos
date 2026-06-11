@@ -65,16 +65,27 @@ serve(async (req) => {
       .maybeSingle();
 
     if (!existing) {
-      const tier = PLAN_TIER[baseTier(planId)] ?? 'pro';
+      const base = baseTier(planId);
       const cycle = cycleOf(planId);
       const days = cycle === 'yearly' ? 365 : cycle === 'quarterly' ? 90 : 30;
       const planExpiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const isDistributor = base.endsWith('_distributor');
 
-      await supabase.from('users').update({
-        subscription: 'active',
-        subscription_tier: tier,
-        plan_expires_at: planExpiresAt,
-      }).eq('id', userId);
+      if (isDistributor) {
+        // Distributor plan: grant on the distributor columns.
+        await supabase.from('users').update({
+          subscription: 'active',
+          distributor_plan_tier: base,
+          distributor_plan_expires_at: planExpiresAt,
+        }).eq('id', userId);
+      } else {
+        const tier = PLAN_TIER[base] ?? 'pro';
+        await supabase.from('users').update({
+          subscription: 'active',
+          subscription_tier: tier,
+          plan_expires_at: planExpiresAt,
+        }).eq('id', userId);
+      }
 
       // Decrement the launch-offer counter on any discounted (non-monthly) plan.
       if (cycle !== 'monthly') {
