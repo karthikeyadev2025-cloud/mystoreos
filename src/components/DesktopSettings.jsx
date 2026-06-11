@@ -37,6 +37,11 @@ const DesktopSettings = ({
   setNewStaffPhone,
   handleAddStaff,
   user,
+  myDistributors = [],
+  distCodeInput = '',
+  setDistCodeInput = () => {},
+  handleLinkDistributor = () => {},
+  handleUnlinkDistributor = () => {},
   plans = [],
   setShowPlanSelectorModal,
   paymentHistory = [],
@@ -429,6 +434,39 @@ const DesktopSettings = ({
               <FileText size={14} /> Download Full PDF Poster
             </button>
           </div>
+        </div>
+
+        {/* Shop ID & Distributor linking */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>🚚 My Distributors</h3>
+          {user?.publicCode && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', marginBottom: '14px' }}>
+              <div>
+                <div style={{ color: '#64748B', fontSize: '11px' }}>Your shop code (share with distributors)</div>
+                <div style={{ color: '#0F172A', fontSize: '18px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
+              </div>
+              <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); }} style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Copy</button>
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+            <input type="text" value={distCodeInput} onChange={e => setDistCodeInput(e.target.value.toUpperCase())} placeholder="Add distributor by code (DST-XXXXXX)" style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+            <button onClick={handleLinkDistributor} style={{ background: '#16a34a', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Add</button>
+          </div>
+          {myDistributors.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {myDistributors.map(d => (
+                <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px' }}>
+                  <div>
+                    <div style={{ color: '#0F172A', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
+                    <div style={{ color: '#64748B', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
+                  </div>
+                  <button onClick={() => handleUnlinkDistributor(d.id)} style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.3)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Remove</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: '#94A3B8', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
+          )}
         </div>
 
         {/* Staff Helpers management */}

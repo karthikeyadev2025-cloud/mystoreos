@@ -1301,6 +1301,7 @@ const ShopDashboard = () => {
   };
 
   const handleAddStaff = async () => {
+    if (!hasFeature('staffAccounts')) return toast.error("Staff accounts require the PRO plan. Please upgrade.");
     if (!newStaffPhone || !newStaffName) return toast.error("Phone and Name required");
     try {
       await safe(() => api.addStaff(targetShopId, newStaffPhone, '1234', newStaffName));
@@ -1940,6 +1941,7 @@ const ShopDashboard = () => {
           pendingOrders={pendingOrders}
           handleLogout={handleLogout}
           userName={user.name}
+          publicCode={user.publicCode}
           syncStatus={{ isOnline, pendingCount }}
         />
 
@@ -2157,6 +2159,11 @@ const ShopDashboard = () => {
               setShopBanner={setShopBanner}
               handleSaveShopHours={handleSaveShopHours}
               handleSaveShopBanner={handleSaveShopBanner}
+              myDistributors={myDistributors}
+              distCodeInput={distCodeInput}
+              setDistCodeInput={setDistCodeInput}
+              handleLinkDistributor={handleLinkDistributor}
+              handleUnlinkDistributor={handleUnlinkDistributor}
             />
           )}
         </div>
@@ -4045,6 +4052,7 @@ const ShopDashboard = () => {
               <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👥 Staff Management (సహాయకులు)</h3>
               <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
               
+              {hasFeature('staffAccounts') ? (
               <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>Add New Staff</h4>
                 <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
@@ -4063,6 +4071,15 @@ const ShopDashboard = () => {
                   </button>
                 </div>
               </div>
+              ) : (
+              <div style={{ background: '#0f172a', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: '13px', color: '#fbbf24', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
+                <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
+                  Upgrade to PRO →
+                </button>
+              </div>
+              )}
 
               <h4 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Active Staff Members</h4>
               {staffList.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px', margin: 0}}>No staff added yet.</p>}

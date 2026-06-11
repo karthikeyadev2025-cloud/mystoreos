@@ -21,7 +21,7 @@ const NAV_ITEMS = [
 const DesktopTopBar = ({
   activeTab, setActiveTab, isOwner,
   pendingOrders, handleLogout,
-  userName, syncStatus,
+  userName, publicCode, syncStatus,
 }) => {
   return (
     <div style={{ position:'sticky', top:0, zIndex:999, fontFamily:FONT }}>
@@ -64,7 +64,7 @@ const DesktopTopBar = ({
             <div style={{ width:26, height:26, background:GOLD, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:800, color:INK }}>{(userName||'S').slice(0,2).toUpperCase()}</div>
             <div>
               <div style={{ color:'#fff', fontSize:11, fontWeight:700, lineHeight:1 }}>{userName||'Shop'}</div>
-              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:9 }}>Owner</div>
+              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:9 }}>{publicCode ? publicCode : 'Owner'}</div>
             </div>
           </div>
           {/* Logout */}
