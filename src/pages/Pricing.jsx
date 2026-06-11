@@ -133,7 +133,7 @@ function PlanCard({ plan, idx, popular, onCta, cycle = 'monthly', pricing = null
         {(() => {
           const cycleSuffix = { monthly: '/month', quarterly: '/3 months', yearly: '/year' };
           let pr = null;
-          if (isShop && pricing && cycle !== 'monthly') {
+          if (pricing && cycle !== 'monthly') {
             const base = Number(pricing.tiers?.[plan.id]?.[cycle]) || 0;
             if (base) {
               const cd = Number(pricing.discounts?.[cycle]) || 0;
@@ -305,7 +305,7 @@ export default function Pricing() {
 
       {/* Plan Cards */}
       <section style={{ padding: '0 24px 72px', maxWidth: '1100px', margin: '0 auto' }}>
-        {mode === 'shops' && pricing && (() => {
+        {pricing && (() => {
           const cycles = ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]);
           if (cycles.length <= 1) return null;
           const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
