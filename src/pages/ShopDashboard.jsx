@@ -904,9 +904,9 @@ const ShopDashboard = () => {
     await safe(() => api.acceptOrder(orderId));
     toast.success("Order Accepted!");
     
-    // Vocal synthesis soundbox trigger
+    // Vocal synthesis: order accepted (payment is confirmed separately)
     if (o && 'speechSynthesis' in window) {
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance(`MyStore received ${o.total} rupees successfully!`));
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(`New order received for ${o.total} rupees. Order accepted.`));
     }
     loadData();
   };

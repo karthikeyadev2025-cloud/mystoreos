@@ -169,7 +169,7 @@ const Register = () => {
               {businessType === 'customer' ? 'Create Shopper Account' : 'Start Your Free Trial'}
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
-              {businessType === 'customer' ? 'Join the digital shopping revolution' : 'No credit card · 7 days free · Cancel anytime'}
+              {businessType === 'customer' ? 'Join the digital shopping revolution' : 'No credit card · 15 days free · Cancel anytime'}
             </p>
           </div>
 
@@ -250,7 +250,7 @@ const Register = () => {
               {loading ? 'Creating account…' : (
                 businessType === 'customer'
                   ? <><ShieldCheck size={16}/>Create Account</>
-                  : <><Zap size={16}/>Start Free 7-Day Trial</>
+                  : <><Zap size={16}/>Start Free 15-Day Trial</>
               )}
             </button>
           </form>

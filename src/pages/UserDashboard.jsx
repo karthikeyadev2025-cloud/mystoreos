@@ -147,10 +147,10 @@ const UserDashboard = () => {
     }
   };
 
-  const speakPaymentSuccess = (order) => {
+  const speakOrderPlaced = (order) => {
     if ('speechSynthesis' in window) {
-      const shopName = order?.shopName || shopInfo?.name || 'Partner Store';
-      const text = `Payment of ${order?.total || 0} rupees received successfully at ${shopName}. Thank you for shopping with us!`;
+      const shopName = order?.shopName || shopInfo?.name || 'the store';
+      const text = `Your order has been placed successfully at ${shopName}. Please complete the payment to confirm.`;
       const speech = new SpeechSynthesisUtterance(text);
       speech.rate = 1.0;
       speech.pitch = 1.0;
@@ -723,9 +723,9 @@ const UserDashboard = () => {
       const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
       setLastOrderId(orderId);
       
-      // Play audio and voice checkout sound immediately on success!
+      // Order placed — confirm to shopper (payment happens next, not yet received)
       playPaymentSuccessSound();
-      speakPaymentSuccess(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'Partner Store' });
+      speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
       
       let msg = `*🛒 NEW MYSTORE ORDER* 🚀%0A`;
       msg += `-----------------------------%0A`;
@@ -2890,7 +2890,7 @@ const UserDashboard = () => {
 
             {/* Dynamic Payment Method View */}
             {paymentMethod === 'upi' ? (
-              shopInfo?.upiId ? (
+              (shopInfo?.paymentQr || shopInfo?.upiId) ? (
                 <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
                   <h4 style={{ color: '#10b981', margin: '0 0 10px 0', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     <CreditCard size={14} /> Scan or Tap to Pay UPI
