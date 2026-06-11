@@ -1172,7 +1172,7 @@ const UserDashboard = () => {
                                 </div>
                               ) : (
                                 <div style={{ background: '#fff', padding: '8px', borderRadius: '8px', display: 'inline-block', marginBottom: '8px' }}>
-                                  <QRCodeSVG value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&am=${getCartTotals().total}&cu=INR`} size={140} />
+                                  <QRCodeSVG value={`upi://pay?pa=${shopInfo.upiId}&pn=${encodeURIComponent(shopInfo.name)}&cu=INR`} size={140} />
                                 </div>
                               )}
                               {/* SECONDARY: UPI ID below the scanner (copyable) */}
@@ -2935,9 +2935,10 @@ const UserDashboard = () => {
                   ) : (
                     <div style={{ background: '#fff', padding: '10px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>
                       <QRCodeSVG
-                        value={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
+                        value={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&cu=INR`}
                         size={150}
                       />
+                      <p style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, margin: '8px 0 0', maxWidth: 220 }}>Scan with any UPI app, then enter ₹{getCartTotals().total} to pay</p>
                     </div>
                   )}
 
@@ -2963,7 +2964,7 @@ const UserDashboard = () => {
                   {/* Deep link to pay — secondary; may be declined by banks for personal VPAs */}
                   {shopInfo?.upiId && isMobileDevice && !shopInfo?.paymentQr ? (
                     <a 
-                      href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&am=${getCartTotals().total}&cu=INR`}
+                      href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&cu=INR`}
                       style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s' }}
                       onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
                       onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
