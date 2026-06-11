@@ -23,6 +23,7 @@ const AboutUs = lazy(() => import('./pages/AboutUs'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const ContactUs = lazy(() => import('./pages/ContactUs'));
+const Support = lazy(() => import('./pages/Support'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const WaitingApproval = lazy(() => import('./pages/WaitingApproval'));
 const StateLanding = lazy(() => import('./pages/StateLanding'));
@@ -149,6 +150,11 @@ function App() {
                 <Route path="/contact" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><ContactUs /></ErrorBoundary>
+                  </Suspense>
+                } />
+                <Route path="/support" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><Support /></ErrorBoundary>
                   </Suspense>
                 } />
 

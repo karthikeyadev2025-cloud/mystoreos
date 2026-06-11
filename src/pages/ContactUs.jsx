@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { useSiteConfig } from '../lib/siteConfig';
 
@@ -34,7 +34,7 @@ const S = {
 };
 
 const FAQS = [
-  { q: 'How do I start a free trial?', a: 'Click "Start Free Trial" on the home page, register with your phone number, and get 7 days of PRO access instantly — no credit card needed.' },
+  { q: 'How do I start a free trial?', a: 'Click "Start Free Trial" on the home page, register with your phone number, and get 15 days of PRO access instantly — no credit card needed.' },
   { q: 'Can I import my existing products?', a: 'Yes. Go to Inventory → Import CSV and upload a spreadsheet with your product list. Supports up to 5,000 products per import.' },
   { q: 'Does it work offline?', a: 'Yes. MyStore OS is a Progressive Web App. Billing and inventory work fully offline and sync automatically when you reconnect.' },
   { q: 'How do I generate a GST invoice?', a: 'Enter your GSTIN in Settings. Every bill you generate will automatically include GST breakdown and QR code.' },
@@ -45,17 +45,6 @@ export default function ContactUs() {
   const navigate = useNavigate();
   const { config } = useSiteConfig();
   const supportEmail = config?.supportEmail || 'adexosindia@gmail.com';
-  const waNumber = (config?.whatsappSupport || '8885490495').replace(/\D/g, '');
-  const waFull = waNumber.length === 10 ? `91${waNumber}` : waNumber;
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleSendWhatsApp = () => {
-    if (!name.trim() || !message.trim()) return;
-    const msg = `Hi MyStore OS Team!%0AName: ${encodeURIComponent(name)}%0APhone: ${encodeURIComponent(phone)}%0AMessage: ${encodeURIComponent(message)}`;
-    window.open(`https://wa.me/${waFull}?text=${msg}`, '_blank');
-  };
 
   return (
     <div style={S.page}>
@@ -67,16 +56,16 @@ export default function ContactUs() {
       <div style={S.hero}>
         <div style={S.badge}>Support</div>
         <h1 style={S.h1}>We're Here to Help</h1>
-        <p style={S.sub}>Our team responds within 2 hours on WhatsApp</p>
+        <p style={S.sub}>Get instant answers from our AI assistant or raise a support ticket — our team responds fast.</p>
       </div>
 
       <div style={S.body}>
         <div style={S.cards}>
           <div style={S.card}>
             <div style={S.cardIcon}>💬</div>
-            <div style={S.cardTitle}>WhatsApp</div>
-            <div style={S.cardDesc}>Chat with us instantly. Fastest response — usually within 30 minutes during business hours.</div>
-            <a href={`https://wa.me/${waFull}`} target="_blank" rel="noopener noreferrer" style={{ ...S.cardBtn, background: '#25D366', color: '#fff' }}>Open WhatsApp</a>
+            <div style={S.cardTitle}>In-App Support</div>
+            <div style={S.cardDesc}>Chat with our AI assistant for instant answers, or raise a ticket and our team will reply right inside the app.</div>
+            <button onClick={() => navigate('/support')} style={{ ...S.cardBtn, background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', color: '#fff', border: 'none', cursor: 'pointer' }}>Open Support</button>
           </div>
 
           <div style={S.card}>
@@ -96,16 +85,9 @@ export default function ContactUs() {
 
         <div style={S.formSection}>
           <div style={S.formTitle}>Send Us a Message</div>
-          <div style={S.formSub}>Fill in the form and we'll open WhatsApp with your message pre-filled.</div>
-
-          <div style={{ ...S.formGrid, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-            <input style={S.input} placeholder="Your Name *" value={name} onChange={e => setName(e.target.value)} />
-            <input style={S.input} placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} />
-          </div>
-          <textarea style={S.textarea} placeholder="How can we help? *" value={message} onChange={e => setMessage(e.target.value)} />
-          <br />
-          <button style={S.sendBtn} onClick={handleSendWhatsApp}>
-            💬 Send on WhatsApp
+          <div style={S.formSub}>Raise a ticket inside the app — chat with our AI assistant or get a reply from our team, all tracked in one place.</div>
+          <button style={S.sendBtn} onClick={() => navigate('/support')}>
+            💬 Go to Support
           </button>
         </div>
 

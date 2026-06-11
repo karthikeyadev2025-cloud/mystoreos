@@ -42,6 +42,41 @@ export default function TabSupport() {
   const [search, setSearch] = useState('');
   const [filterAction, setFilterAction] = useState('all');
 
+  // Support tickets
+  const [tickets, setTickets] = useState([]);
+  const [ticketFilter, setTicketFilter] = useState('open');
+  const [activeTicket, setActiveTicket] = useState(null);
+  const [tMessages, setTMessages] = useState([]);
+  const [adminReply, setAdminReply] = useState('');
+  const [tBusy, setTBusy] = useState(false);
+
+  const loadTickets = async (status = ticketFilter) => {
+    try { setTickets(await api.getAllTickets(status)); } catch { /* ignore */ }
+  };
+  useEffect(() => { loadTickets(ticketFilter); /* eslint-disable-next-line */ }, [ticketFilter]);
+
+  const openAdminTicket = async (t) => {
+    setActiveTicket(t);
+    setTMessages(await api.getTicketMessages(t.id).catch(() => []));
+  };
+  const sendAdminReply = async () => {
+    if (!adminReply.trim() || !activeTicket) return;
+    setTBusy(true);
+    try {
+      await api.postTicketMessage(activeTicket.id, 'admin', adminReply);
+      setAdminReply('');
+      setTMessages(await api.getTicketMessages(activeTicket.id));
+    } catch { toast.error('Could not send reply'); }
+    finally { setTBusy(false); }
+  };
+  const resolveTicket = async () => {
+    if (!activeTicket) return;
+    await api.setTicketStatus(activeTicket.id, 'resolved').catch(() => {});
+    toast.success('Ticket resolved');
+    setActiveTicket(null);
+    loadTickets(ticketFilter);
+  };
+
   const load = async () => {
     try { setLog(await api.getAdminAuditLog()); }
     catch { toast.error('Failed to load audit log'); }
@@ -99,9 +134,57 @@ export default function TabSupport() {
 
   return (
     <div>
+      {/* ── Support Tickets Inbox ── */}
+      <div style={S.card}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+          <h2 style={{ color: '#0f172a', fontSize: '18px', fontWeight: 700, margin: 0 }}>🎫 Support Tickets</h2>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {['open', 'pending', 'resolved', 'all'].map(s => (
+              <button key={s} onClick={() => { setActiveTicket(null); setTicketFilter(s); }}
+                style={{ background: ticketFilter === s ? '#4F46E5' : '#fff', color: ticketFilter === s ? '#fff' : '#475569', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' }}>{s}</button>
+            ))}
+          </div>
+        </div>
+
+        {!activeTicket ? (
+          tickets.length === 0 ? <p style={{ color: '#94a3b8', fontSize: 13 }}>No {ticketFilter} tickets.</p> : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {tickets.map(t => (
+                <div key={t.id} onClick={() => openAdminTicket(t)} style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{t.subject}</div>
+                    <div style={{ color: '#64748b', fontSize: 12, marginTop: 2, textTransform: 'capitalize' }}>{t.name || 'User'} · {t.role || '—'} · {t.category} · {new Date(t.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: t.status === 'open' ? '#10b981' : t.status === 'pending' ? '#f59e0b' : '#64748b', textTransform: 'capitalize' }}>{t.status}</span>
+                </div>
+              ))}
+            </div>
+          )
+        ) : (
+          <div>
+            <button onClick={() => setActiveTicket(null)} style={{ background: 'transparent', border: 'none', color: '#4F46E5', cursor: 'pointer', fontSize: 13, marginBottom: 10, padding: 0 }}>← Back to list</button>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 4 }}>{activeTicket.subject}</div>
+            <div style={{ color: '#64748b', fontSize: 12, marginBottom: 12 }}>{activeTicket.name} · {activeTicket.role} · {activeTicket.category}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 300, overflowY: 'auto', marginBottom: 12 }}>
+              {tMessages.map(m => (
+                <div key={m.id} style={{ alignSelf: m.sender === 'admin' ? 'flex-end' : 'flex-start', maxWidth: '80%', background: m.sender === 'admin' ? '#4F46E5' : '#f1f5f9', color: m.sender === 'admin' ? '#fff' : '#0f172a', borderRadius: 10, padding: '8px 12px', fontSize: 13 }}>
+                  <div style={{ fontSize: 10, opacity: 0.7, marginBottom: 2, textTransform: 'capitalize' }}>{m.sender}</div>
+                  {m.body}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input value={adminReply} onChange={e => setAdminReply(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAdminReply()} placeholder="Reply to user..." style={{ ...S.input, flex: 1 }} />
+              <button onClick={sendAdminReply} disabled={tBusy} style={{ background: '#4F46E5', color: '#fff', border: 'none', borderRadius: 8, padding: '0 16px', cursor: 'pointer', fontWeight: 600 }}>Send</button>
+              <button onClick={resolveTicket} style={{ background: '#16a34a', color: '#fff', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', fontWeight: 600, fontSize: 12 }}>Resolve</button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Support & Audit</h2>
+          <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Support &amp; Audit</h2>
           <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Admin action audit trail — every mutation is logged</p>
         </div>
         <button onClick={load} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>

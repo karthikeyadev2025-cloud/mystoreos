@@ -240,7 +240,7 @@ export default function AboutUs() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     {[
                       ['✉️', 'rgba(251,191,36,0.1)', 'mailto:adexosindia@gmail.com', 'adexosindia@gmail.com'],
-                      ['💬', 'rgba(16,185,129,0.1)', 'https://wa.me/918885490495', 'WhatsApp Support'],
+                      ['💬', 'rgba(16,185,129,0.1)', '/support', 'In-App Support'],
                     ].map(([icon, bg, href, label]) => (
                       <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 14, display: 'flex', alignItems: 'center', gap: 10, transition: 'color 0.2s' }}
                         onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}

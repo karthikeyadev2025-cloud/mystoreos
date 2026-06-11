@@ -470,7 +470,7 @@ export const api = {
         if (!error && data?.success) return;
         // If the function returned an error payload, surface it.
         if (data?.error) throw new Error(data.error);
-      } catch (e) {
+      } catch (_e) {
         // Fallback: if the edge function isn't deployed, at least delete the
         // profile row (legacy behaviour) so the admin action isn't a no-op.
         const { error: delErr } = await supabase.from('users').delete().eq('id', userId);
@@ -1413,6 +1413,68 @@ export const api = {
     const offerOn = !!pricing?.offer?.enabled && Number(pricing?.offer?.remaining) > 0 && Number(pricing?.offer?.percent) > 0;
     const final = offerOn ? Math.round(afterCycle * (1 - Number(pricing.offer.percent) / 100)) : afterCycle;
     return { base, afterCycleDiscount: afterCycle, final, offerOn, cycleDisc, offerPercent: Number(pricing?.offer?.percent) || 0 };
+  },
+
+  // ── Support tickets ──
+  async createTicket(userId, { name, role, subject, category, body }) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { data: ticket, error } = await supabase.from('support_tickets')
+      .insert({ user_id: userId, name, role, subject, category: category || 'general' })
+      .select().maybeSingle();
+    if (error) throw new Error(error.message);
+    if (body) {
+      await supabase.from('support_messages').insert({ ticket_id: ticket.id, sender: 'user', body });
+    }
+    return ticket;
+  },
+
+  async getMyTickets(userId) {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase.from('support_tickets')
+      .select('*').eq('user_id', userId).order('updated_at', { ascending: false });
+    return data || [];
+  },
+
+  async getAllTickets(statusFilter) {
+    if (!isSupabaseConfigured) return [];
+    let q = supabase.from('support_tickets').select('*').order('updated_at', { ascending: false });
+    if (statusFilter && statusFilter !== 'all') q = q.eq('status', statusFilter);
+    const { data } = await q;
+    return data || [];
+  },
+
+  async getTicketMessages(ticketId) {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase.from('support_messages')
+      .select('*').eq('ticket_id', ticketId).order('created_at', { ascending: true });
+    return data || [];
+  },
+
+  async postTicketMessage(ticketId, sender, body) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { error } = await supabase.from('support_messages')
+      .insert({ ticket_id: ticketId, sender, body });
+    if (error) throw new Error(error.message);
+    await supabase.from('support_tickets')
+      .update({ updated_at: new Date().toISOString(), status: sender === 'admin' ? 'pending' : 'open' })
+      .eq('id', ticketId);
+    return true;
+  },
+
+  async setTicketStatus(ticketId, status) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { error } = await supabase.from('support_tickets')
+      .update({ status, updated_at: new Date().toISOString() }).eq('id', ticketId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // Gemini support chatbot — calls an edge function that holds GEMINI_API_KEY.
+  async askSupportBot(messages) {
+    if (!isSupabaseConfigured) throw new Error('Not available');
+    const { data, error } = await supabase.functions.invoke('support-chat', { body: { messages } });
+    if (error) throw new Error(error.message || 'Chat failed');
+    return data?.reply || "Sorry, I couldn't process that. Please raise a ticket and our team will help.";
   },
 
   async getSubscriptionPlans() {
