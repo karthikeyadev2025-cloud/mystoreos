@@ -14,6 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
+import BarcodeManager from '../components/BarcodeManager';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -105,6 +106,7 @@ const ShopDashboard = () => {
 
   // Products Management State
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [showBarcodeManager, setShowBarcodeManager] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdStock, setNewProdStock] = useState('100');
@@ -2030,6 +2032,7 @@ const ShopDashboard = () => {
               handleStockAdjust={handleStockAdjust}
               salesData={salesData}
               shopCategory={shopCategory}
+              onShowBarcodeManager={() => setShowBarcodeManager(true)}
             />
           )}
 
@@ -2274,6 +2277,19 @@ const ShopDashboard = () => {
         )}
 
         {/* ADD PRODUCT MODAL — desktop */}
+        {showBarcodeManager && (
+          <BarcodeManager
+            products={products}
+            shopName={user.name}
+            onClose={() => setShowBarcodeManager(false)}
+            onAssignBarcode={async (prodId, value) => {
+              await api.editProduct(prodId, { barcode: value });
+              setProducts(prev => prev.map(p => p.id === prodId ? { ...p, barcode: value } : p));
+            }}
+            onScanToAdd={(code) => { setScannedBarcode(code); setShowAddProductModal(true); }}
+          />
+        )}
+
         {showAddProductModal && (
           <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#1e293b', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -2676,6 +2692,10 @@ const ShopDashboard = () => {
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
               </div>
             )}
+            <div style={styles.gridBtn} onClick={() => setShowBarcodeManager(true)}>
+              <BarcodeIcon size={24} color="#4F46E5" />
+              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
+            </div>
             <div style={styles.gridBtn} onClick={handleShowUpiQr}>
               <IndianRupee size={24} color="#f59e0b" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>UPI QR</p></div>
