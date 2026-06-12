@@ -12,16 +12,28 @@ import { registerSW } from 'virtual:pwa-register'
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    // A new version is available — activate it and reload once.
+    // A new version is available — activate it (skipWaiting) right away.
     updateSW(true)
   },
   onRegisteredSW(_swUrl, registration) {
-    // Poll for updates every 60s so long-open tabs pick up new deploys.
+    // Poll for updates every 30s so long-open tabs pick up new deploys.
     if (registration) {
-      setInterval(() => { registration.update().catch(() => {}) }, 60 * 1000)
+      setInterval(() => { registration.update().catch(() => {}) }, 30 * 1000)
     }
   },
 })
+
+// Hard guarantee: when a new service worker takes control, reload the page once
+// so the user immediately runs the new build with no manual hard-refresh.
+// (autoUpdate skips waiting but does not reload open pages by itself.)
+if ('serviceWorker' in navigator) {
+  let _reloaded = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_reloaded) return
+    _reloaded = true
+    window.location.reload()
+  })
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
