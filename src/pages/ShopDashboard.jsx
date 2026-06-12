@@ -867,7 +867,7 @@ const ShopDashboard = () => {
         if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Discount: -Rs.${discountAmount + manualDiscountAmt}\nTotal: Rs.${total}\n`;
         if (billingMode === 'bill' && upiId) {
           const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
-          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${total}&tn=${ref}&cu=INR\n`;
+          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${ref}&cu=INR (enter Rs.${total})\n`;
         }
         await sendWhatsApp(customerPhone, msg);
       } else {
