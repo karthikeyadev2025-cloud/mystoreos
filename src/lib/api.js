@@ -323,6 +323,7 @@ export const api = {
       pass: 'oauth_no_password',
       subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
       subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+      hide_from_search: role === 'shop' ? true : false,
       trial_started_at: new Date().toISOString(),
     }).select().maybeSingle();
     if (error) throw new Error(error.message);
@@ -418,6 +419,7 @@ export const api = {
         status: requiresApproval ? 'pending' : 'active',
         subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
         subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+        hide_from_search: role === 'shop' ? true : false,
         trial_started_at: requiresApproval ? new Date().toISOString() : null,
         plan_expires_at: requiresApproval ? trialEnd : null,
       };

@@ -43,6 +43,32 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Refresh the cached user's profile from the DB once on load, so stale
+  // sessions (e.g. created before public_code backfill or a tier change) pick
+  // up the latest fields like publicCode, subscription, plan tier, etc.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const saved = localStorage.getItem("mystore_session");
+        if (!saved) return;
+        const cached = JSON.parse(saved);
+        if (!cached?.id) return;
+        const { api } = await import("../lib/api");
+        const fresh = await api.getUserById(cached.id);
+        if (cancelled || !fresh) return;
+        // Merge fresh DB fields over the cached session (keep any session-only fields).
+        const merged = { ...cached, ...fresh };
+        if (JSON.stringify(merged) !== JSON.stringify(cached)) {
+          try { localStorage.setItem("mystore_session", JSON.stringify(merged)); } catch (_e) { /* ignore */ }
+          setUser(merged);
+        }
+      } catch (_e) { /* keep cached session on any error */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     if (isSupabaseConfigured) return;
     const handleStorageChange = (e) => {
