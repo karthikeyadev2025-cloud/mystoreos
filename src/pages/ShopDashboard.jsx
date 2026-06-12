@@ -2187,7 +2187,7 @@ const ShopDashboard = () => {
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
                   <QRCodeSVG
-                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&tn=Bill&cu=INR`}
+                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&tn=Bill&cu=INR`}
                     size={240}
                   />
                 )}
@@ -3263,7 +3263,7 @@ const ShopDashboard = () => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => {
                             if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
-                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&tn=${encodeURIComponent('Credit-' + (c.id||'').slice(0,8))}&cu=INR`, '_blank');
+                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${encodeURIComponent('Credit-' + (c.id||'').slice(0,8))}&cu=INR`, '_blank');
                           }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>
@@ -4115,7 +4115,7 @@ const ShopDashboard = () => {
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
             ) : (
               <QRCodeSVG 
-                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&am=${billTotal || 0}&tn=Bill&cu=INR`}
+                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&tn=Bill&cu=INR`}
                 size={260}
               />
             )}
