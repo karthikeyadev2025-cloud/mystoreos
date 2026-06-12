@@ -226,6 +226,14 @@ const ShopDashboard = () => {
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
   const loyaltyEnabled = hasFeature('loyaltyPoints');
+  const openBarcodeManager = () => {
+    if (!hasFeature('barcodeManager')) {
+      toast.error('Barcode Manager requires the PRO plan. Please upgrade.');
+      setShowPlanSelectorModal(true);
+      return;
+    }
+    setShowBarcodeManager(true);
+  };
   const _now = new Date();
   // Trial countdown is based on trialStartedAt (set at registration). createdAt was
   // never mapped from the DB, so the old code always fell back to a static 15 and
@@ -2032,7 +2040,7 @@ const ShopDashboard = () => {
               handleStockAdjust={handleStockAdjust}
               salesData={salesData}
               shopCategory={shopCategory}
-              onShowBarcodeManager={() => setShowBarcodeManager(true)}
+              onShowBarcodeManager={openBarcodeManager}
             />
           )}
 
@@ -2692,7 +2700,7 @@ const ShopDashboard = () => {
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
               </div>
             )}
-            <div style={styles.gridBtn} onClick={() => setShowBarcodeManager(true)}>
+            <div style={styles.gridBtn} onClick={openBarcodeManager}>
               <BarcodeIcon size={24} color="#4F46E5" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
             </div>
