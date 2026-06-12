@@ -66,10 +66,8 @@ export default function Onboarding() {
       setPickingRole(false);
       if (role === 'customer') {
         navigate('/dashboard', { replace: true });   // active immediately
-      } else if (role === 'distributor') {
-        navigate('/waiting', { replace: true });      // pending approval
       } else {
-        setStep(0);                                   // shop → continue onboarding
+        setStep(0);                                   // shop & distributor → complete onboarding first
       }
     } catch (ex) {
       toast.error(ex.message || 'Could not create your account. Try again.');
