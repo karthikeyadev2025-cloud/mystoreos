@@ -2961,21 +2961,30 @@ const UserDashboard = () => {
                   </div>
                   )}
 
-                  {/* Deep link to pay — secondary; may be declined by banks for personal VPAs */}
-                  {shopInfo?.upiId && isMobileDevice && !shopInfo?.paymentQr ? (
+                  {/* Pay Now: opens the customer's UPI app to the merchant (amount-free
+                      so it isn't blocked as a merchant collect-link). Shows on mobile
+                      whenever there's a UPI ID — even alongside the scanner — so the
+                      customer can either scan the image or tap to open their app. */}
+                  {shopInfo?.upiId && isMobileDevice ? (
                     <a 
                       href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&cu=INR`}
-                      style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s' }}
+                      style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s', marginTop: shopInfo?.paymentQr ? '4px' : '0' }}
                       onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
                       onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                     >
-                      💳 Tap to Pay with PhonePe / Paytm / GPay
+                      💳 Pay Now — Open PhonePe / GPay / Paytm
                     </a>
                   ) : shopInfo?.upiId && !shopInfo?.paymentQr ? (
                     <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#4F46E5', padding: '10px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                       <Info size={12} /> Scan this UPI QR code using your mobile camera or scanner app
                     </div>
                   ) : null}
+                  {/* Note shown under Pay Now so the customer knows to enter the amount */}
+                  {shopInfo?.upiId && isMobileDevice && (
+                    <p style={{ fontSize: '10px', color: '#64748B', margin: '6px 0 0', textAlign: 'center' }}>
+                      Your UPI app will open — enter ₹{getCartTotals().total} to complete payment
+                    </p>
+                  )}
 
                   {/* (legacy poster block removed — the uploaded scanner is now primary above) */}
                   {false && shopInfo?.paymentQr && (
