@@ -1351,6 +1351,27 @@ const UserDashboard = () => {
                 <div className="responsive-split-grid">
                   {/* Left block: local shops list */}
                   <div>
+                    {/* Coming-soon promo banners — shown to shoppers on the marketplace home */}
+                    {(() => {
+                      const banners = [
+                        { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,#4F46E5,#7C3AED)' },
+                        { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,#B8860B,#D97706)' },
+                      ].filter(b => b.on && b.title);
+                      if (!banners.length) return null;
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                          {banners.map((b, i) => (
+                            <div key={i} style={{ background: b.grad, borderRadius: '14px', padding: '16px 18px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                              <div>
+                                <div style={{ fontSize: '16px', fontWeight: 800 }}>{b.title}</div>
+                                {b.sub && <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '2px' }}>{b.sub}</div>}
+                              </div>
+                              <span style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.35)', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap', flexShrink: 0 }}>COMING SOON</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     {activeCartsList.length > 0 && (
                       <div className="glass" style={{ padding: '14px', marginBottom: '20px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
                         <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#E11D48', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
