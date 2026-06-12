@@ -2271,8 +2271,8 @@ const ShopDashboard = () => {
 
         {/* ADD PRODUCT MODAL — desktop */}
         {showAddProductModal && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-            <div style={{ background: '#1e293b', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: '#1e293b', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
               <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: 'bold', color: '#fff' }}>📦 Add Product to Inventory</h2>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
@@ -4219,8 +4219,8 @@ const ShopDashboard = () => {
 
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
-        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: '#ffffff', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #e5e7eb', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+        <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#ffffff', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #e5e7eb', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
             <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>📦 Add Product to Inventory</h2>
             
             <div style={{ marginBottom: '16px' }}>
