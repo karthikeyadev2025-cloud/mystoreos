@@ -2267,7 +2267,28 @@ const UserDashboard = () => {
             {/* TAB 1: EXPLORE SHOPS */}
             {activeTab === 'explore' && (
               <div>
-                
+                {/* Coming-soon promo banners — shown to shoppers on the home page */}
+                {(() => {
+                  const banners = [
+                    { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,#4F46E5,#7C3AED)' },
+                    { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,#B8860B,#D97706)' },
+                  ].filter(b => b.on && b.title);
+                  if (!banners.length) return null;
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                      {banners.map((b, i) => (
+                        <div key={i} style={{ background: b.grad, borderRadius: '12px', padding: '14px 16px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                          <div>
+                            <div style={{ fontSize: '15px', fontWeight: 800 }}>{b.title}</div>
+                            {b.sub && <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '2px' }}>{b.sub}</div>}
+                          </div>
+                          <span style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.35)', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap', flexShrink: 0 }}>COMING SOON</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
                 {/* PERSISTENT MULTI-STORE CARTS NOTIFICATION OVERVIEW (Gaps fixed: Stateless cart) */}
                 {activeCartsList.length > 0 && (
                   <div style={{ background: 'linear-gradient(135deg, #FEE2E2, #EEF2FF)', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '14px', marginBottom: '16px' }}>
