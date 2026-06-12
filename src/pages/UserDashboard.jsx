@@ -734,25 +734,25 @@ const UserDashboard = () => {
       playPaymentSuccessSound();
       speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
       
-      let msg = `*🛒 NEW MYSTORE ORDER* 🚀%0A`;
-      msg += `-----------------------------%0A`;
-      msg += `*Shop:* ${shopInfo?.name || 'Partner Store'}%0A`;
-      msg += `*Customer:* ${user.name} (${user.phone})%0A`;
-      msg += `-----------------------------%0A`;
+      let msg = `*🛒 NEW MYSTORE ORDER* 🚀\n`;
+      msg += `-----------------------------\n`;
+      msg += `*Shop:* ${shopInfo?.name || 'Partner Store'}\n`;
+      msg += `*Customer:* ${user.name} (${user.phone})\n`;
+      msg += `-----------------------------\n`;
       items.forEach(item => {
-        msg += `• ${item.name} (${item.weight || '1 unit'})%0A`;
-        msg += `  Qty: ${item.qty}  x  ₹${item.price}  =  *₹${item.price * item.qty}*%0A`;
+        msg += `• ${item.name} (${item.weight || '1 unit'})\n`;
+        msg += `  Qty: ${item.qty}  x  ₹${item.price}  =  *₹${item.price * item.qty}*\n`;
       });
-      msg += `-----------------------------%0A`;
-      msg += `*🧾 TOTAL AMOUNT: ₹${total}*%0A`;
+      msg += `-----------------------------\n`;
+      msg += `*🧾 TOTAL AMOUNT: ₹${total}*\n`;
       if (paymentProof) {
-        msg += `*💳 Payment Proof ID:* ${paymentProof}%0A`;
+        msg += `*💳 Payment Proof ID:* ${paymentProof}\n`;
       }
-      msg += `-----------------------------%0A`;
+      msg += `-----------------------------\n`;
       msg += `Thank you! Powered by MyStore OS.`;
 
       const shopPhone = shopInfo?.phone || '9876543210';
-      window.open(`https://wa.me/91${shopPhone}?text=${msg}`, '_blank');
+      window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
       
       // Clear cart for this specific shop
       setCart({});
