@@ -225,7 +225,11 @@ const ShopDashboard = () => {
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
   const loyaltyEnabled = hasFeature('loyaltyPoints');
   const _now = new Date();
-  const trialDaysLeft = user.createdAt ? Math.max(0, 15 - Math.floor((_now - new Date(user.createdAt)) / 86400000)) : 15;
+  // Trial countdown is based on trialStartedAt (set at registration). createdAt was
+  // never mapped from the DB, so the old code always fell back to a static 15 and
+  // never decreased. Fall back to createdAt only if present.
+  const _trialStart = user.trialStartedAt || user.createdAt;
+  const trialDaysLeft = _trialStart ? Math.max(0, 15 - Math.floor((_now - new Date(_trialStart)) / 86400000)) : 15;
   const planExpiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
   const paidDaysLeft = planExpiresAt ? Math.max(0, Math.ceil((planExpiresAt - _now) / 86400000)) : null;
   const isOnTrial = user.subscription === 'trial';
