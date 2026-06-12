@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
@@ -50,8 +50,8 @@ const DesktopSettings = ({
   invoicePrefix = 'INV',
   setInvoicePrefix,
   handleSaveInvoiceSettings,
-  hideFromSearch = false,
-  onToggleHideFromSearch,
+  hideFromSearch: _hideFromSearch = false,
+  onToggleHideFromSearch: _onToggleHideFromSearch,
   onLogoChange,
   onLogoRemove,
   openingHour = 8,
@@ -336,36 +336,22 @@ const DesktopSettings = ({
           </div>
         )}
 
-        {/* Store Discoverability Toggle */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {hideFromSearch ? <EyeOff size={18} color="#f43f5e" /> : <Eye size={18} color="#10b981" />} Store Discoverability
-          </h3>
+        {/* Store Discoverability — admin-controlled premium feature (coming soon) */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Eye size={18} color="#94A3B8" /> Store Discoverability
+            </h3>
+            <span style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
+          </div>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.5' }}>
-            When ON, customers near your location can find and order from your store in the customer app.
+            Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon — enabled by our team.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: '700', color: hideFromSearch ? '#f43f5e' : '#10b981' }}>
-                {hideFromSearch ? '🔒 Hidden from search' : '🟢 Visible to nearby customers'}
-              </div>
-              <div style={{ fontSize: '11px', color: '#475569', marginTop: '3px' }}>
-                {hideFromSearch ? 'Customers cannot discover your store' : 'Customers can find and browse your catalogue'}
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', opacity: 0.6, pointerEvents: 'none' }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', color: '#64748B' }}>Featured in customer search</div>
+            <div style={{ width: '52px', height: '28px', borderRadius: '14px', background: '#CBD5E1', position: 'relative', flexShrink: 0 }}>
+              <span style={{ position: 'absolute', top: '4px', width: '20px', height: '20px', borderRadius: '50%', background: '#fff', left: '4px' }} />
             </div>
-            <button
-              onClick={() => onToggleHideFromSearch && onToggleHideFromSearch(!hideFromSearch)}
-              style={{
-                width: '52px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', flexShrink: 0,
-                background: hideFromSearch ? '#94A3B8' : '#10b981',
-                position: 'relative', transition: 'background 0.2s',
-              }}
-            >
-              <span style={{
-                position: 'absolute', top: '4px', width: '20px', height: '20px', borderRadius: '50%', background: '#fff',
-                transition: 'left 0.2s', left: hideFromSearch ? '4px' : '28px',
-              }} />
-            </button>
           </div>
         </div>
 
