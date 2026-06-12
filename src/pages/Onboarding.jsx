@@ -78,6 +78,7 @@ export default function Onboarding() {
 
   const [logo, setLogo] = useState('');
   const [bizType, setBizType] = useState('grocery');
+  const [customBizType, setCustomBizType] = useState('');
   const [refCode, setRefCode] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
@@ -109,9 +110,10 @@ export default function Onboarding() {
     setSaving(true);
     try {
       if (step === 0) {
+        const resolvedCategory = bizType === 'other' ? (customBizType.trim() || 'general') : bizType;
         await safe(() => api.updateProfile(user.id, {
           ...(logo && { logo }),
-          shopCategory: bizType,
+          shopCategory: resolvedCategory,
           businessAddress: city ? `${city}\n${address}` : address,
         }));
         // Attribute referral code if provided
@@ -238,7 +240,17 @@ export default function Onboarding() {
                   <option value="hardware">Hardware / Tools</option>
                   <option value="stationery">Stationery / Books</option>
                   <option value="general">General Store</option>
+                  <option value="other">Other (type your own)</option>
                 </select>
+                {bizType === 'other' && (
+                  <input
+                    type="text"
+                    value={customBizType}
+                    onChange={e => setCustomBizType(e.target.value)}
+                    placeholder="Type your business category (e.g. Jewellery, Bakery)"
+                    style={{ ...inp, marginTop: '10px' }}
+                  />
+                )}
               </div>
               <div>
                 <label style={lbl}>City</label>
