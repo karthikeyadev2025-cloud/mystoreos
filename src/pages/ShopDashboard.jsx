@@ -328,7 +328,11 @@ const ShopDashboard = () => {
       const phone = parts[2] || '';
       return { type, name, phone };
     }
-    return { type: 'bill', name: userId === 'walk-in-customer' ? 'Walk-in Customer' : userId, phone: '' };
+    // Fallback: a bare userId. If it's a UUID (a registered storefront customer
+    // reference), don't show the raw UUID — show a friendly label. Otherwise show
+    // the literal walk-in label.
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+    return { type: 'bill', name: (userId === 'walk-in-customer' || isUuid) ? 'Walk-in Customer' : userId, phone: '' };
   };
 
   const checkExpiryStatus = (expiryDateStr) => {

@@ -116,9 +116,9 @@ const DesktopSettings = ({
             <div onClick={() => logoFileRef.current?.click()} style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
               <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {logo
-                  ? <img src={logo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <span style={{ fontSize: '36px' }}>🏪</span>
-                }
+                  ? <img src={logo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex'; }} />
+                  : null}
+                <span style={{ fontSize: '36px', display: logo ? 'none' : 'flex' }}>🏪</span>
               </div>
               <div style={{ position: 'absolute', bottom: '4px', right: '4px', width: '28px', height: '28px', background: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Camera size={14} color="#fff" />
