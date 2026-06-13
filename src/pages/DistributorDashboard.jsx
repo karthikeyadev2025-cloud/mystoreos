@@ -262,7 +262,7 @@ const DistributorDashboard = () => {
         <div className="desktop-glass-sidebar" style={{ background: '#FFFFFF', borderRight: '1px solid #E2E8F0' }}>
           {/* Logo & Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingLeft: '8px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #3b82f6, #4F46E5)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.2)' }}>📦</div>
+            <div style={{ background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.2)' }}>📦</div>
             <div>
               <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: '#0F172A' }}>FMCG Supply</h2>
               <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
@@ -303,7 +303,7 @@ const DistributorDashboard = () => {
                   <span style={{ flex: 1 }}>{tab.label}</span>
                   {tab.locked && <Lock size={11} style={{ color: '#d97706' }} />}
                   {!tab.locked && tab.badge > 0 && (
-                    <span style={{ background: '#ef4444', color: '#fff', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
+                    <span style={{ background: '#EF4444', color: '#fff', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
                   )}
                 </button>
               );
@@ -348,7 +348,7 @@ const DistributorDashboard = () => {
           
           {/* Notifications Banner Overlay inside Desktop view */}
           {showNotifications && (
-            <div className="premium-glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div className="premium-glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#0F172A' }}><Bell size={15} style={{ color: '#d97706' }} /> Notifications & Activity Stream</h3>
                 <button onClick={() => setShowNotifications(false)} style={{ background: '#F1F5F9', border: 'none', color: '#475569', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', width: 'auto', flexShrink: 0 }}>Dismiss</button>
@@ -389,7 +389,7 @@ const DistributorDashboard = () => {
             <div className="responsive-split-grid" style={{ width: '100%' }}>
               {/* Left Column: Stats overview + Circular Collection Guage */}
               <div>
-                <div className="premium-glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div className="premium-glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <span style={{ fontSize: '13px', color: '#475569', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Active Market Outstanding</span>
                   <h2 style={{ fontSize: '48px', fontWeight: '900', color: '#DC2626', margin: '10px 0 20px 0', letterSpacing: '-1px' }}>₹{totalOutstanding}</h2>
                   
@@ -402,7 +402,7 @@ const DistributorDashboard = () => {
                         cy="60"
                         r="50"
                         fill="transparent"
-                        stroke="#10b981"
+                        stroke="#10B981"
                         strokeWidth="6"
                         strokeDasharray={2 * Math.PI * 50}
                         strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
@@ -432,7 +432,7 @@ const DistributorDashboard = () => {
 
                 <button 
                   onClick={() => setShowModal(true)} 
-                  style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #4F46E5)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
                 >
                   <Plus size={18} /> + Supply Wholesale Stock (Extend Credit)
                 </button>
@@ -440,7 +440,7 @@ const DistributorDashboard = () => {
 
               {/* Right Column: Pending Collection Ledgers */}
               <div>
-                <div className="premium-glass" style={{ padding: '20px', minHeight: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div className="premium-glass" style={{ padding: '20px', minHeight: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <h3 style={{ fontSize: '16px', fontWeight: '800', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0F172A' }}>
                     <span>💸</span> Outstanding Credit Balances ({pendingCredits.length})
                   </h3>
@@ -483,7 +483,7 @@ const DistributorDashboard = () => {
             <div>
               <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>🏪 Your Retail Shops ({shops.length})</h2>
 
-              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+              <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
                 {user?.publicCode && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '12px' }}>
                     <div>
@@ -499,7 +499,7 @@ const DistributorDashboard = () => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={shopCodeInput} onChange={e => setShopCodeInput(e.target.value.toUpperCase())}
                     placeholder="Add a shop by code (SHP-XXXXXX)"
-                    style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                    style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                   <button onClick={handleLinkShop} disabled={shopLinkBusy}
                     style={{ background: '#16a34a', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     {shopLinkBusy ? '...' : 'Add'}
@@ -517,9 +517,9 @@ const DistributorDashboard = () => {
                     const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
                     const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
                     return (
-                      <div key={shop.id} className="premium-glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                      <div key={shop.id} className="premium-glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#FFFFFF' }}>🏪</div>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#FFFFFF' }}>🏪</div>
                           <div>
                             <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>{shop.name}</h4>
                             <p style={{ margin: 0, fontSize: '12px', color: '#64748B' }}>{shop.phone}</p>
@@ -562,7 +562,7 @@ const DistributorDashboard = () => {
                           border: selectedOrder?.id === o.id ? '1px solid #4F46E5' : '1px solid #E2E8F0',
                           background: selectedOrder?.id === o.id ? '#EEF2FF' : '#FFFFFF',
                           transition: 'all 0.2s',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                          boxShadow: '0 1px 2px rgba(15,23,42,0.06)'
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -590,7 +590,7 @@ const DistributorDashboard = () => {
                   {/* Right Column: Order Details Split panel */}
                   <div>
                     {selectedOrder ? (
-                      <div className="premium-glass" style={{ padding: '20px', position: 'sticky', top: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                      <div className="premium-glass" style={{ padding: '20px', position: 'sticky', top: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '16px' }}>
                           <div>
                             <span style={{ fontSize: '10px', color: '#2563EB', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
@@ -630,13 +630,13 @@ const DistributorDashboard = () => {
                           <div style={{ display: 'flex', gap: '12px' }}>
                             <button 
                               onClick={() => handleUpdateStockOrder(selectedOrder.id, 'accepted')}
-                              style={{ flex: 1, background: '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
+                              style={{ flex: 1, background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
                             >
                               Accept & Ship Credit
                             </button>
                             <button 
                               onClick={() => handleUpdateStockOrder(selectedOrder.id, 'rejected')}
-                              style={{ flex: 1, background: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+                              style={{ flex: 1, background: '#EF4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
                             >
                               Reject Order
                             </button>
@@ -675,7 +675,7 @@ const DistributorDashboard = () => {
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                   {wholesaleProducts.map(p => (
-                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '140px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '140px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>
                         <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
@@ -699,7 +699,7 @@ const DistributorDashboard = () => {
                   <Lock size={40} style={{ color: '#D97706', marginBottom: '16px' }} />
                   <h3 style={{ color: '#B45309', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
                   <p style={{ color: '#B45309', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #F59E0B, #d97706)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
@@ -739,7 +739,7 @@ const DistributorDashboard = () => {
                             const lastVisit = visitedShops[shop.id] ? new Date(visitedShops[shop.id]) : null;
                             const notVisited7 = !lastVisit || lastVisit < sevenAgo;
                             return (
-                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#ef4444' : owed > 0 ? '#f59e0b' : '#10b981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                                     <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
@@ -796,7 +796,7 @@ const DistributorDashboard = () => {
                       { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
                       { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
                     ].map((stat, i) => (
-                      <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                      <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                         <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
                         <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
                       </div>
@@ -817,7 +817,7 @@ const DistributorDashboard = () => {
                           <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#ef4444' : '#f59e0b', borderRadius: '3px' }} />
+                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#EF4444' : '#F59E0B', borderRadius: '3px' }} />
                             </div>
                             <span style={{ color: owed > 0 ? '#DC2626' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
                           </div>
@@ -861,7 +861,7 @@ const DistributorDashboard = () => {
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
                   {credits.filter(c => c.paid).map(c => (
-                    <div key={c.id} className="premium-glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #10b981', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div key={c.id} className="premium-glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #10B981', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>🏪 {c.shopName}</h4>
                         <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#475569' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
@@ -938,7 +938,7 @@ const DistributorDashboard = () => {
                       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {(plan.features || []).map((f, i) => (
                           <li key={i} style={{ fontSize: '12px', color: '#0F172A', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-                            <span style={{ color: '#10b981', marginTop: '1px' }}>✓</span>{f}
+                            <span style={{ color: '#10B981', marginTop: '1px' }}>✓</span>{f}
                           </li>
                         ))}
                       </ul>
@@ -1067,7 +1067,7 @@ const DistributorDashboard = () => {
                 position: 'absolute', 
                 top: '-6px', 
                 right: '-6px', 
-                background: '#ef4444', 
+                background: '#EF4444', 
                 color: '#fff', 
                 borderRadius: '50%', 
                 padding: '2px 6px', 
@@ -1129,7 +1129,7 @@ const DistributorDashboard = () => {
                       cy="60"
                       r="50"
                       fill="transparent"
-                      stroke="#22c55e"
+                      stroke="#10B981"
                       strokeWidth="8"
                       strokeDasharray={2 * Math.PI * 50}
                       strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
@@ -1158,7 +1158,7 @@ const DistributorDashboard = () => {
               </div>
             </div>
 
-            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #4F46E5)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
+            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
               + Supply Stock (Give Credit)
             </button>
 
@@ -1166,7 +1166,7 @@ const DistributorDashboard = () => {
             {pendingCredits.length === 0 && <p style={{ color: '#64748B', textAlign: 'center' }}>No outstanding balances!</p>}
             
             {pendingCredits.map(c => (
-              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div>
                     <h4 style={{ fontSize: '16px', margin: 0, color: '#0F172A' }}>🏪 {c.shopName}</h4>
@@ -1197,7 +1197,7 @@ const DistributorDashboard = () => {
               const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
               const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
               return (
-                <div key={shop.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                <div key={shop.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
                     <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{shop.name}</h4>
                     <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{shop.phone}</p>
@@ -1221,7 +1221,7 @@ const DistributorDashboard = () => {
             <p style={{ color: '#64748B', textAlign: 'center' }}>No stock orders received.</p>
           ) : (
             stockOrders.map(o => (
-              <div key={o.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <div key={o.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div>
                     <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>🏪 {o.shopName}</h4>
@@ -1281,7 +1281,7 @@ const DistributorDashboard = () => {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {wholesaleProducts.map(p => (
-                <div key={p.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                <div key={p.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
                     <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
@@ -1305,7 +1305,7 @@ const DistributorDashboard = () => {
             <p style={{color: '#64748B', textAlign: 'center'}}>No history of paid collections.</p>
           ) : (
             credits.filter(c => c.paid).map(c => (
-              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: '4px solid #16A34A', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: '4px solid #16A34A', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{c.shopName}</h4>
                   <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#15803D' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>

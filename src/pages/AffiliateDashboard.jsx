@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Copy, Link, LogOut, TrendingUp, Users, IndianRupee, Clock, CheckCircle } from 'lucide-react';
 
 const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
   label: { color: '#475569', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
   val: { color: '#0F172A', fontSize: 28, fontWeight: 800 },
   sub: { color: '#64748B', fontSize: 12, marginTop: 4 },
@@ -87,7 +87,7 @@ export default function AffiliateDashboard() {
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
-          <div style={{ color: '#64748b', textAlign: 'center', padding: 60 }}>Loading your dashboard...</div>
+          <div style={{ color: '#64748B', textAlign: 'center', padding: 60 }}>Loading your dashboard...</div>
         ) : (
           <>
             {/* Referral Code Card */}

@@ -69,8 +69,8 @@ const CADashboard = () => {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
-  const statCard = (label, value, color = '#10b981') => (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', flex: 1, minWidth: '130px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+  const statCard = (label, value, color = '#10B981') => (
+    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', flex: 1, minWidth: '130px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
       <p style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#475569', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>{label}</p>
       <p style={{ margin: 0, fontSize: '18px', fontWeight: '800', color }}>{value}</p>
     </div>
@@ -81,15 +81,15 @@ const CADashboard = () => {
       <ToastContainer theme="light" position="top-center" />
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: '#FFFFFF', padding: '16px 20px', borderRadius: '14px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: '#FFFFFF', padding: '16px 20px', borderRadius: '14px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FileSpreadsheet size={28} color="#10b981" />
+          <FileSpreadsheet size={28} color="#10B981" />
           <div>
             <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A' }}>CA Portal</h1>
             <p style={{ margin: 0, fontSize: '11px', color: '#475569' }}>Welcome, {user.name} · Chartered Accountant</p>
           </div>
         </div>
-        <button onClick={handleLogout} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+        <button onClick={handleLogout} style={{ background: 'transparent', border: '1px solid #EF4444', color: '#EF4444', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
           <LogOut size={14} /> Logout
         </button>
       </div>
@@ -97,7 +97,7 @@ const CADashboard = () => {
       {!selectedShop ? (
         <div>
           <h2 style={{ fontSize: '16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-            <Store size={18} color="#3b82f6" /> Select a Client Shop ({shops.length})
+            <Store size={18} color="#3B82F6" /> Select a Client Shop ({shops.length})
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }}>
             {shops.length === 0 && (
@@ -113,8 +113,8 @@ const CADashboard = () => {
               <div
                 key={shop.id}
                 onClick={() => handleSelectShop(shop)}
-                style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '10px', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#3b82f6'}
+                style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '18px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '10px', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -146,7 +146,7 @@ const CADashboard = () => {
           </button>
 
           {/* Shop Header + Month Filter + Export Buttons */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: '800', color: '#0F172A' }}>{selectedShop.name}</h2>
@@ -180,7 +180,7 @@ const CADashboard = () => {
                   <button onClick={handleExportGSTR1} disabled={loading || filteredOrders.length === 0} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>
                     <FileSpreadsheet size={14} /> GSTR-1 CSV
                   </button>
-                  <button onClick={handleExportXML} disabled={loading || filteredOrders.length === 0} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>
+                  <button onClick={handleExportXML} disabled={loading || filteredOrders.length === 0} style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: filteredOrders.length === 0 ? 0.5 : 1 }}>
                     <Download size={14} /> Tally XML
                   </button>
                 </div>
@@ -199,9 +199,9 @@ const CADashboard = () => {
           </div>
 
           {/* Sales Table */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-              <Receipt size={16} color="#3b82f6" /> {MONTHS[filterMonth]} {filterYear} — {filteredOrders.length} Invoice{filteredOrders.length !== 1 ? 's' : ''}
+              <Receipt size={16} color="#3B82F6" /> {MONTHS[filterMonth]} {filterYear} — {filteredOrders.length} Invoice{filteredOrders.length !== 1 ? 's' : ''}
             </h3>
             {loading ? (
               <p style={{ color: '#64748B', fontSize: '13px' }}>Loading sales data...</p>
