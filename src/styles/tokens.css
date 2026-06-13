@@ -174,3 +174,13 @@
 .ds-stack-4 > * + * { margin-top: var(--s-4); }
 .ds-row { display: flex; align-items: center; gap: var(--s-3); }
 .ds-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+
+/* ---- Storefront product card hover (Layer 3 polish) ---- */
+.storefront-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.storefront-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-lg) !important;
+  border-color: var(--c-primary-border) !important;
+}

@@ -1043,23 +1043,23 @@ const UserDashboard = () => {
                   ) : (
                     <div className="premium-product-grid">
                       {filteredProducts.map(p => (
-                        <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', transition: 'all 0.3s ease', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                          <div style={{ fontSize: '36px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+                        <div key={p.id} className="premium-glass storefront-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                          <div style={{ height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', fontSize: '40px' }}>
                             {p.image ? <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.textContent = '📦'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.icon || '📦')}
                           </div>
-                          <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h3>
+                          <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '4px 0 0 0', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h3>
                           <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>{p.weight || '1 unit'}</p>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: 'auto' }}>
                             <span style={{ fontSize: '18px', fontWeight: '800', color: '#4F46E5' }}>₹{p.price}</span>
-                            {p.mrp && <span style={{ fontSize: '11px', color: '#64748b', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
+                            {p.mrp && <span style={{ fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
                           </div>
                           {p.mrp && p.mrp > p.price && (
-                            <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 'bold' }}>Save ₹{p.mrp - p.price}</div>
+                            <div style={{ display: 'inline-flex', alignSelf: 'flex-start', fontSize: '10px', color: '#10B981', fontWeight: '700', background: '#ECFDF5', padding: '2px 8px', borderRadius: '999px' }}>Save ₹{p.mrp - p.price}</div>
                           )}
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', background: '#F1F5F9', padding: '4px', borderRadius: '30px', border: '1px solid #E2E8F0' }}>
-                            <button onClick={() => updateQty(p.id, -1)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>−</button>
-                            <span style={{ fontSize: '13px', fontWeight: '700' }}>{cart[p.id] || 0}</span>
-                            <button onClick={() => updateQty(p.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>+</button>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', background: '#F8FAFC', padding: '4px', borderRadius: '999px', border: '1px solid #E2E8F0' }}>
+                            <button onClick={() => updateQty(p.id, -1)} style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, fontSize: '16px', fontWeight: '700' }}>−</button>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>{cart[p.id] || 0}</span>
+                            <button onClick={() => updateQty(p.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#4F46E5', color: '#FFFFFF', border: 'none', boxShadow: '0 1px 2px rgba(79,70,229,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, fontSize: '16px', fontWeight: '700' }}>+</button>
                           </div>
                         </div>
                       ))}
