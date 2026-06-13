@@ -79,7 +79,7 @@ const DesktopPOS = ({
         
         {/* AI Insights Card */}
         {lowStockProducts.length > 0 && (
-          <div className="premium-glass" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="premium-glass" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '32px' }}>🤖</span>
             <div>
               <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
@@ -116,7 +116,7 @@ const DesktopPOS = ({
 
         {/* Daily Target Progress Ring */}
         {isOwner && (
-          <div className="premium-glass" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             {dailyTarget > 0 ? (
               <>
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
@@ -222,7 +222,7 @@ const DesktopPOS = ({
               const minsLeft = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '14px', borderRadius: '12px', background: activeSale ? '#FEF2F2' : '#ffffff', border: `1px solid ${activeSale ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: activeSale ? '#FEF2F2' : '#ffffff', border: `1px solid ${activeSale ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   {activeSale && (
                     <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#ef4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
                       🔥 -{sale.discount}% · {timeLabel}
