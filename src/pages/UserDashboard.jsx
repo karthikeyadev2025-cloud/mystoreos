@@ -909,6 +909,7 @@ const UserDashboard = () => {
                     <img 
                       src={shopInfo.logo} 
                       alt="Logo" 
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} 
                     />
                     {shopInfo.subscription && shopInfo.subscription !== 'trial' && (
@@ -1042,8 +1043,8 @@ const UserDashboard = () => {
                     <div className="premium-product-grid">
                       {filteredProducts.map(p => (
                         <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', transition: 'all 0.3s ease', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                          <div style={{ fontSize: '36px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-                            {p.icon || '📦'}
+                          <div style={{ fontSize: '36px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+                            {p.image ? <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.textContent = '📦'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.icon || '📦')}
                           </div>
                           <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h3>
                           <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>{p.weight || '1 unit'}</p>
@@ -1421,7 +1422,7 @@ const UserDashboard = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                 {shop.logo ? (
-                                  <img src={shop.logo} alt="Logo" style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} />
+                                  <img src={shop.logo} alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} />
                                 ) : (
                                   <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏪</div>
                                 )}
@@ -1847,7 +1848,7 @@ const UserDashboard = () => {
                 {shopInfo?.logo ? (
                   <div style={{ position: 'relative', width: '84px', height: '84px', marginBottom: '12px' }}>
                     <img 
-                      src={shopInfo?.logo} 
+                      src={shopInfo?.logo} onError={(e) => { e.currentTarget.style.display = 'none'; }} 
                       alt="Logo" 
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #4F46E5', boxShadow: '0 8px 24px rgba(79, 70, 229, 0.25)' }} 
                     />
@@ -2079,8 +2080,8 @@ const UserDashboard = () => {
                     }}
                   >
                     {/* Icon container */}
-                    <div style={{ width: '64px', height: '64px', background: '#F8FAFC', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', flexShrink: 0, border: '1px solid #E2E8F0' }}>
-                      {p.icon || '📦'}
+                    <div style={{ width: '64px', height: '64px', background: '#F8FAFC', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', flexShrink: 0, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+                      {p.image ? <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.textContent = '📦'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.icon || '📦')}
                     </div>
 
                     {/* Meta descriptions */}
@@ -2345,7 +2346,7 @@ const UserDashboard = () => {
 
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                           {shop.logo ? (
-                            <img src={shop.logo} alt="Logo" style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #E2E8F0' }} />
+                            <img src={shop.logo} alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #E2E8F0' }} />
                           ) : (
                             <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
                               🏪

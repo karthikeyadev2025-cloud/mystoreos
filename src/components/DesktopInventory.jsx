@@ -312,7 +312,7 @@ const DesktopInventory = ({
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                       {p.image && (
-                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
+                        <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
                       )}
                       <div>
                         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>{p.name}</h3>
