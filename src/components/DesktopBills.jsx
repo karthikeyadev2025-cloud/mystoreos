@@ -70,7 +70,7 @@ const DesktopBills = ({
 
         {/* Search */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '0 12px', border: '1px solid #E2E8F0' }}>
-          <Search size={16} color="#94a3b8" />
+          <Search size={16} color="#94A3B8" />
           <input 
             type="text" 
             placeholder="Search customer, phone, or bill ID..." 
@@ -143,7 +143,7 @@ const DesktopBills = ({
             <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
               
               {/* Receipt Canvas */}
-              <div id="receipt-print-area" style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #e2e8f0' }}>
+              <div id="receipt-print-area" style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #E2E8F0' }}>
                 
                 {/* Decorative Jagged Edges */}
                 <div style={{ position: 'absolute', top: -6, left: 0, right: 0, height: 6, background: 'repeating-linear-gradient(45deg, transparent, transparent 4px, #fff 4px, #fff 8px)', filter: 'drop-shadow(0 -2px 2px rgba(0,0,0,0.05))' }}></div>
@@ -187,7 +187,7 @@ const DesktopBills = ({
                   <span>₹{selectedBill.total}</span>
                 </div>
                 
-                <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '9px', borderTop: '1px solid #e2e8f0', paddingTop: '10px', color: '#64748b' }}>
+                <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '9px', borderTop: '1px solid #E2E8F0', paddingTop: '10px', color: '#64748B' }}>
                   {type === 'estimate' ? (
                     <p style={{ margin: 0, fontWeight: 'bold' }}>* PROFORMA ESTIMATE ONLY *</p>
                   ) : type === 'challan' ? (

@@ -75,7 +75,7 @@ const DesktopTopBar = ({
       </div>
 
       {/* ── Module tabs ── */}
-      <div style={{ background:'#fff', borderBottom:'1.5px solid #D8E0EE', display:'flex', alignItems:'stretch', padding:'0 16px', gap:2, height:46, boxShadow:'0 2px 8px rgba(14,27,51,0.05)' }}>
+      <div style={{ background:'#fff', borderBottom:'1.5px solid #E2E8F0', display:'flex', alignItems:'stretch', padding:'0 16px', gap:2, height:46, boxShadow:'0 2px 8px rgba(14,27,51,0.05)' }}>
         {NAV_ITEMS.map(({ id, Icon, label, badge, ownerOnly }) => {
           if (ownerOnly && !isOwner) return null;
           const active = activeTab === id;

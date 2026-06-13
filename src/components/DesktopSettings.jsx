@@ -94,7 +94,7 @@ const DesktopSettings = ({
   if (user.role !== 'shop' && user.role !== 'admin' && !user.isOwner) {
     return (
       <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <ShieldAlert size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
+        <ShieldAlert size={48} color="#EF4444" style={{ margin: '0 auto 16px' }} />
         <h3 style={{ color: '#0F172A', margin: '0 0 8px 0' }}>Access Denied</h3>
         <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>
           Only the Shop Owner accounts can configure settings, UPI payment keys, and recruit staff helpers.
@@ -163,7 +163,7 @@ const DesktopSettings = ({
         {/* UPI Payments setup */}
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <QrCode size={18} color="#10b981" /> UPI Payments Setup
+            <QrCode size={18} color="#10B981" /> UPI Payments Setup
           </h3>
           <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Configure your merchant payments to receive settlements instantly from customers directly in your bank account.
@@ -203,8 +203,8 @@ const DesktopSettings = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
               {paymentQr ? (
                 <>
-                  <img src={paymentQr} alt="Payment QR" style={{ width: '100px', height: '100px', objectFit: 'contain', background: '#fff', padding: '4px', borderRadius: '8px', border: '2px solid #10b981' }} />
-                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '100px', height: '100px', objectFit: 'contain', background: '#fff', padding: '4px', borderRadius: '8px', border: '2px solid #10B981' }} />
+                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #EF4444', color: '#EF4444', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
                 </>
               ) : (
                 <div style={{ width: '100px', height: '100px', borderRadius: '8px', background: '#FFFFFF', border: '2px dashed #CBD5E1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
@@ -323,7 +323,7 @@ const DesktopSettings = ({
         {paymentHistory.length > 0 && (
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CreditCard size={16} color="#10b981" /> Billing History
+              <CreditCard size={16} color="#10B981" /> Billing History
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
               {paymentHistory.map(payment => (
@@ -338,7 +338,7 @@ const DesktopSettings = ({
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#10b981' }}>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#10B981' }}>
                       ₹{Number(payment.amount).toLocaleString('en-IN')}
                     </p>
                     <span style={{
@@ -419,7 +419,7 @@ const DesktopSettings = ({
                 const qrHtml = '<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff">'
                   + '<h2 style="color:#0F172A;margin-bottom:8px">' + (user?.name || 'My Store') + '</h2>'
                   + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid #f0f0f0;border-radius:12px"/>'
-                  + '<p style="color:#64748b;font-size:13px;margin-top:12px">' + url + '</p>'
+                  + '<p style="color:#64748B;font-size:13px;margin-top:12px">' + url + '</p>'
                   + '</body></html>';
                 const blob = new Blob([qrHtml], { type: 'text/html' });
                 const blobUrl = URL.createObjectURL(blob);
@@ -599,7 +599,7 @@ const DesktopSettings = ({
             {shopPhotos.map((photo, idx) => (
               <div key={idx} style={{ position: 'relative' }}>
                 <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '70px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', cursor: 'pointer', lineHeight: '18px', padding: 0 }}>×</button>
+                <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', cursor: 'pointer', lineHeight: '18px', padding: 0 }}>×</button>
               </div>
             ))}
           </div>

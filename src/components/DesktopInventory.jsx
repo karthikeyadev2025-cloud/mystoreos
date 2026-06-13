@@ -129,7 +129,7 @@ const DesktopInventory = ({
     : alerts.filter(a => a.alertType === alertFilter);
 
   const alertConfig = {
-    expired: { label: 'Expired', color: '#ef4444', bg: '#FEF2F2', border: '#FCA5A5' },
+    expired: { label: 'Expired', color: '#EF4444', bg: '#FEF2F2', border: '#FCA5A5' },
     expiring7: { label: 'Exp. in 7d', color: '#f97316', bg: '#FFF7ED', border: '#FFEDD5' },
     expiring30: { label: 'Exp. in 30d', color: '#f59e0b', bg: '#FEF3C7', border: '#FDE68A' },
     lowstock: { label: 'Low Stock', color: '#2563eb', bg: '#EFF6FF', border: '#BFDBFE' },
@@ -149,7 +149,7 @@ const DesktopInventory = ({
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#F8FAFC', borderRadius: '10px', padding: '2px 12px', border: '1px solid #E2E8F0', width: '260px' }}>
-            <Search size={16} color="#94a3b8" />
+            <Search size={16} color="#94A3B8" />
             <input
               type="text" placeholder="Search catalog..."
               value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
@@ -197,7 +197,7 @@ const DesktopInventory = ({
           </div>
         </div>
         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <AlertCircle size={18} />
           </div>
           <div>
@@ -217,7 +217,7 @@ const DesktopInventory = ({
           </div>
         </div>
         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>%</div>
+          <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>%</div>
           <div>
             <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A' }}>
               {(() => {
@@ -246,16 +246,16 @@ const DesktopInventory = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Zap size={16} color="#f59e0b" /> Inventory Alert Center
-                <span style={{ background: '#FEE2E2', color: '#ef4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                <span style={{ background: '#FEE2E2', color: '#EF4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
                   {alerts.length} action{alerts.length !== 1 ? 's' : ''}
                 </span>
               </h3>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#ef4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#f97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#f59e0b'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#2563eb']].map(([val, label, color]) => (
+                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#EF4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#f97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#f59e0b'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#2563eb']].map(([val, label, color]) => (
                   <button
                     key={val}
                     onClick={() => setAlertFilter(val)}
-                    style={{ padding: '4px 10px', borderRadius: '6px', border: `1px solid ${alertFilter === val ? (color || '#475569') : '#E2E8F0'}`, background: alertFilter === val ? `${color || '#475569'}22` : '#FFFFFF', color: alertFilter === val ? (color || '#475569') : '#64748b', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                    style={{ padding: '4px 10px', borderRadius: '6px', border: `1px solid ${alertFilter === val ? (color || '#475569') : '#E2E8F0'}`, background: alertFilter === val ? `${color || '#475569'}22` : '#FFFFFF', color: alertFilter === val ? (color || '#475569') : '#64748B', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
                   >
                     {label}
                   </button>
@@ -332,7 +332,7 @@ const DesktopInventory = ({
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '12px 0' }}>
-                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? '#FEF2F2' : '#ECFDF5', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? '#FCA5A5' : '#A7F3D0'), fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? '#FEF2F2' : '#ECFDF5', color: isLowStock ? '#EF4444' : '#10B981', border: '1px solid ' + (isLowStock ? '#FCA5A5' : '#A7F3D0'), fontWeight: 'bold' }}>
                       Stock: {p.stock || 0}
                     </span>
                     {p.reorderLevel !== undefined && (
@@ -342,7 +342,7 @@ const DesktopInventory = ({
                     )}
                     {p.costPrice > 0 && p.price > 0 && (() => {
                       const margin = Math.round((p.price - p.costPrice) / p.price * 100);
-                      const color = margin >= 20 ? '#10b981' : margin >= 10 ? '#f59e0b' : '#ef4444';
+                      const color = margin >= 20 ? '#10B981' : margin >= 10 ? '#f59e0b' : '#EF4444';
                       const bg = margin >= 20 ? '#ECFDF5' : margin >= 10 ? '#FEF3C7' : '#FEF2F2';
                       const border = margin >= 20 ? '#A7F3D0' : margin >= 10 ? '#FDE68A' : '#FCA5A5';
                       return (
@@ -352,7 +352,7 @@ const DesktopInventory = ({
                       );
                     })()}
                     {expStatus.status === 'expired' && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#ef4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
                         Expired ({p.expiryDate})
                       </span>
                     )}
@@ -362,7 +362,7 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {daysLeft !== null && daysLeft < 2 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#ef4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
                         🔴 Order TODAY
                       </span>
                     )}
@@ -372,7 +372,7 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#ECFDF5', color: '#10b981', border: '1px solid #A7F3D0' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#ECFDF5', color: '#10B981', border: '1px solid #A7F3D0' }}>
                         Stock ~{daysLeft}d
                       </span>
                     )}
@@ -400,16 +400,16 @@ const DesktopInventory = ({
                     <RefreshCw size={11} /> Restock
                   </button>
                   <PlanGate feature="flashSales" fallback={
-                    <button title="Flash Sales require Pro Plan" style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#64748b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button title="Flash Sales require Pro Plan" style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#64748B', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Flame size={11} /> Sale 🔒
                     </button>
                   }>
                     {flashSales[p.id] ? (
-                      <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         🔥 End Sale
                       </button>
                     ) : (
-                      <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#EF4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Flame size={11} /> Sale
                       </button>
                     )}

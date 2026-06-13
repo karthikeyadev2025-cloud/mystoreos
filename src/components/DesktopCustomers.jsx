@@ -139,7 +139,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
         <StatCard icon={<Users size={18} />} value={customers.length} label="Total Customers" color="#3b82f6" />
-        <StatCard icon={<ShoppingBag size={18} />} value={`₹${totalRevenue.toLocaleString('en-IN')}`} label="Total Revenue" color="#10b981" />
+        <StatCard icon={<ShoppingBag size={18} />} value={`₹${totalRevenue.toLocaleString('en-IN')}`} label="Total Revenue" color="#10B981" />
         <StatCard icon={<Star size={18} />} value={highValueCount} label="High-Value (₹1000+)" color="#f59e0b" />
       </div>
 
