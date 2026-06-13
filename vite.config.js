@@ -9,31 +9,35 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
-        // Precache only static assets, NOT html — html is handled by the
-        // NetworkFirst navigation rule below so a new deploy is always picked up
-        // without a hard refresh. (Precaching index.html made it cache-first,
-        // which defeated NetworkFirst and is why updates needed a manual refresh.)
-        globPatterns: ['**/*.{js,css,ico,png,svg}'],
+        // Precache ONLY truly-static files (icons, manifest, robots). Do NOT
+        // precache the hashed app JS/CSS or html — precaching them makes them
+        // cache-first and overrides the NetworkFirst rules below, which is the
+        // real reason updates needed a manual hard refresh. With them out of the
+        // precache, the NetworkFirst runtime rules always fetch the newest build.
+        globPatterns: ['**/*.{ico,png,svg,webmanifest}'],
+        globIgnores: ['**/assets/**', '**/index.html'],
         maximumFileSizeToCacheInBytes: 4_000_000,
-        navigateFallback: '/index.html',
+        navigateFallback: null,
         navigateFallbackDenylist: [/^\/api/, /supabase/],
         // Force new SW to take control immediately — evicts old cached bundles
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
-          // Navigation: always fetch fresh index.html from network when online
-          // so old JS bundles can never be served after a deploy
+          // Navigation (index.html): always fetch fresh from network when online
+          // so old JS bundles can never be served after a deploy. Falls back to
+          // cache only when offline.
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
-            options: { cacheName: 'navigation', networkTimeoutSeconds: 3 },
+            options: { cacheName: 'navigation', networkTimeoutSeconds: 3, expiration: { maxEntries: 4 } },
           },
-          // Hashed assets: NetworkFirst so new chunk hashes are always fetched
+          // Hashed assets: NetworkFirst so new chunk hashes are always fetched;
+          // cached copies only serve offline.
           {
             urlPattern: /\/assets\/.+\.(js|css)$/,
             handler: 'NetworkFirst',
-            options: { cacheName: 'hashed-assets', networkTimeoutSeconds: 5 },
+            options: { cacheName: 'hashed-assets', networkTimeoutSeconds: 5, expiration: { maxEntries: 60 } },
           },
         ],
       },
