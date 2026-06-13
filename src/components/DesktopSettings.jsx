@@ -15,6 +15,10 @@ const DesktopSettings = ({
   handleSaveProfile = () => {},
   upiId,
   setUpiId,
+  merchantUpiId,
+  setMerchantUpiId,
+  merchantCode,
+  setMerchantCode,
   paymentQr,
   setPaymentQr,
   handlePaymentQrUpload,
@@ -175,8 +179,24 @@ const DesktopSettings = ({
                   style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '10px', padding: '12px' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: '#166534', marginBottom: '4px', fontWeight: 800 }}>⭐ Merchant UPI ID (for "Tap to Pay")</label>
+                <p style={{ fontSize: '10.5px', color: '#15803D', margin: '0 0 8px', lineHeight: 1.4 }}>
+                  Personal UPI IDs can only be <b>scanned</b>. To let customers <b>tap a link</b> to pay (PhonePe/GPay/Paytm), get a free Merchant UPI ID from the <b>PhonePe Business / Paytm for Business / GPay for Business</b> app and paste it here.
+                </p>
+                <input 
+                  type="text" value={merchantUpiId || ''} onChange={e => setMerchantUpiId(e.target.value)} 
+                  placeholder="e.g. yourstore.12345@ybl (merchant VPA)" 
+                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #BBF7D0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', marginBottom: '8px' }} 
+                />
+                <input 
+                  type="text" value={merchantCode || ''} onChange={e => setMerchantCode(e.target.value)} 
+                  placeholder="Merchant Category Code (optional, e.g. 5411)" 
+                  style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #BBF7D0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} 
+                />
+              </div>
               <button onClick={handleSaveProfile} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-                Save UPI ID
+                Save UPI Settings
               </button>
             </div>
 

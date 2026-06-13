@@ -15,6 +15,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UserDashboard.css'; // Premium CSS file containing animations, keyframes, scrollbars and thermal styles
+import { buildUpiUri, canTapToPay } from '../lib/upi';
 
 
 const classifyCategory = (name = "") => {
@@ -2966,24 +2967,26 @@ const UserDashboard = () => {
                       so it isn't blocked as a merchant collect-link). Shows on mobile
                       whenever there's a UPI ID — even alongside the scanner — so the
                       customer can either scan the image or tap to open their app. */}
-                  {shopInfo?.upiId && isMobileDevice ? (
+                  {canTapToPay(shopInfo) && isMobileDevice ? (
+                    /* Merchant VPA present → a real tap-to-pay link WITH the amount works. */
                     <a 
-                      href={`upi://pay?pa=${shopInfo?.upiId}&pn=${encodeURIComponent(shopInfo?.name || '')}&cu=INR`}
+                      href={buildUpiUri(shopInfo, { amount: getCartTotals().total, txnRef: 'ORD' + Date.now().toString().slice(-8), note: 'Order Payment' })}
                       style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s', marginTop: shopInfo?.paymentQr ? '4px' : '0' }}
                       onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
                       onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                     >
-                      💳 Pay Now — Open PhonePe / GPay / Paytm
+                      💳 Pay ₹{getCartTotals().total} — Open PhonePe / GPay / Paytm
                     </a>
-                  ) : shopInfo?.upiId && !shopInfo?.paymentQr ? (
+                  ) : shopInfo?.upiId ? (
+                    /* Personal VPA only → tap-to-pay is blocked by UPI apps, so guide to scan. */
                     <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#4F46E5', padding: '10px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <Info size={12} /> Scan this UPI QR code using your mobile camera or scanner app
+                      <Info size={12} /> Scan the QR above with any UPI app and pay ₹{getCartTotals().total}
                     </div>
                   ) : null}
-                  {/* Note shown under Pay Now so the customer knows to enter the amount */}
-                  {shopInfo?.upiId && isMobileDevice && (
+                  {/* Note shown under Pay Now so the customer knows the amount */}
+                  {canTapToPay(shopInfo) && isMobileDevice && (
                     <p style={{ fontSize: '10px', color: '#64748B', margin: '6px 0 0', textAlign: 'center' }}>
-                      Your UPI app will open — enter ₹{getCartTotals().total} to complete payment
+                      Your UPI app will open with ₹{getCartTotals().total} pre-filled — just enter your PIN
                     </p>
                   )}
 

@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
+import { buildUpiUri } from '../lib/upi';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -154,6 +155,8 @@ const ShopDashboard = () => {
 
   // Profile State
   const [upiId, setUpiId] = useState(user?.upiId || '');
+  const [merchantUpiId, setMerchantUpiId] = useState(user?.merchantUpiId || '');
+  const [merchantCode, setMerchantCode] = useState(user?.merchantCode || '');
   const [logo, setLogo] = useState(user?.logo || '');
   const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
   const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
@@ -1441,13 +1444,13 @@ const ShopDashboard = () => {
 
   const handleSaveProfile = async () => {
     await safe(() => api.updateProfile(user.id, {
-      upiId, logo, shopPhotos, paymentQr,
+      upiId, merchantUpiId, merchantCode, logo, shopPhotos, paymentQr,
       latitude: parseFloat(latitude) || null,
       longitude: parseFloat(longitude) || null,
       gstin, stateCode, businessAddress
     }));
     const updatedUser = { 
-      ...user, upiId, logo, shopPhotos, paymentQr, 
+      ...user, upiId, merchantUpiId, merchantCode, logo, shopPhotos, paymentQr, 
       latitude: parseFloat(latitude) || null, 
       longitude: parseFloat(longitude) || null,
       gstin, stateCode, businessAddress
@@ -2132,6 +2135,10 @@ const ShopDashboard = () => {
               setBusinessAddress={setBusinessAddress}
               upiId={upiId}
               setUpiId={setUpiId}
+              merchantUpiId={merchantUpiId}
+              setMerchantUpiId={setMerchantUpiId}
+              merchantCode={merchantCode}
+              setMerchantCode={setMerchantCode}
               logo={logo}
               handleLogoUpload={handleLogoUpload}
               onLogoChange={handleLogoChange}
@@ -2198,7 +2205,7 @@ const ShopDashboard = () => {
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
                   <QRCodeSVG
-                    value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&tn=Bill&cu=INR`}
+                    value={buildUpiUri({ upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
                     size={240}
                   />
                 )}
@@ -4143,7 +4150,7 @@ const ShopDashboard = () => {
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
             ) : (
               <QRCodeSVG 
-                value={`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name || '')}&tn=Bill&cu=INR`}
+                value={buildUpiUri({ upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
                 size={260}
               />
             )}

@@ -96,6 +96,7 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 const toUser = (row) => row ? ({
   id: row.id, phone: row.phone, pass: row.pass, role: row.role, name: row.name,
   status: row.status, subscription: row.subscription, upiId: row.upi_id,
+  merchantUpiId: row.merchant_upi_id || null, merchantCode: row.merchant_code || null,
   logo: row.logo, shopPhotos: row.shop_photos || [], paymentQr: row.payment_qr,
   avatar: row.avatar,
   staff_of: row.staff_of,
@@ -1265,6 +1266,8 @@ export const api = {
     if (isSupabaseConfigured) {
       const updateObj = {};
       if (data.upiId !== undefined) updateObj.upi_id = data.upiId;
+      if (data.merchantUpiId !== undefined) updateObj.merchant_upi_id = data.merchantUpiId || null;
+      if (data.merchantCode !== undefined) updateObj.merchant_code = data.merchantCode || null;
       if (data.logo !== undefined) updateObj.logo = data.logo;
       if (data.shopPhotos !== undefined) updateObj.shop_photos = data.shopPhotos;
       if (data.paymentQr !== undefined) updateObj.payment_qr = data.paymentQr;
