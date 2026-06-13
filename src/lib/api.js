@@ -688,7 +688,7 @@ export const api = {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0 };
+        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0, image_url: extraData?.image || null };
         await enqueue({ table: 'products', action: 'insert', data: row });
         const db = getDB(); db.products = db.products || [];
         db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
@@ -707,12 +707,18 @@ export const api = {
         hsn_code: extraData.hsnCode || null,
         gst_rate: parseInt(extraData.gstRate) || 0,
         cost_price: parseFloat(extraData.costPrice) || 0,
+        image_url: extraData.image || null,
       };
       const insertWithUnit = extraData.unit ? { ...baseInsert, unit: extraData.unit } : baseInsert;
       let { data: prodRow, error } = await supabase.from('products').insert(insertWithUnit).select().maybeSingle();
       // If the optional `unit` column hasn't been added to the DB yet, retry without it.
       if (error && isMissingUnitColumn(error) && extraData.unit) {
         ({ data: prodRow, error } = await supabase.from('products').insert(baseInsert).select().maybeSingle());
+      }
+      // If the optional `image_url` column is missing, retry without it (and without unit).
+      if (error && /image_url/.test(error.message || '')) {
+        const { image_url, ...noImg } = baseInsert;
+        ({ data: prodRow, error } = await supabase.from('products').insert(noImg).select().maybeSingle());
       }
       if (error) throw new Error(error.message);
       return toProduct(prodRow);
@@ -755,6 +761,7 @@ export const api = {
         if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
         if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
         if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
+        if (data.image !== undefined) updateObj.image_url = data.image || null;
         if (data.unit !== undefined) updateObj.unit = data.unit || null;
         await enqueue({ table: 'products', action: 'update', data: updateObj, match: { id: prodId } });
         const db = getDB(); const prod = db.products.find(p => p.id === prodId);
@@ -772,6 +779,7 @@ export const api = {
       if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
+      if (data.image !== undefined) updateObj.image_url = data.image || null;
 
       const updateWithUnit = data.unit !== undefined ? { ...updateObj, unit: data.unit || null } : updateObj;
       let { data: updated, error } = await supabase.from('products').update(updateWithUnit).eq('id', prodId).select().maybeSingle();
