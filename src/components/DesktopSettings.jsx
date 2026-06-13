@@ -93,7 +93,7 @@ const DesktopSettings = ({
   // Check if user is shop owner or admin
   if (user.role !== 'shop' && user.role !== 'admin' && !user.isOwner) {
     return (
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         <ShieldAlert size={48} color="#EF4444" style={{ margin: '0 auto 16px' }} />
         <h3 style={{ color: '#0F172A', margin: '0 0 8px 0' }}>Access Denied</h3>
         <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>
@@ -110,9 +110,9 @@ const DesktopSettings = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Brand Logo & Business Info */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Award size={18} color="#fbbf24" /> Shop Identity
+            <Award size={18} color="#FBBF24" /> Shop Identity
           </h3>
           
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '20px', background: '#F8FAFC', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
@@ -124,7 +124,7 @@ const DesktopSettings = ({
                   : null}
                 <span style={{ fontSize: '36px', display: logo ? 'none' : 'flex' }}>🏪</span>
               </div>
-              <div style={{ position: 'absolute', bottom: '4px', right: '4px', width: '28px', height: '28px', background: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', bottom: '4px', right: '4px', width: '28px', height: '28px', background: '#3B82F6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Camera size={14} color="#fff" />
               </div>
             </div>
@@ -161,7 +161,7 @@ const DesktopSettings = ({
         </div>
 
         {/* UPI Payments setup */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={18} color="#10B981" /> UPI Payments Setup
           </h3>
@@ -213,7 +213,7 @@ const DesktopSettings = ({
                 </div>
               )}
               <div style={{ display: 'flex', gap: '4px', width: '100%' }}>
-                <label style={{ flex: 1, background: '#3b82f6', color: '#FFFFFF', padding: '6px', borderRadius: '6px', fontSize: '9px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: '#3B82F6', color: '#FFFFFF', padding: '6px', borderRadius: '6px', fontSize: '9px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   Upload
                   <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
@@ -223,9 +223,9 @@ const DesktopSettings = ({
         </div>
 
         {/* GPS Location Grabber */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MapPin size={18} color="#8b5cf6" /> Geolocation Coordinate lock
+            <MapPin size={18} color="#8B5CF6" /> Geolocation Coordinate lock
           </h3>
           <p style={{ fontSize: '12px', color: '#475569', marginBottom: '16px', lineHeight: '1.4' }}>
             Lock your storefront satellite coordinates so nearby customers can navigate to your store and order goods.
@@ -253,7 +253,7 @@ const DesktopSettings = ({
         </div>
 
         {/* Invoice Customization */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileText size={18} color="#a78bfa" /> Invoice Customization
           </h3>
@@ -303,7 +303,7 @@ const DesktopSettings = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* SaaS Subscription Info Card */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             ⚡ SaaS Subscription Plan
           </h3>
@@ -321,7 +321,7 @@ const DesktopSettings = ({
 
         {/* Billing History */}
         {paymentHistory.length > 0 && (
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CreditCard size={16} color="#10B981" /> Billing History
             </h3>
@@ -357,12 +357,12 @@ const DesktopSettings = ({
         )}
 
         {/* Store Discoverability — admin-controlled premium feature (coming soon) */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', position: 'relative', overflow: 'hidden' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', position: 'relative', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Eye size={18} color="#94A3B8" /> Store Discoverability
             </h3>
-            <span style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
+            <span style={{ background: 'linear-gradient(135deg,#F59E0B,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
           </div>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.5' }}>
             Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon — enabled by our team.
@@ -376,9 +376,9 @@ const DesktopSettings = ({
         </div>
 
         {/* Your Store QR Code */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <QrCode size={18} color="#8b5cf6" /> Your Store QR Code
+            <QrCode size={18} color="#8B5CF6" /> Your Store QR Code
           </h3>
           <p style={{ fontSize: '12px', color: '#6B7280', textAlign: 'left', marginBottom: '16px' }}>Share this QR for customers to instantly open your catalogue.</p>
 
@@ -443,7 +443,7 @@ const DesktopSettings = ({
         </div>
 
         {/* Shop ID & Distributor linking */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>🚚 My Distributors</h3>
           {user?.publicCode && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', marginBottom: '14px' }}>
@@ -476,9 +476,9 @@ const DesktopSettings = ({
         </div>
 
         {/* Staff Helpers management */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} color="#3b82f6" /> Staff Management (సహాయకులు)</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} color="#3B82F6" /> Staff Management (సహాయకులు)</span>
             <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" compact />}>{null}</PlanGate>
           </h3>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
@@ -525,7 +525,7 @@ const DesktopSettings = ({
         </div>
 
         {/* Shop Hours */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🕐 Shop Hours</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
@@ -559,7 +559,7 @@ const DesktopSettings = ({
         </div>
 
         {/* Offer Banner */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🏷️ Offer Banner</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
@@ -591,7 +591,7 @@ const DesktopSettings = ({
         </div>
 
         {/* Gallery Images */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>📸 Shop Photos (Max 6)</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Upload photos of your storefront or inventory products.</p>
           

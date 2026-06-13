@@ -35,7 +35,7 @@ const DesktopBills = ({
       <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Receipt size={20} color="#fbbf24" /> Invoices Ledger
+            <Receipt size={20} color="#FBBF24" /> Invoices Ledger
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748B' }}>
             Filter, search, or convert estimates/quotes and track returns.
@@ -93,7 +93,7 @@ const DesktopBills = ({
               
               let cardBorder = isSelected ? '1px solid #D97706' : '1px solid #E2E8F0';
               let cardBg = isSelected ? '#FFFBEB' : '#FFFFFF';
-              let badgeColor = billsSubTab === 'drafts' ? (type === 'estimate' ? '#f59e0b' : '#3b82f6') : '#10B981';
+              let badgeColor = billsSubTab === 'drafts' ? (type === 'estimate' ? '#F59E0B' : '#3B82F6') : '#10B981';
               
               return (
                 <div 
@@ -106,7 +106,7 @@ const DesktopBills = ({
                     background: cardBg, 
                     cursor: 'pointer',
                     transition: 'all 0.15s',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.01)'
+                    boxShadow: '0 1px 2px rgba(15,23,42,0.06)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
@@ -243,7 +243,7 @@ const DesktopBills = ({
           );
         })() : (
           <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-            <Receipt size={48} style={{ opacity: 0.15, marginBottom: '16px', color: '#fbbf24' }} />
+            <Receipt size={48} style={{ opacity: 0.15, marginBottom: '16px', color: '#FBBF24' }} />
             <h3 style={{ color: '#0F172A', margin: '0 0 6px 0' }}>No Invoice Selected</h3>
             <p style={{ color: '#64748B', fontSize: '13px', margin: 0, maxWidth: '280px', lineHeight: '1.4' }}>
               Click on any sales invoice or proforma draft on the left to see its high-fidelity thermal receipt preview and complete actions.

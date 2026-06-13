@@ -130,9 +130,9 @@ const DesktopInventory = ({
 
   const alertConfig = {
     expired: { label: 'Expired', color: '#EF4444', bg: '#FEF2F2', border: '#FCA5A5' },
-    expiring7: { label: 'Exp. in 7d', color: '#f97316', bg: '#FFF7ED', border: '#FFEDD5' },
-    expiring30: { label: 'Exp. in 30d', color: '#f59e0b', bg: '#FEF3C7', border: '#FDE68A' },
-    lowstock: { label: 'Low Stock', color: '#2563eb', bg: '#EFF6FF', border: '#BFDBFE' },
+    expiring7: { label: 'Exp. in 7d', color: '#F97316', bg: '#FFF7ED', border: '#FFEDD5' },
+    expiring30: { label: 'Exp. in 30d', color: '#F59E0B', bg: '#FEF3C7', border: '#FDE68A' },
+    lowstock: { label: 'Low Stock', color: '#4F46E5', bg: '#EFF6FF', border: '#BFDBFE' },
   };
 
   return (
@@ -141,7 +141,7 @@ const DesktopInventory = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Package size={22} color="#fbbf24" /> Shop Inventory & Catalog
+            <Package size={22} color="#FBBF24" /> Shop Inventory & Catalog
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>
             Manage your store shelf items, stock status, barcode labels, and bulk restock actions.
@@ -206,7 +206,7 @@ const DesktopInventory = ({
           </div>
         </div>
         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Calendar size={18} />
           </div>
           <div>
@@ -245,13 +245,13 @@ const DesktopInventory = ({
           <div style={{ marginBottom: '24px', background: '#FFF5F5', border: '1px solid #FEE2E2', borderRadius: '16px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Zap size={16} color="#f59e0b" /> Inventory Alert Center
+                <Zap size={16} color="#F59E0B" /> Inventory Alert Center
                 <span style={{ background: '#FEE2E2', color: '#EF4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
                   {alerts.length} action{alerts.length !== 1 ? 's' : ''}
                 </span>
               </h3>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#EF4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#f97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#f59e0b'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#2563eb']].map(([val, label, color]) => (
+                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, '#EF4444'], ['expiring7', `7d (${alertCounts.expiring7})`, '#F97316'], ['expiring30', `30d (${alertCounts.expiring30})`, '#F59E0B'], ['lowstock', `Stock (${alertCounts.lowstock})`, '#4F46E5']].map(([val, label, color]) => (
                   <button
                     key={val}
                     onClick={() => setAlertFilter(val)}
@@ -278,7 +278,7 @@ const DesktopInventory = ({
                     </div>
                     <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                       {p.alertType === 'lowstock' && (
-                        <button onClick={() => handleOneClickRestock(p)} style={{ background: '#f59e0b', border: 'none', color: '#000', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        <button onClick={() => handleOneClickRestock(p)} style={{ background: '#F59E0B', border: 'none', color: '#000', padding: '5px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
                           <RefreshCw size={10} />
                         </button>
                       )}
@@ -342,7 +342,7 @@ const DesktopInventory = ({
                     )}
                     {p.costPrice > 0 && p.price > 0 && (() => {
                       const margin = Math.round((p.price - p.costPrice) / p.price * 100);
-                      const color = margin >= 20 ? '#10B981' : margin >= 10 ? '#f59e0b' : '#EF4444';
+                      const color = margin >= 20 ? '#10B981' : margin >= 10 ? '#F59E0B' : '#EF4444';
                       const bg = margin >= 20 ? '#ECFDF5' : margin >= 10 ? '#FEF3C7' : '#FEF2F2';
                       const border = margin >= 20 ? '#A7F3D0' : margin >= 10 ? '#FDE68A' : '#FCA5A5';
                       return (
@@ -357,7 +357,7 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#f59e0b', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#F59E0B', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
                         Exp Soon ({p.expiryDate})
                       </span>
                     )}
@@ -367,7 +367,7 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 2 && daysLeft < 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#f59e0b', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#F59E0B', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
                         ⚠️ Reorder in {daysLeft}d
                       </span>
                     )}
