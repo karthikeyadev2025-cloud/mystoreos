@@ -138,7 +138,7 @@ export default function AlternativeComparison() {
       minHeight: '100vh',
       backgroundColor: '#070a13',
       color: '#f8fafc',
-      fontFamily: 'Outfit, sans-serif',
+      fontFamily: 'Plus Jakarta Sans, sans-serif',
       padding: '24px 16px 80px',
       backgroundImage: `radial-gradient(circle at top right, rgba(79, 70, 229, 0.15), transparent 45%),
                         radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.1), transparent 45%)`,

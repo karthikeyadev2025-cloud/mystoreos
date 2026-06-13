@@ -8,7 +8,7 @@ const css = `
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-  .ws-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);padding:20px;font-family:'Outfit',sans-serif}
+  .ws-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);padding:20px;font-family:'Plus Jakarta Sans',sans-serif}
   .ws-card{background:rgba(30,41,59,0.85);backdrop-filter:blur(20px);padding:40px 32px;border-radius:28px;border:1px solid rgba(255,255,255,0.1);max-width:480px;width:100%;box-shadow:0 30px 60px rgba(0,0,0,0.5);animation:fadeIn 0.4s ease}
   @media(max-width:480px){.ws-page{padding:12px;align-items:flex-start;padding-top:24px}.ws-card{padding:28px 18px;border-radius:20px}}
 `;

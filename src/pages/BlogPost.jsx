@@ -129,7 +129,7 @@ const BlogPost = () => {
   if (!post) return <Navigate to="/blog" replace />;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       {/* Hero */}
       <section style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 48px' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>

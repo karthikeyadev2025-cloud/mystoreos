@@ -19,7 +19,7 @@ const DEFAULTS = {
   successColor: '#10b981',
   warningColor: '#f59e0b',
   // Typography
-  fontFamily: 'Outfit',
+  fontFamily: 'Plus Jakarta Sans',
   borderRadius: '12px',
   // Feature flags
   maintenanceMode: false,

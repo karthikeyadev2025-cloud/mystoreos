@@ -210,7 +210,7 @@ function FAQ({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 0', background: 'none', border: 'none', cursor: 'pointer', color: '#f8fafc', fontSize: '15px', fontWeight: 600, textAlign: 'left', gap: '16px', fontFamily: 'Outfit,sans-serif' }}>
+      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 0', background: 'none', border: 'none', cursor: 'pointer', color: '#f8fafc', fontSize: '15px', fontWeight: 600, textAlign: 'left', gap: '16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <span>{q}</span>
         {open ? <ChevronUp size={16} color="#64748b" /> : <ChevronDown size={16} color="#64748b" />}
       </button>
@@ -263,7 +263,7 @@ export default function Pricing() {
       ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#030712', color: '#f8fafc', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#030712', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
         @media(max-width:900px){.plan-grid{flex-direction:column!important} .plan-grid>*{transform:none!important}}
@@ -294,7 +294,7 @@ export default function Pricing() {
         <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '4px', gap: '4px' }}>
           {['shops', 'distributors'].map(m => (
             <button key={m} onClick={() => setMode(m)}
-              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 700, fontFamily: 'Outfit,sans-serif', transition: 'all 0.2s',
+              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 700, fontFamily: 'Plus Jakarta Sans, sans-serif', transition: 'all 0.2s',
                 background: mode === m ? 'linear-gradient(135deg,#4F46E5,#818CF8)' : 'transparent',
                 color: mode === m ? '#fff' : '#94a3b8' }}>
               {m === 'shops' ? '🏪 For Shops' : '🚚 For Distributors'}

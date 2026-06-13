@@ -192,7 +192,7 @@ export default function AdminDashboard() {
                 <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px', flex: 1 }}>
                   ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
-                <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif', flexShrink: 0 }}>
+                <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', flexShrink: 0 }}>
                   <CheckCircle size={13} /> Approve All
                 </button>
               </div>
@@ -209,10 +209,10 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <button onClick={() => approvePending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif' }}>
+                      <button onClick={() => approvePending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <CheckCircle size={14} /> Approve
                       </button>
-                      <button onClick={() => rejectPending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit,sans-serif' }}>
+                      <button onClick={() => rejectPending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <XCircle size={14} /> Reject
                       </button>
                     </div>

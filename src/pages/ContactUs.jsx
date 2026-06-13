@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSiteConfig } from '../lib/siteConfig';
 
 const S = {
-  page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Outfit, sans-serif' },
+  page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Plus Jakarta Sans, sans-serif' },
   nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, background: 'rgba(3,7,18,0.92)', backdropFilter: 'blur(12px)', zIndex: 100 },
   logo: { fontSize: 18, fontWeight: 800, color: '#fff', cursor: 'pointer', letterSpacing: '-0.5px' },
   backBtn: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 },
@@ -22,8 +22,8 @@ const S = {
   formTitle: { fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 8 },
   formSub: { color: '#64748b', fontSize: 14, marginBottom: 28 },
   formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 },
-  input: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box', outline: 'none' },
-  textarea: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box', outline: 'none', resize: 'vertical', minHeight: 120 },
+  input: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Plus Jakarta Sans, sans-serif', boxSizing: 'border-box', outline: 'none' },
+  textarea: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Plus Jakarta Sans, sans-serif', boxSizing: 'border-box', outline: 'none', resize: 'vertical', minHeight: 120 },
   sendBtn: { background: '#25D366', color: '#fff', border: 'none', padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: 'pointer', marginTop: 8 },
   faqSection: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px' },
   faqTitle: { fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 20 },

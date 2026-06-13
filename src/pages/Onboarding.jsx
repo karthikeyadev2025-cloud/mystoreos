@@ -153,7 +153,7 @@ export default function Onboarding() {
 
   if (step === 3) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#090514,#120F2D)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#090514,#120F2D)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <div style={{ textAlign: 'center', color: '#f8fafc', padding: '24px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
           <h2 style={{ fontSize: '28px', fontWeight: 900, margin: '0 0 12px' }}>You're all set!</h2>
@@ -163,13 +163,13 @@ export default function Onboarding() {
     );
   }
 
-  const inp = { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Outfit, sans-serif' };
+  const inp = { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Plus Jakarta Sans, sans-serif' };
   const lbl = { display: 'block', fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' };
 
   // ── OAuth new-user role picker ──
   if (pickingRole) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
           <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: '#f8fafc' }}>Welcome{oauthPending?.name ? `, ${oauthPending.name.split(' ')[0]}` : ''}! 👋</h2>
@@ -182,7 +182,7 @@ export default function Onboarding() {
                 style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left',
                   padding: '16px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.12)',
                   borderRadius: '14px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1,
-                  fontFamily: 'Outfit, sans-serif', transition: 'border-color .15s' }}
+                  fontFamily: 'Plus Jakarta Sans, sans-serif', transition: 'border-color .15s' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = '#4F46E5'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>
                 <span style={{ fontSize: '28px' }}>{icon}</span>
@@ -202,7 +202,7 @@ export default function Onboarding() {
   return (
     <>
       <style>{`.onb-hidden{display:none}`}</style>
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
 
@@ -312,15 +312,15 @@ export default function Onboarding() {
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
             {step > 0 && (
-              <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '13px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8fafc', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+              <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '13px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8fafc', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 Back
               </button>
             )}
-            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', border: 'none', color: '#fff', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Outfit, sans-serif' }}>
+            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', border: 'none', color: '#fff', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               {saving ? 'Saving...' : step === 2 ? 'Finish Setup 🚀' : 'Next →'}
             </button>
           </div>
-          <button onClick={() => navigate('/waiting')} style={{ width: '100%', marginTop: '10px', background: 'none', border: 'none', color: '#475569', fontSize: '12px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', padding: '8px' }}>
+          <button onClick={() => navigate('/waiting')} style={{ width: '100%', marginTop: '10px', background: 'none', border: 'none', color: '#475569', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: '8px' }}>
             Skip for now
           </button>
         </div>

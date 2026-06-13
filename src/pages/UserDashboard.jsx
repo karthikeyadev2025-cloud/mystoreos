@@ -868,7 +868,7 @@ const UserDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", width: '100%' }}>
+      <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
 
         {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
@@ -1785,7 +1785,7 @@ const UserDashboard = () => {
   }
 
   return (
-    <div style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}

@@ -37,7 +37,7 @@ const BlogIndex = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <section style={{ padding: '72px 24px 32px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94a3b8', letterSpacing: '2px', textTransform: 'uppercase' }}>The Blog</p>

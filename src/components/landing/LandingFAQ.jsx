@@ -19,7 +19,7 @@ export default function LandingFAQ({ faq }) {
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
               style={{ background: '#1E293B', border: `1px solid ${open === i ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 14, overflow: 'hidden', transition: 'border-color 0.2s' }}>
               <button onClick={() => setOpen(open === i ? null : i)}
-                style={{ width: '100%', padding: '18px 20px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, fontFamily: 'Outfit, sans-serif', textAlign: 'left' }}>
+                style={{ width: '100%', padding: '18px 20px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, fontFamily: 'Plus Jakarta Sans, sans-serif', textAlign: 'left' }}>
                 <span style={{ color: '#f8fafc', fontSize: 15, fontWeight: 700 }}>{item.q}</span>
                 <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ flexShrink: 0 }}>
                   <ChevronDown size={18} color="#64748b" />

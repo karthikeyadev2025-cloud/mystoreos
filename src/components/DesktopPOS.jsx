@@ -126,7 +126,7 @@ const DesktopPOS = ({
                     strokeLinecap="round" transform="rotate(-90 40 40)"
                     style={{ transition: 'stroke-dashoffset 0.6s ease' }}
                   />
-                  <text x="40" y="45" textAnchor="middle" fill="#0f172a" fontSize="13" fontWeight="bold" fontFamily="Outfit, sans-serif">{targetPctInt}%</text>
+                  <text x="40" y="45" textAnchor="middle" fill="#0f172a" fontSize="13" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif">{targetPctInt}%</text>
                 </svg>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', marginBottom: '2px' }}>{motivation}</div>

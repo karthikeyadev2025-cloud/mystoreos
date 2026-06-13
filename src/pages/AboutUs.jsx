@@ -70,7 +70,7 @@ export default function AboutUs() {
   const parallax = scrollY * 0.3;
 
   return (
-    <div style={{ background: '#03060f', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", color: '#f1f5f9', overflowX: 'hidden' }}>
+    <div style={{ background: '#03060f', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#f1f5f9', overflowX: 'hidden' }}>
 
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }

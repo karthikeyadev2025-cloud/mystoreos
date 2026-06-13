@@ -109,7 +109,7 @@ export default function LandingPage() {
   }, [config]);
 
   return (
-    <div style={{ background: '#030712', color: '#f8fafc', fontFamily: 'Outfit, sans-serif', overflowX: 'hidden', minWidth: 375 }}>
+    <div style={{ background: '#030712', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif', overflowX: 'hidden', minWidth: 375 }}>
       <style>{GCSS}</style>
       <LandingNav config={config} navigate={navigate} />
       <LandingHero hero={hero} navigate={navigate} config={config} />

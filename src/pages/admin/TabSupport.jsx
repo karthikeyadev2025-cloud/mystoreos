@@ -25,7 +25,7 @@ const ACTION_LABELS = {
 
 const S = {
   card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
-  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '13px', fontFamily: 'Outfit, sans-serif', outline: 'none' },
+  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
   th: { color: '#475569', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
   td: { color: '#0f172a', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' },
 };
@@ -187,7 +187,7 @@ export default function TabSupport() {
           <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Support &amp; Audit</h2>
           <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Admin action audit trail — every mutation is logged</p>
         </div>
-        <button onClick={load} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>
+        <button onClick={load} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
           <RefreshCw size={13} />Refresh
         </button>
       </div>
@@ -218,10 +218,10 @@ export default function TabSupport() {
           <select value={filterAction} onChange={e => setFilterAction(e.target.value)} style={{ ...S.input, cursor: 'pointer', minWidth: '160px' }}>
             {uniqueActions.map(a => <option key={a} value={a}>{a === 'all' ? 'All Actions' : ACTION_LABELS[a] || a}</option>)}
           </select>
-          <button onClick={exportAuditCSV} style={{ background: '#ffffff', border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={exportAuditCSV} style={{ background: '#ffffff', border: '1px solid #3b82f6', color: '#3b82f6', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Download size={13} />Export
           </button>
-          <button onClick={clearLog} style={{ background: '#ffffff', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={clearLog} style={{ background: '#ffffff', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={13} />Clear
           </button>
         </div>

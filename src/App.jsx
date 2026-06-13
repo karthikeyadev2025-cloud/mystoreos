@@ -36,7 +36,7 @@ const PageLoader = () => (
   <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div style={{ textAlign: 'center' }}>
       <div style={{ width: '40px', height: '40px', border: '3px solid rgba(139,92,246,0.2)', borderTop: '3px solid #8b5cf6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-      <p style={{ color: '#475569', fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>Loading MyStore OS...</p>
+      <p style={{ color: '#475569', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Loading MyStore OS...</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   </div>
@@ -88,7 +88,7 @@ function AnnouncementBanner() {
   const dismissed = dismissedKey === config.announcementText;
   if (!config.announcementActive || !config.announcementText || dismissed) return null;
   return (
-    <div style={{ background: BANNER_COLORS[config.announcementType] || '#3b82f6', color: '#fff', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ background: BANNER_COLORS[config.announcementType] || '#3b82f6', color: '#fff', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <span>{config.announcementText}</span>
       <button onClick={() => { try { sessionStorage.setItem('ann_dismissed', config.announcementText); } catch (_e) { /* ignore */ } setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
     </div>
@@ -100,7 +100,7 @@ function MaintenanceModeOverlay() {
   const { user } = useAuth();
   if (!config.maintenanceMode || user?.role === 'admin') return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <div style={{ fontSize: '48px' }}>🔧</div>
       <h2 style={{ color: '#f8fafc', fontSize: '24px', fontWeight: 700 }}>Under Maintenance</h2>
       <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', maxWidth: '400px' }}>{config.maintenanceMessage || 'We are performing scheduled maintenance. Back soon!'}</p>

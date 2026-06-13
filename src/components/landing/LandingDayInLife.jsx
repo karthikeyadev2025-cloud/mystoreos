@@ -28,7 +28,7 @@ export default function LandingDayInLife() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, order: 2 }}>
             {BEATS.map((b, i) => (
               <button key={i} onClick={() => setActive(i)}
-                style={{ background: active === i ? 'rgba(244,63,94,0.1)' : '#1E293B', border: `1px solid ${active === i ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12, padding: 'clamp(10px,2vw,14px) clamp(12px,2vw,18px)', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: 14, alignItems: 'center', transition: 'all 0.2s', fontFamily: 'Outfit, sans-serif' }}>
+                style={{ background: active === i ? 'rgba(244,63,94,0.1)' : '#1E293B', border: `1px solid ${active === i ? 'rgba(244,63,94,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12, padding: 'clamp(10px,2vw,14px) clamp(12px,2vw,18px)', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: 14, alignItems: 'center', transition: 'all 0.2s', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 <span style={{ fontSize: 20 }}>{b.icon}</span>
                 <div>
                   <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{b.time}</div>

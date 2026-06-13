@@ -52,7 +52,7 @@ class ErrorBoundary extends Component {
           minHeight: this.props.fullPage ? '100vh' : '300px',
           background: this.props.fullPage ? '#0f172a' : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '24px', fontFamily: 'Outfit, system-ui, sans-serif',
+          padding: '24px', fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
         }}>
           <div style={{
             maxWidth: '480px', width: '100%',

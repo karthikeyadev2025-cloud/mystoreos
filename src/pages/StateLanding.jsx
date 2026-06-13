@@ -74,7 +74,7 @@ const StateLanding = () => {
   const testimonial = TESTIMONIALS[state];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Outfit, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       {/* Hero */}
       <section style={{ background: 'linear-gradient(135deg,#1e1b4b 0%,#0f172a 60%,#0f172a 100%)', padding: '80px 24px 64px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: '880px', margin: '0 auto' }}>

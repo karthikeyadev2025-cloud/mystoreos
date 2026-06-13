@@ -58,7 +58,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           <div style={{ display: 'inline-flex', background: '#1E293B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
             {['shop', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
-                style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#f8fafc' : '#64748b', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}>
+                style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#f8fafc' : '#64748b', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', transition: 'all 0.2s' }}>
                 {t === 'shop' ? '🏪 Shopkeeper' : '🚚 Distributor'}
               </button>
             ))}
@@ -72,7 +72,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
                   const disc = c !== 'monthly' ? Number(pricing?.discounts?.[c]) || 0 : 0;
                   return (
                     <button key={c} onClick={() => setCycle(c)}
-                      style={{ background: cycle === c ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'transparent', border: 'none', color: cycle === c ? '#fff' : '#94a3b8', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                      style={{ background: cycle === c ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'transparent', border: 'none', color: cycle === c ? '#fff' : '#94a3b8', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                       {cycleLabel[c]}{disc > 0 && <span style={{ marginLeft: 6, fontSize: 10, color: cycle === c ? '#fff' : '#10b981', fontWeight: 800 }}>-{disc}%</span>}
                     </button>
                   );
@@ -121,7 +121,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
                   </li>
                 ))}
               </ul>
-              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: isFree ? 'rgba(16,185,129,0.15)' : p.popular ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.08)', color: isFree ? '#10b981' : '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', border: isFree ? '1px solid rgba(16,185,129,0.3)' : 'none' }}>
+              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: isFree ? 'rgba(16,185,129,0.15)' : p.popular ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.08)', color: isFree ? '#10b981' : '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', border: isFree ? '1px solid rgba(16,185,129,0.3)' : 'none' }}>
                 {isFree ? 'Get Started Free' : 'Start Free Trial →'}
               </button>
             </motion.div>
@@ -132,11 +132,11 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginTop: 36, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/pricing')}
-            style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '14px 32px', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            style={{ background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', border: 'none', color: '#fff', padding: '14px 32px', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             View Full Pricing →
           </button>
           <button onClick={() => navigate('/register')}
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
             Start Free 15-Day Trial
           </button>
         </motion.div>

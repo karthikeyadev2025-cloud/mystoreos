@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 const S = {
-  page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Outfit, sans-serif' },
+  page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Plus Jakarta Sans, sans-serif' },
   nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, background: 'rgba(3,7,18,0.92)', backdropFilter: 'blur(12px)', zIndex: 100 },
   logo: { fontSize: 18, fontWeight: 800, color: '#fff', cursor: 'pointer', letterSpacing: '-0.5px' },
   backBtn: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 },

@@ -10,7 +10,7 @@ const BIZ_TYPES = ['Kirana / Grocery', 'Supermarket', 'Medical / Pharmacy', 'Sal
 const emptyProd = () => ({ name: '', price: '', stock: '' });
 
 const S = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)', padding: '20px', fontFamily: 'Outfit, sans-serif' },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' },
   card: { background: 'rgba(30,41,59,0.9)', backdropFilter: 'blur(20px)', padding: '36px 28px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 480, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' },
   inp: { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' },
   lbl: { display: 'block', color: '#cbd5e1', fontSize: '12px', marginBottom: 5, fontWeight: 600 },
