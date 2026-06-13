@@ -4,6 +4,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { resolveUnit, UNIT_SUFFIX } from '../lib/units';
 
 const DesktopPOS = ({
+  footerSlot,
   products,
   filteredProducts,
   billItems,
@@ -276,6 +277,7 @@ const DesktopPOS = ({
             )}
           </div>
         </div>
+        {footerSlot}
 
       </div>
 

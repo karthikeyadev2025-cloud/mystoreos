@@ -1969,6 +1969,7 @@ const ShopDashboard = () => {
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
           {activeTab === 'home' && (
             <DesktopPOS 
+              footerSlot={isOwner ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
               products={products}
               filteredProducts={filteredProducts}
               billItems={billItems}
@@ -2021,11 +2022,6 @@ const ShopDashboard = () => {
               flashSales={flashSales}
               shopCategory={shopCategory}
             />
-          )}
-
-          {/* Refer & Earn — shown at bottom of home tab */}
-          {activeTab === 'home' && isOwner && (
-            <ReferAndEarnCard userId={user?.id} userName={user?.name} />
           )}
 
           {activeTab === 'products' && isOwner && (
