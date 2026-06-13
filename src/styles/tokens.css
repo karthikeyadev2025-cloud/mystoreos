@@ -184,3 +184,30 @@
   box-shadow: var(--sh-lg) !important;
   border-color: var(--c-primary-border) !important;
 }
+
+/* ---- Layer 3: universal interaction polish ---- */
+/* Token buttons get hover + press feedback */
+.ds-btn-primary:hover { box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
+.ds-btn-secondary:hover { border-color: var(--c-primary-border); }
+
+/* Accessible focus ring for keyboard users (doesn't show on mouse click) */
+.ds-input:focus-visible,
+.ds-btn:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Inputs: smooth focus on the existing premium look */
+input:focus, select:focus, textarea:focus { outline: none; }
+
+/* Generic card hover lift for clickable cards that opt in */
+.ds-card-interactive {
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.ds-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-md);
+  border-color: var(--c-primary-border);
+}
