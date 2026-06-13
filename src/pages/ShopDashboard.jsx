@@ -1897,7 +1897,7 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', color: '#0F172A', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
+    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', color: '#0F172A', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
     header: { background: '#0F172A', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1E293B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
@@ -4454,7 +4454,7 @@ const ShopDashboard = () => {
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#ffffff', padding: '12px 0', borderTop: '1px solid #e5e7eb', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#ffffff', padding: '12px 0 calc(12px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #e5e7eb', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
         <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('home')}>
           <Home size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Home</p>

@@ -58,8 +58,15 @@ export const AuthProvider = ({ children }) => {
         const { api } = await import("../lib/api");
         const fresh = await api.getUserById(cached.id);
         if (cancelled || !fresh) return;
-        // Merge fresh DB fields over the cached session (keep any session-only fields).
-        const merged = { ...cached, ...fresh };
+        // Non-destructive merge: fresh DB values win, but a null/undefined/empty
+        // fresh field must NOT wipe a good cached value (e.g. publicCode). This
+        // is why the shop ID "sometimes showed, sometimes not" — a partial fresh
+        // read overwrote the cached code with null.
+        const merged = { ...cached };
+        for (const k of Object.keys(fresh)) {
+          const v = fresh[k];
+          if (v !== null && v !== undefined && v !== '') merged[k] = v;
+        }
         if (JSON.stringify(merged) !== JSON.stringify(cached)) {
           try { localStorage.setItem("mystore_session", JSON.stringify(merged)); } catch (_e) { /* ignore */ }
           setUser(merged);

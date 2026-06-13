@@ -9,9 +9,14 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Precache only static assets, NOT html — html is handled by the
+        // NetworkFirst navigation rule below so a new deploy is always picked up
+        // without a hard refresh. (Precaching index.html made it cache-first,
+        // which defeated NetworkFirst and is why updates needed a manual refresh.)
+        globPatterns: ['**/*.{js,css,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 4_000_000,
         navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/, /supabase/],
         // Force new SW to take control immediately — evicts old cached bundles
         skipWaiting: true,
         clientsClaim: true,
@@ -22,13 +27,13 @@ export default defineConfig({
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
-            options: { cacheName: 'navigation', networkTimeoutSeconds: 5 },
+            options: { cacheName: 'navigation', networkTimeoutSeconds: 3 },
           },
           // Hashed assets: NetworkFirst so new chunk hashes are always fetched
           {
             urlPattern: /\/assets\/.+\.(js|css)$/,
             handler: 'NetworkFirst',
-            options: { cacheName: 'hashed-assets', networkTimeoutSeconds: 10 },
+            options: { cacheName: 'hashed-assets', networkTimeoutSeconds: 5 },
           },
         ],
       },
