@@ -759,3 +759,32 @@ input[type=number] { -moz-appearance: textfield; }
     margin: 6mm;
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   POS inside the sidebar app-shell: natural page scroll +
+   sticky cart (overrides the old fixed-height two-pane that
+   was sized for the removed top bar). Scoped to .enterprise-main
+   so the consumer/distributor uses of .responsive-split-grid
+   are untouched.
+   ══════════════════════════════════════════════════════ */
+.enterprise-main .responsive-split-grid {
+  height: auto !important;
+  overflow: visible !important;
+  align-items: start !important;
+  gap: 20px !important;
+}
+.enterprise-main .responsive-split-grid > *:first-child {
+  overflow-y: visible !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.enterprise-main .responsive-split-grid > *:last-child {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+}
