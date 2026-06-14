@@ -61,18 +61,18 @@ function ReferAndEarnCard({ userId, userName }) {
         <span style={{ fontSize: 22 }}>🔗</span>
         <div>
           <div style={{ fontWeight: 800, fontSize: 15, color: '#4F46E5' }}>Refer & Earn</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>Share your code — earn 20% commission when referrals subscribe</div>
+          <div style={{ fontSize: 11, color: '#64748B' }}>Share your code — earn 20% commission when referrals subscribe</div>
         </div>
       </div>
-      {loading ? <div style={{ color: '#64748b', fontSize: 12 }}>Generating your code...</div> : (
+      {loading ? <div style={{ color: '#64748B', fontSize: 12 }}>Generating your code...</div> : (
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ background: '#0f172a', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#a78bfa', letterSpacing: 3, flexShrink: 0 }}>
+          <div style={{ background: '#0F172A', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#A78BFA', letterSpacing: 3, flexShrink: 0 }}>
             {code?.code || '—'}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📋 Copy Code</button>
-            <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>🔗 Copy Link</button>
-            <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📲 Share on WhatsApp</button>
+            <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#A78BFA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📋 Copy Code</button>
+            <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60A5FA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>🔗 Copy Link</button>
+            <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25D366,#128C7E)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📲 Share on WhatsApp</button>
           </div>
         </div>
       )}
@@ -598,13 +598,13 @@ const ShopDashboard = () => {
       const { jsPDF: JsPDF } = await import('jspdf');
       const doc = new JsPDF();
       
-      let themeColor = '#10b981'; // emerald green for bill
+      let themeColor = '#10B981'; // emerald green for bill
       let modeTitle = 'TAX INVOICE';
       if (billingMode === 'estimate') {
         themeColor = '#4F46E5'; // amber orange for estimate
         modeTitle = 'PROFORMA ESTIMATE / QUOTATION';
       } else if (billingMode === 'challan') {
-        themeColor = '#3b82f6'; // blue for challan
+        themeColor = '#3B82F6'; // blue for challan
         modeTitle = 'DELIVERY CHALLAN (GOODS IN TRANSIT)';
       }
       
@@ -1833,9 +1833,9 @@ const ShopDashboard = () => {
   const getAnnounceColor = () => {
     switch(announceConfig.type) {
       case 'warning': return '#4F46E5';
-      case 'success': return '#22c55e';
-      case 'error': return '#ef4444';
-      default: return '#3b82f6';
+      case 'success': return '#22C55E';
+      case 'error': return '#EF4444';
+      default: return '#3B82F6';
     }
   };
 
@@ -1853,15 +1853,15 @@ const ShopDashboard = () => {
             return (
               <button key={c} onClick={() => setBillingCycle(c)}
                 style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
-                  background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94a3b8', position: 'relative' }}>
+                  background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94A3B8', position: 'relative' }}>
                 {cycleLabel[c]}
-                {disc > 0 && <span style={{ marginLeft: 5, fontSize: '10px', color: billingCycle === c ? '#fff' : '#10b981', fontWeight: 800 }}>-{disc}%</span>}
+                {disc > 0 && <span style={{ marginLeft: 5, fontSize: '10px', color: billingCycle === c ? '#fff' : '#10B981', fontWeight: 800 }}>-{disc}%</span>}
               </button>
             );
           })}
         </div>
         {offerOn && billingCycle !== 'monthly' && (
-          <div style={{ marginTop: '10px', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+          <div style={{ marginTop: '10px', color: '#10B981', fontSize: '12px', fontWeight: 700 }}>
             🎉 Launch offer: extra {pricing.offer.percent}% OFF — only {pricing.offer.remaining} slots left!
           </div>
         )}
@@ -1876,7 +1876,7 @@ const ShopDashboard = () => {
       return (
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
           <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
-          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>/ month</span>
+          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>/ month</span>
         </div>
       );
     }
@@ -1884,12 +1884,12 @@ const ShopDashboard = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
-          {showStrike && <span style={{ fontSize: '16px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{pr.base}</span>}
+          {showStrike && <span style={{ fontSize: '16px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{pr.base}</span>}
           <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{pr.final}</span>
-          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{cycleSuffix[billingCycle]}</span>
+          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{cycleSuffix[billingCycle]}</span>
         </div>
         {billingCycle !== 'monthly' && (
-          <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>
+          <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 700 }}>
             {pr.offerOn ? `Save ${pr.cycleDisc + pr.offerPercent}% total — launch offer` : pr.cycleDisc > 0 ? `Save ${pr.cycleDisc}% vs monthly` : ''}
           </span>
         )}
@@ -1912,7 +1912,7 @@ const ShopDashboard = () => {
     gridSub: { fontSize: '10px', color: '#64748B', margin: 0 },
     section: { margin: '16px 12px', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
     sectionHeader: { backgroundColor: '#F8FAFC', padding: '12px', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' },
-    whatsappBtn: { backgroundColor: '#22c55e', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
+    whatsappBtn: { backgroundColor: '#22C55E', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
     upiBtn: { backgroundColor: '#4F46E5', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
     prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #E2E8F0' },
     orderCard: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', margin: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
@@ -1928,17 +1928,17 @@ const ShopDashboard = () => {
         )}
         {deviceLimitExceeded && isOwner && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-            <div style={{ maxWidth: '440px', width: '100%', background: 'linear-gradient(135deg, #1e293b, #0f172a)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '20px', padding: '36px', textAlign: 'center' }}>
+            <div style={{ maxWidth: '440px', width: '100%', background: 'linear-gradient(135deg, #1E293B, #0F172A)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '20px', padding: '36px', textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '14px' }}>📱</div>
               <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '800', color: 'white' }}>Device Limit Reached</h2>
-              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#94a3b8', lineHeight: '1.6' }}>
-                Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: '#fbbf24' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
+              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#94A3B8', lineHeight: '1.6' }}>
+                Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: '#FBBF24' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
                 You have {activeSessions.length} device{activeSessions.length !== 1 ? 's' : ''} logged in.
               </p>
-              <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: '#64748b' }}>
+              <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: '#64748B' }}>
                 Sign out from your other devices, or force this device in by revoking all other sessions.
               </p>
-              <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, #ef4444, #b91c1c)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
+              <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, #EF4444, #B91C1C)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
                 Use This Device (Revoke Others)
               </button>
               <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
@@ -2196,9 +2196,9 @@ const ShopDashboard = () => {
         {/* Global Modals for Desktop */}
         {showPaymentQrModal && (paymentQr || upiId) && (
           <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-            <div onClick={e => e.stopPropagation()} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
               <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
-              <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
+              <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
               <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
                 {paymentQr ? (
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
@@ -2209,10 +2209,10 @@ const ShopDashboard = () => {
                   />
                 )}
               </div>
-              <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+              <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
                 <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
-                <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
+                <span style={{ fontSize: '9px', color: '#64748B' }}> • mystoreos.in</span>
               </div>
               <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
                 Close
@@ -2225,26 +2225,26 @@ const ShopDashboard = () => {
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
               <div id="reader" style={{ width: '100%' }}></div>
-              <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#ef4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+              <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
             </div>
           </div>
         )}
 
         {showReturnModal && returnOrder && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, padding: '20px' }}>
-            <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #ef4444' }}>
+            <div style={{ background: '#1E293B', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #EF4444' }}>
               <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#fff', display: 'flex', justifyContent: 'space-between' }}>
                 Process Sales Return
-                <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
+                <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#94A3B8' }}>✕</span>
               </h2>
-              <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+              <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
                 {returnOrder.items.map(item => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
                     <div>
                       <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold' }}>{item.name}</p>
-                      <p style={{ margin: 0, fontSize: '12px', color: '#fbbf24' }}>₹{item.price} x {item.qty}</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: '#FBBF24' }}>₹{item.price} x {item.qty}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
@@ -2256,11 +2256,11 @@ const ShopDashboard = () => {
               </div>
               
               <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#ef4444' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
                   <span>Total Refund:</span>
                   <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * (returnItemsState[item.id] || 0)), 0).toFixed(2)}</span>
                 </div>
-                <button onClick={handleProcessReturn} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+                <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
                   Confirm Return & Generate Credit Note
                 </button>
               </div>
@@ -2270,21 +2270,21 @@ const ShopDashboard = () => {
 
         {showAdminPinModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: '#1e293b', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid #ef4444', textAlign: 'center' }}>
-              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#ef4444' }}>Admin Authorization Required</h2>
-              <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+            <div style={{ background: '#1E293B', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid #EF4444', textAlign: 'center' }}>
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#EF4444' }}>Admin Authorization Required</h2>
+              <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
               
               <input 
                 type="password" 
                 placeholder="Enter Admin PIN" 
                 value={adminPinInput} 
                 onChange={e => setAdminPinInput(e.target.value)} 
-                style={{ padding: '16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
+                style={{ padding: '16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
               />
               
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: '#94a3b8', border: '1px solid #334155', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+                <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: '#94A3B8', border: '1px solid #334155', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
               </div>
             </div>
           </div>
@@ -2306,61 +2306,61 @@ const ShopDashboard = () => {
 
         {showAddProductModal && (
           <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: '#1e293b', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: '#1E293B', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
               <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: 'bold', color: '#fff' }}>📦 Add Product to Inventory</h2>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                  <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                  <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                  <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                  <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                  <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                  <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                  <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                  <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-                <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+                <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
-                <select value={newProdUnit || shopDefaultUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+                <select value={newProdUnit || shopDefaultUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
                   {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
                 </select>
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748b' }}>Default for your shop type: <b style={{ color: '#94a3b8' }}>{shopDefaultUnit}</b></p>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>Default for your shop type: <b style={{ color: '#94A3B8' }}>{shopDefaultUnit}</b></p>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                  <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                  <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                  <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                  <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
                     <option value="0">0% (Exempt)</option>
                     <option value="3">3%</option>
                     <option value="5">5%</option>
@@ -2371,9 +2371,9 @@ const ShopDashboard = () => {
                 </div>
               </div>
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
                 {scannedBarcode && (
                   <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
@@ -2382,22 +2382,22 @@ const ShopDashboard = () => {
                 )}
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Product Photo (Optional)</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Product Photo (Optional)</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <input type="file" accept="image/*" id="new-prod-img-desktop" style={{ display: 'none' }} onChange={handleNewProdImage} />
                   <label htmlFor="new-prod-img-desktop" style={{ cursor: 'pointer' }}>
-                    <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#0f172a', border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#0F172A', border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                       {newProdImage ? <img src={newProdImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} /> : <span style={{ fontSize: '28px' }}>📸</span>}
                     </div>
                   </label>
                   {newProdImage && (
-                    <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
+                    <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
                   )}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-                <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid #334155', padding: '14px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
+                <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#94A3B8', border: '1px solid #334155', padding: '14px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
           </div>
@@ -2420,7 +2420,7 @@ const ShopDashboard = () => {
           overflowY: 'auto'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+            background: 'linear-gradient(135deg, #1E293B, #0F172A)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
             width: '100%',
@@ -2442,7 +2442,7 @@ const ShopDashboard = () => {
                 right: '20px',
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#cbd5e1',
+                color: '#CBD5E1',
                 borderRadius: '50%',
                 width: '36px',
                 height: '36px',
@@ -2473,10 +2473,10 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #FFFFFF, #94A3B8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
                 Select Your Business Growth Plan
               </h2>
-              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
                 Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
               </p>
             </div>
@@ -2529,7 +2529,7 @@ const ShopDashboard = () => {
 
                     <div>
                       <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#CBD5E1', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
                     {renderPlanPrice(plan)}
@@ -2540,8 +2540,8 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
                       {plan.features?.map((feat, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <span style={{ color: '#10b981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
-                          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{feat}</span>
+                          <span style={{ color: '#10B981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{feat}</span>
                         </div>
                       ))}
                     </div>
@@ -2553,7 +2553,7 @@ const ShopDashboard = () => {
                           width: '100%',
                           background: 'rgba(255, 255, 255, 0.05)',
                           border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#94a3b8',
+                          color: '#94A3B8',
                           padding: '12px',
                           borderRadius: '10px',
                           fontSize: '13px',
@@ -2569,7 +2569,7 @@ const ShopDashboard = () => {
                         style={{
                           width: '100%',
                           background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
-                          color: isPopular ? 'white' : '#0f172a',
+                          color: isPopular ? 'white' : '#0F172A',
                           border: 'none',
                           padding: '12px',
                           borderRadius: '10px',
@@ -2588,7 +2588,7 @@ const ShopDashboard = () => {
               })}
             </div>
             
-            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
               🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
             </div>
           </div>
@@ -2618,11 +2618,11 @@ const ShopDashboard = () => {
             <div style={{ width: 12, height: 12, background: 'white', borderRadius: '50%' }}></div>
             MyStore Pro
           </h2>
-          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#cbd5e1' }}>
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#CBD5E1' }}>
             {user.name}
-            {user?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818cf8', fontWeight: 700 }}>· {user.publicCode}</span>}
+            {user?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {user.publicCode}</span>}
           </p>
-          <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ade80' : '#f87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
+          <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ADE80' : '#F87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
         </div>
@@ -2632,13 +2632,13 @@ const ShopDashboard = () => {
       </div>
 
       {isOwner && isOnTrial && !trialBannerDismissed && (
-        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16a34a,#15803d)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#d97706,#b45309)' : 'linear-gradient(90deg,#dc2626,#b91c1c)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16A34A,#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#D97706,#B45309)' : 'linear-gradient(90deg,#DC2626,#B91C1C)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
             ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
             {trialDaysLeft <= 3 && <span style={{ marginLeft: '8px', opacity: 0.9, fontWeight: 400, fontSize: '12px' }}>— Upgrade to keep your data & features</span>}
           </span>
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: trialDaysLeft >= 5 ? '#16a34a' : trialDaysLeft >= 3 ? '#d97706' : '#dc2626', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: trialDaysLeft >= 5 ? '#16A34A' : trialDaysLeft >= 3 ? '#D97706' : '#DC2626', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Upgrade →
             </button>
             <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>×</button>
@@ -2663,11 +2663,11 @@ const ShopDashboard = () => {
 
           {/* AI Insights Card */}
           {products.filter(p => p.stock < 10).length > 0 && (
-            <div style={{ margin: '12px', background: 'linear-gradient(145deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))', border: '1px solid #ef4444', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ margin: '12px', background: 'linear-gradient(145deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))', border: '1px solid #EF4444', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <span style={{ fontSize: '24px' }}>🤖</span>
               <div>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#fca5a5' }}>AI Inventory Warning</h4>
-                <p style={{ margin: 0, fontSize: '11px', color: '#f87171' }}>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#FCA5A5' }}>AI Inventory Warning</h4>
+                <p style={{ margin: 0, fontSize: '11px', color: '#F87171' }}>
                   You are running low on <b>{products.filter(p => p.stock < 10).map(p => p.name).join(', ')}</b>. Based on your weekend sales trend, you will run out by Sunday.
                 </p>
               </div>
@@ -2676,7 +2676,7 @@ const ShopDashboard = () => {
 
           {/* Stats Row */}
           <div style={styles.statRow}>
-            <div style={styles.statBox} onClick={() => setActiveTab('bills')}><p style={{...styles.statNum, color: pendingOrders > 0 ? '#ef4444' : '#4F46E5'}}>{pendingOrders}</p><p style={styles.statLabel}>New Orders</p></div>
+            <div style={styles.statBox} onClick={() => setActiveTab('bills')}><p style={{...styles.statNum, color: pendingOrders > 0 ? '#EF4444' : '#4F46E5'}}>{pendingOrders}</p><p style={styles.statLabel}>New Orders</p></div>
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{sales}</p><p style={styles.statLabel}>Revenue</p></div>}
             <div style={styles.statBox} onClick={() => setActiveTab('products')}><p style={styles.statNum}>{products.length}</p><p style={styles.statLabel}>Products</p></div>
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{payable}</p><p style={styles.statLabel}>Credit Due</p></div>}
@@ -2684,7 +2684,7 @@ const ShopDashboard = () => {
 
           {/* Search */}
           <div style={styles.searchBar}>
-            <Search size={18} color="#94a3b8" />
+            <Search size={18} color="#94A3B8" />
             <input 
               type="text" 
               placeholder="Search products to bill..." 
@@ -2697,7 +2697,7 @@ const ShopDashboard = () => {
           {/* Action Grid */}
           <div style={styles.grid}>
             <div style={styles.gridBtn} onClick={() => setShowScanner(true)}>
-              <ScanLine size={24} color="#94a3b8" />
+              <ScanLine size={24} color="#94A3B8" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Scan Bill</p><p style={styles.gridSub}>స్కాన్ బిల్</p></div>
             </div>
             {isOwner && (
@@ -2711,21 +2711,21 @@ const ShopDashboard = () => {
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
             </div>
             <div style={styles.gridBtn} onClick={handleShowUpiQr}>
-              <IndianRupee size={24} color="#f59e0b" />
+              <IndianRupee size={24} color="#F59E0B" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>UPI QR</p></div>
             </div>
             {isOwner && (
               <div style={styles.gridBtn} onClick={() => setActiveTab('credit')}>
-                <Book size={24} color="#f59e0b" />
+                <Book size={24} color="#F59E0B" />
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Credit Book</p><p style={styles.gridSub}>బకాయిలు</p></div>
               </div>
             )}
             <div style={styles.gridBtn} onClick={() => setActiveTab('bills')}>
-              <Receipt size={24} color={pendingOrders > 0 ? "#ef4444" : "#94a3b8"} />
+              <Receipt size={24} color={pendingOrders > 0 ? "#EF4444" : "#94A3B8"} />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>All Bills</p><p style={styles.gridSub}>అన్ని బిల్లులు</p></div>
             </div>
             <div style={styles.gridBtn} onClick={handleShareShop}>
-              <Share2 size={24} color="#ef4444" />
+              <Share2 size={24} color="#EF4444" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Share Shop</p><p style={styles.gridSub}>Share Link</p></div>
             </div>
           </div>
@@ -2743,9 +2743,9 @@ const ShopDashboard = () => {
                   onClick={() => setBillingMode('bill')} 
                   style={{ 
                     flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'bill' ? '#10b981' : '#2a2f3d'),
-                    background: billingMode === 'bill' ? 'rgba(16,185,129,0.15)' : '#1e222d',
-                    color: billingMode === 'bill' ? '#10b981' : '#cbd5e1'
+                    border: '1px solid ' + (billingMode === 'bill' ? '#10B981' : '#2A2F3D'),
+                    background: billingMode === 'bill' ? 'rgba(16,185,129,0.15)' : '#1E222D',
+                    color: billingMode === 'bill' ? '#10B981' : '#CBD5E1'
                   }}
                 >
                   🟢 Standard Bill
@@ -2754,9 +2754,9 @@ const ShopDashboard = () => {
                   onClick={() => setBillingMode('estimate')} 
                   style={{ 
                     flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'estimate' ? '#4F46E5' : '#2a2f3d'),
-                    background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1e222d',
-                    color: billingMode === 'estimate' ? '#4F46E5' : '#cbd5e1'
+                    border: '1px solid ' + (billingMode === 'estimate' ? '#4F46E5' : '#2A2F3D'),
+                    background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1E222D',
+                    color: billingMode === 'estimate' ? '#4F46E5' : '#CBD5E1'
                   }}
                 >
                   🟡 Estimate / Quote
@@ -2765,9 +2765,9 @@ const ShopDashboard = () => {
                   onClick={() => setBillingMode('challan')} 
                   style={{ 
                     flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'challan' ? '#3b82f6' : '#2a2f3d'),
-                    background: billingMode === 'challan' ? 'rgba(59,130,246,0.15)' : '#1e222d',
-                    color: billingMode === 'challan' ? '#3b82f6' : '#cbd5e1'
+                    border: '1px solid ' + (billingMode === 'challan' ? '#3B82F6' : '#2A2F3D'),
+                    background: billingMode === 'challan' ? 'rgba(59,130,246,0.15)' : '#1E222D',
+                    color: billingMode === 'challan' ? '#3B82F6' : '#CBD5E1'
                   }}
                 >
                   🔵 Delivery Challan
@@ -2775,9 +2775,9 @@ const ShopDashboard = () => {
               </div>
 
               {/* Customer details row */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid #2a2f3d', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#94A3B8' }}>
                     👤 Customer Details { (billingMode === 'estimate' || billingMode === 'challan') && <span style={{ color: '#4F46E5' }}>(Recommended)</span> }
                   </span>
                 </div>
@@ -2787,14 +2787,14 @@ const ShopDashboard = () => {
                     placeholder="Customer Name" 
                     value={customerName} 
                     onChange={e => setCustomerName(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                   <input 
                     type="tel" 
                     placeholder="Mobile Number" 
                     value={customerPhone} 
                     onChange={e => setCustomerPhone(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -2803,14 +2803,14 @@ const ShopDashboard = () => {
                     placeholder="GSTIN (Optional)" 
                     value={customerGstin} 
                     onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                   <input 
                     type="text" 
                     placeholder="State Code" 
                     value={customerStateCode} 
                     onChange={e => setCustomerStateCode(e.target.value)}
-                    style={{ width: '90px', flexShrink: 0, padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '90px', flexShrink: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ marginTop: '6px' }}>
@@ -2819,13 +2819,13 @@ const ShopDashboard = () => {
                     placeholder="Billing Address (Optional)" 
                     value={customerAddress} 
                     onChange={e => setCustomerAddress(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
                   />
                 </div>
               </div>
 
               {/* Universal Custom Billing Input */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #334155', boxSizing: 'border-box' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0F172A', padding: '12px', borderRadius: '8px', border: '1px solid #334155', boxSizing: 'border-box' }}>
                 <input 
                   type="text" placeholder="Item Name (e.g. Haircut)" value={customItemName} onChange={e=>setCustomItemName(e.target.value)}
                   style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '14px' }} 
@@ -2834,27 +2834,27 @@ const ShopDashboard = () => {
                   type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
                   style={{ width: '54px', flexShrink: 0, background: 'transparent', border: 'none', color: '#4F46E5', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
                 />
-                <button onClick={addCustomItem} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
+                <button onClick={addCustomItem} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
               </div>
 
               {/* Cart List */}
               {billItems.length === 0 ? (
-                <p style={{color:'#94a3b8', fontSize:13, margin: '12px 0 20px 0', textAlign: 'center'}}>No items in bill yet. Add custom item or tap + below.</p>
+                <p style={{color:'#94A3B8', fontSize:13, margin: '12px 0 20px 0', textAlign: 'center'}}>No items in bill yet. Add custom item or tap + below.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '12px 0 20px 0' }}>
                   {billItems.map((item, idx) => {
                     const variantList = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
                     return (
-                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '10px 12px', borderRadius: '8px', border: '1px solid #2a2f3d' }}>
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '10px 12px', borderRadius: '8px', border: '1px solid #2A2F3D' }}>
                         <div style={{ flex: 1, marginRight: '8px' }}>
                           <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.name}</p>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '2px' }}>
-                            <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 'bold' }}>₹{item.price}</span>
+                            <span style={{ fontSize: '12px', color: '#FBBF24', fontWeight: 'bold' }}>₹{item.price}</span>
                             {variantList.length > 0 && (
                               <select 
                                 value={item.selectedVariant || ''} 
                                 onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
-                                style={{ background: '#1e293b', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', outline: 'none' }}
+                                style={{ background: '#1E293B', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', outline: 'none' }}
                               >
                                 {variantList.map((v, vidx) => (
                                   <option key={vidx} value={v}>{v}</option>
@@ -2869,9 +2869,9 @@ const ShopDashboard = () => {
                           <span style={{ fontSize: '13px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center' }}>{item.qty || 1}</span>
                           <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, minWidth: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>+</button>
                           
-                          <span style={{ fontWeight: 'bold', color: '#22c55e', minWidth: '55px', textAlign: 'right', fontSize: '13px' }}>₹{item.price * (item.qty || 1)}</span>
+                          <span style={{ fontWeight: 'bold', color: '#22C55E', minWidth: '55px', textAlign: 'right', fontSize: '13px' }}>₹{item.price * (item.qty || 1)}</span>
                           
-                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', width: 'auto', flexShrink: 0 }}>
+                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', width: 'auto', flexShrink: 0 }}>
                             <X size={14} />
                           </button>
                         </div>
@@ -2882,7 +2882,7 @@ const ShopDashboard = () => {
               )}
 
               {/* Promo Discount Code Drawer */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', background: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', background: '#0F172A', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', alignItems: 'center' }}>
                 <input 
                   type="text" 
                   placeholder="Promo Code (WELCOME10 / FLAT100)" 
@@ -2894,20 +2894,20 @@ const ShopDashboard = () => {
               </div>
 
               {discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#22c55e', marginTop: '8px', padding: '0 4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#22C55E', marginTop: '8px', padding: '0 4px' }}>
                   <span>Discount Applied:</span>
                   <span>-₹{discountAmount}</span>
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid #2a2f3d', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid #2A2F3D', paddingTop: '16px' }}>
                 <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>TOTAL</span>
                 <div>
-                  {discountAmount > 0 && <span style={{ fontSize: '14px', color: '#94a3b8', textDecoration: 'line-through', marginRight: '8px' }}>₹{billTotal}</span>}
+                  {discountAmount > 0 && <span style={{ fontSize: '14px', color: '#94A3B8', textDecoration: 'line-through', marginRight: '8px' }}>₹{billTotal}</span>}
                   <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#4F46E5' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
                 </div>
               </div>
-              <button style={{...styles.whatsappBtn, background: billingMode === 'estimate' ? '#fbbf24' : (billingMode === 'challan' ? '#2563eb' : '#22c55e'), color: billingMode === 'estimate' ? '#000' : '#fff', opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
+              <button style={{...styles.whatsappBtn, background: billingMode === 'estimate' ? '#FBBF24' : (billingMode === 'challan' ? '#2563EB' : '#22C55E'), color: billingMode === 'estimate' ? '#000' : '#fff', opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
                 <span style={{ fontSize: '18px' }}>💬</span> {billingMode === 'estimate' ? 'Generate Estimate' : (billingMode === 'challan' ? 'Generate Challan' : 'Generate Bill')}
               </button>
               <button style={styles.upiBtn} onClick={handleShowUpiQr}>
@@ -2926,17 +2926,17 @@ const ShopDashboard = () => {
                 <div key={p.id} style={styles.prodItem}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: 32, height: 32, background: '#334155', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Package size={16} color="#94a3b8" />
+                      <Package size={16} color="#94A3B8" />
                     </div>
                     <div>
                       <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px', color: '#0F172A' }}>{p.name}</p>
-                      <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8' }}>₹{p.price}</p>
+                      <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8' }}>₹{p.price}</p>
                     </div>
                   </div>
-                  <button style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }} onClick={() => addToBill(p)}>+ Add</button>
+                  <button style={{ background: '#EF4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }} onClick={() => addToBill(p)}>+ Add</button>
                 </div>
               ))}
-              {filteredProducts.length === 0 && <p style={{padding:16, color:'#94a3b8', fontSize:14, margin:0}}>No products found.</p>}
+              {filteredProducts.length === 0 && <p style={{padding:16, color:'#94A3B8', fontSize:14, margin:0}}>No products found.</p>}
             </div>
           </div>
         </>
@@ -2945,7 +2945,7 @@ const ShopDashboard = () => {
       {/* ORDERS / BILLS TAB */}
       {activeTab === 'bills' && (
         <div style={{paddingBottom: 40}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Online Orders & Bills</h2>
             
             {/* Glassmorphic Sub-tab toggle */}
@@ -2955,7 +2955,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'sales' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'sales' ? '#22c55e' : '#94a3b8',
+                  color: billsSubTab === 'sales' ? '#22C55E' : '#94A3B8',
                   transition: 'all 0.2s'
                 }}
               >
@@ -2966,7 +2966,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'drafts' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'drafts' ? '#fbbf24' : '#94a3b8',
+                  color: billsSubTab === 'drafts' ? '#FBBF24' : '#94A3B8',
                   transition: 'all 0.2s'
                 }}
               >
@@ -2982,7 +2982,7 @@ const ShopDashboard = () => {
             });
 
             if (filteredOrders.length === 0) {
-              return <p style={{padding: 40, textAlign:'center', color:'#94a3b8'}}>No {billsSubTab === 'sales' ? 'sales invoices' : 'drafts'} found.</p>;
+              return <p style={{padding: 40, textAlign:'center', color:'#94A3B8'}}>No {billsSubTab === 'sales' ? 'sales invoices' : 'drafts'} found.</p>;
             }
 
             return filteredOrders.map(o => {
@@ -2990,21 +2990,21 @@ const ShopDashboard = () => {
               
               // Custom borders/accents for draft cards
               let cardBorder = '1px solid #334155';
-              let cardBg = 'linear-gradient(145deg, #1e293b, #0f172a)';
+              let cardBg = 'linear-gradient(145deg, #1E293B, #0F172A)';
               let badgeText = '';
               let badgeColor = '';
               
               if (billsSubTab === 'drafts') {
                 if (type === 'estimate') {
                   cardBorder = '1px solid rgba(245,158,11,0.4)';
-                  cardBg = 'linear-gradient(145deg, #241d13, #0f172a)';
+                  cardBg = 'linear-gradient(145deg, #241D13, #0F172A)';
                   badgeText = 'Draft Estimate';
                   badgeColor = '#4F46E5';
                 } else if (type === 'challan') {
                   cardBorder = '1px solid rgba(59,130,246,0.4)';
-                  cardBg = 'linear-gradient(145deg, #131c2d, #0f172a)';
+                  cardBg = 'linear-gradient(145deg, #131C2D, #0F172A)';
                   badgeText = 'Delivery Challan';
-                  badgeColor = '#3b82f6';
+                  badgeColor = '#3B82F6';
                 }
               }
 
@@ -3013,7 +3013,7 @@ const ShopDashboard = () => {
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:12, alignItems: 'center'}}>
                     <div>
                       <span style={{fontWeight:'bold', fontSize: '15px', color: '#fff'}}>{name}</span>
-                      {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8'}}>Ph: {phone}</p>}
+                      {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8'}}>Ph: {phone}</p>}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                       {badgeText && (
@@ -3021,7 +3021,7 @@ const ShopDashboard = () => {
                           {badgeText}
                         </span>
                       )}
-                      <span style={{color: o.status === 'Pending' ? '#ef4444' : '#22c55e', fontWeight:'bold', fontSize: 13}}>
+                      <span style={{color: o.status === 'Pending' ? '#EF4444' : '#22C55E', fontWeight:'bold', fontSize: 13}}>
                         {o.status === 'Pending' ? '⚠️ Pending' : '✅ Accepted'}
                       </span>
                     </div>
@@ -3029,7 +3029,7 @@ const ShopDashboard = () => {
                   
                   <div style={{background:'rgba(0,0,0,0.2)', padding:12, borderRadius:8, marginBottom:12}}>
                     {o.items.map((item, idx) => (
-                      <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'#94a3b8'}}>
+                      <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'#94A3B8'}}>
                         <span>{item.qty}x {item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
                         <span>₹{item.price * item.qty}</span>
                       </div>
@@ -3037,26 +3037,26 @@ const ShopDashboard = () => {
                   </div>
                   
                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                    <span style={{fontSize:18, fontWeight:'bold', color:'#fbbf24'}}>₹{o.total}</span>
+                    <span style={{fontSize:18, fontWeight:'bold', color:'#FBBF24'}}>₹{o.total}</span>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
+                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                         View Receipt
                       </button>
                       
                       {billsSubTab === 'drafts' && type === 'estimate' && (
-                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #fbbf24, #d97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #FBBF24, #D97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ⚡ Convert to Bill
                         </button>
                       )}
 
                       {o.status === 'Pending' && (
-                        <button onClick={() => acceptOrder(o.id)} style={{background:'#22c55e', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => acceptOrder(o.id)} style={{background:'#22C55E', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                           Accept
                         </button>
                       )}
                       
                       {o.status === 'Accepted' && (
-                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#ef4444', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#EF4444', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ↩️ Return
                         </button>
                       )}
@@ -3124,7 +3124,7 @@ const ShopDashboard = () => {
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
                 <button onClick={() => { document.getElementById('print-area') && window.print(); }} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
-                <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
+                <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#EF4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
               </div>
             </div>
           </div>
@@ -3134,12 +3134,12 @@ const ShopDashboard = () => {
       {/* PRODUCTS INVENTORY TAB */}
       {activeTab === 'products' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Inventory</h2>
-            <button onClick={() => setShowAddProductModal(true)} style={{background:'#3b82f6', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
+            <button onClick={() => setShowAddProductModal(true)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
           </div>
           
-          {products.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94a3b8'}}>No products in inventory.</p>}
+          {products.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94A3B8'}}>No products in inventory.</p>}
           
           <div style={{ padding: '12px' }}>
             {products.map(p => {
@@ -3147,12 +3147,12 @@ const ShopDashboard = () => {
               const isLowStock = p.stock < (p.reorderLevel || 10);
               
               return (
-                <div key={p.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                <div key={p.id} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#fff' }}>{p.name}</h3>
                       {p.batchNumber && (
-                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Batch: {p.batchNumber}</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8' }}>Batch: {p.batchNumber}</p>
                       )}
                     </div>
                     <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>₹{p.price}</span>
@@ -3160,28 +3160,28 @@ const ShopDashboard = () => {
 
                   {/* Stock & Reorder Info */}
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '8px 0' }}>
-                    <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: isLowStock ? '#ef4444' : '#10b981', border: '1px solid ' + (isLowStock ? '#ef4444' : '#10b981'), fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: isLowStock ? '#EF4444' : '#10B981', border: '1px solid ' + (isLowStock ? '#EF4444' : '#10B981'), fontWeight: 'bold' }}>
                       Stock: {p.stock || 0} {isLowStock && ' (Low Stock)'}
                     </span>
                     {p.reorderLevel !== undefined && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#94A3B8' }}>
                         Min Stock Alert: {p.reorderLevel}
                       </span>
                     )}
                     {expStatus.status === 'expired' && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid #ef4444', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#EF4444', border: '1px solid #EF4444', fontWeight: 'bold' }}>
                         {expStatus.text} ({p.expiryDate})
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#4F46E5', border: '1px solid #f59e0b', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#4F46E5', border: '1px solid #F59E0B', fontWeight: 'bold' }}>
                         {expStatus.text} ({p.expiryDate})
                       </span>
                     )}
                     {p.variants && (
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         {p.variants.split(',').map((v, vidx) => (
-                          <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#334155', color: '#cbd5e1' }}>
+                          <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#334155', color: '#CBD5E1' }}>
                             {v.trim()}
                           </span>
                         ))}
@@ -3195,11 +3195,11 @@ const ShopDashboard = () => {
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #2a2f3d', paddingTop: '12px', marginTop: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #2A2F3D', paddingTop: '12px', marginTop: '12px' }}>
                     <button 
                       onClick={() => handleOneClickRestock(p)} 
                       style={{ 
-                        background: isLowStock ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.05)', 
+                        background: isLowStock ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(255,255,255,0.05)', 
                         border: isLowStock ? 'none' : '1px solid rgba(255,255,255,0.15)', 
                         color: isLowStock ? '#000' : '#fff', 
                         padding: '6px 12px', 
@@ -3214,13 +3214,13 @@ const ShopDashboard = () => {
                     </button>
                     <button 
                       onClick={() => handleOpenEditModal(p)} 
-                      style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                     >
                       ✏️ Edit
                     </button>
                     <button 
                       onClick={() => handleDeleteProduct(p.id)} 
-                      style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ background: '#EF4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                     >
                       🗑️ Delete
                     </button>
@@ -3235,7 +3235,7 @@ const ShopDashboard = () => {
       {/* CREDIT LEDGER TAB */}
       {activeTab === 'credit' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Credit Book (బకాయిలు)</h2>
             
             {/* Toggle Payable vs Receivable */}
@@ -3245,7 +3245,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'payable' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: creditTabSub === 'payable' ? '#ef4444' : '#94a3b8',
+                  color: creditTabSub === 'payable' ? '#EF4444' : '#94A3B8',
                   transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
@@ -3256,7 +3256,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'receivable' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: creditTabSub === 'receivable' ? '#10b981' : '#94a3b8',
+                  color: creditTabSub === 'receivable' ? '#10B981' : '#94A3B8',
                   transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
@@ -3268,40 +3268,40 @@ const ShopDashboard = () => {
           <div style={{ padding: '16px' }}>
             {creditTabSub === 'payable' ? (
               <>
-                <div style={{ background: '#1e293b', border: '1px solid #ef4444', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: '#1E293B', border: '1px solid #EF4444', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#ef4444', fontWeight: 'bold' }}>TOTAL SUPPLIER OUTSTANDING</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#EF4444', fontWeight: 'bold' }}>TOTAL SUPPLIER OUTSTANDING</p>
                     <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{payable}</h3>
                   </div>
-                  <Wallet size={32} color="#ef4444" opacity={0.5} />
+                  <Wallet size={32} color="#EF4444" opacity={0.5} />
                 </div>
 
-                <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
-                {credits.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No distributor credit records found.</p>}
+                <h3 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
+                {credits.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px'}}>No distributor credit records found.</p>}
                 
                 {credits.map(c => (
-                  <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                  <div key={c.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{c.distName || 'Distributor'}</span>
-                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#ef4444' }}>
+                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : '#EF4444' }}>
                         {c.paid ? '✅ Settled' : '⏳ Unpaid'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94A3B8', marginBottom: '12px' }}>
                       <span>{new Date(c.date).toLocaleDateString()}</span>
                       <span>Invoice: #{c.id.split('_')[1]}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
-                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
+                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
                       {!c.paid && (
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => {
                             if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
                             window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${encodeURIComponent('Credit-' + (c.id||'').slice(0,8))}&cu=INR`, '_blank');
-                          }} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                          }} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>
-                          <button onClick={() => handleSettleSupplierCredit(c.id)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                          <button onClick={() => handleSettleSupplierCredit(c.id)} style={{ background: '#10B981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             ✅ Settle & Generate Note
                           </button>
                         </div>
@@ -3312,50 +3312,50 @@ const ShopDashboard = () => {
               </>
             ) : (
               <>
-                <div style={{ background: '#1e293b', border: '1px solid #10b981', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: '#1E293B', border: '1px solid #10B981', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#10b981', fontWeight: 'bold' }}>TOTAL CUSTOMER OUTSTANDING</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#10B981', fontWeight: 'bold' }}>TOTAL CUSTOMER OUTSTANDING</p>
                     <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)}</h3>
                   </div>
-                  <Wallet size={32} color="#10b981" opacity={0.5} />
+                  <Wallet size={32} color="#10B981" opacity={0.5} />
                 </div>
 
                 {/* Add New Customer Credit Form */}
-                <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
                   <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Log New Customer Credit / Debt</h3>
                   <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <input 
                         type="text" value={custCreditName} onChange={e => setCustCreditName(e.target.value)} 
                         placeholder="Customer Name" 
-                        style={{ flex: 1, padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ flex: 1, padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                       />
                       <input 
                         type="tel" value={custCreditPhone} onChange={e => setCustCreditPhone(e.target.value)} 
                         placeholder="Mobile (Optional)" 
-                        style={{ width: '130px', padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ width: '130px', padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                       />
                     </div>
                     <input 
                       type="text" value={custCreditDesc} onChange={e => setCustCreditDesc(e.target.value)} 
                       placeholder="Reason (e.g. Milk & Eggs)" 
-                      style={{ padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                      style={{ padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                     />
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <input 
                         type="number" value={custCreditAmount} onChange={e => setCustCreditAmount(e.target.value)} 
                         placeholder="Outstanding Amount (₹)" 
-                        style={{ flex: 1, padding: '10px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ flex: 1, padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                       />
-                      <button onClick={handleAddCustomerCredit} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                      <button onClick={handleAddCustomerCredit} style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                         + Add Debt
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Customer Outstanding Book</h3>
-                {customerCredits.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px'}}>No customer debt records logged yet.</p>}
+                <h3 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Customer Outstanding Book</h3>
+                {customerCredits.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px'}}>No customer debt records logged yet.</p>}
                 
                 {customerCredits.map(c => {
                   const parts = c.desc.split(':');
@@ -3364,34 +3364,34 @@ const ShopDashboard = () => {
                   const custDesc = parts[3] || 'Credit Purchase';
                   
                   return (
-                    <div key={c.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                    <div key={c.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <div>
                           <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{custName}</span>
-                          {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>Ph: {custPhone}</p>}
+                          {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8' }}>Ph: {custPhone}</p>}
                         </div>
-                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22c55e' : '#4F46E5' }}>
+                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : '#4F46E5' }}>
                           {c.paid ? '✅ Settled' : '⏳ Pending'}
                         </span>
                       </div>
                       
-                      <div style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px', background: 'rgba(0,0,0,0.15)', padding: '8px 12px', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '12px', color: '#CBD5E1', marginBottom: '12px', background: 'rgba(0,0,0,0.15)', padding: '8px 12px', borderRadius: '6px' }}>
                         <b>Remarks:</b> {custDesc}
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94A3B8', marginBottom: '12px' }}>
                         <span>Logged: {new Date(c.date).toLocaleDateString()}</span>
                         <span>Reference: #{c.id.split('_')[1]}</span>
                       </div>
                       
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
-                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fbbf24' }}>₹{c.amount}</span>
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
                         {!c.paid && (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={() => sendCustomerCreditReminder(c)} style={{ background: '#25D366', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                               💬 Remind
                             </button>
-                            <button onClick={() => handleSettleCustomerCredit(c.id)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                            <button onClick={() => handleSettleCustomerCredit(c.id)} style={{ background: '#10B981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                               ✅ Settle
                             </button>
                           </div>
@@ -3409,23 +3409,23 @@ const ShopDashboard = () => {
       {/* RESTOCKING SUPPLY TAB */}
       {isOwner && activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
-          <div style={{ background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d' }}>
+          <div style={{ background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D' }}>
             <h2 style={{ margin: 0, fontSize: 18, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Truck size={20} color="#3b82f6" /> Supply & Wholesale Restock
+              <Truck size={20} color="#3B82F6" /> Supply & Wholesale Restock
             </h2>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Order wholesale goods on credit directly from FMCG Distributors.</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8' }}>Order wholesale goods on credit directly from FMCG Distributors.</p>
           </div>
           
           <div style={{ padding: '16px' }}>
             {/* AI low stock indicator list */}
             {products.filter(p => p.stock < 10).length > 0 && (
               <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#ef4444', fontWeight: 'bold' }}>⚠️ CRITICAL LOW STOCK</h3>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#EF4444', fontWeight: 'bold' }}>⚠️ CRITICAL LOW STOCK</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {products.filter(p => p.stock < 10).map(p => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                      <span style={{ color: '#cbd5e1' }}>{p.name}</span>
-                      <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Only {p.stock} left!</span>
+                      <span style={{ color: '#CBD5E1' }}>{p.name}</span>
+                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Only {p.stock} left!</span>
                     </div>
                   ))}
                 </div>
@@ -3433,10 +3433,10 @@ const ShopDashboard = () => {
             )}
 
             {/* Restock Basket Panel */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
               <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🛒 Restock Basket</h3>
               {Object.keys(restockCart).length === 0 ? (
-                <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>Your basket is empty. Add bulk products from the catalog below.</p>
+                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Add bulk products from the catalog below.</p>
               ) : (
                 <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -3444,10 +3444,10 @@ const ShopDashboard = () => {
                       const prod = wholesaleCatalog.find(p => p.id === prodId);
                       if (!prod) return null;
                       return (
-                        <div key={prodId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#cbd5e1' }}>
+                        <div key={prodId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#CBD5E1' }}>
                           <span>{prod.name} (x{qty})</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontWeight: 'bold', color: '#22c55e', marginRight: '8px' }}>₹{prod.price * qty}</span>
+                            <span style={{ fontWeight: 'bold', color: '#22C55E', marginRight: '8px' }}>₹{prod.price * qty}</span>
                             <button onClick={() => handleRestockQtyChange(prodId, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 24, height: 24, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>-</button>
                             <button onClick={() => handleRestockQtyChange(prodId, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 24, height: 24, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>+</button>
                           </div>
@@ -3457,14 +3457,14 @@ const ShopDashboard = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px', marginBottom: '12px' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Basket Total</span>
-                    <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#fbbf24' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#FBBF24' }}>
                       ₹{Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
                         const prod = wholesaleCatalog.find(p => p.id === prodId);
                         return sum + (prod ? prod.price * qty : 0);
                       }, 0)}
                     </span>
                   </div>
-                  <button onClick={handlePlaceRestockOrder} style={{ width: '100%', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+                  <button onClick={handlePlaceRestockOrder} style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
                     📦 Order Supplies on Credit
                   </button>
                 </>
@@ -3472,19 +3472,19 @@ const ShopDashboard = () => {
             </div>
 
             {/* Wholesale Catalog List */}
-            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94a3b8', marginBottom: '12px' }}>📦 FMCG Wholesale Catalog</h3>
+            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', marginBottom: '12px' }}>📦 FMCG Wholesale Catalog</h3>
             {wholesaleCatalog.length === 0 ? (
-              <p style={{ color: '#94a3b8', fontSize: '13px' }}>No wholesale suppliers found.</p>
+              <p style={{ color: '#94A3B8', fontSize: '13px' }}>No wholesale suppliers found.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {wholesaleCatalog.map(p => (
-                  <div key={p.id} style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={p.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
+                      <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: '#3B82F6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
                       <h4 style={{ margin: '6px 0 2px 0', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>{p.name}</h4>
-                      <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Wholesale Price: <span style={{ color: '#22c55e', fontWeight: 'bold' }}>₹{p.price}</span></p>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Wholesale Price: <span style={{ color: '#22C55E', fontWeight: 'bold' }}>₹{p.price}</span></p>
                     </div>
-                    <button onClick={() => handleRestockQtyChange(p.id, 1)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    <button onClick={() => handleRestockQtyChange(p.id, 1)} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                       + Add Bulk
                     </button>
                   </div>
@@ -3504,19 +3504,19 @@ const ShopDashboard = () => {
         const displayPercent = Math.min(100, Math.max(0, Math.abs(marginPercent)));
         const strokeOffset = circumference - (displayPercent / 100) * circumference;
         const isLoss = netProfit < 0;
-        const strokeColor = isLoss ? '#ef4444' : '#10b981';
+        const strokeColor = isLoss ? '#EF4444' : '#10B981';
 
         return (
           <div style={{paddingBottom: 80}}>
-            <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
+            <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
               <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Retail Day Book & Reports</h2>
-              <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
+              <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
             </div>
             
             <div style={{ padding: '16px' }}>
               
               {/* Profit & Loss Margin Gauge */}
-              <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #334155', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
                 
                 {/* Circular Gauge */}
                 <div style={{ position: 'relative', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3524,7 +3524,7 @@ const ShopDashboard = () => {
                     {/* Background Track */}
                     <circle 
                       cx="65" cy="65" r={radius} 
-                      fill="transparent" stroke="#1e222d" strokeWidth="10" 
+                      fill="transparent" stroke="#1E222D" strokeWidth="10" 
                     />
                     {/* Animated Filled Track */}
                     <circle 
@@ -3541,7 +3541,7 @@ const ShopDashboard = () => {
                     <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: strokeColor }}>
                       {isLoss ? '-' : '+'}{displayPercent}%
                     </h4>
-                    <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                    <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 'bold' }}>
                       {isLoss ? 'Loss Margin' : 'Net Margin'}
                     </p>
                   </div>
@@ -3549,18 +3549,18 @@ const ShopDashboard = () => {
 
                 {/* Margins Data Summary */}
                 <div style={{ flex: 1, minWidth: '150px' }}>
-                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? '#fca5a5' : '#a7f3d0' }}>
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? '#FCA5A5' : '#A7F3D0' }}>
                     {isLoss ? '🔴 Loss Today: ' : '🟢 Profit Today: '} ₹{Math.abs(netProfit)}
                   </h3>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                      <span style={{ color: '#cbd5e1' }}>Total Cash In Today:</span>
-                      <span style={{ color: '#10b981', fontWeight: 'bold' }}>₹{cashIn}</span>
+                      <span style={{ color: '#CBD5E1' }}>Total Cash In Today:</span>
+                      <span style={{ color: '#10B981', fontWeight: 'bold' }}>₹{cashIn}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                      <span style={{ color: '#cbd5e1' }}>Total Cash Out Today:</span>
-                      <span style={{ color: '#ef4444', fontWeight: 'bold' }}>₹{cashOut}</span>
+                      <span style={{ color: '#CBD5E1' }}>Total Cash Out Today:</span>
+                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>₹{cashOut}</span>
                     </div>
                   </div>
                 </div>
@@ -3587,17 +3587,17 @@ const ShopDashboard = () => {
                 const totalProfit = totalIncome - totalExpenses;
                 const margin = totalIncome > 0 ? Math.round((totalProfit / totalIncome) * 100) : 0;
                 return (
-                  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+                  <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
                     <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>📊 6-Month Cash Flow</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '14px' }}>
                       {[
-                        { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: '#10b981' },
-                        { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: '#ef4444' },
-                        { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? '#10b981' : '#ef4444' },
-                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10b981' : margin >= 0 ? '#4F46E5' : '#ef4444' },
+                        { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: '#10B981' },
+                        { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: '#EF4444' },
+                        { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? '#10B981' : '#EF4444' },
+                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10B981' : margin >= 0 ? '#4F46E5' : '#EF4444' },
                       ].map(c => (
                         <div key={c.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 12px' }}>
-                          <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '2px' }}>{c.label}</div>
+                          <div style={{ fontSize: '10px', color: '#64748B', marginBottom: '2px' }}>{c.label}</div>
                           <div style={{ fontSize: '15px', fontWeight: '800', color: c.color }}>{c.value}</div>
                         </div>
                       ))}
@@ -3605,11 +3605,11 @@ const ShopDashboard = () => {
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={cashFlowMonths} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barGap={2}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
-                        <Bar dataKey="income" fill="#10b981" radius={[3, 3, 0, 0]} />
-                        <Bar dataKey="expenses" fill="#ef4444" radius={[3, 3, 0, 0]} />
+                        <XAxis dataKey="label" tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
+                        <Tooltip contentStyle={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
+                        <Bar dataKey="income" fill="#10B981" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="expenses" fill="#EF4444" radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -3617,27 +3617,27 @@ const ShopDashboard = () => {
               })()}
 
               {/* TALLY EXPORT PANEL */}
-              <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', border: '1px solid #10b981', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #10B981', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#10b981' }}>📊 Tally ERP / Prime Export</h3>
-                  <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Export Tally XML, GSTR-1 CSV, or Monthly Summary for your CA.</p>
+                  <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#10B981' }}>📊 Tally ERP / Prime Export</h3>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Export Tally XML, GSTR-1 CSV, or Monthly Summary for your CA.</p>
                 </div>
                 <div style={{ position: 'relative' }}>
                   <button
                     onClick={() => setTallyMenuOpen(v => !v)}
-                    style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                   >
                     📥 Export ▾
                   </button>
                   {tallyMenuOpen && (
-                    <div style={{ position: 'absolute', right: 0, top: '44px', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', zIndex: 200, minWidth: '200px', overflow: 'hidden' }}
+                    <div style={{ position: 'absolute', right: 0, top: '44px', background: '#1E293B', border: '1px solid #334155', borderRadius: '10px', zIndex: 200, minWidth: '200px', overflow: 'hidden' }}
                       onMouseLeave={() => setTallyMenuOpen(false)}>
                       {[
                         { label: '📥 Tally XML', action: () => { downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name); setTallyMenuOpen(false); } },
                         { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), user.gstNumber), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                         { label: '📊 Monthly Summary', action: () => { downloadCSV(generateMonthlySummaryCSV(orders.filter(o => o.status === 'completed')), `Summary_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                       ].map(item => (
-                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: '#f8fafc', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: '#F8FAFC', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
                           {item.label}
@@ -3649,27 +3649,27 @@ const ShopDashboard = () => {
               </div>
 
               {/* Day Book Transactions List */}
-              <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px' }}>
+              <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '16px', padding: '16px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   📖 Today's Retail Day Book Ledger
                 </h3>
                 
                 {ledgerItems.length === 0 ? (
-                  <p style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '24px 0', margin: 0 }}>No transactions logged today yet.</p>
+                  <p style={{ color: '#94A3B8', fontSize: '13px', textAlign: 'center', padding: '24px 0', margin: 0 }}>No transactions logged today yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {ledgerItems.map((item, idx) => (
-                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', padding: '12px', borderRadius: '10px', border: '1px solid #2a2f3d' }}>
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D' }}>
                         <div>
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                            <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                            <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
                               {item.category}
                             </span>
-                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{item.time}</span>
+                            <span style={{ fontSize: '11px', color: '#94A3B8' }}>{item.time}</span>
                           </div>
                           <p style={{ margin: '6px 0 0 0', fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.desc}</p>
                         </div>
-                        <span style={{ fontWeight: 'bold', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', fontSize: '15px' }}>
+                        <span style={{ fontWeight: 'bold', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', fontSize: '15px' }}>
                           {item.type === 'Cash In' ? '+' : '-'}₹{item.amount}
                         </span>
                       </div>
@@ -3686,7 +3686,7 @@ const ShopDashboard = () => {
       {/* Profile & Settings TAB */}
       {isOwner && activeTab === 'profile' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1e222d', padding: '16px', borderBottom: '1px solid #2a2f3d'}}>
+          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
@@ -3695,31 +3695,31 @@ const ShopDashboard = () => {
             <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
-                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#fbbf24' : '#10b981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#FBBF24' : '#10B981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
                   {isOnTrial ? `Trial — ${trialDaysLeft}d left` : 'Active'}
                 </span>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PLAN</div>
-                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>{planLabel}</div>
+                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PLAN</div>
+                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>{planLabel}</div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#ef4444' : isOnTrial && trialDaysLeft <= 4 ? '#4F46E5' : '#10b981' }}>
+                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#EF4444' : isOnTrial && trialDaysLeft <= 4 ? '#4F46E5' : '#10B981' }}>
                     {isOnTrial ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''}` : paidDaysLeft !== null ? `${paidDaysLeft}d` : '—'}
                   </div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PRODUCTS</div>
-                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PRODUCTS</div>
+                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>
                     {products.length}{(capabilities?.maxProducts ?? 200) === -1 ? ' / ∞' : ` / ${capabilities?.maxProducts ?? 200}`}
                   </div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>PRICE</div>
-                  <div style={{ fontSize: '14px', color: '#f8fafc', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PRICE</div>
+                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>
                     {plans?.find(p => p.id === (user.subscriptionTier || user.subscription))
                       ? `₹${plans.find(p => p.id === (user.subscriptionTier || user.subscription)).price}/mo`
                       : isOnTrial ? 'Free' : '—'}
@@ -3736,84 +3736,84 @@ const ShopDashboard = () => {
             </div>
 
             {/* Logo Upload Section */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🖼️ Shop Logo</h3>
               {logo ? (
-                <img src={logo} alt="Shop Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #3b82f6', marginBottom: '12px' }} />
+                <img src={logo} alt="Shop Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #3B82F6', marginBottom: '12px' }} />
               ) : (
-                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0f172a', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>No Logo</div>
+                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0F172A', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>No Logo</div>
               )}
-              <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94a3b8' }} />
+              <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94A3B8' }} />
             </div>
 
             {/* GST & Tax Compliance Section */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🏛️ GST & Compliance Setup</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Configure these details to generate formal B2B and B2C GST invoices for your customers.</p>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Configure these details to generate formal B2B and B2C GST invoices for your customers.</p>
               
               <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                 <div style={{ flex: 2 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
-                  <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
+                  <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
-                  <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
+                  <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
                 </div>
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoice)</label>
-                <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={3} style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', resize: 'vertical' }}></textarea>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoice)</label>
+                <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={3} style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', resize: 'vertical' }}></textarea>
               </div>
 
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Business Info
               </button>
             </div>
 
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>💳 Setup UPI Payments</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Enter your shop's UPI ID (PhonePe, GPay, Paytm) below. When customers order online, their payment app will automatically open with your UPI ID and the exact bill amount.
               </p>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 'bold' }}>Your UPI ID</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '8px', fontWeight: 'bold' }}>Your UPI ID</label>
                 <input 
                   type="text" value={upiId} onChange={e => setUpiId(e.target.value)} 
                   placeholder="e.g. 9876543210@ybl" 
-                  style={{ width: '100%', padding: '14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} 
+                  style={{ width: '100%', padding: '14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} 
                 />
               </div>
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Payment Settings
               </button>
             </div>
 
             {/* Payment QR Scanner Upload */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>📱 Payment QR Scanner</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Upload your GPay / PhonePe / Paytm QR code image. Customers will see this QR to pay you instantly. You can take a photo of your existing QR or upload from gallery.
               </p>
               {paymentQr ? (
                 <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22c55e', background: '#fff', padding: '8px' }} />
-                  <p style={{ fontSize: '11px', color: '#22c55e', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
-                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22C55E', background: '#fff', padding: '8px' }} />
+                  <p style={{ fontSize: '11px', color: '#22C55E', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
+                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #EF4444', color: '#EF4444', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
                     Remove QR
                   </button>
                 </div>
               ) : (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: '150px', height: '150px', borderRadius: '12px', background: '#0f172a', margin: '0 auto 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', border: '2px dashed #334155' }}>
+                  <div style={{ width: '150px', height: '150px', borderRadius: '12px', background: '#0F172A', margin: '0 auto 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', border: '2px dashed #334155' }}>
                     <Camera size={32} style={{ marginBottom: '8px' }} />
                     <span style={{ fontSize: '12px' }}>No QR uploaded</span>
                   </div>
                 </div>
               )}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <label style={{ flex: 1, background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   📁 Upload from Gallery
                   <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
@@ -3825,60 +3825,60 @@ const ShopDashboard = () => {
             </div>
 
             {/* Shop Photos Section */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>📸 Shop Photos (Max 6)</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Upload photos of your shop, products, and services. These will show on your public shop profile.</p>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Upload photos of your shop, products, and services. These will show on your public shop profile.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
                 {shopPhotos.map((photo, idx) => (
                   <div key={idx} style={{ position: 'relative' }}>
                     <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #334155' }} />
-                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
+                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
                   </div>
                 ))}
               </div>
               {shopPhotos.length < 6 && (
-                <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'block', fontSize: '12px', color: '#94a3b8' }} />
+                <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'block', fontSize: '12px', color: '#94A3B8' }} />
               )}
             </div>
 
             {/* Shop GPS Location Capture */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Shop Geolocation</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Lock your store GPS coordinates so nearby customers can discover your store and order online directly!
               </p>
               
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Latitude</label>
-                  <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>Latitude</label>
+                  <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Longitude</label>
-                  <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>Longitude</label>
+                  <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
                 </div>
               </div>
               
-              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #6d28d9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
+              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #6D28D9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
                 🛰️ Auto-Grab Live Shop Coordinates
               </button>
               
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Commit Coordinates to System
               </button>
             </div>
 
             {/* Shop Visibility — admin-controlled premium feature (coming soon) */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>👁️ Shop Visibility</h3>
-                <span style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
+                <span style={{ background: 'linear-gradient(135deg,#F59E0B,#D97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
               </div>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '14px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '14px', lineHeight: 1.5 }}>
                 Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', opacity: 0.5, pointerEvents: 'none' }}>
-                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>Featured in customer search</span>
+                <span style={{ color: '#E2E8F0', fontSize: '14px', fontWeight: 600 }}>Featured in customer search</span>
                 <div style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', background: '#475569', flexShrink: 0 }}>
                   <span style={{ position: 'absolute', top: '3px', left: '3px', width: '24px', height: '24px', borderRadius: '50%', background: '#fff' }} />
                 </div>
@@ -3886,85 +3886,85 @@ const ShopDashboard = () => {
             </div>
 
             {/* Shop Timings */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🕒 Shop Timings</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Set opening and closing times. An "Open Now" badge shows on your dashboard based on these.
               </p>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Opens at</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Opens at</label>
                   <select value={openingHour} onChange={e => setOpeningHour(Number(e.target.value))}
-                    style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    style={{ width: '100%', padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
                     {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Closes at</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Closes at</label>
                   <select value={closingHour} onChange={e => setClosingHour(Number(e.target.value))}
-                    style={{ width: '100%', padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    style={{ width: '100%', padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
                     {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
                   </select>
                 </div>
               </div>
-              <button onClick={handleSaveShopHours} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveShopHours} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Shop Timings
               </button>
             </div>
 
             {/* Promotional Banner */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🎉 Promotional Offer Banner</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Show a promotional banner on your storefront. Turn it on and set your offer text.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '14px' }}>
-                <span style={{ color: '#e2e8f0', fontSize: '14px', fontWeight: 600 }}>
+                <span style={{ color: '#E2E8F0', fontSize: '14px', fontWeight: 600 }}>
                   {shopBanner?.active ? 'Banner is showing' : 'Banner is off'}
                 </span>
                 <button
                   onClick={() => setShopBanner({ ...(shopBanner || {}), active: !(shopBanner?.active) })}
                   style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', border: 'none',
-                    cursor: 'pointer', background: shopBanner?.active ? '#16a34a' : '#475569', transition: 'background .2s', flexShrink: 0 }}
+                    cursor: 'pointer', background: shopBanner?.active ? '#16A34A' : '#475569', transition: 'background .2s', flexShrink: 0 }}
                   aria-label="Toggle promotional banner">
                   <span style={{ position: 'absolute', top: '3px', left: shopBanner?.active ? '25px' : '3px',
                     width: '24px', height: '24px', borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
                 </button>
               </div>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Banner Title</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Banner Title</label>
                 <input type="text" value={shopBanner?.title || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), title: e.target.value })}
-                  placeholder="e.g. Diwali Sale!" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="e.g. Diwali Sale!" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
               </div>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Subtitle</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Subtitle</label>
                 <input type="text" value={shopBanner?.subtitle || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), subtitle: e.target.value })}
-                  placeholder="e.g. Up to 20% off on all items" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="e.g. Up to 20% off on all items" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
               </div>
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 'bold' }}>Discount %</label>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Discount %</label>
                 <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner({ ...(shopBanner || {}), discountPercent: Number(e.target.value) })}
-                  placeholder="0" style={{ width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="0" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
               </div>
-              <button onClick={handleSaveShopBanner} style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveShopBanner} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Promotional Banner
               </button>
             </div>
 
             {/* My Accountant (CA) */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🧾 My Accountant (CA)</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Assign your Chartered Accountant by their mobile number. Only the CA you assign can view your sales books and file your GST returns.
               </p>
               {myCA ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '14px' }}>
                   <div>
                     <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{myCA.name}</div>
-                    <div style={{ color: '#94a3b8', fontSize: '12px' }}>{myCA.phone}</div>
+                    <div style={{ color: '#94A3B8', fontSize: '12px' }}>{myCA.phone}</div>
                   </div>
                   <button onClick={handleRemoveCA} disabled={caBusy}
-                    style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     Remove
                   </button>
                 </div>
@@ -3972,9 +3972,9 @@ const ShopDashboard = () => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="tel" inputMode="numeric" maxLength={10} value={caPhoneInput} onChange={e => setCaPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="CA's 10-digit mobile number"
-                    style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
                   <button onClick={handleAssignCA} disabled={caBusy}
-                    style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     {caBusy ? '...' : 'Assign'}
                   </button>
                 </div>
@@ -3982,17 +3982,17 @@ const ShopDashboard = () => {
             </div>
 
             {/* My Distributors (mutual code linking) */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🚚 My Distributors</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '14px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '14px' }}>
                 Link with your distributors so they can supply you. Share your shop code, or add a distributor using their code.
               </p>
 
               {/* Own shop code */}
               {user?.publicCode && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
                   <div>
-                    <div style={{ color: '#94a3b8', fontSize: '11px' }}>Your shop code</div>
+                    <div style={{ color: '#94A3B8', fontSize: '11px' }}>Your shop code</div>
                     <div style={{ color: '#fff', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
                   </div>
                   <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); toast.success('Code copied!'); }}
@@ -4006,9 +4006,9 @@ const ShopDashboard = () => {
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                 <input type="text" value={distCodeInput} onChange={e => setDistCodeInput(e.target.value.toUpperCase())}
                   placeholder="Enter distributor code (DST-XXXXXX)"
-                  style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                  style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                 <button onClick={handleLinkDistributor} disabled={distLinkBusy}
-                  style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                   {distLinkBusy ? '...' : 'Add'}
                 </button>
               </div>
@@ -4017,39 +4017,39 @@ const ShopDashboard = () => {
               {myDistributors.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {myDistributors.map(d => (
-                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
                       <div>
                         <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
-                        <div style={{ color: '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
+                        <div style={{ color: '#94A3B8', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
                       </div>
                       <button onClick={() => handleUnlinkDistributor(d.id)}
-                        style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                        style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                         Remove
                       </button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
+                <p style={{ color: '#64748B', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
               )}
             </div>
 
             {/* Shop Link & QR */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🔗 Your Printable Shop QR Poster</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
                 Generate and download a high-contrast printable poster. Stick it on your shop wall so customers can scan, order, and pay instantly!
               </p>
               <div className="qr-code-holder" style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px' }}>
                 <QRCodeSVG value={getShopUrl()} size={140} />
               </div>
-              <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3b82f6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
+              <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3B82F6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
               
               <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#fff', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖼️ Download QR Code (PNG)
                 </button>
-                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #FBBF24, #D97706)', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖨️ Download Printable QR Poster (PDF)
                 </button>
                 <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -4059,7 +4059,7 @@ const ShopDashboard = () => {
             </div>
 
             {/* LANGUAGE SELECTOR CARD */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>🌐 Language / భాష / भाषा</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                 {[
@@ -4075,9 +4075,9 @@ const ShopDashboard = () => {
                     key={code}
                     onClick={() => setLocale(code)}
                     style={{
-                      padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? '#3b82f6' : '#334155'}`,
+                      padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? '#3B82F6' : '#334155'}`,
                       background: locale === code ? 'rgba(59,130,246,0.15)' : 'transparent',
-                      color: locale === code ? '#60a5fa' : '#94a3b8',
+                      color: locale === code ? '#60A5FA' : '#94A3B8',
                       fontSize: '12px', fontWeight: locale === code ? 700 : 400, cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'
                     }}
@@ -4090,48 +4090,48 @@ const ShopDashboard = () => {
             </div>
 
             {/* STAFF MANAGEMENT CARD inside Settings */}
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👥 Staff Management (సహాయకులు)</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
               
               {hasFeature('staffAccounts') ? (
-              <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+              <div style={{ background: '#0F172A', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>Add New Staff</h4>
                 <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
                   <input 
                     type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
                     placeholder="Staff Name (e.g. Raju Helper)" 
-                    style={{ width: '100%', padding: '10px 14px', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                   />
                   <input 
                     type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
                     placeholder="Staff Mobile Number" 
-                    style={{ width: '100%', padding: '10px 14px', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
                   />
-                  <button onClick={handleAddStaff} style={{ width: '100%', background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                  <button onClick={handleAddStaff} style={{ width: '100%', background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                     + Add Staff Member
                   </button>
                 </div>
               </div>
               ) : (
-              <div style={{ background: '#0f172a', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '13px', color: '#fbbf24', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
+              <div style={{ background: '#0F172A', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: '13px', color: '#FBBF24', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
+                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
                 <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
                   Upgrade to PRO →
                 </button>
               </div>
               )}
 
-              <h4 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '12px' }}>Active Staff Members</h4>
-              {staffList.length === 0 && <p style={{color:'#94a3b8', fontSize: '13px', margin: 0}}>No staff added yet.</p>}
+              <h4 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Active Staff Members</h4>
+              {staffList.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px', margin: 0}}>No staff added yet.</p>}
               {staffList.map(s => (
                 <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', marginBottom: '8px' }}>
                   <div>
                     <h5 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{s.name}</h5>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Ph: {s.phone}</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Ph: {s.phone}</p>
                   </div>
-                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22c55e', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22c55e', fontWeight: 'bold' }}>Active PIN: 1234</span>
+                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22C55E', fontWeight: 'bold' }}>Active PIN: 1234</span>
                 </div>
               ))}
             </div>
@@ -4143,7 +4143,7 @@ const ShopDashboard = () => {
       {showPaymentQrModal && (paymentQr || upiId) && (
         <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
-          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
+          <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
           <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             {paymentQr ? (
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
@@ -4154,10 +4154,10 @@ const ShopDashboard = () => {
               />
             )}
           </div>
-          <p style={{ color: '#22c55e', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+          <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
                 <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
-                <span style={{ fontSize: '9px', color: '#64748b' }}> • mystoreos.in</span>
+                <span style={{ fontSize: '9px', color: '#64748B' }}> • mystoreos.in</span>
               </div>
           <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
             Close
@@ -4170,7 +4170,7 @@ const ShopDashboard = () => {
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <div id="reader" style={{ width: '100%' }}></div>
-            <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#ef4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+            <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
           </div>
         </div>
       )}
@@ -4178,16 +4178,16 @@ const ShopDashboard = () => {
       {/* STAFF MODAL */}
       {showStaffModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px' }}>
-          <div style={{ background: '#1e293b', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #334155' }}>
+          <div style={{ background: '#1E293B', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #334155' }}>
             <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
               Add Staff Member
-              <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: '#94a3b8' }}>✕</span>
+              <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: '#94A3B8' }}>✕</span>
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <input type="text" placeholder="Staff Name" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} style={{ padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-              <input type="tel" placeholder="Staff Phone (Login ID)" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} style={{ padding: '12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-              <p style={{ fontSize: '12px', color: '#94a3b8' }}>* Default PIN will be 1234. Staff can change it later.</p>
-              <button onClick={handleAddStaff} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Add Staff</button>
+              <input type="text" placeholder="Staff Name" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} style={{ padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
+              <input type="tel" placeholder="Staff Phone (Login ID)" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} style={{ padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
+              <p style={{ fontSize: '12px', color: '#94A3B8' }}>* Default PIN will be 1234. Staff can change it later.</p>
+              <button onClick={handleAddStaff} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Add Staff</button>
             </div>
           </div>
         </div>
@@ -4196,35 +4196,35 @@ const ShopDashboard = () => {
       {/* RETURN MODAL */}
       {showReturnModal && returnOrder && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#ffffff', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #e5e7eb', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#0f172a', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#0F172A', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
               Process Sales Return
-              <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#64748b' }}>✕</span>
+              <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#64748B' }}>✕</span>
             </h2>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+            <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
               {returnOrder.items.map(item => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{item.name}</p>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#d97706', fontWeight: 'bold' }}>₹{item.price} x {item.qty}</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>{item.name}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#D97706', fontWeight: 'bold' }}>₹{item.price} x {item.qty}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#e2e8f0', color: '#0f172a', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                    <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center', color: '#0f172a' }}>{returnItemsState[item.id]}</span>
-                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, prev[item.id] + 1)}))} style={{ background: '#e2e8f0', color: '#0f172a', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                    <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center', color: '#0F172A' }}>{returnItemsState[item.id]}</span>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, prev[item.id] + 1)}))} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
                   </div>
                 </div>
               ))}
             </div>
             
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#ef4444' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
                 <span>Total Refund:</span>
                 <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * returnItemsState[item.id]), 0).toFixed(2)}</span>
               </div>
-              <button onClick={handleProcessReturn} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+              <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
                 Confirm Return & Generate Credit Note
               </button>
             </div>
@@ -4235,21 +4235,21 @@ const ShopDashboard = () => {
       {/* ADMIN PIN MODAL */}
       {showAdminPinModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1150, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#ffffff', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid #e5e7eb', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#ef4444', fontWeight: 'bold' }}>Admin Authorization Required</h2>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px', lineHeight: '1.5' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#EF4444', fontWeight: 'bold' }}>Admin Authorization Required</h2>
+            <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '24px', lineHeight: '1.5' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
             
             <input 
               type="password" 
               placeholder="PIN" 
               value={adminPinInput} 
               onChange={e => setAdminPinInput(e.target.value)} 
-              style={{ padding: '16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px', outline: 'none' }} 
+              style={{ padding: '16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px', outline: 'none' }} 
             />
             
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: '#ffffff', color: '#475569', border: '1px solid #e2e8f0', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+              <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: '#FFFFFF', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
             </div>
           </div>
         </div>
@@ -4258,60 +4258,60 @@ const ShopDashboard = () => {
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
         <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#ffffff', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #e5e7eb', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>📦 Add Product to Inventory</h2>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>📦 Add Product to Inventory</h2>
             
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
             </div>
             
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-              <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+              <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }}>
+                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -4325,11 +4325,11 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
                 <button onClick={() => setShowScanner(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
               </div>
               {scannedBarcode && (
-                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
                   <Barcode value={scannedBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
@@ -4340,7 +4340,7 @@ const ShopDashboard = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <input type="file" accept="image/*" id="new-prod-img" style={{ display: 'none' }} onChange={handleNewProdImage} />
                 <label htmlFor="new-prod-img" style={{ cursor: 'pointer' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#f8fafc', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#F8FAFC', border: '2px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {newProdImage
                       ? <img src={newProdImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
                       : <span style={{ fontSize: '28px' }}>📸</span>
@@ -4348,13 +4348,13 @@ const ShopDashboard = () => {
                   </div>
                 </label>
                 {newProdImage && (
-                  <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
+                  <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
                 )}
               </div>
             </div>
 
-            <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-            <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: '#64748b', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
+            <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -4362,55 +4362,55 @@ const ShopDashboard = () => {
       {/* EDIT PRODUCT MODAL */}
       {showEditProductModal && !showScanner && (
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: '#ffffff', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #e5e7eb', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>✏️ Edit Product Details</h2>
+          <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>✏️ Edit Product Details</h2>
             
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
             </div>
             
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
             </div>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
-              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }}>
+              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
                 {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </select>
             </div>
@@ -4418,11 +4418,11 @@ const ShopDashboard = () => {
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }}>
+                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -4436,64 +4436,64 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', color: '#0f172a', fontSize: '15px' }} />
+                <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
                 <button onClick={() => setShowScanner(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
               </div>
               {editProdBarcode && (
-                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
                   <Barcode value={editProdBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
             </div>
 
-            <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338ca)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
-            <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748b', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
+            <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#ffffff', padding: '12px 0 calc(12px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #e5e7eb', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
-        <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('home')}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#FFFFFF', padding: '12px 0 calc(12px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
+        <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
           <Home size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Home</p>
         </div>
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('products')}>
+          <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
             <Package size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Products</p>
           </div>
         )}
         
-        <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#4F46E5' : '#64748b', position: 'relative' }} onClick={() => setActiveTab('bills')}>
+        <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#4F46E5' : '#64748B', position: 'relative' }} onClick={() => setActiveTab('bills')}>
           <Receipt size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Bills</p>
-          {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#ef4444', width:10, height:10, borderRadius:'50%'}}></span>}
+          {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#EF4444', width:10, height:10, borderRadius:'50%'}}></span>}
         </div>
 
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('credit')}>
+          <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Credit</p>
           </div>
         )}
 
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('restock')}>
+          <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
             <Truck size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Restock</p>
           </div>
         )}
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('reports')}>
+          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('reports')}>
             <Book size={20} style={{ margin: '0 auto 4px auto' }} />
             <p style={{ fontSize: '10px', margin: 0 }}>Reports</p>
           </div>
         )}
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#4F46E5' : '#64748b' }} onClick={() => setActiveTab('profile')}>
+          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('profile')}>
             <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
             <p style={{ fontSize: '10px', margin: 0 }}>Settings</p>
           </div>
@@ -4518,7 +4518,7 @@ const ShopDashboard = () => {
           overflowY: 'auto'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+            background: 'linear-gradient(135deg, #1E293B, #0F172A)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
             width: '100%',
@@ -4540,7 +4540,7 @@ const ShopDashboard = () => {
                 right: '20px',
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#cbd5e1',
+                color: '#CBD5E1',
                 borderRadius: '50%',
                 width: '36px',
                 height: '36px',
@@ -4571,10 +4571,10 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #FFFFFF, #94A3B8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
                 Select Your Business Growth Plan
               </h2>
-              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
                 Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
               </p>
             </div>
@@ -4627,7 +4627,7 @@ const ShopDashboard = () => {
 
                     <div>
                       <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#cbd5e1', minHeight: '32px' }}>{plan.description}</p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#CBD5E1', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
                     {renderPlanPrice(plan)}
@@ -4638,8 +4638,8 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
                       {plan.features?.map((feat, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <span style={{ color: '#10b981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
-                          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{feat}</span>
+                          <span style={{ color: '#10B981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{feat}</span>
                         </div>
                       ))}
                     </div>
@@ -4651,7 +4651,7 @@ const ShopDashboard = () => {
                           width: '100%',
                           background: 'rgba(255, 255, 255, 0.05)',
                           border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#94a3b8',
+                          color: '#94A3B8',
                           padding: '12px',
                           borderRadius: '10px',
                           fontSize: '13px',
@@ -4667,7 +4667,7 @@ const ShopDashboard = () => {
                         style={{
                           width: '100%',
                           background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
-                          color: isPopular ? 'white' : '#0f172a',
+                          color: isPopular ? 'white' : '#0F172A',
                           border: 'none',
                           padding: '12px',
                           borderRadius: '10px',
@@ -4686,7 +4686,7 @@ const ShopDashboard = () => {
               })}
             </div>
             
-            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
               🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
             </div>
           </div>
