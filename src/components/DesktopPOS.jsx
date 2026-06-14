@@ -90,26 +90,27 @@ const DesktopPOS = ({
           </div>
         )}
 
-        {/* Stats Row */}
+        {/* KPI Row — Zoho-style: left-aligned, small grey label, bold dark number */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#EF4444' : '#D97706', margin: 0 }}>{pendingOrders}</p>
-            <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>New Orders</p>
+          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('bills')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>New Orders</p>
+            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{pendingOrders}</p>
+            {pendingOrders > 0 && <p style={{ fontSize: '12px', fontWeight: '600', color: '#F59E0B', margin: '4px 0 0' }}>Needs attention</p>}
           </div>
           {isOwner && (
-            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10B981', margin: 0 }}>₹{sales}</p>
-              <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Today's Sales</p>
+            <div className="premium-glass" style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Today's Sales</p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{sales}</p>
             </div>
           )}
-          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#3B82F6', margin: 0 }}>{products.length}</p>
-            <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Total Products</p>
+          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('products')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Total Products</p>
+            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{products.length}</p>
           </div>
           {isOwner && (
-            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#EF4444', margin: 0 }}>₹{payable}</p>
-              <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Supplier Credit</p>
+            <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('credit')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Supplier Credit</p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: payable > 0 ? '#EF4444' : '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{payable}</p>
             </div>
           )}
         </div>
