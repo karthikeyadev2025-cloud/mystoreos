@@ -283,11 +283,11 @@ const DesktopPOS = ({
       </div>
 
       {/* Right Column (1/3 width): Checkout Cart */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+      <div className="premium-glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Receipt size={20} color="#10B981" /> POS Terminal
+            <Receipt size={20} color="#64748B" /> POS Terminal
           </h3>
           <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10B981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
             Active Session
@@ -392,10 +392,10 @@ const DesktopPOS = ({
         </div>
 
         {/* Invoice Basket Items */}
-        <div style={{ flex: 1, minHeight: '140px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, minHeight: '80px', overflowY: 'auto' }}>
           {billItems.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#64748B', fontSize: '13px', padding: '28px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minHeight: '140px', justifyContent: 'center' }}>
-              <Package size={48} style={{ opacity: 0.2, color: '#64748B' }} />
+            <div style={{ textAlign: 'center', color: '#64748B', fontSize: '13px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minHeight: '80px', justifyContent: 'center' }}>
+              <Package size={32} style={{ opacity: 0.2, color: '#64748B' }} />
               <div>
                 <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#64748B', fontSize: '13px' }}>Cart is Empty</p>
                 <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Search products or add a custom item above</p>
