@@ -104,10 +104,9 @@ const DesktopSettings = ({
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '20px', alignItems: 'start' }}>
+    <div className="settings-masonry">
       
-      {/* Left Column: Logo, GST and UPI setup */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* All settings cards in an auto-balancing 2-column masonry */}
         
         {/* Brand Logo & Business Info */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
@@ -297,11 +296,6 @@ const DesktopSettings = ({
           </div>
         </div>
 
-      </div>
-
-      {/* Right Column: QR print poster, Staff & Photos */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
         {/* SaaS Subscription Info Card */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -607,8 +601,6 @@ const DesktopSettings = ({
             <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ fontSize: '11px', color: '#6B7280' }} />
           )}
         </div>
-
-      </div>
 
     </div>
   );

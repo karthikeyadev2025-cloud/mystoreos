@@ -211,3 +211,17 @@ input:focus, select:focus, textarea:focus { outline: none; }
   box-shadow: var(--sh-md);
   border-color: var(--c-primary-border);
 }
+
+/* ---- Settings page: auto-balancing 2-column masonry ---- */
+.settings-masonry {
+  column-count: 2;
+  column-gap: 20px;
+}
+.settings-masonry > div {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .settings-masonry { column-count: 1; }
+}
