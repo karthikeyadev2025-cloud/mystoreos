@@ -1921,7 +1921,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
