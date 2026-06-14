@@ -283,7 +283,7 @@ const DesktopPOS = ({
       </div>
 
       {/* Right Column (1/3 width): Checkout Cart */}
-      <div className="premium-glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+      <div className="premium-glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 16px)', overflowY: 'auto', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -329,7 +329,7 @@ const DesktopPOS = ({
         </div>
 
         {/* Customer Details Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px' }}>
           <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>Customer Profiling</p>
           <input 
             type="text" 
