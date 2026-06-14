@@ -11,7 +11,7 @@ function getSegment(c) {
   const allDates = c.orders.map(o => new Date(o.date));
   const lastDate = allDates.length ? new Date(Math.max(...allDates)) : null;
   const isNew = c.orders.every(o => new Date(o.date) >= monthStart);
-  if (thisMonthSpend >= 5000) return { label: '🌟 VIP', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' };
+  if (thisMonthSpend >= 5000) return { label: 'VIP', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' };
   if (thisMonthOrders.length >= 3) return { label: '🔄 Regular', color: '#1D4ED8', bg: '#DBEAFE', border: '#BFDBFE' };
   if (isNew && c.orders.length > 0) return { label: '🆕 New', color: '#047857', bg: '#D1FAE5', border: '#A7F3D0' };
   if (!lastDate || lastDate < thirtyAgo) return { label: '⚠️ At-risk', color: '#B91C1C', bg: '#FEE2E2', border: '#FCA5A5' };
@@ -79,7 +79,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
   const totalRevenue = customers.reduce((s, c) => s + c.totalSpend, 0);
   const highValueCount = customers.filter(c => c.totalSpend >= 1000).length;
-  const vipCustomers = useMemo(() => customers.filter(c => getSegment(c)?.label === '🌟 VIP'), [customers]);
+  const vipCustomers = useMemo(() => customers.filter(c => getSegment(c)?.label === 'VIP'), [customers]);
 
   return (
     <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
@@ -88,7 +88,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={22} color="#3B82F6" /> Customer CRM
+            <Users size={22} color="#64748B" /> Customer CRM
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
             {customers.length} unique customers tracked from billing history
@@ -116,8 +116,8 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
       {/* VIP bulk-message panel */}
       {showVipPanel && vipCustomers.length > 0 && (
-        <div style={{ marginBottom: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '14px', padding: '16px' }}>
-          <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#B45309' }}>🌟 VIP Customers — Send WhatsApp</h4>
+        <div style={{ marginBottom: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '16px' }}>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#B45309' }}>VIP Customers — Send WhatsApp</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {vipCustomers.map(c => (
               <button
@@ -169,7 +169,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
             const segment = getSegment(c);
 
             return (
-              <div key={key} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', overflow: 'hidden', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+              <div key={key} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 {/* Summary row */}
                 <div
                   style={{ padding: '14px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px' }}
@@ -189,7 +189,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
                       )}
                     </div>
                     <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#475569' }}>
-                      {c.phone ? `📞 ${c.phone}` : 'No phone'} · Last visit: {lastOrder?.date ? new Date(lastOrder.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
+                      {c.phone ? c.phone : 'No phone'} · Last visit: {lastOrder?.date ? new Date(lastOrder.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
                     </p>
                   </div>
 
@@ -201,7 +201,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
                     {pts > 0 && (
                       <div style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '4px 10px', textAlign: 'center' }}>
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#7C3AED' }}>⭐ {pts}</p>
+                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#7C3AED' }}>{pts}</p>
                         <p style={{ margin: 0, fontSize: '9px', color: '#6D28D9' }}>pts</p>
                       </div>
                     )}
