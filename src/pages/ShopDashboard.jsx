@@ -23,6 +23,7 @@ import { sendWhatsApp, sendCreditReminder, sendBillNotification, sendPaymentConf
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
 import DesktopTopBar from '../components/DesktopTopBar';
+import DesktopSidebar from '../components/DesktopSidebar';
 import DesktopPOS from '../components/DesktopPOS';
 import DesktopInventory from '../components/DesktopInventory';
 import DesktopBills from '../components/DesktopBills';
@@ -1920,7 +1921,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ backgroundColor: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ display: 'flex', backgroundColor: '#F8FAFC', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
@@ -1955,7 +1956,7 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        <DesktopTopBar
+        <DesktopSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isOwner={isOwner}
@@ -1966,6 +1967,7 @@ const ShopDashboard = () => {
           syncStatus={{ isOnline, pendingCount }}
         />
 
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
           {activeTab === 'home' && (
             <DesktopPOS 
@@ -2188,6 +2190,7 @@ const ShopDashboard = () => {
               handleUnlinkDistributor={handleUnlinkDistributor}
             />
           )}
+        </div>
         </div>
 
         {/* Global Modals for Desktop */}
