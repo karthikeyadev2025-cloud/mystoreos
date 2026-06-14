@@ -84,7 +84,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
   const sorted = [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   return (
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>

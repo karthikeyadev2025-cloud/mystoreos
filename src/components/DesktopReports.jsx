@@ -156,7 +156,7 @@ const DesktopReports = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Margin gauge */}
-          <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <BarChart2 size={18} color="#FBBF24" /> Net Margin Analytics
             </h3>
@@ -196,7 +196,7 @@ const DesktopReports = ({
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: '#ECFDF5' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#065F46' }}>📊 Tally ERP / Prime Exporter</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Tally ERP / Prime Exporter</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#047857', lineHeight: '1.4' }}>Generate double-entry bookkeeping ledgers. Download compliant Sales XML.</p>
               </div>
               <PlanGate feature="tallyExport" fallback={<LockedFeature feature="tallyExport" compact />}>
@@ -216,7 +216,7 @@ const DesktopReports = ({
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #DDD6FE', background: '#F5F3FF' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#6D28D9' }}>🇮🇳 GSTR-1 CSV Exporter</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>GSTR-1 CSV Exporter</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#5B21B6', lineHeight: '1.4' }}>GST-portal ready GSTR-1 CSV with CGST/SGST/IGST split for B2B and B2C.</p>
               </div>
               <PlanGate feature="gst" fallback={<LockedFeature feature="gst" compact />}>
@@ -232,7 +232,7 @@ const DesktopReports = ({
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: '#FEF3C7', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#B45309' }}>🔗 Export to CRM</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Export to CRM</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#78350F', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
               </div>
               <button onClick={() => setCrmMenuOpen(o => !o)}
@@ -258,7 +258,7 @@ const DesktopReports = ({
         </div>
 
         {/* Day Book ledger */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Book size={20} color="#FBBF24" /> Today's Retail Day Book
           </h3>
@@ -290,7 +290,7 @@ const DesktopReports = ({
 
       {/* Row 2 — 30-day revenue AreaChart + top 10 products BarChart */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <TrendingUp size={16} color="#4F46E5" /> 30-Day Revenue Trend
@@ -317,7 +317,7 @@ const DesktopReports = ({
           </ResponsiveContainer>
         </div>
 
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingUp size={16} color="#F59E0B" /> Top 10 Products (revenue this month)
           </h3>
@@ -342,7 +342,7 @@ const DesktopReports = ({
 
       {/* Row 3 — Cash flow 30d | Credit gauge + Weekly target + Category margins */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingDown size={16} color="#EF4444" /> Cash In vs Out — 30 Days
           </h3>
