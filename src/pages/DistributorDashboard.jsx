@@ -255,14 +255,14 @@ const DistributorDashboard = () => {
     const notifications = getNotifications();
     
     return (
-      <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', width: '100%' }}>
+      <div className="dashboard-wrapper-flex" style={{ background: '#F8FAFC', color: '#0F172A', minHeight: '100vh', width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
 
         {/* Desktop Sticky Left Sidebar */}
         <div className="desktop-glass-sidebar" style={{ background: '#FFFFFF', borderRight: '1px solid #E2E8F0' }}>
           {/* Logo & Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingLeft: '8px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: '0 2px 8px rgba(79, 70, 229, 0.2)' }}>📦</div>
+            <div style={{ background: '#4F46E5', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 800, color: '#fff' }}>M</div>
             <div>
               <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: '#0F172A' }}>FMCG Supply</h2>
               <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
@@ -1037,7 +1037,7 @@ const DistributorDashboard = () => {
 
   // ================= MOBILE RETAIL CLIENT INTERFACE =================
   return (
-    <div style={{ backgroundColor: '#F4F5F7', color: '#0F172A', minHeight: '100vh', paddingBottom: '80px', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ backgroundColor: '#F8FAFC', color: '#0F172A', minHeight: '100vh', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
       
       {/* Header */}

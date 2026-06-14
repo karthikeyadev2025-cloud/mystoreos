@@ -77,13 +77,13 @@ const CADashboard = () => {
   );
 
   return (
-    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F4F5F7', color: '#0F172A', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F8FAFC', color: '#0F172A', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <ToastContainer theme="light" position="top-center" />
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: '#FFFFFF', padding: '16px 20px', borderRadius: '14px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: '#FFFFFF', padding: '16px 20px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FileSpreadsheet size={28} color="#10B981" />
+          <FileSpreadsheet size={28} color="#64748B" />
           <div>
             <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A' }}>CA Portal</h1>
             <p style={{ margin: 0, fontSize: '11px', color: '#475569' }}>Welcome, {user.name} · Chartered Accountant</p>
@@ -97,7 +97,7 @@ const CADashboard = () => {
       {!selectedShop ? (
         <div>
           <h2 style={{ fontSize: '16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-            <Store size={18} color="#3B82F6" /> Select a Client Shop ({shops.length})
+            <Store size={18} color="#64748B" /> Select a Client Shop ({shops.length})
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }}>
             {shops.length === 0 && (
@@ -201,7 +201,7 @@ const CADashboard = () => {
           {/* Sales Table */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-              <Receipt size={16} color="#3B82F6" /> {MONTHS[filterMonth]} {filterYear} — {filteredOrders.length} Invoice{filteredOrders.length !== 1 ? 's' : ''}
+              <Receipt size={16} color="#64748B" /> {MONTHS[filterMonth]} {filterYear} — {filteredOrders.length} Invoice{filteredOrders.length !== 1 ? 's' : ''}
             </h3>
             {loading ? (
               <p style={{ color: '#64748B', fontSize: '13px' }}>Loading sales data...</p>

@@ -66,18 +66,18 @@ export default function AffiliateDashboard() {
 
   const statusChip = (s) => ({
     pending: <span style={{ background: '#FEF3C7', color: '#B45309', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
-    approved: <span style={{ background: '#DCFCE7', color: '#15803D', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved ✅</span>,
-    paid: <span style={{ background: '#D1FAE5', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid 🎉</span>,
+    approved: <span style={{ background: '#DCFCE7', color: '#15803D', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
+    paid: <span style={{ background: '#D1FAE5', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
   }[s] || <span style={{ color: '#64748B', fontSize: 11 }}>{s}</span>);
 
   return (
-    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F4F5F7', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <ToastContainer position="top-right" theme="light" />
 
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 20, color: '#fff' }}>🔗 Affiliate Portal</div>
+          <div style={{ fontWeight: 800, fontSize: 20, color: '#fff' }}>Affiliate Portal</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Welcome, {user?.name} · Partner</div>
         </div>
         <button onClick={() => { logout(); navigate('/login'); }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -106,7 +106,7 @@ export default function AffiliateDashboard() {
                   </button>
                 </div>
                 <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '14px 22px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>
-                  📲 Share on WhatsApp
+                  Share on WhatsApp
                 </button>
               </div>
               <div style={{ marginTop: 14, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>
@@ -126,13 +126,13 @@ export default function AffiliateDashboard() {
 
             {/* How it works */}
             <div style={{ ...S.card, marginBottom: 24 }}>
-              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>💡 How It Works</h3>
+              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>How It Works</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 14 }}>
                 {[
-                  ['1️⃣', 'Share your link', 'Send your unique referral link to shop owners via WhatsApp, social media, or in-person.'],
-                  ['2️⃣', 'They sign up', 'When they register using your link, they\'re automatically attributed to you.'],
-                  ['3️⃣', 'They subscribe', 'When they upgrade to any paid plan, your commission is calculated.'],
-                  ['4️⃣', 'You get paid', 'Admin approves and pays your commission every month.'],
+                  ['1', 'Share your link', 'Send your unique referral link to shop owners via WhatsApp, social media, or in-person.'],
+                  ['2', 'They sign up', 'When they register using your link, they\'re automatically attributed to you.'],
+                  ['3', 'They subscribe', 'When they upgrade to any paid plan, your commission is calculated.'],
+                  ['4', 'You get paid', 'Admin approves and pays your commission every month.'],
                 ].map(([emoji, title, desc]) => (
                   <div key={title} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{emoji}</div>
