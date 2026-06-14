@@ -14,6 +14,7 @@ const AuthReset = lazy(() => import('./pages/AuthReset'));
 const Register = lazy(() => import('./pages/Register'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ShopDashboard = lazy(() => import('./pages/ShopDashboard'));
+const ZohoStyleShell = lazy(() => import('./components/ZohoStyleShell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -120,6 +121,11 @@ function App() {
               <AnnouncementBanner />
               <MaintenanceModeOverlay />
               <Routes>
+                <Route path="/preview" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><ZohoStyleShell shopName="Karthikeya" shopCode="SHP-H9U6F6" /></ErrorBoundary>
+                  </Suspense>
+                } />
                 <Route path="/" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
