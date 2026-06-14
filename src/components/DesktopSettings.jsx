@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, Clock, Tag, Image, Truck } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
@@ -444,7 +444,7 @@ const DesktopSettings = ({
 
         {/* Shop ID & Distributor linking */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>🚚 My Distributors</h3>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}><Truck size={18} color="#64748B" /> My Distributors</h3>
           {user?.publicCode && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', marginBottom: '14px' }}>
               <div>
@@ -526,7 +526,7 @@ const DesktopSettings = ({
 
         {/* Shop Hours */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🕐 Shop Hours</h3>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} color="#64748B" /> Shop Hours</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
@@ -560,7 +560,7 @@ const DesktopSettings = ({
 
         {/* Offer Banner */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>🏷️ Offer Banner</h3>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}><Tag size={18} color="#64748B" /> Offer Banner</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
             <div>
@@ -592,7 +592,7 @@ const DesktopSettings = ({
 
         {/* Gallery Images */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A' }}>📸 Shop Photos (Max 6)</h3>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}><Image size={18} color="#64748B" /> Shop Photos (Max 6)</h3>
           <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Upload photos of your storefront or inventory products.</p>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
