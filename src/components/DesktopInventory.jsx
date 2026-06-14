@@ -141,7 +141,7 @@ const DesktopInventory = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Package size={22} color="#FBBF24" /> Shop Inventory & Catalog
+            <Package size={22} color="#64748B" /> Shop Inventory & Catalog
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>
             Manage your store shelf items, stock status, barcode labels, and bulk restock actions.
@@ -157,14 +157,14 @@ const DesktopInventory = ({
             />
           </div>
           <button onClick={downloadTemplate} title="Download CSV template" style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            📋 Template
+            Template
           </button>
           <button onClick={() => csvInputRef.current?.click()} style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Upload size={14} /> Import CSV
           </button>
           <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={onCsvFileChange} style={{ display: 'none' }} />
           <button onClick={() => onShowBarcodeManager && onShowBarcodeManager()} style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            🏷️ Barcodes <span style={{ background: '#FBBF24', color: '#78350F', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
+            Barcodes <span style={{ background: '#FBBF24', color: '#78350F', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
           </button>
           <button onClick={() => setShowAddProductModal(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={16} /> Add Product
@@ -245,7 +245,7 @@ const DesktopInventory = ({
           <div style={{ marginBottom: '24px', background: '#FFF5F5', border: '1px solid #FEE2E2', borderRadius: '16px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Zap size={16} color="#F59E0B" /> Inventory Alert Center
+                <Zap size={16} color="#64748B" /> Inventory Alert Center
                 <span style={{ background: '#FEE2E2', color: '#EF4444', fontSize: '11px', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
                   {alerts.length} action{alerts.length !== 1 ? 's' : ''}
                 </span>
@@ -307,7 +307,7 @@ const DesktopInventory = ({
             const isLowStock = p.stock < (p.reorderLevel || 10);
             const daysLeft = computeDaysLeft(p);
             return (
-              <div key={p.id} className="premium-glass" style={{ background: '#FFFFFF', border: `1px solid ${flashSales[p.id] ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.01)' }}>
+              <div key={p.id} className="premium-glass" style={{ background: '#FFFFFF', border: `1px solid ${flashSales[p.id] ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
@@ -363,12 +363,12 @@ const DesktopInventory = ({
                     )}
                     {daysLeft !== null && daysLeft < 2 && (
                       <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FCA5A5', fontWeight: 'bold' }}>
-                        🔴 Order TODAY
+                        Order TODAY
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 2 && daysLeft < 7 && (
                       <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: '#FEF3C7', color: '#F59E0B', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
-                        ⚠️ Reorder in {daysLeft}d
+                        Reorder in {daysLeft}d
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 7 && (
@@ -406,7 +406,7 @@ const DesktopInventory = ({
                   }>
                     {flashSales[p.id] ? (
                       <button onClick={() => handleClearFlashSale && handleClearFlashSale(p.id)} style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        🔥 End Sale
+                        End Sale
                       </button>
                     ) : (
                       <button onClick={() => setSaleTarget(saleTarget === p.id ? null : p.id)} style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#EF4444', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -428,7 +428,7 @@ const DesktopInventory = ({
                 {/* Inline stock adjustment form */}
                 {adjustTarget === p.id && (
                   <div style={{ marginTop: '10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#4F46E5', fontWeight: 'bold' }}>⚖️ Adjust Stock (current: {p.stock || 0})</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#4F46E5', fontWeight: 'bold' }}>Adjust Stock (current: {p.stock || 0})</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="number"
@@ -463,7 +463,7 @@ const DesktopInventory = ({
                 {/* Inline flash sale setter */}
                 {saleTarget === p.id && (
                   <div style={{ marginTop: '10px', background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#EF4444', fontWeight: 'bold' }}>🔥 Set Flash Sale</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#EF4444', fontWeight: 'bold' }}>Set Flash Sale</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {[5,10,15,20,25,30,40,50].map(d => <option key={d} value={d}>{d}% off</option>)}
