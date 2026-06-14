@@ -1921,7 +1921,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', backgroundColor: '#F8FAFC', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', height: '100vh', overflow: 'hidden', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
@@ -1967,7 +1967,7 @@ const ShopDashboard = () => {
           syncStatus={{ isOnline, pendingCount }}
         />
 
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
           {activeTab === 'home' && (
             <DesktopPOS 
