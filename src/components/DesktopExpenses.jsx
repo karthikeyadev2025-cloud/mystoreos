@@ -5,9 +5,9 @@ import { api } from '../lib/api';
 const EXPENSE_CATS = ['Rent', 'Electricity', 'Wages', 'Supplies', 'Packaging', 'Transport', 'Maintenance', 'Misc'];
 
 const CAT_COLORS = {
-  Rent: '#ef4444', Electricity: '#f59e0b', Wages: '#8b5cf6',
-  Supplies: '#3b82f6', Packaging: '#06b6d4', Transport: '#10b981',
-  Maintenance: '#f97316', Misc: '#64748b',
+  Rent: '#EF4444', Electricity: '#F59E0B', Wages: '#8B5CF6',
+  Supplies: '#3B82F6', Packaging: '#06B6D4', Transport: '#10B981',
+  Maintenance: '#F97316', Misc: '#64748B',
 };
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -89,7 +89,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <IndianRupee size={22} color="#f43f5e" /> Expense Tracker
+              <IndianRupee size={22} color="#F43F5E" /> Expense Tracker
             </h2>
             <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
               Log daily shop costs and track profit vs revenue each month.
@@ -103,10 +103,10 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '24px' }}>
-          <StatCard label="Revenue this month" value={fmt(monthRevenue)} color="#10b981" icon={TrendingUp} />
-          <StatCard label="Total Expenses" value={fmt(totalExpenses)} color="#ef4444" icon={TrendingDown}
+          <StatCard label="Revenue this month" value={fmt(monthRevenue)} color="#10B981" icon={TrendingUp} />
+          <StatCard label="Total Expenses" value={fmt(totalExpenses)} color="#EF4444" icon={TrendingDown}
             sub={byCategory.length > 0 ? `Top: ${byCategory[0][0]}` : undefined} />
-          <StatCard label="Net Profit" value={fmt(netProfit)} color={netProfit >= 0 ? '#4F46E5' : '#f43f5e'} icon={Activity}
+          <StatCard label="Net Profit" value={fmt(netProfit)} color={netProfit >= 0 ? '#4F46E5' : '#F43F5E'} icon={Activity}
             sub={netProfit >= 0 ? 'Profitable month' : 'Loss — check expenses'} />
         </div>
 
@@ -134,7 +134,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
                   style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '12px', outline: 'none' }} />
               </div>
               <button onClick={handleAdd} disabled={saving || !form.amount}
-                style={{ background: saving ? '#94A3B8' : '#f43f5e', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: saving ? 'not-allowed' : 'pointer', opacity: !form.amount ? 0.5 : 1 }}>
+                style={{ background: saving ? '#94A3B8' : '#F43F5E', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: saving ? 'not-allowed' : 'pointer', opacity: !form.amount ? 0.5 : 1 }}>
                 {saving ? 'Saving…' : '+ Add Expense'}
               </button>
             </div>
@@ -149,7 +149,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {sorted.map(e => (
                   <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
-                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: `${CAT_COLORS[e.category] || '#64748b'}18`, color: CAT_COLORS[e.category] || '#64748b', border: `1px solid ${CAT_COLORS[e.category] || '#64748b'}30`, fontWeight: 'bold', flexShrink: 0 }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: `${CAT_COLORS[e.category] || '#64748B'}18`, color: CAT_COLORS[e.category] || '#64748B', border: `1px solid ${CAT_COLORS[e.category] || '#64748B'}30`, fontWeight: 'bold', flexShrink: 0 }}>
                       {e.category}
                     </span>
                     <span style={{ flex: 1, fontSize: '13px', color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -175,7 +175,7 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {byCategory.map(([cat, amt]) => {
                   const pct = totalExpenses > 0 ? Math.round((amt / totalExpenses) * 100) : 0;
-                  const color = CAT_COLORS[cat] || '#64748b';
+                  const color = CAT_COLORS[cat] || '#64748B';
                   return (
                     <div key={cat}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>

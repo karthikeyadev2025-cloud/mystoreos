@@ -164,7 +164,7 @@ const DesktopInventory = ({
           </button>
           <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={onCsvFileChange} style={{ display: 'none' }} />
           <button onClick={() => onShowBarcodeManager && onShowBarcodeManager()} style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            🏷️ Barcodes <span style={{ background: '#FbbF24', color: '#78350F', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
+            🏷️ Barcodes <span style={{ background: '#FBBF24', color: '#78350F', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
           </button>
           <button onClick={() => setShowAddProductModal(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={16} /> Add Product

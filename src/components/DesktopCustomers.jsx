@@ -88,7 +88,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={22} color="#3b82f6" /> Customer CRM
+            <Users size={22} color="#3B82F6" /> Customer CRM
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
             {customers.length} unique customers tracked from billing history
@@ -138,9 +138,9 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard icon={<Users size={18} />} value={customers.length} label="Total Customers" color="#3b82f6" />
+        <StatCard icon={<Users size={18} />} value={customers.length} label="Total Customers" color="#3B82F6" />
         <StatCard icon={<ShoppingBag size={18} />} value={`₹${totalRevenue.toLocaleString('en-IN')}`} label="Total Revenue" color="#10B981" />
-        <StatCard icon={<Star size={18} />} value={highValueCount} label="High-Value (₹1000+)" color="#f59e0b" />
+        <StatCard icon={<Star size={18} />} value={highValueCount} label="High-Value (₹1000+)" color="#F59E0B" />
       </div>
 
       {/* Customer list */}

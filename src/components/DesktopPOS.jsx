@@ -68,7 +68,7 @@ const DesktopPOS = ({
   const targetPct = dailyTarget > 0 ? Math.min(1, sales / dailyTarget) : 0;
   const ringOffset = CIRC * (1 - targetPct);
   const targetPctInt = Math.round(targetPct * 100);
-  const ringColor = targetPctInt >= 100 ? '#10b981' : targetPctInt >= 60 ? '#f59e0b' : '#ef4444';
+  const ringColor = targetPctInt >= 100 ? '#10B981' : targetPctInt >= 60 ? '#F59E0B' : '#EF4444';
   const motivation = targetPctInt >= 100 ? '🎉 Target Hit!' : targetPctInt >= 80 ? '💪 Almost There!' : targetPctInt >= 50 ? '📈 Keep Going!' : '🚀 Start Billing!';
   const lowStockProducts = products.filter(p => p.stock < (p.reorderLevel || 10));
 
@@ -92,23 +92,23 @@ const DesktopPOS = ({
 
         {/* Stats Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#ffffff', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#ef4444' : '#D97706', margin: 0 }}>{pendingOrders}</p>
+          <div className="premium-glass" onClick={() => setActiveTab('bills')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', color: pendingOrders > 0 ? '#EF4444' : '#D97706', margin: 0 }}>{pendingOrders}</p>
             <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>New Orders</p>
           </div>
           {isOwner && (
-            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#ffffff', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981', margin: 0 }}>₹{sales}</p>
+            <div className="premium-glass" style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10B981', margin: 0 }}>₹{sales}</p>
               <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Today's Sales</p>
             </div>
           )}
-          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#ffffff', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6', margin: 0 }}>{products.length}</p>
+          <div className="premium-glass" onClick={() => setActiveTab('products')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#3B82F6', margin: 0 }}>{products.length}</p>
             <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Total Products</p>
           </div>
           {isOwner && (
-            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#ffffff', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>₹{payable}</p>
+            <div className="premium-glass" onClick={() => setActiveTab('credit')} style={{ padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#EF4444', margin: 0 }}>₹{payable}</p>
               <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0', fontWeight: '500' }}>Supplier Credit</p>
             </div>
           )}
@@ -116,7 +116,7 @@ const DesktopPOS = ({
 
         {/* Daily Target Progress Ring */}
         {isOwner && (
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             {dailyTarget > 0 ? (
               <>
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
@@ -167,7 +167,7 @@ const DesktopPOS = ({
         )}
 
         {/* Search & Actions Panel */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '1px solid #E2E8F0', marginBottom: '16px' }}>
             <Search size={16} color="#64748B" />
             <input 
@@ -181,37 +181,37 @@ const DesktopPOS = ({
 
           {/* Action Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
               <ScanLine size={20} color="#4F46E5" />
               <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Barcode Scan</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                <Plus size={20} color="#10b981" />
+              <button className="premium-btn" onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <Plus size={20} color="#10B981" />
                 <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Add Product</span>
               </button>
             )}
-            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <IndianRupee size={20} color="#d97706" />
+            <button className="premium-btn" onClick={handleShowUpiQr} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <IndianRupee size={20} color="#D97706" />
               <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>UPI QR Code</span>
             </button>
             {isOwner && (
-              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                <Book size={20} color="#6366f1" />
+              <button className="premium-btn" onClick={() => setActiveTab('credit')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <Book size={20} color="#6366F1" />
                 <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Credit Ledger</span>
               </button>
             )}
-            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#ffffff', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <Receipt size={20} color={pendingOrders > 0 ? '#ef4444' : '#64748B'} />
+            <button className="premium-btn" onClick={() => setActiveTab('bills')} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', color: '#0F172A', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <Receipt size={20} color={pendingOrders > 0 ? '#EF4444' : '#64748B'} />
               <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>All Bills</span>
             </button>
           </div>
         </div>
 
         {/* Product Grid Catalog (Quick Add) */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#ffffff', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Package size={18} color="#d97706" /> Quick Shelf Explorer
+            <Package size={18} color="#D97706" /> Quick Shelf Explorer
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
@@ -222,9 +222,9 @@ const DesktopPOS = ({
               const minsLeft = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: activeSale ? '#FEF2F2' : '#ffffff', border: `1px solid ${activeSale ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: activeSale ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${activeSale ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   {activeSale && (
-                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#ef4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
                       🔥 -{sale.discount}% · {timeLabel}
                     </div>
                   )}
@@ -235,13 +235,13 @@ const DesktopPOS = ({
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>{p.name}</h4>
                     {activeSale ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#ef4444' }}>₹{salePrice}</p>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#EF4444' }}>₹{salePrice}</p>
                         <p style={{ margin: 0, fontSize: '11px', color: '#64748B', textDecoration: 'line-through' }}>₹{p.price}</p>
                       </div>
                     ) : (
                       <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#4F46E5' }}>₹{p.price}</p>
                     )}
-                    <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: lowStock ? '#ef4444' : '#64748B', fontWeight: lowStock ? 'bold' : 'normal' }}>
+                    <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: lowStock ? '#EF4444' : '#64748B', fontWeight: lowStock ? 'bold' : 'normal' }}>
                       Stock: {p.stock || 0}
                     </p>
                   </div>
@@ -272,7 +272,7 @@ const DesktopPOS = ({
               <div style={{ gridColumn: '1/-1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '40px 16px', color: '#64748B' }}>
                 <Package size={40} style={{ opacity: 0.2 }} />
                 <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#64748B' }}>No products found</p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Try a different search, or add your first product</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Try a different search, or add your first product</p>
               </div>
             )}
           </div>
@@ -282,25 +282,25 @@ const DesktopPOS = ({
       </div>
 
       {/* Right Column (1/3 width): Checkout Cart */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#ffffff', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Receipt size={20} color="#10b981" /> POS Terminal
+            <Receipt size={20} color="#10B981" /> POS Terminal
           </h3>
-          <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
+          <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10B981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
             Active Session
           </span>
         </div>
 
         {/* Billing Mode Segmented Control */}
-        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#F1F5F9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
           <button 
             onClick={() => setBillingMode('bill')} 
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'bill' ? 'rgba(16,185,129,0.2)' : 'transparent',
-              color: billingMode === 'bill' ? '#10b981' : '#64748B',
+              color: billingMode === 'bill' ? '#10B981' : '#64748B',
             }}
           >
             Bill
@@ -310,7 +310,7 @@ const DesktopPOS = ({
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'estimate' ? 'rgba(245,158,11,0.2)' : 'transparent',
-              color: billingMode === 'estimate' ? '#d97706' : '#64748B',
+              color: billingMode === 'estimate' ? '#D97706' : '#64748B',
             }}
           >
             Estimate
@@ -320,7 +320,7 @@ const DesktopPOS = ({
             style={{ 
               flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none',
               background: billingMode === 'challan' ? 'rgba(59,130,246,0.2)' : 'transparent',
-              color: billingMode === 'challan' ? '#3b82f6' : '#64748B',
+              color: billingMode === 'challan' ? '#3B82F6' : '#64748B',
             }}
           >
             Challan
@@ -328,7 +328,7 @@ const DesktopPOS = ({
         </div>
 
         {/* Customer Details Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f8fafc', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px' }}>
           <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>Customer Profiling</p>
           <input 
             type="text" 
@@ -385,7 +385,7 @@ const DesktopPOS = ({
           />
           <input 
             type="number" placeholder="₹" value={customItemPrice} onChange={e => setCustomItemPrice(e.target.value)}
-            style={{ width: '60px', background: 'transparent', border: 'none', color: '#d97706', outline: 'none', fontSize: '13px', fontWeight: 'bold', margin: 0, padding: '4px 0' }} 
+            style={{ width: '60px', background: 'transparent', border: 'none', color: '#D97706', outline: 'none', fontSize: '13px', fontWeight: 'bold', margin: 0, padding: '4px 0' }} 
           />
           <button onClick={addCustomItem} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', width: 'auto', margin: 0 }}>Add</button>
         </div>
@@ -405,11 +405,11 @@ const DesktopPOS = ({
               {billItems.map((item, idx) => {
                 const variantList = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
                 return (
-                  <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                  <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '8px 10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
                     <div style={{ flex: 1, marginRight: '4px' }}>
                       <p style={{ margin: 0, fontWeight: '700', fontSize: '12px', color: '#0F172A' }}>{item.name}</p>
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px' }}>
-                        <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 'bold' }}>₹{item.price}</span>
+                        <span style={{ fontSize: '11px', color: '#D97706', fontWeight: 'bold' }}>₹{item.price}</span>
                         {variantList.length > 0 && (
                           <select 
                              value={item.selectedVariant || ''} 
@@ -432,9 +432,9 @@ const DesktopPOS = ({
                       </span>
                       <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#E2E8F0', border: 'none', color: '#0F172A', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>+</button>
                       
-                      <span style={{ fontWeight: 'bold', color: '#10b981', minWidth: '45px', textAlign: 'right', fontSize: '12px' }}>₹{item.price * (item.qty || 1)}</span>
+                      <span style={{ fontWeight: 'bold', color: '#10B981', minWidth: '45px', textAlign: 'right', fontSize: '12px' }}>₹{item.price * (item.qty || 1)}</span>
                       
-                      <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}>
+                      <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px' }}>
                         <X size={12} />
                       </button>
                     </div>
@@ -446,11 +446,11 @@ const DesktopPOS = ({
         </div>
 
         {/* ── Manual Discount (% entry) ── */}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid #E2E8F0', background: '#f8fafc', borderRadius: '10px' }}>
+        <div style={{ padding: '12px 16px', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span style={{ fontSize: '12px', fontWeight: '600', color: '#475569', flex: 1 }}>Discount %</span>
             {manualDiscountPct > 0 && (
-              <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '700', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '5px', padding: '2px 7px' }}>
+              <span style={{ fontSize: '11px', color: '#10B981', fontWeight: '700', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '5px', padding: '2px 7px' }}>
                 -₹{manualDiscountAmt.toLocaleString('en-IN')}
               </span>
             )}
@@ -464,8 +464,8 @@ const DesktopPOS = ({
                 style={{
                   flex: 1,
                   padding: '7px 4px',
-                  background: manualDiscountPct === d ? '#4F46E5' : '#ffffff',
-                  color: manualDiscountPct === d ? '#ffffff' : '#475569',
+                  background: manualDiscountPct === d ? '#4F46E5' : '#FFFFFF',
+                  color: manualDiscountPct === d ? '#FFFFFF' : '#475569',
                   border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : '#E2E8F0'}`,
                   borderRadius: '7px',
                   fontSize: '11px',
@@ -492,7 +492,7 @@ const DesktopPOS = ({
                 style={{
                   width: '100%',
                   padding: '7px 22px 7px 8px',
-                  background: '#ffffff',
+                  background: '#FFFFFF',
                   border: `1.5px solid ${manualDiscountPct > 0 && ![0, 5, 10, 15, 20].includes(manualDiscountPct)
                     ? '#4F46E5' : '#E2E8F0'}`,
                   borderRadius: '7px',
@@ -518,11 +518,11 @@ const DesktopPOS = ({
               onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
               style={{ flex: 1, background: 'transparent', border: 'none !important', boxShadow: 'none', color: '#0F172A', outline: 'none', fontSize: '13px', minWidth: 0, caretColor: '#4F46E5', padding: '4px 0', margin: 0 }} 
             />
-            <button onClick={applyPromoCode} style={{ background: '#d97706', color: '#ffffff', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
+            <button onClick={applyPromoCode} style={{ background: '#D97706', color: '#FFFFFF', border: 'none', padding: '5px 12px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
           </div>
 
           {(discountAmount > 0 || manualDiscountAmt > 0) && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#10b981', fontWeight: '500' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#10B981', fontWeight: '500' }}>
               <span>Discount:</span>
               <span>-₹{(discountAmount + manualDiscountAmt).toLocaleString('en-IN')}</span>
             </div>
@@ -534,7 +534,7 @@ const DesktopPOS = ({
                 <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4F46E5', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   ⭐ Loyalty Points
                 </span>
-                <span style={{ fontSize: '11px', color: '#6366f1', fontWeight: '700' }}>{customerLoyaltyPoints} pts available</span>
+                <span style={{ fontSize: '11px', color: '#6366F1', fontWeight: '700' }}>{customerLoyaltyPoints} pts available</span>
               </div>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <input
@@ -546,7 +546,7 @@ const DesktopPOS = ({
                   onChange={e => setLoyaltyRedeem && setLoyaltyRedeem(parseInt(e.target.value))}
                   style={{ flex: 1, accentColor: '#4F46E5' }}
                 />
-                <span style={{ fontSize: '11px', color: '#6366f1', minWidth: '50px', textAlign: 'right' }}>{loyaltyRedeem} pts</span>
+                <span style={{ fontSize: '11px', color: '#6366F1', minWidth: '50px', textAlign: 'right' }}>{loyaltyRedeem} pts</span>
               </div>
               {loyaltyDiscountRupees > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#4F46E5', fontWeight: '600' }}>
@@ -564,8 +564,8 @@ const DesktopPOS = ({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#d97706' }}>Final Payable</span>
-            <span style={{ fontSize: '20px', fontWeight: '800', color: '#d97706' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees)}</span>
+            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#D97706' }}>Final Payable</span>
+            <span style={{ fontSize: '20px', fontWeight: '800', color: '#D97706' }}>₹{Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees)}</span>
           </div>
         </div>
 
@@ -579,7 +579,7 @@ const DesktopPOS = ({
                 <button
                   key={method}
                   onClick={() => method === 'UPI' ? handleShowUpiQr() : undefined}
-                  style={{ padding: '7px 4px', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#ffffff', color: '#475569', fontSize: '10px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}
+                  style={{ padding: '7px 4px', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#475569', fontSize: '10px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}
                 >
                   {method === 'Cash' ? '💵' : method === 'UPI' ? '📱' : method === 'Card' ? '💳' : '📒'}<br />{method}
                 </button>
@@ -590,7 +590,7 @@ const DesktopPOS = ({
               onClick={sendWhatsAppBill}
               disabled={billItems.length === 0}
               style={{
-                background: billingMode === 'estimate' ? '#d97706' : (billingMode === 'challan' ? '#4F46E5' : 'linear-gradient(135deg,#22c55e,#16a34a)'),
+                background: billingMode === 'estimate' ? '#D97706' : (billingMode === 'challan' ? '#4F46E5' : 'linear-gradient(135deg,#22C55E,#16A34A)'),
                 color: '#fff',
                 opacity: billItems.length ? 1 : 0.5,
                 width: '100%',
@@ -617,7 +617,7 @@ const DesktopPOS = ({
             </button>
           </div>
           
-          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(217,119,6,0.08)', color: '#d97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(217,119,6,0.08)', color: '#D97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <QrCode size={14} /> 📲 Show UPI QR to Customer
           </button>
         </div>

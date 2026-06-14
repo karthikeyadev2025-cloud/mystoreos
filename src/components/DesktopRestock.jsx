@@ -44,7 +44,7 @@ const DesktopRestock = ({
                       {p.category}
                     </span>
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: '700' }}>{p.name}</h4>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Trade Price: <span style={{ color: '#10b981', fontWeight: 'bold' }}>₹{p.price}</span></p>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Trade Price: <span style={{ color: '#10B981', fontWeight: 'bold' }}>₹{p.price}</span></p>
                   </div>
                   
                   <button 
@@ -52,7 +52,7 @@ const DesktopRestock = ({
                     style={{ 
                       background: inCartQty > 0 ? '#ECFDF5' : '#EFF6FF', 
                       border: inCartQty > 0 ? '1px solid #A7F3D0' : '1px solid #BFDBFE', 
-                      color: inCartQty > 0 ? '#10b981' : '#1D4ED8', 
+                      color: inCartQty > 0 ? '#10B981' : '#1D4ED8', 
                       width: '100%', 
                       padding: '8px', 
                       borderRadius: '8px', 
@@ -83,7 +83,7 @@ const DesktopRestock = ({
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShoppingCart size={18} color="#10b981" /> Supply Cart
+              <ShoppingCart size={18} color="#10B981" /> Supply Cart
             </h3>
             <span style={{ fontSize: '11px', background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
               {cartItemCount} SKUs
@@ -124,7 +124,7 @@ const DesktopRestock = ({
 
               <button 
                 onClick={handlePlaceRestockOrder} 
-                style={{ width: '100%', background: '#10b981', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', textAlign: 'center' }}
+                style={{ width: '100%', background: '#10B981', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', textAlign: 'center' }}
               >
                 Place Restock Supply Order
               </button>

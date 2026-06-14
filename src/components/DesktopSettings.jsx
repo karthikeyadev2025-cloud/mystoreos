@@ -362,7 +362,7 @@ const DesktopSettings = ({
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Eye size={18} color="#94A3B8" /> Store Discoverability
             </h3>
-            <span style={{ background: 'linear-gradient(135deg,#F59E0B,#d97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', letterSpacing: '0.5px' }}>COMING SOON</span>
+            <span style={{ background: 'linear-gradient(135deg,#F59E0B,#D97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', letterSpacing: '0.5px' }}>COMING SOON</span>
           </div>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.5' }}>
             Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon — enabled by our team.
@@ -418,7 +418,7 @@ const DesktopSettings = ({
                 const url = getShopUrl();
                 const qrHtml = '<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:#fff">'
                   + '<h2 style="color:#0F172A;margin-bottom:8px">' + (user?.name || 'My Store') + '</h2>'
-                  + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid #f0f0f0;border-radius:12px"/>'
+                  + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid #F0F0F0;border-radius:12px"/>'
                   + '<p style="color:#64748B;font-size:13px;margin-top:12px">' + url + '</p>'
                   + '</body></html>';
                 const blob = new Blob([qrHtml], { type: 'text/html' });
@@ -456,7 +456,7 @@ const DesktopSettings = ({
           )}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
             <input type="text" value={distCodeInput} onChange={e => setDistCodeInput(e.target.value.toUpperCase())} placeholder="Add distributor by code (DST-XXXXXX)" style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
-            <button onClick={handleLinkDistributor} style={{ background: '#16a34a', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Add</button>
+            <button onClick={handleLinkDistributor} style={{ background: '#16A34A', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Add</button>
           </div>
           {myDistributors.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -466,7 +466,7 @@ const DesktopSettings = ({
                     <div style={{ color: '#0F172A', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
                     <div style={{ color: '#64748B', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
                   </div>
-                  <button onClick={() => handleUnlinkDistributor(d.id)} style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.3)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Remove</button>
+                  <button onClick={() => handleUnlinkDistributor(d.id)} style={{ background: 'rgba(239,68,68,0.1)', color: '#DC2626', border: '1px solid rgba(239,68,68,0.3)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>Remove</button>
                 </div>
               ))}
             </div>

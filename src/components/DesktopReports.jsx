@@ -80,7 +80,7 @@ function buildCatMargins(products) {
     .sort((a, b) => b.margin - a.margin);
 }
 
-const AXIS = { fill: '#64748b', fontSize: 10 };
+const AXIS = { fill: '#64748B', fontSize: 10 };
 const TT_STYLE = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '11px', color: '#0F172A' };
 const fmt = v => v > 999 ? `${(v / 1000).toFixed(0)}k` : v;
 
@@ -146,7 +146,7 @@ const DesktopReports = ({
   const displayPercent = Math.min(100, Math.max(0, Math.abs(marginPercent)));
   const strokeOffset = circumference - (displayPercent / 100) * circumference;
   const isLoss = netProfit < 0;
-  const strokeColor = isLoss ? '#ef4444' : '#10b981';
+  const strokeColor = isLoss ? '#EF4444' : '#10B981';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -158,7 +158,7 @@ const DesktopReports = ({
           {/* Margin gauge */}
           <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <BarChart2 size={18} color="#fbbf24" /> Net Margin Analytics
+              <BarChart2 size={18} color="#FBBF24" /> Net Margin Analytics
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -174,18 +174,18 @@ const DesktopReports = ({
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: '150px' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '800', color: isLoss ? '#ef4444' : '#10b981' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '800', color: isLoss ? '#EF4444' : '#10B981' }}>
                   {isLoss ? '🔴 Loss Today' : '🟢 Profit Today'}
                   <span style={{ display: 'block', fontSize: '24px', color: '#0F172A', fontWeight: '900', marginTop: '4px' }}>₹{Math.abs(netProfit)}</span>
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingUp size={14} color="#10b981" /> Cash-In Today:</span>
-                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>₹{cashIn}</span>
+                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingUp size={14} color="#10B981" /> Cash-In Today:</span>
+                    <span style={{ color: '#10B981', fontWeight: 'bold' }}>₹{cashIn}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingDown size={14} color="#ef4444" /> Cash-Out Today:</span>
-                    <span style={{ color: '#ef4444', fontWeight: 'bold' }}>₹{cashOut}</span>
+                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingDown size={14} color="#EF4444" /> Cash-Out Today:</span>
+                    <span style={{ color: '#EF4444', fontWeight: 'bold' }}>₹{cashOut}</span>
                   </div>
                 </div>
               </div>
@@ -205,7 +205,7 @@ const DesktopReports = ({
                     user.name,
                     { stockOrders, supplierCredits: credits, customerCredits, products }
                   )}
-                  style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                  style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <Download size={14} /> Export XML
                 </button>
               </PlanGate>
@@ -221,7 +221,7 @@ const DesktopReports = ({
               </div>
               <PlanGate feature="gst" fallback={<LockedFeature feature="gst" compact />}>
                 <button onClick={() => downloadGSTR1CSV(orders, user, new Date().toISOString().slice(0, 7))}
-                  style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                  style={{ background: '#8B5CF6', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <FileSpreadsheet size={14} /> Export CSV
                 </button>
               </PlanGate>
@@ -236,7 +236,7 @@ const DesktopReports = ({
                 <p style={{ margin: 0, fontSize: '11px', color: '#78350F', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
               </div>
               <button onClick={() => setCrmMenuOpen(o => !o)}
-                style={{ background: '#f59e0b', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                style={{ background: '#F59E0B', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                 <Users size={14} /> Export ▾
               </button>
             </div>
@@ -260,7 +260,7 @@ const DesktopReports = ({
         {/* Day Book ledger */}
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Book size={20} color="#fbbf24" /> Today's Retail Day Book
+            <Book size={20} color="#FBBF24" /> Today's Retail Day Book
           </h3>
           {ledgerItems.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
@@ -273,12 +273,12 @@ const DesktopReports = ({
                 <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                   <div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? '#ECFDF5' : '#FEF2F2', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? '#A7F3D0' : '#FCA5A5'}` }}>{item.category}</span>
+                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? '#ECFDF5' : '#FEF2F2', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? '#A7F3D0' : '#FCA5A5'}` }}>{item.category}</span>
                       <span style={{ fontSize: '11px', color: '#64748B' }}>{item.time}</span>
                     </div>
                     <p style={{ margin: '6px 0 0 0', fontWeight: '700', fontSize: '13px', color: '#0F172A' }}>{item.desc}</p>
                   </div>
-                  <span style={{ fontWeight: '800', color: item.type === 'Cash In' ? '#10b981' : '#ef4444', fontSize: '15px' }}>
+                  <span style={{ fontWeight: '800', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', fontSize: '15px' }}>
                     {item.type === 'Cash In' ? '+' : '-'}₹{item.amount}
                   </span>
                 </div>
@@ -319,7 +319,7 @@ const DesktopReports = ({
 
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#f59e0b" /> Top 10 Products (revenue this month)
+            <TrendingUp size={16} color="#F59E0B" /> Top 10 Products (revenue this month)
           </h3>
           {top10.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '32px 0', color: '#64748B' }}>
@@ -333,7 +333,7 @@ const DesktopReports = ({
                 <XAxis dataKey="name" tick={{ ...AXIS, fontSize: 9 }} tickLine={false} angle={-40} textAnchor="end" interval={0} />
                 <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
                 <Tooltip contentStyle={TT_STYLE} formatter={v => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} />
-                <Bar dataKey="revenue" fill="#f59e0b" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="revenue" fill="#F59E0B" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -344,18 +344,18 @@ const DesktopReports = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingDown size={16} color="#ef4444" /> Cash In vs Out — 30 Days
+            <TrendingDown size={16} color="#EF4444" /> Cash In vs Out — 30 Days
           </h3>
           <ResponsiveContainer width="100%" height={170}>
             <AreaChart data={cashFlowData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="inGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="outGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -363,8 +363,8 @@ const DesktopReports = ({
               <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
               <Tooltip contentStyle={TT_STYLE} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'cashIn' ? 'Cash In' : 'Cash Out']} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#64748B', paddingTop: '6px' }} />
-              <Area type="monotone" dataKey="cashIn" name="cashIn" stroke="#10b981" strokeWidth={2} fill="url(#inGrad)" dot={false} />
-              <Area type="monotone" dataKey="cashOut" name="cashOut" stroke="#ef4444" strokeWidth={2} fill="url(#outGrad)" dot={false} />
+              <Area type="monotone" dataKey="cashIn" name="cashIn" stroke="#10B981" strokeWidth={2} fill="url(#inGrad)" dot={false} />
+              <Area type="monotone" dataKey="cashOut" name="cashOut" stroke="#EF4444" strokeWidth={2} fill="url(#outGrad)" dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -374,7 +374,7 @@ const DesktopReports = ({
           {/* Outstanding credit bars */}
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <h4 style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Outstanding Credit</h4>
-            {[['Receivable (customers owe you)', totalReceivable, '#10b981'], ['Payable (you owe suppliers)', totalPayable, '#ef4444']].map(([label, amount, color]) => (
+            {[['Receivable (customers owe you)', totalReceivable, '#10B981'], ['Payable (you owe suppliers)', totalPayable, '#EF4444']].map(([label, amount, color]) => (
               <div key={label} style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                   <span style={{ color: '#64748B' }}>{label}</span>
@@ -396,12 +396,12 @@ const DesktopReports = ({
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px' }}>
                   <span style={{ color: '#64748B' }}>₹{thisWeekRev.toLocaleString('en-IN')} / ₹{weeklyTarget.toLocaleString('en-IN')}</span>
-                  <span style={{ color: weeklyPct >= 100 ? '#10b981' : '#fbbf24', fontWeight: '800' }}>{weeklyPct}%</span>
+                  <span style={{ color: weeklyPct >= 100 ? '#10B981' : '#FBBF24', fontWeight: '800' }}>{weeklyPct}%</span>
                 </div>
                 <div style={{ height: '10px', background: '#E2E8F0', borderRadius: '5px' }}>
-                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? '#10b981' : 'linear-gradient(90deg,#4F46E5,#8b5cf6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? '#10B981' : 'linear-gradient(90deg,#4F46E5,#8B5CF6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                 </div>
-                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#10b981', fontWeight: 'bold' }}>🎉 Weekly target achieved!</p>}
+                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#10B981', fontWeight: 'bold' }}>🎉 Weekly target achieved!</p>}
               </>
             )}
           </div>
@@ -415,7 +415,7 @@ const DesktopReports = ({
                   <XAxis dataKey="name" tick={{ ...AXIS, fontSize: 9 }} tickLine={false} angle={-30} textAnchor="end" interval={0} />
                   <YAxis tick={{ ...AXIS, fontSize: 9 }} tickLine={false} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={TT_STYLE} formatter={v => [`${v}%`, 'Avg Margin']} />
-                  <Bar dataKey="margin" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="margin" fill="#8B5CF6" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
