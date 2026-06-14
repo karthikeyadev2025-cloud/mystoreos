@@ -32,10 +32,10 @@ const DesktopBills = ({
     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: Search & Invoices List */}
-      <div className="premium-glass" style={{ padding: '20px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+      <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Receipt size={20} color="#FBBF24" /> Invoices Ledger
+            <Receipt size={20} color="#64748B" /> Invoices Ledger
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748B' }}>
             Filter, search, or convert estimates/quotes and track returns.
@@ -53,7 +53,7 @@ const DesktopBills = ({
               transition: 'all 0.2s'
             }}
           >
-            🟢 Sales Invoices
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981' }} /> Sales Invoices</span>
           </button>
           <button 
             onClick={() => { setBillsSubTab('drafts'); setSelectedBill(null); }}
@@ -64,7 +64,7 @@ const DesktopBills = ({
               transition: 'all 0.2s'
             }}
           >
-            🟡 Proforma Drafts
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: '#F59E0B' }} /> Proforma Drafts</span>
           </button>
         </div>
 
@@ -140,7 +140,7 @@ const DesktopBills = ({
           else if (type === 'challan') receiptTitle = 'DELIVERY CHALLAN';
 
           return (
-            <div className="premium-glass" style={{ padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+            <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
               
               {/* Receipt Canvas */}
               <div id="receipt-print-area" style={{ background: '#fff', borderRadius: '8px', padding: '28px', color: '#000', fontFamily: 'monospace', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', margin: '0 auto', maxWidth: '360px', position: 'relative', border: '1px solid #E2E8F0' }}>
@@ -242,7 +242,7 @@ const DesktopBills = ({
             </div>
           );
         })() : (
-          <div className="premium-glass" style={{ padding: '48px', borderRadius: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div className="premium-glass" style={{ padding: '48px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             <Receipt size={48} style={{ opacity: 0.15, marginBottom: '16px', color: '#FBBF24' }} />
             <h3 style={{ color: '#0F172A', margin: '0 0 6px 0' }}>No Invoice Selected</h3>
             <p style={{ color: '#64748B', fontSize: '13px', margin: 0, maxWidth: '280px', lineHeight: '1.4' }}>
