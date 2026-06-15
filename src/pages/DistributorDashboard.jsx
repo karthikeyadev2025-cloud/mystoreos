@@ -18,7 +18,8 @@ import {
   Plus,
   Lock,
   TrendingUp,
-  Map
+  Map,
+  Settings
 } from 'lucide-react';
 
 const safe = async (fn) => { try { return await fn(); } catch { return null; } };
@@ -38,6 +39,36 @@ const DistributorDashboard = () => {
   // Stock Orders & Wholesale Catalog states
   const [stockOrders, setStockOrders] = useState([]);
   const [wholesaleProducts, setWholesaleProducts] = useState([]);
+
+  // Distributor business profile / GST settings
+  const [profileForm, setProfileForm] = useState({ name: '', gstin: '', stateCode: '', businessAddress: '', upiId: '' });
+  const [profileSaving, setProfileSaving] = useState(false);
+  useEffect(() => {
+    if (user) setProfileForm({
+      name: user.name || '',
+      gstin: user.gstin || '',
+      stateCode: user.stateCode || '',
+      businessAddress: user.businessAddress || '',
+      upiId: user.upiId || '',
+    });
+  }, [user]);
+  const saveDistributorProfile = async () => {
+    setProfileSaving(true);
+    try {
+      await api.updateProfile(user.id, {
+        name: profileForm.name,
+        gstin: profileForm.gstin,
+        stateCode: profileForm.stateCode,
+        businessAddress: profileForm.businessAddress,
+        upiId: profileForm.upiId,
+      });
+      toast.success('Business profile saved');
+    } catch (e) {
+      toast.error('Could not save: ' + (e?.message || 'unknown error'));
+    } finally {
+      setProfileSaving(false);
+    }
+  };
   const [newProdName, setNewProdName] = useState('');
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdStock, setNewProdStock] = useState('');
@@ -289,7 +320,8 @@ const DistributorDashboard = () => {
               { id: 'catalog', label: 'Wholesale Catalog', icon: Layers },
               { id: 'routeplanner', label: 'Route Planner', icon: Map, locked: !hasDistCap(user, 'routePlanner') },
               { id: 'analytics', label: 'Advanced Analytics', icon: TrendingUp, locked: !hasDistCap(user, 'advancedAnalytics') },
-              { id: 'history', label: 'Collection History', icon: History }
+              { id: 'history', label: 'Collection History', icon: History },
+              { id: 'settings', label: 'Settings', icon: Settings }
             ].map(tab => {
               const Icon = tab.icon;
               return (
@@ -834,7 +866,7 @@ const DistributorDashboard = () => {
           {activeTab === 'history' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>✅ Collection History & Settled Invoices</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Collection History & Settled Invoices</h2>
                 {hasDistCap(user, 'tallyExport') ? (
                   <button
                     onClick={() => {
@@ -844,7 +876,7 @@ const DistributorDashboard = () => {
                     }}
                     style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    ⬇ Tally Export CSV
+                    Tally Export CSV
                   </button>
                 ) : (
                   <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -871,6 +903,56 @@ const DistributorDashboard = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div style={{ maxWidth: '720px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Settings size={20} color="#64748B" /> Business Profile & GST
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
+              </div>
+
+              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Name</label>
+                  <input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. FMCG Supply Co."
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>GSTIN</label>
+                    <input value={profileForm.gstin} onChange={e => setProfileForm(p => ({ ...p, gstin: e.target.value.toUpperCase() }))} placeholder="e.g. 29ABCDE1234F2Z5" maxLength={15}
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>State Code</label>
+                    <input value={profileForm.stateCode} onChange={e => setProfileForm(p => ({ ...p, stateCode: e.target.value }))} placeholder="e.g. 29"
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
+                  <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>UPI ID for Collections</label>
+                  <input value={profileForm.upiId} onChange={e => setProfileForm(p => ({ ...p, upiId: e.target.value }))} placeholder="e.g. yourname@okhdfcbank"
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Shops paying down their credit can send to this UPI.</p>
+                </div>
+
+                <button onClick={saveDistributorProfile} disabled={profileSaving}
+                  style={{ background: profileSaving ? '#A5B4FC' : '#4F46E5', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  {profileSaving ? 'Saving…' : 'Save Business Profile'}
+                </button>
+              </div>
             </div>
           )}
 
