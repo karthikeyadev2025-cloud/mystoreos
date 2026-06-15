@@ -6,6 +6,9 @@
    ============================================================ */
 
 :root {
+  /* Pin form controls / UA widgets to light so inputs without an explicit
+     background never render dark-on-dark (the invisible-text bug). */
+  color-scheme: light;
   /* ---- Brand & semantic colors ---- */
   --c-primary:        #4F46E5;   /* indigo — brand primary */
   --c-primary-hover:  #4338CA;
