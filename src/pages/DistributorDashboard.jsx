@@ -259,20 +259,20 @@ const DistributorDashboard = () => {
         <ToastContainer theme="light" position="top-center" />
 
         {/* Desktop Sticky Left Sidebar */}
-        <div className="desktop-glass-sidebar" style={{ background: '#FFFFFF', borderRight: '1px solid #E2E8F0' }}>
+        <div className="desktop-glass-sidebar dark-sidebar" style={{ background: '#0F172A', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
           {/* Logo & Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingLeft: '8px' }}>
             <div style={{ background: '#4F46E5', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 800, color: '#fff' }}>M</div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: '#0F172A' }}>FMCG Supply</h2>
-              <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
+              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: '#FFFFFF' }}>FMCG Supply</h2>
+              <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
             </div>
           </div>
 
           {/* User Profile */}
-          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
-            <div style={{ fontSize: '11px', color: '#475569' }}>Welcome back,</div>
-            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>{user.name}</div>
+          <div style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', color: '#94A3B8' }}>Welcome back,</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFFFFF' }}>{user.name}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: isOnline ? '#16a34a' : '#d97706', marginTop: '4px', fontWeight: 'bold' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#16a34a' : '#d97706', display: 'inline-block' }}></span>
               {isOnline ? (pendingCount > 0 ? `${pendingCount} pending sync` : 'Online') : 'Offline mode'}
@@ -280,7 +280,7 @@ const DistributorDashboard = () => {
           </div>
 
           {/* Sidebar Tabs Nav Menu */}
-          <div style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>Menu Navigation</div>
+          <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>Menu Navigation</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
             {[
               { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -311,11 +311,11 @@ const DistributorDashboard = () => {
           </div>
 
           {/* Sidebar Notifications Quick View */}
-          <div style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
+          <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               className="sidebar-nav-item"
-              style={{ fontSize: '13px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', background: '#FFFFFF', border: '1px solid #E2E8F0', marginBottom: '12px', color: '#0F172A' }}
+              style={{ fontSize: '13px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '12px', color: '#E2E8F0' }}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <Bell size={16} style={{ color: '#d97706' }} /> Alerts Log

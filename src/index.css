@@ -788,3 +788,24 @@ input[type=number] { -moz-appearance: textfield; }
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(15,23,42,0.06);
 }
+
+/* ── Distributor dark sidebar (scoped; matches the shop's Zoho sidebar). 
+   Shared .desktop-glass-sidebar / .sidebar-nav-item stay light for the
+   consumer UserDashboard. ── */
+.desktop-glass-sidebar.dark-sidebar {
+  background: #0F172A !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+}
+.dark-sidebar .sidebar-nav-item {
+  color: #94A3B8 !important;
+}
+.dark-sidebar .sidebar-nav-item:hover {
+  color: #E2E8F0 !important;
+  background: rgba(255,255,255,0.06) !important;
+}
+.dark-sidebar .sidebar-nav-item.active {
+  color: #FFFFFF !important;
+  background: #4F46E5 !important;
+  border-left: 3px solid #4F46E5 !important;
+  font-weight: 600 !important;
+}
