@@ -36,15 +36,20 @@ skills-lock.json
 ruvector.db
 CLAUDE.md
 
-# Stray files created by MCP hook side-effects (no extension, root-level)
-[a-z]
-[a-z0-9]
-[a-z].[a-z]*
--*
-\(*
-\[*
-api.*
-console.*
-supabase.remove*
-setAuthLoading*
+# Stray files created by MCP hook side-effects.
+# IMPORTANT: every pattern below is anchored to the repo root with a leading "/"
+# so it can ONLY match junk dropped at the top level — it must never silently
+# hide real source files inside src/ (e.g. src/lib/api.js, a future a.js, x.ts).
+/[a-z]
+/[a-z0-9]
+/-*
+/\(*
+/\[*
+/api.*
+/console.*
+/supabase.remove*
+/setAuthLoading*
 supabase/.temp/
+
+# Belt-and-suspenders: never ignore the real API layer
+!src/lib/api.js
