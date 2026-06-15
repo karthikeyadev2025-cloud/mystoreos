@@ -175,7 +175,7 @@ const DesktopReports = ({
               </div>
               <div style={{ flex: 1, minWidth: '150px' }}>
                 <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '800', color: isLoss ? '#EF4444' : '#10B981' }}>
-                  {isLoss ? '🔴 Loss Today' : '🟢 Profit Today'}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isLoss ? '#EF4444' : '#10B981' }} />{isLoss ? 'Loss Today' : 'Profit Today'}</span>
                   <span style={{ display: 'block', fontSize: '24px', color: '#0F172A', fontWeight: '900', marginTop: '4px' }}>₹{Math.abs(netProfit)}</span>
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -244,12 +244,12 @@ const DesktopReports = ({
               <div style={{ position: 'absolute', top: '52px', right: '20px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', minWidth: '220px', zIndex: 30, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
                 <button onClick={handleZohoContacts}
                   style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#0F172A', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #E2E8F0' }}>
-                  📇 Zoho Contacts CSV
+                  Zoho Contacts CSV
                   <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>{zohoCustomers.length} customer{zohoCustomers.length === 1 ? '' : 's'} from credit ledger</div>
                 </button>
                 <button onClick={handleZohoLeads}
                   style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#0F172A', fontSize: '12px', cursor: 'pointer' }}>
-                  🎯 Zoho Leads CSV
+                  Zoho Leads CSV
                   <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>Your shop as a Zoho lead</div>
                 </button>
               </div>
@@ -401,7 +401,7 @@ const DesktopReports = ({
                 <div style={{ height: '10px', background: '#E2E8F0', borderRadius: '5px' }}>
                   <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? '#10B981' : 'linear-gradient(90deg,#4F46E5,#8B5CF6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                 </div>
-                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#10B981', fontWeight: 'bold' }}>🎉 Weekly target achieved!</p>}
+                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#10B981', fontWeight: 'bold' }}>Weekly target achieved</p>}
               </>
             )}
           </div>
