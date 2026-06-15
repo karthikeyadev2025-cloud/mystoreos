@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../lib/api';
+import StorefrontProductCard from '../components/StorefrontProductCard';
 import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -1043,25 +1044,7 @@ const UserDashboard = () => {
                   ) : (
                     <div className="premium-product-grid">
                       {filteredProducts.map(p => (
-                        <div key={p.id} className="premium-glass storefront-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                          <div style={{ height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', fontSize: '40px' }}>
-                            {p.image ? <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.textContent = '📦'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.icon || '📦')}
-                          </div>
-                          <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '4px 0 0 0', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h3>
-                          <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>{p.weight || '1 unit'}</p>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: 'auto' }}>
-                            <span style={{ fontSize: '18px', fontWeight: '800', color: '#4F46E5' }}>₹{p.price}</span>
-                            {p.mrp && <span style={{ fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
-                          </div>
-                          {p.mrp && p.mrp > p.price && (
-                            <div style={{ display: 'inline-flex', alignSelf: 'flex-start', fontSize: '10px', color: '#10B981', fontWeight: '700', background: '#ECFDF5', padding: '2px 8px', borderRadius: '999px' }}>Save ₹{p.mrp - p.price}</div>
-                          )}
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', background: '#F8FAFC', padding: '4px', borderRadius: '999px', border: '1px solid #E2E8F0' }}>
-                            <button onClick={() => updateQty(p.id, -1)} style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, fontSize: '16px', fontWeight: '700' }}>−</button>
-                            <span style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>{cart[p.id] || 0}</span>
-                            <button onClick={() => updateQty(p.id, 1)} style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#4F46E5', color: '#FFFFFF', border: 'none', boxShadow: '0 1px 2px rgba(79,70,229,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, fontSize: '16px', fontWeight: '700' }}>+</button>
-                          </div>
-                        </div>
+                        <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} />
                       ))}
                     </div>
                   )}
@@ -2063,59 +2046,9 @@ const UserDashboard = () => {
                 Loading catalogue items...
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                 {filteredProducts.map(p => (
-                  <div 
-                    key={p.id} 
-                    style={{ 
-                      background: '#FFFFFF', 
-                      border: '1px solid #E2E8F0', 
-                      borderRadius: '16px', 
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)', 
-                      padding: '14px', 
-                      display: 'flex', 
-                      gap: '14px', 
-                      alignItems: 'center',
-                      backdropFilter: 'blur(8px)',
-                      transition: 'transform 0.2s, border-color 0.2s'
-                    }}
-                  >
-                    {/* Icon container */}
-                    <div style={{ width: '64px', height: '64px', background: '#F8FAFC', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', flexShrink: 0, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
-                      {p.image ? <img src={p.image} alt={p.name} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.textContent = '📦'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.icon || '📦')}
-                    </div>
-
-                    {/* Meta descriptions */}
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: '15px', fontWeight: '700', margin: '0 0 3px 0', color: '#0F172A' }}>{p.name}</h3>
-                      <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>{p.weight || '1 unit'}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '20px', fontWeight: '800', color: '#4F46E5' }}>₹{p.price}</span>
-                        {p.mrp && <span style={{ fontSize: '12px', color: '#64748b', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
-                        {p.mrp && <span style={{ fontSize: '10px', color: '#10b981', fontWeight: '700' }}>Save ₹{p.mrp - p.price}</span>}
-                      </div>
-                    </div>
-
-                    {/* Quantity selectors */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#F1F5F9', padding: '4px', borderRadius: '30px', border: '1px solid #E2E8F0' }}>
-                      <button 
-                        onClick={() => updateQty(p.id, -1)} 
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                      >
-                        −
-                      </button>
-                      <span style={{ fontSize: '14px', fontWeight: '700', minWidth: '20px', textAlign: 'center' }}>
-                        {cart[p.id] || 0}
-                      </span>
-                      <button 
-                        onClick={() => updateQty(p.id, 1)} 
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                  </div>
+                  <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} />
                 ))}
 
                 {filteredProducts.length === 0 && (
