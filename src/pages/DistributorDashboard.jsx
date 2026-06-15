@@ -425,14 +425,14 @@ const DistributorDashboard = () => {
                     </div>
                     <div style={{ paddingLeft: '16px' }}>
                       <div style={{ fontSize: '11px', color: '#475569', textTransform: 'uppercase', fontWeight: 'bold' }}>Linked Retailers</div>
-                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#2563EB', marginTop: '4px' }}>{shops.length} shops</div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', marginTop: '4px' }}>{shops.length} shops</div>
                     </div>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => setShowModal(true)} 
-                  style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
+                  style={{ width: '100%', background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
                 >
                   <Plus size={18} /> + Supply Wholesale Stock (Extend Credit)
                 </button>
@@ -442,12 +442,12 @@ const DistributorDashboard = () => {
               <div>
                 <div className="premium-glass" style={{ padding: '20px', minHeight: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <h3 style={{ fontSize: '16px', fontWeight: '800', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0F172A' }}>
-                    <span>💸</span> Outstanding Credit Balances ({pendingCredits.length})
+                    Outstanding Credit Balances ({pendingCredits.length})
                   </h3>
                   
                   {pendingCredits.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 10px', color: '#64748B' }}>
-                      <span style={{ fontSize: '32px' }}>🤝</span>
+                      
                       <p style={{ margin: '12px 0 0 0', fontSize: '13px' }}>All store credits have been fully cleared!</p>
                     </div>
                   ) : (
@@ -456,7 +456,7 @@ const DistributorDashboard = () => {
                         <div key={c.id} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                             <div>
-                              <h4 style={{ fontSize: '14px', margin: 0, color: '#0F172A', fontWeight: 'bold' }}>🏪 {c.shopName}</h4>
+                              <h4 style={{ fontSize: '14px', margin: 0, color: '#0F172A', fontWeight: 'bold' }}>{c.shopName}</h4>
                               <span style={{ fontSize: '11px', color: '#64748B' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</span>
                             </div>
                             <div style={{ textAlign: 'right' }}>
@@ -481,7 +481,7 @@ const DistributorDashboard = () => {
           {/* ================= SHOPS TAB ================= */}
           {activeTab === 'shops' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>🏪 Your Retail Shops ({shops.length})</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>Your Retail Shops ({shops.length})</h2>
 
               <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
                 {user?.publicCode && (
@@ -519,7 +519,7 @@ const DistributorDashboard = () => {
                     return (
                       <div key={shop.id} className="premium-glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#FFFFFF' }}>🏪</div>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#FFFFFF' }}>🏪</div>
                           <div>
                             <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>{shop.name}</h4>
                             <p style={{ margin: 0, fontSize: '12px', color: '#64748B' }}>{shop.phone}</p>
@@ -567,7 +567,7 @@ const DistributorDashboard = () => {
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>🏪 {o.shopName}</h4>
+                            <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{o.shopName}</h4>
                             <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(o.date).toLocaleDateString()}</span>
                           </div>
                           <div style={{ textAlign: 'right' }}>
@@ -594,7 +594,7 @@ const DistributorDashboard = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '16px' }}>
                           <div>
                             <span style={{ fontSize: '10px', color: '#2563EB', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
-                            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: '#0F172A' }}>🏪 {selectedOrder.shopName}</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: '#0F172A' }}>{selectedOrder.shopName}</h3>
                             <p style={{ margin: 0, fontSize: '11px', color: '#475569' }}>Order ID: #{selectedOrder.id.substring(0, 8)}</p>
                           </div>
                           <span style={{
@@ -658,7 +658,7 @@ const DistributorDashboard = () => {
           {activeTab === 'catalog' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>📦 Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
                 <button 
                   onClick={() => setShowCatalogModal(true)}
                   style={{ background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
@@ -699,7 +699,7 @@ const DistributorDashboard = () => {
                   <Lock size={40} style={{ color: '#D97706', marginBottom: '16px' }} />
                   <h3 style={{ color: '#B45309', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
                   <p style={{ color: '#B45309', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #F59E0B, #d97706)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
@@ -729,7 +729,7 @@ const DistributorDashboard = () => {
                     return (
                       <>
                         <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                          <span style={{ color: '#1D4ED8', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
+                          <span style={{ color: '#4F46E5', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
                           <span style={{ color: '#B91C1C', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -782,7 +782,7 @@ const DistributorDashboard = () => {
                   <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
                   <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
                   <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
@@ -863,7 +863,7 @@ const DistributorDashboard = () => {
                   {credits.filter(c => c.paid).map(c => (
                     <div key={c.id} className="premium-glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #10B981', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
-                        <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>🏪 {c.shopName}</h4>
+                        <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>{c.shopName}</h4>
                         <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#475569' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
                       </div>
                       <div style={{ fontSize: '16px', fontWeight: '900', color: '#059669' }}>+ ₹{c.amount}</div>
@@ -945,7 +945,7 @@ const DistributorDashboard = () => {
                       {isCurrent ? (
                         <div style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '10px', borderRadius: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold' }}>Current Plan</div>
                       ) : (
-                        <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? 'linear-gradient(135deg, #4F46E5, #3730A3)' : '#F1F5F9', color: isPro ? '#FFFFFF' : '#475569', border: isPro ? 'none' : '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
+                        <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? '#4F46E5' : '#F1F5F9', color: isPro ? '#FFFFFF' : '#475569', border: isPro ? 'none' : '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
                           {plan.id === 'pro_distributor' ? 'Start Free Trial' : 'Upgrade'}
                         </button>
                       )}
@@ -962,7 +962,7 @@ const DistributorDashboard = () => {
         {showModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="premium-glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: '0 0 20px 0' }}>📦 Supply Stock on Credit</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
               
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 'bold' }}>Select Shop</label>
@@ -994,7 +994,7 @@ const DistributorDashboard = () => {
         {showCatalogModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="premium-glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: '0 0 20px 0' }}>📦 Publish Wholesale Product</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: '0 0 20px 0' }}>Publish Wholesale Product</h2>
               
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
@@ -1041,9 +1041,9 @@ const DistributorDashboard = () => {
       <ToastContainer theme="light" position="top-center" />
       
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #1d4ed8, #1e3a8a)', padding: '20px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e40af' }}>
+      <div style={{ background: '#0F172A', padding: '20px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff' }}>📦 FMCG Distributor</h1>
+          <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff' }}>FMCG Distributor</h1>
           <div style={{ fontSize: '12px', color: '#93c5fd' }}>{user.name} • Offline Sync Ready</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1158,7 +1158,7 @@ const DistributorDashboard = () => {
               </div>
             </div>
 
-            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #4F46E5)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
+            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
               + Supply Stock (Give Credit)
             </button>
 
@@ -1169,7 +1169,7 @@ const DistributorDashboard = () => {
               <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div>
-                    <h4 style={{ fontSize: '16px', margin: 0, color: '#0F172A' }}>🏪 {c.shopName}</h4>
+                    <h4 style={{ fontSize: '16px', margin: 0, color: '#0F172A' }}>{c.shopName}</h4>
                     <p style={{ fontSize: '12px', color: '#475569', margin: '4px 0 0 0' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -1189,7 +1189,7 @@ const DistributorDashboard = () => {
       {/* Shops Tab */}
       {activeTab === 'shops' && (
         <div style={{padding: 20}}>
-          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A'}}>🏪 My Shops</h2>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A'}}>My Shops</h2>
           {shops.length === 0 ? (
             <p style={{color: '#64748B', textAlign: 'center'}}>No shops available.</p>
           ) : (
@@ -1224,7 +1224,7 @@ const DistributorDashboard = () => {
               <div key={o.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>🏪 {o.shopName}</h4>
+                    <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{o.shopName}</h4>
                     <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -1270,7 +1270,7 @@ const DistributorDashboard = () => {
       {activeTab === 'catalog' && (
         <div style={{ padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>📦 Wholesale Catalog</h2>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>Wholesale Catalog</h2>
             <button onClick={() => setShowCatalogModal(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
               + Add Product
             </button>
@@ -1321,7 +1321,7 @@ const DistributorDashboard = () => {
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
           <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', border: '1px solid #E2E8F0' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>📦 Supply Stock on Credit</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
             
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Select Shop</label>
@@ -1351,7 +1351,7 @@ const DistributorDashboard = () => {
       {showCatalogModal && (
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
           <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', border: '1px solid #E2E8F0' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>📦 Publish Wholesale Product</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>Publish Wholesale Product</h2>
             
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Product Name</label>
