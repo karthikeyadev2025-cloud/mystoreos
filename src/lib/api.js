@@ -126,6 +126,13 @@ const toProduct = (row) => row ? ({
   variants: row.variants, reorderLevel: row.reorder_level || 10,
   hsnCode: row.hsn_code, gstRate: row.gst_rate || 0,
   costPrice: parseFloat(row.cost_price) || 0,
+  images: (() => {
+    const raw = row.images;
+    let arr = Array.isArray(raw) ? raw : (typeof raw === 'string' && raw ? (() => { try { return JSON.parse(raw); } catch { return []; } })() : []);
+    arr = (arr || []).filter(Boolean);
+    if (arr.length === 0 && row.image_url) arr = [row.image_url];
+    return arr;
+  })(),
   image: row.image_url || null,
   unit: row.unit || null,
 }) : null;
@@ -695,6 +702,8 @@ export const api = {
         db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
         saveDB(db); return toProduct(row);
       }
+      const imgs = Array.isArray(extraData.images) ? extraData.images.filter(Boolean).slice(0, 4) : [];
+      const cover = imgs[0] || extraData.image || null;
       const baseInsert = {
         shop_id: shopId,
         name,
@@ -708,18 +717,21 @@ export const api = {
         hsn_code: extraData.hsnCode || null,
         gst_rate: parseInt(extraData.gstRate) || 0,
         cost_price: parseFloat(extraData.costPrice) || 0,
-        image_url: extraData.image || null,
+        image_url: cover,
+        images: imgs,
       };
-      const insertWithUnit = extraData.unit ? { ...baseInsert, unit: extraData.unit } : baseInsert;
-      let { data: prodRow, error } = await supabase.from('products').insert(insertWithUnit).select().maybeSingle();
-      // If the optional `unit` column hasn't been added to the DB yet, retry without it.
-      if (error && isMissingUnitColumn(error) && extraData.unit) {
-        ({ data: prodRow, error } = await supabase.from('products').insert(baseInsert).select().maybeSingle());
-      }
-      // If the optional `image_url` column is missing, retry without it (and without unit).
-      if (error && /image_url/.test(error.message || '')) {
-        const { image_url, ...noImg } = baseInsert;
-        ({ data: prodRow, error } = await supabase.from('products').insert(noImg).select().maybeSingle());
+      if (extraData.unit) baseInsert.unit = extraData.unit;
+      // Self-healing insert: if an optional column (images / unit / image_url)
+      // isn't in the DB yet, drop just that column and retry. Lets the gallery
+      // work whether or not the migration has been applied.
+      let attempt = { ...baseInsert };
+      let prodRow = null, error = null;
+      for (let tries = 0; tries < 6; tries++) {
+        ({ data: prodRow, error } = await supabase.from('products').insert(attempt).select().maybeSingle());
+        if (!error) break;
+        const miss = (error.message || '').match(/column (?:products\.)?["']?(\w+)["']? does not exist/i);
+        if (!miss || !(miss[1] in attempt)) break;
+        delete attempt[miss[1]];
       }
       if (error) throw new Error(error.message);
       return toProduct(prodRow);
@@ -780,13 +792,24 @@ export const api = {
       if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
-      if (data.image !== undefined) updateObj.image_url = data.image || null;
+      if (data.images !== undefined) {
+        const imgs = Array.isArray(data.images) ? data.images.filter(Boolean).slice(0, 4) : [];
+        updateObj.images = imgs;
+        updateObj.image_url = imgs[0] || null;   // keep cover in sync
+      } else if (data.image !== undefined) {
+        updateObj.image_url = data.image || null;
+      }
+      if (data.unit !== undefined) updateObj.unit = data.unit || null;
 
-      const updateWithUnit = data.unit !== undefined ? { ...updateObj, unit: data.unit || null } : updateObj;
-      let { data: updated, error } = await supabase.from('products').update(updateWithUnit).eq('id', prodId).select().maybeSingle();
-      // Retry without `unit` if that column hasn't been migrated yet.
-      if (error && isMissingUnitColumn(error) && data.unit !== undefined) {
-        ({ data: updated, error } = await supabase.from('products').update(updateObj).eq('id', prodId).select().maybeSingle());
+      // Self-healing update: drop any optional column the DB doesn't have yet.
+      let attempt = { ...updateObj };
+      let updated = null, error = null;
+      for (let tries = 0; tries < 6; tries++) {
+        ({ data: updated, error } = await supabase.from('products').update(attempt).eq('id', prodId).select().maybeSingle());
+        if (!error) break;
+        const miss = (error.message || '').match(/column (?:products\.)?["']?(\w+)["']? does not exist/i);
+        if (!miss || !(miss[1] in attempt)) break;
+        delete attempt[miss[1]];
       }
       if (error) throw new Error(error.message);
       return toProduct(updated);

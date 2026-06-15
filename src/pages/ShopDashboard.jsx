@@ -26,6 +26,7 @@ import DesktopTopBar from '../components/DesktopTopBar';
 import DesktopSidebar from '../components/DesktopSidebar';
 import DesktopPOS from '../components/DesktopPOS';
 import DesktopInventory from '../components/DesktopInventory';
+import ProductImageUploader from '../components/ProductImageUploader';
 import DesktopBills from '../components/DesktopBills';
 import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
@@ -120,6 +121,7 @@ const ShopDashboard = () => {
   const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [newProdCostPrice, setNewProdCostPrice] = useState('0');
   const [newProdImage, setNewProdImage] = useState('');
+  const [newProdImages, setNewProdImages] = useState([]);
   const [newProdUnit, setNewProdUnit] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
@@ -139,6 +141,7 @@ const ShopDashboard = () => {
   const [editProdCostPrice, setEditProdCostPrice] = useState('0');
   const [editProdBarcode, setEditProdBarcode] = useState('');
   const [editProdUnit, setEditProdUnit] = useState('');
+  const [editProdImages, setEditProdImages] = useState([]);
 
   // Unit system — driven by the shop's business category
   const shopCategory = user?.shopCategory || 'general';
@@ -401,6 +404,7 @@ const ShopDashboard = () => {
     setEditProdCostPrice(p.costPrice !== undefined ? String(p.costPrice) : '0');
     setEditProdBarcode(p.barcode || '');
     setEditProdUnit(p.unit || shopDefaultUnit);
+    setEditProdImages(Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []));
     setShowEditProductModal(true);
   };
 
@@ -419,7 +423,8 @@ const ShopDashboard = () => {
         gstRate: editProdGstRate,
         costPrice: parseFloat(editProdCostPrice) || 0,
         barcode: editProdBarcode,
-        unit: editProdUnit || shopDefaultUnit
+        unit: editProdUnit || shopDefaultUnit,
+        images: editProdImages
       }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
@@ -1198,7 +1203,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImage, unit: newProdUnit || shopDefaultUnit }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1214,6 +1219,7 @@ const ShopDashboard = () => {
       setNewProdGstRate('0');
       setNewProdCostPrice('0');
       setNewProdImage('');
+      setNewProdImages([]);
       setNewProdUnit('');
       loadData();
     } catch (e) {
@@ -2382,18 +2388,7 @@ const ShopDashboard = () => {
                 )}
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Product Photo (Optional)</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <input type="file" accept="image/*" id="new-prod-img-desktop" style={{ display: 'none' }} onChange={handleNewProdImage} />
-                  <label htmlFor="new-prod-img-desktop" style={{ cursor: 'pointer' }}>
-                    <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#0F172A', border: '2px dashed rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                      {newProdImage ? <img src={newProdImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} /> : <span style={{ fontSize: '28px' }}>📸</span>}
-                    </div>
-                  </label>
-                  {newProdImage && (
-                    <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
-                  )}
-                </div>
+                <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} dark />
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
@@ -4336,21 +4331,7 @@ const ShopDashboard = () => {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Photo (Optional)</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <input type="file" accept="image/*" id="new-prod-img" style={{ display: 'none' }} onChange={handleNewProdImage} />
-                <label htmlFor="new-prod-img" style={{ cursor: 'pointer' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: '#F8FAFC', border: '2px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {newProdImage
-                      ? <img src={newProdImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
-                      : <span style={{ fontSize: '28px' }}>📸</span>
-                    }
-                  </div>
-                </label>
-                {newProdImage && (
-                  <button onClick={() => setNewProdImage('')} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Remove</button>
-                )}
-              </div>
+              <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} />
             </div>
 
             <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
@@ -4444,6 +4425,10 @@ const ShopDashboard = () => {
                   <Barcode value={editProdBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <ProductImageUploader images={editProdImages} onChange={setEditProdImages} userId={user.id} />
             </div>
 
             <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
