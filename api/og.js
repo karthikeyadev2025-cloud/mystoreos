@@ -70,6 +70,7 @@ export default async function handler(req, res) {
       );
       const rows = await r.json();
       const shop = Array.isArray(rows) ? rows[0] : null;
+      if (shop && shop.name) shop.name = String(shop.name).trim();
       if (shop && shop.name) {
         const html = inject(baseHtml, {
           title: `${shop.name} — Order Online`,
