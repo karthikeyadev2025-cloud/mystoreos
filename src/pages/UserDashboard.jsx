@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../lib/api';
 import StorefrontProductCard from '../components/StorefrontProductCard';
+import StorefrontProductDetail from '../components/StorefrontProductDetail';
 import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -101,6 +102,7 @@ const UserDashboard = () => {
   const [shopInfo, setShopInfo] = useState(null);
   const [products, setProducts] = useState([]);
   const [localSearch, setLocalSearch] = useState(initialSearch);
+  const [detailProduct, setDetailProduct] = useState(null);
   const [filter, setFilter] = useState('all');
 
   // Enterprise Feature additions
@@ -871,6 +873,9 @@ const UserDashboard = () => {
     return (
       <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
+        {detailProduct && (
+          <StorefrontProductDetail product={detailProduct} qty={cart[detailProduct.id] || 0} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
+        )}
 
         {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
         {announcements.length > 0 && announcements.map(ann => (
@@ -956,7 +961,7 @@ const UserDashboard = () => {
                     className={`sidebar-nav-item ${filter === c ? 'active' : ''}`}
                     style={{ textTransform: 'capitalize', fontSize: '13px', padding: '10px 14px' }}
                   >
-                    🏪 {c}
+                    {c}
                   </button>
                 ))}
               </div>
@@ -1044,7 +1049,7 @@ const UserDashboard = () => {
                   ) : (
                     <div className="premium-product-grid">
                       {filteredProducts.map(p => (
-                        <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} />
+                        <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} onOpen={setDetailProduct} />
                       ))}
                     </div>
                   )}
@@ -1770,6 +1775,9 @@ const UserDashboard = () => {
   return (
     <div style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
+        {detailProduct && (
+          <StorefrontProductDetail product={detailProduct} qty={cart[detailProduct.id] || 0} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
+        )}
 
       {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
       {announcements.length > 0 && announcements.map(ann => (
@@ -2048,7 +2056,7 @@ const UserDashboard = () => {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                 {filteredProducts.map(p => (
-                  <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} />
+                  <StorefrontProductCard key={p.id} p={p} qty={cart[p.id] || 0} updateQty={updateQty} onOpen={setDetailProduct} />
                 ))}
 
                 {filteredProducts.length === 0 && (

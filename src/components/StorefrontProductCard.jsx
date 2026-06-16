@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 // Instamart-style storefront product card.
 // p: product (uses p.images[] with fallback to [p.image]); qty: current cart qty;
 // updateQty(id, delta): cart mutator already used by the storefront.
-export default function StorefrontProductCard({ p, qty = 0, updateQty }) {
+export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen }) {
   const images = (Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : [])).filter(Boolean);
   const [idx, setIdx] = useState(0);
   const touchX = useRef(null);
@@ -23,7 +23,8 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty }) {
   return (
     <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
       <div
-        style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', background: '#F8FAFC', overflow: 'hidden' }}
+        style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', background: '#F8FAFC', overflow: 'hidden', cursor: onOpen ? 'pointer' : 'default' }}
+        onClick={() => onOpen?.(p)}
         onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
       >
         {pct > 0 && (
