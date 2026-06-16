@@ -122,6 +122,7 @@ const ShopDashboard = () => {
   const [newProdCostPrice, setNewProdCostPrice] = useState('0');
   const [newProdImage, setNewProdImage] = useState('');
   const [newProdImages, setNewProdImages] = useState([]);
+  const [newProdFeatured, setNewProdFeatured] = useState(false);
   const [newProdUnit, setNewProdUnit] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
@@ -142,6 +143,7 @@ const ShopDashboard = () => {
   const [editProdBarcode, setEditProdBarcode] = useState('');
   const [editProdUnit, setEditProdUnit] = useState('');
   const [editProdImages, setEditProdImages] = useState([]);
+  const [editProdFeatured, setEditProdFeatured] = useState(false);
 
   // Unit system — driven by the shop's business category
   const shopCategory = user?.shopCategory || 'general';
@@ -405,6 +407,7 @@ const ShopDashboard = () => {
     setEditProdBarcode(p.barcode || '');
     setEditProdUnit(p.unit || shopDefaultUnit);
     setEditProdImages(Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []));
+    setEditProdFeatured(!!p.isFeatured);
     setShowEditProductModal(true);
   };
 
@@ -424,7 +427,8 @@ const ShopDashboard = () => {
         costPrice: parseFloat(editProdCostPrice) || 0,
         barcode: editProdBarcode,
         unit: editProdUnit || shopDefaultUnit,
-        images: editProdImages
+        images: editProdImages,
+        isFeatured: editProdFeatured
       }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
@@ -1203,7 +1207,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1220,6 +1224,7 @@ const ShopDashboard = () => {
       setNewProdCostPrice('0');
       setNewProdImage('');
       setNewProdImages([]);
+      setNewProdFeatured(false);
       setNewProdUnit('');
       loadData();
     } catch (e) {
@@ -2390,6 +2395,13 @@ const ShopDashboard = () => {
               <div style={{ marginBottom: '16px' }}>
                 <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} dark />
               </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '11px 13px' }}>
+                <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#E2E8F0' }}>⭐ Feature on storefront</div>
+                  <div style={{ fontSize: '11px', color: '#94A3B8' }}>Show this product in the Featured row at the top of your store.</div>
+                </div>
+              </label>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
                 <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#94A3B8', border: '1px solid #334155', padding: '14px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
@@ -4333,6 +4345,13 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} />
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '11px 13px' }}>
+              <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>⭐ Feature on storefront</div>
+                <div style={{ fontSize: '11px', color: '#64748B' }}>Show this product in the Featured row at the top of your store.</div>
+              </div>
+            </label>
 
             <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
             <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
@@ -4430,6 +4449,14 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '24px' }}>
               <ProductImageUploader images={editProdImages} onChange={setEditProdImages} userId={user.id} />
             </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '11px 13px' }}>
+              <input type="checkbox" checked={editProdFeatured} onChange={(e) => setEditProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>⭐ Feature on storefront</div>
+                <div style={{ fontSize: '11px', color: '#64748B' }}>Show this product in the Featured row at the top of your store.</div>
+              </div>
+            </label>
 
             <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
             <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>

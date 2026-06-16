@@ -869,6 +869,22 @@ const UserDashboard = () => {
     products.map(p => (p.category || '').toString().toLowerCase().trim()).filter(Boolean)
   ))];
 
+  // Featured rail: manually-featured products first; if the shop hasn't marked
+  // any, auto-surface their newest products so the rail is never empty.
+  const featuredProducts = (() => {
+    const manual = products.filter(p => p && p.isFeatured);
+    if (manual.length) return manual.slice(0, 10);
+    return [...products]
+      .filter(p => p && p.name)
+      .sort((a, b) => {
+        const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return tb - ta;
+      })
+      .slice(0, 8);
+  })();
+  const showFeaturedRail = featuredProducts.length > 0 && filter === 'all' && !localSearch.trim();
+
   const sortedShops = getSortedShops();
   const activeCartsList = getActiveCartsList();
 
@@ -1040,8 +1056,23 @@ const UserDashboard = () => {
                     </button>
                   </div>
 
-                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#64748B', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>📦</span> Catalogue Products ({filteredProducts.length})
+                  {showFeaturedRail && (
+                    <div style={{ marginBottom: '22px' }}>
+                      <h2 style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                        <Sparkles size={17} style={{ color: '#4F46E5' }} /> Featured
+                      </h2>
+                      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '6px' }}>
+                        {featuredProducts.map(p => (
+                          <div key={p.id} style={{ flex: '0 0 172px', width: '172px' }}>
+                            <StorefrontProductCard p={p} qty={cart[p.id] || 0} updateQty={updateQty} onOpen={setDetailProduct} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    Catalogue Products ({filteredProducts.length})
                   </h2>
 
                   {isLocatingCatalog ? (
@@ -2014,8 +2045,22 @@ const UserDashboard = () => {
 
           {/* Store Catalog Product List */}
           <div style={{ padding: '16px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#64748B', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>📦</span> Catalogue Products ({filteredProducts.length})
+            {showFeaturedRail && (
+              <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={16} style={{ color: '#4F46E5' }} /> Featured
+                </h2>
+                <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '6px' }}>
+                  {featuredProducts.map(p => (
+                    <div key={p.id} style={{ flex: '0 0 150px', width: '150px' }}>
+                      <StorefrontProductCard p={p} qty={cart[p.id] || 0} updateQty={updateQty} onOpen={setDetailProduct} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              Catalogue Products ({filteredProducts.length})
             </h2>
 
             {isLocatingCatalog ? (

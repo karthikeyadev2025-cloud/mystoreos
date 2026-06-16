@@ -135,6 +135,8 @@ const toProduct = (row) => row ? ({
   })(),
   image: row.image_url || null,
   unit: row.unit || null,
+  isFeatured: !!row.is_featured,
+  createdAt: row.created_at || null,
 }) : null;
 
 // True when a Supabase error is caused by the optional `unit` column not
@@ -719,6 +721,7 @@ export const api = {
         cost_price: parseFloat(extraData.costPrice) || 0,
         image_url: cover,
         images: imgs,
+        is_featured: !!extraData.isFeatured,
       };
       if (extraData.unit) baseInsert.unit = extraData.unit;
       // Self-healing insert: if an optional column (images / unit / image_url)
@@ -800,6 +803,7 @@ export const api = {
         updateObj.image_url = data.image || null;
       }
       if (data.unit !== undefined) updateObj.unit = data.unit || null;
+      if (data.isFeatured !== undefined) updateObj.is_featured = !!data.isFeatured;
 
       // Self-healing update: drop any optional column the DB doesn't have yet.
       let attempt = { ...updateObj };
