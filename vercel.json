@@ -121,6 +121,10 @@
       "destination": "/logo.png"
     },
     {
+      "source": "/s/:shopId",
+      "destination": "/api/og?shopId=:shopId"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
