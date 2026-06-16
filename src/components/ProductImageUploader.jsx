@@ -2,7 +2,9 @@ import { useRef, useState } from 'react';
 import { api } from '../lib/api';
 
 // Client-side compress an image File down to maxDim px, JPEG, and return a File.
-function compressToFile(file, maxDim = 700, quality = 0.82) {
+// 1280px @ 0.9 keeps product photos crisp in the enlarged detail gallery while
+// staying small enough to upload fast on Indian mobile connections.
+function compressToFile(file, maxDim = 1280, quality = 0.9) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
