@@ -262,14 +262,10 @@ const UserDashboard = () => {
         });
         setProducts(enriched);
       } else {
-        // Fallback products
-        setProducts([
-          { id: 'p_1', name: 'Sona Masoori Rice', category: 'rice', weight: '25kg bag', price: 1250, mrp: 1400, icon: '🍚', stock: 100 },
-          { id: 'p_2', name: 'Fortune Sunflower Oil', category: 'oil', weight: '5L tin', price: 650, mrp: 720, icon: '🛢️', stock: 50 },
-          { id: 'p_3', name: 'Surf Excel Matic', category: 'soap', weight: '2kg pack', price: 320, mrp: 360, icon: '🧼', stock: 40 },
-          { id: 'p_4', name: 'Amul Taaza Milk', category: 'milk', weight: '1L pouch', price: 68, mrp: 70, icon: '🥛', stock: 80 },
-          { id: 'p_5', name: 'Dove Cream Shampoo 180ml', category: 'shampoo', weight: '180ml bottle', price: 165, mrp: 180, icon: '🧴', stock: 30 }
-        ]);
+        // Real shop with no products yet — show an empty catalogue, NOT fake
+        // demo items. (Previously this injected rice/oil/soap which wrongly
+        // appeared for non-grocery shops like electronics.)
+        setProducts([]);
       }
     } catch (err) {
       console.error('Failed to load catalogue', err);
@@ -866,6 +862,12 @@ const UserDashboard = () => {
   let filteredProducts = products.filter(p => p && p.name && p.name.toLowerCase().includes(localSearch.toLowerCase()));
   if (filter !== 'all') filteredProducts = filteredProducts.filter(p => p.category === filter);
 
+  // Category chips derived from THIS shop's actual products, so an electronics
+  // shop shows electronics categories — never a hardcoded grocery list.
+  const productCategories = ['all', ...Array.from(new Set(
+    products.map(p => (p.category || '').toString().toLowerCase().trim()).filter(Boolean)
+  ))];
+
   const sortedShops = getSortedShops();
   const activeCartsList = getActiveCartsList();
 
@@ -954,7 +956,7 @@ const UserDashboard = () => {
                 Store Categories
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }} className="custom-scroll">
-                {['all', 'rice', 'oil', 'dal', 'soap', 'milk', 'shampoo', 'grocery'].map(c => (
+                {productCategories.map(c => (
                   <button 
                     key={c}
                     onClick={() => setFilter(c)}
@@ -1057,7 +1059,7 @@ const UserDashboard = () => {
                   {filteredProducts.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px 12px', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
                       <AlertTriangle size={24} style={{ color: '#4F46E5', margin: '0 auto 8px' }} />
-                      <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>No items match your search filter.</p>
+                      <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>{products.length === 0 ? 'This store hasn\'t added any products yet.' : 'No items match your search filter.'}</p>
                     </div>
                   )}
                 </div>
@@ -2024,7 +2026,7 @@ const UserDashboard = () => {
 
             {/* Category Filter Pills */}
             <div className="custom-scroll" style={{ display: 'flex', gap: '8px', marginTop: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
-              {['all', 'rice', 'oil', 'dal', 'soap', 'milk', 'shampoo', 'grocery'].map(c => (
+              {productCategories.map(c => (
                 <button 
                   key={c}
                   onClick={() => setFilter(c)}
@@ -2062,7 +2064,7 @@ const UserDashboard = () => {
                 {filteredProducts.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '40px 12px', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
                     <AlertTriangle size={24} style={{ color: '#4F46E5', margin: '0 auto 8px' }} />
-                    <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>No items match your query in this store.</p>
+                    <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>{products.length === 0 ? 'This store hasn\'t added any products yet.' : 'No items match your query in this store.'}</p>
                   </div>
                 )}
               </div>
