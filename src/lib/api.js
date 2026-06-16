@@ -732,7 +732,11 @@ export const api = {
       for (let tries = 0; tries < 6; tries++) {
         ({ data: prodRow, error } = await supabase.from('products').insert(attempt).select().maybeSingle());
         if (!error) break;
-        const miss = (error.message || '').match(/column (?:products\.)?["']?(\w+)["']? does not exist/i);
+        const msg = error.message || '';
+        // Supabase REST (PostgREST) form: Could not find the 'X' column of 'products' in the schema cache
+        // Raw Postgres form: column "X" does not exist
+        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
         if (!miss || !(miss[1] in attempt)) break;
         delete attempt[miss[1]];
       }
@@ -811,7 +815,9 @@ export const api = {
       for (let tries = 0; tries < 6; tries++) {
         ({ data: updated, error } = await supabase.from('products').update(attempt).eq('id', prodId).select().maybeSingle());
         if (!error) break;
-        const miss = (error.message || '').match(/column (?:products\.)?["']?(\w+)["']? does not exist/i);
+        const msg = error.message || '';
+        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
         if (!miss || !(miss[1] in attempt)) break;
         delete attempt[miss[1]];
       }
