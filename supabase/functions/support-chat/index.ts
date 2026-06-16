@@ -24,6 +24,11 @@ serve(async (req) => {
         role: m.sender === 'user' ? 'user' : 'model',
         parts: [{ text: String(m.body).slice(0, 4000) }],
       }));
+    // Gemini requires the conversation to START with a 'user' turn. Our chat
+    // opens with a bot greeting (role 'model'), so drop any leading non-user
+    // turns or the API rejects the request and returns no candidates.
+    while (contents.length && contents[0].role !== 'user') contents.shift();
+    if (contents.length === 0) return json({ reply: 'Ask me anything about billing, plans, payments, or your account!' });
 
     const resp = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -38,9 +43,12 @@ serve(async (req) => {
       },
     );
     const data = await resp.json();
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text
-      || "Sorry, I couldn't process that. Please raise a ticket and our team will help.";
-    return json({ reply });
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (reply) return json({ reply });
+    // No candidate returned — log + surface a concise reason (TEMP, for debugging).
+    console.error('support-chat no candidate:', JSON.stringify(data).slice(0, 600));
+    const why = data?.error?.message ? ` [${String(data.error.message).slice(0, 160)}]` : '';
+    return json({ reply: "Sorry, I couldn't process that. Please raise a ticket and our team will help." + why });
   } catch (e) {
     return json({ reply: 'Something went wrong. Please raise a support ticket and our team will help.' });
   }
