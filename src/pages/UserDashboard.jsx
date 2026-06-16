@@ -1364,8 +1364,8 @@ const UserDashboard = () => {
                       </div>
                     )}
 
-                    <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                      🏪 Discoverable Local Shops Nearby
+                    <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', marginBottom: '10px' }}>
+                      Shops near you
                     </h2>
 
                     {/* Mini product search */}
@@ -1382,7 +1382,7 @@ const UserDashboard = () => {
 
                     {/* Category filter chips */}
                     <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                      {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
+                      {[['all', 'All'], ['kirana', 'Kirana'], ['medical', 'Medical'], ['general', 'General'], ['electronics', 'Electronics']].map(([val, label]) => (
                         <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#475569', boxShadow: shopCategoryFilter === val ? '0 4px 12px rgba(79,70,229,0.2)' : 'none', transition: 'all 0.15s' }}>
                           {label}
                         </button>
@@ -2216,7 +2216,7 @@ const UserDashboard = () => {
                 </div>
                 {/* Category chips */}
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  {[['all', '🏪 All'], ['kirana', '🛒 Kirana'], ['medical', '💊 Medical'], ['general', '🏬 General'], ['electronics', '📱 Electronics']].map(([val, label]) => (
+                  {[['all', 'All'], ['kirana', 'Kirana'], ['medical', 'Medical'], ['general', 'General'], ['electronics', 'Electronics']].map(([val, label]) => (
                     <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', width: 'auto', flexShrink: 0, background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B' }}>
                       {label}
                     </button>

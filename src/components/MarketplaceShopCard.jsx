@@ -1,4 +1,4 @@
-import { MapPin, MessageCircle } from 'lucide-react';
+import { MapPin, MessageCircle, Star, Clock } from 'lucide-react';
 
 // Swiggy/Instamart-style shop card for the consumer marketplace.
 // shop: shop object (logo, shopPhotos[], name, category, openNow, subscription, phone);
@@ -8,6 +8,10 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
   const initial = (shop.name || '?').trim().charAt(0).toUpperCase();
   const open = !!shop.openNow;
   const category = (shop.category || 'store').toString();
+  // Real rating only if the shop has one; otherwise show an honest "New" tag.
+  const rating = typeof shop.rating === 'number' && shop.rating > 0 ? shop.rating.toFixed(1) : null;
+  // Delivery time is an honest estimate derived from the real distance.
+  const eta = (dist !== null && dist !== undefined) ? Math.max(8, Math.round(10 + dist * 7)) : null;
 
   return (
     <div
@@ -17,7 +21,7 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
       onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,23,42,0.06)'; }}
     >
       {/* Image banner */}
-      <div style={{ position: 'relative', width: '100%', height: 128, background: banner ? '#0F172A' : 'linear-gradient(135deg,#4F46E5,#6366F1)', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', width: '100%', height: 150, background: banner ? '#0F172A' : 'linear-gradient(135deg,#4F46E5,#6366F1)', overflow: 'hidden' }}>
         {banner ? (
           <img src={banner} alt={shop.name} loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -44,8 +48,22 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shop.name}</h3>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B', textTransform: 'capitalize' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748B', textTransform: 'capitalize', flexWrap: 'wrap' }}>
           <span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: 6, fontWeight: 600, color: '#475569' }}>{category}</span>
+          {rating ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontWeight: 600, color: '#059669' }}>
+              <Star size={12} fill="#059669" color="#059669" />{rating}
+            </span>
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontWeight: 600, color: '#4F46E5' }}>
+              <Star size={12} color="#4F46E5" />New
+            </span>
+          )}
+          {eta && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#64748B' }}>
+              <Clock size={12} />~{eta} min
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 'auto', paddingTop: 6 }}>
           <button onClick={(e) => { e.stopPropagation(); onOpen?.(); }}
