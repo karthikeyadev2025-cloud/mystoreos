@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../lib/api';
 import StorefrontProductCard from '../components/StorefrontProductCard';
 import StorefrontProductDetail from '../components/StorefrontProductDetail';
+import MarketplaceShopCard from '../components/MarketplaceShopCard';
 import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -1404,51 +1405,18 @@ const UserDashboard = () => {
                       <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px', textAlign: 'center' }}>No nearby shops carry "{nearbySearch}" right now.</p>
                     )}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                       {sortedShops.map(shop => {
                         const dist = shop.distance ?? calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
                         const waMsg = encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. Please share your catalogue. (via MyStore OS)`);
                         return (
-                          <div key={shop.id} className="premium-glass-card premium-glass-card-hover" style={{ padding: '16px', position: 'relative' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                {shop.logo ? (
-                                  <img src={shop.logo} alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5' }} />
-                                ) : (
-                                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏪</div>
-                                )}
-                                <div>
-                                  <h3 style={{ fontSize: '15px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                    {shop.name}
-                                    {shop.subscription && shop.subscription !== 'trial' && (
-                                      <span style={{ background: 'linear-gradient(135deg, #e11d48, #c084fc)', fontSize: '8px', padding: '2px 5px', borderRadius: '6px', fontWeight: '800' }}>PRO</span>
-                                    )}
-                                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)', color: shop.openNow ? '#10b981' : '#4F46E5' }}>
-                                      {shop.openNow ? '● Open' : '● Closed'}
-                                    </span>
-                                  </h3>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
-                                    <MapPin size={10} style={{ color: '#E11D48' }} />
-                                    <span>{dist !== null ? `${dist.toFixed(2)} km away` : 'Estimating...'}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <button
-                                onClick={() => window.open(`https://wa.me/91${shop.phone}?text=${waMsg}`, '_blank')}
-                                style={{ flex: 1, padding: '8px', background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.25)', color: '#25D366', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                              >
-                                💬 WhatsApp Order
-                              </button>
-                              <button
-                                onClick={() => navigate(`/s/${shop.id}`)}
-                                style={{ flex: 1, padding: '8px', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                              >
-                                Open Catalogue 🏪
-                              </button>
-                            </div>
-                          </div>
+                          <MarketplaceShopCard
+                            key={shop.id}
+                            shop={shop}
+                            dist={dist}
+                            onOpen={() => navigate(`/s/${shop.id}`)}
+                            onWhatsApp={() => window.open(`https://wa.me/91${shop.phone}?text=${waMsg}`, '_blank')}
+                          />
                         );
                       })}
 
@@ -2266,78 +2234,18 @@ const UserDashboard = () => {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                   {sortedShops.map(shop => {
-                    const isPro = shop.subscription && shop.subscription !== 'trial';
+                    const dist = shop.distance ?? calculateDistance(coords.latitude, coords.longitude, shop.latitude, shop.longitude, shop.id);
+                    const waMsg = encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. (via MyStore OS)`);
                     return (
-                      <div 
+                      <MarketplaceShopCard
                         key={shop.id}
-                        className={isPro ? "pro-featured-card" : "standard-shop-card"}
-                        style={{
-                          borderRadius: '18px',
-                          padding: '16px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '12px',
-                          position: 'relative'
-                        }}
-                      >
-                        {isPro && (
-                          <div style={{ position: 'absolute', top: '14px', right: '14px', background: 'linear-gradient(135deg, #cbd5e1, #4F46E5)', color: '#0f172a', fontSize: '8px', fontWeight: '900', padding: '3px 8px', borderRadius: '8px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                            ★ PRO FEATURED
-                          </div>
-                        )}
-
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                          {shop.logo ? (
-                            <img src={shop.logo} alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #E2E8F0' }} />
-                          ) : (
-                            <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-                              🏪
-                            </div>
-                          )}
-
-                          <div>
-                            <h3 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 3px 0', color: '#0F172A' }}>{shop.name}</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B' }}>
-                              <MapPin size={12} className="text-primary" />
-                              <span>
-                                {shop.distance !== null ? `${shop.distance.toFixed(2)} km away` : 'Address Locked'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Store Photos Carousel Preview if exists */}
-                        {shop.shopPhotos && shop.shopPhotos.length > 0 && (
-                          <div className="custom-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-                            {shop.shopPhotos.map((photo, i) => (
-                              <img key={i} src={photo} alt="Store" style={{ height: '70px', width: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #E2E8F0', flexShrink: 0 }} />
-                            ))}
-                          </div>
-                        )}
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '10px', gap: '8px' }}>
-                          <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 9px', borderRadius: '10px', background: shop.openNow ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)', color: shop.openNow ? '#10b981' : '#4F46E5', flexShrink: 0 }}>
-                            {shop.openNow ? '● Open Now' : '● Closed'}
-                          </span>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                              onClick={() => window.open(`https://wa.me/91${shop.phone}?text=${encodeURIComponent(`Hi ${shop.name}! I'd like to place an order. (via MyStore OS)`)}`, '_blank')}
-                              style={{ width: 'auto', background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.25)', color: '#25D366', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                            >
-                              💬 WhatsApp
-                            </button>
-                            <button
-                              onClick={() => navigate(`/s/${shop.id}`)}
-                              style={{ width: 'auto', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                            >
-                              Catalogue <ChevronRight size={13} />
-                            </button>
-                          </div>
-                        </div>
-
-                      </div>
+                        shop={shop}
+                        dist={dist}
+                        onOpen={() => navigate(`/s/${shop.id}`)}
+                        onWhatsApp={() => window.open(`https://wa.me/91${shop.phone}?text=${waMsg}`, '_blank')}
+                      />
                     );
                   })}
 
