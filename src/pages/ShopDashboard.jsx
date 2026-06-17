@@ -625,113 +625,128 @@ const ShopDashboard = () => {
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(`MyStore received ${total} rupees successfully!`));
       }
 
-      // Generate Premium Custom Themed PDF
+      // ── PDF GENERATION ────────────────────────────────────────────────────────
       const { jsPDF: JsPDF } = await import('jspdf');
       const doc = new JsPDF();
-      
-      let themeColor = '#10B981'; // emerald green for bill
-      let modeTitle = 'TAX INVOICE';
+
+      // Theme colours per document type
+      let themeColor = '#10B981';
+      let modeTitle  = 'TAX INVOICE';
+      let modeShort  = 'INV';
       if (billingMode === 'estimate') {
-        themeColor = '#4F46E5'; // amber orange for estimate
-        modeTitle = 'PROFORMA ESTIMATE / QUOTATION';
+        themeColor = '#4F46E5'; modeTitle = 'PROFORMA ESTIMATE / QUOTATION'; modeShort = 'EST';
       } else if (billingMode === 'challan') {
-        themeColor = '#3B82F6'; // blue for challan
-        modeTitle = 'DELIVERY CHALLAN (GOODS IN TRANSIT)';
+        themeColor = '#3B82F6'; modeTitle = 'DELIVERY CHALLAN'; modeShort = 'DC';
       }
-      
-      // Top colored header stripe
-      doc.setFillColor(
-        parseInt(themeColor.substring(1, 3), 16),
-        parseInt(themeColor.substring(3, 5), 16),
-        parseInt(themeColor.substring(5, 7), 16)
-      );
-      doc.rect(0, 0, 210, 8, 'F');
-      
-      // Brand / Shop Info
-      if (user.logo && user.logo.startsWith('data:image')) {
-        try {
-          doc.addImage(user.logo, 'JPEG', 15, 12, 25, 25);
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(20);
-          doc.text(user.name, 45, 20);
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          doc.setTextColor(100, 116, 139);
-          doc.text(`Phone: ${user.phone}`, 45, 26);
-          if (user.upiId) doc.text(`UPI ID: ${user.upiId}`, 45, 31);
-        } catch (e) {
-          console.error("PDF logo error", e);
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(22);
-          doc.text(user.name, 15, 22);
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          doc.setTextColor(100, 116, 139);
-          doc.text(`Phone: ${user.phone}`, 15, 28);
-          if (user.upiId) doc.text(`UPI: ${user.upiId}`, 15, 33);
-        }
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(22);
-        doc.text(user.name, 15, 22);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text(`Phone: ${user.phone}`, 15, 28);
-        if (user.upiId) doc.text(`UPI ID: ${user.upiId}`, 15, 33);
+
+      // Helper: parse hex colour to [r, g, b]
+      const hex2rgb = (h) => [
+        parseInt(h.slice(1,3),16),
+        parseInt(h.slice(3,5),16),
+        parseInt(h.slice(5,7),16),
+      ];
+      const [tR,tG,tB] = hex2rgb(themeColor);
+
+      // ── HEADER STRIPE ─────────────────────────────────────────────────────────
+      doc.setFillColor(tR,tG,tB);
+      doc.rect(0, 0, 210, 10, 'F');
+
+      // ── SHOP BRANDING (left side, top-down with dynamic y) ────────────────────
+      let hy = 20; // start below stripe
+
+      const hasLogo = user.logo && user.logo.startsWith('data:image');
+      const logoW = 22, logoH = 22, logoX = 15;
+      if (hasLogo) {
+        try { doc.addImage(user.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch(e) {}
       }
-      
-      // Horizontal Rule
-      doc.setDrawColor(226, 232, 240);
-      doc.setLineWidth(0.5);
-      doc.line(15, 42, 195, 42);
-      
-      // Title Block
+      const textX = hasLogo ? 42 : 15;
+
+      // Shop name — large bold
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(
-        parseInt(themeColor.substring(1, 3), 16),
-        parseInt(themeColor.substring(3, 5), 16),
-        parseInt(themeColor.substring(5, 7), 16)
-      );
-      doc.text(modeTitle, 15, 50);
+      doc.setFontSize(18);
+      doc.setTextColor(15, 23, 42);
+      doc.text(user.name, textX, hy);
+      hy += 7;
 
+      // Contact line
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(71, 85, 105);
-      doc.text(`Date: ${new Date().toLocaleString()}`, 135, 50);
-      if (invoiceNo) {
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      let contactLine = `Phone: ${user.phone}`;
+      if (user.upiId) contactLine += `   |   UPI: ${user.upiId}`;
+      doc.text(contactLine, textX, hy);
+      hy += 5;
+
+      // Shop GSTIN + State + Address
+      if (gstin) {
+        doc.text(`GSTIN: ${gstin}   |   State Code: ${stateCode}`, textX, hy);
+        hy += 5;
+      }
+      if (businessAddress) {
+        doc.setFontSize(8.5);
+        doc.text(businessAddress, textX, hy);
         doc.setFontSize(9);
-        doc.text(`Invoice # ${invoiceNo}`, 135, 56);
+        hy += 5;
       }
 
-      // Top section: Add shop GSTIN and State Code
-      if (gstin) {
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text(`GSTIN: ${gstin} | State Code: ${stateCode}`, 15, 41);
-        if (businessAddress) doc.text(businessAddress, 15, 45);
-      }
-      
-      let custY = gstin ? 58 : 58;
-      if (customerName || customerPhone || customerGstin) {
+      // Document type badge (right side, same row as shop name)
+      doc.setFillColor(tR,tG,tB);
+      doc.roundedRect(140, 12, 55, 14, 3, 3, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(255,255,255);
+      doc.text(modeTitle.length > 14 ? modeShort + ' DOCUMENT' : modeTitle, 167.5, 20.5, { align: 'center' });
+
+      // Invoice / date block (right side, below badge)
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      const dateStr = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      doc.text(`Date: ${dateStr}`, 195, 30, { align: 'right' });
+      if (invoiceNo) {
         doc.setFont("helvetica", "bold");
-        doc.text("CUSTOMER DETAILS:", 15, custY);
+        doc.setFontSize(9);
+        doc.setTextColor(tR,tG,tB);
+        doc.text(`${modeShort}-${invoiceNo}`, 195, 36, { align: 'right' });
+      }
+
+      // ── DIVIDER ────────────────────────────────────────────────────────────────
+      hy = Math.max(hy, hasLogo ? 36 : 34) + 4;
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.4);
+      doc.line(15, hy, 195, hy);
+      hy += 6;
+
+      // ── DOCUMENT TITLE FULL TEXT ───────────────────────────────────────────────
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(tR,tG,tB);
+      doc.text(modeTitle, 15, hy);
+      hy += 8;
+
+      // ── CUSTOMER DETAILS ───────────────────────────────────────────────────────
+      let custY = hy;
+      if (customerName || customerPhone || customerGstin) {
+        doc.setFillColor(248, 250, 252);
+        const custBlockH = 6 + (customerPhone ? 5 : 0) + (customerGstin ? 5 : 0) + (customerAddress ? 5 : 0) + 4;
+        doc.rect(15, custY - 4, 120, custBlockH, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text("BILL TO:", 18, custY);
+        custY += 5;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(15, 23, 42);
+        doc.text(customerName || 'Walk-in Customer', 18, custY);
+        custY += 5;
         doc.setFont("helvetica", "normal");
-        doc.text(`Name: ${customerName || 'Guest'}`, 15, custY + 5);
-        if (customerPhone) doc.text(`Phone: ${customerPhone}`, 15, custY + 10);
-        let custOffset = 15;
-        if (customerGstin) {
-          doc.text(`GSTIN: ${customerGstin} | State Code: ${customerStateCode}`, 15, custY + custOffset);
-          custOffset += 5;
-        }
-        if (customerAddress) {
-          doc.text(`Address: ${customerAddress}`, 15, custY + custOffset);
-          custOffset += 5;
-        }
-        custY += custOffset + 3;
-      } else {
-        custY += 2;
+        doc.setFontSize(9);
+        doc.setTextColor(71, 85, 105);
+        if (customerPhone) { doc.text(`Phone: ${customerPhone}`, 18, custY); custY += 5; }
+        if (customerGstin) { doc.text(`GSTIN: ${customerGstin}  |  State: ${customerStateCode}`, 18, custY); custY += 5; }
+        if (customerAddress) { doc.text(`Address: ${customerAddress}`, 18, custY); custY += 5; }
+        custY += 4;
       }
 
       // GST Calculation logic
@@ -990,8 +1005,12 @@ const ShopDashboard = () => {
         doc.text('Trial Bill — Upgrade at mystoreos.in for professional invoices', 105, wY, { align: 'center' });
       }
 
+      const safeName = (user.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+      const pdfFileName = invoiceNo
+        ? `${safeName}_${modeShort}-${invoiceNo}.pdf`
+        : `${safeName}_${billingMode === 'estimate' ? 'Estimate' : billingMode === 'challan' ? 'Challan' : 'Invoice'}.pdf`;
       const pdfBlob = doc.output("blob");
-      const pdfFile = new File([pdfBlob], `${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Receipt')}.pdf`, { type: "application/pdf" });
+      const pdfFile = new File([pdfBlob], pdfFileName, { type: "application/pdf" });
 
       if (hasFeature('whatsappShare') && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
@@ -1037,7 +1056,7 @@ const ShopDashboard = () => {
         await sendWhatsApp(customerPhone, msg);
       } else {
         // Starter plan: save PDF locally instead of WhatsApp share
-        doc.save(`${user.name}_bill.pdf`);
+        doc.save(pdfFileName);
         toast.info('Bill saved as PDF. Upgrade to Pro to share via WhatsApp.');
       }
 
