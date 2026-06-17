@@ -608,9 +608,11 @@ const ShopDashboard = () => {
         name: b.name,
         price: b.price,
         qty: b.qty || 1,
-        selectedVariant: b.selectedVariant || ''
+        selectedVariant: b.selectedVariant || '',
+        itemDiscount: b.itemDiscount || 0
       })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode },
-      billingMode === 'bill' ? 'Accepted' : 'Pending'));
+      billingMode === 'bill' ? 'Accepted' : 'Pending',
+      paymentMethod || 'Cash'));
 
       let loyaltyResult = null;
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
@@ -937,6 +939,25 @@ const ShopDashboard = () => {
       doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, 130, yOffset);
       yOffset += 9;
 
+      // Payment method badge
+      if (billingMode === 'bill') {
+        const pmIcons = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
+        const pmColors = { Cash: [16,185,129], UPI: [79,70,229], Card: [59,130,246], Credit: [239,68,68] };
+        const pm = paymentMethod || 'Cash';
+        const [pmR,pmG,pmB] = pmColors[pm] || pmColors['Cash'];
+        doc.setFillColor(pmR,pmG,pmB);
+        doc.roundedRect(130, yOffset, 32, 8, 2, 2, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(255,255,255);
+        doc.text(`${pm === 'Cash' ? 'CASH' : pm === 'UPI' ? 'UPI' : pm === 'Card' ? 'CARD' : 'CREDIT'} PAID`, 146, yOffset + 5.2, { align: 'center' });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(71,85,105);
+        doc.text('Payment Mode', 167, yOffset + 5.2);
+        yOffset += 12;
+      }
+
       // "You Saved" highlight box
       const totalSaved = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
       if (totalSaved > 0) {
@@ -1047,6 +1068,8 @@ const ShopDashboard = () => {
         if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Bill Discount: -Rs.${discountAmount + manualDiscountAmt}\n`;
         if (loyaltyDiscountRupees > 0) msg += `Loyalty Redeemed: -Rs.${loyaltyDiscountRupees}\n`;
         msg += `*TOTAL: Rs.${total}*\n`;
+        const pmLabel = { Cash: '💵 Cash', UPI: '📱 UPI', Card: '💳 Card', Credit: '📒 Credit' };
+        msg += `Payment: ${pmLabel[paymentMethod] || '💵 Cash'}\n`;
         const totalSavedWA = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
         if (totalSavedWA > 0) msg += `🎉 *You saved Rs.${totalSavedWA} on this ${billingMode === 'estimate' ? 'estimate' : billingMode === 'challan' ? 'challan' : 'bill'}!*\n`;
         if (billingMode === 'bill' && upiId) {
@@ -3432,6 +3455,16 @@ const ShopDashboard = () => {
                 <span>TOTAL</span>
                 <span>₹{selectedOrder.total}</span>
               </div>
+
+              {/* Payment method */}
+              {selectedOrder.paymentMethod && (
+                <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                  <span style={{ color: '#555' }}>Payment</span>
+                  <span style={{ fontWeight: 'bold', color: selectedOrder.paymentMethod === 'Cash' ? '#10B981' : selectedOrder.paymentMethod === 'UPI' ? '#4F46E5' : selectedOrder.paymentMethod === 'Card' ? '#3B82F6' : '#EF4444' }}>
+                    {{ Cash: '💵 Cash', UPI: '📱 UPI', Card: '💳 Card', Credit: '📒 Credit' }[selectedOrder.paymentMethod] || selectedOrder.paymentMethod}
+                  </span>
+                </div>
+              )}
               
               <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
                 {type === 'estimate' ? (

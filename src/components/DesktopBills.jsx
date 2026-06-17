@@ -121,7 +121,17 @@ const DesktopBills = ({
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
                     <span style={{ fontSize: '15px', fontWeight: '800', color: '#0F172A' }}>₹{o.total}</span>
-                    <span style={{ fontSize: '10px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {o.paymentMethod && o.paymentMethod !== 'Cash' && (
+                        <span style={{ fontSize: '10px', background: o.paymentMethod === 'UPI' ? '#EEF2FF' : o.paymentMethod === 'Card' ? '#EFF6FF' : '#FEF2F2', color: o.paymentMethod === 'UPI' ? '#4F46E5' : o.paymentMethod === 'Card' ? '#3B82F6' : '#EF4444', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+                          {{ Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' }[o.paymentMethod]} {o.paymentMethod}
+                        </span>
+                      )}
+                      {(!o.paymentMethod || o.paymentMethod === 'Cash') && (
+                        <span style={{ fontSize: '10px', background: '#ECFDF5', color: '#10B981', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>💵 Cash</span>
+                      )}
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()}</span>
+                    </div>
                   </div>
                 </div>
               );
@@ -185,6 +195,21 @@ const DesktopBills = ({
                 <div style={{ borderTop: '1px dashed #000', paddingTop: '10px', marginTop: '14px', display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '15px' }}>
                   <span>TOTAL DUE</span>
                   <span>₹{selectedBill.total}</span>
+                </div>
+
+                {/* Payment Method */}
+                <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: '#64748B' }}>Payment Mode</span>
+                  {(() => {
+                    const pm = selectedBill.paymentMethod || 'Cash';
+                    const pmColors = { Cash: '#10B981', UPI: '#4F46E5', Card: '#3B82F6', Credit: '#EF4444' };
+                    const pmIcons  = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
+                    return (
+                      <span style={{ fontSize: '12px', fontWeight: '800', color: pmColors[pm] || '#10B981', background: (pmColors[pm] || '#10B981') + '15', padding: '3px 10px', borderRadius: '6px' }}>
+                        {pmIcons[pm] || '💵'} {pm}
+                      </span>
+                    );
+                  })()}
                 </div>
                 
                 <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '9px', borderTop: '1px solid #E2E8F0', paddingTop: '10px', color: '#64748B' }}>

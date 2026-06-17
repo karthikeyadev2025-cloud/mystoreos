@@ -149,7 +149,8 @@ const isMissingUnitColumn = (error) =>
 const toOrder = (row) => row ? ({
   id: row.id, userId: row.user_id, shopId: row.shop_id, items: row.items,
   total: row.total, status: row.status, date: row.created_at,
-  customerGstin: row.customer_gstin, customerAddress: row.customer_address, customerStateCode: row.customer_state_code
+  customerGstin: row.customer_gstin, customerAddress: row.customer_address, customerStateCode: row.customer_state_code,
+  paymentMethod: row.payment_method || 'Cash'
 }) : null;
 
 const toCredit = (row) => row ? ({
@@ -997,11 +998,11 @@ export const api = {
     }).reverse();
   },
 
-  async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending') {
+  async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending', paymentMethod = 'Cash') {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status, customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null };
+        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status, customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null, payment_method: paymentMethod || 'Cash' };
         await enqueue({ table: 'orders', action: 'insert', data: row });
         const db = getDB(); db.orders = db.orders || [];
         db.orders.push({ id: tempId, userId, shopId, items, total, status, date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '' });
@@ -1028,7 +1029,8 @@ export const api = {
         status,
         customer_gstin: customerData.gstin || null,
         customer_address: customerData.address || null,
-        customer_state_code: customerData.stateCode || null
+        customer_state_code: customerData.stateCode || null,
+        payment_method: paymentMethod || 'Cash'
       }).select().maybeSingle();
       if (error) throw new Error(error.message);
       
@@ -1058,6 +1060,7 @@ export const api = {
       items, 
       total, 
       status, 
+      paymentMethod: paymentMethod || 'Cash',
       date: new Date().toISOString(),
       customerGstin: customerData.gstin || '',
       customerAddress: customerData.address || '',
