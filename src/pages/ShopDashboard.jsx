@@ -178,6 +178,11 @@ const ShopDashboard = () => {
   const [businessAddress, setBusinessAddress] = useState(user?.businessAddress || '');
   const [invoiceFooter, setInvoiceFooter] = useState('');
   const [invoicePrefix, setInvoicePrefix] = useState('INV');
+  // Print Settings
+  const [printFormat,   setPrintFormat]   = useState('a4');       // 'a4' | 'thermal80' | 'thermal58'
+  const [printFontSize, setPrintFontSize] = useState('normal');   // 'normal' | 'large'
+  const [printShowLogo, setPrintShowLogo] = useState(true);
+  const [printCopies,   setPrintCopies]   = useState(1);
   const [dailyTarget, setDailyTarget] = useState(0);
   const [flashSales, setFlashSales] = useState({});
   const [hideFromSearch, setHideFromSearch] = useState(user?.hideFromSearch || false);
@@ -304,6 +309,13 @@ const ShopDashboard = () => {
       setPricing(await safe(() => api.getPricing()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
       setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
+      const ps = await safe(() => api.getSiteConfig('printSettings_' + targetShopId, null));
+      if (ps) {
+        if (ps.format)    setPrintFormat(ps.format);
+        if (ps.fontSize)  setPrintFontSize(ps.fontSize);
+        if (ps.showLogo !== undefined) setPrintShowLogo(ps.showLogo);
+        if (ps.copies)    setPrintCopies(ps.copies);
+      }
       setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
       setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
@@ -629,7 +641,20 @@ const ShopDashboard = () => {
 
       // ── PDF GENERATION ────────────────────────────────────────────────────────
       const { jsPDF: JsPDF } = await import('jspdf');
-      const doc = new JsPDF();
+
+      // ── Print format config ──────────────────────────────────────────────────
+      // printFormat: 'a4' | 'thermal80' | 'thermal58'
+      const isThermal   = printFormat === 'thermal80' || printFormat === 'thermal58';
+      const pageW       = printFormat === 'thermal58' ? 58 : printFormat === 'thermal80' ? 80 : 210;
+      const pageH       = isThermal ? 297 : 297; // auto-height for thermal
+      const marginL     = isThermal ? 3 : 15;
+      const contentW    = pageW - marginL * 2;
+      const baseFontSz  = printFontSize === 'large' ? (isThermal ? 11 : 12) : (isThermal ? 8 : 10);
+      const titleFontSz = printFontSize === 'large' ? (isThermal ? 13 : 15) : (isThermal ? 10 : 13);
+
+      const doc = isThermal
+        ? new JsPDF({ unit: 'mm', format: [pageW, pageH], orientation: 'portrait' })
+        : new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
       // Theme colours per document type
       let themeColor = '#10B981';
@@ -651,103 +676,118 @@ const ShopDashboard = () => {
 
       // ── HEADER STRIPE ─────────────────────────────────────────────────────────
       doc.setFillColor(tR,tG,tB);
-      doc.rect(0, 0, 210, 10, 'F');
+      doc.rect(0, 0, pageW, isThermal ? 7 : 10, 'F');
 
-      // ── SHOP BRANDING (left side, top-down with dynamic y) ────────────────────
-      let hy = 20; // start below stripe
+      // ── SHOP BRANDING ────────────────────────────────────────────────────────
+      let hy = isThermal ? 13 : 20;
 
-      const hasLogo = user.logo && user.logo.startsWith('data:image');
-      const logoW = 22, logoH = 22, logoX = 15;
+      const hasLogo = printShowLogo && user.logo && user.logo.startsWith('data:image');
+      const logoW = isThermal ? 14 : 22, logoH = isThermal ? 14 : 22, logoX = marginL;
       if (hasLogo) {
         try { doc.addImage(user.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch(e) {}
       }
-      const textX = hasLogo ? 42 : 15;
+      const textX = hasLogo ? (marginL + logoW + 3) : marginL;
 
-      // Shop name — large bold
+      // Shop name
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
+      doc.setFontSize(isThermal ? 11 : 18);
       doc.setTextColor(15, 23, 42);
-      doc.text(user.name, textX, hy);
-      hy += 7;
+      doc.text(user.name, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
+      hy += isThermal ? 6 : 7;
 
       // Contact line
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
+      doc.setFontSize(isThermal ? 7 : 9);
       doc.setTextColor(100, 116, 139);
-      let contactLine = `Phone: ${user.phone}`;
-      if (user.upiId) contactLine += `   |   UPI: ${user.upiId}`;
-      doc.text(contactLine, textX, hy);
+      let contactLine = `Ph: ${user.phone}`;
+      if (!isThermal && user.upiId) contactLine += `   |   UPI: ${user.upiId}`;
+      doc.text(contactLine, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
-
-      // Shop GSTIN + State + Address
-      if (gstin) {
-        doc.text(`GSTIN: ${gstin}   |   State Code: ${stateCode}`, textX, hy);
+      if (isThermal && user.upiId) {
+        doc.text(`UPI: ${user.upiId}`, pageW / 2, hy, { align: 'center' });
         hy += 5;
+      }
+
+      // GSTIN
+      if (gstin) {
+        doc.setFontSize(isThermal ? 7 : 9);
+        const gstinLine = isThermal ? `GSTIN: ${gstin}` : `GSTIN: ${gstin}   |   State Code: ${stateCode}`;
+        doc.text(gstinLine, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
+        hy += 5;
+        if (isThermal && stateCode) { doc.text(`State: ${stateCode}`, pageW / 2, hy, { align: 'center' }); hy += 5; }
       }
       if (businessAddress) {
-        doc.setFontSize(8.5);
-        doc.text(businessAddress, textX, hy);
-        doc.setFontSize(9);
+        doc.setFontSize(isThermal ? 7 : 8.5);
+        doc.text(businessAddress, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center', maxWidth: contentW } : {});
+        doc.setFontSize(isThermal ? 7 : 9);
         hy += 5;
       }
 
-      // Document type badge (right side, same row as shop name)
-      doc.setFillColor(tR,tG,tB);
-      doc.roundedRect(140, 12, 55, 14, 3, 3, 'F');
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(255,255,255);
-      doc.text(modeTitle.length > 14 ? modeShort + ' DOCUMENT' : modeTitle, 167.5, 20.5, { align: 'center' });
-
-      // Invoice / date block (right side, below badge)
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(71, 85, 105);
-      const dateStr = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-      doc.text(`Date: ${dateStr}`, 195, 30, { align: 'right' });
-      if (invoiceNo) {
+      if (!isThermal) {
+        // A4: document type badge top-right
+        doc.setFillColor(tR,tG,tB);
+        doc.roundedRect(140, 12, 55, 14, 3, 3, 'F');
         doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(255,255,255);
+        doc.text(modeTitle.length > 14 ? modeShort + ' DOCUMENT' : modeTitle, 167.5, 20.5, { align: 'center' });
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
-        doc.setTextColor(tR,tG,tB);
-        doc.text(`${modeShort}-${invoiceNo}`, 195, 36, { align: 'right' });
+        doc.setTextColor(71, 85, 105);
+        const dateStr = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        doc.text(`Date: ${dateStr}`, 195, 30, { align: 'right' });
+        if (invoiceNo) {
+          doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(tR,tG,tB);
+          doc.text(`${modeShort}-${invoiceNo}`, 195, 36, { align: 'right' });
+        }
       }
 
       // ── DIVIDER ────────────────────────────────────────────────────────────────
-      hy = Math.max(hy, hasLogo ? 36 : 34) + 4;
-      doc.setDrawColor(226, 232, 240);
-      doc.setLineWidth(0.4);
-      doc.line(15, hy, 195, hy);
-      hy += 6;
+      hy = !isThermal ? Math.max(hy, hasLogo ? 36 : 34) + 4 : hy + 2;
+      doc.setDrawColor(isThermal ? 0 : 226, isThermal ? 0 : 232, isThermal ? 0 : 240);
+      doc.setLineWidth(isThermal ? 0.2 : 0.4);
+      doc.line(marginL, hy, pageW - marginL, hy);
+      hy += 5;
 
-      // ── DOCUMENT TITLE FULL TEXT ───────────────────────────────────────────────
+      // ── DOCUMENT TITLE ────────────────────────────────────────────────────────
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      doc.setFontSize(isThermal ? 9 : 11);
       doc.setTextColor(tR,tG,tB);
-      doc.text(modeTitle, 15, hy);
-      hy += 8;
+      if (isThermal) {
+        doc.text(modeTitle, pageW / 2, hy, { align: 'center' });
+        hy += 5;
+        const dateStrT = new Date().toLocaleDateString('en-IN');
+        doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.setTextColor(71,85,105);
+        doc.text(`Date: ${dateStrT}`, pageW / 2, hy, { align: 'center' });
+        if (invoiceNo) { hy += 4; doc.setFont("helvetica","bold"); doc.setTextColor(tR,tG,tB); doc.text(`${modeShort}-${invoiceNo}`, pageW/2, hy, { align:'center' }); }
+        hy += 6;
+      } else {
+        doc.text(modeTitle, marginL, hy);
+        hy += 8;
+      }
 
       // ── CUSTOMER DETAILS ───────────────────────────────────────────────────────
       let custY = hy;
       if (customerName || customerPhone || customerGstin) {
-        doc.setFillColor(248, 250, 252);
-        const custBlockH = 6 + (customerPhone ? 5 : 0) + (customerGstin ? 5 : 0) + (customerAddress ? 5 : 0) + 4;
-        doc.rect(15, custY - 4, 120, custBlockH, 'F');
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8.5);
-        doc.setTextColor(100, 116, 139);
-        doc.text("BILL TO:", 18, custY);
+        if (!isThermal) {
+          doc.setFillColor(248, 250, 252);
+          const custBlockH = 6 + (customerPhone ? 5 : 0) + (customerGstin ? 5 : 0) + (customerAddress ? 5 : 0) + 4;
+          doc.rect(marginL, custY - 4, 120, custBlockH, 'F');
+        }
+        doc.setFont("helvetica", "bold"); doc.setFontSize(isThermal ? 7 : 8.5); doc.setTextColor(100, 116, 139);
+        doc.text(isThermal ? '--- BILL TO ---' : 'BILL TO:', isThermal ? pageW/2 : marginL+3, custY, isThermal ? {align:'center'} : {});
         custY += 5;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(15, 23, 42);
-        doc.text(customerName || 'Walk-in Customer', 18, custY);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(isThermal ? 8 : 10); doc.setTextColor(15, 23, 42);
+        doc.text(customerName || 'Walk-in', isThermal ? pageW/2 : marginL+3, custY, isThermal ? {align:'center'} : {});
         custY += 5;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.setTextColor(71, 85, 105);
-        if (customerPhone) { doc.text(`Phone: ${customerPhone}`, 18, custY); custY += 5; }
-        if (customerGstin) { doc.text(`GSTIN: ${customerGstin}  |  State: ${customerStateCode}`, 18, custY); custY += 5; }
-        if (customerAddress) { doc.text(`Address: ${customerAddress}`, 18, custY); custY += 5; }
+        doc.setFont("helvetica", "normal"); doc.setFontSize(isThermal ? 7 : 9); doc.setTextColor(71, 85, 105);
+        if (customerPhone) { doc.text(`Ph: ${customerPhone}`, isThermal ? pageW/2 : marginL+3, custY, isThermal ? {align:'center'} : {}); custY += 5; }
+        if (customerGstin) { doc.text(`GSTIN: ${customerGstin}`, isThermal ? pageW/2 : marginL+3, custY, isThermal ? {align:'center'} : {}); custY += 5; }
+        if (customerAddress) { doc.text(`Addr: ${customerAddress}`, isThermal ? pageW/2 : marginL+3, custY, isThermal ? {align:'center', maxWidth:contentW} : {}); custY += 5; }
+        custY += 3;
+        doc.setLineWidth(isThermal ? 0.2 : 0.3);
+        doc.setDrawColor(isThermal ? 0 : 200, isThermal ? 0 : 210, isThermal ? 0 : 220);
+        doc.line(marginL, custY, pageW - marginL, custY);
         custY += 4;
       }
 
@@ -758,32 +798,49 @@ const ShopDashboard = () => {
       }
       const showGstColumns = !!gstin && billingMode === 'bill';
       
+      // ── Column layout: A4 vs Thermal ────────────────────────────────────────
+      // For A4: item=18, qty=120, price=145, total=175
+      // For Thermal: item=marginL+1, qty=colQ, total=pageW-marginL-1 (right-align)
+      const colItem  = marginL + 1;
+      const colQty   = isThermal ? marginL + Math.round(contentW * 0.55) : (showGstColumns ? 85 : 120);
+      const colPrice = isThermal ? 0 : (showGstColumns ? 98 : 145);
+      const colTotal = isThermal ? (pageW - marginL - 1) : 175;
+      const colTotalAlign = isThermal ? 'right' : 'left';
+
       // Table Headers
-      doc.setFillColor(248, 250, 252);
-      doc.rect(15, custY, 180, 8, 'F');
+      if (!isThermal) {
+        doc.setFillColor(248, 250, 252);
+        doc.rect(marginL, custY, contentW, 8, 'F');
+      }
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
+      doc.setFontSize(isThermal ? 7 : 8);
       doc.setTextColor(71, 85, 105);
       
-      if (showGstColumns) {
-        doc.text("Item Details (HSN)", 18, custY + 5.5);
-        doc.text("Qty", 85, custY + 5.5);
-        doc.text("Taxable", 98, custY + 5.5);
+      if (isThermal) {
+        doc.text("Item", colItem, custY + 5);
+        doc.text("Qty", colQty, custY + 5);
+        doc.text("Amt", colTotal, custY + 5, { align: 'right' });
+      } else if (showGstColumns) {
+        doc.text("Item Details (HSN)", colItem, custY + 5.5);
+        doc.text("Qty", colQty, custY + 5.5);
+        doc.text("Taxable", colPrice, custY + 5.5);
         if (isInterState) {
           doc.text("IGST", 125, custY + 5.5);
         } else {
           doc.text("CGST", 120, custY + 5.5);
           doc.text("SGST", 145, custY + 5.5);
         }
-        doc.text("Total", 175, custY + 5.5);
+        doc.text("Total", colTotal, custY + 5.5);
       } else {
-        doc.text("Item Details", 18, custY + 5.5);
-        doc.text("Qty", 120, custY + 5.5);
-        doc.text("Unit Price", 145, custY + 5.5);
-        doc.text("Total", 175, custY + 5.5);
+        doc.text("Item Details", colItem, custY + 5.5);
+        doc.text("Qty", colQty, custY + 5.5);
+        doc.text("Unit Price", colPrice, custY + 5.5);
+        doc.text("Total", colTotal, custY + 5.5);
       }
       
-      doc.line(15, custY + 8, 195, custY + 8);
+      doc.setLineWidth(isThermal ? 0.2 : 0.3);
+      doc.setDrawColor(isThermal ? 0 : 200, isThermal ? 0 : 210, isThermal ? 0 : 220);
+      doc.line(marginL, custY + 8, pageW - marginL, custY + 8);
       
       let yOffset = custY + 13;
       doc.setFont("helvetica", "normal");
@@ -814,28 +871,27 @@ const ShopDashboard = () => {
           if (iDisc > 0) itemFullName += ` [-${iDisc}%]`;
           
           doc.setFont("helvetica", "normal");
-          doc.text(itemFullName, 18, yOffset);
-          doc.text(`${qtyText}`, 85, yOffset);
-          doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
+          doc.text(itemFullName, colItem, yOffset);
+          doc.text(`${qtyText}`, isThermal ? colQty : 85, yOffset);
+          if (!isThermal) doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
           
           if (isInterState) {
             totalIgst += taxAmt;
-            doc.text(`${taxAmt.toFixed(2)} (${rate}%)`, 125, yOffset);
+            if (!isThermal) doc.text(`${taxAmt.toFixed(2)} (${rate}%)`, 125, yOffset);
           } else {
             const halfTax = taxAmt / 2;
             const halfRate = rate / 2;
             totalCgst += halfTax;
             totalSgst += halfTax;
-            doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 120, yOffset);
-            doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 145, yOffset);
+            if (!isThermal) { doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 120, yOffset); doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 145, yOffset); }
           }
-          doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+          doc.text(`${discountedLineAmt.toFixed(2)}`, isThermal ? colTotal : 175, yOffset, isThermal ? {align:'right'} : {});
           yOffset += 7;
           // Show MRP strikethrough note if item has discount
           if (iDisc > 0) {
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            doc.text(`MRP: Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)}  →  Saved Rs.${iDiscAmt.toFixed(2)}`, 22, yOffset);
+            if (!isThermal) doc.text(`MRP: Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)}  →  Saved Rs.${iDiscAmt.toFixed(2)}`, colItem + 4, yOffset);
             doc.setFontSize(8);
             doc.setTextColor(51, 65, 85);
             yOffset += 5;
@@ -843,31 +899,36 @@ const ShopDashboard = () => {
         } else {
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
           doc.setFont("helvetica", "normal");
-          doc.text(itemFullName, 18, yOffset);
-          doc.text(`${qtyText}`, 120, yOffset);
-          // Show MRP price; if discounted show discounted price bold
-          if (iDisc > 0) {
+          doc.text(itemFullName, colItem, yOffset);
+          doc.text(`${qtyText}`, colQty, yOffset);
+          if (isThermal) {
+            // Thermal: just show total right-aligned, with discount flag if any
+            const dispAmt = iDisc > 0 ? `${discountedLineAmt.toFixed(0)}(-${iDisc}%)` : discountedLineAmt.toFixed(0);
+            doc.setFont("helvetica", iDisc > 0 ? "bold" : "normal");
+            doc.text(dispAmt, colTotal, yOffset, { align: 'right' });
+            doc.setFont("helvetica", "normal");
+          } else if (iDisc > 0) {
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
+            doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
             doc.setFontSize(8);
             doc.setTextColor(239, 68, 68);
-            doc.text(`-${iDisc}%`, 158, yOffset);
+            doc.text(`-${iDisc}%`, colPrice + 13, yOffset);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(22, 163, 74);
-            doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(51, 65, 85);
           } else {
-            doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
-            doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+            doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
+            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset);
           }
           yOffset += 7;
           // Show per-item saving note
           if (iDisc > 0) {
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            doc.text(`MRP Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)} | You save Rs.${iDiscAmt.toFixed(2)} (${iDisc}% off)`, 22, yOffset);
+            if (!isThermal) doc.text(`MRP Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)} | You save Rs.${iDiscAmt.toFixed(2)} (${iDisc}% off)`, colItem + 4, yOffset);
             doc.setFontSize(8);
             doc.setTextColor(51, 65, 85);
             yOffset += 5;
@@ -876,7 +937,7 @@ const ShopDashboard = () => {
         yOffset += 1;
       });
       
-      doc.line(15, yOffset - 2, 195, yOffset - 2);
+      doc.line(marginL, yOffset - 2, pageW - marginL, yOffset - 2);
       yOffset += 4;
       
       // Totals section
@@ -885,15 +946,15 @@ const ShopDashboard = () => {
       doc.setTextColor(71, 85, 105);
 
       if (showGstColumns) {
-         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, 130, yOffset);
+         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
          yOffset += 5;
          if (isInterState) {
-           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, 130, yOffset);
+           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
            yOffset += 5;
          } else {
-           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, 130, yOffset);
+           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
            yOffset += 5;
-           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, 130, yOffset);
+           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
            yOffset += 5;
          }
       }
@@ -902,13 +963,13 @@ const ShopDashboard = () => {
       if (itemLevelSavings > 0) {
         doc.setFontSize(9);
         doc.setTextColor(71, 85, 105);
-        doc.text(`Subtotal (MRP): Rs. ${billItemsOriginalTotal.toFixed(2)}`, 130, yOffset);
+        doc.text(`Subtotal (MRP): Rs. ${billItemsOriginalTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
         yOffset += 5;
         doc.setTextColor(22, 163, 74);
-        doc.text(`Item Discounts: -Rs. ${itemLevelSavings.toFixed(2)}`, 130, yOffset);
+        doc.text(`Item Discounts: -Rs. ${itemLevelSavings.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
         yOffset += 5;
         doc.setTextColor(71, 85, 105);
-        doc.text(`Subtotal (After item disc.): Rs. ${billTotal.toFixed(2)}`, 130, yOffset);
+        doc.text(`Subtotal (After item disc.): Rs. ${billTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
         yOffset += 5;
       }
 
@@ -916,18 +977,18 @@ const ShopDashboard = () => {
         if (itemLevelSavings === 0) {
           doc.setFontSize(9);
           doc.setTextColor(71, 85, 105);
-          doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, 130, yOffset);
+          doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
           yOffset += 5;
         }
         doc.setTextColor(22, 163, 74);
-        doc.text(`Bill Discount: -Rs. ${(discountAmount + manualDiscountAmt).toFixed(2)}`, 130, yOffset);
+        doc.text(`Bill Discount: -Rs. ${(discountAmount + manualDiscountAmt).toFixed(2)}`, isThermal ? marginL : 130, yOffset);
         yOffset += 5;
         doc.setTextColor(71, 85, 105);
       }
       
       if (loyaltyDiscountRupees > 0) {
         doc.setTextColor(139, 92, 246);
-        doc.text(`Loyalty Points Redeemed: -Rs. ${loyaltyDiscountRupees.toFixed(2)}`, 130, yOffset);
+        doc.text(`Loyalty Points Redeemed: -Rs. ${loyaltyDiscountRupees.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
         yOffset += 5;
         doc.setTextColor(71, 85, 105);
       }
@@ -936,7 +997,7 @@ const ShopDashboard = () => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.setTextColor(15, 23, 42);
-      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, 130, yOffset);
+      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
       yOffset += 9;
 
       // Payment method badge
@@ -946,15 +1007,15 @@ const ShopDashboard = () => {
         const pm = paymentMethod || 'Cash';
         const [pmR,pmG,pmB] = pmColors[pm] || pmColors['Cash'];
         doc.setFillColor(pmR,pmG,pmB);
-        doc.roundedRect(130, yOffset, 32, 8, 2, 2, 'F');
+        doc.roundedRect(isThermal ? marginL : 130, yOffset, isThermal ? contentW : 32, 8, 2, 2, 'F');
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setTextColor(255,255,255);
-        doc.text(`${pm === 'Cash' ? 'CASH' : pm === 'UPI' ? 'UPI' : pm === 'Card' ? 'CARD' : 'CREDIT'} PAID`, 146, yOffset + 5.2, { align: 'center' });
+        doc.text(`${pm === 'Cash' ? 'CASH' : pm === 'UPI' ? 'UPI' : pm === 'Card' ? 'CARD' : 'CREDIT'} PAID`, isThermal ? (pageW/2) : 146, yOffset + 5.2, { align: 'center' });
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(71,85,105);
-        doc.text('Payment Mode', 167, yOffset + 5.2);
+        if (!isThermal) doc.text('Payment Mode', 167, yOffset + 5.2);
         yOffset += 12;
       }
 
@@ -966,11 +1027,11 @@ const ShopDashboard = () => {
         const tcB = parseInt(themeColor.substring(5,7),16);
         doc.setFillColor(tcR, tcG, tcB);
         doc.setDrawColor(tcR, tcG, tcB);
-        doc.roundedRect(130, yOffset, 65, 10, 2, 2, 'FD');
+        doc.roundedRect(isThermal ? marginL : 130, yOffset, isThermal ? contentW : 65, 10, 2, 2, 'FD');
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
         doc.setTextColor(255, 255, 255);
-        doc.text(`🎉 YOU SAVED Rs. ${totalSaved.toFixed(2)} on this ${billingMode === 'estimate' ? 'estimate' : 'bill'}!`, 163, yOffset + 6.5, { align: 'center' });
+        doc.text(`YOU SAVED Rs. ${totalSaved.toFixed(2)}!`, isThermal ? pageW/2 : 163, yOffset + 6.5, { align: 'center' });
         doc.setTextColor(15, 23, 42);
         yOffset += 14;
       } else {
@@ -984,12 +1045,12 @@ const ShopDashboard = () => {
       
       if (billingMode === 'estimate') {
         doc.setTextColor(217, 119, 6);
-        doc.text("* Note: This is a proforma estimate/quotation and not a tax invoice. Valid for 30 days.", 15, yOffset);
+        doc.text("* Proforma estimate only. Valid 30 days.", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth:contentW} : {});
       } else if (billingMode === 'challan') {
         doc.setTextColor(37, 99, 235);
-        doc.text("* Note: Goods received in good condition. Not for sale. Value listed is for transit declaration.", 15, yOffset);
+        doc.text("* Delivery Challan. Not for sale.", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth:contentW} : {});
       } else {
-        doc.text(invoiceFooter || "Thank you for your business! Visit again.", 15, yOffset);
+        doc.text(invoiceFooter || "Thank you for your business! Visit again.", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth: contentW} : {});
       }
 
       if (loyaltyResult && billingMode === 'bill') {
@@ -1003,11 +1064,11 @@ const ShopDashboard = () => {
       doc.setTextColor(148, 163, 184);
       doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
-    doc.text("Generated via MyStore OS — mystoreos.in | Paperless Retail Revolution", 15, yOffset);
+    doc.text("Powered by MyStore OS — mystoreos.in", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center'} : {});
     yOffset += 4;
     doc.setFontSize(7);
     doc.setTextColor(200, 210, 220);
-    doc.text("Powered by MyStore OS © " + new Date().getFullYear(), 15, yOffset);
+    if (!isThermal) doc.text("MyStore OS © " + new Date().getFullYear(), marginL, yOffset);
 
       // Watermark on trial bills
       const isTrialBill = !user.subscriptionTier || user.subscriptionTier === 'trial' || user.subscription === 'trial' || user.subscription === 'expired';
@@ -1030,6 +1091,34 @@ const ShopDashboard = () => {
       const pdfFileName = invoiceNo
         ? `${safeName}_${modeShort}-${invoiceNo}.pdf`
         : `${safeName}_${billingMode === 'estimate' ? 'Estimate' : billingMode === 'challan' ? 'Challan' : 'Invoice'}.pdf`;
+
+      // If copies > 1, duplicate the page
+      if (printCopies > 1) {
+        const singlePageData = doc.output('arraybuffer');
+        for (let c = 1; c < printCopies; c++) {
+          doc.addPage(isThermal ? [pageW, pageH] : 'a4');
+          // Re-add content via a new doc and copy pages isn't natively supported in jsPDF
+          // So we mark the copy with a "COPY" watermark on extra pages
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(isThermal ? 9 : 14);
+          doc.setTextColor(tR, tG, tB);
+          doc.text(`COPY ${c} — ${safeName}`, isThermal ? pageW/2 : 105, isThermal ? 10 : 20, { align: 'center' });
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(isThermal ? 7 : 9);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`${modeTitle}  |  Total: Rs. ${total.toFixed(2)}  |  ${new Date().toLocaleDateString('en-IN')}`, isThermal ? pageW/2 : 105, isThermal ? 17 : 30, { align: 'center' });
+          if (invoiceNo) {
+            doc.setFont("helvetica", "bold"); doc.setFontSize(isThermal ? 8 : 11); doc.setTextColor(tR,tG,tB);
+            doc.text(`${modeShort}-${invoiceNo}`, isThermal ? pageW/2 : 105, isThermal ? 24 : 40, { align: 'center' });
+          }
+          // Diagonal COPY stamp
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(isThermal ? 20 : 40);
+          doc.setTextColor(tR, tG, tB);
+          doc.text('COPY', isThermal ? pageW/2 : 105, isThermal ? pageH/2 : 148, { align: 'center', angle: 315 });
+        }
+      }
+
       const pdfBlob = doc.output("blob");
       const pdfFile = new File([pdfBlob], pdfFileName, { type: "application/pdf" });
 
@@ -1789,6 +1878,15 @@ const ShopDashboard = () => {
     }
   };
 
+  const handleSavePrintSettings = async () => {
+    try {
+      await safe(() => api.saveSiteConfig('printSettings_' + targetShopId, {
+        format: printFormat, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies
+      }));
+      toast.success('Print settings saved!');
+    } catch { toast.error('Failed to save print settings'); }
+  };
+
   const handleSaveInvoiceSettings = async () => {
     try {
       await safe(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter));
@@ -2375,6 +2473,15 @@ const ShopDashboard = () => {
               invoicePrefix={invoicePrefix}
               setInvoicePrefix={setInvoicePrefix}
               handleSaveInvoiceSettings={handleSaveInvoiceSettings}
+              printFormat={printFormat}
+              setPrintFormat={setPrintFormat}
+              printFontSize={printFontSize}
+              setPrintFontSize={setPrintFontSize}
+              printShowLogo={printShowLogo}
+              setPrintShowLogo={setPrintShowLogo}
+              printCopies={printCopies}
+              setPrintCopies={setPrintCopies}
+              handleSavePrintSettings={handleSavePrintSettings}
               hideFromSearch={hideFromSearch}
               onToggleHideFromSearch={handleToggleHideFromSearch}
               openingHour={openingHour}
@@ -4464,6 +4571,81 @@ const ShopDashboard = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* PRINT SETTINGS CARD */}
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>🖨️ Print Settings</h3>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>Set your printer type once — all PDFs will use the right size automatically.</p>
+
+              {/* Paper type */}
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>PAPER / PRINTER TYPE</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '14px' }}>
+                {[
+                  { key: 'a4',        icon: '📄', label: 'A4',        sub: '210mm' },
+                  { key: 'thermal80', icon: '🖨️', label: '80mm',      sub: 'POS roll' },
+                  { key: 'thermal58', icon: '🧾', label: '58mm',      sub: 'Mini roll' },
+                ].map(o => (
+                  <button key={o.key} onClick={() => setPrintFormat(o.key)}
+                    style={{ padding: '10px 4px', border: printFormat === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printFormat === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '10px', cursor: 'pointer', textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', marginBottom: '4px' }}>{o.icon}</div>
+                    <div style={{ fontSize: '11px', fontWeight: '800', color: printFormat === o.key ? '#818CF8' : '#fff' }}>{o.label}</div>
+                    <div style={{ fontSize: '9px', color: '#64748B', marginTop: '2px' }}>{o.sub}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Font size */}
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>FONT SIZE</label>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                {[{ key: 'normal', label: 'Normal' }, { key: 'large', label: 'Large' }].map(o => (
+                  <button key={o.key} onClick={() => setPrintFontSize(o.key)}
+                    style={{ flex: 1, padding: '10px', border: printFontSize === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printFontSize === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', color: printFontSize === o.key ? '#818CF8' : '#fff' }}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Logo + Copies */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>LOGO ON BILL</label>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {[{ key: true, label: 'Show' }, { key: false, label: 'Hide' }].map(o => (
+                      <button key={String(o.key)} onClick={() => setPrintShowLogo(o.key)}
+                        style={{ flex: 1, padding: '8px 4px', border: printShowLogo === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printShowLogo === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '700', color: printShowLogo === o.key ? '#818CF8' : '#94A3B8' }}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>COPIES</label>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {[1, 2, 3].map(n => (
+                      <button key={n} onClick={() => setPrintCopies(n)}
+                        style={{ flex: 1, padding: '8px 4px', border: printCopies === n ? '2px solid #4F46E5' : '1px solid #334155', background: printCopies === n ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '800', color: printCopies === n ? '#818CF8' : '#94A3B8' }}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: '#818CF8', fontWeight: '600' }}>
+                  {printFormat === 'a4' ? '📄 A4' : printFormat === 'thermal80' ? '🖨️ 80mm Thermal' : '🧾 58mm Thermal'}
+                  {' · '}{printFontSize === 'large' ? 'Large' : 'Normal'} font
+                  {' · '}{printShowLogo ? 'With logo' : 'No logo'}
+                  {' · '}{printCopies} cop{printCopies === 1 ? 'y' : 'ies'}
+                </p>
+              </div>
+
+              <button onClick={handleSavePrintSettings}
+                style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                🖨️ Save Print Settings
+              </button>
             </div>
 
             {/* STAFF MANAGEMENT CARD inside Settings */}

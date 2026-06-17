@@ -54,6 +54,16 @@ const DesktopSettings = ({
   invoicePrefix = 'INV',
   setInvoicePrefix,
   handleSaveInvoiceSettings,
+  // Print settings
+  printFormat = 'a4',
+  setPrintFormat,
+  printFontSize = 'normal',
+  setPrintFontSize,
+  printShowLogo = true,
+  setPrintShowLogo,
+  printCopies = 1,
+  setPrintCopies,
+  handleSavePrintSettings,
   hideFromSearch: _hideFromSearch = false,
   onToggleHideFromSearch: _onToggleHideFromSearch,
   onLogoChange,
@@ -294,6 +304,94 @@ const DesktopSettings = ({
               💾 Save Invoice Settings
             </button>
           </div>
+        </div>
+
+        {/* Print Settings */}
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Printer size={18} color="#64748B" /> Print Settings
+          </h3>
+          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '18px', lineHeight: '1.5' }}>
+            Set your printer type once — every bill, estimate, and challan PDF will automatically use the right paper size, layout, and font size.
+          </p>
+
+          {/* Paper Size */}
+          <div style={{ marginBottom: '18px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Paper / Printer Type</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+              {[
+                { key: 'a4',        icon: '📄', label: 'A4 Sheet',       sub: '210 × 297 mm\nLaser / Inkjet' },
+                { key: 'thermal80', icon: '🖨️', label: '80mm Thermal',   sub: '80mm wide roll\nMost POS printers' },
+                { key: 'thermal58', icon: '🧾', label: '58mm Thermal',   sub: '58mm wide roll\nSmall receipt printer' },
+              ].map(o => (
+                <button key={o.key} onClick={() => setPrintFormat && setPrintFormat(o.key)}
+                  style={{ padding: '14px 10px', border: printFormat === o.key ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: printFormat === o.key ? '#EEF2FF' : '#F8FAFC', borderRadius: '12px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '6px' }}>{o.icon}</div>
+                  <div style={{ fontSize: '12px', fontWeight: '800', color: printFormat === o.key ? '#4F46E5' : '#0F172A', marginBottom: '3px' }}>{o.label}</div>
+                  <div style={{ fontSize: '10px', color: '#64748B', whiteSpace: 'pre-line', lineHeight: '1.4' }}>{o.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Font Size */}
+          <div style={{ marginBottom: '18px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Font Size</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {[{ key: 'normal', label: 'Normal', sub: 'Standard' }, { key: 'large', label: 'Large', sub: 'Easier to read' }].map(o => (
+                <button key={o.key} onClick={() => setPrintFontSize && setPrintFontSize(o.key)}
+                  style={{ flex: 1, padding: '10px', border: printFontSize === o.key ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: printFontSize === o.key ? '#EEF2FF' : '#F8FAFC', borderRadius: '10px', cursor: 'pointer', textAlign: 'center' }}>
+                  <div style={{ fontSize: printFontSize === o.key ? '13px' : '12px', fontWeight: '700', color: printFontSize === o.key ? '#4F46E5' : '#0F172A' }}>{o.label}</div>
+                  <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>{o.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Logo + Copies */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '18px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Shop Logo on Bill</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[{ key: true, label: '✅ Show' }, { key: false, label: '🚫 Hide' }].map(o => (
+                  <button key={String(o.key)} onClick={() => setPrintShowLogo && setPrintShowLogo(o.key)}
+                    style={{ flex: 1, padding: '9px', border: printShowLogo === o.key ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: printShowLogo === o.key ? '#EEF2FF' : '#F8FAFC', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', color: printShowLogo === o.key ? '#4F46E5' : '#475569' }}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Copies per Bill</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[1, 2, 3].map(n => (
+                  <button key={n} onClick={() => setPrintCopies && setPrintCopies(n)}
+                    style={{ flex: 1, padding: '9px', border: printCopies === n ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: printCopies === n ? '#EEF2FF' : '#F8FAFC', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '800', color: printCopies === n ? '#4F46E5' : '#475569' }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Preview summary */}
+          <div style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '22px' }}>{ printFormat === 'a4' ? '📄' : '🧾' }</span>
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#0F172A' }}>
+                { printFormat === 'a4' ? 'A4 full-page invoice' : printFormat === 'thermal80' ? '80mm thermal receipt' : '58mm thermal receipt' }
+                {' · '}{printFontSize === 'large' ? 'Large font' : 'Normal font'}
+                {' · '}{printShowLogo ? 'With logo' : 'No logo'}
+                {' · '}{printCopies} cop{printCopies === 1 ? 'y' : 'ies'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>This setting applies to all bills, estimates, and challans</div>
+            </div>
+          </div>
+
+          <button onClick={handleSavePrintSettings}
+            style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <Printer size={14} /> Save Print Settings
+          </button>
         </div>
 
         {/* SaaS Subscription Info Card */}
