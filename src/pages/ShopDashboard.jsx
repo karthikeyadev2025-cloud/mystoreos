@@ -3957,18 +3957,40 @@ const ShopDashboard = () => {
 
             {/* Shop Photos Section */}
             <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>📸 Shop Photos (Max 6)</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Upload photos of your shop, products, and services. These will show on your public shop profile.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  📸 Shop Photos <span style={{ fontSize: '13px', color: '#64748B' }}>{shopPhotos.length}/6</span>
+                </h3>
+                <a href={getShopUrl()} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '11px', color: '#818CF8', fontWeight: '700', textDecoration: 'none', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', padding: '4px 10px', borderRadius: '8px' }}>
+                  👁 View Storefront
+                </a>
+              </div>
+              <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: '#818CF8', lineHeight: '1.5' }}>
+                  📸 These photos show as a <strong>scrolling carousel</strong> on your public store page. Customers see them when they open your shop link. First photo is the cover.
+                </p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '14px' }}>
                 {shopPhotos.map((photo, idx) => (
-                  <div key={idx} style={{ position: 'relative' }}>
-                    <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #334155' }} />
-                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
+                  <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+                    <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', display: 'block' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', padding: '2px 6px' }}>
+                      <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '700' }}>{idx === 0 ? '🌟 Cover' : `#${idx+1}`}</span>
+                    </div>
+                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
                   </div>
                 ))}
+                {shopPhotos.length < 6 && (
+                  <label style={{ height: '80px', border: '2px dashed #334155', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: '4px' }}>
+                    <span style={{ fontSize: '20px' }}>➕</span>
+                    <span style={{ fontSize: '10px', color: '#64748B', fontWeight: '600' }}>Add</span>
+                    <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'none' }} />
+                  </label>
+                )}
               </div>
-              {shopPhotos.length < 6 && (
-                <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'block', fontSize: '12px', color: '#94A3B8' }} />
+              {shopPhotos.length === 0 && (
+                <p style={{ fontSize: '12px', color: '#64748B', textAlign: 'center', margin: 0 }}>No photos yet — add up to 6 photos</p>
               )}
             </div>
 

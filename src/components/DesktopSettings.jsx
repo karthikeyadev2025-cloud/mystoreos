@@ -586,19 +586,64 @@ const DesktopSettings = ({
 
         {/* Gallery Images */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}><Image size={18} color="#64748B" /> Shop Photos (Max 6)</h3>
-          <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Upload photos of your storefront or inventory products.</p>
-          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Image size={18} color="#64748B" /> Shop Photos
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{shopPhotos.length}/6</span>
+            </h3>
+            <a href={getShopUrl()} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: '12px', color: '#4F46E5', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', background: '#EEF2FF', border: '1px solid #C7D2FE', padding: '4px 10px', borderRadius: '8px' }}>
+              👁 Preview on Storefront →
+            </a>
+          </div>
+
+          {/* How they're used info */}
+          <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            <span style={{ fontSize: '20px', flexShrink: 0 }}>📸</span>
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#4F46E5', marginBottom: '2px' }}>These photos appear on your public storefront</div>
+              <div style={{ fontSize: '11px', color: '#6366F1', lineHeight: '1.5' }}>
+                Customers see an auto-scrolling carousel of your photos when they open your shop link. Upload your shop front, products, or interiors to make a great first impression.
+              </div>
+            </div>
+          </div>
+
+          {/* Photo grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
             {shopPhotos.map((photo, idx) => (
-              <div key={idx} style={{ position: 'relative' }}>
-                <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '70px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
-                <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', cursor: 'pointer', lineHeight: '18px', padding: 0 }}>×</button>
+              <div key={idx} style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+                <img src={photo} alt={`Shop ${idx+1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', display: 'block' }} />
+                {/* Overlay with index */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.45)', padding: '3px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
+                    {idx === 0 ? '🌟 Cover' : `Photo ${idx + 1}`}
+                  </span>
+                </div>
+                <button onClick={() => removeShopPhoto(idx)} title="Remove photo"
+                  style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>×</button>
               </div>
             ))}
+
+            {/* Upload slot */}
+            {shopPhotos.length < 6 && (
+              <label style={{ height: '80px', border: '2px dashed #C7D2FE', borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#F8FAFF', transition: 'border-color .2s', gap: '4px' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#4F46E5'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#C7D2FE'}>
+                <span style={{ fontSize: '22px' }}>➕</span>
+                <span style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600' }}>Add Photo</span>
+                <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'none' }} />
+              </label>
+            )}
           </div>
-          {shopPhotos.length < 6 && (
-            <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ fontSize: '11px', color: '#6B7280' }} />
+
+          {shopPhotos.length === 0 && (
+            <p style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center', margin: '0 0 8px' }}>No photos yet — add up to 6 photos to showcase your shop</p>
+          )}
+
+          {shopPhotos.length > 0 && (
+            <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
+              💡 First photo is the cover image shown in search results. Drag to reorder is coming soon.
+            </p>
           )}
         </div>
 

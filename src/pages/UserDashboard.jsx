@@ -21,6 +21,119 @@ import './UserDashboard.css'; // Premium CSS file containing animations, keyfram
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 
 
+
+// ── Shop Photo Gallery Component ──────────────────────────────────────────────
+function ShopPhotoGallery({ photos, shopName }) {
+  const [active, setActive]     = useState(0);
+  const [lightbox, setLightbox] = useState(null); // index when open
+  const timerRef = useRef(null);
+
+  // Auto-advance every 3s
+  useEffect(() => {
+    if (photos.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setActive(a => (a + 1) % photos.length);
+    }, 3000);
+    return () => clearInterval(timerRef.current);
+  }, [photos.length]);
+
+  const goTo = (idx) => {
+    clearInterval(timerRef.current);
+    setActive(idx);
+    // restart auto-play after manual tap
+    timerRef.current = setInterval(() => {
+      setActive(a => (a + 1) % photos.length);
+    }, 3000);
+  };
+
+  return (
+    <>
+      <div style={{ position: 'relative', overflow: 'hidden', background: '#0F172A' }}>
+        {/* Main carousel strip */}
+        <div style={{ display: 'flex', transition: 'transform 0.45s cubic-bezier(.4,0,.2,1)', transform: `translateX(-${active * 100}%)` }}>
+          {photos.map((src, i) => (
+            <div key={i} style={{ minWidth: '100%', position: 'relative' }} onClick={() => setLightbox(i)}>
+              <img
+                src={src}
+                alt={`${shopName} photo ${i + 1}`}
+                style={{ width: '100%', height: '220px', objectFit: 'cover', display: 'block', cursor: 'zoom-in' }}
+              />
+              {/* Gradient overlay bottom */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(transparent, rgba(0,0,0,0.55))', pointerEvents: 'none' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Dot indicators */}
+        {photos.length > 1 && (
+          <div style={{ position: 'absolute', bottom: 10, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '6px', zIndex: 5 }}>
+            {photos.map((_, i) => (
+              <button key={i} onClick={() => goTo(i)} style={{ width: i === active ? 20 : 7, height: 7, borderRadius: 4, background: i === active ? '#fff' : 'rgba(255,255,255,0.4)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all 0.3s ease' }} />
+            ))}
+          </div>
+        )}
+
+        {/* Arrow buttons */}
+        {photos.length > 1 && (
+          <>
+            <button onClick={() => goTo((active - 1 + photos.length) % photos.length)}
+              style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', width: 32, height: 32, borderRadius: '50%', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5, backdropFilter: 'blur(4px)' }}>‹</button>
+            <button onClick={() => goTo((active + 1) % photos.length)}
+              style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', width: 32, height: 32, borderRadius: '50%', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5, backdropFilter: 'blur(4px)' }}>›</button>
+          </>
+        )}
+
+        {/* Photo count badge */}
+        <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, zIndex: 5, backdropFilter: 'blur(4px)' }}>
+          {active + 1} / {photos.length}
+        </div>
+
+        {/* Tap to view hint on first photo */}
+        {active === 0 && photos.length > 1 && (
+          <div style={{ position: 'absolute', bottom: 22, right: 14, fontSize: 10, color: 'rgba(255,255,255,0.6)', zIndex: 5, pointerEvents: 'none' }}>
+            Tap to view full
+          </div>
+        )}
+      </div>
+
+      {/* Thumbnail strip below carousel */}
+      {photos.length > 1 && (
+        <div style={{ display: 'flex', gap: 4, padding: '6px 12px', background: '#0F172A', overflowX: 'auto' }}>
+          {photos.map((src, i) => (
+            <button key={i} onClick={() => goTo(i)} style={{ flexShrink: 0, padding: 0, border: `2px solid ${i === active ? '#4F46E5' : 'transparent'}`, borderRadius: 6, overflow: 'hidden', cursor: 'pointer', background: 'none', transition: 'border-color .2s', width: 52, height: 40 }}>
+              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: i === active ? 1 : 0.55, transition: 'opacity .2s' }} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Full-screen lightbox */}
+      {lightbox !== null && (
+        <div
+          onClick={() => setLightbox(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 16 }}
+        >
+          <img src={photos[lightbox]} alt="" style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 24px 64px rgba(0,0,0,0.8)' }} onClick={e => e.stopPropagation()} />
+
+          {/* Lightbox nav */}
+          {photos.length > 1 && (
+            <div style={{ display: 'flex', gap: 12, marginTop: 18, alignItems: 'center' }}>
+              <button onClick={e => { e.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length); }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 40, height: 40, borderRadius: '50%', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>{lightbox + 1} / {photos.length}</span>
+              <button onClick={e => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 40, height: 40, borderRadius: '50%', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+            </div>
+          )}
+
+          <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+      )}
+    </>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 const classifyCategory = (name = "") => {
   const n = name.toLowerCase();
   if (n.includes("rice")) return "rice";
@@ -1992,6 +2105,13 @@ const UserDashboard = () => {
             </div>
 
           </div>
+
+          {/* ── SHOP PHOTO GALLERY ── */}
+          {shopInfo?.shopPhotos && shopInfo.shopPhotos.length > 0 && (() => {
+            return (
+              <ShopPhotoGallery photos={shopInfo.shopPhotos} shopName={shopInfo.name} />
+            );
+          })()}
 
           {/* Catalog Search & Category Filters */}
           <div style={{ padding: '16px', background: 'rgba(11, 15, 25, 0.85)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #E2E8F0' }}>
