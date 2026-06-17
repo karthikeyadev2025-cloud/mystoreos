@@ -25,49 +25,29 @@ function isValidFor(format, value) {
   return true;
 }
 
-// Build the print-window HTML for one product label
-function buildLabelHtml(p, discPct, shopName) {
-  const svg     = document.getElementById(`bc-svg-${p.id}`)?.outerHTML || '';
-  const mrp     = Number(p.price) || 0;
-  const pct     = Number(discPct) || 0;
-  const saleAmt = pct > 0 ? Math.round(mrp * (1 - pct / 100)) : null;
-
-  const priceBlock = saleAmt != null
-    ? `<div class="mrp-row">
-         <span class="mrp-label">MRP</span>
-         <span class="mrp-strike">&#x20B9;${mrp}</span>
-         <span class="disc-badge">${pct}% OFF</span>
-       </div>
-       <div class="sale-price">&#x20B9;${saleAmt}</div>`
-    : `<div class="price">&#x20B9;${mrp}</div>`;
-
-  return `
-    <div class="label">
-      <div class="shop">${(shopName || '').replace(/</g,'&lt;')}</div>
-      <div class="pname">${(p.name || '').replace(/</g,'&lt;')}</div>
-      <div class="bc">${svg}</div>
-      ${priceBlock}
-    </div>`;
-}
-
 export default function BarcodeManager({ products, shopName, onClose, onAssignBarcode, onScanToAdd }) {
   const [tab,              setTab]              = useState('manage');
   const [search,           setSearch]           = useState('');
   const [selected,         setSelected]         = useState({});
   const [labelFormat,      setLabelFormat]      = useState('a4');
   const [perProductFormat, setPerProductFormat] = useState({});
-  const [discounts,        setDiscounts]        = useState({}); // productId -> discount %
+  const [discounts,        setDiscounts]        = useState({}); // productId -> % string
   const [scanResult,       setScanResult]       = useState(null);
-  const printRef = useRef(null);
+  const printContainerRef = useRef(null); // hidden barcode DOM for SVG capture
 
-  const fmtFor     = useCallback((p) => perProductFormat[p.id] || p.barcodeFormat || 'CODE128', [perProductFormat]);
-  const discFor    = useCallback((p) => discounts[p.id] ?? (p.discountPct || ''), [discounts]);
+  const fmtFor  = useCallback((p) => perProductFormat[p.id] || p.barcodeFormat || 'CODE128', [perProductFormat]);
+  // discFor: prefer local override, fallback to saved product.discountPct
+  const discFor = useCallback((p) => {
+    const local = discounts[p.id];
+    if (local !== undefined && local !== '') return Number(local);
+    return Number(p.discountPct) || 0;
+  }, [discounts]);
 
-  const filtered          = (products || []).filter(p =>
+  const filtered         = (products || []).filter(p =>
     !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode || '').includes(search)
   );
-  const selectedProducts  = (products || []).filter(p => selected[p.id]);
-  const noBarcodeCount    = (products || []).filter(p => !p.barcode).length;
+  const selectedProducts = (products || []).filter(p => selected[p.id]);
+  const noBarcodeCount   = (products || []).filter(p => !p.barcode).length;
 
   // ─── Camera scanner ───
   useEffect(() => {
@@ -106,13 +86,42 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
     } catch (_e) { toast.error('Could not save barcode'); }
   };
 
+  // Grab SVG from the hidden print container (always rendered, always in DOM)
+  const getSvgForProduct = (p) => {
+    if (!printContainerRef.current) return '';
+    const el = printContainerRef.current.querySelector(`#pbc-${p.id}`);
+    return el?.querySelector('svg')?.outerHTML || '';
+  };
+
   const handlePrint = () => {
     const items = selectedProducts.filter(p => p.barcode);
     if (!items.length) { toast.error('Select products with a barcode first'); return; }
     const win = window.open('', '_blank', 'width=900,height=700');
     if (!win) { toast.error('Allow pop-ups to print'); return; }
 
-    const labelHtml = items.map(p => buildLabelHtml(p, discFor(p), shopName)).join('');
+    const labelHtml = items.map(p => {
+      const svg    = getSvgForProduct(p);
+      const mrp    = Number(p.price) || 0;
+      const pct    = discFor(p);
+      const sale   = pct > 0 ? Math.round(mrp * (1 - pct / 100)) : null;
+
+      const priceBlock = sale != null
+        ? `<div class="mrp-row">
+             <span class="mrp-label">MRP</span>
+             <span class="mrp-strike">&#x20B9;${mrp}</span>
+             <span class="disc-badge">${pct}% OFF</span>
+           </div>
+           <div class="sale-price">&#x20B9;${sale}</div>`
+        : `<div class="price">&#x20B9;${mrp}</div>`;
+
+      return `
+        <div class="label">
+          <div class="shop">${(shopName || '').replace(/</g,'&lt;')}</div>
+          <div class="pname">${(p.name || '').replace(/</g,'&lt;')}</div>
+          <div class="bc">${svg}</div>
+          ${priceBlock}
+        </div>`;
+    }).join('');
 
     const a4Css = `
       @page { size: A4; margin: 8mm; }
@@ -154,6 +163,15 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', maxWidth: '900px', maxHeight: '92vh', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
+        {/* Hidden barcode container — always in DOM so getSvgForProduct() can find SVGs */}
+        <div ref={printContainerRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden' }}>
+          {(products || []).filter(p => p.barcode).map(p => (
+            <div key={p.id} id={`pbc-${p.id}`}>
+              <Barcode value={p.barcode} format={fmtFor(p)} height={34} width={1.3} fontSize={11} margin={2} renderer="svg" />
+            </div>
+          ))}
+        </div>
+
         {/* Header */}
         <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg,#4F46E5,#7C3AED)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
@@ -180,7 +198,7 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
         </div>
 
         {/* Body */}
-        <div ref={printRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 22px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '18px 22px' }}>
 
           {/* ─── MANAGE & GENERATE ─── */}
           {tab === 'manage' && (
@@ -203,11 +221,12 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {filtered.map(p => {
-                  const fmt      = fmtFor(p);
-                  const valid    = isValidFor(fmt, p.barcode);
-                  const discPct  = discFor(p);
-                  const mrp      = Number(p.price) || 0;
-                  const saleAmt  = discPct > 0 ? Math.round(mrp * (1 - discPct / 100)) : null;
+                  const fmt     = fmtFor(p);
+                  const valid   = isValidFor(fmt, p.barcode);
+                  const discPct = discFor(p);
+                  const mrp     = Number(p.price) || 0;
+                  const saleAmt = discPct > 0 ? Math.round(mrp * (1 - discPct / 100)) : null;
+                  const localOverride = discounts[p.id] !== undefined ? discounts[p.id] : '';
 
                   return (
                     <div key={p.id} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px', background: selected[p.id] ? '#EEF2FF' : '#fff' }}>
@@ -219,36 +238,37 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
                           <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
                             MRP ₹{mrp}
                             {saleAmt != null && (
-                              <> &rarr; <span style={{ color: '#16A34A', fontWeight: 700 }}>₹{saleAmt}</span> <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>{discPct}% OFF</span></>
+                              <> &rarr; <span style={{ color: '#16A34A', fontWeight: 700 }}>₹{saleAmt}</span>{' '}
+                                <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>{discPct}% OFF</span>
+                              </>
                             )}
                             {' · '}
                             {p.barcode ? <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> : <span style={{ color: '#DC2626' }}>no barcode</span>}
                           </div>
                         </div>
 
-                        {/* Discount % input */}
+                        {/* Discount % input — shows saved value, allow override */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '4px 8px', minWidth: '110px' }}>
                           <Percent size={12} color="#64748B" />
                           <input
-                            type="number"
-                            min="0" max="99"
-                            placeholder="0"
-                            value={discPct}
+                            type="number" min="0" max="99"
+                            placeholder={p.discountPct > 0 ? String(p.discountPct) : '0'}
+                            value={localOverride}
                             onChange={e => setDiscounts(d => ({ ...d, [p.id]: e.target.value }))}
                             style={{ width: '50px', border: 'none', background: 'transparent', fontSize: '13px', fontWeight: 700, color: '#0F172A', outline: 'none' }}
                           />
                           <span style={{ fontSize: '11px', color: '#64748B' }}>% off</span>
                         </div>
 
-                        {/* Symbology picker */}
+                        {/* Symbology */}
                         <select value={fmt} onChange={e => setPerProductFormat(m => ({ ...m, [p.id]: e.target.value }))} style={{ padding: '6px 8px', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '11px', maxWidth: '130px' }}>
                           {FORMATS.map(f => <option key={f.value} value={f.value}>{f.value}</option>)}
                         </select>
 
-                        {/* Barcode or Generate button */}
+                        {/* Barcode preview or generate */}
                         {p.barcode && valid ? (
-                          <div id={`bc-svg-wrap-${p.id}`} style={{ background: '#fff', padding: '2px' }}>
-                            <Barcode id={`bc-svg-${p.id}`} value={p.barcode} format={fmt} height={34} width={1.3} fontSize={11} margin={2} renderer="svg" />
+                          <div style={{ background: '#fff', padding: '2px' }}>
+                            <Barcode value={p.barcode} format={fmt} height={34} width={1.3} fontSize={11} margin={2} renderer="svg" />
                           </div>
                         ) : (
                           <button onClick={() => handleGenerate(p)} style={{ padding: '8px 12px', background: '#4F46E5', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -298,7 +318,6 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
           {/* ─── PRINT LABELS ─── */}
           {tab === 'print' && (
             <div>
-              {/* Format selector */}
               <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <label style={{ fontSize: '12px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '6px' }}>Label format</label>
@@ -312,7 +331,7 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
 
               <div style={{ fontSize: '13px', color: '#475569', marginBottom: '14px' }}>
                 {selectedProducts.length
-                  ? `${selectedProducts.filter(p => p.barcode).length} label(s) ready to print — select products in "Manage & Generate" tab to add more.`
+                  ? `${selectedProducts.filter(p => p.barcode).length} label(s) ready to print`
                   : 'Select products in the "Manage & Generate" tab first, then come back here to print.'}
               </div>
 
@@ -328,7 +347,7 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
                     <div key={p.id} style={{ border: '1px dashed #CBD5E1', borderRadius: '8px', padding: '8px', textAlign: 'center', background: '#fff' }}>
                       <div style={{ fontSize: '9px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{shopName}</div>
                       <div style={{ fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '4px' }}>{p.name}</div>
-                      <Barcode id={`bc-svg-${p.id}`} value={p.barcode} format={fmt} height={34} width={1.2} fontSize={10} margin={2} renderer="svg" />
+                      <Barcode value={p.barcode} format={fmt} height={34} width={1.2} fontSize={10} margin={2} renderer="svg" />
                       {saleAmt != null ? (
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>

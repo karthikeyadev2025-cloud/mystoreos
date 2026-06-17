@@ -136,6 +136,7 @@ const toProduct = (row) => row ? ({
   image: row.image_url || null,
   unit: row.unit || null,
   isFeatured: !!row.is_featured,
+  discountPct: parseInt(row.discount_pct) || 0,
   createdAt: row.created_at || null,
 }) : null;
 
@@ -753,6 +754,7 @@ export const api = {
         image_url: cover,
         images: imgs,
         is_featured: !!extraData.isFeatured,
+        discount_pct: parseInt(extraData.discountPct) || 0,
       };
       if (extraData.unit) baseInsert.unit = extraData.unit;
       // Self-healing insert: if an optional column (images / unit / image_url)
@@ -791,6 +793,7 @@ export const api = {
       costPrice: parseFloat(extraData?.costPrice) || 0,
       image: extraData?.image || null,
       unit: extraData?.unit || null,
+      discountPct: parseInt(extraData?.discountPct) || 0,
     };
     db.products.push(newProd);
     saveDB(db);
@@ -839,6 +842,7 @@ export const api = {
       }
       if (data.unit !== undefined) updateObj.unit = data.unit || null;
       if (data.isFeatured !== undefined) updateObj.is_featured = !!data.isFeatured;
+      if (data.discountPct !== undefined) updateObj.discount_pct = parseInt(data.discountPct) || 0;
 
       // Self-healing update: drop any optional column the DB doesn't have yet.
       let attempt = { ...updateObj };
@@ -870,6 +874,7 @@ export const api = {
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
       if (data.image !== undefined) prod.image = data.image;
       if (data.unit !== undefined) prod.unit = data.unit || null;
+      if (data.discountPct !== undefined) prod.discountPct = parseInt(data.discountPct) || 0;
       saveDB(db);
     }
     return prod;

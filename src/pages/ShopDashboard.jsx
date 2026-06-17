@@ -126,6 +126,7 @@ const ShopDashboard = () => {
   const [newProdImages, setNewProdImages] = useState([]);
   const [newProdFeatured, setNewProdFeatured] = useState(false);
   const [newProdUnit, setNewProdUnit] = useState('');
+  const [newProdDiscountPct, setNewProdDiscountPct] = useState('0');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -146,6 +147,7 @@ const ShopDashboard = () => {
   const [editProdUnit, setEditProdUnit] = useState('');
   const [editProdImages, setEditProdImages] = useState([]);
   const [editProdFeatured, setEditProdFeatured] = useState(false);
+  const [editProdDiscountPct, setEditProdDiscountPct] = useState('0');
 
   // Unit system — driven by the shop's business category
   const shopCategory = user?.shopCategory || 'general';
@@ -410,6 +412,7 @@ const ShopDashboard = () => {
     setEditProdUnit(p.unit || shopDefaultUnit);
     setEditProdImages(Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []));
     setEditProdFeatured(!!p.isFeatured);
+    setEditProdDiscountPct(String(p.discountPct || 0));
     setShowEditProductModal(true);
   };
 
@@ -430,7 +433,8 @@ const ShopDashboard = () => {
         barcode: editProdBarcode,
         unit: editProdUnit || shopDefaultUnit,
         images: editProdImages,
-        isFeatured: editProdFeatured
+        isFeatured: editProdFeatured,
+        discountPct: parseInt(editProdDiscountPct) || 0
       }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
@@ -1229,7 +1233,7 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured, discountPct: parseInt(newProdDiscountPct) || 0 }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1248,6 +1252,7 @@ const ShopDashboard = () => {
       setNewProdImages([]);
       setNewProdFeatured(false);
       setNewProdUnit('');
+      setNewProdDiscountPct('0');
       loadData();
     } catch (e) {
       console.error(e);
@@ -2360,6 +2365,30 @@ const ShopDashboard = () => {
                   <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
                 </div>
               </div>
+
+              {/* Label Discount % — for barcode price label printing */}
+              <div style={{ marginBottom: '16px', background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '10px', padding: '12px 14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#818CF8', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(shown on barcode price label)</span></label>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  {[0, 5, 10, 15, 20, 25, 50].map(d => (
+                    <button key={d} type="button" onClick={() => setNewProdDiscountPct(String(d))}
+                      style={{ flex: 1, padding: '6px 2px', background: parseInt(newProdDiscountPct) === d ? '#4F46E5' : 'rgba(79,70,229,0.1)', color: parseInt(newProdDiscountPct) === d ? '#fff' : '#818CF8', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                      {d === 0 ? 'None' : `${d}%`}
+                    </button>
+                  ))}
+                  <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value)}
+                    style={{ width: '52px', padding: '6px 8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', color: '#fff', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                  <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+                </div>
+                {parseInt(newProdDiscountPct) > 0 && newProdPrice && (
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ textDecoration: 'line-through', color: '#64748B' }}>₹{newProdPrice}</span>
+                    <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(newProdPrice) * (1 - parseInt(newProdDiscountPct) / 100))}</span>
+                    <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
+                    <span style={{ color: '#64748B', fontSize: '11px' }}>will print on label</span>
+                  </div>
+                )}
+              </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
@@ -2665,6 +2694,30 @@ const ShopDashboard = () => {
               </div>
             </div>
 
+
+            {/* Label Discount % */}
+            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+              <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {[0, 5, 10, 15, 20, 25, 50].map(d => (
+                  <button key={d} type="button" onClick={() => setEditProdDiscountPct(String(d))}
+                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(editProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    {d === 0 ? 'None' : `${d}%`}
+                  </button>
+                ))}
+                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value)}
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+              </div>
+              {parseInt(editProdDiscountPct) > 0 && editProdPrice && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{editProdPrice}</span>
+                  <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(editProdPrice) * (1 - parseInt(editProdDiscountPct) / 100))}</span>
+                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
+                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                </div>
+              )}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
@@ -4430,6 +4483,30 @@ const ShopDashboard = () => {
               </div>
             </div>
 
+
+            {/* Label Discount % */}
+            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+              <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {[0, 5, 10, 15, 20, 25, 50].map(d => (
+                  <button key={d} type="button" onClick={() => setNewProdDiscountPct(String(d))}
+                    style={{ padding: '6px 8px', background: parseInt(newProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(newProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    {d === 0 ? 'None' : `${d}%`}
+                  </button>
+                ))}
+                <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value)}
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+              </div>
+              {parseInt(newProdDiscountPct) > 0 && newProdPrice && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{newProdPrice}</span>
+                  <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(newProdPrice) * (1 - parseInt(newProdDiscountPct) / 100))}</span>
+                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
+                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                </div>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
@@ -4538,6 +4615,30 @@ const ShopDashboard = () => {
               </div>
             </div>
 
+
+            {/* Label Discount % */}
+            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+              <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {[0, 5, 10, 15, 20, 25, 50].map(d => (
+                  <button key={d} type="button" onClick={() => setEditProdDiscountPct(String(d))}
+                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(editProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    {d === 0 ? 'None' : `${d}%`}
+                  </button>
+                ))}
+                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value)}
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+              </div>
+              {parseInt(editProdDiscountPct) > 0 && editProdPrice && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{editProdPrice}</span>
+                  <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(editProdPrice) * (1 - parseInt(editProdDiscountPct) / 100))}</span>
+                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
+                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                </div>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
