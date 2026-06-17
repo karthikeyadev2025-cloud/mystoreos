@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
-import { Eye, EyeOff, ShieldCheck, CheckCircle, Store, Users, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, CheckCircle } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MLogo from '../components/MLogo';
@@ -22,14 +22,6 @@ const METRICS = [
   { val: '₹842Cr+', label: 'GMV Processed' },
   { val: '99.97%',  label: 'Uptime SLA'    },
 ];
-
-const ROLE_META = {
-  shop:        { icon: '🏪', label: 'Shop Owner',   color: '#4F46E5', bg: 'rgba(79,70,229,0.15)'  },
-  staff:       { icon: '👤', label: 'Staff Member', color: '#10B981', bg: 'rgba(16,185,129,0.15)' },
-  distributor: { icon: '🚛', label: 'Distributor',  color: '#D97706', bg: 'rgba(217,119,6,0.15)'  },
-  ca:          { icon: '📊', label: 'CA / Accountant', color: '#6366F1', bg: 'rgba(99,102,241,0.15)' },
-  admin:       { icon: '⚙️', label: 'Admin',        color: '#EF4444', bg: 'rgba(239,68,68,0.15)'  },
-};
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -58,94 +50,76 @@ const CSS = `
   pointer-events: none;
 }
 .lp-form-side {
-  width: min(500px, 100%); background: #161B22;
+  width: min(480px, 100%); background: #161B22;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: clamp(32px,5vw,48px) clamp(20px,5vw,44px); min-height: 100vh; overflow-y: auto;
 }
 .lp-input {
-  width: 100%; padding: 13px 16px;
+  width: 100%; padding: 12px 14px;
   background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 10px; color: #fff; font-size: 15px;
+  border-radius: 9px; color: #fff; font-size: 14px;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   transition: border-color .18s, box-shadow .18s; outline: none;
 }
 .lp-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
-.lp-input::placeholder { color: rgba(255,255,255,0.28); }
+.lp-input::placeholder { color: rgba(255,255,255,0.3); }
 .lp-btn {
-  width: 100%; padding: 14px; background: #4F46E5; color: #fff; border: none;
-  border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer;
+  width: 100%; padding: 13px; background: #4F46E5; color: #fff; border: none;
+  border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   transition: filter .15s, transform .1s; box-shadow: 0 0 24px rgba(79,70,229,0.4);
 }
-.lp-btn:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-1px); }
+.lp-btn:hover:not(:disabled) { filter: brightness(1.1); }
 .lp-btn:active { transform: scale(.98); }
-.lp-btn:disabled { opacity:.55; cursor: not-allowed; }
+.lp-btn:disabled { opacity:.6; cursor: not-allowed; }
 .lp-feat { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
 .lp-metric {
   text-align: center; padding: 16px 20px;
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
 }
 .fade-in { animation: fadeIn .35s ease both; }
-.slide-down { animation: slideDown .3s ease both; }
-@keyframes fadeIn   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slideDown{ from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes pulse    { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.3)} }
-@keyframes spin     { to { transform: rotate(360deg); } }
-.spin { animation: spin .8s linear infinite; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.3)} }
 @media(max-width:900px) {
   .lp-root { flex-direction: column; }
   .lp-brand { display: none !important; }
-  .lp-form-side { width: 100% !important; min-width: unset !important;
-    padding: clamp(32px,7vw,48px) clamp(20px,6vw,40px) !important; background: #0D1117 !important; }
+  .lp-form-side {
+    width: 100% !important; min-width: unset !important;
+    padding: clamp(32px,7vw,48px) clamp(20px,6vw,40px) !important;
+    background: #0D1117 !important;
+  }
 }
 `;
 
 export default function Login() {
-  const [phone,     setPhone]     = useState('');
-  const [pass,      setPass]      = useState('');
-  const [err,       setErr]       = useState('');
-  const [loading,   setLoading]   = useState(false);
+  const [phone,   setPhone]   = useState('');
+  const [pass,    setPass]    = useState('');
+  const [err,     setErr]     = useState('');
+  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [showPw,    setShowPw]    = useState(false);
+  const [showPw,  setShowPw]  = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent,  setForgotSent]  = useState(false);
-
-  // Phone peek state
-  const [peeking,   setPeeking]   = useState(false);
-  const [peeked,    setPeeked]    = useState(null); // { name, logo, role, shopName, shopLogo }
-  const peekTimer = useRef(null);
 
   const { login } = useAuth();
   const { config } = useSiteConfig();
   const navigate   = useNavigate();
   const googleEnabled = config?.googleLoginEnabled === true || config?.googleLoginEnabled === 'true';
 
-  // Auto-peek after 10 digits typed
-  useEffect(() => {
-    clearTimeout(peekTimer.current);
-    setPeeked(null);
-    if (phone.length !== 10) return;
-    peekTimer.current = setTimeout(async () => {
-      setPeeking(true);
-      try {
-        const data = await api.peekUserByPhone(phone);
-        setPeeked(data || 'not_found');
-      } catch { setPeeked('not_found'); }
-      finally { setPeeking(false); }
-    }, 400);
-    return () => clearTimeout(peekTimer.current);
-  }, [phone]);
-
   const handleLogin = async e => {
     e.preventDefault();
     if (!/^\d{10}$/.test(phone)) return setErr('Enter a valid 10-digit mobile number');
-    if (!pass) return setErr('Enter your password / PIN');
+    if (!pass) return setErr('Enter your password or PIN');
     try {
       setLoading(true); setErr('');
       const user = await api.login(phone, pass);
       login(user);
+      // Welcome toast based on role
+      if (user.role === 'staff') {
+        toast.success(`Welcome, ${user.name}! 👋`);
+      }
       navigate('/dashboard');
     } catch (ex) {
       let msg = ex.message || 'Invalid credentials';
@@ -174,57 +148,6 @@ export default function Login() {
     } catch (ex) {
       setErr(ex.message || 'Could not send reset link. Try again.');
     } finally { setLoading(false); }
-  };
-
-  // Build the "who is signing in" card
-  const renderPeekCard = () => {
-    if (phone.length < 10) return null;
-    if (peeking) return (
-      <div className="slide-down" style={{ margin: '14px 0', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Loader2 size={16} color="#4F46E5" className="spin" />
-        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Looking up account…</span>
-      </div>
-    );
-    if (!peeked || peeked === 'not_found') return null;
-
-    const meta   = ROLE_META[peeked.role] || ROLE_META.shop;
-    const avatar = peeked.logo || peeked.shopLogo;
-    const isStaff = peeked.role === 'staff';
-
-    return (
-      <div className="slide-down" style={{ margin: '14px 0', padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: `1px solid ${meta.color}44`, borderRadius: 14, display: 'flex', alignItems: 'center', gap: 14 }}>
-        {/* Avatar */}
-        <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, background: meta.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1.5px solid ${meta.color}55` }}>
-          {avatar
-            ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <span style={{ fontSize: 22 }}>{meta.icon}</span>}
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Role badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: meta.bg, border: `1px solid ${meta.color}44`, borderRadius: 20, padding: '2px 10px', marginBottom: 5 }}>
-            <span style={{ fontSize: 11 }}>{meta.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: meta.color, letterSpacing: '.02em' }}>{meta.label}</span>
-          </div>
-
-          {/* Name */}
-          <div style={{ fontWeight: 800, fontSize: 15, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {peeked.name}
-          </div>
-
-          {/* Staff: show shop they belong to */}
-          {isStaff && peeked.shopName && (
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Store size={11} color="#64748B" />
-              Staff of <span style={{ color: '#94A3B8', fontWeight: 600 }}>{peeked.shopName}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Verified tick */}
-        <CheckCircle size={18} color="#10B981" style={{ flexShrink: 0 }} />
-      </div>
-    );
   };
 
   return (
@@ -279,7 +202,7 @@ export default function Login() {
 
       {/* ── RIGHT FORM PANEL ── */}
       <div className="lp-form-side">
-        <div className="fade-in" style={{ width: '100%', maxWidth: 380 }}>
+        <div className="fade-in" style={{ width: '100%', maxWidth: 360 }}>
 
           {/* Mobile logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}>
@@ -289,73 +212,42 @@ export default function Login() {
 
           {!showForgot ? (
             <>
-              <div style={{ marginBottom: 24, textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                  <ShieldCheck size={26} color="#4F46E5" strokeWidth={2}/>
+              <div style={{ marginBottom: 28, textAlign: 'center' }}>
+                <div style={{ width: 52, height: 52, background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                  <ShieldCheck size={24} color="#4F46E5" strokeWidth={2}/>
                 </div>
-                <h2 style={{ color: '#fff', fontSize: 23, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
+                <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
                   Welcome back
                 </h2>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Sign in with your registered mobile number</p>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Sign in to your merchant account</p>
               </div>
 
               <form onSubmit={handleLogin}>
-                {/* Phone field */}
-                <div style={{ marginBottom: 6 }}>
-                  <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, marginBottom: 6, letterSpacing: '.06em' }}>MOBILE NUMBER</label>
-                  <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', fontSize: 14, fontWeight: 600, pointerEvents: 'none' }}>+91</span>
-                    <input
-                      className="lp-input"
-                      type="tel" inputMode="numeric" maxLength={10}
-                      placeholder="Enter 10-digit number"
-                      value={phone}
-                      onChange={e => { setPhone(e.target.value.replace(/\D/g,'').slice(0,10)); setErr(''); }}
-                      style={{ paddingLeft: 46 }}
-                    />
-                    {phone.length === 10 && !peeking && (
-                      <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }}>
-                        {peeked && peeked !== 'not_found'
-                          ? <CheckCircle size={16} color="#10B981" />
-                          : <span style={{ fontSize: 12, color: '#EF4444' }}>?</span>}
-                      </div>
-                    )}
-                    {peeking && (
-                      <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }}>
-                        <Loader2 size={16} color="#4F46E5" className="spin" />
-                      </div>
-                    )}
-                  </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6, letterSpacing: '.02em' }}>MOBILE NUMBER</label>
+                  <input className="lp-input" type="tel" inputMode="numeric" maxLength={10}
+                    placeholder="10-digit mobile number" value={phone}
+                    onChange={e => { setPhone(e.target.value.replace(/\D/g,'').slice(0,10)); setErr(''); }}/>
                 </div>
 
-                {/* Account preview card */}
-                {renderPeekCard()}
-
-                {/* "Not registered" hint */}
-                {phone.length === 10 && !peeking && peeked === 'not_found' && (
-                  <div className="slide-down" style={{ margin: '10px 0 14px', padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, fontSize: 12.5, color: '#FCA5A5' }}>
-                    No account found for this number.{' '}
-                    <button type="button" onClick={() => navigate('/register')} style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 12.5 }}>Register now →</button>
-                  </div>
-                )}
-
-                {/* Password / PIN field */}
-                <div style={{ marginBottom: 8, position: 'relative', marginTop: peeked && peeked !== 'not_found' ? 0 : 14 }}>
-                  <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, marginBottom: 6, letterSpacing: '.06em' }}>
-                    {peeked && peeked !== 'not_found' && peeked.role === 'staff' ? 'PIN (4-digit)' : 'PASSWORD'}
-                  </label>
-                  <input
-                    className="lp-input" type={showPw ? 'text' : 'password'}
-                    placeholder={peeked?.role === 'staff' ? 'Enter your 4-digit PIN' : 'Enter your password'}
-                    value={pass}
+                <div style={{ marginBottom: 8, position: 'relative' }}>
+                  <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6, letterSpacing: '.02em' }}>PASSWORD / PIN</label>
+                  <input className="lp-input" type={showPw ? 'text' : 'password'}
+                    placeholder="Password or 4-digit PIN (for staff)" value={pass}
                     onChange={e => { setPass(e.target.value); setErr(''); }}
-                    style={{ paddingRight: 42 }}
-                    inputMode={peeked?.role === 'staff' ? 'numeric' : 'text'}
-                    maxLength={peeked?.role === 'staff' ? 4 : undefined}
-                  />
-                  <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: 12, bottom: 13, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', lineHeight: 0 }}>
+                    style={{ paddingRight: 42 }}/>
+                  <button type="button" onClick={() => setShowPw(v => !v)}
+                    style={{ position: 'absolute', right: 12, bottom: 12, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', lineHeight: 0 }}>
                     {showPw ? <EyeOff size={16}/> : <Eye size={16}/>}
                   </button>
+                </div>
+
+                {/* Staff hint */}
+                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 8, padding: '8px 12px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>👤</span>
+                  <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12 }}>
+                    Staff members: use your <strong style={{ color: '#6EE7B7' }}>4-digit PIN</strong> as your password
+                  </span>
                 </div>
 
                 <div style={{ textAlign: 'right', marginBottom: 20 }}>
@@ -366,35 +258,15 @@ export default function Login() {
                 </div>
 
                 {err && (
-                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 9, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 13 }}>
+                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
                     {err}
                   </div>
                 )}
 
-                <button className="lp-btn" type="submit" disabled={loading || (phone.length === 10 && peeked === 'not_found')}>
-                  {loading
-                    ? <><Loader2 size={16} className="spin" /> Signing in…</>
-                    : <><ShieldCheck size={16}/>
-                        {peeked && peeked !== 'not_found'
-                          ? `Sign in as ${peeked.name?.split(' ')[0]}`
-                          : 'Sign In Securely'}
-                      </>}
+                <button className="lp-btn" type="submit" disabled={loading}>
+                  {loading ? 'Signing in…' : <><ShieldCheck size={16}/>Sign In Securely</>}
                 </button>
               </form>
-
-              {/* Role hints */}
-              <div style={{ marginTop: 20, display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                {[
-                  { icon: '🏪', label: 'Shop Owner', sub: 'Use your password' },
-                  { icon: '👤', label: 'Staff',      sub: 'Use 4-digit PIN' },
-                ].map(({ icon, label, sub }) => (
-                  <div key={label} style={{ flex: '1 1 120px', padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, textAlign: 'center' }}>
-                    <div style={{ fontSize: 18, marginBottom: 3 }}>{icon}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{label}</div>
-                    <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{sub}</div>
-                  </div>
-                ))}
-              </div>
 
               {googleEnabled && (
                 <>
@@ -404,7 +276,7 @@ export default function Login() {
                     <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
                   </div>
                   <button type="button" onClick={handleGoogle} disabled={googleLoading}
-                    style={{ width: '100%', padding: 12, background: '#fff', color: '#1f2937', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, opacity: googleLoading ? 0.6 : 1, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+                    style={{ width: '100%', padding: 12, background: '#fff', color: '#1f2937', border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, opacity: googleLoading ? 0.6 : 1, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
                     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                       <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
                       <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
@@ -418,10 +290,11 @@ export default function Login() {
 
               <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>New to MyStore OS? </span>
-                <button onClick={() => navigate('/register')} style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create account →</button>
+                <button onClick={() => navigate('/register')}
+                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create account →</button>
               </div>
 
-              <div style={{ marginTop: 24, padding: '12px 16px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, display: 'flex', gap: 10 }}>
+              <div style={{ marginTop: 32, padding: '14px 16px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, display: 'flex', gap: 10 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', display: 'inline-block', marginTop: 5, flexShrink: 0, animation: 'pulse 2s infinite' }}/>
                 <div>
                   <div style={{ color: '#6EE7B7', fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>Protected & Encrypted</div>
@@ -430,7 +303,6 @@ export default function Login() {
               </div>
             </>
           ) : (
-            /* ── FORGOT PASSWORD ── */
             <>
               <div style={{ marginBottom: 28, textAlign: 'center' }}>
                 <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Reset Password</h2>
@@ -442,7 +314,7 @@ export default function Login() {
               {forgotSent ? (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 10, padding: '16px 18px', marginBottom: 18, color: '#6EE7B7', fontSize: 13.5, lineHeight: 1.6 }}>
-                    If an account with that email exists, we've sent a password-reset link.
+                    If an account with that email exists, we've sent a password-reset link. Open it to choose a new password.
                   </div>
                   <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginBottom: 18 }}>
                     No email? Accounts created with a phone number only can be reset by contacting support.
@@ -456,8 +328,9 @@ export default function Login() {
                 <>
                   <form onSubmit={handleForgot}>
                     <div style={{ marginBottom: 14 }}>
-                      <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, marginBottom: 6, letterSpacing: '.06em' }}>EMAIL ADDRESS</label>
-                      <input className="lp-input" type="email" placeholder="you@example.com" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
+                      <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>EMAIL ADDRESS</label>
+                      <input className="lp-input" type="email" placeholder="you@example.com"
+                        value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
                     </div>
                     {err && (
                       <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
