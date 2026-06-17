@@ -779,19 +779,24 @@ const ShopDashboard = () => {
 
       billItems.forEach((item) => {
         const qty = item.qty || 1;
-        const amount = item.price * qty;
+        const mrpLineAmt = item.price * qty;
+        const iDisc = item.itemDiscount || 0;
+        const iDiscAmt = iDisc > 0 ? Math.round(mrpLineAmt * iDisc / 100) : 0;
+        const discountedLineAmt = mrpLineAmt - iDiscAmt;
         const unitSuffix = UNIT_SUFFIX[resolveUnit(item, shopCategory)] || '';
         const qtyText = unitSuffix ? `${qty} ${unitSuffix}` : `${qty}`;
         
         if (showGstColumns) {
           const rate = parseInt(item.gstRate) || 0;
-          const taxableVal = amount / (1 + (rate / 100));
-          const taxAmt = amount - taxableVal;
+          const taxableVal = discountedLineAmt / (1 + (rate / 100));
+          const taxAmt = discountedLineAmt - taxableVal;
           totalTaxable += taxableVal;
           
           let hsnText = item.hsnCode ? ` [${item.hsnCode}]` : '';
-          const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '') + hsnText;
+          let itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '') + hsnText;
+          if (iDisc > 0) itemFullName += ` [-${iDisc}%]`;
           
+          doc.setFont("helvetica", "normal");
           doc.text(itemFullName, 18, yOffset);
           doc.text(`${qtyText}`, 85, yOffset);
           doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
@@ -807,49 +812,134 @@ const ShopDashboard = () => {
             doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 120, yOffset);
             doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 145, yOffset);
           }
-          doc.text(`${amount.toFixed(2)}`, 175, yOffset);
+          doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+          yOffset += 7;
+          // Show MRP strikethrough note if item has discount
+          if (iDisc > 0) {
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(`MRP: Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)}  →  Saved Rs.${iDiscAmt.toFixed(2)}`, 22, yOffset);
+            doc.setFontSize(8);
+            doc.setTextColor(51, 65, 85);
+            yOffset += 5;
+          }
         } else {
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
+          doc.setFont("helvetica", "normal");
           doc.text(itemFullName, 18, yOffset);
           doc.text(`${qtyText}`, 120, yOffset);
-          doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
-          doc.text(`${amount.toFixed(2)}`, 175, yOffset);
+          // Show MRP price; if discounted show discounted price bold
+          if (iDisc > 0) {
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
+            doc.setFontSize(8);
+            doc.setTextColor(239, 68, 68);
+            doc.text(`-${iDisc}%`, 158, yOffset);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(22, 163, 74);
+            doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(51, 65, 85);
+          } else {
+            doc.text(`${item.price.toFixed(2)}`, 145, yOffset);
+            doc.text(`${discountedLineAmt.toFixed(2)}`, 175, yOffset);
+          }
+          yOffset += 7;
+          // Show per-item saving note
+          if (iDisc > 0) {
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(`MRP Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)} | You save Rs.${iDiscAmt.toFixed(2)} (${iDisc}% off)`, 22, yOffset);
+            doc.setFontSize(8);
+            doc.setTextColor(51, 65, 85);
+            yOffset += 5;
+          }
         }
-        yOffset += 8;
+        yOffset += 1;
       });
       
       doc.line(15, yOffset - 2, 195, yOffset - 2);
       yOffset += 4;
       
-      // Totals
+      // Totals section
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+
       if (showGstColumns) {
-         doc.setFontSize(9);
-         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, 135, yOffset);
+         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, 130, yOffset);
          yOffset += 5;
          if (isInterState) {
-           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, 135, yOffset);
+           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, 130, yOffset);
            yOffset += 5;
          } else {
-           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, 135, yOffset);
+           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, 130, yOffset);
            yOffset += 5;
-           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, 135, yOffset);
+           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, 130, yOffset);
            yOffset += 5;
          }
       }
 
-      if (discountAmount > 0 || manualDiscountAmt > 0) {
-        doc.setFontSize(10);
-        doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, 135, yOffset);
+      // Item-level savings row
+      if (itemLevelSavings > 0) {
+        doc.setFontSize(9);
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Subtotal (MRP): Rs. ${billItemsOriginalTotal.toFixed(2)}`, 130, yOffset);
         yOffset += 5;
-        doc.text(`Discount: -Rs. ${discountAmount.toFixed(2)}`, 135, yOffset);
+        doc.setTextColor(22, 163, 74);
+        doc.text(`Item Discounts: -Rs. ${itemLevelSavings.toFixed(2)}`, 130, yOffset);
+        yOffset += 5;
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Subtotal (After item disc.): Rs. ${billTotal.toFixed(2)}`, 130, yOffset);
         yOffset += 5;
       }
+
+      if (discountAmount > 0 || manualDiscountAmt > 0) {
+        if (itemLevelSavings === 0) {
+          doc.setFontSize(9);
+          doc.setTextColor(71, 85, 105);
+          doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, 130, yOffset);
+          yOffset += 5;
+        }
+        doc.setTextColor(22, 163, 74);
+        doc.text(`Bill Discount: -Rs. ${(discountAmount + manualDiscountAmt).toFixed(2)}`, 130, yOffset);
+        yOffset += 5;
+        doc.setTextColor(71, 85, 105);
+      }
       
+      if (loyaltyDiscountRupees > 0) {
+        doc.setTextColor(139, 92, 246);
+        doc.text(`Loyalty Points Redeemed: -Rs. ${loyaltyDiscountRupees.toFixed(2)}`, 130, yOffset);
+        yOffset += 5;
+        doc.setTextColor(71, 85, 105);
+      }
+
+      // Grand total
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.setTextColor(15, 23, 42);
-      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, 135, yOffset);
-      yOffset += 12;
+      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, 130, yOffset);
+      yOffset += 9;
+
+      // "You Saved" highlight box
+      const totalSaved = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
+      if (totalSaved > 0) {
+        const tcR = parseInt(themeColor.substring(1,3),16);
+        const tcG = parseInt(themeColor.substring(3,5),16);
+        const tcB = parseInt(themeColor.substring(5,7),16);
+        doc.setFillColor(tcR, tcG, tcB);
+        doc.setDrawColor(tcR, tcG, tcB);
+        doc.roundedRect(130, yOffset, 65, 10, 2, 2, 'FD');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`🎉 YOU SAVED Rs. ${totalSaved.toFixed(2)} on this ${billingMode === 'estimate' ? 'estimate' : 'bill'}!`, 163, yOffset + 6.5, { align: 'center' });
+        doc.setTextColor(15, 23, 42);
+        yOffset += 14;
+      } else {
+        yOffset += 3;
+      }
       
       // Footer text/Note
       doc.setFont("helvetica", "normal");
@@ -915,9 +1005,31 @@ const ShopDashboard = () => {
         else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
         else msg += `*TAX INVOICE / RECEIPT*\n`;
         if (customerName) msg += `Customer: ${customerName}\n`;
-        msg += `Total: Rs.${total}\n\n`;
-        billItems.forEach(i => { const u = UNIT_SUFFIX[resolveUnit(i, shopCategory)]; const qd = u ? `${i.qty || 1} ${u}` : `x${i.qty || 1}`; msg += `- ${i.name} ${i.selectedVariant ? '('+i.selectedVariant+')' : ''} ${qd}: Rs.${i.price * (i.qty || 1)}\n`; });
-        if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Discount: -Rs.${discountAmount + manualDiscountAmt}\nTotal: Rs.${total}\n`;
+        msg += `\n`;
+        billItems.forEach(i => {
+          const u = UNIT_SUFFIX[resolveUnit(i, shopCategory)];
+          const qd = u ? `${i.qty || 1} ${u}` : `x${i.qty || 1}`;
+          const lineBase = i.price * (i.qty || 1);
+          const iDisc = i.itemDiscount || 0;
+          const iDiscAmt = iDisc > 0 ? Math.round(lineBase * iDisc / 100) : 0;
+          const lineTotal = lineBase - iDiscAmt;
+          const variantStr = i.selectedVariant ? ` (${i.selectedVariant})` : '';
+          if (iDisc > 0) {
+            msg += `- ${i.name}${variantStr} ${qd}: ~~Rs.${lineBase}~~ *Rs.${lineTotal}* (-${iDisc}%)\n`;
+          } else {
+            msg += `- ${i.name}${variantStr} ${qd}: Rs.${lineTotal}\n`;
+          }
+        });
+        msg += `\n`;
+        if (itemLevelSavings > 0) {
+          msg += `Item Discounts: -Rs.${itemLevelSavings}\n`;
+          msg += `Subtotal: Rs.${billTotal}\n`;
+        }
+        if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Bill Discount: -Rs.${discountAmount + manualDiscountAmt}\n`;
+        if (loyaltyDiscountRupees > 0) msg += `Loyalty Redeemed: -Rs.${loyaltyDiscountRupees}\n`;
+        msg += `*TOTAL: Rs.${total}*\n`;
+        const totalSavedWA = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
+        if (totalSavedWA > 0) msg += `🎉 *You saved Rs.${totalSavedWA} on this ${billingMode === 'estimate' ? 'estimate' : billingMode === 'challan' ? 'challan' : 'bill'}!*\n`;
         if (billingMode === 'bill' && upiId) {
           const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
           msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${ref}&cu=INR (enter Rs.${total})\n`;
@@ -967,7 +1079,14 @@ const ShopDashboard = () => {
   const sales = orders.filter(o => o.status === 'Accepted' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).reduce((a, b) => a + b.total, 0);
   const pendingOrders = orders.filter(o => o.status === 'Pending' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
-  const billTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
+  // billTotal includes per-item discounts
+  const billTotal = billItems.reduce((a, b) => {
+    const lineBase = b.price * (b.qty || 1);
+    const lineDisc = b.itemDiscount > 0 ? Math.round(lineBase * b.itemDiscount / 100) : 0;
+    return a + lineBase - lineDisc;
+  }, 0);
+  const billItemsOriginalTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
+  const itemLevelSavings = billItemsOriginalTotal - billTotal;
   const manualDiscountAmt = Math.round(billTotal * (manualDiscountPct / 100));
   const filteredProducts = products.filter(p => (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
