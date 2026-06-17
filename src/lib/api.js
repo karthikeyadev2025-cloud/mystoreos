@@ -863,11 +863,15 @@ export const api = {
   // ---- STAFF ----
   async addStaff(shopId, phone, pass, name) {
     if (isSupabaseConfigured) {
-      const { data: existing } = await supabase.from('users').select('id').eq('phone', phone).maybeSingle();
-      if (existing) throw new Error("Phone already exists");
-      const { data, error } = await supabase.from('users').insert({ phone, pass, role: 'staff', name, status: 'active', staff_of: shopId }).select().maybeSingle();
+      // Direct insert is blocked by RLS (403). Use the add-staff edge function
+      // which runs with the service-role key and also creates the auth.users entry
+      // so the staff member can actually log in.
+      const { data, error } = await supabase.functions.invoke('add-staff', {
+        body: { shopId, phone, name, pin: pass || '1234' },
+      });
       if (error) throw new Error(error.message);
-      return toUser(data);
+      if (data?.error) throw new Error(data.error);
+      return data;
     }
     const db = getDB();
     if (db.users.find(u => u.phone === phone)) throw new Error("Phone already exists");
