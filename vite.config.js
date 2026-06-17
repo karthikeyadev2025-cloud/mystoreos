@@ -9,31 +9,20 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
-        // Precache ONLY truly-static files (icons, manifest, robots). Do NOT
-        // precache the hashed app JS/CSS or html — precaching them makes them
-        // cache-first and overrides the NetworkFirst rules below, which is the
-        // real reason updates needed a manual hard refresh. With them out of the
-        // precache, the NetworkFirst runtime rules always fetch the newest build.
         globPatterns: ['**/*.{ico,png,svg,webmanifest}'],
         globIgnores: ['**/assets/**', '**/index.html'],
         maximumFileSizeToCacheInBytes: 4_000_000,
         navigateFallback: null,
-        navigateFallbackDenylist: [/^\/api/, /supabase/],
-        // Force new SW to take control immediately — evicts old cached bundles
+        navigateFallbackDenylist: [],
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
-          // Navigation (index.html): always fetch fresh from network when online
-          // so old JS bundles can never be served after a deploy. Falls back to
-          // cache only when offline.
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: { cacheName: 'navigation', networkTimeoutSeconds: 3, expiration: { maxEntries: 4 } },
           },
-          // Hashed assets: NetworkFirst so new chunk hashes are always fetched;
-          // cached copies only serve offline.
           {
             urlPattern: /\/assets\/.+\.(js|css)$/,
             handler: 'NetworkFirst',
@@ -43,14 +32,23 @@ export default defineConfig({
       },
       manifest: {
         name: 'MyStore Business OS',
-        short_name: 'MyStore',
-        description: 'One Platform. Zero Paper. Infinite Growth.',
-        theme_color: '#0f0c29',
-        background_color: '#0f0c29',
+        short_name: 'MyStore OS',
+        description: "India's fastest billing & inventory OS for retail shops",
+        theme_color: '#0f172a',
+        background_color: '#030712',
         display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
+        lang: 'en-IN',
+        categories: ['business', 'productivity', 'finance'],
         icons: [
-          { src: '/logo.png', sizes: '192x192', type: 'image/png' },
-          { src: '/logo.png', sizes: '512x512', type: 'image/png' },
+          { src: '/logo.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        ],
+        shortcuts: [
+          { name: 'New Bill', short_name: 'Bill', description: 'Open POS to create a new bill', url: '/dashboard?tab=home', icons: [{ src: '/logo.png', sizes: '192x192' }] },
+          { name: 'Products', short_name: 'Products', description: 'View inventory', url: '/dashboard?tab=products', icons: [{ src: '/logo.png', sizes: '192x192' }] },
         ],
       },
     }),
@@ -62,10 +60,9 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
-        // Hybrid: explicit vendor splits (object form) + a function fallback so dashboards
-        // that are already lazy-imported still get their own named chunks.
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             if (id.includes('/react-router')) return 'vendor-react';
@@ -77,6 +74,7 @@ export default defineConfig({
             if (id.includes('/@supabase')) return 'supabase';
             if (id.includes('/react-toastify')) return 'toastify';
             if (id.includes('/qrcode.react')) return 'qrcode';
+            if (id.includes('/@capacitor') || id.includes('/@capgo')) return 'capacitor';
             return;
           }
           if (id.includes('/src/pages/ShopDashboard'))        return 'dashboard-shop';
@@ -86,6 +84,6 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 650,
+    chunkSizeWarningLimit: 700,
   },
 })
