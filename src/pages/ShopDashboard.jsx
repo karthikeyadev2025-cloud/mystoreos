@@ -93,6 +93,8 @@ const ShopDashboard = () => {
   
   // Quick Bill State
   const [billItems, setBillItems] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [scanPopupProduct, setScanPopupProduct] = useState(null);
   const [customItemName, setCustomItemName] = useState('');
   const [customItemPrice, setCustomItemPrice] = useState('');
   const [billingMode, setBillingMode] = useState('bill'); // 'bill' | 'estimate' | 'challan'
@@ -537,6 +539,22 @@ const ShopDashboard = () => {
 
   const removeBillItem = (prodId) => {
     setBillItems(prev => prev.filter(item => item.id !== prodId));
+  };
+
+  const updateBillItemDiscount = (prodId, discPct) => {
+    setBillItems(prev => prev.map(item => item.id === prodId ? { ...item, itemDiscount: discPct } : item));
+  };
+
+  const clearCart = () => {
+    setBillItems([]);
+    setCustomerName('');
+    setCustomerPhone('');
+    setCustomerGstin('');
+    setCustomerAddress('');
+    setCustomerStateCode('');
+    setManualDiscountPct(0);
+    setLoyaltyRedeem(0);
+    setPaymentMethod('Cash');
   };
 
   const applyPromoCode = () => {
@@ -984,10 +1002,14 @@ const ShopDashboard = () => {
           setShowScanner(false);
           scanner.clear();
           toast.success('Barcode Scanned: ' + decodedText);
+          const foundProd = products.find(p => p.barcode === decodedText);
           if (activeTab === 'home') {
-            const foundProd = products.find(p => p.barcode === decodedText);
-            if (foundProd) addToBill(foundProd);
+            if (foundProd) setScanPopupProduct(foundProd);
             else toast.error('Product not found in inventory!');
+          } else if (showEditProductModal) {
+            // already handled above (setEditProdBarcode)
+          } else if (foundProd) {
+            addToBill(foundProd);
           }
         },
         () => { /* ignore decode errors */ },
@@ -2003,8 +2025,6 @@ const ShopDashboard = () => {
               setCustomerAddress={setCustomerAddress}
               customerStateCode={customerStateCode}
               setCustomerStateCode={setCustomerStateCode}
-              promoCode={promoCode}
-              setPromoCode={setPromoCode}
               discountAmount={discountAmount}
               manualDiscountPct={manualDiscountPct}
               setManualDiscountPct={setManualDiscountPct}
@@ -2022,7 +2042,6 @@ const ShopDashboard = () => {
               updateBillItemQty={updateBillItemQty}
               updateBillItemVariant={updateBillItemVariant}
               removeBillItem={removeBillItem}
-              applyPromoCode={applyPromoCode}
               sendWhatsAppBill={sendWhatsAppBill}
               addToBill={addToBill}
               setActiveTab={setActiveTab}
@@ -2035,6 +2054,13 @@ const ShopDashboard = () => {
               handleSetDailyTarget={handleSetDailyTarget}
               flashSales={flashSales}
               shopCategory={shopCategory}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              onClearCart={clearCart}
+              updateBillItemDiscount={updateBillItemDiscount}
+              scanPopupProduct={scanPopupProduct}
+              onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
+              onScanPopupClose={() => setScanPopupProduct(null)}
             />
           )}
 
@@ -2996,17 +3022,7 @@ const ShopDashboard = () => {
                 </div>
               )}
 
-              {/* Promo Discount Code Drawer */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', background: '#0F172A', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', alignItems: 'center' }}>
-                <input 
-                  type="text" 
-                  placeholder="Promo Code (WELCOME10 / FLAT100)" 
-                  value={promoCode} 
-                  onChange={e=>setPromoCode(e.target.value)}
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '13px' }} 
-                />
-                <button onClick={applyPromoCode} style={{ background: '#4F46E5', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', width: 'auto', flexShrink: 0, whiteSpace: 'nowrap' }}>Apply</button>
-              </div>
+              {/* Promo code removed */}
 
               {discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#22C55E', marginTop: '8px', padding: '0 4px' }}>
