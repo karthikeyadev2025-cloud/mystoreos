@@ -267,6 +267,37 @@ export const api = {
     return user;
   },
 
+  // Lightweight public peek — only fetches name/logo/role/staff_of, no auth required.
+  // Used by Login page to show "signing in as..." card after phone is entered.
+  async peekUserByPhone(phone) {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase
+        .from('users')
+        .select('name, logo, role, staff_of, status')
+        .eq('phone', phone)
+        .maybeSingle();
+      if (!data) return null;
+      // For staff: also fetch their shop name
+      if (data.role === 'staff' && data.staff_of) {
+        const { data: shop } = await supabase
+          .from('users')
+          .select('name, logo')
+          .eq('id', data.staff_of)
+          .maybeSingle();
+        return { ...data, shopName: shop?.name || null, shopLogo: shop?.logo || null };
+      }
+      return data;
+    }
+    const db = getDB();
+    const u = db.users.find(u => u.phone === phone);
+    if (!u) return null;
+    if (u.role === 'staff' && u.staff_of) {
+      const shop = db.users.find(s => s.id === u.staff_of);
+      return { ...u, shopName: shop?.name || null, shopLogo: shop?.logo || null };
+    }
+    return u;
+  },
+
   async loginByPhone(phone) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
