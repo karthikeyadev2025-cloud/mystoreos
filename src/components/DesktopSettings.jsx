@@ -39,6 +39,8 @@ const DesktopSettings = ({
   setNewStaffName,
   newStaffPhone,
   setNewStaffPhone,
+  newStaffPin,
+  setNewStaffPin,
   handleAddStaff,
   user,
   myDistributors = [],
@@ -574,41 +576,61 @@ const DesktopSettings = ({
             <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" compact />}>{null}</PlanGate>
           </h3>
           <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
-            Recruit staff assistants who can scan barcodes and log quick bills but cannot access sensitive Day Books or reports.
+            Add helpers who can scan barcodes and bill customers. You set their 4-digit PIN — share it with them directly.
           </p>
 
           <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" />}>
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <p style={{ margin: 0, fontSize: '11px', color: '#475569', fontWeight: 'bold' }}>Add Helper Account</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <input 
-                  type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
-                  placeholder="Helper Name" 
-                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }} 
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
+              <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#475569', fontWeight: '700' }}>➕ Add New Staff Member</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                <input
+                  type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)}
+                  placeholder="Staff Name (e.g. Raju)"
+                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
                 />
-                <input 
-                  type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
-                  placeholder="Mobile Login ID" 
-                  style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }} 
+                <input
+                  type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)}
+                  placeholder="Mobile Number (login ID)"
+                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
                 />
               </div>
-              <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', marginTop: '4px', alignSelf: 'flex-start' }}>
-                + Register Helper (Default PIN: 1234)
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '4px', fontWeight: '700' }}>🔐 Set 4-digit PIN (you choose, share with staff)</label>
+                  <input
+                    type="password" value={newStaffPin} onChange={e => setNewStaffPin(e.target.value.replace(/\D/g,'').slice(0,4))}
+                    placeholder="e.g. 5678" inputMode="numeric" maxLength={4}
+                    style={{ width: '100%', padding: '8px 10px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '14px', outline: 'none', letterSpacing: '0.3em', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {newStaffPin.length === 4 && (
+                  <div style={{ background: '#ECFDF5', border: '1px solid #6EE7B7', borderRadius: '8px', padding: '6px 10px', flexShrink: 0, marginTop: '16px' }}>
+                    <span style={{ fontSize: '11px', color: '#059669', fontWeight: '700' }}>✓ PIN ready</span>
+                  </div>
+                )}
+              </div>
+              <button onClick={handleAddStaff} style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '9px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                + Add Staff Member
               </button>
             </div>
 
-            <h4 style={{ fontSize: '12px', color: '#475569', marginBottom: '10px', fontWeight: 'bold' }}>Active Staff roster</h4>
+            <h4 style={{ fontSize: '12px', color: '#475569', marginBottom: '10px', fontWeight: 'bold' }}>Active Staff</h4>
             {staffList.length === 0 ? (
-              <p style={{ color: '#64748B', fontSize: '11px', margin: 0 }}>No assistant accounts registered.</p>
+              <p style={{ color: '#64748B', fontSize: '11px', margin: 0 }}>No staff added yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {staffList.map(s => (
-                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                    <div>
-                      <h5 style={{ margin: 0, fontSize: '12px', color: '#0F172A' }}>{s.name}</h5>
-                      <p style={{ margin: 0, fontSize: '10px', color: '#475569' }}>Ph: {s.phone}</p>
+                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
+                        {(s.name || 'S')[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '12px', color: '#0F172A' }}>{s.name}</div>
+                        <div style={{ fontSize: '10px', color: '#64748B' }}>📱 {s.phone}</div>
+                      </div>
                     </div>
-                    <span style={{ background: '#DCFCE7', color: '#15803D', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active PIN: 1234</span>
+                    <span style={{ background: '#DCFCE7', color: '#15803D', fontSize: '10px', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>● Active</span>
                   </div>
                 ))}
               </div>

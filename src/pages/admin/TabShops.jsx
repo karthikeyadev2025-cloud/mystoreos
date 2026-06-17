@@ -1,7 +1,148 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw, ChevronDown, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw, ChevronDown, AlertTriangle, Eye, EyeOff, Store, Phone, MapPin, Image, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
+
+const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', trial: '#64748b' };
+const TIER_LABELS = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise', trial: 'Trial' };
+
+const S = {
+  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  badge: (tier) => ({ background: `${TIER_COLORS[tier] || '#64748b'}15`, color: TIER_COLORS[tier] || '#64748b', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, whiteSpace: 'nowrap' }),
+  btn: (color = '#4F46E5') => ({ height: '36px', background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '8px', padding: '0 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }),
+  input: { background: '#FFFFFF', border: '1px solid #D1D5DB', borderRadius: '8px', color: '#0F172A', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  th: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 16px', textAlign: 'left', whiteSpace: 'nowrap' },
+  td: { color: '#0F172A', fontSize: '13px', padding: '14px 16px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
+};
+
+const FILTERS = ['all', 'trial', 'starter', 'pro', 'enterprise', 'pending'];
+
+// ── Shop Verification Modal ─────────────────────────────────────────────────
+function ShopVerifyModal({ shop, onClose, onApprove, onSuspend }) {
+  const [lightbox, setLightbox] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const photos = shop.shopPhotos || [];
+
+  const doApprove = async () => {
+    setBusy(true);
+    try { await onApprove(shop); onClose(); }
+    catch { toast.error('Failed'); }
+    finally { setBusy(false); }
+  };
+  const doSuspend = async () => {
+    setBusy(true);
+    try { await onSuspend(shop); onClose(); }
+    catch { toast.error('Failed'); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#FFFFFF', borderRadius: '20px', width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+
+        {/* Header */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: shop.status === 'pending' ? 'linear-gradient(135deg,#FEF3C7,#FFF7ED)' : 'linear-gradient(135deg,#ECFDF5,#F0FDF4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {shop.logo
+              ? <img src={shop.logo} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover', border: '2px solid #E5E7EB' }} />
+              : <div style={{ width: 52, height: 52, borderRadius: 12, background: 'linear-gradient(135deg,#4F46E5,#3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: '#fff' }}>{(shop.name||'S')[0]}</div>
+            }
+            <div>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#0F172A' }}>{shop.name}</h2>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+                <span style={S.badge(shop.subscriptionTier || shop.subscription || 'trial')}>{TIER_LABELS[shop.subscriptionTier || shop.subscription] || 'Trial'}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: shop.status === 'active' ? '#10B981' : '#F59E0B', background: shop.status === 'active' ? '#ECFDF5' : '#FEF3C7', border: `1px solid ${shop.status === 'active' ? '#6EE7B7' : '#FCD34D'}`, padding: '2px 8px', borderRadius: 20 }}>
+                  {shop.status === 'active' ? '● Active' : '● Pending Approval'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'rgba(0,0,0,0.06)', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={16} /></button>
+        </div>
+
+        <div style={{ padding: '24px' }}>
+          {/* Info grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+            {[
+              { icon: Phone, label: 'Phone', value: shop.phone },
+              { icon: MapPin, label: 'Location', value: shop.businessAddress || (shop.latitude ? `${shop.latitude?.toFixed(4)}, ${shop.longitude?.toFixed(4)}` : '—') },
+              { icon: Store, label: 'Category', value: shop.shopCategory || '—' },
+              { icon: Store, label: 'GSTIN', value: shop.gstin || '—' },
+              { icon: Store, label: 'Joined', value: shop.createdAt ? new Date(shop.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—' },
+              { icon: Store, label: 'UPI ID', value: shop.upiId || '—' },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 14px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <Icon size={14} color="#64748B" style={{ marginTop: 2, flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginTop: 2, wordBreak: 'break-all' }}>{value || '—'}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Shop Photos */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Image size={15} color="#64748B" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>Shop Photos ({photos.length})</span>
+            </div>
+            {photos.length === 0 ? (
+              <div style={{ background: '#F8FAFC', border: '2px dashed #CBD5E1', borderRadius: 10, padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
+                ⚠️ No shop photos uploaded — consider requesting photos before approval
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {photos.map((src, i) => (
+                  <div key={i} onClick={() => setLightbox(i)} style={{ cursor: 'zoom-in', position: 'relative', borderRadius: 10, overflow: 'hidden', border: '1px solid #E2E8F0', aspectRatio: '4/3' }}>
+                    <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    {i === 0 && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', fontSize: 9, fontWeight: 800, color: '#fff', padding: '3px 6px', textAlign: 'center' }}>COVER</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 12, paddingTop: 16, borderTop: '1px solid #E5E7EB' }}>
+            {shop.status === 'pending' ? (
+              <>
+                <button disabled={busy} onClick={doApprove} style={{ flex: 2, background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', border: 'none', padding: '13px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <CheckCircle size={16} /> Approve Shop
+                </button>
+                <button disabled={busy} onClick={onClose} style={{ flex: 1, background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', padding: '13px', borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                  Review Later
+                </button>
+              </>
+            ) : (
+              <>
+                <button disabled={busy} onClick={doSuspend} style={{ flex: 1, background: 'linear-gradient(135deg,#EF4444,#DC2626)', color: '#fff', border: 'none', padding: '12px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <XCircle size={14} /> Suspend
+                </button>
+                <button disabled={busy} onClick={onClose} style={{ flex: 1, background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', padding: '12px', borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                  Close
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Lightbox */}
+      {lightbox !== null && (
+        <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1300, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 20 }}>
+          <img src={photos[lightbox]} alt="" style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 12 }} onClick={e => e.stopPropagation()} />
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            {lightbox > 0 && <button onClick={e => { e.stopPropagation(); setLightbox(lightbox - 1); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 40, height: 40, borderRadius: '50%', fontSize: 20, cursor: 'pointer' }}>‹</button>}
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{lightbox + 1} / {photos.length}</span>
+            {lightbox < photos.length - 1 && <button onClick={e => { e.stopPropagation(); setLightbox(lightbox + 1); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 40, height: 40, borderRadius: '50%', fontSize: 20, cursor: 'pointer' }}>›</button>}
+          </div>
+          <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', trial: '#64748b' };
 const TIER_LABELS = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise', trial: 'Trial' };
@@ -88,6 +229,7 @@ export default function TabShops() {
   const [filter, setFilter] = useState('all');
   const [resetModal, setResetModal] = useState(null);
   const [upgradeModal, setUpgradeModal] = useState(null);
+  const [verifyModal, setVerifyModal] = useState(null);
   const [busy, setBusy] = useState({});
 
   const load = async () => {
@@ -154,6 +296,64 @@ export default function TabShops() {
         </div>
       )}
 
+      {/* Pending Approval Queue */}
+      {pending.filter(u => u.role === 'shop').length > 0 && (
+        <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '14px', padding: '20px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <AlertTriangle size={18} color="#D97706" />
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#92400E' }}>
+              {pending.filter(u => u.role === 'shop').length} Shop{pending.filter(u => u.role === 'shop').length !== 1 ? 's' : ''} Awaiting Approval
+            </h3>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+            {pending.filter(u => u.role === 'shop').map(shop => {
+              const photos = shop.shopPhotos || [];
+              return (
+                <div key={shop.id} style={{ background: '#FFFFFF', border: '1px solid #FCD34D', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                  {/* Cover photo or gradient */}
+                  <div style={{ height: 100, background: photos[0] ? `url(${photos[0]}) center/cover` : 'linear-gradient(135deg,#4F46E5,#3B82F6)', position: 'relative' }}>
+                    {!photos[0] && (
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: '#fff', opacity: 0.7 }}>
+                        {(shop.name||'S')[0]}
+                      </div>
+                    )}
+                    {photos.length > 1 && (
+                      <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10 }}>
+                        +{photos.length} photos
+                      </div>
+                    )}
+                    <div style={{ position: 'absolute', bottom: 6, left: 6, background: '#F59E0B', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 8 }}>
+                      PENDING
+                    </div>
+                  </div>
+                  <div style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      {shop.logo
+                        ? <img src={shop.logo} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover', border: '1px solid #E2E8F0', flexShrink: 0 }} />
+                        : <div style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg,#4F46E5,#818CF8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{(shop.name||'S')[0]}</div>
+                      }
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{shop.name}</div>
+                        <div style={{ fontSize: 11, color: '#64748B' }}>📱 {shop.phone}</div>
+                      </div>
+                    </div>
+                    {shop.businessAddress && <div style={{ fontSize: 11, color: '#64748B', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📍 {shop.businessAddress}</div>}
+                    <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: '10px' }}>
+                      Joined {shop.createdAt ? new Date(shop.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => setVerifyModal(shop)} style={{ flex: 1, background: '#4F46E5', border: 'none', color: '#fff', padding: '8px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                        <Eye size={12} /> Review & Approve
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div style={S.card}>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
           <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
@@ -210,11 +410,12 @@ export default function TabShops() {
                     <td style={{ ...S.td, minWidth: '320px' }}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {shop.status === 'pending'
-                          ? <button disabled={isBusy} onClick={() => approve(shop)} style={S.btn('#10B981')}><CheckCircle size={12} />Approve</button>
+                          ? <button disabled={isBusy} onClick={() => setVerifyModal(shop)} style={S.btn('#F59E0B')}><Eye size={12} />Review</button>
                           : shop.status === 'active'
                             ? <button disabled={isBusy} onClick={() => suspend(shop)} style={S.btn('#F59E0B')}><XCircle size={12} />Suspend</button>
                             : <button disabled={isBusy} onClick={() => unsuspend(shop)} style={S.btn('#10B981')}><ShieldCheck size={12} />Activate</button>
                         }
+                        <button disabled={isBusy} onClick={() => setVerifyModal(shop)} style={S.btn('#0EA5E9')}><Eye size={12} />View</button>
                         <button disabled={isBusy} onClick={() => setUpgradeModal(shop)} style={S.btn('#4F46E5')}><ChevronDown size={12} />Plan</button>
                         <button disabled={isBusy} onClick={() => toggleVisibility(shop)} style={S.btn(shop.hideFromSearch ? '#64748B' : '#0EA5E9')}>{shop.hideFromSearch ? <><EyeOff size={12} />Hidden</> : <><Eye size={12} />Visible</>}</button>
                         <button disabled={isBusy} onClick={() => setResetModal(shop)} style={S.btn('#475569')}><Key size={12} />Reset PW</button>
@@ -231,6 +432,14 @@ export default function TabShops() {
 
       {resetModal && <ResetPassModal shop={resetModal} onClose={() => setResetModal(null)} onDone={() => { setResetModal(null); load(); }} />}
       {upgradeModal && <UpgradeModal shop={upgradeModal} onClose={() => setUpgradeModal(null)} onDone={() => { setUpgradeModal(null); load(); }} />}
+      {verifyModal && (
+        <ShopVerifyModal
+          shop={verifyModal}
+          onClose={() => setVerifyModal(null)}
+          onApprove={async (s) => { await approve(s); setVerifyModal(null); }}
+          onSuspend={async (s) => { await suspend(s); setVerifyModal(null); }}
+        />
+      )}
     </div>
   );
 }

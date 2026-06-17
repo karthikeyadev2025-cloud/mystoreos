@@ -24,7 +24,7 @@ export function useSubscription() {
   }, [user]);
 
   const isOnTrial = useMemo(
-    () => !!(user && user.subscription === 'trial' && !isTrialExpired(user)),
+    () => !!(user && user.subscription === 'trial' && !isTrialExpired(user) && user.subscription !== 'active' && !user.subscriptionTier),
     [user]
   );
 

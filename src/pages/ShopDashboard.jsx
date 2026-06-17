@@ -204,6 +204,7 @@ const ShopDashboard = () => {
   // Staff Management
   const [staffList, setStaffList] = useState([]);
   const [newStaffPhone, setNewStaffPhone] = useState('');
+  const [newStaffPin, setNewStaffPin] = useState('');
   const [newStaffName, setNewStaffName] = useState('');
   const [showStaffModal, setShowStaffModal] = useState(false);
 
@@ -359,19 +360,20 @@ const ShopDashboard = () => {
   }, [customerPhone, targetShopId, loyaltyEnabled]);
 
   const decodeOrderUserId = (userId) => {
-    if (!userId) return { type: 'bill', name: 'Walk-in Customer', phone: '' };
+    if (!userId) return { type: 'bill', name: 'Walk-in Customer', phone: '', staffId: null, staffName: null };
     const parts = userId.split(':');
     if (parts.length >= 2) {
-      const type = parts[0]; // 'estimate', 'challan', 'walk-in'
+      const type = parts[0];
       const name = parts[1] || 'Guest';
       const phone = parts[2] || '';
-      return { type, name, phone };
+      // Staff encoding: walk-in:CustomerName:Phone:staff:staffId:staffName
+      const staffIdx = parts.indexOf('staff');
+      const staffId   = staffIdx !== -1 ? (parts[staffIdx + 1] || null) : null;
+      const staffName = staffIdx !== -1 ? (parts[staffIdx + 2] || null) : null;
+      return { type, name, phone, staffId, staffName };
     }
-    // Fallback: a bare userId. If it's a UUID (a registered storefront customer
-    // reference), don't show the raw UUID — show a friendly label. Otherwise show
-    // the literal walk-in label.
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-    return { type: 'bill', name: (userId === 'walk-in-customer' || isUuid) ? 'Walk-in Customer' : userId, phone: '' };
+    return { type: 'bill', name: (userId === 'walk-in-customer' || isUuid) ? 'Walk-in Customer' : userId, phone: '', staffId: null, staffName: null };
   };
 
   const checkExpiryStatus = (expiryDateStr) => {
@@ -607,12 +609,14 @@ const ShopDashboard = () => {
     
     try {
       let finalUserId = 'walk-in-customer';
+      // Encode staff biller so bills can be filtered by staff in reports
+      const staffSuffix = (user.role === 'staff' && user.id) ? `:staff:${user.id}:${user.name || ''}` : '';
       if (billingMode === 'estimate') {
-        finalUserId = `estimate:${customerName || 'Guest'}:${customerPhone || ''}`;
+        finalUserId = `estimate:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
       } else if (billingMode === 'challan') {
-        finalUserId = `challan:${customerName || 'Guest'}:${customerPhone || ''}`;
+        finalUserId = `challan:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
       } else {
-        finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}`;
+        finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
       }
 
       await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
@@ -1071,7 +1075,7 @@ const ShopDashboard = () => {
     if (!isThermal) doc.text("MyStore OS © " + new Date().getFullYear(), marginL, yOffset);
 
       // Watermark on trial bills
-      const isTrialBill = !user.subscriptionTier || user.subscriptionTier === 'trial' || user.subscription === 'trial' || user.subscription === 'expired';
+      const isTrialBill = !user.subscriptionTier && (user.subscription === 'trial' || user.subscription === 'expired');
       if (isTrialBill) {
         doc.setGState(new doc.GState({ opacity: 0.08 }));
         doc.setTextColor(220, 38, 38);
@@ -1612,12 +1616,15 @@ const ShopDashboard = () => {
 
   const handleAddStaff = async () => {
     if (!hasFeature('staffAccounts')) return toast.error("Staff accounts require the PRO plan. Please upgrade.");
-    if (!newStaffPhone || !newStaffName) return toast.error("Phone and Name required");
+    if (!newStaffPhone || !newStaffName) return toast.error("Phone and Name are required");
+    const pin = newStaffPin.trim();
+    if (!pin || !/^\d{4}$/.test(pin)) return toast.error("Set a 4-digit PIN for this staff member");
     try {
-      await safe(() => api.addStaff(targetShopId, newStaffPhone, '1234', newStaffName));
-      toast.success("Staff member added! PIN is 1234.");
+      await safe(() => api.addStaff(targetShopId, newStaffPhone, pin, newStaffName));
+      toast.success(`✅ ${newStaffName} added! Their login PIN is ${pin}`);
       setNewStaffName('');
       setNewStaffPhone('');
+      setNewStaffPin('');
       setShowStaffModal(false);
       loadData();
     } catch(err) {
@@ -2461,6 +2468,8 @@ const ShopDashboard = () => {
               setNewStaffName={setNewStaffName}
               newStaffPhone={newStaffPhone}
               setNewStaffPhone={setNewStaffPhone}
+              newStaffPin={newStaffPin}
+              setNewStaffPin={setNewStaffPin}
               handleAddStaff={handleAddStaff}
               sysSettings={sysSettings}
               setSysSettings={setSysSettings}
@@ -3438,7 +3447,7 @@ const ShopDashboard = () => {
             }
 
             return filteredOrders.map(o => {
-              const { type, name, phone } = decodeOrderUserId(o.userId);
+              const { type, name, phone, staffName } = decodeOrderUserId(o.userId);
               
               // Custom borders/accents for draft cards
               let cardBorder = '1px solid #334155';
@@ -3466,6 +3475,7 @@ const ShopDashboard = () => {
                     <div>
                       <span style={{fontWeight:'bold', fontSize: '15px', color: '#fff'}}>{name}</span>
                       {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8'}}>Ph: {phone}</p>}
+                      {staffName && <p style={{margin: '2px 0 0 0', fontSize: '10px', color: '#818CF8'}}>👤 Billed by: {staffName}</p>}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                       {badgeText && (
@@ -4655,18 +4665,27 @@ const ShopDashboard = () => {
               
               {hasFeature('staffAccounts') ? (
               <div style={{ background: '#0F172A', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>Add New Staff</h4>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>➕ Add New Staff Member</h4>
                 <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                  <input 
-                    type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} 
-                    placeholder="Staff Name (e.g. Raju Helper)" 
-                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                  <input
+                    type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)}
+                    placeholder="Staff Name (e.g. Raju Helper)"
+                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
                   />
-                  <input 
-                    type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} 
-                    placeholder="Staff Mobile Number" 
-                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                  <input
+                    type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)}
+                    placeholder="Staff Mobile Number (login ID)"
+                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
                   />
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '6px', fontWeight: '700' }}>🔐 Set 4-digit PIN (you choose, share with staff)</label>
+                    <input
+                      type="password" value={newStaffPin} onChange={e => setNewStaffPin(e.target.value.replace(/\D/g,'').slice(0,4))}
+                      placeholder="e.g. 5678" inputMode="numeric" maxLength={4}
+                      style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: `1px solid ${newStaffPin.length === 4 ? '#22C55E' : '#334155'}`, borderRadius: '8px', color: '#fff', fontSize: '18px', letterSpacing: '0.4em', outline: 'none' }}
+                    />
+                    {newStaffPin.length === 4 && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#22C55E' }}>✓ PIN set — share this with the staff member</p>}
+                  </div>
                   <button onClick={handleAddStaff} style={{ width: '100%', background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                     + Add Staff Member
                   </button>
@@ -4690,7 +4709,7 @@ const ShopDashboard = () => {
                     <h5 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{s.name}</h5>
                     <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Ph: {s.phone}</p>
                   </div>
-                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22C55E', fontWeight: 'bold' }}>Active PIN: 1234</span>
+                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22C55E', fontWeight: 'bold' }}>● Active</span>
                 </div>
               ))}
             </div>
