@@ -429,15 +429,15 @@ const DesktopInventory = ({
                 {adjustTarget === p.id && (
                   <div style={{ marginTop: '10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <p style={{ margin: 0, fontSize: '11px', color: '#4F46E5', fontWeight: 'bold' }}>Adjust Stock (current: {p.stock || 0})</p>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', minWidth: 0 }}>
                       <input
                         type="number"
                         placeholder="±delta (e.g. -5 or +10)"
                         value={adjustDelta}
                         onChange={e => setAdjustDelta(e.target.value)}
-                        style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
+                        style={{ flex: 1, minWidth: 0, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}
                       />
-                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
+                      <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '5px 8px', background: '#FFFFFF', border: '1px solid #C7D2FE', borderRadius: '6px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
                         {['Correction','Damaged','Expired','Sample','Theft','Incoming'].map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
