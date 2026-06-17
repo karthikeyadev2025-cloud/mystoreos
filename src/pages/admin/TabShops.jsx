@@ -144,20 +144,6 @@ function ShopVerifyModal({ shop, onClose, onApprove, onSuspend }) {
   );
 }
 
-const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', trial: '#64748b' };
-const TIER_LABELS = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise', trial: 'Trial' };
-
-const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
-  badge: (tier) => ({ background: `${TIER_COLORS[tier] || '#64748b'}15`, color: TIER_COLORS[tier] || '#64748b', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, whiteSpace: 'nowrap' }),
-  btn: (color = '#4F46E5') => ({ height: '36px', background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '8px', padding: '0 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }),
-  input: { background: '#FFFFFF', border: '1px solid #D1D5DB', borderRadius: '8px', color: '#0F172A', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
-  th: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 16px', textAlign: 'left', whiteSpace: 'nowrap' },
-  td: { color: '#0F172A', fontSize: '13px', padding: '14px 16px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
-};
-
-const FILTERS = ['all', 'trial', 'starter', 'pro', 'enterprise', 'pending'];
-
 function ResetPassModal({ shop, onClose, onDone }) {
   const [pass, setPass] = useState('');
   const [busy, setBusy] = useState(false);
