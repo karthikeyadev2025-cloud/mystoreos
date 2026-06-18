@@ -292,6 +292,65 @@ const ShopDashboard = () => {
     }
   };
 
+  // ── Order alert sound + browser notification ──────────────────────────────
+  const playOrderAlert = (count = 1) => {
+    // Play a cash-register style alert sound
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const playTone = (freq, start, dur, gain = 0.4) => {
+        const osc = ctx.createOscillator();
+        const g   = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        g.gain.setValueAtTime(gain, ctx.currentTime + start);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur + 0.05);
+      };
+      // Three-tone chime: ding-ding-ding
+      playTone(880, 0,    0.18, 0.45);
+      playTone(1100, 0.2, 0.18, 0.45);
+      playTone(1320, 0.4, 0.25, 0.45);
+      if (count > 1) {
+        playTone(880,  0.7, 0.18, 0.4);
+        playTone(1100, 0.9, 0.18, 0.4);
+        playTone(1320, 1.1, 0.25, 0.4);
+      }
+    } catch {}
+
+    // Browser notification (works even when tab is in background)
+    if ('Notification' in window) {
+      const show = () => {
+        try {
+          new Notification(`🛒 New Order — ${user.name}`, {
+            body: `You have ${count} new order${count > 1 ? 's' : ''} waiting! Open MyStore OS to accept.`,
+            icon: '/logo.png',
+            badge: '/logo.png',
+            tag: 'new-order',
+            renotify: true,
+          });
+        } catch {}
+      };
+      if (Notification.permission === 'granted') {
+        show();
+      } else if (Notification.permission === 'default') {
+        Notification.requestPermission().then(p => { if (p === 'granted') show(); });
+      }
+    }
+  };
+
+  // Request notification permission on mount (so it's ready when orders come in)
+  useEffect(() => {
+    if (isOwner && 'Notification' in window && Notification.permission === 'default') {
+      // Delay request slightly so it doesn't fire immediately on load
+      const t = setTimeout(() => {
+        Notification.requestPermission().catch(() => {});
+      }, 5000);
+      return () => clearTimeout(t);
+    }
+  }, [isOwner]);
+
   const loadData = useCallback(async () => {
     // Always re-fetch the shop owner's profile so logo/QR/name stay in sync
     // across devices (mobile upload reflects on desktop and vice versa)
@@ -321,7 +380,23 @@ const ShopDashboard = () => {
       ...o,
       status: o.status ? o.status.charAt(0).toUpperCase() + o.status.slice(1).toLowerCase() : o.status
     }));
-    setOrders(normalizedOrders);
+    setOrders(prev => {
+      // Detect NEW pending orders → play alert sound + browser notification
+      const prevPendingCount = prev.filter(o =>
+        o.status === 'Pending' &&
+        !o.userId?.startsWith('estimate') &&
+        !o.userId?.startsWith('challan')
+      ).length;
+      const newPendingCount = normalizedOrders.filter(o =>
+        o.status === 'Pending' &&
+        !o.userId?.startsWith('estimate') &&
+        !o.userId?.startsWith('challan')
+      ).length;
+      if (newPendingCount > prevPendingCount) {
+        playOrderAlert(newPendingCount - prevPendingCount);
+      }
+      return normalizedOrders;
+    });
     setWholesaleCatalog((await safe(() => api.getDistributorProducts())) || []);
 
     // Load Global Announcement

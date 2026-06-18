@@ -284,6 +284,9 @@ const UserDashboard = () => {
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [guestName, setGuestName] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
+  const [guestPassword, setGuestPassword] = useState('');
+  const [guestShowPw, setGuestShowPw] = useState(false);
+  const [guestStep, setGuestStep] = useState('form'); // 'form' | 'success'
   const [paymentProof, setPaymentProof] = useState('');
   const [isLocatingCatalog, setIsLocatingCatalog] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('upi');
@@ -802,21 +805,30 @@ const UserDashboard = () => {
   };
 
   const handleGuestLogin = async () => {
-    if (!guestName || !/^\d{10}$/.test(guestPhone)) return alert('Enter a valid name and 10-digit phone number');
+    if (!guestName.trim()) return toast.error('Enter your name');
+    if (!/^\d{10}$/.test(guestPhone)) return toast.error('Enter a valid 10-digit mobile number');
+    if (!guestPassword || guestPassword.length < 4) return toast.error('Set a password — minimum 4 characters');
     try {
       let loggedInUser;
       try {
-        await api.register(guestName, guestPhone, '0000', 'customer');
-        loggedInUser = await api.login(guestPhone, '0000');
+        // Try registering as a new customer with their chosen password
+        await api.register(guestName.trim(), guestPhone, guestPassword, 'customer');
+        loggedInUser = await api.login(guestPhone, guestPassword);
       } catch {
-        loggedInUser = await api.loginByPhone(guestPhone);
+        // Account already exists — try logging in with entered password
+        try {
+          loggedInUser = await api.login(guestPhone, guestPassword);
+        } catch {
+          // Password mismatch — show helpful message
+          toast.error('Account exists with a different password. Enter your existing password to continue.');
+          return;
+        }
       }
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
-      setShowGuestModal(false);
-      setShowWaModal(true);
+      setGuestStep('success');
     } catch (err) {
-      alert("Error onboarding guest account: " + err.message);
+      toast.error(err.message || 'Could not create account. Try again.');
     }
   };
 
@@ -848,22 +860,26 @@ const UserDashboard = () => {
       playPaymentSuccessSound();
       speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
       
-      let msg = `*🛒 NEW MYSTORE ORDER* 🚀\n`;
-      msg += `-----------------------------\n`;
-      msg += `*Shop:* ${shopInfo?.name || 'Partner Store'}\n`;
-      msg += `*Customer:* ${user.name} (${user.phone})\n`;
-      msg += `-----------------------------\n`;
+      let msg = `*🛒 NEW ORDER — ${shopInfo?.name || 'Your Store'}*\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `👤 *Customer:* ${user.name}\n`;
+      msg += `📱 *Mobile:* +91${user.phone}\n`;
+      msg += `🕐 *Time:* ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       items.forEach(item => {
-        msg += `• ${item.name} (${item.weight || '1 unit'})\n`;
-        msg += `  Qty: ${item.qty}  x  ₹${item.price}  =  *₹${item.price * item.qty}*\n`;
+        const line = item.price * item.qty;
+        msg += `• *${item.name}*${item.weight ? ` (${item.weight})` : ''}\n`;
+        msg += `  ${item.qty} × ₹${item.price} = *₹${line}*\n`;
       });
-      msg += `-----------------------------\n`;
-      msg += `*🧾 TOTAL AMOUNT: ₹${total}*\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💰 *TOTAL: ₹${total}*\n`;
+      msg += `💳 *Payment:* ${paymentMethod === 'upi' ? '📱 UPI' : '💵 Cash'}\n`;
       if (paymentProof) {
-        msg += `*💳 Payment Proof ID:* ${paymentProof}\n`;
+        msg += `🧾 *UPI Ref:* ${paymentProof}\n`;
       }
-      msg += `-----------------------------\n`;
-      msg += `Thank you! Powered by MyStore OS.`;
+      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `Reply *CONFIRMED* to accept this order.\n`;
+      msg += `_Powered by MyStore OS_`;
 
       const shopPhone = shopInfo?.phone || '9876543210';
       window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1835,15 +1851,94 @@ const UserDashboard = () => {
         )}
 
         {showGuestModal && (
-          <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', width: '100%', maxWidth: '350px', borderRadius: '24px', padding: '24px' }}>
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px 0', color: '#0F172A' }}>Customer Onboarding 🚀</h2>
-              </div>
-              <input type="text" placeholder="Your Full Name" value={guestName} onChange={e=>setGuestName(e.target.value)} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '12px' }} />
-              <input type="tel" placeholder="10-Digit Mobile Number" value={guestPhone} onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} style={{ padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', marginBottom: '20px' }} />
-              <button onClick={handleGuestLogin} style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', padding: '12px' }}>Submit & Proceed</button>
-              <button onClick={() => setShowGuestModal(false)} style={{ background: 'transparent', color: '#64748b', padding: '10px', marginTop: '6px' }}>Cancel</button>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+            <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '380px', borderRadius: '24px', padding: '28px', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
+              {guestStep === 'success' ? (
+                /* ── Success step ── */
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '52px', marginBottom: '12px' }}>🎉</div>
+                  <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 8px', color: '#0F172A' }}>Account Created!</h2>
+                  <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 6px', lineHeight: 1.6 }}>
+                    Your orders, bills, and loyalty points will now be saved to your account.
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 20px' }}>
+                    📱 Login anytime at <strong>mystoreos.in</strong> with your mobile number and password.
+                  </p>
+                  <button
+                    onClick={() => { setGuestStep('form'); setShowGuestModal(false); setShowWaModal(true); }}
+                    style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: 'pointer' }}
+                  >
+                    Continue to Order ➔
+                  </button>
+                </div>
+              ) : (
+                /* ── Form step ── */
+                <>
+                  <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+                    <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>🛒</div>
+                    <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 4px', color: '#0F172A' }}>Quick Sign Up</h2>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Create your free account to place orders &amp; track bills</p>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
+                    <input
+                      type="text"
+                      placeholder="Your Full Name"
+                      value={guestName}
+                      onChange={e => setGuestName(e.target.value)}
+                      style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                      onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                      onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                    />
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13, fontWeight: 600, pointerEvents: 'none' }}>+91</span>
+                      <input
+                        type="tel"
+                        placeholder="10-digit mobile number"
+                        value={guestPhone}
+                        onChange={e => setGuestPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
+                        style={{ width: '100%', padding: '12px 14px 12px 42px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                        onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                        onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                      />
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={guestShowPw ? 'text' : 'password'}
+                        placeholder="Create a password (min 4 chars)"
+                        value={guestPassword}
+                        onChange={e => setGuestPassword(e.target.value)}
+                        style={{ width: '100%', padding: '12px 42px 12px 14px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                        onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                        onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                      />
+                      <button type="button" onClick={() => setGuestShowPw(v => !v)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}>
+                        {guestShowPw ? '🙈' : '👁'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', display: 'flex', gap: '8px' }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#4F46E5', lineHeight: 1.5 }}>
+                      Remember this password — you can use it to login and view all your past bills &amp; orders at any time.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleGuestLogin}
+                    style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 16px rgba(79,70,229,0.35)' }}
+                  >
+                    Create Account &amp; Continue
+                  </button>
+                  <button
+                    onClick={() => setShowGuestModal(false)}
+                    style={{ width: '100%', background: 'transparent', border: 'none', color: '#94A3B8', padding: '8px', fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -3045,11 +3140,17 @@ const UserDashboard = () => {
             </div>
 
             {/* WhatsApp confirmation buttons */}
+            <div style={{ background: '#ECFDF5', border: '1px solid #6EE7B7', borderRadius: '12px', padding: '10px 14px', marginBottom: '14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: 18, flexShrink: 0 }}>🔔</span>
+              <p style={{ margin: 0, fontSize: '12px', color: '#065F46', lineHeight: 1.5 }}>
+                The shopkeeper will get an <strong>instant alert</strong> with your name, mobile, and order details on WhatsApp.
+              </p>
+            </div>
             <button 
               onClick={sendWhatsAppOrder} 
-              style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
+              style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '15px', borderRadius: '12px', fontSize: '15px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
             >
-              📲 Notify & Place Order via WhatsApp
+              📲 Place Order &amp; Notify Shop
             </button>
 
             <button 
