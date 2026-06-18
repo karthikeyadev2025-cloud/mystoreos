@@ -150,7 +150,10 @@ const toOrder = (row) => row ? ({
   id: row.id, userId: row.user_id, shopId: row.shop_id, items: row.items,
   total: row.total, status: row.status, date: row.created_at,
   customerGstin: row.customer_gstin, customerAddress: row.customer_address, customerStateCode: row.customer_state_code,
-  paymentMethod: row.payment_method || 'Cash'
+  paymentMethod: row.payment_method || 'Cash',
+  shopMessage: row.shop_message || null,
+  paymentVerified: row.payment_verified || false,
+  acceptedAt: row.accepted_at || null,
 }) : null;
 
 const toCredit = (row) => row ? ({
@@ -1105,16 +1108,30 @@ export const api = {
   async acceptOrder(orderId) {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
-        await enqueue({ table: 'orders', action: 'update', data: { status: 'Accepted' }, match: { id: orderId } });
+        await enqueue({ table: 'orders', action: 'update', data: { status: 'Accepted', accepted_at: new Date().toISOString() }, match: { id: orderId } });
         const db = getDB(); const o = db.orders.find(x => x.id === orderId); if (o) { o.status = 'Accepted'; saveDB(db); } return;
       }
-      await supabase.from('orders').update({ status: 'Accepted' }).eq('id', orderId);
+      await supabase.from('orders').update({ status: 'Accepted', accepted_at: new Date().toISOString() }).eq('id', orderId);
       return;
     }
     const db = getDB();
     const order = db.orders.find(o => o.id === orderId);
     if (order) order.status = 'Accepted';
     saveDB(db);
+  },
+
+  async verifyOrderPayment(orderId, message = '') {
+    if (isSupabaseConfigured) {
+      await supabase.from('orders').update({
+        status: 'Completed',
+        payment_verified: true,
+        shop_message: message || 'Payment verified by shopkeeper. Thank you!'
+      }).eq('id', orderId);
+      return;
+    }
+    const db = getDB();
+    const order = db.orders.find(o => o.id === orderId);
+    if (order) { order.status = 'Completed'; order.paymentVerified = true; order.shopMessage = message; saveDB(db); }
   },
 
   async processReturn(orderId, returnItems, _refundMode) {

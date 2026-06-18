@@ -19,6 +19,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './UserDashboard.css'; // Premium CSS file containing animations, keyframes, scrollbars and thermal styles
 import { buildUpiUri, canTapToPay } from '../lib/upi';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 
 
@@ -409,6 +410,35 @@ const UserDashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [user, activeTab, loadOrderHistory]);
+
+  // Realtime: re-fetch orders when shopkeeper accepts or verifies payment
+  useEffect(() => {
+    if (!user?.id || !isSupabaseConfigured) return;
+    const channelName = `user_orders_${user.id.slice(0,8)}`;
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` }, async (payload) => {
+        const newRow = payload.new;
+        if (newRow.status === 'Accepted') {
+          toast.success('✅ Your order has been accepted by the shop!', { autoClose: 5000 });
+          // Play a gentle sound
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(); const g = ctx.createGain();
+            osc.connect(g); g.connect(ctx.destination);
+            osc.frequency.value = 660; g.gain.setValueAtTime(0.3, ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.start(); osc.stop(ctx.currentTime + 0.45);
+          } catch {}
+        }
+        if (newRow.status === 'Completed' && newRow.payment_verified) {
+          toast.success('💰 Payment verified! Your order is complete.', { autoClose: 6000 });
+        }
+        loadOrderHistory();
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id, loadOrderHistory]);
 
   useEffect(() => {
     if (isStoreMode && ACTIVE_SHOP_ID) {
@@ -2731,9 +2761,16 @@ const UserDashboard = () => {
 
                         <div style={{ textAlign: 'right' }}>
                           <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{order.total}</span>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '2px 8px', borderRadius: '8px', fontSize: '8px', fontWeight: '900', background: order.status === 'Accepted' || order.status === 'Completed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)', color: order.status === 'Accepted' || order.status === 'Completed' ? '#10b981' : '#f59e0b', textTransform: 'uppercase', marginTop: '3px' }}>
-                            {order.status || 'Pending'}
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '3px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800',
+                            background: order.status === 'Completed' || order.paymentVerified ? 'rgba(16,185,129,0.15)' : order.status === 'Accepted' ? 'rgba(79,70,229,0.12)' : 'rgba(245,158,11,0.15)',
+                            color: order.status === 'Completed' || order.paymentVerified ? '#10b981' : order.status === 'Accepted' ? '#4F46E5' : '#f59e0b',
+                            textTransform: 'uppercase', marginTop: '4px', display: 'block'
+                          }}>
+                            {order.status === 'Completed' || order.paymentVerified ? '💰 Paid & Done' : order.status === 'Accepted' ? '✅ Accepted' : '⏳ Pending'}
                           </div>
+                          {order.shopMessage && (
+                            <div style={{ fontSize: 10, color: '#10b981', marginTop: 3, maxWidth: 140, textAlign: 'right', lineHeight: 1.3 }}>{order.shopMessage}</div>
+                          )}
                         </div>
                       </div>
                     ))}

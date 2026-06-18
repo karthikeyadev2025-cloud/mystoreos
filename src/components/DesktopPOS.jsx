@@ -175,10 +175,33 @@ const DesktopPOS = ({
 
         {/* Search & Quick Actions */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '1px solid #E2E8F0', marginBottom: '16px' }}>
-            <Search size={16} color="#64748B" />
-            <input type="text" placeholder="Search products by name or barcode..." value={search} onChange={e => setSearch(e.target.value)}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '2px solid transparent', outline: 'none', marginBottom: '16px', transition: 'border-color .15s' }}
+            onFocusCapture={e => e.currentTarget.style.borderColor = '#4F46E5'}
+            onBlurCapture={e => e.currentTarget.style.borderColor = 'transparent'}
+          >
+            <Search size={16} color="#64748B" style={{ flexShrink: 0 }} />
+            <input type="text"
+              placeholder="Search by name, barcode, or price…  (/ to focus · Enter = add top)"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && filteredProducts.length > 0) {
+                  addToBill(filteredProducts[0]);
+                  setSearch('');
+                  e.preventDefault();
+                }
+                if (e.key === 'Escape') setSearch('');
+              }}
               style={{ background: 'transparent', border: 'none', margin: 0, color: '#0F172A', width: '100%', padding: '12px 0', outline: 'none', fontSize: '15px' }} />
+            {search && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <span style={{ fontSize: 12, color: '#4F46E5', fontWeight: 700 }}>{filteredProducts.length} found</span>
+                <button onClick={() => setSearch('')} style={{ background: '#E2E8F0', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              </div>
+            )}
+            {!search && (
+              <kbd style={{ fontSize: 11, color: '#94A3B8', background: '#E2E8F0', border: '1px solid #CBD5E1', borderRadius: 5, padding: '2px 6px', flexShrink: 0 }}>/</kbd>
+            )}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
             <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
@@ -208,12 +231,70 @@ const DesktopPOS = ({
           </div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid — smart search results or full grid */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Package size={18} color="#D97706" /> Quick Shelf Explorer
+            <Package size={18} color="#D97706" />
+            {search ? `Results for "${search}" — ${filteredProducts.length} found` : 'Quick Shelf Explorer'}
+            {search && filteredProducts.length > 0 && (
+              <span style={{ fontSize: 11, color: '#4F46E5', background: '#EEF2FF', padding: '2px 8px', borderRadius: 6, fontWeight: 600, marginLeft: 'auto' }}>↵ Enter adds first</span>
+            )}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px', alignContent: 'start' }}>
+
+          {/* Search results as list (faster to scan when searching) */}
+          {search ? (
+            filteredProducts.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748B' }}>
+                <div style={{ fontSize: 40, marginBottom: 8 }}>🔍</div>
+                <p style={{ fontWeight: 600, margin: '0 0 4px' }}>No product matching "{search}"</p>
+                <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>Try partial name, barcode, or price</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {filteredProducts.slice(0, 12).map((p, idx) => {
+                  const outOfStock = (p.stock || 0) <= 0;
+                  const inCart = billItems.find(b => b.id === p.id);
+                  const q = search.toLowerCase();
+                  const nameL = (p.name || '').toLowerCase();
+                  const matchIdx = nameL.indexOf(q);
+                  const name = p.name || '';
+                  const highlighted = matchIdx !== -1
+                    ? <>{name.slice(0, matchIdx)}<mark style={{ background: '#FDE68A', borderRadius: 2, padding: '0 1px' }}>{name.slice(matchIdx, matchIdx + q.length)}</mark>{name.slice(matchIdx + q.length)}</>
+                    : name;
+                  const sale = flashSales[p.id];
+                  const activeSale = sale && new Date(sale.expiresAt) > new Date();
+                  const displayPrice = activeSale ? Math.round(p.price * (1 - sale.discount / 100)) : p.price;
+                  return (
+                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: idx === 0 ? '#EEF2FF' : '#F8FAFC', border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '10px', opacity: outOfStock ? 0.55 : 1 }}>
+                      {(p.image || (p.images && p.images[0])) && (
+                        <img src={p.image || p.images[0]} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{highlighted}</div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: activeSale ? '#EF4444' : '#4F46E5' }}>₹{displayPrice}</span>
+                          {activeSale && <span style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</span>}
+                          <span style={{ fontSize: 11, color: outOfStock ? '#EF4444' : p.stock < 5 ? '#F59E0B' : '#94A3B8' }}>
+                            {outOfStock ? '● Out of stock' : p.stock < 5 ? `⚠ ${p.stock} left` : `Stock: ${p.stock}`}
+                          </span>
+                          {inCart && <span style={{ fontSize: 10, background: '#4F46E5', color: '#fff', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>×{inCart.qty} in bill</span>}
+                        </div>
+                      </div>
+                      <button
+                        disabled={outOfStock}
+                        onClick={() => !outOfStock && addToBill(p)}
+                        style={{ background: outOfStock ? '#E2E8F0' : inCart ? '#059669' : '#4F46E5', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: 13, cursor: outOfStock ? 'not-allowed' : 'pointer', flexShrink: 0 }}
+                      >
+                        {inCart ? `+1` : '+ Add'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            /* Normal grid view when not searching */
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '14px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
@@ -271,6 +352,7 @@ const DesktopPOS = ({
               </div>
             )}
           </div>
+          )} {/* end grid ternary */}
         </div>
         {footerSlot}
       </div>
