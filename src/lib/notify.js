@@ -44,7 +44,14 @@ async function trySMS(phone, text) {
 }
 
 function cleanPhone(phone) {
-  return (phone || '').replace(/\D/g, '');
+  const digits = (phone || '').replace(/\D/g, '');
+  if (!digits) return '';
+  // Already has country code (12+ digits starting with 91)
+  if (digits.length >= 12 && digits.startsWith('91')) return digits;
+  // 10-digit Indian number — add 91
+  if (digits.length === 10) return `91${digits}`;
+  // Already has country code but shorter (e.g. +1 US numbers)
+  return digits;
 }
 
 /**
@@ -54,13 +61,17 @@ function cleanPhone(phone) {
  */
 export async function sendWhatsApp(phone, message, { silent = false } = {}) {
   const p = cleanPhone(phone);
-  if (!p) return;
-
+  // Always try WhatsApp Cloud API first (silent background send)
   const sent = await tryWhatsAppCloud(p, message);
   if (sent) return;
 
   if (!silent) {
-    window.open(`https://wa.me/${p}?text=${encodeURIComponent(message)}`, '_blank');
+    // Open WhatsApp directly to the customer's number (not the contact picker)
+    // p is already normalized to country code format (e.g. 919876543210)
+    const waUrl = p
+      ? `https://wa.me/${p}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
     return;
   }
 

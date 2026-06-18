@@ -293,6 +293,27 @@ const ShopDashboard = () => {
   };
 
   const loadData = useCallback(async () => {
+    // Always re-fetch the shop owner's profile so logo/QR/name stay in sync
+    // across devices (mobile upload reflects on desktop and vice versa)
+    const ownerId = user.role === 'staff' ? user.staff_of : user.id;
+    const freshOwner = await safe(() => api.getUserById(ownerId));
+    if (freshOwner) {
+      // Update local state for display
+      if (freshOwner.logo      !== undefined) setLogo(freshOwner.logo || '');
+      if (freshOwner.paymentQr !== undefined) setPaymentQr(freshOwner.paymentQr || '');
+      if (freshOwner.upiId     !== undefined) setUpiId(freshOwner.upiId || '');
+      // Merge into auth session so next render uses fresh data (non-destructive)
+      if (user.role !== 'staff') {
+        const cached = JSON.parse(localStorage.getItem('mystore_session') || '{}');
+        const merged = { ...cached };
+        for (const k of Object.keys(freshOwner)) {
+          const v = freshOwner[k];
+          if (v !== null && v !== undefined && v !== '') merged[k] = v;
+        }
+        try { localStorage.setItem('mystore_session', JSON.stringify(merged)); } catch {}
+      }
+    }
+
     setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
     const rawOrders = (await safe(() => api.getShopOrders(targetShopId))) || [];
     // Normalize status capitalization for Tally/GST export filters
@@ -306,6 +327,11 @@ const ShopDashboard = () => {
     // Load Global Announcement
     const announce = await safe(() => api.getSiteConfig('announcement', DEFAULT_ANNOUNCE));
     setAnnounceConfig(announce || DEFAULT_ANNOUNCE);
+
+    if (user.role === 'staff') {
+      // Staff: load their own billing history for the shop
+      // (rawOrders already loaded above — filtered by shop_id which covers staff bills)
+    }
 
     if (isOwner) {
       setCredits((await safe(() => api.getShopCredits(targetShopId))) || []);
@@ -1177,6 +1203,12 @@ const ShopDashboard = () => {
           msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${ref}&cu=INR (enter Rs.${total})\n`;
         }
         await sendWhatsApp(customerPhone, msg);
+        // Also offer to open directly to customer's number on devices that support it
+        if (customerPhone) {
+          const cleanedPhone = customerPhone.replace(/\D/g, '');
+          const phoneWithCountry = cleanedPhone.startsWith('91') ? cleanedPhone : `91${cleanedPhone}`;
+          toast.info(`Bill sent! Opening WhatsApp for ${customerPhone}...`, { autoClose: 2000 });
+        }
       } else {
         // Starter plan: save PDF locally instead of WhatsApp share
         doc.save(pdfFileName);
