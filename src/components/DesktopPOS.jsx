@@ -75,6 +75,7 @@ const DesktopPOS = ({
   const [targetInput, setTargetInput] = useState('');
   const [showTargetInput, setShowTargetInput] = useState(false);
   const [expandedItemId, setExpandedItemId] = useState(null); // which cart item shows discount input
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false); // collapsed by default — cart needs the room
 
   const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
   const maxRedeemable = Math.floor(customerLoyaltyPoints / 10) * 10;
@@ -358,75 +359,91 @@ const DesktopPOS = ({
       </div>
 
       {/* ── Right Column: POS Cart ── */}
-      <div className="premium-glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 16px)', overflowY: 'auto', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+      <div className="premium-glass" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
 
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Receipt size={20} color="#64748B" /> POS Terminal
-          </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {billItems.length > 0 && (
-              <button onClick={onClearCart} title="Clear cart" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', borderRadius: '8px', padding: '4px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700' }}>
-                <Trash2 size={12} /> Clear
-              </button>
-            )}
-            <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10B981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
-              {billItems.length} item{billItems.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-
-        {/* Billing Mode */}
-        <div style={{ display: 'flex', gap: '4px', background: '#F1F5F9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-          {[['bill','Bill','#10B981'],['estimate','Estimate','#D97706'],['challan','Challan','#3B82F6']].map(([mode, label, color]) => (
-            <button key={mode} onClick={() => setBillingMode(mode)} style={{ flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: billingMode === mode ? `rgba(${mode === 'bill' ? '16,185,129' : mode === 'estimate' ? '245,158,11' : '59,130,246'},0.2)` : 'transparent', color: billingMode === mode ? color : '#64748B' }}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Customer Details */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px' }}>
-          <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>Customer Details</p>
-          <input type="text" placeholder="Customer Name" value={customerName} onChange={e => setCustomerName(e.target.value)}
-            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
-          <input type="tel" placeholder="Mobile Number" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
-            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
-          {loyaltyEnabled && customerPhone && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid #C7D2FE' }}>
-              <span style={{ fontSize: '11px' }}>⭐</span>
-              <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: '600' }}>
-                {customerLoyaltyPoints > 0 ? `${customerLoyaltyPoints} loyalty pts` : 'No loyalty pts yet'}
+        {/* ── PINNED TOP: Header + Billing Mode + Customer toggle ── */}
+        <div style={{ padding: '16px 16px 0', flexShrink: 0 }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Receipt size={20} color="#64748B" /> POS Terminal
+            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {billItems.length > 0 && (
+                <button onClick={onClearCart} title="Clear cart" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', borderRadius: '8px', padding: '4px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700' }}>
+                  <Trash2 size={12} /> Clear
+                </button>
+              )}
+              <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#10B981', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>
+                {billItems.length} item{billItems.length !== 1 ? 's' : ''}
               </span>
             </div>
-          )}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input type="text" placeholder="GSTIN (Optional)" value={customerGstin} onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-              style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
-            <input type="text" placeholder="State" value={customerStateCode} onChange={e => setCustomerStateCode(e.target.value)}
-              style={{ width: '72px', flexShrink: 0, padding: '8px 10px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
           </div>
-          <input type="text" placeholder="Billing Address (Optional)" value={customerAddress} onChange={e => setCustomerAddress(e.target.value)}
-            style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+
+          {/* Billing Mode */}
+          <div style={{ display: 'flex', gap: '4px', background: '#F1F5F9', padding: '4px', borderRadius: '12px', border: '1px solid #E2E8F0', marginBottom: '10px' }}>
+            {[['bill','Bill','#10B981'],['estimate','Estimate','#D97706'],['challan','Challan','#3B82F6']].map(([mode, label, color]) => (
+              <button key={mode} onClick={() => setBillingMode(mode)} style={{ flex: 1, padding: '8px 4px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: billingMode === mode ? `rgba(${mode === 'bill' ? '16,185,129' : mode === 'estimate' ? '245,158,11' : '59,130,246'},0.2)` : 'transparent', color: billingMode === mode ? color : '#64748B' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Customer Details — collapsible (saves space for the cart) */}
+          <button
+            onClick={() => setShowCustomerDetails(v => !v)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: showCustomerDetails ? '12px 12px 0 0' : '12px', padding: '9px 12px', cursor: 'pointer', marginBottom: 0 }}
+          >
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              👤 Customer Details
+              {(customerName || customerPhone) && !showCustomerDetails && (
+                <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: 600 }}>· {customerName || customerPhone}</span>
+              )}
+            </span>
+            <span style={{ fontSize: '11px', color: '#94A3B8', transform: showCustomerDetails ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
+          </button>
+          {showCustomerDetails && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '10px' }}>
+              <input type="text" placeholder="Customer Name" value={customerName} onChange={e => setCustomerName(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+              <input type="tel" placeholder="Mobile Number" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+              {loyaltyEnabled && customerPhone && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid #C7D2FE' }}>
+                  <span style={{ fontSize: '11px' }}>⭐</span>
+                  <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: '600' }}>
+                    {customerLoyaltyPoints > 0 ? `${customerLoyaltyPoints} loyalty pts` : 'No loyalty pts yet'}
+                  </span>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="text" placeholder="GSTIN (Optional)" value={customerGstin} onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
+                  style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
+                <input type="text" placeholder="State" value={customerStateCode} onChange={e => setCustomerStateCode(e.target.value)}
+                  style={{ width: '72px', flexShrink: 0, padding: '8px 10px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
+              </div>
+              <input type="text" placeholder="Billing Address (Optional)" value={customerAddress} onChange={e => setCustomerAddress(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+          )}
+
+          {/* Custom Item Row */}
+          <div style={{ display: 'flex', gap: '8px', background: '#F1F5F9', padding: '8px 12px', borderRadius: '10px', border: '1px solid #E2E8F0', alignItems: 'center', marginTop: '10px' }}>
+            <input type="text" placeholder="Custom item..." value={customItemName} onChange={e => setCustomItemName(e.target.value)}
+              style={{ flex: 1, background: 'transparent', border: 'none', color: '#0F172A', outline: 'none', fontSize: '13px', padding: '4px 0' }} />
+            <input type="number" placeholder="₹" value={customItemPrice} onChange={e => setCustomItemPrice(e.target.value)}
+              style={{ width: '60px', background: 'transparent', border: 'none', color: '#D97706', outline: 'none', fontSize: '13px', fontWeight: 'bold', padding: '4px 0' }} />
+            <button onClick={addCustomItem} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>Add</button>
+          </div>
         </div>
 
-        {/* Custom Item Row */}
-        <div style={{ display: 'flex', gap: '8px', background: '#F1F5F9', padding: '8px 12px', borderRadius: '10px', border: '1px solid #E2E8F0', alignItems: 'center' }}>
-          <input type="text" placeholder="Custom item..." value={customItemName} onChange={e => setCustomItemName(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: 'none', color: '#0F172A', outline: 'none', fontSize: '13px', padding: '4px 0' }} />
-          <input type="number" placeholder="₹" value={customItemPrice} onChange={e => setCustomItemPrice(e.target.value)}
-            style={{ width: '60px', background: 'transparent', border: 'none', color: '#D97706', outline: 'none', fontSize: '13px', fontWeight: 'bold', padding: '4px 0' }} />
-          <button onClick={addCustomItem} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>Add</button>
-        </div>
-
-        {/* Cart Items */}
-        <div style={{ flex: 1, minHeight: '80px', overflowY: 'auto' }}>
+        {/* ── SCROLLABLE MIDDLE: Cart Items — this is the part that needs room ── */}
+        <div style={{ flex: '1 1 auto', minHeight: '120px', overflowY: 'auto', padding: '10px 16px' }}>
           {billItems.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#64748B', fontSize: '13px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minHeight: '80px', justifyContent: 'center' }}>
-              <Package size={32} style={{ opacity: 0.2 }} />
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '13px' }}>Cart is Empty</p>
-              <p style={{ margin: 0, fontSize: '11px' }}>Search products, scan a barcode, or add a custom item</p>
+            <div style={{ textAlign: 'center', color: '#64748B', fontSize: '13px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', height: '100%', minHeight: '160px', justifyContent: 'center' }}>
+              <Package size={36} style={{ opacity: 0.2 }} />
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '14px' }}>Cart is Empty</p>
+              <p style={{ margin: 0, fontSize: '12px', maxWidth: '220px' }}>Search products, scan a barcode, or add a custom item to get started</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -495,8 +512,11 @@ const DesktopPOS = ({
           )}
         </div>
 
+        {/* ── PINNED BOTTOM: Discount + Totals + Payment + Buttons ── */}
+        <div style={{ flexShrink: 0, padding: '12px 16px 16px', borderTop: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '52vh', overflowY: 'auto' }}>
+
         {/* Bill-level Discount % */}
-        <div style={{ padding: '12px', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: '10px' }}>
+        <div style={{ padding: '12px', background: '#F8FAFC', borderRadius: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span style={{ fontSize: '12px', fontWeight: '600', color: '#475569', flex: 1 }}>Bill Discount %</span>
             {manualDiscountPct > 0 && (
@@ -582,6 +602,7 @@ const DesktopPOS = ({
           <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(217,119,6,0.08)', color: '#D97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <QrCode size={14} /> 📲 Show UPI QR to Customer
           </button>
+        </div>
         </div>
       </div>
 
