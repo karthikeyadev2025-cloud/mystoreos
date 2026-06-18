@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, Clock, Tag, Image, Truck } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
@@ -13,6 +13,19 @@ const DesktopSettings = ({
   businessAddress,
   setBusinessAddress,
   handleSaveProfile = () => {},
+  editName = '',
+  setEditName,
+  editPhone = '',
+  setEditPhone,
+  currentPassword = '',
+  setCurrentPassword,
+  newPassword = '',
+  setNewPassword,
+  confirmPassword = '',
+  setConfirmPassword,
+  profileSaving = false,
+  handleSaveAccountDetails = () => {},
+  handleChangePassword = () => {},
   upiId,
   setUpiId,
   merchantUpiId,
@@ -81,6 +94,9 @@ const DesktopSettings = ({
   handleSaveShopHours,
   handleSaveShopBanner,
 }) => {
+  const [showCurrPw, setShowCurrPw] = useState(false);
+  const [showNewPw,  setShowNewPw]  = useState(false);
+  const [showConfPw, setShowConfPw] = useState(false);
   const qrCanvasRef = useRef(null);
   const logoFileRef = useRef(null);
   const handleLogoFile = (e) => {
@@ -117,6 +133,123 @@ const DesktopSettings = ({
 
   return (
     <div className="settings-masonry">
+
+        {/* ── ACCOUNT DETAILS ─────────────────────────────────────────── */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(15,23,42,0.06)', marginBottom: '0' }}>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <User size={18} color="#4F46E5" /> Account Details
+          </h3>
+          <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '18px' }}>Update your shop name or mobile number</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {user.role === 'distributor' ? 'Company Name' : 'Shop / Your Name'}
+              </label>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName && setEditName(e.target.value)}
+                placeholder={user.name}
+                style={{ width: '100%', padding: '9px 12px', background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '9px', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'border-color .15s' }}
+                onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Mobile Number (Login ID)
+              </label>
+              <input
+                type="tel"
+                value={editPhone}
+                onChange={e => setEditPhone && setEditPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
+                placeholder={user.phone}
+                maxLength={10}
+                style={{ width: '100%', padding: '9px 12px', background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '9px', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', transition: 'border-color .15s' }}
+                onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+              />
+            </div>
+          </div>
+
+          {/* Current values hint */}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <span style={{ fontSize: '11px', color: '#94A3B8' }}>Current name: <b style={{ color: '#475569' }}>{user.name}</b></span>
+            <span style={{ fontSize: '11px', color: '#94A3B8' }}>Current number: <b style={{ color: '#475569' }}>{user.phone}</b></span>
+          </div>
+
+          <button
+            onClick={handleSaveAccountDetails}
+            disabled={profileSaving}
+            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '9px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: profileSaving ? 0.7 : 1 }}
+          >
+            {profileSaving ? '⏳ Saving…' : <><User size={13} /> Save Account Details</>}
+          </button>
+        </div>
+
+        {/* ── CHANGE PASSWORD / PIN ─────────────────────────────────────── */}
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 3px rgba(15,23,42,0.06)', marginBottom: '0' }}>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Lock size={18} color="#4F46E5" /> {user.role === 'staff' ? 'Change PIN' : 'Change Password'}
+          </h3>
+          <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '18px' }}>
+            {user.role === 'staff' ? 'Update your 4-digit login PIN' : 'Set a new password for your account'}
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                New {user.role === 'staff' ? 'PIN' : 'Password'}
+              </label>
+              <input
+                type={showNewPw ? 'text' : 'password'}
+                value={newPassword}
+                onChange={e => setNewPassword && setNewPassword(e.target.value)}
+                placeholder={user.role === 'staff' ? '4-digit PIN' : 'Min 4 characters'}
+                maxLength={user.role === 'staff' ? 4 : undefined}
+                inputMode={user.role === 'staff' ? 'numeric' : 'text'}
+                style={{ width: '100%', padding: '9px 40px 9px 12px', background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '9px', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: user.role === 'staff' ? '0.3em' : 'normal' }}
+                onFocus={e => e.target.style.borderColor = '#4F46E5'}
+                onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+              />
+              <button onClick={() => setShowNewPw(v => !v)} type="button" style={{ position: 'absolute', right: '10px', top: '30px', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}>
+                {showNewPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Confirm {user.role === 'staff' ? 'PIN' : 'Password'}
+              </label>
+              <input
+                type={showConfPw ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword && setConfirmPassword(e.target.value)}
+                placeholder={`Re-enter ${user.role === 'staff' ? 'PIN' : 'password'}`}
+                maxLength={user.role === 'staff' ? 4 : undefined}
+                inputMode={user.role === 'staff' ? 'numeric' : 'text'}
+                style={{ width: '100%', padding: '9px 40px 9px 12px', background: '#F8FAFC', border: `1.5px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? '#EF4444' : confirmPassword && newPassword && confirmPassword === newPassword ? '#10B981' : '#E2E8F0'}`, borderRadius: '9px', color: '#0F172A', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: user.role === 'staff' ? '0.3em' : 'normal' }}
+              />
+              <button onClick={() => setShowConfPw(v => !v)} type="button" style={{ position: 'absolute', right: '10px', top: '30px', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}>
+                {showConfPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+              {confirmPassword && newPassword && (
+                <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? '#10B981' : '#EF4444', fontWeight: '600' }}>
+                  {confirmPassword === newPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={handleChangePassword}
+            disabled={profileSaving || !newPassword || newPassword !== confirmPassword}
+            style={{ background: (newPassword && newPassword === confirmPassword) ? 'linear-gradient(135deg,#10B981,#059669)' : '#CBD5E1', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '9px', fontSize: '13px', fontWeight: '700', cursor: (newPassword && newPassword === confirmPassword) ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            {profileSaving ? '⏳ Updating…' : <><Lock size={13} /> Update {user.role === 'staff' ? 'PIN' : 'Password'}</>}
+          </button>
+        </div>
       
       {/* All settings cards in an auto-balancing 2-column masonry */}
         

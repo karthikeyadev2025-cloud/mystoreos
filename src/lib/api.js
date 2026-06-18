@@ -402,6 +402,25 @@ export const api = {
     return true;
   },
 
+  // Change password from inside the app (user is already logged in)
+  async changePassword(newPassword) {
+    if (!newPassword || newPassword.length < 4) throw new Error('Password must be at least 4 characters.');
+    if (isSupabaseConfigured) {
+      // Update Supabase Auth password (works for all roles)
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw new Error(error.message);
+      // Also update pass_verify in public.users so auth-login edge fn stays in sync
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('users').update({ pass_verify: newPassword }).eq('id', user.id);
+      }
+      return true;
+    }
+    const db = getDB();
+    const { data: { user: authUser } } = { data: { user: null } };
+    return true;
+  },
+
   async adminResetPassword(userId, newPass) {
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('users').update({ pass: newPass, pass_verify: newPass }).eq('id', userId);
@@ -1246,11 +1265,25 @@ export const api = {
 
   async getAllShops() {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').eq('role', 'shop');
-      return (data || []).map(toUser).filter(u => !u.hideFromSearch);
+      const { data } = await supabase.from('users').select('*').in('role', ['shop', 'distributor']);
+      return (data || []).map(toUser);
     }
     const db = getDB();
-    return db.users.filter(u => u.role === 'shop' && !u.hideFromSearch);
+    return db.users.filter(u => u.role === 'shop' || u.role === 'distributor');
+  },
+
+  // Admin: get order count + total revenue per shop in one query
+  async adminGetShopStats(shopId) {
+    if (!isSupabaseConfigured) return { orderCount: 0, revenue: 0, lastOrderAt: null };
+    const { data } = await supabase
+      .from('orders')
+      .select('total, created_at')
+      .eq('shop_id', shopId)
+      .eq('status', 'Accepted');
+    if (!data || !data.length) return { orderCount: 0, revenue: 0, lastOrderAt: null };
+    const revenue = data.reduce((s, o) => s + (Number(o.total) || 0), 0);
+    const lastOrderAt = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]?.created_at || null;
+    return { orderCount: data.length, revenue: Math.round(revenue), lastOrderAt };
   },
 
   // ── Shop assigns / views / removes their CA (by CA phone) ──
@@ -1350,6 +1383,8 @@ export const api = {
       if (data.subscription !== undefined) updateObj.subscription = data.subscription;
       if (data.subscriptionTier !== undefined) updateObj.subscription_tier = data.subscriptionTier;
       if (data.name !== undefined) updateObj.name = data.name;
+      if (data.phone !== undefined) updateObj.phone = data.phone;
+      if (data.passVerify !== undefined) updateObj.pass_verify = data.passVerify;
       if (data.latitude !== undefined) updateObj.latitude = data.latitude;
       if (data.longitude !== undefined) updateObj.longitude = data.longitude;
       if (data.avatar !== undefined) updateObj.avatar = data.avatar;

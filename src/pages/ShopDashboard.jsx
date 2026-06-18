@@ -164,6 +164,13 @@ const ShopDashboard = () => {
   const [stockOrders, setStockOrders] = useState([]);
 
   // Profile State
+  // Profile editing state
+  const [editName,        setEditName]        = useState(user?.name    || '');
+  const [editPhone,       setEditPhone]       = useState(user?.phone   || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword,     setNewPassword]     = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [profileSaving,   setProfileSaving]   = useState(false);
   const [upiId, setUpiId] = useState(user?.upiId || '');
   const [merchantUpiId, setMerchantUpiId] = useState(user?.merchantUpiId || '');
   const [merchantCode, setMerchantCode] = useState(user?.merchantCode || '');
@@ -1756,6 +1763,43 @@ const ShopDashboard = () => {
     toast.success("Profile Updated successfully!");
   };
 
+  // Save name (and phone if changed)
+  const handleSaveAccountDetails = async () => {
+    setProfileSaving(true);
+    try {
+      const updates = {};
+      if (editName.trim() && editName.trim() !== user.name) updates.name = editName.trim();
+      if (editPhone.trim() && editPhone.trim() !== user.phone) {
+        // Phone is the login ID — update in public.users; auth email mirrors it
+        const cleanPhone = editPhone.replace(/\D/g,'').slice(0,10);
+        if (!/^\d{10}$/.test(cleanPhone)) { toast.error('Enter a valid 10-digit mobile number'); return; }
+        updates.phone = cleanPhone;
+      }
+      if (Object.keys(updates).length === 0) { toast('Nothing changed'); return; }
+      const updated = await safe(() => api.updateProfile(user.id, updates));
+      // Refresh session
+      const refreshed = { ...user, ...updates };
+      try { localStorage.setItem('mystore_session', JSON.stringify(refreshed)); } catch {}
+      toast.success('✅ Account details updated!');
+    } catch(e) { toast.error(e.message || 'Could not update'); }
+    finally { setProfileSaving(false); }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword) return toast.error('Enter a new password');
+    if (newPassword.length < 4) return toast.error('Password must be at least 4 characters');
+    if (newPassword !== confirmPassword) return toast.error('Passwords do not match');
+    setProfileSaving(true);
+    try {
+      await api.changePassword(newPassword);
+      setNewPassword('');
+      setConfirmPassword('');
+      setCurrentPassword('');
+      toast.success('✅ Password / PIN updated!');
+    } catch(e) { toast.error(e.message || 'Could not update password'); }
+    finally { setProfileSaving(false); }
+  };
+
   const handleSaveShopHours = async () => {
     await safe(() => api.updateProfile(user.id, { openingHour, closingHour, weeklyHolidays }));
     toast.success('Shop hours saved!');
@@ -2459,6 +2503,19 @@ const ShopDashboard = () => {
               setLongitude={setLongitude}
               handleGrabLocation={handleGrabLocation}
               handleSaveProfile={handleSaveProfile}
+              editName={editName}
+              setEditName={setEditName}
+              editPhone={editPhone}
+              setEditPhone={setEditPhone}
+              currentPassword={currentPassword}
+              setCurrentPassword={setCurrentPassword}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              profileSaving={profileSaving}
+              handleSaveAccountDetails={handleSaveAccountDetails}
+              handleChangePassword={handleChangePassword}
               getShopUrl={getShopUrl}
               downloadQrPoster={downloadQrPoster}
               downloadQrPng={downloadQrPng}
@@ -4216,6 +4273,98 @@ const ShopDashboard = () => {
                 <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0F172A', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>No Logo</div>
               )}
               <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94A3B8' }} />
+            </div>
+
+            {/* ── ACCOUNT DETAILS ── */}
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Account Details</h3>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Update your shop name or mobile number</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                    {user.role === 'distributor' ? 'COMPANY NAME' : 'SHOP / YOUR NAME'}
+                  </label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    placeholder={user.name}
+                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                  <p style={{ fontSize: '11px', color: '#475569', margin: '3px 0 0' }}>Current: {user.name}</p>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>MOBILE NUMBER (LOGIN ID)</label>
+                  <input
+                    type="tel"
+                    value={editPhone}
+                    onChange={e => setEditPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
+                    placeholder={user.phone}
+                    maxLength={10}
+                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                  <p style={{ fontSize: '11px', color: '#475569', margin: '3px 0 0' }}>Current: {user.phone}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSaveAccountDetails}
+                disabled={profileSaving}
+                style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
+              >
+                {profileSaving ? '⏳ Saving…' : '✅ Save Account Details'}
+              </button>
+            </div>
+
+            {/* ── CHANGE PASSWORD / PIN ── */}
+            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🔐 {user.role === 'staff' ? 'Change PIN' : 'Change Password'}
+              </h3>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+                {user.role === 'staff' ? 'Update your 4-digit login PIN' : 'Set a new secure password'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                    NEW {user.role === 'staff' ? 'PIN' : 'PASSWORD'}
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder={user.role === 'staff' ? '4-digit PIN' : 'Min 4 characters'}
+                    maxLength={user.role === 'staff' ? 4 : undefined}
+                    inputMode={user.role === 'staff' ? 'numeric' : 'text'}
+                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                    CONFIRM {user.role === 'staff' ? 'PIN' : 'PASSWORD'}
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder={`Re-enter ${user.role === 'staff' ? 'PIN' : 'password'}`}
+                    maxLength={user.role === 'staff' ? 4 : undefined}
+                    inputMode={user.role === 'staff' ? 'numeric' : 'text'}
+                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: `1px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? '#EF4444' : confirmPassword && newPassword && confirmPassword === newPassword ? '#22C55E' : '#334155'}`, borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
+                  />
+                  {confirmPassword && newPassword && (
+                    <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? '#22C55E' : '#EF4444', fontWeight: '600' }}>
+                      {confirmPassword === newPassword ? '✓ Match' : '✗ Do not match'}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleChangePassword}
+                disabled={profileSaving || !newPassword || newPassword !== confirmPassword}
+                style={{ width: '100%', background: (newPassword && newPassword === confirmPassword) ? '#10B981' : '#334155', color: '#fff', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: (newPassword && newPassword === confirmPassword) ? 'pointer' : 'not-allowed' }}
+              >
+                {profileSaving ? '⏳ Updating…' : `🔐 Update ${user.role === 'staff' ? 'PIN' : 'Password'}`}
+              </button>
             </div>
 
             {/* GST & Tax Compliance Section */}
