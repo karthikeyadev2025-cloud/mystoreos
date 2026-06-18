@@ -237,7 +237,9 @@ export default function Login() {
                     onChange={e => { setPass(e.target.value); setErr(''); }}
                     style={{ paddingRight: 42 }}/>
                   <button type="button" onClick={() => setShowPw(v => !v)}
-                    style={{ position: 'absolute', right: 12, bottom: 12, background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', lineHeight: 0 }}>
+                    style={{ position: 'absolute', right: 10, bottom: 7, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, width: 28, height: 28, color: 'rgba(255,255,255,0.85)', cursor: 'pointer', lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s, color .15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
                     {showPw ? <EyeOff size={16}/> : <Eye size={16}/>}
                   </button>
                 </div>

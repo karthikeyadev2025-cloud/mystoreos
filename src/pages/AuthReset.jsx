@@ -93,8 +93,12 @@ export default function AuthReset() {
                 <input style={{ ...input, paddingRight: 42 }} type={showPw ? 'text' : 'password'}
                   placeholder="New password (min 6 chars)" value={pw} onChange={e => setPw(e.target.value)} />
                 <button type="button" onClick={() => setShowPw(v => !v)}
-                  style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none',
-                    color: 'rgba(255,255,255,0.35)', cursor: 'pointer', lineHeight: 0 }}>
+                  style={{ position: 'absolute', right: 8, top: 8, background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, width: 28, height: 28,
+                    color: 'rgba(255,255,255,0.85)', cursor: 'pointer', lineHeight: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s, color .15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
