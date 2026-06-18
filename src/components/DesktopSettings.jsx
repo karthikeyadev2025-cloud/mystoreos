@@ -69,6 +69,10 @@ const DesktopSettings = ({
   invoicePrefix = 'INV',
   setInvoicePrefix,
   handleSaveInvoiceSettings,
+  exchangePolicy = '',
+  setExchangePolicy,
+  termsConditions = '',
+  setTermsConditions,
   // Print settings
   printFormat = 'a4',
   setPrintFormat,
@@ -431,6 +435,34 @@ const DesktopSettings = ({
                 />
               </div>
             </PlanGate>
+
+            {/* Exchange / Return Policy */}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>
+                🔄 Exchange / Return Policy <span style={{ color: '#94A3B8', fontWeight: 400 }}>(printed on every bill)</span>
+              </label>
+              <input
+                type="text"
+                value={exchangePolicy}
+                onChange={e => setExchangePolicy && setExchangePolicy(e.target.value)}
+                placeholder="e.g. Exchange only within 2 days with original bill. No cash refund."
+                style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }}
+              />
+            </div>
+
+            {/* Terms & Conditions */}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>
+                📋 Terms &amp; Conditions <span style={{ color: '#94A3B8', fontWeight: 400 }}>(printed on every bill)</span>
+              </label>
+              <textarea
+                value={termsConditions}
+                onChange={e => setTermsConditions && setTermsConditions(e.target.value)}
+                placeholder="e.g. All disputes subject to local jurisdiction. Goods once sold cannot be returned except on quality issues."
+                rows={3}
+                style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', resize: 'vertical' }}
+              />
+            </div>
 
             <button
               onClick={handleSaveInvoiceSettings}

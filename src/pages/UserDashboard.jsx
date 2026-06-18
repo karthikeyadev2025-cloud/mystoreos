@@ -700,44 +700,90 @@ const UserDashboard = () => {
   const handleVoiceSearch = (type) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Speech Recognition is not supported by your browser!");
+      toast.error("🎤 Voice search needs Chrome or Safari on mobile. Try typing instead.");
       return;
     }
-    const rec = new SpeechRecognition();
+
+    // Don't start if already listening
+    if (isListeningGlobal || isListeningLocal) {
+      setIsListeningGlobal(false);
+      setIsListeningLocal(false);
+      return;
+    }
+
+    let rec;
+    try {
+      rec = new SpeechRecognition();
+    } catch {
+      toast.error("Could not start voice recognition. Check microphone permission.");
+      return;
+    }
+
     rec.lang = 'en-IN';
     rec.interimResults = false;
-    rec.maxAlternatives = 1;
+    rec.maxAlternatives = 3;
+    rec.continuous = false;
 
     if (type === 'global') {
       setIsListeningGlobal(true);
-      toast.info("Listening... Speak now!", { autoClose: 2000 });
+      toast.info("🎤 Listening… say a product name", { autoClose: 3000, toastId: 'voice' });
     } else {
       setIsListeningLocal(true);
-      toast.info("Listening to product name...", { autoClose: 2000 });
+      toast.info("🎤 Listening… say a product name", { autoClose: 3000, toastId: 'voice' });
     }
 
+    // Safety timeout — stop after 8 seconds regardless
+    const safetyTimer = setTimeout(() => {
+      try { rec.stop(); } catch {}
+      setIsListeningGlobal(false);
+      setIsListeningLocal(false);
+    }, 8000);
+
     rec.onresult = (event) => {
-      const speechToText = event.results[0][0].transcript;
+      clearTimeout(safetyTimer);
+      // Pick best alternative
+      const results = event.results[0];
+      const speechToText = results[0].transcript.trim();
+      toast.dismiss('voice');
       if (type === 'global') {
         setGlobalSearch(speechToText);
-        toast.success(`Search set to: "${speechToText}"`);
+        toast.success(`🎤 Searching: "${speechToText}"`);
       } else {
         setLocalSearch(speechToText);
-        toast.success(`Filter set to: "${speechToText}"`);
+        toast.success(`🎤 Filtering: "${speechToText}"`);
       }
     };
 
     rec.onerror = (e) => {
-      console.error(e);
-      toast.error("Speech recognition failed or timed out.");
+      clearTimeout(safetyTimer);
+      setIsListeningGlobal(false);
+      setIsListeningLocal(false);
+      toast.dismiss('voice');
+      if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+        toast.error("🎤 Microphone permission denied. Allow it in browser settings.");
+      } else if (e.error === 'no-speech') {
+        toast.info("🎤 No speech detected. Try again.");
+      } else if (e.error === 'network') {
+        toast.error("🎤 Network error. Check connection.");
+      } else {
+        toast.error("🎤 Voice search failed. Try typing.");
+      }
     };
 
     rec.onend = () => {
+      clearTimeout(safetyTimer);
       setIsListeningGlobal(false);
       setIsListeningLocal(false);
     };
 
-    rec.start();
+    try {
+      rec.start();
+    } catch {
+      clearTimeout(safetyTimer);
+      setIsListeningGlobal(false);
+      setIsListeningLocal(false);
+      toast.error("Could not start microphone. Check browser permissions.");
+    }
   };
 
   const initScratchCanvas = () => {

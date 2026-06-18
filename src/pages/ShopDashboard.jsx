@@ -187,6 +187,8 @@ const ShopDashboard = () => {
   const [businessAddress, setBusinessAddress] = useState(user?.businessAddress || '');
   const [invoiceFooter, setInvoiceFooter] = useState('');
   const [invoicePrefix, setInvoicePrefix] = useState('INV');
+  const [exchangePolicy, setExchangePolicy] = useState('');   // e.g. "Exchange within 2 days with bill"
+  const [termsConditions, setTermsConditions] = useState(''); // custom T&C
   // Print Settings
   const [printFormat,   setPrintFormat]   = useState('a4');       // 'a4' | 'thermal80' | 'thermal58'
   const [printFontSize, setPrintFontSize] = useState('normal');   // 'normal' | 'large'
@@ -420,6 +422,8 @@ const ShopDashboard = () => {
       setPricing(await safe(() => api.getPricing()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
       setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
+      setExchangePolicy(await safe(() => api.getSiteConfig('exchangePolicy_' + targetShopId, '')));
+      setTermsConditions(await safe(() => api.getSiteConfig('termsConditions_' + targetShopId, '')));
       const ps = await safe(() => api.getSiteConfig('printSettings_' + targetShopId, null));
       if (ps) {
         if (ps.format)    setPrintFormat(ps.format);
@@ -1181,6 +1185,26 @@ const ShopDashboard = () => {
         doc.text("* Delivery Challan. Not for sale.", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth:contentW} : {});
       } else {
         doc.text(invoiceFooter || "Thank you for your business! Visit again.", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth: contentW} : {});
+      if (exchangePolicy) {
+        yOffset += 5;
+        doc.setFontSize(isThermal ? 7 : 8);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont("helvetica", "bold");
+        doc.text("Exchange/Return Policy:", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center'} : {});
+        doc.setFont("helvetica", "normal");
+        yOffset += 4;
+        doc.text(exchangePolicy, isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth: contentW} : { maxWidth: 180 });
+      }
+      if (termsConditions) {
+        yOffset += 6;
+        doc.setFontSize(isThermal ? 7 : 8);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont("helvetica", "bold");
+        doc.text("Terms & Conditions:", isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center'} : {});
+        doc.setFont("helvetica", "normal");
+        yOffset += 4;
+        doc.text(termsConditions, isThermal ? pageW/2 : marginL, yOffset, isThermal ? {align:'center', maxWidth: contentW} : { maxWidth: 180 });
+      }
       }
 
       if (loyaltyResult && billingMode === 'bill') {
@@ -2120,6 +2144,8 @@ const ShopDashboard = () => {
     try {
       await safe(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter));
       await safe(() => api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix));
+      await safe(() => api.saveSiteConfig('exchangePolicy_' + targetShopId, exchangePolicy));
+      await safe(() => api.saveSiteConfig('termsConditions_' + targetShopId, termsConditions));
       toast.success("Invoice settings saved!");
     } catch (_e) {
       toast.error("Failed to save invoice settings");
@@ -2718,6 +2744,10 @@ const ShopDashboard = () => {
               invoicePrefix={invoicePrefix}
               setInvoicePrefix={setInvoicePrefix}
               handleSaveInvoiceSettings={handleSaveInvoiceSettings}
+              exchangePolicy={exchangePolicy}
+              setExchangePolicy={setExchangePolicy}
+              termsConditions={termsConditions}
+              setTermsConditions={setTermsConditions}
               printFormat={printFormat}
               setPrintFormat={setPrintFormat}
               printFontSize={printFontSize}
@@ -3427,10 +3457,12 @@ const ShopDashboard = () => {
                 <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
               </div>
             )}
-            <div style={styles.gridBtn} onClick={openBarcodeManager}>
-              <BarcodeIcon size={24} color="#4F46E5" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
-            </div>
+            {isOwner && (
+              <div style={styles.gridBtn} onClick={openBarcodeManager}>
+                <BarcodeIcon size={24} color="#4F46E5" />
+                <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
+              </div>
+            )}
             <div style={styles.gridBtn} onClick={handleShowUpiQr}>
               <IndianRupee size={24} color="#F59E0B" />
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>UPI QR</p></div>
@@ -5139,6 +5171,40 @@ const ShopDashboard = () => {
           <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <div id="reader" style={{ width: '100%' }}></div>
             <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Scan Product Popup */}
+      {scanPopupProduct && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setScanPopupProduct(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '20px 20px 0 0', width: '100%', padding: '24px', boxShadow: '0 -8px 32px rgba(0,0,0,0.3)' }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#CBD5E1', margin: '0 auto 16px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+              {(scanPopupProduct.image || (scanPopupProduct.images && scanPopupProduct.images[0])) && (
+                <img src={scanPopupProduct.image || scanPopupProduct.images[0]} alt="" style={{ width: 60, height: 60, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
+              )}
+              <div>
+                <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#0F172A' }}>{scanPopupProduct.name}</h2>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#4F46E5' }}>₹{scanPopupProduct.price}</span>
+                  <span style={{ fontSize: 12, color: (scanPopupProduct.stock || 0) <= 0 ? '#EF4444' : '#10B981', fontWeight: 600 }}>
+                    {(scanPopupProduct.stock || 0) <= 0 ? 'Out of stock' : `Stock: ${scanPopupProduct.stock}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {scanPopupProduct.batchNumber && <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 4px' }}>Batch: {scanPopupProduct.batchNumber}</p>}
+            {scanPopupProduct.expiryDate && <p style={{ fontSize: 12, color: new Date(scanPopupProduct.expiryDate) < new Date() ? '#EF4444' : '#64748B', margin: '0 0 12px' }}>Expiry: {scanPopupProduct.expiryDate}</p>}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setScanPopupProduct(null)} style={{ flex: 1, padding: '13px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 12, fontWeight: 600, fontSize: 14, cursor: 'pointer', color: '#475569' }}>Cancel</button>
+              <button
+                disabled={(scanPopupProduct.stock || 0) <= 0}
+                onClick={() => { addToBill(scanPopupProduct); setScanPopupProduct(null); }}
+                style={{ flex: 2, padding: '13px', background: (scanPopupProduct.stock || 0) <= 0 ? '#CBD5E1' : 'linear-gradient(135deg,#4F46E5,#4338CA)', border: 'none', borderRadius: 12, fontWeight: 800, fontSize: 15, cursor: (scanPopupProduct.stock || 0) <= 0 ? 'not-allowed' : 'pointer', color: '#fff' }}>
+                + Add to Bill
+              </button>
+            </div>
           </div>
         </div>
       )}
