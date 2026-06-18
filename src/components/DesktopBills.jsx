@@ -24,6 +24,7 @@ const DesktopBills = ({
   handleConvertEstimateToBill,
   acceptOrder,
   verifyOrderPayment,
+  printReceiptPDF,
   handleOpenReturnModal,
   decodeOrderUserId,
   user
@@ -304,7 +305,7 @@ const DesktopBills = ({
 
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button
-                      onClick={() => window.print()}
+                      onClick={() => printReceiptPDF && printReceiptPDF(selectedBill)}
                       style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#475569', padding: '10px', borderRadius: '9px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                     >
                       <Printer size={14} /> Print

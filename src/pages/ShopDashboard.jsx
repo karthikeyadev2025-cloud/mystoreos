@@ -446,6 +446,9 @@ const ShopDashboard = () => {
 
   useRealtimeTable({ table: 'orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
   useRealtimeTable({ table: 'products', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
+  // Live sync shop profile (logo, QR, UPI, name, phone) across all devices —
+  // e.g. logo uploaded on mobile reflects instantly on desktop and vice versa.
+  useRealtimeTable({ table: 'users', filter: `id=eq.${user.role === 'staff' ? user.staff_of : user.id}`, onRefresh: loadData, pollInterval: 15_000 });
 
   // Trial expiry reminder: day 5 and day 7 (once per day, tracked in localStorage)
   useEffect(() => {
@@ -2140,6 +2143,193 @@ const ShopDashboard = () => {
     } catch { toast.error('Failed to save print settings'); }
   };
 
+  // ── Print/Re-print a past order's receipt (works on mobile + desktop) ──────
+  // Unlike executeSendWhatsAppBill, this does NOT place a new order — it only
+  // renders an already-saved order to PDF, honouring the shop's Print Settings
+  // (A4 / 80mm thermal / 58mm thermal, font size, logo, copies).
+  const printReceiptPDF = async (order) => {
+    if (!order) return;
+    try {
+      const { jsPDF: JsPDF } = await import('jspdf');
+      const { type, name: custName, phone: custPhone } = decodeOrderUserId(order.userId);
+
+      const isThermal  = printFormat === 'thermal80' || printFormat === 'thermal58';
+      const pageW       = printFormat === 'thermal58' ? 58 : printFormat === 'thermal80' ? 80 : 210;
+      const marginL     = isThermal ? 3 : 15;
+      const contentW    = pageW - marginL * 2;
+
+      const themeColor = type === 'estimate' ? '#4F46E5' : type === 'challan' ? '#3B82F6' : '#10B981';
+      const modeTitle  = type === 'estimate' ? 'PROFORMA ESTIMATE' : type === 'challan' ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
+      const hex2rgb = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+      const [tR,tG,tB] = hex2rgb(themeColor);
+
+      const doc = isThermal
+        ? new JsPDF({ unit: 'mm', format: [pageW, 297], orientation: 'portrait' })
+        : new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+      doc.setFillColor(tR,tG,tB);
+      doc.rect(0, 0, pageW, isThermal ? 7 : 10, 'F');
+
+      let hy = isThermal ? 13 : 20;
+      const hasLogo = printShowLogo && user.logo && user.logo.startsWith('data:image');
+      if (hasLogo) {
+        try { doc.addImage(user.logo, 'JPEG', marginL, hy - 6, isThermal ? 14 : 22, isThermal ? 14 : 22); } catch {}
+      }
+      const textX = hasLogo ? marginL + (isThermal ? 17 : 25) : marginL;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(printFontSize === 'large' ? (isThermal ? 13 : 20) : (isThermal ? 11 : 18));
+      doc.setTextColor(15,23,42);
+      doc.text(user.name, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
+      hy += isThermal ? 6 : 7;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(isThermal ? 7 : 9);
+      doc.setTextColor(100,116,139);
+      doc.text(`Ph: ${user.phone}`, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
+      hy += 5;
+
+      hy += isThermal ? 2 : 4;
+      doc.setDrawColor(226,232,240);
+      doc.setLineWidth(0.3);
+      doc.line(marginL, hy, pageW - marginL, hy);
+      hy += 6;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(isThermal ? 9 : 12);
+      doc.setTextColor(tR,tG,tB);
+      doc.text(`${modeTitle}  #${(order.id||'').slice(0,8).toUpperCase()}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+      hy += 5;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(isThermal ? 7 : 9);
+      doc.setTextColor(100,116,139);
+      doc.text(new Date(order.date).toLocaleString('en-IN'), isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+      hy += 7;
+
+      if (custName || custPhone) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(isThermal ? 7 : 9);
+        doc.setTextColor(15,23,42);
+        doc.text(`Customer: ${custName || 'Walk-in'}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+        hy += 4.5;
+        if (custPhone) {
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(100,116,139);
+          doc.text(`Phone: ${custPhone}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+          hy += 4.5;
+        }
+        hy += 2;
+      }
+
+      doc.setDrawColor(226,232,240);
+      doc.line(marginL, hy, pageW - marginL, hy);
+      hy += 5;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(isThermal ? 7 : 8);
+      doc.setTextColor(71,85,105);
+      doc.text("ITEM", marginL, hy);
+      doc.text("AMT", pageW - marginL, hy, { align: 'right' });
+      hy += 4;
+      doc.setLineWidth(0.2);
+      doc.line(marginL, hy, pageW - marginL, hy);
+      hy += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(printFontSize === 'large' ? (isThermal ? 8 : 10) : (isThermal ? 7 : 9));
+      doc.setTextColor(15,23,42);
+      (order.items || []).forEach(item => {
+        const qty = item.qty || 1;
+        const lineAmt = (item.price||0) * qty;
+        const iDisc = item.itemDiscount || 0;
+        const finalAmt = iDisc > 0 ? Math.round(lineAmt * (1 - iDisc/100)) : lineAmt;
+        const label = `${qty}x ${item.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''}`;
+        doc.text(label, marginL, hy, isThermal ? { maxWidth: contentW - 14 } : { maxWidth: 130 });
+        doc.text(`Rs.${finalAmt}`, pageW - marginL, hy, { align: 'right' });
+        hy += isThermal ? 5 : 6;
+      });
+
+      hy += 2;
+      doc.setLineWidth(0.3);
+      doc.line(marginL, hy, pageW - marginL, hy);
+      hy += 7;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(isThermal ? 11 : 14);
+      doc.setTextColor(15,23,42);
+      doc.text("TOTAL", marginL, hy);
+      doc.text(`Rs.${order.total}`, pageW - marginL, hy, { align: 'right' });
+      hy += 8;
+
+      if (order.paymentMethod) {
+        const pmColors = { Cash: [16,185,129], UPI: [79,70,229], Card: [59,130,246], Credit: [239,68,68] };
+        const [pR,pG,pB] = pmColors[order.paymentMethod] || pmColors.Cash;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(isThermal ? 8 : 9);
+        doc.setTextColor(pR,pG,pB);
+        doc.text(`Payment: ${order.paymentMethod}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+        hy += 6;
+      }
+
+      if (exchangePolicy) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(isThermal ? 6.5 : 7.5);
+        doc.setTextColor(100,116,139);
+        doc.text(`Exchange: ${exchangePolicy}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center', maxWidth: contentW } : { maxWidth: 180 });
+        hy += isThermal ? 8 : 6;
+      }
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(isThermal ? 7 : 8);
+      doc.setTextColor(148,163,184);
+      doc.text("Thank you for your business!", isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+      hy += 4;
+      doc.text("Powered by MyStore OS", isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
+
+      // Extra copies — append additional pages
+      const copies = Math.max(1, printCopies || 1);
+      for (let c = 1; c < copies; c++) {
+        doc.addPage(isThermal ? [pageW, 297] : 'a4');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(isThermal ? 9 : 14);
+        doc.setTextColor(tR,tG,tB);
+        doc.text(`COPY ${c+1} — ${user.name}`, isThermal ? pageW/2 : 105, isThermal ? 10 : 20, { align: 'center' });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(isThermal ? 7 : 9);
+        doc.setTextColor(100,116,139);
+        doc.text(`${modeTitle} | Total: Rs.${order.total}`, isThermal ? pageW/2 : 105, isThermal ? 17 : 30, { align: 'center' });
+      }
+
+      const safeName = (user.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `${safeName}_Receipt_${(order.id||'').slice(0,8)}.pdf`;
+      const pdfBlob = doc.output('blob');
+      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      // Mobile: use native share sheet (lets user pick a print app, or save/share)
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({ files: [pdfFile], title: fileName });
+          return;
+        } catch (shareErr) {
+          if (shareErr?.name === 'AbortError') return; // user cancelled — not an error
+        }
+      }
+
+      // Desktop / fallback: open in new tab so the browser's native print dialog can be used
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const win = window.open(blobUrl, '_blank');
+      if (!win) {
+        // Pop-up blocked — fall back to direct download
+        doc.save(fileName);
+        toast.info('Pop-up blocked — PDF downloaded instead. Open it to print.');
+      }
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+    } catch (err) {
+      console.error('Print receipt failed:', err);
+      toast.error('Could not generate the receipt PDF. Please try again.');
+    }
+  };
+
   const handleSaveInvoiceSettings = async () => {
     try {
       await safe(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter));
@@ -2623,6 +2813,7 @@ const ShopDashboard = () => {
               setBillsSubTab={setBillsSubTab}
               handleConvertEstimateToBill={handleConvertEstimateToBill}
               acceptOrder={acceptOrder}
+              printReceiptPDF={printReceiptPDF}
               verifyOrderPayment={verifyOrderPayment}
               handleOpenReturnModal={handleOpenReturnModal}
               decodeOrderUserId={decodeOrderUserId}
@@ -3925,7 +4116,7 @@ const ShopDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-                <button onClick={() => { document.getElementById('print-area') && window.print(); }} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>🖨️ Print</button>
+                <button onClick={() => printReceiptPDF(selectedOrder)} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>🖨️ Print / Share</button>
                 <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#EF4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
               </div>
             </div>
