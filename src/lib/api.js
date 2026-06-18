@@ -2171,6 +2171,67 @@ export const api = {
     return `${prefix}-${String(next).padStart(4, '0')}`;
   },
 
+  // ── Reset Test Data ──────────────────────────────────────────────────────
+  // Wipes all bills/orders, credit ledger entries, stock orders, and resets
+  // the invoice counter back to 0 for a shop. Used when a shop has been
+  // testing the system and wants to go live with a clean slate.
+  // Does NOT touch: products, customers, settings, logo, QR, staff accounts.
+  async resetShopTestData(shopId) {
+    if (!shopId) throw new Error('Shop ID required');
+
+    if (isSupabaseConfigured) {
+      const results = { orders: 0, credits: 0, stockOrders: 0 };
+
+      const { data: deletedOrders, error: ordersErr } = await supabase
+        .from('orders').delete().eq('shop_id', shopId).select('id');
+      if (ordersErr) throw new Error('Failed to delete orders: ' + ordersErr.message);
+      results.orders = deletedOrders?.length || 0;
+
+      const { data: deletedCredits, error: creditsErr } = await supabase
+        .from('credits').delete().eq('to_shop_id', shopId).select('id');
+      if (!creditsErr) results.credits = deletedCredits?.length || 0;
+
+      const { data: deletedStock, error: stockErr } = await supabase
+        .from('stock_orders').delete().eq('shop_id', shopId).select('id');
+      if (!stockErr) results.stockOrders = deletedStock?.length || 0;
+
+      // Reset invoice counter back to 0 so the next bill starts at -0001 again
+      await this.saveSiteConfig(`invCounter_${shopId}`, 0);
+
+      // Clear loyalty point balances tied to this shop (key pattern: loyalty_{shopId}_{phone})
+      const { data: loyaltyRows } = await supabase
+        .from('site_config').select('key').like('key', `loyalty_${shopId}_%`);
+      if (loyaltyRows?.length) {
+        await supabase.from('site_config').delete().in('key', loyaltyRows.map(r => r.key));
+        results.loyaltyKeys = loyaltyRows.length;
+      }
+
+      return results;
+    }
+
+    // Local/offline fallback
+    const db = getDB();
+    const before = db.orders.length;
+    db.orders = db.orders.filter(o => o.shopId !== shopId);
+    const removedOrders = before - db.orders.length;
+    const beforeCredits = db.credits.length;
+    db.credits = db.credits.filter(c => c.toShopId !== shopId);
+    const removedCredits = beforeCredits - db.credits.length;
+    if (db.stockOrders) {
+      const beforeStock = db.stockOrders.length;
+      db.stockOrders = db.stockOrders.filter(o => o.shopId !== shopId);
+      var removedStock = beforeStock - db.stockOrders.length;
+    }
+    if (db.siteConfig) {
+      db.siteConfig[`invCounter_${shopId}`] = 0;
+      Object.keys(db.siteConfig).forEach(k => {
+        if (k.startsWith(`loyalty_${shopId}_`)) delete db.siteConfig[k];
+      });
+    }
+    saveDB(db);
+    return { orders: removedOrders, credits: removedCredits, stockOrders: removedStock || 0 };
+  },
+
   async getLoyaltyPoints(shopId, phone) {
     if (!phone) return 0;
     const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;

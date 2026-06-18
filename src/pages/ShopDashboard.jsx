@@ -2143,6 +2143,35 @@ const ShopDashboard = () => {
     } catch { toast.error('Failed to save print settings'); }
   };
 
+  // ── Reset Test Data (Danger Zone) ───────────────────────────────────────
+  const [showResetTestDataModal, setShowResetTestDataModal] = useState(false);
+  const [resetConfirmInput, setResetConfirmInput] = useState('');
+  const [resetInProgress, setResetInProgress] = useState(false);
+
+  const handleResetTestData = () => {
+    setResetConfirmInput('');
+    setShowResetTestDataModal(true);
+  };
+
+  const confirmResetTestData = async () => {
+    if (resetConfirmInput.trim() !== user.name.trim()) {
+      toast.error('Shop name does not match. Type it exactly to confirm.');
+      return;
+    }
+    setResetInProgress(true);
+    try {
+      const result = await api.resetShopTestData(targetShopId);
+      toast.success(`✅ Reset complete — deleted ${result.orders} bill${result.orders === 1 ? '' : 's'}. Invoice numbers restart at #0001.`, { autoClose: 6000 });
+      setShowResetTestDataModal(false);
+      setResetConfirmInput('');
+      loadData();
+    } catch (err) {
+      toast.error(err.message || 'Failed to reset test data. Please try again.');
+    } finally {
+      setResetInProgress(false);
+    }
+  };
+
   // ── Print/Re-print a past order's receipt (works on mobile + desktop) ──────
   // Unlike executeSendWhatsAppBill, this does NOT place a new order — it only
   // renders an already-saved order to PDF, honouring the shop's Print Settings
@@ -2965,6 +2994,7 @@ const ShopDashboard = () => {
               setDistCodeInput={setDistCodeInput}
               handleLinkDistributor={handleLinkDistributor}
               handleUnlinkDistributor={handleUnlinkDistributor}
+              handleResetTestData={handleResetTestData}
             />
           )}
         </div>
@@ -5327,6 +5357,27 @@ const ShopDashboard = () => {
               ))}
             </div>
           </div>
+
+          {/* DANGER ZONE — Reset Test Data (mobile) */}
+          {isOwner && (
+            <div style={{ background: '#1E0E0E', border: '1.5px solid #7F1D1D', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#FCA5A5', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
+              <div style={{ background: '#0F172A', border: '1px solid #7F1D1D', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Reset Test Data</div>
+                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 6px', lineHeight: '1.5' }}>
+                  Deletes all bills, estimates, challans, credit ledger, and stock orders. Invoice numbers restart at #0001.
+                </p>
+                <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 14px' }}>
+                  ✅ Kept: products, customers, staff, logo, QR &amp; settings.
+                </p>
+                <button onClick={handleResetTestData}
+                  style={{ width: '100%', background: '#7F1D1D', border: 'none', color: '#fff', padding: '12px', borderRadius: '9px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+                  🗑️ Reset Now
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -5966,6 +6017,68 @@ const ShopDashboard = () => {
             
             <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
               🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESET TEST DATA MODAL — Danger Zone confirmation */}
+      {showResetTestDataModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
+          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '440px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ fontSize: '22px' }}>⚠️</span>
+              </div>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A' }}>Reset Test Data?</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94A3B8' }}>This cannot be undone.</p>
+              </div>
+            </div>
+
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
+              <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#7F1D1D', fontWeight: '700' }}>This will permanently delete:</p>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: '#991B1B', lineHeight: '1.7' }}>
+                <li>All {orders.length} bill{orders.length === 1 ? '' : 's'}, estimates &amp; challans</li>
+                <li>Credit ledger entries for this shop</li>
+                <li>Pending/past stock orders</li>
+                <li>Invoice numbering — restarts at #0001</li>
+              </ul>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#475569', marginBottom: '6px' }}>
+              Type your shop name <strong style={{ color: '#0F172A' }}>{user.name}</strong> to confirm:
+            </p>
+            <input
+              type="text"
+              value={resetConfirmInput}
+              onChange={e => setResetConfirmInput(e.target.value)}
+              placeholder={user.name}
+              autoFocus
+              style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${resetConfirmInput && resetConfirmInput.trim() !== user.name.trim() ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '9px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }}
+            />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => { setShowResetTestDataModal(false); setResetConfirmInput(''); }}
+                disabled={resetInProgress}
+                style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#475569', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmResetTestData}
+                disabled={resetInProgress || resetConfirmInput.trim() !== user.name.trim()}
+                style={{
+                  flex: 1.4, padding: '12px',
+                  background: (resetInProgress || resetConfirmInput.trim() !== user.name.trim()) ? '#FCA5A5' : 'linear-gradient(135deg,#DC2626,#B91C1C)',
+                  border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '800', fontSize: '13px',
+                  cursor: (resetInProgress || resetConfirmInput.trim() !== user.name.trim()) ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                }}
+              >
+                {resetInProgress ? '⏳ Resetting…' : '🗑️ Yes, Delete All Test Data'}
+              </button>
             </div>
           </div>
         </div>

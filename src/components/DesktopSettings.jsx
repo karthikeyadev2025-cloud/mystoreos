@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User, Trash2, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PlanGate, LockedFeature } from './PlanGate';
 
@@ -56,6 +56,7 @@ const DesktopSettings = ({
   setNewStaffPin,
   handleAddStaff,
   user,
+  handleResetTestData = () => {},
   myDistributors = [],
   distCodeInput = '',
   setDistCodeInput = () => {},
@@ -931,6 +932,35 @@ const DesktopSettings = ({
             </p>
           )}
         </div>
+
+        {/* Danger Zone — Reset Test Data */}
+        {(user.role === 'shop' || user.isOwner) && (
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid #FECACA', background: '#FFFBFA', boxShadow: '0 1px 3px rgba(220,38,38,0.06)' }}>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle size={18} color="#DC2626" /> Danger Zone
+            </h3>
+            <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '18px' }}>Irreversible actions — use with care.</p>
+
+            <div style={{ background: '#FFFFFF', border: '1px solid #FEE2E2', borderRadius: '12px', padding: '16px 18px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>Reset Test Data</div>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: '1.5' }}>
+                  Permanently deletes <strong>all bills, estimates, challans, credit ledger entries, and stock orders</strong> for this shop,
+                  and resets your invoice number back to <strong>#0001</strong>. Use this once after testing — before going live with real customers.
+                </p>
+                <p style={{ fontSize: '11px', color: '#94A3B8', margin: '8px 0 0' }}>
+                  ✅ Kept: your products, customer list, staff accounts, logo, QR code, and all settings.
+                </p>
+              </div>
+              <button
+                onClick={handleResetTestData}
+                style={{ flexShrink: 0, background: '#FEF2F2', border: '1.5px solid #FCA5A5', color: '#DC2626', padding: '10px 16px', borderRadius: '9px', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              >
+                <Trash2 size={14} /> Reset Now
+              </button>
+            </div>
+          </div>
+        )}
 
     </div>
   );
