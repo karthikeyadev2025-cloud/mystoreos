@@ -124,6 +124,7 @@ const toProduct = (row) => row ? ({
   barcode: row.barcode, stock: row.stock,
   batchNumber: row.batch_number, expiryDate: row.expiry_date,
   variants: row.variants, reorderLevel: row.reorder_level || 10,
+  variantPrices: row.variant_prices || null,
   hsnCode: row.hsn_code, gstRate: row.gst_rate || 0,
   costPrice: parseFloat(row.cost_price) || 0,
   images: (() => {
@@ -757,10 +758,10 @@ export const api = {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0, image_url: extraData?.image || null };
+        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, variant_prices: extraData?.variantPrices || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0, image_url: extraData?.image || null };
         await enqueue({ table: 'products', action: 'insert', data: row });
         const db = getDB(); db.products = db.products || [];
-        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
+        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', variantPrices: extraData?.variantPrices || null, reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
         saveDB(db); return toProduct(row);
       }
       const imgs = Array.isArray(extraData.images) ? extraData.images.filter(Boolean).slice(0, 4) : [];
@@ -784,6 +785,7 @@ export const api = {
         discount_pct: parseInt(extraData.discountPct) || 0,
       };
       if (extraData.unit) baseInsert.unit = extraData.unit;
+      if (extraData.variantPrices) baseInsert.variant_prices = extraData.variantPrices;
       // Self-healing insert: if an optional column (images / unit / image_url)
       // isn't in the DB yet, drop just that column and retry. Lets the gallery
       // work whether or not the migration has been applied.
@@ -814,6 +816,7 @@ export const api = {
       batchNumber: batchNumber || '',
       expiryDate: expiryDate || '',
       variants: variants || '',
+      variantPrices: extraData?.variantPrices || null,
       reorderLevel: parseInt(reorderLevel) || 10,
       hsnCode: extraData?.hsnCode || '',
       gstRate: parseInt(extraData?.gstRate) || 0,
@@ -838,6 +841,7 @@ export const api = {
         if (data.batchNumber !== undefined) updateObj.batch_number = data.batchNumber || null;
         if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
         if (data.variants !== undefined) updateObj.variants = data.variants || null;
+        if (data.variantPrices !== undefined) updateObj.variant_prices = data.variantPrices || null;
         if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
         if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
         if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
@@ -856,6 +860,7 @@ export const api = {
       if (data.batchNumber !== undefined) updateObj.batch_number = data.batchNumber || null;
       if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
       if (data.variants !== undefined) updateObj.variants = data.variants || null;
+      if (data.variantPrices !== undefined) updateObj.variant_prices = data.variantPrices || null;
       if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
       if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
@@ -896,6 +901,7 @@ export const api = {
       if (data.batchNumber !== undefined) prod.batchNumber = data.batchNumber || '';
       if (data.expiryDate !== undefined) prod.expiryDate = data.expiryDate || '';
       if (data.variants !== undefined) prod.variants = data.variants || '';
+      if (data.variantPrices !== undefined) prod.variantPrices = data.variantPrices || null;
       if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
       if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;

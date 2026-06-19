@@ -448,7 +448,10 @@ const DesktopPOS = ({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {billItems.map((item, idx) => {
-                const variantList  = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
+                const hasVariantPricing = Array.isArray(item.variantPrices) && item.variantPrices.length > 0;
+                const variantList  = hasVariantPricing
+                  ? item.variantPrices.map(v => v.name)
+                  : (item.variants ? item.variants.split(',').map(v => v.trim()) : []);
                 const itemDisc     = item.itemDiscount || 0;  // % per item
                 const baseAmt      = item.price * (item.qty || 1);
                 const discAmt      = itemDisc > 0 ? Math.round(baseAmt * itemDisc / 100) : 0;
@@ -472,7 +475,9 @@ const DesktopPOS = ({
                           {variantList.length > 0 && (
                             <select value={item.selectedVariant || ''} onChange={e => updateBillItemVariant(item.id, e.target.value)}
                               style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}>
-                              {variantList.map((v, vidx) => <option key={vidx} value={v}>{v}</option>)}
+                              {hasVariantPricing
+                                ? item.variantPrices.map((v, vidx) => <option key={vidx} value={v.name}>{v.name} — ₹{v.price}</option>)
+                                : variantList.map((v, vidx) => <option key={vidx} value={v}>{v}</option>)}
                             </select>
                           )}
                         </div>
