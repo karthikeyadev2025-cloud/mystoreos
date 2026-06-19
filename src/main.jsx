@@ -31,13 +31,24 @@ const updateSW = registerSW({
 // Hard guarantee: when a new service worker takes control, reload the page once
 // so the user immediately runs the new build with no manual hard-refresh.
 // (autoUpdate skips waiting but does not reload open pages by itself.)
+//
+// Safety: if the shop owner is mid-way through ringing up a bill (items added
+// to the POS cart but not yet confirmed), reloading right now would silently
+// wipe that cart. ShopDashboard sets window.__mystoreCartActive while the
+// cart has items — wait for it to clear (cart confirmed or emptied) before
+// applying the reload, checking every couple of seconds.
 if ('serviceWorker' in navigator) {
   let _reloaded = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
+  const reloadWhenSafe = () => {
     if (_reloaded) return
+    if (window.__mystoreCartActive) {
+      setTimeout(reloadWhenSafe, 2000)
+      return
+    }
     _reloaded = true
     window.location.reload()
-  })
+  }
+  navigator.serviceWorker.addEventListener('controllerchange', reloadWhenSafe)
 }
 
 createRoot(document.getElementById('root')).render(

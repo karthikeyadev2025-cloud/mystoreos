@@ -154,6 +154,10 @@ const toOrder = (row) => row ? ({
   shopMessage: row.shop_message || null,
   paymentVerified: row.payment_verified || false,
   acceptedAt: row.accepted_at || null,
+  returnedAt: row.returned_at || null,
+  refundAmount: row.refund_amount != null ? Number(row.refund_amount) : null,
+  refundMode: row.refund_mode || null,
+  returnedItems: row.returned_items || null,
 }) : null;
 
 const toCredit = (row) => row ? ({
@@ -1134,14 +1138,28 @@ export const api = {
     if (order) { order.status = 'Completed'; order.paymentVerified = true; order.shopMessage = message; saveDB(db); }
   },
 
-  async processReturn(orderId, returnItems, _refundMode) {
+  async processReturn(orderId, returnItems, refundMode = 'cash') {
+    // Compute refund total and whether this is a full or partial return
+    const refundAmount = (returnItems || []).reduce((sum, item) => sum + (Number(item.price) * Number(item.returnQty || 0)), 0);
+
     if (isSupabaseConfigured) {
-      // In Supabase, we would:
-      // 1. Mark order as 'Returned' or partially returned
-      // 2. Increment stock for returned items
-      // For MVP, we will update the stock and set status to 'Returned'
-      await supabase.from('orders').update({ status: 'Returned' }).eq('id', orderId);
-      
+      // Fetch the order to know its original items/total — needed to tell
+      // a full return (all qty of all items) from a partial one.
+      const { data: orderRow } = await supabase.from('orders').select('items, total, refund_amount').eq('id', orderId).maybeSingle();
+
+      const originalQtyTotal = (orderRow?.items || []).reduce((s, it) => s + (Number(it.qty) || 1), 0);
+      const returnedQtyTotal = (returnItems || []).reduce((s, it) => s + (Number(it.returnQty) || 0), 0);
+      const priorRefund = Number(orderRow?.refund_amount) || 0;
+      const isFullReturn = returnedQtyTotal >= originalQtyTotal;
+
+      await supabase.from('orders').update({
+        status: isFullReturn ? 'Returned' : 'Accepted', // partial return keeps the bill active, just flags the refund
+        returned_at: new Date().toISOString(),
+        refund_amount: priorRefund + refundAmount,
+        refund_mode: refundMode,
+        returned_items: returnItems,
+      }).eq('id', orderId);
+
       for (const item of returnItems) {
         try {
           const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).maybeSingle();
@@ -1154,13 +1172,22 @@ export const api = {
           console.error("Failed to restore stock in Supabase", err);
         }
       }
-      return true;
+      return { refundAmount, isFullReturn };
     }
-    
+
     const db = getDB();
     const order = db.orders.find(o => o.id === orderId);
-    if (order) order.status = 'Returned';
-    
+    if (order) {
+      const originalQtyTotal = (order.items || []).reduce((s, it) => s + (Number(it.qty) || 1), 0);
+      const returnedQtyTotal = (returnItems || []).reduce((s, it) => s + (Number(it.returnQty) || 0), 0);
+      const isFullReturn = returnedQtyTotal >= originalQtyTotal;
+      order.status = isFullReturn ? 'Returned' : 'Accepted';
+      order.returnedAt = new Date().toISOString();
+      order.refundAmount = (Number(order.refundAmount) || 0) + refundAmount;
+      order.refundMode = refundMode;
+      order.returnedItems = returnItems;
+    }
+
     // Increment inventory stock
     if (returnItems && Array.isArray(returnItems)) {
       returnItems.forEach(item => {
@@ -1171,9 +1198,9 @@ export const api = {
         }
       });
     }
-    
+
     saveDB(db);
-    return true;
+    return { refundAmount, isFullReturn: order ? (order.status === 'Returned') : true };
   },
 
   // ---- CREDITS ----

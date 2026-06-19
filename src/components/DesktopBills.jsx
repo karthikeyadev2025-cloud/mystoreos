@@ -5,6 +5,12 @@ const PM_COLOR = { Cash: '#10B981', UPI: '#4F46E5', Card: '#3B82F6', Credit: '#E
 const PM_ICON  = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
 
 const StatusBadge = ({ order }) => {
+  if (order.status === 'Returned') {
+    return <span style={{ fontSize: 10, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Returned</span>;
+  }
+  if (order.refundAmount > 0) {
+    return <span style={{ fontSize: 10, background: '#FFF7ED', color: '#D97706', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Partial Return</span>;
+  }
   if (order.paymentVerified || order.status === 'Completed') {
     return <span style={{ fontSize: 10, background: '#ECFDF5', color: '#059669', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}><CheckCircle2 size={10}/> Paid</span>;
   }
@@ -147,7 +153,14 @@ const DesktopBills = ({
                   </div>
 
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>₹{o.total}</div>
+                    {o.refundAmount > 0 ? (
+                      <>
+                        <div style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{o.total}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>₹{(Number(o.total) - Number(o.refundAmount)).toFixed(2)}</div>
+                      </>
+                    ) : (
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>₹{o.total}</div>
+                    )}
                     <StatusBadge order={o} />
                   </div>
                 </div>
@@ -183,13 +196,13 @@ const DesktopBills = ({
           return (
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
               {/* Header bar */}
-              <div style={{ background: isPaid ? 'linear-gradient(135deg,#10B981,#059669)' : selectedBill.status === 'Accepted' ? 'linear-gradient(135deg,#4F46E5,#4338CA)' : 'linear-gradient(135deg,#F59E0B,#D97706)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: selectedBill.status === 'Returned' ? 'linear-gradient(135deg,#7C3AED,#6D28D9)' : isPaid ? 'linear-gradient(135deg,#10B981,#059669)' : selectedBill.status === 'Accepted' ? 'linear-gradient(135deg,#4F46E5,#4338CA)' : 'linear-gradient(135deg,#F59E0B,#D97706)', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{receiptTitle}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{selectedBill.status === 'Returned' ? '↩️ RETURNED BILL' : receiptTitle}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>#{selectedBill.id.slice(0,8).toUpperCase()}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>₹{selectedBill.total}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>₹{selectedBill.refundAmount > 0 ? (Number(selectedBill.total) - Number(selectedBill.refundAmount)).toFixed(2) : selectedBill.total}</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
                     {new Date(selectedBill.date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
                   </div>
@@ -252,6 +265,34 @@ const DesktopBills = ({
                   </div>
                 </div>
 
+                {/* Return Info Panel — shown when this bill has any returned items */}
+                {(selectedBill.returnedAt || selectedBill.refundAmount > 0) && (
+                  <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <span style={{ fontSize: 13 }}>↩️</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#7C3AED' }}>
+                        {selectedBill.status === 'Returned' ? 'This bill was fully returned' : 'Partial return on this bill'}
+                      </span>
+                    </div>
+                    {selectedBill.returnedAt && (
+                      <div style={{ fontSize: 11, color: '#6D28D9', marginBottom: 4 }}>
+                        Returned on {new Date(selectedBill.returnedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
+                    {selectedBill.returnedItems?.length > 0 && (
+                      <div style={{ fontSize: 11, color: '#6D28D9', marginBottom: 4 }}>
+                        Items: {selectedBill.returnedItems.map(it => `${it.name} x${it.returnQty}`).join(', ')}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                      <span style={{ fontSize: 12, color: '#7C3AED', fontWeight: 700 }}>
+                        Refunded ({selectedBill.refundMode || 'cash'})
+                      </span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#7C3AED' }}>-₹{Number(selectedBill.refundAmount || 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Totals */}
                 <div style={{ background: '#F8FAFC', borderRadius: 10, padding: '12px 14px', border: '1px solid #E2E8F0', marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -265,10 +306,23 @@ const DesktopBills = ({
                       💬 {selectedBill.shopMessage}
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Grand Total</span>
-                    <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A' }}>₹{selectedBill.total}</span>
-                  </div>
+                  {selectedBill.refundAmount > 0 ? (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 12, color: '#94A3B8' }}>Original Total</span>
+                        <span style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'line-through' }}>₹{selectedBill.total}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Net Payable</span>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A' }}>₹{(Number(selectedBill.total) - Number(selectedBill.refundAmount)).toFixed(2)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Grand Total</span>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A' }}>₹{selectedBill.total}</span>
+                    </div>
+                  )}
                   <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
                     <StatusBadge order={selectedBill} />
                   </div>

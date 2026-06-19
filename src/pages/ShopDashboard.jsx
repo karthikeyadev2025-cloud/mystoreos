@@ -95,6 +95,13 @@ const ShopDashboard = () => {
   
   // Quick Bill State
   const [billItems, setBillItems] = useState([]);
+  // Expose whether there's an unsaved cart in progress so the service-worker
+  // auto-update reload (see main.jsx) can wait until the cart is empty/saved
+  // instead of silently wiping a bill the owner is mid-way through ringing up.
+  useEffect(() => {
+    window.__mystoreCartActive = billItems.length > 0;
+    return () => { window.__mystoreCartActive = false; };
+  }, [billItems]);
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [scanPopupProduct, setScanPopupProduct] = useState(null);
   const [customItemName, setCustomItemName] = useState('');
@@ -234,6 +241,7 @@ const ShopDashboard = () => {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [returnOrder, setReturnOrder] = useState(null);
   const [returnItemsState, setReturnItemsState] = useState({}); // { itemId: returnQty }
+  const [returnRefundMode, setReturnRefundMode] = useState('cash'); // 'cash' | 'upi' | 'card' | 'store_credit'
 
   // Admin PIN / Maker-Checker Workflows
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
@@ -780,18 +788,22 @@ const ShopDashboard = () => {
       const { jsPDF: JsPDF } = await import('jspdf');
 
       // ── Print format config ──────────────────────────────────────────────────
-      // printFormat: 'a4' | 'thermal80' | 'thermal58'
-      const isThermal   = printFormat === 'thermal80' || printFormat === 'thermal58';
-      const pageW       = printFormat === 'thermal58' ? 58 : printFormat === 'thermal80' ? 80 : 210;
-      const pageH       = isThermal ? 297 : 297; // auto-height for thermal
-      const marginL     = isThermal ? 3 : 15;
+      // This PDF goes straight to the CUSTOMER (WhatsApp share / download), so it
+      // must always render as a normal, readable A4 document — regardless of what
+      // physical printer (A4 / 80mm thermal / 58mm thermal) the shop has selected
+      // in Settings for in-store till printing. Thermal-shaped PDFs look broken
+      // when previewed on a customer's phone in WhatsApp.
+      // The shop's printFormat IS still respected by the dedicated "Print / Share"
+      // re-print button (printReceiptPDF) used for the till printer.
+      const isThermal   = false;
+      const pageW       = 210;
+      const pageH       = 297;
+      const marginL     = 15;
       const contentW    = pageW - marginL * 2;
-      const baseFontSz  = printFontSize === 'large' ? (isThermal ? 11 : 12) : (isThermal ? 8 : 10);
-      const titleFontSz = printFontSize === 'large' ? (isThermal ? 13 : 15) : (isThermal ? 10 : 13);
+      const baseFontSz  = printFontSize === 'large' ? 12 : 10;
+      const titleFontSz = printFontSize === 'large' ? 15 : 13;
 
-      const doc = isThermal
-        ? new JsPDF({ unit: 'mm', format: [pageW, pageH], orientation: 'portrait' })
-        : new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
       // Theme colours per document type
       let themeColor = '#10B981';
@@ -1493,13 +1505,16 @@ const ShopDashboard = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     
     // Cash In: accepted sales orders today + customer credits settled today
+    // Net of any partial refunds (o.total - o.refundAmount) so a return
+    // doesn't leave inflated revenue/profit numbers behind.
     const todaySalesOrders = orders.filter(o => 
       o.status === 'Accepted' && 
       !(o.userId || '').startsWith('estimate') && 
       !(o.userId || '').startsWith('challan') &&
       o.date && o.date.startsWith(todayStr)
     );
-    const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + o.total, 0);
+    const netOrderTotal = (o) => Number(o.total || 0) - Number(o.refundAmount || 0);
+    const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + netOrderTotal(o), 0);
     
     const todayCustSettled = customerCredits.filter(c => 
       c.paid && 
@@ -1527,6 +1542,7 @@ const ShopDashboard = () => {
     // True profit = revenue minus cost of goods sold (COGS).
     // cashIn/cashOut still drive the ledger view, but "Profit Today" must
     // compare what we earned today vs what those exact items cost us.
+    // Revenue/COGS both already use the post-refund net total above.
     const productCost = Object.fromEntries((products || []).map(p => [p.id, parseFloat(p.costPrice) || 0]));
     const revenue = todaySalesTotal;
     const cogs = todaySalesOrders.reduce((sum, o) =>
@@ -1544,8 +1560,8 @@ const ShopDashboard = () => {
         id: o.id,
         type: 'Cash In',
         category: 'Retail Sale',
-        desc: `Sale: ${name}`,
-        amount: o.total,
+        desc: o.refundAmount > 0 ? `Sale: ${name} (net of ₹${Number(o.refundAmount).toFixed(2)} return)` : `Sale: ${name}`,
+        amount: netOrderTotal(o),
         time: new Date(o.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
     });
@@ -1758,6 +1774,7 @@ const ShopDashboard = () => {
     const initialItems = {};
     order.items.forEach(item => { initialItems[item.id] = 0; });
     setReturnItemsState(initialItems);
+    setReturnRefundMode('cash');
     setShowReturnModal(true);
   };
 
@@ -1776,21 +1793,33 @@ const ShopDashboard = () => {
       ...item,
       returnQty: returnItemsState[item.id]
     }));
-    
+
     if (itemsToReturn.length === 0) {
       setShowReturnModal(true);
       return toast.error("Select at least one item to return");
     }
-    
+
     const refundAmount = itemsToReturn.reduce((sum, item) => sum + (item.price * item.returnQty), 0);
-    
+
     try {
-      await safe(() => api.processReturn(returnOrder.id, itemsToReturn, 'cash'));
-      toast.success("Return processed successfully!");
-      
+      const result = await safe(() => api.processReturn(returnOrder.id, itemsToReturn, returnRefundMode));
+      const isFullReturn = result?.isFullReturn !== false;
+      toast.success(isFullReturn ? "Return processed — bill fully returned!" : `Partial return processed — ₹${refundAmount} refunded`);
+
       const doc = await generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
       doc.save(`Credit_Note_${returnOrder.id}.pdf`);
-      
+
+      // Notify customer via WhatsApp — same pattern as Accept/Verify Payment
+      const decoded = decodeOrderUserId(returnOrder.userId);
+      if (decoded.phone) {
+        const refundModeLabel = { cash: '💵 Cash', upi: '📱 UPI', card: '💳 Card', store_credit: '🎟️ Store Credit' }[returnRefundMode] || returnRefundMode;
+        const itemLines = itemsToReturn.map(i => `• ${i.name} x${i.returnQty} — ₹${(i.price * i.returnQty).toFixed(2)}`).join('\n');
+        const msg = `↩️ *Return Processed — ${user.name}*\n\nHi ${decoded.name || 'Customer'}, your return has been processed:\n\n${itemLines}\n\n💰 *Refund Amount: ₹${refundAmount.toFixed(2)}*\nRefund Mode: ${refundModeLabel}\n\n${isFullReturn ? 'This bill has been fully returned.' : 'This was a partial return — your bill remains valid for the rest of the items.'}\n\n_Powered by MyStore OS_`;
+        const cleanPhone = decoded.phone.replace(/\D/g, '');
+        const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+        window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+
       setShowReturnModal(false);
       loadData();
     } catch (err) {
@@ -3062,13 +3091,25 @@ const ShopDashboard = () => {
                 ))}
               </div>
               
+              <div style={{ marginTop: '16px' }}>
+                <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+                  {[['cash','💵','Cash'],['upi','📱','UPI'],['card','💳','Card'],['store_credit','🎟️','Credit']].map(([key, icon, label]) => (
+                    <button key={key} onClick={() => setReturnRefundMode(key)}
+                      style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid #EF4444' : '1px solid #334155', background: returnRefundMode === key ? 'rgba(239,68,68,0.15)' : '#0F172A', color: returnRefundMode === key ? '#EF4444' : '#94A3B8', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
+                      {icon}<br />{label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
                   <span>Total Refund:</span>
                   <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * (returnItemsState[item.id] || 0)), 0).toFixed(2)}</span>
                 </div>
                 <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
-                  Confirm Return & Generate Credit Note
+                  Confirm Return &amp; Notify Customer
                 </button>
               </div>
             </div>
@@ -4119,10 +4160,47 @@ const ShopDashboard = () => {
                 ))}
               </div>
 
-              <div style={{ borderTop: '1px dashed #000', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px' }}>
-                <span>TOTAL</span>
-                <span>₹{selectedOrder.total}</span>
+              <div style={{ borderTop: '1px dashed #000', paddingTop: '12px', marginTop: '12px' }}>
+                {selectedOrder.refundAmount > 0 ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#888' }}>
+                      <span>Original Total</span>
+                      <span style={{ textDecoration: 'line-through' }}>₹{selectedOrder.total}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', marginTop: '4px' }}>
+                      <span>NET PAYABLE</span>
+                      <span>₹{(Number(selectedOrder.total) - Number(selectedOrder.refundAmount)).toFixed(2)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px' }}>
+                    <span>TOTAL</span>
+                    <span>₹{selectedOrder.total}</span>
+                  </div>
+                )}
               </div>
+
+              {/* Return info — shown when this bill has any returned items */}
+              {(selectedOrder.returnedAt || selectedOrder.refundAmount > 0) && (
+                <div style={{ marginTop: '10px', padding: '10px', background: '#F5F3FF', border: '1px dashed #7C3AED', borderRadius: '6px', fontSize: '11px' }}>
+                  <p style={{ margin: '0 0 4px', fontWeight: 'bold', color: '#7C3AED' }}>
+                    ↩️ {selectedOrder.status === 'Returned' ? 'Fully Returned' : 'Partial Return'}
+                  </p>
+                  {selectedOrder.returnedAt && (
+                    <p style={{ margin: '0 0 2px', color: '#6D28D9' }}>
+                      On {new Date(selectedOrder.returnedAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                    </p>
+                  )}
+                  {selectedOrder.returnedItems?.length > 0 && (
+                    <p style={{ margin: '0 0 2px', color: '#6D28D9' }}>
+                      Items: {selectedOrder.returnedItems.map(it => `${it.name} x${it.returnQty}`).join(', ')}
+                    </p>
+                  )}
+                  <p style={{ margin: 0, color: '#6D28D9' }}>
+                    Refunded ₹{Number(selectedOrder.refundAmount||0).toFixed(2)} via {selectedOrder.refundMode || 'cash'}
+                  </p>
+                </div>
+              )}
 
               {/* Payment method */}
               {selectedOrder.paymentMethod && (
@@ -5495,13 +5573,25 @@ const ShopDashboard = () => {
               ))}
             </div>
             
+            <div style={{ marginTop: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+                {[['cash','💵','Cash'],['upi','📱','UPI'],['card','💳','Card'],['store_credit','🎟️','Credit']].map(([key, icon, label]) => (
+                  <button key={key} onClick={() => setReturnRefundMode(key)}
+                    style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid #EF4444' : '1px solid #E2E8F0', background: returnRefundMode === key ? '#FEF2F2' : '#F8FAFC', color: returnRefundMode === key ? '#EF4444' : '#64748B', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
+                    {icon}<br />{label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
                 <span>Total Refund:</span>
                 <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * returnItemsState[item.id]), 0).toFixed(2)}</span>
               </div>
               <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
-                Confirm Return & Generate Credit Note
+                Confirm Return &amp; Notify Customer
               </button>
             </div>
           </div>
