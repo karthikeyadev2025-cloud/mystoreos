@@ -1138,6 +1138,25 @@ export const api = {
     if (order) { order.status = 'Completed'; order.paymentVerified = true; order.shopMessage = message; saveDB(db); }
   },
 
+  // Cancel a Pending order — for orders the shop hasn't accepted/processed
+  // yet (no money or goods have changed hands). Once an order is Accepted
+  // or Completed, use processReturn() instead since that path is what
+  // restores stock and tracks a refund.
+  async cancelOrder(orderId, reason = '') {
+    const message = reason ? `Order cancelled: ${reason}` : 'Order cancelled by shop.';
+    if (isSupabaseConfigured) {
+      await supabase.from('orders').update({
+        status: 'Cancelled',
+        shop_message: message,
+      }).eq('id', orderId);
+      return;
+    }
+    const db = getDB();
+    const order = db.orders.find(o => o.id === orderId);
+    if (order) { order.status = 'Cancelled'; order.shopMessage = message; }
+    saveDB(db);
+  },
+
   async processReturn(orderId, returnItems, refundMode = 'cash') {
     // Compute refund total and whether this is a full or partial return
     const refundAmount = (returnItems || []).reduce((sum, item) => sum + (Number(item.price) * Number(item.returnQty || 0)), 0);

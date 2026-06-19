@@ -1413,6 +1413,45 @@ const ShopDashboard = () => {
     loadData();
   };
 
+  // ── Cancel Order — only for Pending orders (nothing accepted/paid yet) ──
+  // Once an order is Accepted or Completed, use the Return flow instead —
+  // that's the one that restocks items and tracks a refund.
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelTargetOrder, setCancelTargetOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
+
+  const openCancelModal = (order) => {
+    setCancelTargetOrder(order);
+    setCancelReason('');
+    setShowCancelModal(true);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!cancelTargetOrder) return;
+    const o = cancelTargetOrder;
+    try {
+      await safe(() => api.cancelOrder(o.id, cancelReason.trim()));
+      toast.success("Order cancelled.");
+
+      // Notify customer via WhatsApp
+      const decoded = decodeOrderUserId(o.userId);
+      if (decoded.phone) {
+        const reasonLine = cancelReason.trim() ? `\nReason: ${cancelReason.trim()}` : '';
+        const msg = `❌ *Order Cancelled — ${user.name}*\n\nHi ${decoded.name || 'Customer'}, your order of *₹${o.total}* has been cancelled.${reasonLine}\n\nNo payment was taken for this order. Sorry for the inconvenience!\n\n_Powered by MyStore OS_`;
+        const cleanPhone = decoded.phone.replace(/\D/g, '');
+        const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
+        window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+
+      setShowCancelModal(false);
+      setCancelTargetOrder(null);
+      loadData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to cancel order");
+    }
+  };
+
   const sales = orders.filter(o => o.status === 'Accepted' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).reduce((a, b) => a + b.total, 0);
   const pendingOrders = orders.filter(o => o.status === 'Pending' && !(o.userId || '').startsWith('estimate') && !(o.userId || '').startsWith('challan')).length;
   const payable = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
@@ -2874,6 +2913,7 @@ const ShopDashboard = () => {
               printReceiptPDF={printReceiptPDF}
               verifyOrderPayment={verifyOrderPayment}
               handleOpenReturnModal={handleOpenReturnModal}
+              openCancelModal={openCancelModal}
               decodeOrderUserId={decodeOrderUserId}
               user={user}
               products={products}
@@ -4098,9 +4138,14 @@ const ShopDashboard = () => {
                       )}
 
                       {o.status === 'Pending' && (
-                        <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,#22C55E,#16A34A)', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
-                          ✅ Accept &amp; Notify
-                        </button>
+                        <>
+                          <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,#22C55E,#16A34A)', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                            ✅ Accept &amp; Notify
+                          </button>
+                          <button onClick={() => openCancelModal(o)} style={{background:'#FEF2F2', color:'#EF4444', border:'1px solid #FCA5A5', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                            ✕ Cancel
+                          </button>
+                        </>
                       )}
                       
                       {o.status === 'Accepted' && !o.paymentVerified && (
@@ -6111,6 +6156,58 @@ const ShopDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* CANCEL ORDER MODAL — only for Pending orders */}
+      {showCancelModal && cancelTargetOrder && (() => {
+        const decoded = decodeOrderUserId(cancelTargetOrder.userId);
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
+            <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '420px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: '20px' }}>❌</span>
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0F172A' }}>Cancel This Order?</h2>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94A3B8' }}>
+                    {decoded.name || 'Walk-in'} · ₹{cancelTargetOrder.total} · #{cancelTargetOrder.id.slice(0,8).toUpperCase()}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: '#92400E' }}>
+                This order hasn't been accepted yet — no payment has been taken and no stock has moved. The customer will be notified that their order was cancelled.
+              </div>
+
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: '600' }}>
+                Reason (optional, shown to customer)
+              </label>
+              <input
+                type="text"
+                value={cancelReason}
+                onChange={e => setCancelReason(e.target.value)}
+                placeholder="e.g. Item out of stock, shop closing early…"
+                style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #E2E8F0', borderRadius: '9px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', marginBottom: '20px' }}
+              />
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => { setShowCancelModal(false); setCancelTargetOrder(null); }}
+                  style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#475569', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  Keep Order
+                </button>
+                <button
+                  onClick={confirmCancelOrder}
+                  style={{ flex: 1.4, padding: '12px', background: 'linear-gradient(135deg,#EF4444,#DC2626)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  ❌ Yes, Cancel &amp; Notify
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* RESET TEST DATA MODAL — Danger Zone confirmation */}
       {showResetTestDataModal && (

@@ -5,6 +5,9 @@ const PM_COLOR = { Cash: '#10B981', UPI: '#4F46E5', Card: '#3B82F6', Credit: '#E
 const PM_ICON  = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
 
 const StatusBadge = ({ order }) => {
+  if (order.status === 'Cancelled') {
+    return <span style={{ fontSize: 10, background: '#F1F5F9', color: '#64748B', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}><X size={10}/> Cancelled</span>;
+  }
   if (order.status === 'Returned') {
     return <span style={{ fontSize: 10, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Returned</span>;
   }
@@ -32,6 +35,7 @@ const DesktopBills = ({
   verifyOrderPayment,
   printReceiptPDF,
   handleOpenReturnModal,
+  openCancelModal,
   decodeOrderUserId,
   user
 }) => {
@@ -68,7 +72,10 @@ const DesktopBills = ({
     return arr;
   }, [allOrders, sortBy]);
 
-  const totalRevenue = allOrders.filter(o => !['estimate','challan'].some(t => (o.userId||'').startsWith(t))).reduce((s,o) => s + Number(o.total||0), 0);
+  const totalRevenue = allOrders
+    .filter(o => !['estimate','challan'].some(t => (o.userId||'').startsWith(t)))
+    .filter(o => o.status === 'Accepted' || o.status === 'Completed') // exclude Pending (not yet sold) and Cancelled
+    .reduce((s,o) => s + (Number(o.total||0) - Number(o.refundAmount||0)), 0);
   const pendingCount = allOrders.filter(o => o.status === 'Pending').length;
 
   return (
@@ -331,12 +338,22 @@ const DesktopBills = ({
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {selectedBill.status === 'Pending' && (
-                    <button
-                      onClick={() => { acceptOrder(selectedBill.id); setSelectedBill(s => s ? {...s, status:'Accepted'} : s); }}
-                      style={{ width: '100%', background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                    >
-                      <Check size={16} /> Accept &amp; Notify Customer
-                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => { acceptOrder(selectedBill.id); setSelectedBill(s => s ? {...s, status:'Accepted'} : s); }}
+                        style={{ flex: 2, background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                      >
+                        <Check size={16} /> Accept &amp; Notify
+                      </button>
+                      {openCancelModal && (
+                        <button
+                          onClick={() => openCancelModal(selectedBill)}
+                          style={{ flex: 1, background: '#FEF2F2', color: '#EF4444', border: '1px solid #FCA5A5', padding: '12px', borderRadius: '10px', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        >
+                          <X size={14} /> Cancel
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {selectedBill.status === 'Accepted' && !isPaid && (

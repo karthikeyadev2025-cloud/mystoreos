@@ -2806,13 +2806,20 @@ const UserDashboard = () => {
                         </div>
 
                         <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{order.total}</span>
+                          {order.refundAmount > 0 ? (
+                            <>
+                              <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through', display: 'block' }}>₹{order.total}</span>
+                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{(Number(order.total) - Number(order.refundAmount)).toFixed(2)}</span>
+                            </>
+                          ) : (
+                            <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{order.total}</span>
+                          )}
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '3px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800',
-                            background: order.status === 'Completed' || order.paymentVerified ? 'rgba(16,185,129,0.15)' : order.status === 'Accepted' ? 'rgba(79,70,229,0.12)' : 'rgba(245,158,11,0.15)',
-                            color: order.status === 'Completed' || order.paymentVerified ? '#10b981' : order.status === 'Accepted' ? '#4F46E5' : '#f59e0b',
+                            background: order.status === 'Cancelled' ? 'rgba(100,116,139,0.15)' : order.status === 'Returned' ? 'rgba(124,58,237,0.15)' : (order.status === 'Completed' || order.paymentVerified) ? 'rgba(16,185,129,0.15)' : order.status === 'Accepted' ? 'rgba(79,70,229,0.12)' : 'rgba(245,158,11,0.15)',
+                            color: order.status === 'Cancelled' ? '#64748b' : order.status === 'Returned' ? '#7C3AED' : (order.status === 'Completed' || order.paymentVerified) ? '#10b981' : order.status === 'Accepted' ? '#4F46E5' : '#f59e0b',
                             textTransform: 'uppercase', marginTop: '4px', display: 'block'
                           }}>
-                            {order.status === 'Completed' || order.paymentVerified ? '💰 Paid & Done' : order.status === 'Accepted' ? '✅ Accepted' : '⏳ Pending'}
+                            {order.status === 'Cancelled' ? '❌ Cancelled' : order.status === 'Returned' ? '↩️ Returned' : (order.status === 'Completed' || order.paymentVerified) ? '💰 Paid & Done' : order.status === 'Accepted' ? '✅ Accepted' : '⏳ Pending'}
                           </div>
                           {order.shopMessage && (
                             <div style={{ fontSize: 10, color: '#10b981', marginTop: 3, maxWidth: 140, textAlign: 'right', lineHeight: 1.3 }}>{order.shopMessage}</div>
