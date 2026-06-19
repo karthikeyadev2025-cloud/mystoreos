@@ -19,7 +19,7 @@ import { buildUpiUri } from '../lib/upi';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { sendWhatsApp, sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
+import { sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
 import DesktopTopBar from '../components/DesktopTopBar';
@@ -128,6 +128,10 @@ const ShopDashboard = () => {
   const [newProdBatch, setNewProdBatch] = useState('');
   const [newProdExpiry, setNewProdExpiry] = useState('');
   const [newProdVariants, setNewProdVariants] = useState('');
+  // Per-variant pricing — e.g. Rice Bag sold as 5kg/20kg, each a different
+  // price. Array of {name, price}. Empty array = no per-variant pricing,
+  // falls back to the single shared `price` field (today's behavior).
+  const [newProdVariantPrices, setNewProdVariantPrices] = useState([]);
   const [newProdHsnCode, setNewProdHsnCode] = useState('');
   const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [newProdCostPrice, setNewProdCostPrice] = useState('0');
@@ -149,6 +153,7 @@ const ShopDashboard = () => {
   const [editProdBatch, setEditProdBatch] = useState('');
   const [editProdExpiry, setEditProdExpiry] = useState('');
   const [editProdVariants, setEditProdVariants] = useState('');
+  const [editProdVariantPrices, setEditProdVariantPrices] = useState([]);
   const [editProdHsnCode, setEditProdHsnCode] = useState('');
   const [editProdGstRate, setEditProdGstRate] = useState('0');
   const [editProdCostPrice, setEditProdCostPrice] = useState('0');
@@ -544,6 +549,7 @@ const ShopDashboard = () => {
     setEditProdBatch(p.batchNumber || '');
     setEditProdExpiry(p.expiryDate || '');
     setEditProdVariants(p.variants || '');
+    setEditProdVariantPrices(Array.isArray(p.variantPrices) && p.variantPrices.length ? p.variantPrices.map(v => ({ name: v.name, price: String(v.price) })) : []);
     setEditProdHsnCode(p.hsnCode || '');
     setEditProdGstRate(p.gstRate || '0');
     setEditProdCostPrice(p.costPrice !== undefined ? String(p.costPrice) : '0');
@@ -566,6 +572,9 @@ const ShopDashboard = () => {
         batchNumber: editProdBatch,
         expiryDate: editProdExpiry,
         variants: editProdVariants,
+        variantPrices: editProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 })).length
+          ? editProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 }))
+          : null,
         hsnCode: editProdHsnCode,
         gstRate: editProdGstRate,
         costPrice: parseFloat(editProdCostPrice) || 0,
@@ -662,11 +671,20 @@ const ShopDashboard = () => {
       }
       const sale = flashSales[prod.id];
       const activeSale = sale && new Date(sale.expiresAt) > new Date();
-      const salePrice = activeSale ? Math.round(prod.price * (1 - sale.discount / 100)) : prod.price;
-      const firstVariant = prod.variants ? prod.variants.split(',')[0].trim() : '';
+      const hasVariantPricing = Array.isArray(prod.variantPrices) && prod.variantPrices.length > 0;
+      // Default to the first variant's own price (not the shared base
+      // price) when this product has structured per-variant pricing —
+      // e.g. adding "Rice Bag" should bill at the 5kg price immediately,
+      // not silently default to whatever the base `price` field happens
+      // to be set to.
+      const effectiveBasePrice = hasVariantPricing ? (Number(prod.variantPrices[0].price) || prod.price) : prod.price;
+      const salePrice = activeSale ? Math.round(effectiveBasePrice * (1 - sale.discount / 100)) : effectiveBasePrice;
+      const firstVariant = hasVariantPricing
+        ? prod.variantPrices[0].name
+        : (prod.variants ? prod.variants.split(',')[0].trim() : '');
       const label = activeSale ? `🔥 ${prod.name} added (${sale.discount}% off!)` : `Added ${prod.name} to bill`;
       toast.success(label, { autoClose: 1000 });
-      return [...prevItems, { ...prod, price: salePrice, originalPrice: activeSale ? prod.price : undefined, qty: 1, selectedVariant: firstVariant }];
+      return [...prevItems, { ...prod, price: salePrice, originalPrice: activeSale ? effectiveBasePrice : undefined, basePrice: effectiveBasePrice, qty: 1, selectedVariant: firstVariant }];
     });
   }, [flashSales]);
 
@@ -692,7 +710,24 @@ const ShopDashboard = () => {
 
   const updateBillItemVariant = (prodId, variant) => {
     setBillItems(prev => {
-      return prev.map(item => item.id === prodId ? { ...item, selectedVariant: variant } : item);
+      return prev.map(item => {
+        if (item.id !== prodId) return item;
+        // If this product has structured per-variant pricing, switching the
+        // variant must actually change the billed price — previously this
+        // only updated the display label and silently kept billing every
+        // variant at the same price (e.g. a 5kg and 20kg rice bag would
+        // both ring up identically, a real billing-accuracy bug).
+        if (Array.isArray(item.variantPrices) && item.variantPrices.length) {
+          const match = item.variantPrices.find(v => v.name === variant);
+          if (match) {
+            // basePrice keeps the product's original/default price so
+            // discount-badge math elsewhere (item.originalPrice display)
+            // still has something sensible to compare against.
+            return { ...item, selectedVariant: variant, price: Number(match.price) || item.price, basePrice: item.basePrice ?? item.price };
+          }
+        }
+        return { ...item, selectedVariant: variant };
+      });
     });
   };
 
@@ -1291,13 +1326,35 @@ const ShopDashboard = () => {
       const pdfBlob = doc.output("blob");
       const pdfFile = new File([pdfBlob], pdfFileName, { type: "application/pdf" });
 
-      if (hasFeature('whatsappShare') && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        await navigator.share({
-          files: [pdfFile],
-          title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
-          text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
-        });
-      } else if (hasFeature('whatsappShare')) {
+      // ── WhatsApp delivery — heart feature, must work every single time ──
+      // Hard platform fact: WhatsApp's wa.me deep link can only carry TEXT,
+      // never a file attachment — that's a WhatsApp URL-scheme limitation,
+      // not something any web app can work around. There is no way to open
+      // WhatsApp to a specific number with a PDF already attached via a link.
+      //
+      // The previous code gambled the entire flow on navigator.share() when
+      // available, which opens a GENERIC OS share sheet (Bluetooth, Mail,
+      // Drive, Messages, AirDrop, whatever's installed) — NOT WhatsApp
+      // specifically, and with NO number pre-filled. That's the actual
+      // reason this kept "randomly failing": it was never reliably reaching
+      // WhatsApp or the customer's number in the first place.
+      //
+      // Reliable flow used now, identical on mobile and desktop:
+      //   1. Always save/download the PDF first — zero platform dependency,
+      //      always succeeds.
+      //   2. Always open wa.me/{customerNumber} with the full bill as text
+      //      (items, discounts, total, UPI pay link) — this part the
+      //      WhatsApp deep link CAN do, and now always does, every time.
+      //   3. If the OS file-share sheet is available, offer it as an
+      //      additional one-tap action so the owner can pick WhatsApp from
+      //      it and attach the PDF in the same conversation that's now open.
+      if (hasFeature('whatsappShare')) {
+        // Step 1 — PDF always saved locally first, guaranteed
+        doc.save(pdfFileName);
+
+        // Step 2 — build the same rich text bill and open it directly to
+        // the customer's WhatsApp number (was previously only used as a
+        // fallback when file-sharing failed; now always runs).
         let msg = `*${user.name}*\n`;
         if (billingMode === 'estimate') msg += `*PROFORMA ESTIMATE / QUOTATION*\n`;
         else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
@@ -1334,20 +1391,40 @@ const ShopDashboard = () => {
           const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
           msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${ref}&cu=INR (enter Rs.${total})\n`;
         }
-        await sendWhatsApp(customerPhone, msg);
-        // Also offer to open directly to customer's number on devices that support it
+        msg += `\n_📎 Bill PDF saved on shop device — attach if needed._`;
+
         if (customerPhone) {
           const cleanedPhone = customerPhone.replace(/\D/g, '');
           const phoneWithCountry = cleanedPhone.startsWith('91') ? cleanedPhone : `91${cleanedPhone}`;
-          toast.info(`Bill sent! Opening WhatsApp for ${customerPhone}...`, { autoClose: 2000 });
+          window.open(`https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(msg)}`, '_blank');
+          toast.success(`📄 Bill saved + WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
+        } else {
+          // No customer number on this bill — still let them pick a contact
+          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+          toast.info('No customer number on this bill — pick a contact in WhatsApp, or use Share PDF below.', { autoClose: 5000 });
+        }
+
+        // Step 3 — also offer the native file-share sheet as an extra,
+        // explicit, non-blocking option (does not replace the steps above)
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          setTimeout(() => {
+            navigator.share({
+              files: [pdfFile],
+              title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
+              text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
+            }).catch(() => {}); // user cancelling the share sheet is not an error
+          }, 600);
         }
       } else {
-        // Starter plan: save PDF locally instead of WhatsApp share
+        // Starter plan: save PDF locally only, no WhatsApp
         doc.save(pdfFileName);
         toast.info('Bill saved as PDF. Upgrade to Pro to share via WhatsApp.');
       }
 
-      toast.success(`${billingMode === 'estimate' ? 'Estimate' : (billingMode === 'challan' ? 'Challan' : 'Bill')} generated and sent successfully!`);
+      // (Specific success/info toasts already shown above based on the
+      // actual delivery method used — avoids a misleading generic
+      // "sent successfully" when, for example, no customer number was on
+      // the bill and WhatsApp couldn't be pre-filled.)
       // Auto-send via WhatsApp Cloud API if configured (silent — no browser tab opened)
       if (billingMode === 'bill' && customerPhone && hasWhatsAppAPI()) {
         sendBillNotification(customerPhone, customerName || 'Customer', total, user.name, invoiceNo);
@@ -1754,7 +1831,10 @@ const ShopDashboard = () => {
         newProdExpiry,
         newProdVariants,
         parseInt(newProdReorder) || 10,
-        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured, discountPct: parseInt(newProdDiscountPct) || 0 }
+        { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured, discountPct: parseInt(newProdDiscountPct) || 0,
+          variantPrices: newProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 })).length
+            ? newProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 }))
+            : null }
       ));
       toast.success("Product Saved to Inventory!");
       setShowAddProductModal(false);
@@ -1766,6 +1846,7 @@ const ShopDashboard = () => {
       setNewProdBatch('');
       setNewProdExpiry('');
       setNewProdVariants('');
+      setNewProdVariantPrices([]);
       setNewProdHsnCode('');
       setNewProdGstRate('0');
       setNewProdCostPrice('0');
@@ -3279,6 +3360,42 @@ const ShopDashboard = () => {
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
                 <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+              </div>
+              <div style={{ marginBottom: '16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: newProdVariantPrices.length ? '12px' : 0 }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748B' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                  </div>
+                  {newProdVariantPrices.length === 0 && (
+                    <button type="button" onClick={() => setNewProdVariantPrices([{ name: '', price: '' }])}
+                      style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      + Add Pricing
+                    </button>
+                  )}
+                </div>
+                {newProdVariantPrices.map((v, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                    <input type="text" value={v.name} placeholder="e.g. 20kg"
+                      onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
+                      style={{ flex: 2, padding: '9px 12px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#64748B', fontSize: 13 }}>₹</span>
+                      <input type="number" value={v.price} placeholder="Price"
+                        onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
+                        style={{ width: '100%', padding: '9px 12px 9px 22px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', boxSizing: 'border-box' }} />
+                    </div>
+                    <button type="button" onClick={() => setNewProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
+                      style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid #EF4444', color: '#FCA5A5', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
+                  </div>
+                ))}
+                {newProdVariantPrices.length > 0 && (
+                  <button type="button" onClick={() => setNewProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
+                    style={{ background: 'transparent', border: '1px dashed #475569', color: '#94A3B8', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                    + Add another variant price
+                  </button>
+                )}
               </div>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
@@ -3599,6 +3716,43 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+            </div>
+
+            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editProdVariantPrices.length ? '12px' : 0 }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                </div>
+                {editProdVariantPrices.length === 0 && (
+                  <button type="button" onClick={() => setEditProdVariantPrices([{ name: '', price: '' }])}
+                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    + Add Pricing
+                  </button>
+                )}
+              </div>
+              {editProdVariantPrices.map((v, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                  <input type="text" value={v.name} placeholder="e.g. 20kg"
+                    onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
+                    style={{ flex: 2, padding: '9px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px' }} />
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <input type="number" value={v.price} placeholder="Price"
+                      onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
+                      style={{ width: '100%', padding: '9px 12px 9px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', boxSizing: 'border-box' }} />
+                  </div>
+                  <button type="button" onClick={() => setEditProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
+                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
+                </div>
+              ))}
+              {editProdVariantPrices.length > 0 && (
+                <button type="button" onClick={() => setEditProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
+                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  + Add another variant price
+                </button>
+              )}
             </div>
 
             <div style={{ marginBottom: '16px' }}>
@@ -3920,7 +4074,10 @@ const ShopDashboard = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '12px 0 20px 0' }}>
                   {billItems.map((item, idx) => {
-                    const variantList = item.variants ? item.variants.split(',').map(v => v.trim()) : [];
+                    const hasVariantPricing = Array.isArray(item.variantPrices) && item.variantPrices.length > 0;
+                    const variantList = hasVariantPricing
+                      ? item.variantPrices.map(v => v.name)
+                      : (item.variants ? item.variants.split(',').map(v => v.trim()) : []);
                     return (
                       <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '10px 12px', borderRadius: '8px', border: '1px solid #2A2F3D' }}>
                         <div style={{ flex: 1, marginRight: '8px' }}>
@@ -3933,9 +4090,9 @@ const ShopDashboard = () => {
                                 onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
                                 style={{ background: '#1E293B', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', outline: 'none' }}
                               >
-                                {variantList.map((v, vidx) => (
-                                  <option key={vidx} value={v}>{v}</option>
-                                ))}
+                                {hasVariantPricing
+                                  ? item.variantPrices.map((v, vidx) => <option key={vidx} value={v.name}>{v.name} — ₹{v.price}</option>)
+                                  : variantList.map((v, vidx) => <option key={vidx} value={v}>{v}</option>)}
                               </select>
                             )}
                           </div>
@@ -5764,6 +5921,43 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+            </div>
+
+            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: newProdVariantPrices.length ? '12px' : 0 }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                </div>
+                {newProdVariantPrices.length === 0 && (
+                  <button type="button" onClick={() => setNewProdVariantPrices([{ name: '', price: '' }])}
+                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    + Add
+                  </button>
+                )}
+              </div>
+              {newProdVariantPrices.map((v, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                  <input type="text" value={v.name} placeholder="e.g. 20kg"
+                    onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
+                    style={{ flex: 2, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px' }} />
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <input type="number" value={v.price} placeholder="Price"
+                      onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
+                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  </div>
+                  <button type="button" onClick={() => setNewProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
+                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
+                </div>
+              ))}
+              {newProdVariantPrices.length > 0 && (
+                <button type="button" onClick={() => setNewProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
+                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  + Add another variant price
+                </button>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -5885,6 +6079,43 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
               <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+            </div>
+
+            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editProdVariantPrices.length ? '12px' : 0 }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                </div>
+                {editProdVariantPrices.length === 0 && (
+                  <button type="button" onClick={() => setEditProdVariantPrices([{ name: '', price: '' }])}
+                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    + Add
+                  </button>
+                )}
+              </div>
+              {editProdVariantPrices.map((v, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                  <input type="text" value={v.name} placeholder="e.g. 20kg"
+                    onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
+                    style={{ flex: 2, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px' }} />
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <input type="number" value={v.price} placeholder="Price"
+                      onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
+                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  </div>
+                  <button type="button" onClick={() => setEditProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
+                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
+                </div>
+              ))}
+              {editProdVariantPrices.length > 0 && (
+                <button type="button" onClick={() => setEditProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
+                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  + Add another variant price
+                </button>
+              )}
             </div>
 
             <div style={{ marginBottom: '16px' }}>
