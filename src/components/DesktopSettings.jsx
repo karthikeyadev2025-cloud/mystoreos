@@ -5,7 +5,6 @@ import { PlanGate, LockedFeature } from './PlanGate';
 
 const DesktopSettings = ({
   logo,
-  handleLogoUpload: _handleLogoUpload,
   gstin,
   setGstin,
   stateCode,

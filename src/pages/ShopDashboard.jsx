@@ -2446,17 +2446,30 @@ const ShopDashboard = () => {
     }
   };
 
-  const handleLogoUpload = async (e) => {
+  // Resize to max 400px + JPEG-compress, then persist — same logic used by
+  // DesktopSettings' logo uploader (handleLogoFile -> onLogoChange), so both
+  // surfaces save the logo identically and reliably reach the database.
+  // Previously the mobile input called a separate handler that only ever
+  // set local React state and never persisted to Supabase — the logo
+  // looked uploaded for that one session, then silently vanished and
+  // never reached any other device.
+  const handleMobileLogoFile = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      try {
-        const url = await safe(() => api.uploadAsset(file, user.id, 'logos'));
-        setLogo(url);
-        toast.success("Logo uploaded successfully!");
-      } catch {
-        toast.error("Failed to upload logo");
-      }
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(400 / img.width, 400 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        handleLogoChange(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleLogoChange = async (base64) => {
@@ -2992,7 +3005,6 @@ const ShopDashboard = () => {
               merchantCode={merchantCode}
               setMerchantCode={setMerchantCode}
               logo={logo}
-              handleLogoUpload={handleLogoUpload}
               onLogoChange={handleLogoChange}
               onLogoRemove={handleLogoRemove}
               shopPhotos={shopPhotos}
@@ -3190,6 +3202,9 @@ const ShopDashboard = () => {
           <BarcodeManager
             products={products}
             shopName={user.name}
+            shopId={targetShopId}
+            getSiteConfig={api.getSiteConfig}
+            saveSiteConfig={api.saveSiteConfig}
             onClose={() => setShowBarcodeManager(false)}
             onAssignBarcode={async (prodId, value) => {
               await api.editProduct(prodId, { barcode: value });
@@ -3694,6 +3709,32 @@ const ShopDashboard = () => {
 
       {activeTab === 'home' && (
         <>
+          {/* Smart POS Search — first thing visible, no scrolling needed to bill */}
+          <div style={{ ...styles.searchBar, border: searchFocused ? '2px solid #4F46E5' : '2px solid transparent', transition: 'border-color .15s', background: '#F1F5F9', margin: '12px' }}>
+            <Search size={18} color={searchFocused ? '#4F46E5' : '#94A3B8'} style={{ flexShrink: 0 }} />
+            <input 
+              ref={posSearchRef}
+              type="text" 
+              placeholder="Search by name, barcode…  (Enter = add top result)"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && filteredProducts.length > 0) {
+                  addToBill(filteredProducts[0]);
+                  setSearch('');
+                  e.preventDefault();
+                }
+                if (e.key === 'Escape') { setSearch(''); e.currentTarget.blur(); }
+              }}
+              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', minWidth: 0, padding: '12px 8px', color:'#0F172A', outline:'none', fontSize: 14 }} 
+            />
+            {search && (
+              <button onClick={() => { setSearch(''); posSearchRef.current?.focus(); }} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px', flexShrink: 0 }}>✕</button>
+            )}
+          </div>
+
           {/* Offer Banner */}
           {shopBanner?.active && shopBanner?.title && (
             <div style={{ margin: '0 12px 12px', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
@@ -3726,32 +3767,6 @@ const ShopDashboard = () => {
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{sales}</p><p style={styles.statLabel}>Revenue</p></div>}
             <div style={styles.statBox} onClick={() => setActiveTab('products')}><p style={styles.statNum}>{products.length}</p><p style={styles.statLabel}>Products</p></div>
             {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{payable}</p><p style={styles.statLabel}>Credit Due</p></div>}
-          </div>
-
-          {/* Smart POS Search */}
-          <div style={{ ...styles.searchBar, border: searchFocused ? '2px solid #4F46E5' : '2px solid transparent', transition: 'border-color .15s', background: '#F1F5F9' }}>
-            <Search size={18} color={searchFocused ? '#4F46E5' : '#94A3B8'} style={{ flexShrink: 0 }} />
-            <input 
-              ref={posSearchRef}
-              type="text" 
-              placeholder="Search by name, barcode…  (Enter = add top result)"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && filteredProducts.length > 0) {
-                  addToBill(filteredProducts[0]);
-                  setSearch('');
-                  e.preventDefault();
-                }
-                if (e.key === 'Escape') { setSearch(''); e.currentTarget.blur(); }
-              }}
-              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', minWidth: 0, padding: '12px 8px', color:'#0F172A', outline:'none', fontSize: 14 }} 
-            />
-            {search && (
-              <button onClick={() => { setSearch(''); posSearchRef.current?.focus(); }} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px', flexShrink: 0 }}>✕</button>
-            )}
           </div>
 
           {/* Action Grid */}
@@ -4896,7 +4911,12 @@ const ShopDashboard = () => {
               ) : (
                 <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0F172A', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>No Logo</div>
               )}
-              <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94A3B8' }} />
+              <input type="file" accept="image/*" onChange={handleMobileLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94A3B8' }} />
+              {logo && (
+                <button onClick={handleLogoRemove} style={{ marginTop: '10px', background: 'rgba(239,68,68,0.15)', border: '1px solid #EF4444', color: '#FCA5A5', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}>
+                  Remove Logo
+                </button>
+              )}
             </div>
 
             {/* ── ACCOUNT DETAILS ── */}

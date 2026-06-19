@@ -25,7 +25,7 @@ function isValidFor(format, value) {
   return true;
 }
 
-export default function BarcodeManager({ products, shopName, onClose, onAssignBarcode, onScanToAdd }) {
+export default function BarcodeManager({ products, shopName, shopId, onClose, onAssignBarcode, onScanToAdd, getSiteConfig, saveSiteConfig }) {
   const [tab,              setTab]              = useState('manage');
   const [search,           setSearch]           = useState('');
   const [selected,         setSelected]         = useState({});
@@ -34,6 +34,24 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
   const [discounts,        setDiscounts]        = useState({}); // productId -> % string
   const [scanResult,       setScanResult]       = useState(null);
   const printContainerRef = useRef(null); // hidden barcode DOM for SVG capture
+
+  // Remember which label paper this shop has loaded (A4 sheet vs 58x40mm
+  // thermal roll) so it doesn't silently reset to A4 every time the modal
+  // is reopened — a shop with a thermal label printer had to re-select it
+  // every single time before this, risking an A4 layout being sent to a
+  // thermal printer by mistake.
+  useEffect(() => {
+    if (!getSiteConfig || !shopId) return;
+    (async () => {
+      const saved = await getSiteConfig(`barcodeLabelFormat_${shopId}`, 'a4');
+      if (saved === 'a4' || saved === 'thermal') setLabelFormat(saved);
+    })();
+  }, [getSiteConfig, shopId]);
+
+  const changeLabelFormat = (fmt) => {
+    setLabelFormat(fmt);
+    if (saveSiteConfig && shopId) saveSiteConfig(`barcodeLabelFormat_${shopId}`, fmt);
+  };
 
   const fmtFor  = useCallback((p) => perProductFormat[p.id] || p.barcodeFormat || 'CODE128', [perProductFormat]);
   // discFor: prefer local override, fallback to saved product.discountPct
@@ -140,16 +158,16 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
     const thermalCss = `
       @page { size: 58mm 40mm; margin: 1mm; }
       .sheet { display: block; }
-      .label { width: 56mm; padding: 1mm 0; text-align: center; page-break-after: always; }
-      .shop  { font-size: 8px; color: #000; font-weight: 700; text-transform: uppercase; }
-      .pname { font-size: 10px; font-weight: 700; margin: 1px 0; }
-      .bc svg { max-width: 100%; height: auto; }
-      .price { font-size: 13px; font-weight: 800; }
-      .mrp-row { display: flex; align-items: center; justify-content: center; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
-      .mrp-label { font-size: 7px; color: #555; font-weight: 700; }
-      .mrp-strike { font-size: 9px; text-decoration: line-through; color: #888; }
-      .disc-badge { background: #000; color: #fff; font-size: 7px; font-weight: 800; padding: 1px 3px; border-radius: 2px; }
-      .sale-price { font-size: 15px; font-weight: 900; color: #000; margin-top: 1px; }`;
+      .label { width: 56mm; height: 38mm; padding: 0.5mm 0; text-align: center; page-break-after: always; overflow: hidden; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+      .shop  { font-size: 6.5px; color: #000; font-weight: 700; text-transform: uppercase; line-height: 1.1; }
+      .pname { font-size: 8.5px; font-weight: 700; margin: 0.5mm 0; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 1mm; }
+      .bc svg { max-width: 100%; height: 9mm !important; }
+      .price { font-size: 11px; font-weight: 800; line-height: 1.1; }
+      .mrp-row { display: flex; align-items: center; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 0.5mm; line-height: 1; }
+      .mrp-label { font-size: 6px; color: #555; font-weight: 700; }
+      .mrp-strike { font-size: 7.5px; text-decoration: line-through; color: #888; }
+      .disc-badge { background: #000; color: #fff; font-size: 6px; font-weight: 800; padding: 0.5px 2px; border-radius: 2px; }
+      .sale-price { font-size: 12px; font-weight: 900; color: #000; line-height: 1.1; }`;
 
     win.document.write(`<!doctype html><html><head><title>Price Labels</title>
       <style>body{font-family:Arial,sans-serif;margin:0;}${labelFormat === 'a4' ? a4Css : thermalCss}</style>
@@ -323,7 +341,7 @@ export default function BarcodeManager({ products, shopName, onClose, onAssignBa
                   <label style={{ fontSize: '12px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '6px' }}>Label format</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {[{ k: 'a4', label: 'A4 Sheet (3-up grid)' }, { k: 'thermal', label: 'Thermal (58×40mm)' }].map(o => (
-                      <button key={o.k} onClick={() => setLabelFormat(o.k)} style={{ flex: 1, padding: '10px', border: labelFormat === o.k ? '2px solid #4F46E5' : '1px solid #CBD5E1', background: labelFormat === o.k ? '#EEF2FF' : '#fff', borderRadius: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: labelFormat === o.k ? '#4F46E5' : '#475569' }}>{o.label}</button>
+                      <button key={o.k} onClick={() => changeLabelFormat(o.k)} style={{ flex: 1, padding: '10px', border: labelFormat === o.k ? '2px solid #4F46E5' : '1px solid #CBD5E1', background: labelFormat === o.k ? '#EEF2FF' : '#fff', borderRadius: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: labelFormat === o.k ? '#4F46E5' : '#475569' }}>{o.label}</button>
                     ))}
                   </div>
                 </div>
