@@ -1796,7 +1796,7 @@ const ShopDashboard = () => {
             partyPhone: parts[2] || '',
             partyDesc: parts[3] || 'Pending Balance Settlement',
             amount: creditData.amount
-          }, user, true);
+          }, { ...user, printShowLogo, exchangePolicy, termsConditions }, true);
           doc.save(`Receipt_Voucher_${creditId}.pdf`);
         }
         
@@ -1845,7 +1845,14 @@ const ShopDashboard = () => {
       const isFullReturn = result?.isFullReturn !== false;
       toast.success(isFullReturn ? "Return processed — bill fully returned!" : `Partial return processed — ₹${refundAmount} refunded`);
 
-      const doc = await generateCreditNotePDF(returnOrder, itemsToReturn, user, refundAmount);
+      const returnedAtNow = new Date().toISOString();
+      const doc = await generateCreditNotePDF(
+        returnOrder,
+        itemsToReturn,
+        { ...user, printShowLogo, exchangePolicy, termsConditions },
+        refundAmount,
+        { refundMode: returnRefundMode, isFullReturn, returnedAt: returnedAtNow }
+      );
       doc.save(`Credit_Note_${returnOrder.id}.pdf`);
 
       // Notify customer via WhatsApp — same pattern as Accept/Verify Payment
@@ -1882,7 +1889,7 @@ const ShopDashboard = () => {
             partyPhone: '',
             partyDesc: 'Invoice Settlement',
             amount: creditData.amount
-          }, user, false);
+          }, { ...user, printShowLogo, exchangePolicy, termsConditions }, false);
           doc.save(`Payment_Voucher_${creditId}.pdf`);
         }
         

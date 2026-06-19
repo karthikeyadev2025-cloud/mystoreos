@@ -1002,61 +1002,127 @@ const UserDashboard = () => {
 
   const downloadReceiptPDF = async (order) => {
     const { jsPDF: JsPDF } = await import('jspdf');
-    const doc = new JsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [80, 160] // POS 80mm standard paper strip size!
-    });
-    doc.setFont("courier", "bold");
-    doc.setFontSize(11);
-    doc.text("=========================", 40, 10, { align: "center" });
-    doc.text("MYSTORE OFFICIAL BILL", 40, 15, { align: "center" });
-    doc.text("=========================", 40, 20, { align: "center" });
-    
-    doc.setFont("courier", "normal");
-    doc.setFontSize(8);
-    doc.text(`STORE: ${(order.shopName || 'Store').toUpperCase()}`, 6, 28);
-    doc.text(`DATE : ${new Date(order.date).toLocaleString()}`, 6, 33);
-    doc.text(`ORDER: ${(order.id || '').toUpperCase()}`, 6, 38);
-    doc.text(`PHONE: +91 ${user?.phone || 'Guest'}`, 6, 43);
-    doc.text("-------------------------", 40, 48, { align: "center" });
-    
-    let y = 54;
-    doc.setFont("courier", "bold");
-    doc.text("ITEM DESCRIPTION", 6, y);
-    doc.text("SUB", 74, y, { align: "right" });
-    
+    // Customer-downloaded receipt — always a normal, readable A4 page
+    // (not a thermal 80mm strip, which renders as a long thin column when
+    // viewed on a phone screen or in WhatsApp's PDF preview).
+    const doc = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const themeColor = order.status === 'Returned' ? '#7c3aed' : order.status === 'Cancelled' ? '#64748b' : '#10b981';
+    const [tR, tG, tB] = [parseInt(themeColor.slice(1,3),16), parseInt(themeColor.slice(3,5),16), parseInt(themeColor.slice(5,7),16)];
+
+    doc.setFillColor(tR, tG, tB);
+    doc.rect(0, 0, 210, 10, 'F');
+
+    let y = 22;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(15, 23, 42);
+    doc.text((order.shopName || 'Store').toUpperCase(), 15, y);
+    y += 8;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Order #${(order.id || '').slice(0, 8).toUpperCase()}`, 15, y);
+    doc.text(new Date(order.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }), 195, y, { align: 'right' });
     y += 5;
-    doc.setFont("courier", "normal");
-    order.items.forEach((item) => {
-      if (y > 140) return;
-      doc.text(`${item.name.substring(0, 16)} x${item.qty}`, 6, y);
-      doc.text(`₹${item.price * item.qty}`, 74, y, { align: "right" });
-      y += 5;
-    });
-    
-    doc.text("-------------------------", 40, y, { align: "center" });
-    y += 6;
-    doc.setFont("courier", "bold");
+    if (user?.phone) { doc.text(`Customer: +91 ${user.phone}`, 15, y); y += 5; }
+
+    y += 5;
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.4);
+    doc.line(15, y, 195, y);
+    y += 8;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text('ITEM', 15, y);
+    doc.text('QTY', 130, y, { align: 'center' });
+    doc.text('AMOUNT', 195, y, { align: 'right' });
+    y += 3;
+    doc.setLineWidth(0.3);
+    doc.line(15, y, 195, y);
+    y += 7;
+
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text("TOTAL AMOUNT:", 6, y);
-    doc.text(`INR ${order.total}.00`, 74, y, { align: "right" });
-    
-    y += 6;
-    doc.setFont("courier", "normal");
-    doc.setFontSize(8);
-    doc.text("GST Included (5% Mock)", 6, y);
-    doc.text(`STATUS: ${(order.status || 'Pending').toUpperCase()}`, 6, y + 5);
-    
-    y += 15;
-    doc.setFont("courier", "bold");
-    doc.text("* SCAN SCAN GO *", 40, y, { align: "center" });
-    doc.setFont("courier", "normal");
-    doc.setFontSize(7);
-    doc.text("Thank you for shopping local!", 40, y + 4, { align: "center" });
-    doc.text("Powered by MyStore OS", 40, y + 8, { align: "center" });
-    
-    doc.save(`Receipt_${order.id}.pdf`);
+    doc.setTextColor(15, 23, 42);
+    (order.items || []).forEach((item) => {
+      const lineBase = (item.price || 0) * (item.qty || 1);
+      const iDisc = item.itemDiscount || 0;
+      const lineTotal = iDisc > 0 ? Math.round(lineBase * (1 - iDisc / 100)) : lineBase;
+      doc.text(item.name, 15, y, { maxWidth: 95 });
+      doc.text(`${item.qty || 1}`, 130, y, { align: 'center' });
+      if (iDisc > 0) {
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Rs.${lineBase}`, 195, y - 3.5, { align: 'right' });
+        doc.setFontSize(10);
+        doc.setTextColor(16, 185, 129);
+        doc.text(`Rs.${lineTotal}`, 195, y, { align: 'right' });
+        doc.setTextColor(15, 23, 42);
+      } else {
+        doc.text(`Rs.${lineTotal}`, 195, y, { align: 'right' });
+      }
+      y += 7;
+    });
+
+    y += 2;
+    doc.setLineWidth(0.4);
+    doc.line(15, y, 195, y);
+    y += 9;
+
+    // Return/refund info, if any
+    if (order.refundAmount > 0) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Original Total', 130, y, { align: 'right' });
+      doc.text(`Rs.${order.total}`, 195, y, { align: 'right' });
+      y += 6;
+      doc.setTextColor(124, 58, 237);
+      doc.text(`Refunded (${order.refundMode || 'cash'})`, 130, y, { align: 'right' });
+      doc.text(`-Rs.${Number(order.refundAmount).toFixed(2)}`, 195, y, { align: 'right' });
+      y += 8;
+      doc.setLineWidth(0.3);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(120, y - 4, 195, y - 4);
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(15, 23, 42);
+    const netTotal = order.refundAmount > 0 ? (Number(order.total) - Number(order.refundAmount)).toFixed(2) : order.total;
+    doc.text(order.refundAmount > 0 ? 'NET PAYABLE' : 'TOTAL AMOUNT', 130, y, { align: 'right' });
+    doc.text(`Rs. ${netTotal}`, 195, y, { align: 'right' });
+    y += 12;
+
+    // Status badge
+    const statusLabel = order.status === 'Cancelled' ? 'CANCELLED' : order.status === 'Returned' ? 'RETURNED' : (order.status === 'Completed' || order.paymentVerified) ? 'PAID & COMPLETE' : order.status === 'Accepted' ? 'ACCEPTED' : 'PENDING';
+    doc.setFillColor(tR, tG, tB);
+    doc.roundedRect(15, y - 5, 50, 8, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text(statusLabel, 40, y, { align: 'center' });
+    y += 14;
+
+    if (order.shopMessage) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text(order.shopMessage, 15, y, { maxWidth: 180 });
+      y += 10;
+    }
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Thank you for shopping local!', 105, 280, { align: 'center' });
+    doc.text('Powered by MyStore OS — mystoreos.in', 105, 286, { align: 'center' });
+
+    doc.save(`Receipt_${(order.id || '').slice(0, 8)}.pdf`);
   };
 
   const handleLogout = () => {
