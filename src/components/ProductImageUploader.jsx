@@ -4,9 +4,11 @@ import { api } from '../lib/api';
 import { validateImageFile } from '../lib/fileValidation';
 
 // Client-side compress an image File down to maxDim px, JPEG, and return a File.
-// 1280px @ 0.9 keeps product photos crisp in the enlarged detail gallery while
-// staying small enough to upload fast on Indian mobile connections.
-function compressToFile(file, maxDim = 1280, quality = 0.9) {
+// 900px @ 0.85 — storefront cards render images at ~300-400px wide, and the
+// detail gallery at ~460px, so a 900px source is plenty. The previous 1280px
+// was about 2x larger in file size for no visible benefit on phone storefronts
+// where customers complained the page was "loading heavy."
+function compressToFile(file, maxDim = 900, quality = 0.85) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (ev) => {

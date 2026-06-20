@@ -940,7 +940,12 @@ const UserDashboard = () => {
       }
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
-      setGuestStep('success');
+      // Auto-continue to placing the order — the customer never has to tap
+      // a second button. Brief delay so login state propagates and `user`
+      // becomes non-null in the next render before sendWhatsAppOrder runs.
+      setShowGuestModal(false);
+      toast.success(`🎉 Welcome ${loggedInUser.name?.split(' ')[0] || ''}! Placing your order…`);
+      setTimeout(() => { sendWhatsAppOrder(); }, 400);
     } catch (err) {
       toast.error(err.message || 'Could not create account. Try again.');
     }
@@ -965,8 +970,17 @@ const UserDashboard = () => {
   const sendWhatsAppOrder = async () => {
     const { total, items } = getCartTotals();
     try {
-      if (!user) return;
-      
+      // No user = pop the inline registration modal instead of silently
+      // returning. The previous `if (!user) return;` is exactly why "Generate
+      // Bill does nothing" was reported — a guest who shared a link, added
+      // items, and tapped Place Order saw zero response. After registration
+      // succeeds, this same function gets called again from the success
+      // step, with a logged-in user, and proceeds to actually place the order.
+      if (!user) {
+        setShowGuestModal(true);
+        return;
+      }
+
       const placedOrder = await api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total);
       const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
       setLastOrderId(orderId);
@@ -1432,15 +1446,37 @@ const UserDashboard = () => {
                         {/* Cart items scroll summary */}
                         <div style={{ maxHeight: '180px', overflowY: 'auto', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', marginBottom: '16px' }} className="custom-scroll">
                           {getCartTotals().items.map(i => (
-                            <div key={i.cartKey || i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                              <span style={{ color: '#475569' }}>
-                                {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''} <strong style={{ color: '#E11D48' }}>x{i.qty}</strong>
-                                {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
-                              </span>
-                              <span style={{ textAlign: 'right' }}>
-                                {i.originalPrice && <span style={{ display: 'block', fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{i.originalPrice * i.qty}</span>}
-                                <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
-                              </span>
+                            <div key={i.cartKey || i.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''}
+                                  {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
+                                </div>
+                                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                                  {i.originalPrice && <span style={{ textDecoration: 'line-through', marginRight: 6 }}>₹{i.originalPrice * i.qty}</span>}
+                                  <span style={{ fontWeight: 700, color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                                </div>
+                              </div>
+                              {/* Inline qty stepper + delete — customer was previously stuck if they couldn't find the original product card */}
+                              <div style={{ display: 'flex', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 2, flexShrink: 0 }}>
+                                <button
+                                  onClick={() => updateQty(i.id, -1, i.selectedVariant)}
+                                  aria-label="Decrease"
+                                  style={{ width: 24, height: 24, background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                                >−</button>
+                                <span style={{ minWidth: 20, textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#0F172A' }}>{i.qty}</span>
+                                <button
+                                  onClick={() => updateQty(i.id, +1, i.selectedVariant)}
+                                  aria-label="Increase"
+                                  style={{ width: 24, height: 24, background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                                >+</button>
+                              </div>
+                              <button
+                                onClick={() => updateQty(i.id, -i.qty, i.selectedVariant)}
+                                aria-label="Remove item"
+                                style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4, flexShrink: 0 }}
+                                title="Remove from cart"
+                              >🗑</button>
                             </div>
                           ))}
                         </div>
@@ -3149,15 +3185,27 @@ const UserDashboard = () => {
             {/* Item summary lists */}
             <div style={{ maxHeight: '20vh', overflowY: 'auto', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', marginBottom: '16px' }} className="custom-scroll">
               {getCartTotals().items.map(i => (
-                <div key={i.cartKey || i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                  <span style={{ color: '#475569' }}>
-                    {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''} <strong style={{ color: '#64748B' }}>x{i.qty}</strong>
-                    {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
-                  </span>
-                  <span style={{ textAlign: 'right' }}>
-                    {i.originalPrice && <span style={{ display: 'block', fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{i.originalPrice * i.qty}</span>}
-                    <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
-                  </span>
+                <div key={i.cartKey || i.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''}
+                      {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                      {i.originalPrice && <span style={{ textDecoration: 'line-through', marginRight: 6 }}>₹{i.originalPrice * i.qty}</span>}
+                      <span style={{ fontWeight: 700, color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 2, flexShrink: 0 }}>
+                    <button onClick={() => updateQty(i.id, -1, i.selectedVariant)} aria-label="Decrease" style={{ width: 24, height: 24, background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 0 }}>−</button>
+                    <span style={{ minWidth: 20, textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#0F172A' }}>{i.qty}</span>
+                    <button onClick={() => updateQty(i.id, +1, i.selectedVariant)} aria-label="Increase" style={{ width: 24, height: 24, background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 0 }}>+</button>
+                  </div>
+                  <button
+                    onClick={() => updateQty(i.id, -i.qty, i.selectedVariant)}
+                    aria-label="Remove item"
+                    style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4, flexShrink: 0 }}
+                  >🗑</button>
                 </div>
               ))}
             </div>
