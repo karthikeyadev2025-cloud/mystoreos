@@ -359,7 +359,7 @@ const DesktopPOS = ({
       </div>
 
       {/* ── Right Column: POS Cart ── */}
-      <div className="premium-glass" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+      <div className="premium-glass pos-cart-panel" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
 
         {/* ── PINNED TOP: Header + Billing Mode + Customer toggle ── */}
         <div style={{ padding: '16px 16px 0', flexShrink: 0 }}>
@@ -438,7 +438,7 @@ const DesktopPOS = ({
         </div>
 
         {/* ── SCROLLABLE MIDDLE: Cart Items — this is the part that needs room ── */}
-        <div style={{ flex: '1 1 auto', minHeight: '120px', overflowY: 'auto', padding: '10px 16px' }}>
+        <div className="pos-cart-items" style={{ flex: '1 1 auto', minHeight: '120px', overflowY: 'auto', padding: '10px 16px' }}>
           {billItems.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#64748B', fontSize: '13px', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', height: '100%', minHeight: '160px', justifyContent: 'center' }}>
               <Package size={36} style={{ opacity: 0.2 }} />
@@ -518,7 +518,7 @@ const DesktopPOS = ({
         </div>
 
         {/* ── PINNED BOTTOM: Discount + Totals + Payment + Buttons ── */}
-        <div style={{ flexShrink: 0, padding: '12px 16px 16px', borderTop: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '52vh', overflowY: 'auto' }}>
+        <div className="pos-cart-footer" style={{ flexShrink: 0, padding: '12px 16px 16px', borderTop: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '52vh', overflowY: 'auto' }}>
 
         {/* Bill-level Discount % */}
         <div style={{ padding: '12px', background: '#F8FAFC', borderRadius: '10px' }}>

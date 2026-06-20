@@ -1336,34 +1336,26 @@ const ShopDashboard = () => {
       const pdfFile = new File([pdfBlob], pdfFileName, { type: "application/pdf" });
 
       // ── WhatsApp delivery — heart feature, must work every single time ──
-      // Hard platform fact: WhatsApp's wa.me deep link can only carry TEXT,
-      // never a file attachment — that's a WhatsApp URL-scheme limitation,
-      // not something any web app can work around. There is no way to open
-      // WhatsApp to a specific number with a PDF already attached via a link.
+      // Hard, confirmed platform fact: WhatsApp's wa.me deep link can only
+      // carry TEXT, never a file attachment. And navigator.share()'s file
+      // sheet lets the OWNER pick WhatsApp from a system list, but WhatsApp
+      // itself — not this website — controls which contact the file goes
+      // to; no web API can pre-select a specific chat inside WhatsApp once
+      // a file is involved. These are real, documented platform
+      // constraints (confirmed via MDN/W3C Web Share spec), not a gap in
+      // this code — there is no version of "auto-open WhatsApp to contact
+      // X with file Y already attached" achievable from a website today.
       //
-      // The previous code gambled the entire flow on navigator.share() when
-      // available, which opens a GENERIC OS share sheet (Bluetooth, Mail,
-      // Drive, Messages, AirDrop, whatever's installed) — NOT WhatsApp
-      // specifically, and with NO number pre-filled. That's the actual
-      // reason this kept "randomly failing": it was never reliably reaching
-      // WhatsApp or the customer's number in the first place.
-      //
-      // Reliable flow used now, identical on mobile and desktop:
-      //   1. Always save/download the PDF first — zero platform dependency,
-      //      always succeeds.
-      //   2. Always open wa.me/{customerNumber} with the full bill as text
-      //      (items, discounts, total, UPI pay link) — this part the
-      //      WhatsApp deep link CAN do, and now always does, every time.
-      //   3. If the OS file-share sheet is available, offer it as an
-      //      additional one-tap action so the owner can pick WhatsApp from
-      //      it and attach the PDF in the same conversation that's now open.
+      // Given the actual PDF reaching the customer matters more than
+      // auto-targeting, the file-share sheet is now the PRIMARY action —
+      // the real receipt document, not just text. The customer's number is
+      // copied to the clipboard right before the share sheet opens, so
+      // after picking WhatsApp the owner can paste it straight into
+      // WhatsApp's own contact search in two taps instead of typing it.
+      // The rich-text-direct-to-number message remains available as a
+      // one-tap fallback for when the file sheet isn't supported or is
+      // cancelled.
       if (hasFeature('whatsappShare')) {
-        // Step 1 — PDF always saved locally first, guaranteed
-        doc.save(pdfFileName);
-
-        // Step 2 — build the same rich text bill and open it directly to
-        // the customer's WhatsApp number (was previously only used as a
-        // fallback when file-sharing failed; now always runs).
         let msg = `*${user.name}*\n`;
         if (billingMode === 'estimate') msg += `*PROFORMA ESTIMATE / QUOTATION*\n`;
         else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
@@ -1396,49 +1388,65 @@ const ShopDashboard = () => {
         msg += `Payment: ${pmLabel[paymentMethod] || '💵 Cash'}\n`;
         const totalSavedWA = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
         if (totalSavedWA > 0) msg += `🎉 *You saved Rs.${totalSavedWA} on this ${billingMode === 'estimate' ? 'estimate' : billingMode === 'challan' ? 'challan' : 'bill'}!*\n`;
+        let upiUri = null;
         if (billingMode === 'bill' && upiId) {
           const ref = invoiceNo ? `Ref-${invoiceNo}` : ('ORD' + Date.now().toString().slice(-8));
           const shopForUpi = { upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name };
-          const upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
+          upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
           if (upiUri) {
             if (canTapToPay(shopForUpi)) {
-              // Merchant VPA — UPI apps allow the amount to be embedded in
-              // a tap link, so the customer just taps and confirms.
               msg += `\n💳 *Tap to Pay ₹${total}:* ${upiUri}\n`;
             } else {
-              // Personal VPA — NPCI/UPI app policy does not allow a
-              // tap/link-initiated payment carrying a pre-filled amount to
-              // a personal VPA (only merchant VPAs may do that). This is a
-              // real platform rule, not a limitation of this app — so for
-              // personal VPAs we ask the customer to enter the amount
-              // themselves, which is the only compliant way to do this.
               msg += `\n📱 *Pay via UPI:* ${upiUri}\n_(Please enter ₹${total} when prompted — UPI apps don't allow amount-prefill for personal UPI IDs)_\n`;
             }
           }
         }
-        msg += `\n_📎 Bill PDF saved on shop device — attach if needed._`;
 
-        if (customerPhone) {
-          const cleanedPhone = customerPhone.replace(/\D/g, '');
-          const phoneWithCountry = cleanedPhone.startsWith('91') ? cleanedPhone : `91${cleanedPhone}`;
-          window.open(`https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(msg)}`, '_blank');
-          toast.success(`📄 Bill saved + WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
-        } else {
-          // No customer number on this bill — still let them pick a contact
-          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-          toast.info('No customer number on this bill — pick a contact in WhatsApp, or use Share PDF below.', { autoClose: 5000 });
-        }
+        const sendDirectText = () => {
+          if (customerPhone) {
+            const cleanedPhone = customerPhone.replace(/\D/g, '');
+            const phoneWithCountry = cleanedPhone.startsWith('91') ? cleanedPhone : `91${cleanedPhone}`;
+            window.open(`https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(msg)}`, '_blank');
+            toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
+          } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            toast.info('No customer number on this bill — pick a contact in WhatsApp.', { autoClose: 4000 });
+          }
+        };
 
-        // Step 3 — also offer the native file-share sheet as an extra,
-        // explicit, non-blocking option (does not replace the steps above)
+        // Primary path: share the actual PDF file via the OS share sheet
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          setTimeout(() => {
-            navigator.share({
+          if (customerPhone && navigator.clipboard?.writeText) {
+            try {
+              await navigator.clipboard.writeText(customerPhone);
+              toast.info(`📋 ${customerPhone} copied — paste it in WhatsApp's search after picking a contact`, { autoClose: 6000 });
+            } catch { /* clipboard permission denied — share still proceeds */ }
+          }
+          try {
+            await navigator.share({
               files: [pdfFile],
               title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
               text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
-            }).catch(() => {}); // user cancelling the share sheet is not an error
-          }, 600);
+            });
+            doc.save(pdfFileName); // also keep a local copy on the shop's device
+          } catch (shareErr) {
+            if (shareErr?.name === 'AbortError') {
+              // Owner cancelled the share sheet — that's a deliberate choice,
+              // don't force the text fallback on top of it.
+              doc.save(pdfFileName);
+            } else {
+              // Share genuinely failed (not a user cancel) — fall back to
+              // the reliable direct-to-number text message.
+              doc.save(pdfFileName);
+              sendDirectText();
+            }
+          }
+        } else {
+          // No file-share capability on this browser/device — PDF still
+          // saved locally, and WhatsApp opens directly to the customer's
+          // number with the full bill as text (this path always works).
+          doc.save(pdfFileName);
+          sendDirectText();
         }
       } else {
         // Starter plan: save PDF locally only, no WhatsApp
@@ -3966,35 +3974,9 @@ const ShopDashboard = () => {
 
       {activeTab === 'home' && (
         <>
-          {/* Smart POS Search — first thing visible, no scrolling needed to bill */}
-          <div style={{ ...styles.searchBar, border: searchFocused ? '2px solid #4F46E5' : '2px solid transparent', transition: 'border-color .15s', background: '#F1F5F9', margin: '12px' }}>
-            <Search size={18} color={searchFocused ? '#4F46E5' : '#94A3B8'} style={{ flexShrink: 0 }} />
-            <input 
-              ref={posSearchRef}
-              type="text" 
-              placeholder="Search by name, barcode…  (Enter = add top result)"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && filteredProducts.length > 0) {
-                  addToBill(filteredProducts[0]);
-                  setSearch('');
-                  e.preventDefault();
-                }
-                if (e.key === 'Escape') { setSearch(''); e.currentTarget.blur(); }
-              }}
-              style={{ background: 'transparent', border: 'none', margin: 0, boxShadow: 'none', width: '100%', minWidth: 0, padding: '12px 8px', color:'#0F172A', outline:'none', fontSize: 14 }} 
-            />
-            {search && (
-              <button onClick={() => { setSearch(''); posSearchRef.current?.focus(); }} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px', flexShrink: 0 }}>✕</button>
-            )}
-          </div>
-
           {/* Offer Banner */}
           {shopBanner?.active && shopBanner?.title && (
-            <div style={{ margin: '0 12px 12px', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+            <div style={{ margin: '12px 12px 0', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
               <div>
                 <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>🏷️ {shopBanner.title}</div>
                 {shopBanner.subtitle && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginTop: '3px' }}>{shopBanner.subtitle}</div>}
@@ -4064,250 +4046,73 @@ const ShopDashboard = () => {
             </div>
           </div>
 
-          {/* Quick Bill */}
-          <div style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <Receipt size={16} /> Quick Bill
-            </div>
-            <div style={{ padding: '16px' }}>
-              
-              {/* Billing Mode Selector */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                <button 
-                  onClick={() => setBillingMode('bill')} 
-                  style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'bill' ? '#10B981' : '#2A2F3D'),
-                    background: billingMode === 'bill' ? 'rgba(16,185,129,0.15)' : '#1E222D',
-                    color: billingMode === 'bill' ? '#10B981' : '#CBD5E1'
-                  }}
-                >
-                  🟢 Standard Bill
-                </button>
-                <button 
-                  onClick={() => setBillingMode('estimate')} 
-                  style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'estimate' ? '#4F46E5' : '#2A2F3D'),
-                    background: billingMode === 'estimate' ? 'rgba(245,158,17,0.15)' : '#1E222D',
-                    color: billingMode === 'estimate' ? '#4F46E5' : '#CBD5E1'
-                  }}
-                >
-                  🟡 Estimate / Quote
-                </button>
-                <button 
-                  onClick={() => setBillingMode('challan')} 
-                  style={{ 
-                    flex: 1, padding: '10px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto',
-                    border: '1px solid ' + (billingMode === 'challan' ? '#3B82F6' : '#2A2F3D'),
-                    background: billingMode === 'challan' ? 'rgba(59,130,246,0.15)' : '#1E222D',
-                    color: billingMode === 'challan' ? '#3B82F6' : '#CBD5E1'
-                  }}
-                >
-                  🔵 Delivery Challan
-                </button>
-              </div>
-
-              {/* Customer details row */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#94A3B8' }}>
-                    👤 Customer Details { (billingMode === 'estimate' || billingMode === 'challan') && <span style={{ color: '#4F46E5' }}>(Recommended)</span> }
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Customer Name" 
-                    value={customerName} 
-                    onChange={e => setCustomerName(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                  />
-                  <input 
-                    type="tel" 
-                    placeholder="Mobile Number" 
-                    value={customerPhone} 
-                    onChange={e => setCustomerPhone(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="GSTIN (Optional)" 
-                    value={customerGstin} 
-                    onChange={e => setCustomerGstin(e.target.value.toUpperCase())}
-                    style={{ flex: 1, minWidth: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="State Code" 
-                    value={customerStateCode} 
-                    onChange={e => setCustomerStateCode(e.target.value)}
-                    style={{ width: '90px', flexShrink: 0, padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <div style={{ marginTop: '6px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Billing Address (Optional)" 
-                    value={customerAddress} 
-                    onChange={e => setCustomerAddress(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', outline: 'none' }}
-                  />
-                </div>
-              </div>
-
-              {/* Universal Custom Billing Input */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#0F172A', padding: '12px', borderRadius: '8px', border: '1px solid #334155', boxSizing: 'border-box' }}>
-                <input 
-                  type="text" placeholder="Item Name (e.g. Haircut)" value={customItemName} onChange={e=>setCustomItemName(e.target.value)}
-                  style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', color: 'white', outline: 'none', fontSize: '14px' }} 
-                />
-                <input 
-                  type="number" placeholder="₹" value={customItemPrice} onChange={e=>setCustomItemPrice(e.target.value)}
-                  style={{ width: '54px', flexShrink: 0, background: 'transparent', border: 'none', color: '#4F46E5', outline: 'none', fontSize: '14px', fontWeight: 'bold' }} 
-                />
-                <button onClick={addCustomItem} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>Add</button>
-              </div>
-
-              {/* Cart List */}
-              {billItems.length === 0 ? (
-                <p style={{color:'#94A3B8', fontSize:13, margin: '12px 0 20px 0', textAlign: 'center'}}>No items in bill yet. Add custom item or tap + below.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '12px 0 20px 0' }}>
-                  {billItems.map((item, idx) => {
-                    const hasVariantPricing = Array.isArray(item.variantPrices) && item.variantPrices.length > 0;
-                    const variantList = hasVariantPricing
-                      ? item.variantPrices.map(v => v.name)
-                      : (item.variants ? item.variants.split(',').map(v => v.trim()) : []);
-                    return (
-                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '10px 12px', borderRadius: '8px', border: '1px solid #2A2F3D' }}>
-                        <div style={{ flex: 1, marginRight: '8px' }}>
-                          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.name}</p>
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '2px' }}>
-                            <span style={{ fontSize: '12px', color: '#FBBF24', fontWeight: 'bold' }}>₹{item.price}</span>
-                            {variantList.length > 0 && (
-                              <select 
-                                value={item.selectedVariant || ''} 
-                                onChange={(e) => updateBillItemVariant(item.id, e.target.value)}
-                                style={{ background: '#1E293B', color: '#fff', border: '1px solid #334155', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', outline: 'none' }}
-                              >
-                                {hasVariantPricing
-                                  ? item.variantPrices.map((v, vidx) => <option key={vidx} value={v.name}>{v.name} — ₹{v.price}</option>)
-                                  : variantList.map((v, vidx) => <option key={vidx} value={v}>{v}</option>)}
-                              </select>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, minWidth: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>-</button>
-                          <span style={{ fontSize: '13px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center' }}>{item.qty || 1}</span>
-                          <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 22, height: 22, minWidth: 22, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>+</button>
-                          
-                          <span style={{ fontWeight: 'bold', color: '#22C55E', minWidth: '55px', textAlign: 'right', fontSize: '13px' }}>₹{item.price * (item.qty || 1)}</span>
-                          
-                          <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', width: 'auto', flexShrink: 0 }}>
-                            <X size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Promo code removed */}
-
-              {discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#22C55E', marginTop: '8px', padding: '0 4px' }}>
-                  <span>Discount Applied:</span>
-                  <span>-₹{discountAmount}</span>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid #2A2F3D', paddingTop: '16px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>TOTAL</span>
-                <div>
-                  {discountAmount > 0 && <span style={{ fontSize: '14px', color: '#94A3B8', textDecoration: 'line-through', marginRight: '8px' }}>₹{billTotal}</span>}
-                  <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#4F46E5' }}>₹{Math.max(0, billTotal - discountAmount)}</span>
-                </div>
-              </div>
-              <button style={{...styles.whatsappBtn, background: billingMode === 'estimate' ? '#FBBF24' : (billingMode === 'challan' ? '#2563EB' : '#22C55E'), color: billingMode === 'estimate' ? '#000' : '#fff', opacity: billItems.length ? 1 : 0.5}} onClick={sendWhatsAppBill}>
-                <span style={{ fontSize: '18px' }}>💬</span> {billingMode === 'estimate' ? 'Generate Estimate' : (billingMode === 'challan' ? 'Generate Challan' : 'Generate Bill')}
-              </button>
-              <button style={styles.upiBtn} onClick={handleShowUpiQr}>
-                <QrCode size={16} /> Show UPI QR for Payment
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Add Products */}
-          <div style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <Package size={16} /> {search ? `Search Results (${filteredProducts.length})` : 'Quick Add Products'}
-              {search && filteredProducts.length > 0 && (
-                <span style={{ fontSize: 10, color: '#4F46E5', fontWeight: 600, marginLeft: 'auto' }}>↵ Enter = add first</span>
-              )}
-            </div>
-            {search && filteredProducts.length === 0 ? (
-              <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
-                <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>No product matching "<strong>{search}</strong>"</p>
-                <p style={{ color: '#94A3B8', fontSize: 12, marginTop: 4 }}>Try barcode, partial name, or category</p>
-              </div>
-            ) : (
-              <div>
-                {(search ? filteredProducts : filteredProducts.slice(0, 20)).map((p, idx) => {
-                  const outOfStock = (p.stock || 0) <= 0;
-                  const inCart = billItems.find(b => b.id === p.id);
-                  const q = search.toLowerCase();
-                  // Highlight match in name
-                  const name = p.name || '';
-                  const matchIdx = name.toLowerCase().indexOf(q);
-                  const highlighted = q && matchIdx !== -1
-                    ? <>{name.slice(0, matchIdx)}<mark style={{ background: '#FDE68A', borderRadius: 2, padding: '0 1px' }}>{name.slice(matchIdx, matchIdx + q.length)}</mark>{name.slice(matchIdx + q.length)}</>
-                    : name;
-                  return (
-                    <div key={p.id} style={{ ...styles.prodItem, opacity: outOfStock ? 0.5 : 1, background: idx === 0 && search ? 'rgba(79,70,229,0.04)' : 'transparent', borderLeft: idx === 0 && search ? '3px solid #4F46E5' : '3px solid transparent' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                        {(p.image || (p.images && p.images[0])) ? (
-                          <img src={p.image || p.images[0]} alt={p.name} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
-                        ) : (
-                          <div style={{ width: 40, height: 40, background: '#1E293B', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Package size={18} color="#94A3B8" />
-                          </div>
-                        )}
-                        <div style={{ minWidth: 0 }}>
-                          <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{highlighted}</p>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#4F46E5' }}>₹{p.price}</span>
-                            <span style={{ fontSize: 10, color: outOfStock ? '#EF4444' : p.stock < 5 ? '#F59E0B' : '#94A3B8', fontWeight: 600 }}>
-                              {outOfStock ? 'Out of stock' : p.stock < 5 ? `⚠ ${p.stock} left` : `Stock: ${p.stock}`}
-                            </span>
-                            {inCart && <span style={{ fontSize: 10, background: '#4F46E5', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>×{inCart.qty} in bill</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        disabled={outOfStock}
-                        style={{ background: outOfStock ? '#334155' : inCart ? '#059669' : '#EF4444', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: outOfStock ? 'not-allowed' : 'pointer', flexShrink: 0, minWidth: 56 }}
-                        onClick={() => !outOfStock && addToBill(p)}
-                      >
-                        {inCart ? `+1` : '+ Add'}
-                      </button>
-                    </div>
-                  );
-                })}
-                {!search && products.length > 20 && (
-                  <p style={{ padding: '10px 16px', color: '#94A3B8', fontSize: 12, textAlign: 'center', margin: 0 }}>
-                    Showing 20 of {products.length} products — type to search all
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+          {/* Search + Cart + Checkout — same component as desktop (now
+              responsive via CSS), so mobile and desktop billing behave
+              identically: search results sit directly under the search
+              box with no scroll distance, item-level AND bill-level
+              discounts both work, variant pricing works, everything stays
+              in sync — instead of the old separate, incomplete mobile
+              "Quick Bill" implementation that had no manual discount
+              control at all and buried results far below unrelated
+              banners/stats. */}
+          <DesktopPOS
+            footerSlot={null}
+            products={products}
+            filteredProducts={filteredProducts}
+            billItems={billItems}
+            customItemName={customItemName}
+            setCustomItemName={setCustomItemName}
+            customItemPrice={customItemPrice}
+            setCustomItemPrice={setCustomItemPrice}
+            billingMode={billingMode}
+            setBillingMode={setBillingMode}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            customerPhone={customerPhone}
+            setCustomerPhone={setCustomerPhone}
+            customerGstin={customerGstin}
+            setCustomerGstin={setCustomerGstin}
+            customerAddress={customerAddress}
+            setCustomerAddress={setCustomerAddress}
+            customerStateCode={customerStateCode}
+            setCustomerStateCode={setCustomerStateCode}
+            discountAmount={discountAmount}
+            manualDiscountPct={manualDiscountPct}
+            setManualDiscountPct={setManualDiscountPct}
+            manualDiscountAmt={manualDiscountAmt}
+            billTotal={billTotal}
+            search={search}
+            setSearch={setSearch}
+            pendingOrders={pendingOrders}
+            sales={sales}
+            payable={payable}
+            isOwner={isOwner}
+            setShowScanner={setShowScanner}
+            handleShowUpiQr={handleShowUpiQr}
+            addCustomItem={addCustomItem}
+            updateBillItemQty={updateBillItemQty}
+            updateBillItemVariant={updateBillItemVariant}
+            removeBillItem={removeBillItem}
+            sendWhatsAppBill={sendWhatsAppBill}
+            addToBill={addToBill}
+            setActiveTab={setActiveTab}
+            setShowAddProductModal={setShowAddProductModal}
+            loyaltyEnabled={loyaltyEnabled}
+            customerLoyaltyPoints={customerLoyaltyPoints}
+            loyaltyRedeem={loyaltyRedeem}
+            setLoyaltyRedeem={setLoyaltyRedeem}
+            dailyTarget={dailyTarget}
+            handleSetDailyTarget={handleSetDailyTarget}
+            flashSales={flashSales}
+            shopCategory={shopCategory}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            onClearCart={clearCart}
+            updateBillItemDiscount={updateBillItemDiscount}
+            scanPopupProduct={scanPopupProduct}
+            onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
+            onScanPopupClose={() => setScanPopupProduct(null)}
+          />
         </>
       )}
 

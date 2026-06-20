@@ -72,6 +72,48 @@ body, #root {
   box-shadow: -4px 0 16px rgba(0,0,0,0.04);
 }
 
+/* Mobile / narrow viewport — stack into a single scrolling column instead
+   of squeezing a 380px cart sidebar next to the product list. The cart
+   (search results + bill + checkout) renders FIRST so it sits directly
+   under the search bar with no scroll distance, matching how a cashier
+   actually uses this screen — search, see results, tap to add, all in
+   one place — instead of a separate "Quick Add" section buried below
+   unrelated banners/stats further down the page. */
+@media (max-width: 1024px) {
+  .responsive-split-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column-reverse !important;
+  }
+  .responsive-split-grid > *:first-child {
+    padding: 12px !important;
+    overflow-y: visible;
+  }
+  .responsive-split-grid > *:last-child {
+    border-left: none;
+    box-shadow: none;
+    height: auto !important;
+    max-height: none !important;
+    position: static !important;
+  }
+  .pos-cart-panel {
+    height: auto !important;
+    max-height: none !important;
+    position: static !important;
+  }
+  .pos-cart-items {
+    flex: none !important;
+    overflow-y: visible !important;
+    min-height: 0 !important;
+  }
+  .pos-cart-footer {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
+
 /* ══════════════════════════════════════════════════════
    KPI / STAT CARDS — enterprise data cards
    ══════════════════════════════════════════════════════ */
