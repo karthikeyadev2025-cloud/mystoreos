@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase } from './supabase';
 import { enqueue } from './offlineQueue';
+import { validateImageFile } from './fileValidation';
 
 // ============================================================
 // SUPABASE API — Real cloud database
@@ -1418,6 +1419,16 @@ export const api = {
 
   // ---- FILE UPLOADS TO SUPABASE STORAGE ----
   async uploadAsset(file, userId, folder = 'logos') {
+    // Final shared guard — every caller of uploadAsset is an image upload
+    // (logos, product photos, avatars, shop photos, payment QR codes), and
+    // not every caller does its own client-side resize/validation first
+    // (the payment QR upload, for one, goes straight here with no local
+    // canvas step at all). Catches anything the per-component guards
+    // might miss, and protects this function if it's ever called from a
+    // future code path that forgets to validate first.
+    const check = validateImageFile(file);
+    if (!check.ok) throw new Error(check.reason);
+
     if (isSupabaseConfigured) {
       try {
         const fileExt = file.name.split('.').pop();

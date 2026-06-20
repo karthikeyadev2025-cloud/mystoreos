@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { validateImageFile } from '../lib/fileValidation';
 
 const STEPS = ['Profile', 'Business', 'First Product', 'Done'];
 
@@ -17,7 +18,7 @@ function resizeImage(file, maxSize, quality) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
         const canvas = document.createElement('canvas');
@@ -94,6 +95,8 @@ export default function Onboarding() {
   const handleLogoFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const b64 = await resizeImage(file, 400, 0.8);
     setLogo(b64);
   };
@@ -101,6 +104,8 @@ export default function Onboarding() {
   const handleProdImageFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const b64 = await resizeImage(file, 300, 0.8);
     setProdImage(b64);
   };

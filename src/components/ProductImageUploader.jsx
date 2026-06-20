@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { api } from '../lib/api';
+import { validateImageFile } from '../lib/fileValidation';
 
 // Client-side compress an image File down to maxDim px, JPEG, and return a File.
 // 1280px @ 0.9 keeps product photos crisp in the enlarged detail gallery while
@@ -8,7 +10,7 @@ function compressToFile(file, maxDim = 1280, quality = 0.9) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const ratio = Math.min(maxDim / img.width, maxDim / img.height, 1);
         const canvas = document.createElement('canvas');
@@ -54,7 +56,10 @@ export default function ProductImageUploader({ images = [], onChange, userId, ma
     setBusy(true);
     const room = max - list.length;
     const added = [];
+    let skipped = 0;
     for (const f of files.slice(0, room)) {
+      const check = validateImageFile(f);
+      if (!check.ok) { skipped++; continue; }
       try {
         const small = await compressToFile(f);
         const url = await api.uploadAsset(small, userId, 'products');
@@ -62,6 +67,9 @@ export default function ProductImageUploader({ images = [], onChange, userId, ma
       } catch { /* skip a bad file, keep going */ }
     }
     setBusy(false);
+    if (skipped) {
+      toast.error(`${skipped} photo${skipped > 1 ? 's' : ''} skipped — must be an image under 8MB`);
+    }
     if (added.length) onChange([...list, ...added].slice(0, max));
   };
 

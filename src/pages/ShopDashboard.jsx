@@ -17,6 +17,7 @@ import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { localDateStr } from '../lib/dateUtils';
+import { validateImageFile } from '../lib/fileValidation';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -2252,7 +2253,7 @@ const ShopDashboard = () => {
     if (!svgElement) return toast.error('QR code not visible');
     const xml = new XMLSerializer().serializeToString(svgElement);
     const svg64 = btoa(unescape(encodeURIComponent(xml)));
-    const img = new Image();
+    const img = new window.Image();
     img.src = 'data:image/svg+xml;base64,' + svg64;
     img.onload = () => {
       const size = 512;
@@ -2700,6 +2701,12 @@ const ShopDashboard = () => {
   const handleMobileLogoFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    // Validate BEFORE FileReader ever touches the file — the canvas resize
+    // below only runs after the full original file is already read into
+    // memory and decoded, so a 30-50MB phone photo would hang the tab for
+    // several seconds before getting anywhere near being shrunk down.
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new window.Image();
@@ -2737,9 +2744,11 @@ const ShopDashboard = () => {
   const handleNewProdImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const ratio = Math.min(300 / img.width, 300 / img.height, 1);
         const canvas = document.createElement('canvas');
@@ -2757,8 +2766,20 @@ const ShopDashboard = () => {
     const files = Array.from(e.target.files);
     if (shopPhotos.length + files.length > 6) return toast.error('Maximum 6 photos allowed');
 
+    // No client-side resize on this path — files go straight to
+    // uploadAsset(), which falls back to a base64 string in localStorage
+    // if the Storage upload fails. localStorage has a hard ~5-10MB total
+    // size limit per origin; one oversized photo there could blow out the
+    // whole session, not just fail to save. Reject early instead.
+    const badFiles = files.filter(f => !validateImageFile(f).ok);
+    if (badFiles.length) {
+      toast.error(`${badFiles.length} photo${badFiles.length > 1 ? 's' : ''} skipped — must be an image under ${8}MB each`);
+    }
+    const okFiles = files.filter(f => validateImageFile(f).ok);
+    if (!okFiles.length) return;
+
     const added = [];
-    for (const file of files) {
+    for (const file of okFiles) {
       try {
         const url = await safe(() => api.uploadAsset(file, user.id, 'shop_photos'));
         if (url) added.push(url);
@@ -2842,7 +2863,12 @@ const ShopDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const url = await safe(() => api.uploadAsset(file, user.id, 'payment_qrs'));
+        // Direct call, not wrapped in safe() — safe() swallows any thrown
+        // error and returns null, which would have made an oversized/
+        // invalid file upload silently "succeed" with paymentQr set to
+        // null and a false "Payment QR saved!" toast instead of surfacing
+        // the actual rejection reason.
+        const url = await api.uploadAsset(file, user.id, 'payment_qrs');
         setPaymentQr(url);
         // Persist immediately so it survives re-login without a separate Save tap.
         await safe(() => api.updateProfile(user.id, { paymentQr: url }));
@@ -2851,8 +2877,8 @@ const ShopDashboard = () => {
           localStorage.setItem('mystore_session', JSON.stringify({ ...sess, paymentQr: url }));
         } catch (_e) { /* ignore */ }
         toast.success("Payment QR saved!");
-      } catch {
-        toast.error("Failed to upload Payment QR");
+      } catch (err) {
+        toast.error(err?.message || "Failed to upload Payment QR");
       }
     }
   };

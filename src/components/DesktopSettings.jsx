@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User, Trash2, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
+import { toast } from 'react-toastify';
 import { PlanGate, LockedFeature } from './PlanGate';
+import { validateImageFile } from '../lib/fileValidation';
 
 const DesktopSettings = ({
   logo,
@@ -106,6 +108,8 @@ const DesktopSettings = ({
   const handleLogoFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       // window.Image explicitly — plain `new Image()` here was resolving to

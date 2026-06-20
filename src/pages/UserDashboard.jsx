@@ -957,6 +957,7 @@ const UserDashboard = () => {
         localStorage.setItem('mystore_session', JSON.stringify(updatedUser));
       } catch (err) {
         console.error("Failed to upload avatar", err);
+        toast.error(err?.message || "Failed to upload photo. Please try again.");
       }
     }
   };

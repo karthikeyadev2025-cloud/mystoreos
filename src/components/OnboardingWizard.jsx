@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import { toast } from 'react-toastify';
 import { CheckCircle, ChevronRight, ChevronLeft, Plus, X } from 'lucide-react';
+import { validateImageFile } from '../lib/fileValidation';
 
 const BIZ_TYPES = ['Kirana / Grocery', 'Supermarket', 'Medical / Pharmacy', 'Salon / Beauty',
   'Tailor / Garments', 'Restaurant / Hotel', 'Hardware / Electronics', 'Wholesale / Distribution', 'Other'];
@@ -65,9 +67,30 @@ export default function OnboardingWizard() {
   const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setLogoFile(file);
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
     const reader = new FileReader();
-    reader.onloadend = () => setLogoPreview(reader.result);
+    reader.onload = (ev) => {
+      // Resize before storing — was the only image upload path in the app
+      // with NO compression step at all: saveProfile() later uploads
+      // whatever's in logoFile straight to storage, so an unresized 5-8MB
+      // onboarding photo would have been the permanent shop logo loaded
+      // on every single page view (storefront, bills, every dashboard
+      // visit) from day one.
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(400 / img.width, 400 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        setLogoPreview(canvas.toDataURL('image/jpeg', 0.8));
+        canvas.toBlob((blob) => {
+          if (blob) setLogoFile(new File([blob], 'logo.jpg', { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.8);
+      };
+      img.src = ev.target.result;
+    };
     reader.readAsDataURL(file);
   };
 
