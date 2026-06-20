@@ -127,7 +127,7 @@ const DesktopPOS = ({
               <kbd style={{ fontSize: 11, color: '#94A3B8', background: '#E2E8F0', border: '1px solid #CBD5E1', borderRadius: 5, padding: '2px 6px', flexShrink: 0 }}>/</kbd>
             )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+          <div className="pos-quick-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
             <button className="premium-btn" onClick={() => setShowScanner(true)} style={{ padding: '12px 8px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', background: '#FFFFFF', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
               <ScanLine size={20} color="#4F46E5" />
               <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Barcode Scan</span>

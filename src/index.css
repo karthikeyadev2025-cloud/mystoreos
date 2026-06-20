@@ -170,6 +170,45 @@ body, #root {
   .pos-cart-panel button {
     min-height: 38px;
   }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     MOBILE POS — "Swiggy-fast billing" layout
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     The mobile Home tab renders DesktopPOS first (search + product
+     grid), then the parent's own AI warning, stats row, and action
+     grid below it. DesktopPOS ALSO renders its own version of the
+     Quick Actions row, AI warning, 4-up KPI cards, and a Daily Target
+     ring — all duplicated on mobile, all pushing the cart panel
+     further down. On a phone the cashier was scrolling past two of
+     each before reaching the cart, while a customer waited.
+
+     Hide DesktopPOS's redundant sections on phone width; keep the
+     search bar + product grid as the primary mobile billing view.
+     The parent home tab's stats/actions still show below for at-a-
+     glance info. The sticky cart bar handles "take me to checkout". */
+  .pos-quick-actions,
+  .pos-ai-warning,
+  .pos-kpi-row,
+  .pos-daily-target {
+    display: none !important;
+  }
+
+  /* Bigger, easier-to-tap search input on phone — this is the cashier's
+     #1 interaction during billing. */
+  .pos-search-card input[type="text"] {
+    font-size: 16px !important;        /* prevents iOS zoom-on-focus */
+    padding: 14px 0 !important;
+  }
+  .pos-search-card {
+    padding: 14px !important;
+  }
+
+  /* The "Quick Shelf Explorer" card wrapping the product grid was
+     adding a third layer of padding around already-padded cards.
+     Tighten on phone so products own the screen. */
+  .pos-left-column > .premium-glass:nth-of-type(2) {
+    padding: 12px !important;
+  }
 }
 
 /* ══════════════════════════════════════════════════════
