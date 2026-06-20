@@ -4186,11 +4186,19 @@ const ShopDashboard = () => {
             setActiveTab={setActiveTab}
             isOwner={isOwner}
             flashSales={flashSales}
-            onClearCart={clearCart}
-            onCheckout={sendWhatsAppBill}
-            billTotal={billTotal}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            customerPhone={customerPhone}
+            setCustomerPhone={setCustomerPhone}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            manualDiscountPct={manualDiscountPct}
+            setManualDiscountPct={setManualDiscountPct}
             discountAmount={discountAmount}
             manualDiscountAmt={manualDiscountAmt}
+            billTotal={billTotal}
+            onCheckout={sendWhatsAppBill}
+            onClearCart={clearCart}
           />
         </>
       )}
