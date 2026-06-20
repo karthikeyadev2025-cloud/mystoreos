@@ -4203,6 +4203,7 @@ const ShopDashboard = () => {
             onClearCart={clearCart}
             onOpenDashboard={() => setShowMobileDashboard(true)}
             onShowUpiQr={handleShowUpiQr}
+            updateBillItemDiscount={updateBillItemDiscount}
           />
           {showMobileDashboard && (
             <MobileDashboard

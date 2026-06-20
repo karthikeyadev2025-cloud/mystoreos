@@ -39,15 +39,20 @@ export default function MobilePOS({
   onClearCart,
   onOpenDashboard,
   onShowUpiQr,
+  updateBillItemDiscount,
 }) {
-  // Expand/collapse the bill list — auto-expands when items > 0, but the
-  // cashier can collapse it manually to see more products.
   const [billExpanded, setBillExpanded] = useState(true);
+  // Per-item discount: which row's discount editor is open
+  const [discountRow, setDiscountRow] = useState(null);
+  // Local loading state so the Generate Bill button shows progress while
+  // the parent's sendWhatsAppBill is rendering the PDF + opening the share sheet.
+  const [generating, setGenerating] = useState(false);
   const itemCount = billItems.reduce((s, i) => s + (i.qty || 1), 0);
   const finalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', background: '#F8FAFC', minHeight: '100vh' }}>
+      <style>{`@keyframes mp-spin { to { transform: rotate(360deg); } }`}</style>
 
       {/* ─── 1. Sticky search bar + scan ─── */}
       <div style={{ position: 'sticky', top: 0, zIndex: 30, background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '10px 12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -126,26 +131,93 @@ export default function MobilePOS({
                 <div style={{ fontSize: 11, color: '#94A3B8' }}>Search a product or tap one below to add</div>
               </div>
             ) : (
-              <div style={{ maxHeight: '28vh', overflowY: 'auto' }}>
-                {billItems.map((item, idx) => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: idx === billItems.length - 1 ? 'none' : '1px solid #F1F5F9', background: '#FFFFFF' }}>
-                    <div style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 6, background: '#EEF2FF', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
-                      {idx + 1}
+              <div style={{ maxHeight: '32vh', overflowY: 'auto' }}>
+                {billItems.map((item, idx) => {
+                  const lineBase = item.price * item.qty;
+                  const iDisc = Math.min(99, Number(item.itemDiscount) || 0);
+                  const iDiscAmt = iDisc > 0 ? Math.round(lineBase * iDisc / 100) : 0;
+                  const lineNet = lineBase - iDiscAmt;
+                  const showingDisc = discountRow === item.id;
+                  return (
+                    <div key={item.id} style={{ borderBottom: idx === billItems.length - 1 ? 'none' : '1px solid #F1F5F9', background: '#FFFFFF' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                        <div style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 6, background: '#EEF2FF', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
+                          {idx + 1}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                          <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                            <span>₹{item.price} × {item.qty}</span>
+                            {iDisc > 0 ? (
+                              <>
+                                <span style={{ color: '#94A3B8', textDecoration: 'line-through' }}>₹{lineBase}</span>
+                                <span style={{ background: '#DCFCE7', color: '#15803D', padding: '0 5px', borderRadius: 4, fontWeight: 700 }}>−{iDisc}%</span>
+                                <span style={{ fontWeight: 800, color: '#15803D' }}>₹{lineNet}</span>
+                              </>
+                            ) : (
+                              <span style={{ fontWeight: 700, color: '#0F172A' }}>= ₹{lineBase}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 8, padding: 2 }}>
+                          <button onClick={() => updateBillItemQty(item.id, -1)} aria-label="Decrease" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>−</button>
+                          <span style={{ minWidth: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{item.qty}</span>
+                          <button onClick={() => updateBillItemQty(item.id, 1)} aria-label="Increase" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>+</button>
+                        </div>
+                        {updateBillItemDiscount && (
+                          <button
+                            onClick={() => setDiscountRow(showingDisc ? null : item.id)}
+                            aria-label="Discount this item"
+                            style={{
+                              background: iDisc > 0 ? '#DCFCE7' : 'transparent',
+                              border: iDisc > 0 ? '1px solid #86EFAC' : '1px solid transparent',
+                              color: iDisc > 0 ? '#15803D' : '#94A3B8',
+                              cursor: 'pointer', padding: '4px 6px',
+                              borderRadius: 6, fontSize: 11, fontWeight: 800,
+                              minWidth: 28,
+                            }}
+                          >
+                            %
+                          </button>
+                        )}
+                        <button onClick={() => removeBillItem(item.id)} aria-label="Remove" style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4 }}>
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                      {showingDisc && updateBillItemDiscount && (
+                        <div style={{ padding: '0 14px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#FAFAFB' }}>
+                          <span style={{ fontSize: 11, color: '#64748B', fontWeight: 700, flexShrink: 0 }}>Item discount</span>
+                          <div style={{ flex: 1, display: 'flex', gap: 4 }}>
+                            {[0, 5, 10, 15, 20].map(pct => (
+                              <button
+                                key={pct}
+                                onClick={() => updateBillItemDiscount(item.id, pct)}
+                                style={{
+                                  flex: 1, padding: '6px 0',
+                                  background: iDisc === pct ? '#4F46E5' : '#FFFFFF',
+                                  border: '1px solid ' + (iDisc === pct ? '#4F46E5' : '#E2E8F0'),
+                                  color: iDisc === pct ? '#fff' : '#475569',
+                                  borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                                }}
+                              >
+                                {pct === 0 ? 'None' : pct + '%'}
+                              </button>
+                            ))}
+                          </div>
+                          <input
+                            type="number"
+                            min="0" max="99"
+                            placeholder="Custom"
+                            value={[0,5,10,15,20].includes(iDisc) ? '' : (iDisc || '')}
+                            onChange={e => updateBillItemDiscount(item.id, Math.min(99, Math.max(0, Number(e.target.value) || 0)))}
+                            inputMode="decimal"
+                            style={{ width: 50, padding: '6px 6px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 11, color: '#0F172A', textAlign: 'center', outline: 'none' }}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                      <div style={{ fontSize: 11, color: '#64748B', marginTop: 1 }}>₹{item.price} × {item.qty} <span style={{ color: '#94A3B8' }}>=</span> <span style={{ fontWeight: 700, color: '#0F172A' }}>₹{item.price * item.qty}</span></div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 8, padding: 2 }}>
-                      <button onClick={() => updateBillItemQty(item.id, -1)} aria-label="Decrease" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>−</button>
-                      <span style={{ minWidth: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{item.qty}</span>
-                      <button onClick={() => updateBillItemQty(item.id, 1)} aria-label="Increase" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>+</button>
-                    </div>
-                    <button onClick={() => removeBillItem(item.id)} aria-label="Remove" style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4 }}>
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -247,23 +319,41 @@ export default function MobilePOS({
 
                 {/* Generate Bill button */}
                 <button
-                  onClick={() => onCheckout && onCheckout()}
+                  onClick={async () => {
+                    if (generating || !onCheckout) return;
+                    setGenerating(true);
+                    try { await onCheckout(); }
+                    finally {
+                      // Brief delay so the share sheet has time to open before
+                      // we re-enable the button; prevents accidental double-tap.
+                      setTimeout(() => setGenerating(false), 1200);
+                    }
+                  }}
+                  disabled={generating}
                   style={{
                     width: '100%',
-                    background: 'linear-gradient(135deg,#10B981,#059669)',
+                    background: generating ? '#94A3B8' : 'linear-gradient(135deg,#10B981,#059669)',
                     color: '#fff',
                     border: 'none',
                     padding: '14px',
                     borderRadius: 10,
                     fontSize: 15,
                     fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+                    cursor: generating ? 'wait' : 'pointer',
+                    boxShadow: generating ? 'none' : '0 4px 14px rgba(16,185,129,0.35)',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     letterSpacing: '0.3px',
+                    transition: 'all .15s',
                   }}
                 >
-                  ✓ Generate Bill · ₹{finalTotal}
+                  {generating ? (
+                    <>
+                      <span className="mobile-pos-spinner" style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'mp-spin 0.7s linear infinite' }} />
+                      Generating…
+                    </>
+                  ) : (
+                    <>✓ Generate Bill · ₹{finalTotal}</>
+                  )}
                 </button>
               </div>
             )}
