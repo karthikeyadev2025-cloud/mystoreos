@@ -3602,7 +3602,8 @@ const ShopDashboard = () => {
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                  <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>4, 6 or 8 digits only (optional)</p>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
@@ -3973,7 +3974,8 @@ const ShopDashboard = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
@@ -5960,7 +5962,8 @@ const ShopDashboard = () => {
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
@@ -6139,7 +6142,8 @@ const ShopDashboard = () => {
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value)} placeholder="e.g. 1905" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>

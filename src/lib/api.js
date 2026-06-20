@@ -10,6 +10,23 @@ import { validateImageFile } from './fileValidation';
 // Admin password loaded from env var (production) with a dev fallback so local logins still work.
 const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || 'Mystore@karthi@2025';
 
+// HSN/SAC codes are strictly 4, 6, or 8 numeric digits per Indian GST law.
+// The 4 Add/Edit Product forms and the bulk CSV importer all wrote this
+// field as raw free text with zero validation — a typo, stray letter, or
+// pasted garbage from a CSV would sit on a product forever, print on
+// every bill, and (if the shop owner manually copies it into the GST
+// portal, the realistic workflow for a small shop since this app doesn't
+// auto-file) get rejected or mismatched at actual filing time.
+// Returns a cleaned code on success, or null if the input doesn't look
+// like a real HSN/SAC code — callers should silently drop invalid input
+// rather than hard-fail a product save over it (HSN is optional).
+function sanitizeHsnCode(raw) {
+  if (!raw) return null;
+  const digits = String(raw).replace(/\D/g, '');
+  if ([4, 6, 8].includes(digits.length)) return digits;
+  return null;
+}
+
 // ---- localStorage Mock (fallback for offline/dev) ----
 const mockDB = {
   users: [
@@ -761,10 +778,10 @@ export const api = {
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, variant_prices: extraData?.variantPrices || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: extraData?.hsnCode || null, gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0, image_url: extraData?.image || null };
+        const row = { id: tempId, shop_id: shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batch_number: batchNumber || null, expiry_date: expiryDate || null, variants: variants || null, variant_prices: extraData?.variantPrices || null, reorder_level: parseInt(reorderLevel) || 10, hsn_code: sanitizeHsnCode(extraData?.hsnCode), gst_rate: parseInt(extraData?.gstRate) || 0, cost_price: parseFloat(extraData?.costPrice) || 0, image_url: extraData?.image || null };
         await enqueue({ table: 'products', action: 'insert', data: row });
         const db = getDB(); db.products = db.products || [];
-        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', variantPrices: extraData?.variantPrices || null, reorderLevel: parseInt(reorderLevel) || 10, hsnCode: extraData?.hsnCode || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
+        db.products.push({ id: tempId, shopId, name, price: parseFloat(price), barcode, stock: parseInt(stock) || 0, batchNumber: batchNumber || '', expiryDate: expiryDate || '', variants: variants || '', variantPrices: extraData?.variantPrices || null, reorderLevel: parseInt(reorderLevel) || 10, hsnCode: sanitizeHsnCode(extraData?.hsnCode) || '', gstRate: parseInt(extraData?.gstRate) || 0, costPrice: parseFloat(extraData?.costPrice) || 0, unit: extraData?.unit || null });
         saveDB(db); return toProduct(row);
       }
       const imgs = Array.isArray(extraData.images) ? extraData.images.filter(Boolean).slice(0, 4) : [];
@@ -779,7 +796,7 @@ export const api = {
         expiry_date: expiryDate || null,
         variants: variants || null,
         reorder_level: parseInt(reorderLevel) || 10,
-        hsn_code: extraData.hsnCode || null,
+        hsn_code: sanitizeHsnCode(extraData.hsnCode),
         gst_rate: parseInt(extraData.gstRate) || 0,
         cost_price: parseFloat(extraData.costPrice) || 0,
         image_url: cover,
@@ -850,7 +867,7 @@ export const api = {
         if (data.category !== undefined) updateObj.category = data.category || null;
         if (data.sku !== undefined) updateObj.sku = data.sku || null;
         if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
-        if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
+        if (data.hsnCode !== undefined) updateObj.hsn_code = sanitizeHsnCode(data.hsnCode);
         if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
         if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
         if (data.image !== undefined) updateObj.image_url = data.image || null;
@@ -871,7 +888,7 @@ export const api = {
       if (data.category !== undefined) updateObj.category = data.category || null;
       if (data.sku !== undefined) updateObj.sku = data.sku || null;
       if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
-      if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
+      if (data.hsnCode !== undefined) updateObj.hsn_code = sanitizeHsnCode(data.hsnCode);
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
       if (data.costPrice !== undefined) updateObj.cost_price = parseFloat(data.costPrice) || 0;
       if (data.images !== undefined) {
@@ -914,7 +931,7 @@ export const api = {
       if (data.category !== undefined) prod.category = data.category || null;
       if (data.sku !== undefined) prod.sku = data.sku || null;
       if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
-      if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
+      if (data.hsnCode !== undefined) prod.hsnCode = sanitizeHsnCode(data.hsnCode) || '';
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
       if (data.image !== undefined) prod.image = data.image;
       if (data.unit !== undefined) prod.unit = data.unit || null;
