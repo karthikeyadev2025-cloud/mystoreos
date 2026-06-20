@@ -94,11 +94,11 @@ const DesktopPOS = ({
     <div className="responsive-split-grid" style={{ alignItems: 'start' }}>
 
       {/* ── Left Column ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className="pos-left-column" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* AI Inventory Warning */}
         {lowStockProducts.length > 0 && (
-          <div className="premium-glass" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="premium-glass pos-ai-warning" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '32px' }}>🤖</span>
             <div>
               <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
@@ -110,7 +110,7 @@ const DesktopPOS = ({
         )}
 
         {/* KPI Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+        <div className="pos-kpi-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
           <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('bills')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>New Orders</p>
             <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{pendingOrders}</p>
@@ -136,7 +136,7 @@ const DesktopPOS = ({
 
         {/* Daily Target Progress Ring */}
         {isOwner && (
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+          <div className="premium-glass pos-daily-target" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
             {dailyTarget > 0 ? (
               <>
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
@@ -175,7 +175,7 @@ const DesktopPOS = ({
         )}
 
         {/* Search & Quick Actions */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+        <div className="premium-glass pos-search-card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '2px solid transparent', outline: 'none', marginBottom: '16px', transition: 'border-color .15s' }}
             onFocusCapture={e => e.currentTarget.style.borderColor = '#4F46E5'}
             onBlurCapture={e => e.currentTarget.style.borderColor = 'transparent'}

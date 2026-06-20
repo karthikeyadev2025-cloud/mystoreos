@@ -73,19 +73,23 @@ body, #root {
 }
 
 /* Mobile / narrow viewport — stack into a single scrolling column instead
-   of squeezing a 380px cart sidebar next to the product list. The cart
-   (search results + bill + checkout) renders FIRST so it sits directly
-   under the search bar with no scroll distance, matching how a cashier
-   actually uses this screen — search, see results, tap to add, all in
-   one place — instead of a separate "Quick Add" section buried below
-   unrelated banners/stats further down the page. */
+   of squeezing a 380px cart sidebar next to the product list. Normal
+   column order: the search/product-browsing panel (search bar lives at
+   its very top) renders FIRST, cart panel follows below it — so the
+   first thing visible on the Home tab is the search bar, not an empty
+   cart card. (A previous version of this rule used column-reverse,
+   which is backwards: *:first-child is the search/product panel and
+   *:last-child is the cart, so reversing puts the cart on top and
+   pushes the search bar below several cart-only sections — Cart is
+   Empty, Bill Discount %, Subtotal, Payment Method — before it's even
+   visible. That's the exact bug reported via screenshot.) */
 @media (max-width: 1024px) {
   .responsive-split-grid {
     grid-template-columns: 1fr !important;
     height: auto !important;
     overflow: visible !important;
     display: flex !important;
-    flex-direction: column-reverse !important;
+    flex-direction: column !important;
   }
   .responsive-split-grid > *:first-child {
     padding: 12px !important;
@@ -111,6 +115,25 @@ body, #root {
   .pos-cart-footer {
     max-height: none !important;
     overflow-y: visible !important;
+  }
+  /* Search bar is the single most important thing for a cashier on this
+     screen — promote it above the AI warning / KPI stats / daily target
+     cards instead of making them scroll past 3 sections to reach it.
+     Desktop is untouched (these rules only apply under the 1024px
+     breakpoint); flex order does not change DOM order or tab order in a
+     way that matters here since these are independent info cards, not a
+     reading-order-sensitive form. */
+  .pos-left-column {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .pos-search-card {
+    order: -1 !important;
+  }
+  .pos-ai-warning,
+  .pos-kpi-row,
+  .pos-daily-target {
+    order: 1 !important;
   }
 }
 
