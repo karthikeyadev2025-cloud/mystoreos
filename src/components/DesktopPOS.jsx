@@ -302,7 +302,7 @@ const DesktopPOS = ({
             )
           ) : (
             /* Normal grid view when not searching */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '14px', alignContent: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '18px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
@@ -318,19 +318,19 @@ const DesktopPOS = ({
               const timeLabel  = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               const outOfStock = (p.stock || 0) <= 0;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', opacity: outOfStock ? 0.6 : 1 }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '14px', paddingTop: hasDiscount || outOfStock ? '34px' : '14px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', opacity: outOfStock ? 0.6 : 1 }}>
                   {activeSale && !outOfStock && (
-                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                    <div style={{ position: 'absolute', top: 0, right: 0, background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 14px 0 10px', whiteSpace: 'nowrap' }}>
                       🔥 -{sale.discount}% · {timeLabel}
                     </div>
                   )}
                   {!activeSale && standingDiscPct > 0 && !outOfStock && (
-                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                    <div style={{ position: 'absolute', top: 0, right: 0, background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 14px 0 10px', whiteSpace: 'nowrap' }}>
                       🏷️ -{standingDiscPct}%
                     </div>
                   )}
                   {outOfStock && (
-                    <div style={{ position: 'absolute', top: '-8px', left: '10px', background: '#94A3B8', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, background: '#94A3B8', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 0 10px 0', whiteSpace: 'nowrap' }}>
                       OUT OF STOCK
                     </div>
                   )}
@@ -476,42 +476,59 @@ const DesktopPOS = ({
                 const lineTotal    = baseAmt - discAmt;
                 const isExpanded   = expandedItemId === (item.id || idx);
                 return (
-                  <div key={item.id || idx} style={{ background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px' }}>
-                      <div style={{ flex: 1, marginRight: '4px', minWidth: 0 }}>
-                        <p style={{ margin: 0, fontWeight: '700', fontSize: '12px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</p>
-                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
-                          {item.originalPrice ? (
-                            <>
-                              <span style={{ fontSize: '11px', color: '#EF4444', fontWeight: 'bold' }}>₹{item.price}</span>
-                              <span style={{ fontSize: '10px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{item.originalPrice}</span>
-                            </>
-                          ) : (
-                            <span style={{ fontSize: '11px', color: '#D97706', fontWeight: 'bold' }}>₹{item.price}</span>
-                          )}
-                          {itemDisc > 0 && <span style={{ fontSize: '10px', background: '#EF4444', color: '#fff', padding: '0px 4px', borderRadius: '3px', fontWeight: '700' }}>-{itemDisc}%</span>}
+                  <div key={item.id || idx} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+                    <div style={{ padding: '10px 10px 8px' }}>
+                      {/* Row 1: name + variant + delete — delete gets its own clear space, not squeezed at the end of a packed line */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ margin: 0, fontWeight: '700', fontSize: '13px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</p>
                           {variantList.length > 0 && (
                             <select value={item.selectedVariant || ''} onChange={e => updateBillItemVariant(item.id, e.target.value)}
-                              style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '4px', fontSize: '10px', padding: '1px 2px', outline: 'none' }}>
+                              style={{ marginTop: '4px', background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '5px', fontSize: '10px', padding: '2px 5px', outline: 'none' }}>
                               {hasVariantPricing
                                 ? item.variantPrices.map((v, vidx) => <option key={vidx} value={v.name}>{v.name} — ₹{v.price}</option>)
                                 : variantList.map((v, vidx) => <option key={vidx} value={v}>{v}</option>)}
                             </select>
                           )}
                         </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
-                        {/* Item discount toggle */}
-                        <button onClick={() => setExpandedItemId(isExpanded ? null : (item.id || idx))} title="Item discount" style={{ background: itemDisc > 0 ? '#EEF2FF' : 'transparent', border: `1px solid ${itemDisc > 0 ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '4px', padding: '2px 4px', cursor: 'pointer', color: '#4F46E5', display: 'flex', alignItems: 'center' }}>
-                          <Tag size={10} />
+                        <button
+                          onClick={() => removeBillItem(item.id)}
+                          title="Remove from bill"
+                          aria-label={`Remove ${item.name} from bill`}
+                          style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', cursor: 'pointer', padding: '6px', borderRadius: '7px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s, transform 0.1s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#EF4444'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#EF4444'; }}
+                        >
+                          <Trash2 size={14} />
                         </button>
-                        <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#E2E8F0', border: 'none', color: '#0F172A', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>-</button>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center', color: '#0F172A' }}>
-                          {item.qty || 1}{(() => { const s = UNIT_SUFFIX[resolveUnit(item, shopCategory)]; return s ? <span style={{ fontSize: '9px', color: '#64748B', fontWeight: 'normal', marginLeft: 1 }}>{s}</span> : null; })()}
-                        </span>
-                        <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#E2E8F0', border: 'none', color: '#0F172A', width: 20, height: 20, borderRadius: 4, cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>+</button>
-                        <span style={{ fontWeight: 'bold', color: '#10B981', minWidth: '45px', textAlign: 'right', fontSize: '12px' }}>₹{lineTotal}</span>
-                        <button onClick={() => removeBillItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px' }}><X size={12} /></button>
+                      </div>
+
+                      {/* Row 2: price/discount info on the left, qty stepper + line total on the right — properly spaced, no longer crammed into one strip */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
+                          {item.originalPrice ? (
+                            <>
+                              <span style={{ fontSize: '12px', color: '#EF4444', fontWeight: 'bold' }}>₹{item.price}</span>
+                              <span style={{ fontSize: '10px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{item.originalPrice}</span>
+                            </>
+                          ) : (
+                            <span style={{ fontSize: '12px', color: '#D97706', fontWeight: 'bold' }}>₹{item.price}</span>
+                          )}
+                          {itemDisc > 0 && <span style={{ fontSize: '10px', background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>-{itemDisc}%</span>}
+                          <button onClick={() => setExpandedItemId(isExpanded ? null : (item.id || idx))} title="Item discount" style={{ background: itemDisc > 0 ? '#EEF2FF' : 'transparent', border: `1px solid ${itemDisc > 0 ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '5px', padding: '3px 5px', cursor: 'pointer', color: '#4F46E5', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            <Tag size={11} />
+                          </button>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '7px', padding: '2px' }}>
+                            <button onClick={() => updateBillItemQty(item.id, -1)} style={{ background: '#F1F5F9', border: 'none', color: '#0F172A', width: 24, height: 24, borderRadius: 5, cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '24px', textAlign: 'center', color: '#0F172A' }}>
+                              {item.qty || 1}{(() => { const s = UNIT_SUFFIX[resolveUnit(item, shopCategory)]; return s ? <span style={{ fontSize: '9px', color: '#64748B', fontWeight: 'normal', marginLeft: 1 }}>{s}</span> : null; })()}
+                            </span>
+                            <button onClick={() => updateBillItemQty(item.id, 1)} style={{ background: '#F1F5F9', border: 'none', color: '#0F172A', width: 24, height: 24, borderRadius: 5, cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                          </div>
+                          <span style={{ fontWeight: '800', color: '#10B981', minWidth: '48px', textAlign: 'right', fontSize: '13px' }}>₹{lineTotal}</span>
+                        </div>
                       </div>
                     </div>
                     {/* Inline item discount */}
@@ -548,16 +565,16 @@ const DesktopPOS = ({
               </span>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '7px', alignItems: 'center' }}>
             {[0, 5, 10, 15, 20].map(d => (
               <button key={d} onClick={() => setManualDiscountPct && setManualDiscountPct(d)}
-                style={{ flex: 1, padding: '7px 4px', background: manualDiscountPct === d ? '#4F46E5' : '#FFFFFF', color: manualDiscountPct === d ? '#FFFFFF' : '#475569', border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : '#E2E8F0'}`, borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '8px 4px', background: manualDiscountPct === d ? '#4F46E5' : '#FFFFFF', color: manualDiscountPct === d ? '#FFFFFF' : '#475569', border: `1px solid ${manualDiscountPct === d ? '#4F46E5' : '#E2E8F0'}`, borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                 {d}%
               </button>
             ))}
-            <div style={{ position: 'relative', width: '56px', flexShrink: 0 }}>
+            <div style={{ position: 'relative', width: '60px', flexShrink: 0 }}>
               <input type="number" min="0" max="99" value={manualDiscountPct || ''} onChange={e => setManualDiscountPct && setManualDiscountPct(parseFloat(e.target.value) || 0)}
-                placeholder="—" style={{ width: '100%', padding: '7px 20px 7px 8px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '7px', outline: 'none', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', textAlign: 'right', boxSizing: 'border-box' }} />
+                placeholder="—" style={{ width: '100%', padding: '8px 20px 8px 8px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', outline: 'none', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', textAlign: 'right', boxSizing: 'border-box' }} />
               <span style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#64748B', pointerEvents: 'none' }}>%</span>
             </div>
           </div>
@@ -601,13 +618,14 @@ const DesktopPOS = ({
 
         {/* Payment Method */}
         <div>
-          <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: '700', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Method</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+          <p style={{ margin: '0 0 8px 0', fontSize: '11px', fontWeight: '700', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Method</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px' }}>
             {PAY_METHODS.map(({ key, icon, color }) => (
               <button key={key}
                 onClick={() => { setPaymentMethod && setPaymentMethod(key); if (key === 'UPI') handleShowUpiQr(); }}
-                style={{ padding: '8px 4px', borderRadius: '8px', border: paymentMethod === key ? `2px solid ${color}` : '1px solid #E2E8F0', background: paymentMethod === key ? `${color}18` : '#FFFFFF', color: paymentMethod === key ? color : '#475569', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
-                {icon}<br />{key}
+                style={{ padding: '10px 6px', borderRadius: '10px', border: paymentMethod === key ? `2px solid ${color}` : '1px solid #E2E8F0', background: paymentMethod === key ? `${color}14` : '#FFFFFF', color: paymentMethod === key ? color : '#475569', fontSize: '11px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>{icon}</span>
+                <span>{key}</span>
               </button>
             ))}
           </div>

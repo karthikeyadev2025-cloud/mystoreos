@@ -55,7 +55,7 @@ body, #root {
    ══════════════════════════════════════════════════════ */
 .responsive-split-grid {
   display: grid !important;
-  grid-template-columns: 1fr 380px !important;
+  grid-template-columns: 1fr clamp(380px, 28vw, 460px) !important;
   gap: 0 !important;
   height: calc(100vh - 88px) !important;
   overflow: hidden !important;
@@ -134,6 +134,20 @@ body, #root {
   .pos-kpi-row,
   .pos-daily-target {
     order: 1 !important;
+  }
+
+  /* Cart panel was using the exact same compact font sizes and touch
+     targets designed for a wide desktop monitor verbatim on phone
+     screens — text and buttons genuinely need to be larger on a small
+     touch screen, not just reflow into a single column. */
+  .pos-cart-panel select,
+  .pos-cart-panel input[type="text"],
+  .pos-cart-panel input[type="tel"],
+  .pos-cart-panel input[type="number"] {
+    font-size: 15px !important;
+  }
+  .pos-cart-panel button {
+    min-height: 38px;
   }
 }
 
