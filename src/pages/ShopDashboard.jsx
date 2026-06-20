@@ -4202,6 +4202,7 @@ const ShopDashboard = () => {
             onCheckout={sendWhatsAppBill}
             onClearCart={clearCart}
             onOpenDashboard={() => setShowMobileDashboard(true)}
+            onShowUpiQr={handleShowUpiQr}
           />
           {showMobileDashboard && (
             <MobileDashboard
@@ -4325,9 +4326,9 @@ const ShopDashboard = () => {
                     ))}
                   </div>
                   
-                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'8px'}}>
                     <span style={{fontSize:18, fontWeight:'bold', color:'#FBBF24'}}>₹{o.total}</span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       <button onClick={() => setSelectedOrder(o)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                         View Receipt
                       </button>
@@ -4398,12 +4399,53 @@ const ShopDashboard = () => {
                   <span>ITEM</span>
                   <span>AMT</span>
                 </div>
-                {selectedOrder.items.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                    <span>{item.qty}x {item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
-                    <span>₹{item.price * item.qty}</span>
-                  </div>
-                ))}
+                {(() => {
+                  // Total of all per-line discounts so we can show a "You saved ₹X"
+                  // line at the bottom, which is what shoppers love to see on a receipt.
+                  let totalItemSavings = 0;
+                  return (
+                    <>
+                      {selectedOrder.items.map((item, idx) => {
+                        const lineBase = item.price * item.qty;
+                        const iDisc = item.itemDiscount || 0;
+                        const iDiscAmt = iDisc > 0 ? Math.round(lineBase * iDisc / 100) : 0;
+                        const lineTotal = lineBase - iDiscAmt;
+                        if (iDiscAmt > 0) totalItemSavings += iDiscAmt;
+                        return (
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', alignItems: 'flex-start', gap: 6 }}>
+                            <span style={{ flex: 1, minWidth: 0 }}>
+                              {item.qty}x {item.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
+                              {iDisc > 0 && (
+                                <span style={{ display: 'block', fontSize: 10, color: '#16A34A', fontWeight: 'bold', marginTop: 1 }}>
+                                  ↓ {iDisc}% off — saved ₹{iDiscAmt}
+                                </span>
+                              )}
+                            </span>
+                            <span style={{ flexShrink: 0, textAlign: 'right' }}>
+                              {iDiscAmt > 0 && (
+                                <span style={{ display: 'block', fontSize: 10, color: '#888', textDecoration: 'line-through' }}>₹{lineBase}</span>
+                              )}
+                              <span style={{ fontWeight: iDiscAmt > 0 ? 'bold' : 'normal', color: iDiscAmt > 0 ? '#16A34A' : '#000' }}>₹{lineTotal}</span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {/* Bill-level discount line (separate from item-level) */}
+                      {selectedOrder.discountAmount > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginTop: 6, color: '#16A34A', fontWeight: 'bold' }}>
+                          <span>Bill Discount</span>
+                          <span>−₹{selectedOrder.discountAmount}</span>
+                        </div>
+                      )}
+                      {/* Total customer savings — banner */}
+                      {(totalItemSavings + (selectedOrder.discountAmount || 0)) > 0 && (
+                        <div style={{ marginTop: 8, background: '#DCFCE7', border: '1px dashed #16A34A', padding: '6px 10px', borderRadius: 4, textAlign: 'center', fontSize: 11, fontWeight: 'bold', color: '#15803D' }}>
+                          🎉 YOU SAVED ₹{totalItemSavings + (selectedOrder.discountAmount || 0)} ON THIS BILL
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               <div style={{ borderTop: '1px dashed #000', paddingTop: '12px', marginTop: '12px' }}>

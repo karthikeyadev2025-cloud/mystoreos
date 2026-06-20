@@ -38,6 +38,7 @@ export default function MobilePOS({
   onCheckout,
   onClearCart,
   onOpenDashboard,
+  onShowUpiQr,
 }) {
   // Expand/collapse the bill list — auto-expands when items > 0, but the
   // cashier can collapse it manually to see more products.
@@ -188,7 +189,13 @@ export default function MobilePOS({
                       return (
                         <button
                           key={p.key}
-                          onClick={() => setPaymentMethod && setPaymentMethod(p.key)}
+                          onClick={() => {
+                            setPaymentMethod && setPaymentMethod(p.key);
+                            // Tap UPI = also pop up the UPI QR for the customer to scan immediately.
+                            // This is the heart of fast-billing in India: cashier picks UPI →
+                            // QR is on screen → customer scans → done. No extra tap needed.
+                            if (p.key === 'UPI' && onShowUpiQr) onShowUpiQr();
+                          }}
                           style={{
                             padding: '8px 4px',
                             background: selected ? p.color : 'transparent',
