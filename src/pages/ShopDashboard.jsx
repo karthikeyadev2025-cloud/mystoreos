@@ -1478,9 +1478,19 @@ const ShopDashboard = () => {
 
         const sendDirectText = () => {
           if (customerPhone) {
-            const cleanedPhone = customerPhone.replace(/\D/g, '');
-            const phoneWithCountry = cleanedPhone.startsWith('91') ? cleanedPhone : `91${cleanedPhone}`;
-            window.open(`https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(msg)}`, '_blank');
+            // Normalize the phone for wa.me — covers every common way an
+            // Indian shopkeeper might type it: with/without +91, with/
+            // without spaces, with a leading 0 (domestic trunk prefix), or
+            // with 00 (international). Without this, "0 98765 43210" was
+            // becoming wa.me/9109876543210 (13 digits) and WhatsApp couldn't
+            // open the chat — the "number not auto-selecting" symptom you
+            // reported lived partly here.
+            let digits = customerPhone.replace(/\D/g, '');
+            if (digits.startsWith('0091')) digits = digits.slice(4);     // 00-91-xxx → xxx
+            else if (digits.startsWith('91') && digits.length === 12) {} // already +91-format, keep
+            else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1); // 0-xxx → xxx
+            if (digits.length === 10) digits = '91' + digits;             // bare 10-digit → prepend 91
+            window.open(`https://wa.me/${digits}?text=${encodeURIComponent(msg)}`, '_blank');
             toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
           } else {
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1488,37 +1498,51 @@ const ShopDashboard = () => {
           }
         };
 
-        // Primary path: share the actual PDF file via the OS share sheet
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          if (customerPhone && navigator.clipboard?.writeText) {
-            try {
-              await navigator.clipboard.writeText(customerPhone);
-              toast.info(`📋 ${customerPhone} copied — paste it in WhatsApp's search after picking a contact`, { autoClose: 6000 });
-            } catch { /* clipboard permission denied — share still proceeds */ }
-          }
+        // ─── DELIVERY DECISION ──────────────────────────────────────────
+        //
+        // The hard platform fact: navigator.share() with a file lets the user
+        // pick WhatsApp, but then WhatsApp takes over and shows a contact
+        // picker — the customer phone we have CANNOT be passed through file
+        // shares. wa.me/{phone}?text= DOES auto-open at that contact, but
+        // can only carry text, not files.
+        //
+        // For shop bills the most-used path by far is "customer phone on the
+        // bill → bill in their WhatsApp chat, immediately." The rich text we
+        // build above (itemized lines, savings, UPI tap-to-pay link) is the
+        // bill content the customer actually reads on their phone. The PDF
+        // matters mostly for the shop's own GST/accounting records, which
+        // are saved locally either way.
+        //
+        // So: when a phone is set, wa.me is PRIMARY (auto-targets the
+        // customer — the heart feature). When no phone is set, fall through
+        // to the file-share sheet so the cashier can manually pick a contact
+        // and at least send the PDF.
+
+        if (customerPhone) {
+          // Primary path — auto-targets the customer's WhatsApp chat
+          doc.save(pdfFileName);                    // local PDF for the shop's own records
+          sendDirectText();                          // opens WhatsApp at the customer
+        } else if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          // Fallback: no phone on the bill → use share sheet so the cashier
+          // can manually pick a contact in their WhatsApp.
           try {
             await navigator.share({
               files: [pdfFile],
               title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
               text: billingMode === 'estimate' ? `Here is your estimate from ${shop.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${shop.name}` : `Thank you for shopping at ${shop.name}! Here is your bill.`),
             });
-            doc.save(pdfFileName); // also keep a local copy on the shop's device
+            doc.save(pdfFileName);
           } catch (shareErr) {
             if (shareErr?.name === 'AbortError') {
-              // Owner cancelled the share sheet — that's a deliberate choice,
-              // don't force the text fallback on top of it.
               doc.save(pdfFileName);
             } else {
-              // Share genuinely failed (not a user cancel) — fall back to
-              // the reliable direct-to-number text message.
               doc.save(pdfFileName);
               sendDirectText();
             }
           }
         } else {
-          // No file-share capability on this browser/device — PDF still
-          // saved locally, and WhatsApp opens directly to the customer's
-          // number with the full bill as text (this path always works).
+          // No file-share capability AND no phone — best we can do is save
+          // the PDF and let the cashier pick a contact in WhatsApp Web.
           doc.save(pdfFileName);
           sendDirectText();
         }
