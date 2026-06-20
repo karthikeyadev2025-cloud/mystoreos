@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode, Trash2, Tag } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { resolveUnit, UNIT_SUFFIX } from '../lib/units';
@@ -76,6 +76,7 @@ const DesktopPOS = ({
   const [showTargetInput, setShowTargetInput] = useState(false);
   const [expandedItemId, setExpandedItemId] = useState(null); // which cart item shows discount input
   const [showCustomerDetails, setShowCustomerDetails] = useState(false); // collapsed by default — cart needs the room
+  const cartPanelRef = useRef(null); // mobile sticky bar scrolls here on tap
 
   const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
   const maxRedeemable = Math.floor(customerLoyaltyPoints / 10) * 10;
@@ -302,7 +303,7 @@ const DesktopPOS = ({
             )
           ) : (
             /* Normal grid view when not searching */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '18px', alignContent: 'start' }}>
+            <div className="pos-product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '18px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
@@ -377,7 +378,7 @@ const DesktopPOS = ({
       </div>
 
       {/* ── Right Column: POS Cart ── */}
-      <div className="premium-glass pos-cart-panel" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+      <div ref={cartPanelRef} className="premium-glass pos-cart-panel" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
 
         {/* ── PINNED TOP: Header + Billing Mode + Customer toggle ── */}
         <div style={{ padding: '16px 16px 0', flexShrink: 0 }}>
@@ -743,6 +744,42 @@ const DesktopPOS = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Mobile-only sticky cart bar — always visible above the bottom nav,
+          regardless of how far down the product list the cashier has
+          scrolled. Was the core problem reported: the cart/checkout panel
+          only existed at the very bottom of the page, after dozens of
+          full-width product cards — a cashier billing a customer had to
+          scroll past the entire catalogue every time just to see the
+          total or hit checkout. Tapping this bar smoothly scrolls straight
+          to the cart panel. Desktop never sees this (CSS-gated, see
+          .pos-mobile-cart-bar in index.css) since the cart is already
+          always visible there as the sticky right-hand column. */}
+      {billItems.length > 0 && (
+        <button
+          className="pos-mobile-cart-bar"
+          onClick={() => cartPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          style={{
+            display: 'none', // overridden to flex by the mobile media query
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            width: '100%', maxWidth: '480px',
+            alignItems: 'center', justifyContent: 'space-between',
+            background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff',
+            border: 'none', cursor: 'pointer',
+            padding: '14px 18px', borderRadius: '14px 14px 0 0',
+            boxShadow: '0 -6px 20px rgba(79,70,229,0.35)', zIndex: 150,
+            fontFamily: 'inherit',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '50%', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>
+              {billItems.reduce((s, i) => s + (i.qty || 1), 0)}
+            </span>
+            <span style={{ fontSize: 14, fontWeight: 700 }}>View Cart</span>
+          </span>
+          <span style={{ fontSize: 17, fontWeight: 900 }}>₹{finalTotal}</span>
+        </button>
       )}
     </div>
   );

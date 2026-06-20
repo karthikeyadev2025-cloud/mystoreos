@@ -116,16 +116,49 @@ body, #root {
     max-height: none !important;
     overflow-y: visible !important;
   }
+  /* Product grid was collapsing to ONE full-width card per row on real
+     phone screens — minmax(170px,...) needs ~358px for 2 columns
+     (170+170+18 gap), but a phone viewport minus the 12px page padding
+     only leaves ~351px, just barely too narrow. Forced 2 columns with a
+     smaller minimum + tighter gap so cards actually fit side by side —
+     was wasting enormous vertical space with one giant card per
+     product, the exact "very bad" layout reported via screenshot. */
+  .pos-product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .pos-product-grid > div {
+    padding: 10px !important;
+  }
+  .pos-product-grid img {
+    height: 64px !important;
+  }
+  .pos-product-grid button {
+    font-size: 10px !important;
+    padding: 7px 4px !important;
+  }
+  /* Sticky "View Cart" bar — positioned just above the app's fixed
+     bottom nav (which is ~64-70px tall including its safe-area padding,
+     z-index 100). Sits at a higher z-index so it's never hidden behind
+     it, and adds bottom padding to the page so the last product card
+     in the grid isn't permanently covered by either bar. */
+  .pos-mobile-cart-bar {
+    display: flex !important;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
   /* Search bar is the single most important thing for a cashier on this
      screen — promote it above the AI warning / KPI stats / daily target
      cards instead of making them scroll past 3 sections to reach it.
      Desktop is untouched (these rules only apply under the 1024px
      breakpoint); flex order does not change DOM order or tab order in a
      way that matters here since these are independent info cards, not a
-     reading-order-sensitive form. */
+     reading-order-sensitive form. Bottom padding makes room for the
+     sticky cart bar + nav so they never permanently cover the last
+     product card in the grid. */
   .pos-left-column {
     display: flex !important;
     flex-direction: column !important;
+    padding-bottom: 64px !important;
   }
   .pos-search-card {
     order: -1 !important;
