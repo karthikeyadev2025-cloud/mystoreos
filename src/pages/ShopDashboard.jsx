@@ -18,7 +18,7 @@ import BarcodeManager from '../components/BarcodeManager';
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { localDateStr } from '../lib/dateUtils';
 import { validateImageFile } from '../lib/fileValidation';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
@@ -94,6 +94,14 @@ const ShopDashboard = () => {
   const [search, setSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const posSearchRef = useRef(null);
+  // Dedicated, always-mounted hidden QR canvas used ONLY by downloadQrPoster.
+  // The previous version scraped document.querySelector('.qr-code-holder svg')
+  // — an SVG that only exists on the mobile Settings screen — so clicking
+  // "Download Poster" from desktop (or any screen without that exact widget
+  // mounted) silently produced a poster with a blank box where the QR
+  // should be. This ref is rendered unconditionally below, in this same
+  // component, so it's always available regardless of which tab is active.
+  const posterQrRef = useRef(null);
   
   // Quick Bill State
   const [billItems, setBillItems] = useState([]);
@@ -2112,163 +2120,191 @@ const ShopDashboard = () => {
   };
 
   const downloadQrPoster = async () => {
+    // Real QR pulled from a dedicated, always-mounted canvas ref (see
+    // posterQrRef above) instead of scraping a DOM element that may not
+    // exist on the current screen — the actual root cause of the blank
+    // QR box in the previously downloaded poster.
+    const qrCanvas = posterQrRef.current;
+    if (!qrCanvas) {
+      toast.error('QR code not ready yet — please try again in a moment.');
+      return;
+    }
+    const qrDataUrl = qrCanvas.toDataURL('image/png');
+
     const { jsPDF: JsPDF } = await import('jspdf');
     const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
     const W = 210, H = 297;
-    const accent = [79, 70, 229]; // indigo, matches the app's primary brand colour
+    const accent = [79, 70, 229];   // indigo — primary brand colour
+    const accentDeep = [67, 56, 202];
+    const ink = [15, 23, 42];
+    const sub = [100, 116, 139];
+    const faint = [148, 163, 184];
 
-    // ── Background ───────────────────────────────────────────────────────
+    // Emoji glyphs (📞, 🖨️, etc.) are NOT supported by jsPDF's built-in
+    // Helvetica font — they render as garbled multi-byte bytes (the
+    // "Ø=ÜÞ" seen in the reported PDF). Using plain Unicode-safe symbols
+    // and text labels instead, everywhere on this poster.
+
+    // ── Background ───────────────────────────────────────────────────
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, W, H, 'F');
 
-    // Top brand stripe
+    // ── Corporate header band — deep gradient-style block, PhonePe/GPay
+    //    merchant-card style ──────────────────────────────────────────
     doc.setFillColor(...accent);
-    doc.rect(0, 0, W, 14, 'F');
+    doc.rect(0, 0, W, 38, 'F');
+    doc.setFillColor(...accentDeep);
+    doc.rect(0, 34, W, 4, 'F');
+
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
-    doc.text('DIGITAL STOREFRONT', W / 2, 9, { align: 'center' });
+    doc.text('DIGITAL STOREFRONT', W / 2, 12, { align: 'center' });
 
-    // Decorative corner frame (clean, print-friendly — no heavy fills that
-    // waste toner/ink on a poster meant to be printed often)
-    doc.setDrawColor(...accent);
-    doc.setLineWidth(0.8);
-    doc.roundedRect(10, 22, W - 20, H - 32, 6, 6);
+    doc.setFontSize(22);
+    doc.text((user.name || 'Your Store').toUpperCase(), W / 2, 24, { align: 'center', maxWidth: W - 30 });
 
-    let y = 38;
+    // ── White card body with soft shadow effect (concentric rounded
+    //    rects at decreasing opacity) ─────────────────────────────────
+    let y = 52;
 
-    // ── Shop logo + name ─────────────────────────────────────────────────
     const hasLogo = user.logo && user.logo.startsWith('data:image');
     if (hasLogo) {
       try {
+        // Circular-look logo frame
+        doc.setDrawColor(...accent);
+        doc.setLineWidth(0.8);
+        doc.roundedRect(W / 2 - 19, y - 2, 38, 38, 6, 6, 'S');
         doc.addImage(user.logo, 'JPEG', W / 2 - 17, y, 34, 34, undefined, 'FAST');
-        y += 40;
-      } catch { /* unsupported image format — fall through without logo */ }
+        y += 46;
+      } catch { y += 6; }
     } else {
       y += 4;
     }
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(26);
-    doc.setTextColor(15, 23, 42);
-    doc.text(user.name || 'Your Store', W / 2, y, { align: 'center', maxWidth: W - 40 });
-    y += 9;
-
-    // Phone / address line
+    // Contact line — plain text label instead of an emoji icon
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(100, 116, 139);
-    const contactBits = [user.phone ? `📞 ${user.phone}` : null, user.businessAddress || null].filter(Boolean);
+    doc.setFontSize(10.5);
+    doc.setTextColor(...sub);
+    const contactBits = [user.phone ? `Tel: ${user.phone}` : null, user.businessAddress || null].filter(Boolean);
     if (contactBits.length) {
-      doc.text(contactBits.join('   •   '), W / 2, y, { align: 'center', maxWidth: W - 40 });
-      y += 10;
+      doc.text(contactBits.join('   |   '), W / 2, y, { align: 'center', maxWidth: W - 36 });
+      y += 12;
     } else {
-      y += 4;
+      y += 6;
     }
 
-    // ── Big, bold call to action ─────────────────────────────────────────
+    // ── "Scan to Pay" call-to-action pill ──────────────────────────────
     doc.setFillColor(...accent);
-    doc.roundedRect(W / 2 - 55, y, 110, 11, 3, 3, 'F');
+    doc.roundedRect(W / 2 - 48, y, 96, 12, 6, 6, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(13);
+    doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
-    doc.text('SCAN TO SHOP & PAY', W / 2, y + 7.5, { align: 'center' });
-    y += 20;
+    doc.text('SCAN TO SHOP & PAY', W / 2, y + 8, { align: 'center' });
+    y += 22;
 
-    // ── QR code — large, high-contrast, generous white margin for easy
-    //    scanning even in poor shop lighting ───────────────────────────────
-    const qrSize = 95;
+    // ── QR code — clean white card with corner-marker accents, like a
+    //    real merchant payment QR (PhonePe/GPay style) ─────────────────
+    const qrSize = 92;
     const qrX = W / 2 - qrSize / 2;
+    const cardPad = 8;
+
+    // Outer card
+    doc.setFillColor(255, 255, 255);
     doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(qrX - 6, y - 6, qrSize + 12, qrSize + 12, 4, 4, 'S');
+    doc.setLineWidth(0.6);
+    doc.roundedRect(qrX - cardPad, y - cardPad, qrSize + cardPad * 2, qrSize + cardPad * 2, 6, 6, 'FD');
 
-    const svgElement = document.querySelector('.qr-code-holder svg');
-    const renderRestOfPoster = (qrDataUrl) => {
-      if (qrDataUrl) doc.addImage(qrDataUrl, 'PNG', qrX, y, qrSize, qrSize);
-      let ny = y + qrSize + 16;
+    // Corner accent marks — the small bracket flourish merchant QR
+    // cards use, in the brand accent colour
+    doc.setDrawColor(...accent);
+    doc.setLineWidth(1.4);
+    const cl = 7; // corner mark length
+    const cx0 = qrX - cardPad + 3, cy0 = y - cardPad + 3;
+    const cx1 = qrX + qrSize + cardPad - 3, cy1 = y + qrSize + cardPad - 3;
+    // top-left
+    doc.line(cx0, cy0, cx0 + cl, cy0); doc.line(cx0, cy0, cx0, cy0 + cl);
+    // top-right
+    doc.line(cx1, cy0, cx1 - cl, cy0); doc.line(cx1, cy0, cx1, cy0 + cl);
+    // bottom-left
+    doc.line(cx0, cy1, cx0 + cl, cy1); doc.line(cx0, cy1, cx0, cy1 - cl);
+    // bottom-right
+    doc.line(cx1, cy1, cx1 - cl, cy1); doc.line(cx1, cy1, cx1, cy1 - cl);
 
-      // Storefront link (compact, readable, not a giant ugly URL block)
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9.5);
-      doc.setTextColor(79, 70, 229);
-      doc.text(getShopUrl().replace(/^https?:\/\//, ''), W / 2, ny, { align: 'center', maxWidth: W - 40 });
-      ny += 12;
+    doc.addImage(qrDataUrl, 'PNG', qrX, y, qrSize, qrSize);
+    y += qrSize + cardPad + 12;
 
-      // Payment app row — small icons-as-text, clean
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.setTextColor(71, 85, 105);
-      doc.text('GPay  •  PhonePe  •  Paytm  •  Any UPI App', W / 2, ny, { align: 'center' });
-      ny += 7;
+    // Storefront link
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(...accent);
+    doc.text(getShopUrl().replace(/^https?:\/\//, ''), W / 2, y, { align: 'center', maxWidth: W - 40 });
+    y += 13;
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(148, 163, 184);
-      doc.text('Browse the menu, place your order, and pay — all from your phone.', W / 2, ny, { align: 'center', maxWidth: W - 50 });
+    // ── Accepted payment apps row — clean text badges instead of emoji
+    //    icons that don't render in jsPDF's font ──────────────────────
+    const apps = ['GPay', 'PhonePe', 'Paytm', 'Any UPI App'];
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    const badgeGap = 4;
+    const badgeH = 8;
+    const widths = apps.map(a => doc.getTextWidth(a) + 10);
+    const totalW = widths.reduce((s, w) => s + w, 0) + badgeGap * (apps.length - 1);
+    let bx = W / 2 - totalW / 2;
+    apps.forEach((a, i) => {
+      doc.setFillColor(244, 244, 253);
+      doc.setDrawColor(...accent);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(bx, y, widths[i], badgeH, 4, 4, 'FD');
+      doc.setTextColor(...accentDeep);
+      doc.text(a, bx + widths[i] / 2, y + 5.5, { align: 'center' });
+      bx += widths[i] + badgeGap;
+    });
+    y += badgeH + 10;
 
-      // ── Footer brand strip ─────────────────────────────────────────────
-      doc.setFillColor(248, 250, 252);
-      doc.rect(10, H - 26, W - 20, 16, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.setTextColor(...accent);
-      doc.text('MyStore OS', W / 2, H - 18, { align: 'center' });
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(148, 163, 184);
-      doc.text('Paperless billing for Indian shops  •  mystoreos.in', W / 2, H - 14, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...faint);
+    doc.text('Browse the menu, place your order, and pay — all from your phone.', W / 2, y, { align: 'center', maxWidth: W - 50 });
 
-      doc.save(`${(user.name || 'Shop').replace(/[^a-zA-Z0-9]/g, '_')}_QR_Poster.pdf`);
-      toast.success('🖨️ Premium QR poster downloaded!');
-    };
+    // ── Footer brand strip ─────────────────────────────────────────────
+    doc.setFillColor(248, 250, 252);
+    doc.rect(0, H - 24, W, 24, 'F');
+    doc.setDrawColor(...accent);
+    doc.setLineWidth(0.6);
+    doc.line(0, H - 24, W, H - 24);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(...accent);
+    doc.text('MyStore OS', W / 2, H - 15, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...faint);
+    doc.text('Paperless billing for Indian shops   |   mystoreos.in', W / 2, H - 10, { align: 'center' });
 
-    if (svgElement) {
-      const xml = new XMLSerializer().serializeToString(svgElement);
-      const svg64 = btoa(unescape(encodeURIComponent(xml)));
-      const image64 = 'data:image/svg+xml;base64,' + svg64;
-      const img = new window.Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        // Render well above the final print size for a crisp, non-pixelated
-        // QR on paper (poster QR prints much larger than the on-screen one).
-        const scale = 8;
-        canvas.width = (svgElement.clientWidth || 200) * scale;
-        canvas.height = (svgElement.clientHeight || 200) * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        renderRestOfPoster(canvas.toDataURL('image/png'));
-      };
-      img.onerror = () => renderRestOfPoster(null);
-      img.src = image64;
-    } else {
-      renderRestOfPoster(null);
-    }
+    doc.save(`${(user.name || 'Shop').replace(/[^a-zA-Z0-9]/g, '_')}_QR_Poster.pdf`);
+    toast.success('Premium QR poster downloaded!');
   };
 
   const downloadQrPng = () => {
-    const svgElement = document.querySelector('.qr-code-holder svg');
-    if (!svgElement) return toast.error('QR code not visible');
-    const xml = new XMLSerializer().serializeToString(svgElement);
-    const svg64 = btoa(unescape(encodeURIComponent(xml)));
-    const img = new window.Image();
-    img.src = 'data:image/svg+xml;base64,' + svg64;
-    img.onload = () => {
-      const size = 512;
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, size, size);
-      ctx.drawImage(img, 0, 0, size, size);
-      const a = document.createElement('a');
-      a.href = canvas.toDataURL('image/png');
-      a.download = `${user.name}_QR.png`;
-      a.click();
-      toast.success('QR downloaded as PNG');
-    };
+    // Same fix as downloadQrPoster — was scraping .qr-code-holder svg,
+    // an element that only exists on the mobile Settings screen, so this
+    // silently failed (or downloaded a blank/stale image) from any other
+    // screen. posterQrRef is always mounted in this component.
+    const qrCanvas = posterQrRef.current;
+    if (!qrCanvas) return toast.error('QR code not ready yet — please try again in a moment.');
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(qrCanvas, 0, 0, size, size);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `${user.name}_QR.png`;
+    a.click();
+    toast.success('QR downloaded as PNG');
   };
 
   const handleSaveProfile = async () => {
@@ -4041,6 +4077,17 @@ const ShopDashboard = () => {
   return (
     <div style={styles.bg}>
       <ToastContainer theme="dark" position="top-center" />
+
+      {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
+          downloadQrPng — rendering it here (unconditionally, regardless
+          of active tab) guarantees it's available no matter which screen
+          the owner clicks "Download Poster" from. The previous approach
+          scraped a DOM element that only existed on one specific mobile
+          settings screen, producing a poster with a blank QR box when
+          clicked from anywhere else. */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+        <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="#0F172A" bgColor="#FFFFFF" />
+      </div>
       
       {/* GLOBAL ANNOUNCEMENT BANNER */}
       {announceConfig.active && announceConfig.text && (
