@@ -225,7 +225,7 @@ const DesktopPOS = ({
             )
           ) : (
             /* Normal grid view when not searching */
-            <div className="pos-product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '18px', alignContent: 'start' }}>
+            <div className="pos-product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px', alignContent: 'start' }}>
             {filteredProducts.map(p => {
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
@@ -240,47 +240,46 @@ const DesktopPOS = ({
               const minsLeft   = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel  = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               const outOfStock = (p.stock || 0) <= 0;
+              const inCart = billItems.find(b => b.id === p.id);
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '14px', paddingTop: hasDiscount || outOfStock ? '34px' : '14px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                  {activeSale && !outOfStock && (
-                    <div style={{ position: 'absolute', top: 0, right: 0, background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 14px 0 10px', whiteSpace: 'nowrap' }}>
-                      🔥 -{sale.discount}% · {timeLabel}
-                    </div>
-                  )}
-                  {!activeSale && standingDiscPct > 0 && !outOfStock && (
-                    <div style={{ position: 'absolute', top: 0, right: 0, background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 14px 0 10px', whiteSpace: 'nowrap' }}>
-                      🏷️ -{standingDiscPct}%
-                    </div>
-                  )}
-                  {outOfStock && (
-                    <div style={{ position: 'absolute', top: 0, left: 0, background: '#94A3B8', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 0 10px 0', whiteSpace: 'nowrap' }}>
-                      OUT OF STOCK
-                    </div>
-                  )}
-                  <div>
-                    {(p.image || (p.images && p.images[0])) && (
-                      <img src={p.image || p.images[0]} alt={p.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px', border: '1px solid #E2E8F0' }} />
-                    )}
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>{p.name}</h4>
-                    {hasDiscount && !outOfStock ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#EF4444' }}>₹{salePrice}</p>
-                        <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</p>
-                      </div>
+                <div key={p.id} className="pos-product-card" style={{ display: 'flex', alignItems: 'stretch', gap: '10px', padding: '10px', borderRadius: '12px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, transition: 'all 0.15s', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', minHeight: '76px' }}>
+                  {/* Image area (or placeholder) — fixed left column */}
+                  <div style={{ width: '64px', height: '64px', flexShrink: 0, borderRadius: '8px', background: '#F1F5F9', border: '1px solid #E2E8F0', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'center' }}>
+                    {(p.image || (p.images && p.images[0])) ? (
+                      <img src={p.image || p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                     ) : (
-                      <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#4F46E5' }}>₹{p.price}</p>
+                      <Package size={22} color="#94A3B8" />
                     )}
-                    <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: outOfStock ? '#94A3B8' : lowStock ? '#EF4444' : '#64748B', fontWeight: (lowStock && !outOfStock) ? 'bold' : 'normal' }}>
-                      {outOfStock ? 'Out of stock' : `Stock: ${p.stock}`}{lowStock && !outOfStock ? ' ⚠️' : ''}
+                  </div>
+                  {/* Middle: name, price, stock */}
+                  <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px' }}>
+                    <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</h4>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                      {hasDiscount && !outOfStock ? (
+                        <>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: '#EF4444' }}>₹{salePrice}</span>
+                          <span style={{ fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</span>
+                          {activeSale && <span style={{ fontSize: '9px', background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>🔥 {sale.discount}%</span>}
+                          {!activeSale && standingDiscPct > 0 && <span style={{ fontSize: '9px', background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{standingDiscPct}% OFF</span>}
+                        </>
+                      ) : (
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: outOfStock ? '#94A3B8' : '#4F46E5' }}>₹{p.price}</span>
+                      )}
+                    </div>
+                    <p style={{ margin: 0, fontSize: '10px', color: outOfStock ? '#EF4444' : lowStock ? '#F59E0B' : '#64748B', fontWeight: (lowStock || outOfStock) ? 600 : 500 }}>
+                      {outOfStock ? '● Out of stock' : lowStock ? `⚠ ${p.stock} left` : `Stock: ${p.stock}`}
+                      {activeSale && !outOfStock && <span style={{ marginLeft: 6, color: '#EF4444' }}>· {timeLabel}</span>}
+                      {inCart && <span style={{ marginLeft: 6, color: '#4F46E5', fontWeight: 700 }}>· ×{inCart.qty} in bill</span>}
                     </p>
                   </div>
+                  {/* Right: Add button */}
                   <button
                     onClick={() => !outOfStock && addToBill(p)}
                     disabled={outOfStock}
                     className="pos-add-to-cart-btn"
-                    style={{ background: outOfStock ? '#F1F5F9' : 'rgba(79,70,229,0.08)', border: `1px solid ${outOfStock ? '#E2E8F0' : 'rgba(79,70,229,0.25)'}`, color: outOfStock ? '#94A3B8' : '#4F46E5', width: '100%', padding: '8px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: outOfStock ? 'not-allowed' : 'pointer', marginTop: '12px', transition: 'all 0.2s' }}
+                    style={{ alignSelf: 'center', flexShrink: 0, background: outOfStock ? '#F1F5F9' : inCart ? '#059669' : '#4F46E5', border: 'none', color: outOfStock ? '#94A3B8' : '#fff', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: outOfStock ? 'not-allowed' : 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap', minWidth: '64px' }}
                   >
-                    {outOfStock ? 'Unavailable' : '+ Add to Cart'}
+                    {outOfStock ? '—' : inCart ? `+1` : '+ Add'}
                   </button>
                 </div>
               );

@@ -83,6 +83,30 @@ body, #root {
    pushes the search bar below several cart-only sections — Cart is
    Empty, Bill Discount %, Subtotal, Payment Method — before it's even
    visible. That's the exact bug reported via screenshot.) */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESKTOP POS — sticky search bar + hide redundant Quick Actions
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   On desktop the search bar lived at the top of an internally
+   scrolling left column — once you scrolled to find a product, the
+   search bar disappeared and you had to scroll back up to search
+   again, then back down to add. Now the search card sticks to the
+   top of its scroll container so it's always one tap away while
+   the product grid scrolls under it.
+
+   The 5 Quick Actions are also already in the persistent left
+   sidebar nav (Scan, Add Product, UPI, Credit, Bills), so showing
+   them again here pushed the product grid down for no value. */
+@media (min-width: 1025px) {
+  .pos-search-card {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .pos-quick-actions {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .responsive-split-grid {
     grid-template-columns: 1fr !important;
@@ -116,26 +140,21 @@ body, #root {
     max-height: none !important;
     overflow-y: visible !important;
   }
-  /* Product grid was collapsing to ONE full-width card per row on real
-     phone screens — minmax(170px,...) needs ~358px for 2 columns
-     (170+170+18 gap), but a phone viewport minus the 12px page padding
-     only leaves ~351px, just barely too narrow. Forced 2 columns with a
-     smaller minimum + tighter gap so cards actually fit side by side —
-     was wasting enormous vertical space with one giant card per
-     product, the exact "very bad" layout reported via screenshot. */
+  /* Rectangular product cards (image left, info middle, Add right)
+     are easier to scan than 2-col squares on a phone — bigger tap
+     targets, name doesn't truncate as aggressively, denser list view
+     since the image is fixed-width on the side instead of full-bleed
+     on top. Single column on phone width. */
   .pos-product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
   }
-  .pos-product-grid > div {
+  .pos-product-card {
     padding: 10px !important;
   }
-  .pos-product-grid img {
-    height: 64px !important;
-  }
-  .pos-product-grid button {
-    font-size: 10px !important;
-    padding: 7px 4px !important;
+  .pos-product-card > div:first-child {
+    width: 56px !important;
+    height: 56px !important;
   }
   /* Sticky "View Cart" bar — positioned just above the app's fixed
      bottom nav (which is ~64-70px tall including its safe-area padding,

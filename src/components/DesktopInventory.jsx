@@ -301,13 +301,17 @@ const DesktopInventory = ({
           <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Add products to get started or clear your search query.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+        /* Rectangular full-width product rows — denser scanning, all actions
+           visible without horizontal cropping (Restock / Edit / Delete buttons
+           previously wrapped to a second line on narrower cards). One card per
+           row on desktop and mobile, just stacks naturally on small screens. */
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
           {filteredProducts.map(p => {
             const expStatus = checkExpiryStatus(p.expiryDate);
             const isLowStock = p.stock < (p.reorderLevel || 10);
             const daysLeft = computeDaysLeft(p);
             return (
-              <div key={p.id} className="premium-glass" style={{ background: '#FFFFFF', border: `1px solid ${flashSales[p.id] ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <div key={p.id} className="premium-glass" style={{ background: '#FFFFFF', border: `1px solid ${flashSales[p.id] ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '12px', padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
