@@ -738,17 +738,28 @@ const ShopDashboard = () => {
       return prev.map(item => {
         if (item.id !== prodId) return item;
         // If this product has structured per-variant pricing, switching the
-        // variant must actually change the billed price — previously this
-        // only updated the display label and silently kept billing every
-        // variant at the same price (e.g. a 5kg and 20kg rice bag would
-        // both ring up identically, a real billing-accuracy bug).
+        // variant must actually change the billed price (was: only updated
+        // the display label, every variant billed identically). It must
+        // ALSO reapply the product's standing discountPct on top of the new
+        // variant's base price — this was a second bug found alongside the
+        // first: switching variants on a discounted item silently stripped
+        // the discount entirely (price was overwritten with the variant's
+        // raw price, discount never reapplied).
         if (Array.isArray(item.variantPrices) && item.variantPrices.length) {
           const match = item.variantPrices.find(v => v.name === variant);
           if (match) {
-            // basePrice keeps the product's original/default price so
-            // discount-badge math elsewhere (item.originalPrice display)
-            // still has something sensible to compare against.
-            return { ...item, selectedVariant: variant, price: Number(match.price) || item.price, basePrice: item.basePrice ?? item.price };
+            const newBasePrice = Number(match.price) || item.price;
+            const standingDiscPct = Number(item.discountPct) || 0;
+            const newPrice = standingDiscPct > 0
+              ? Math.round(newBasePrice * (1 - standingDiscPct / 100))
+              : newBasePrice;
+            return {
+              ...item,
+              selectedVariant: variant,
+              price: newPrice,
+              basePrice: newBasePrice,
+              originalPrice: standingDiscPct > 0 ? newBasePrice : undefined,
+            };
           }
         }
         return { ...item, selectedVariant: variant };

@@ -666,6 +666,7 @@ const UserDashboard = () => {
   const getCartTotals = () => {
     let total = 0;
     let count = 0;
+    let totalSavings = 0;
     const items = [];
     Object.keys(cart).forEach(key => {
       const qty = cart[key];
@@ -673,16 +674,37 @@ const UserDashboard = () => {
       const [productId, variantName] = key.split('::');
       const p = products.find(pp => pp.id === productId);
       if (!p) return; // product no longer exists/loaded — skip safely
-      let linePrice = p.price;
+
+      // Base price — variant-specific if this product has structured
+      // variant pricing, otherwise the shared base price field.
+      let basePrice = p.price;
       if (variantName && Array.isArray(p.variantPrices)) {
         const v = p.variantPrices.find(vv => vv.name === variantName);
-        if (v) linePrice = Number(v.price) || p.price;
+        if (v) basePrice = Number(v.price) || p.price;
       }
+
+      // Apply the standing label discount (discountPct, set by the owner
+      // in Add/Edit Product — the same "21% OFF / Save ₹157" shown on the
+      // product card) or the legacy mrp field as a fallback. This was
+      // never applied here at all — the cart total/checkout/WhatsApp
+      // order was silently computed at the full undiscounted price even
+      // though the card the customer added from clearly showed a
+      // discount and savings amount.
+      let linePrice = basePrice;
+      let lineDiscPct = 0;
+      if (p.discountPct && Number(p.discountPct) > 0) {
+        lineDiscPct = Number(p.discountPct);
+        linePrice = Math.round(basePrice * (1 - lineDiscPct / 100));
+      } else if (p.mrp && Number(p.mrp) > basePrice) {
+        linePrice = basePrice; // basePrice already reflects the discounted sale price for legacy mrp products
+      }
+
       total += linePrice * qty;
+      totalSavings += (basePrice - linePrice) * qty;
       count += qty;
-      items.push({ ...p, price: linePrice, qty, selectedVariant: variantName || undefined, cartKey: key });
+      items.push({ ...p, price: linePrice, originalPrice: linePrice < basePrice ? basePrice : undefined, discountPct: lineDiscPct, qty, selectedVariant: variantName || undefined, cartKey: key });
     });
-    return { total, count, items };
+    return { total, count, items, totalSavings };
   };
 
   // Scan all active localStorage carts to render on Marketplace explore tab
@@ -960,9 +982,18 @@ const UserDashboard = () => {
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       items.forEach(item => {
         const line = item.price * item.qty;
-        msg += `• *${item.name}*${item.selectedVariant ? ` (${item.selectedVariant})` : item.weight ? ` (${item.weight})` : ''}\n`;
-        msg += `  ${item.qty} × ₹${item.price} = *₹${line}*\n`;
+        const variantStr = item.selectedVariant ? ` (${item.selectedVariant})` : item.weight ? ` (${item.weight})` : '';
+        if (item.originalPrice) {
+          const origLine = item.originalPrice * item.qty;
+          msg += `• *${item.name}*${variantStr} (-${item.discountPct}% OFF)\n`;
+          msg += `  ${item.qty} × ~~₹${item.originalPrice}~~ ₹${item.price} = *₹${line}* ~~₹${origLine}~~\n`;
+        } else {
+          msg += `• *${item.name}*${variantStr}\n`;
+          msg += `  ${item.qty} × ₹${item.price} = *₹${line}*\n`;
+        }
       });
+      const { totalSavings } = getCartTotals();
+      if (totalSavings > 0) msg += `🎉 *You saved ₹${totalSavings}!*\n`;
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       msg += `💰 *TOTAL: ₹${total}*\n`;
       msg += `💳 *Payment:* ${paymentMethod === 'upi' ? '📱 UPI' : '💵 Cash'}\n`;
@@ -1400,9 +1431,15 @@ const UserDashboard = () => {
                         {/* Cart items scroll summary */}
                         <div style={{ maxHeight: '180px', overflowY: 'auto', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', marginBottom: '16px' }} className="custom-scroll">
                           {getCartTotals().items.map(i => (
-                            <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                              <span style={{ color: '#475569' }}>{i.name} <strong style={{ color: '#E11D48' }}>x{i.qty}</strong></span>
-                              <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                            <div key={i.cartKey || i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
+                              <span style={{ color: '#475569' }}>
+                                {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''} <strong style={{ color: '#E11D48' }}>x{i.qty}</strong>
+                                {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
+                              </span>
+                              <span style={{ textAlign: 'right' }}>
+                                {i.originalPrice && <span style={{ display: 'block', fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{i.originalPrice * i.qty}</span>}
+                                <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -1413,6 +1450,12 @@ const UserDashboard = () => {
                             <span>Total Items:</span>
                             <span>{getCartTotals().count} units</span>
                           </div>
+                          {getCartTotals().totalSavings > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#16A34A', fontWeight: 700, marginBottom: '6px' }}>
+                              <span>🎉 You're saving:</span>
+                              <span>₹{getCartTotals().totalSavings}</span>
+                            </div>
+                          )}
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: '800', color: '#4F46E5', borderTop: '2px dashed rgba(245,158,11,0.2)', paddingTop: '10px', marginBottom: '16px' }}>
                             <span>Payable Total:</span>
                             <span>₹{getCartTotals().total}</span>
@@ -3105,12 +3148,24 @@ const UserDashboard = () => {
             {/* Item summary lists */}
             <div style={{ maxHeight: '20vh', overflowY: 'auto', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '10px 14px', marginBottom: '16px' }} className="custom-scroll">
               {getCartTotals().items.map(i => (
-                <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                  <span style={{ color: '#475569' }}>{i.name} <strong style={{ color: '#64748B' }}>x{i.qty}</strong></span>
-                  <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                <div key={i.cartKey || i.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
+                  <span style={{ color: '#475569' }}>
+                    {i.name}{i.selectedVariant ? ` (${i.selectedVariant})` : ''} <strong style={{ color: '#64748B' }}>x{i.qty}</strong>
+                    {i.discountPct > 0 && <span style={{ marginLeft: 6, fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{i.discountPct}% OFF</span>}
+                  </span>
+                  <span style={{ textAlign: 'right' }}>
+                    {i.originalPrice && <span style={{ display: 'block', fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{i.originalPrice * i.qty}</span>}
+                    <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{i.price * i.qty}</span>
+                  </span>
                 </div>
               ))}
             </div>
+            {getCartTotals().totalSavings > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#16A34A', fontWeight: 700, marginBottom: '10px', padding: '0 2px' }}>
+                <span>🎉 You're saving:</span>
+                <span>₹{getCartTotals().totalSavings}</span>
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: '20px', fontWeight: '800', color: '#4F46E5', borderTop: '2px solid rgba(245,158,11,0.2)', marginBottom: '16px' }}>
               <span>TOTAL BILL</span>
