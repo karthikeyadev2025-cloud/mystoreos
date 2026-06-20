@@ -4147,18 +4147,30 @@ const ShopDashboard = () => {
 
       {activeTab === 'home' && (
         <>
-          {/* Search + Cart + Checkout renders FIRST — this is the actual,
-              direct fix for "POS at the bottom of the page" reported
-              multiple times. The previous fix only used CSS `order` to
-              reorder content INSIDE DesktopPOS's own internal columns —
-              but the Offer Banner / AI Insights / Stats Row / Action Grid
-              below were OUTSIDE DesktopPOS entirely, in this parent
-              component, rendering before it unconditionally. No CSS trick
-              inside the child component could ever reach back and reorder
-              content in the parent. Moving the actual JSX so DesktopPOS
-              (search bar at its own internal top) is the first thing in
-              the DOM, full stop — no order:-1 hacks needed, the real
-              source order now matches what's visually wanted. */}
+          {/* Compact alert chips — show ONLY if there's something actionable.
+              No banner, no stats grid, no quick-actions block. Cashier should
+              open the app and see the billing tool, not a dashboard. Stats /
+              insights live in the Reports tab on the bottom nav. Same chips
+              also act as one-tap shortcuts to fix the issue. */}
+          {(pendingOrders > 0 || products.filter(p => p.stock < (p.reorderLevel || 10)).length > 0) && (
+            <div style={{ display: 'flex', gap: '8px', padding: '10px 12px 0', overflowX: 'auto', flexWrap: 'nowrap' }}>
+              {pendingOrders > 0 && (
+                <button onClick={() => setActiveTab('bills')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                  <Receipt size={13} /> {pendingOrders} new {pendingOrders === 1 ? 'order' : 'orders'} →
+                </button>
+              )}
+              {(() => {
+                const low = products.filter(p => p.stock < (p.reorderLevel || 10));
+                if (!low.length) return null;
+                return (
+                  <button onClick={() => setActiveTab('products')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                    ⚠ {low.length} low stock →
+                  </button>
+                );
+              })()}
+            </div>
+          )}
+
           <DesktopPOS
             footerSlot={null}
             products={products}
@@ -4217,78 +4229,6 @@ const ShopDashboard = () => {
             onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
             onScanPopupClose={() => setScanPopupProduct(null)}
           />
-
-          {/* Offer Banner — now below the POS, not above it */}
-          {shopBanner?.active && shopBanner?.title && (
-            <div style={{ margin: '20px 12px 0', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>🏷️ {shopBanner.title}</div>
-                {shopBanner.subtitle && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginTop: '3px' }}>{shopBanner.subtitle}</div>}
-              </div>
-              {shopBanner.discountPercent > 0 && (
-                <div style={{ flexShrink: 0, background: '#fff', color: '#4F46E5', borderRadius: '10px', padding: '6px 14px', fontWeight: 900, fontSize: '18px' }}>{shopBanner.discountPercent}% OFF</div>
-              )}
-            </div>
-          )}
-
-          {/* AI Insights Card */}
-          {products.filter(p => p.stock < 10).length > 0 && (
-            <div style={{ margin: '12px', background: 'linear-gradient(145deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))', border: '1px solid #EF4444', borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <span style={{ fontSize: '24px' }}>🤖</span>
-              <div>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#FCA5A5' }}>AI Inventory Warning</h4>
-                <p style={{ margin: 0, fontSize: '11px', color: '#F87171' }}>
-                  You are running low on <b>{products.filter(p => p.stock < 10).map(p => p.name).join(', ')}</b>. Based on your weekend sales trend, you will run out by Sunday.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Stats Row */}
-          <div style={styles.statRow}>
-            <div style={styles.statBox} onClick={() => setActiveTab('bills')}><p style={{...styles.statNum, color: pendingOrders > 0 ? '#EF4444' : '#4F46E5'}}>{pendingOrders}</p><p style={styles.statLabel}>New Orders</p></div>
-            {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{sales}</p><p style={styles.statLabel}>Revenue</p></div>}
-            <div style={styles.statBox} onClick={() => setActiveTab('products')}><p style={styles.statNum}>{products.length}</p><p style={styles.statLabel}>Products</p></div>
-            {isOwner && <div style={styles.statBox}><p style={styles.statNum}>₹{payable}</p><p style={styles.statLabel}>Credit Due</p></div>}
-          </div>
-
-          {/* Action Grid */}
-          <div style={styles.grid}>
-            <div style={styles.gridBtn} onClick={() => setShowScanner(true)}>
-              <ScanLine size={24} color="#94A3B8" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Scan Bill</p><p style={styles.gridSub}>స్కాన్ బిల్</p></div>
-            </div>
-            {isOwner && (
-              <div style={styles.gridBtn} onClick={() => { setActiveTab('products'); setShowAddProductModal(true); }}>
-                <Plus size={24} color="#4F46E5" />
-                <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Add Product</p><p style={styles.gridSub}>కొత్త వస్తువు</p></div>
-              </div>
-            )}
-            {isOwner && (
-              <div style={styles.gridBtn} onClick={openBarcodeManager}>
-                <BarcodeIcon size={24} color="#4F46E5" />
-                <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Barcodes</p><p style={styles.gridSub}>బార్‌కోడ్</p></div>
-              </div>
-            )}
-            <div style={styles.gridBtn} onClick={handleShowUpiQr}>
-              <IndianRupee size={24} color="#F59E0B" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Receive Pay</p><p style={styles.gridSub}>UPI QR</p></div>
-            </div>
-            {isOwner && (
-              <div style={styles.gridBtn} onClick={() => setActiveTab('credit')}>
-                <Book size={24} color="#F59E0B" />
-                <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Credit Book</p><p style={styles.gridSub}>బకాయిలు</p></div>
-              </div>
-            )}
-            <div style={styles.gridBtn} onClick={() => setActiveTab('bills')}>
-              <Receipt size={24} color={pendingOrders > 0 ? "#EF4444" : "#94A3B8"} />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>All Bills</p><p style={styles.gridSub}>అన్ని బిల్లులు</p></div>
-            </div>
-            <div style={styles.gridBtn} onClick={handleShareShop}>
-              <Share2 size={24} color="#EF4444" />
-              <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Share Shop</p><p style={styles.gridSub}>Share Link</p></div>
-            </div>
-          </div>
         </>
       )}
 

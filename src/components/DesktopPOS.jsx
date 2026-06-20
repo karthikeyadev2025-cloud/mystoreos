@@ -379,7 +379,7 @@ const DesktopPOS = ({
       </div>
 
       {/* ── Right Column: POS Cart ── */}
-      <div ref={cartPanelRef} className="premium-glass pos-cart-panel" style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+      <div ref={cartPanelRef} className={`premium-glass pos-cart-panel ${billItems.length === 0 ? 'pos-cart-empty' : ''}`} style={{ borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', position: 'sticky', top: '0', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)', maxHeight: 'calc(100vh - 16px)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
 
         {/* ── PINNED TOP: Header + Billing Mode + Customer toggle ── */}
         <div style={{ padding: '16px 16px 0', flexShrink: 0 }}>

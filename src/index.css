@@ -131,6 +131,14 @@ body, #root {
     max-height: none !important;
     position: static !important;
   }
+  /* When the cart is empty on mobile, hide the entire cart panel — the
+     placeholder "Cart is Empty" card was just visual noise below the
+     products. Once the cashier adds a product the panel appears with
+     the bill, and the sticky "View Cart" bar provides the jump-to-cart
+     UX. Pure billing screen until there's a bill to show. */
+  .pos-cart-panel.pos-cart-empty {
+    display: none !important;
+  }
   .pos-cart-items {
     flex: none !important;
     overflow-y: visible !important;
@@ -213,13 +221,18 @@ body, #root {
   }
 
   /* Bigger, easier-to-tap search input on phone — this is the cashier's
-     #1 interaction during billing. */
+     #1 interaction during billing. Also sticky to the top of the scroll
+     so it stays one tap away while products scroll under it. */
   .pos-search-card input[type="text"] {
     font-size: 16px !important;        /* prevents iOS zoom-on-focus */
     padding: 14px 0 !important;
   }
   .pos-search-card {
     padding: 14px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: #FFFFFF !important;
   }
 
   /* The "Quick Shelf Explorer" card wrapping the product grid was
