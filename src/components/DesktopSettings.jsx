@@ -671,6 +671,8 @@ const DesktopSettings = ({
                   a.href = dataUrl;
                   a.download = 'store-qr.png';
                   a.click();
+                } else {
+                  toast.error('QR code not ready yet — please try again in a moment.');
                 }
               }}
               style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}

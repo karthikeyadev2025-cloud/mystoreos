@@ -3095,6 +3095,19 @@ const ShopDashboard = () => {
     return (
       <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
+        {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
+            downloadQrPng (passed down into DesktopSettings' "Your Store QR
+            Code" card). This is the DESKTOP render branch — ShopDashboard
+            has two separate top-level `return` statements gated by
+            isMobile, and DesktopSettings only ever renders from this one.
+            The earlier fix for this exact bug only added the canvas to the
+            MOBILE branch's return (further down in this file), so on
+            desktop posterQrRef.current was always null — the canvas that
+            would populate it was never being rendered at all, hence
+            "QR code not ready yet" firing every time on desktop. */}
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+          <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="#0F172A" bgColor="#FFFFFF" />
+        </div>
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
         )}
