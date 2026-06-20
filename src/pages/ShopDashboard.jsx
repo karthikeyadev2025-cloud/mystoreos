@@ -687,13 +687,29 @@ const ShopDashboard = () => {
       // not silently default to whatever the base `price` field happens
       // to be set to.
       const effectiveBasePrice = hasVariantPricing ? (Number(prod.variantPrices[0].price) || prod.price) : prod.price;
-      const salePrice = activeSale ? Math.round(effectiveBasePrice * (1 - sale.discount / 100)) : effectiveBasePrice;
+      // Standing label discount (set in Add/Edit Product, shown on the
+      // storefront and barcode labels) — was never read here at all, so a
+      // product with e.g. discountPct=20 billed at full price in the POS
+      // with zero visible discount, even though the storefront/label
+      // printer both correctly showed it. Flash sale (time-limited
+      // promotional push) takes priority over the standing discount when
+      // both happen to be set on the same product.
+      const standingDiscPct = Number(prod.discountPct) || 0;
+      const salePrice = activeSale
+        ? Math.round(effectiveBasePrice * (1 - sale.discount / 100))
+        : standingDiscPct > 0
+          ? Math.round(effectiveBasePrice * (1 - standingDiscPct / 100))
+          : effectiveBasePrice;
       const firstVariant = hasVariantPricing
         ? prod.variantPrices[0].name
         : (prod.variants ? prod.variants.split(',')[0].trim() : '');
-      const label = activeSale ? `🔥 ${prod.name} added (${sale.discount}% off!)` : `Added ${prod.name} to bill`;
+      const label = activeSale
+        ? `🔥 ${prod.name} added (${sale.discount}% off!)`
+        : standingDiscPct > 0
+          ? `🏷️ ${prod.name} added (${standingDiscPct}% off)`
+          : `Added ${prod.name} to bill`;
       toast.success(label, { autoClose: 1000 });
-      return [...prevItems, { ...prod, price: salePrice, originalPrice: activeSale ? effectiveBasePrice : undefined, basePrice: effectiveBasePrice, qty: 1, selectedVariant: firstVariant }];
+      return [...prevItems, { ...prod, price: salePrice, originalPrice: (activeSale || standingDiscPct > 0) ? effectiveBasePrice : undefined, basePrice: effectiveBasePrice, qty: 1, selectedVariant: firstVariant }];
     });
   }, [flashSales]);
 
@@ -5630,40 +5646,6 @@ const ShopDashboard = () => {
           <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <div id="reader" style={{ width: '100%' }}></div>
             <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Scan Product Popup */}
-      {scanPopupProduct && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setScanPopupProduct(null)}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '20px 20px 0 0', width: '100%', padding: '24px', boxShadow: '0 -8px 32px rgba(0,0,0,0.3)' }}>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#CBD5E1', margin: '0 auto 16px' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-              {(scanPopupProduct.image || (scanPopupProduct.images && scanPopupProduct.images[0])) && (
-                <img src={scanPopupProduct.image || scanPopupProduct.images[0]} alt="" style={{ width: 60, height: 60, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
-              )}
-              <div>
-                <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#0F172A' }}>{scanPopupProduct.name}</h2>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#4F46E5' }}>₹{scanPopupProduct.price}</span>
-                  <span style={{ fontSize: 12, color: (scanPopupProduct.stock || 0) <= 0 ? '#EF4444' : '#10B981', fontWeight: 600 }}>
-                    {(scanPopupProduct.stock || 0) <= 0 ? 'Out of stock' : `Stock: ${scanPopupProduct.stock}`}
-                  </span>
-                </div>
-              </div>
-            </div>
-            {scanPopupProduct.batchNumber && <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 4px' }}>Batch: {scanPopupProduct.batchNumber}</p>}
-            {scanPopupProduct.expiryDate && <p style={{ fontSize: 12, color: new Date(scanPopupProduct.expiryDate) < new Date() ? '#EF4444' : '#64748B', margin: '0 0 12px' }}>Expiry: {scanPopupProduct.expiryDate}</p>}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setScanPopupProduct(null)} style={{ flex: 1, padding: '13px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 12, fontWeight: 600, fontSize: 14, cursor: 'pointer', color: '#475569' }}>Cancel</button>
-              <button
-                disabled={(scanPopupProduct.stock || 0) <= 0}
-                onClick={() => { addToBill(scanPopupProduct); setScanPopupProduct(null); }}
-                style={{ flex: 2, padding: '13px', background: (scanPopupProduct.stock || 0) <= 0 ? '#CBD5E1' : 'linear-gradient(135deg,#4F46E5,#4338CA)', border: 'none', borderRadius: 12, fontWeight: 800, fontSize: 15, cursor: (scanPopupProduct.stock || 0) <= 0 ? 'not-allowed' : 'pointer', color: '#fff' }}>
-                + Add to Bill
-              </button>
-            </div>
           </div>
         </div>
       )}

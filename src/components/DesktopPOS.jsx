@@ -264,7 +264,13 @@ const DesktopPOS = ({
                     : name;
                   const sale = flashSales[p.id];
                   const activeSale = sale && new Date(sale.expiresAt) > new Date();
-                  const displayPrice = activeSale ? Math.round(p.price * (1 - sale.discount / 100)) : p.price;
+                  const standingDiscPct = Number(p.discountPct) || 0;
+                  const hasDiscount = activeSale || standingDiscPct > 0;
+                  const displayPrice = activeSale
+                    ? Math.round(p.price * (1 - sale.discount / 100))
+                    : standingDiscPct > 0
+                      ? Math.round(p.price * (1 - standingDiscPct / 100))
+                      : p.price;
                   return (
                     <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: idx === 0 ? '#EEF2FF' : '#F8FAFC', border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '10px', opacity: outOfStock ? 0.55 : 1 }}>
                       {(p.image || (p.images && p.images[0])) && (
@@ -273,8 +279,9 @@ const DesktopPOS = ({
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{highlighted}</div>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: activeSale ? '#EF4444' : '#4F46E5' }}>₹{displayPrice}</span>
-                          {activeSale && <span style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</span>}
+                          <span style={{ fontSize: 13, fontWeight: 800, color: hasDiscount ? '#EF4444' : '#4F46E5' }}>₹{displayPrice}</span>
+                          {hasDiscount && <span style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</span>}
+                          {!activeSale && standingDiscPct > 0 && <span style={{ fontSize: 10, background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>{standingDiscPct}% OFF</span>}
                           <span style={{ fontSize: 11, color: outOfStock ? '#EF4444' : p.stock < 5 ? '#F59E0B' : '#94A3B8' }}>
                             {outOfStock ? '● Out of stock' : p.stock < 5 ? `⚠ ${p.stock} left` : `Stock: ${p.stock}`}
                           </span>
@@ -300,15 +307,26 @@ const DesktopPOS = ({
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
               const activeSale = sale && new Date(sale.expiresAt) > new Date();
-              const salePrice  = activeSale ? Math.round(p.price * (1 - sale.discount / 100)) : null;
+              const standingDiscPct = Number(p.discountPct) || 0;
+              const hasDiscount = activeSale || standingDiscPct > 0;
+              const salePrice  = activeSale
+                ? Math.round(p.price * (1 - sale.discount / 100))
+                : standingDiscPct > 0
+                  ? Math.round(p.price * (1 - standingDiscPct / 100))
+                  : null;
               const minsLeft   = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel  = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               const outOfStock = (p.stock || 0) <= 0;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : activeSale ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : activeSale ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', opacity: outOfStock ? 0.6 : 1 }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', opacity: outOfStock ? 0.6 : 1 }}>
                   {activeSale && !outOfStock && (
                     <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
                       🔥 -{sale.discount}% · {timeLabel}
+                    </div>
+                  )}
+                  {!activeSale && standingDiscPct > 0 && !outOfStock && (
+                    <div style={{ position: 'absolute', top: '-8px', right: '10px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '800', padding: '2px 8px', borderRadius: '8px' }}>
+                      🏷️ -{standingDiscPct}%
                     </div>
                   )}
                   {outOfStock && (
@@ -321,7 +339,7 @@ const DesktopPOS = ({
                       <img src={p.image || p.images[0]} alt={p.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px', border: '1px solid #E2E8F0' }} />
                     )}
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>{p.name}</h4>
-                    {activeSale && !outOfStock ? (
+                    {hasDiscount && !outOfStock ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#EF4444' }}>₹{salePrice}</p>
                         <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{p.price}</p>
@@ -638,12 +656,23 @@ const DesktopPOS = ({
                 {(() => {
                   const sale = flashSales[scanPopupProduct.id];
                   const activeSale = sale && new Date(sale.expiresAt) > new Date();
-                  const salePrice = activeSale ? Math.round(scanPopupProduct.price * (1 - sale.discount / 100)) : null;
+                  const standingDiscPct = Number(scanPopupProduct.discountPct) || 0;
+                  const salePrice = activeSale
+                    ? Math.round(scanPopupProduct.price * (1 - sale.discount / 100))
+                    : standingDiscPct > 0
+                      ? Math.round(scanPopupProduct.price * (1 - standingDiscPct / 100))
+                      : null;
                   return activeSale ? (
                     <div>
                       <p style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: '#EF4444' }}>₹{salePrice}</p>
                       <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{scanPopupProduct.price}</p>
                       <span style={{ fontSize: '10px', background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>🔥 {sale.discount}% OFF</span>
+                    </div>
+                  ) : standingDiscPct > 0 ? (
+                    <div>
+                      <p style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: '#EF4444' }}>₹{salePrice}</p>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{scanPopupProduct.price}</p>
+                      <span style={{ fontSize: '10px', background: '#EF4444', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>🏷️ {standingDiscPct}% OFF</span>
                     </div>
                   ) : (
                     <p style={{ margin: 0, fontSize: '22px', fontWeight: '900', color: '#4F46E5' }}>₹{scanPopupProduct.price}</p>
