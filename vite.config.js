@@ -2,7 +2,15 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Stamped into the build so the running app can show exactly which build
+// is live — settles "is my fix actually deployed yet" without guessing
+// from screenshots or timestamps. Shown in Settings footer.
+const BUILD_STAMP = new Date().toISOString()
+
 export default defineConfig({
+  define: {
+    __BUILD_STAMP__: JSON.stringify(BUILD_STAMP),
+  },
   plugins: [
     react(),
     VitePWA({

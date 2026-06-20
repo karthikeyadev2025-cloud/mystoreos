@@ -974,6 +974,13 @@ const DesktopSettings = ({
           </div>
         )}
 
+        {/* Build stamp — lets us instantly confirm whether a given screen
+            is running the latest deployed code, without guessing from
+            screenshots or wall-clock timing against a git push. */}
+        <p style={{ textAlign: 'center', fontSize: '10px', color: '#CBD5E1', margin: '8px 0 0' }}>
+          Build: {typeof __BUILD_STAMP__ !== 'undefined' ? new Date(__BUILD_STAMP__).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'dev'}
+        </p>
+
     </div>
   );
 };
