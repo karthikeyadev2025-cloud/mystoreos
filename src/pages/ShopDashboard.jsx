@@ -206,6 +206,14 @@ const ShopDashboard = () => {
   const [merchantUpiId, setMerchantUpiId] = useState(user?.merchantUpiId || '');
   const [merchantCode, setMerchantCode] = useState(user?.merchantCode || '');
   const [logo, setLogo] = useState(user?.logo || '');
+  // The shop OWNER's profile. For owners this is just `user`; for staff
+  // it's the fetched owner record (user.staff_of). Used everywhere a bill,
+  // PDF, WhatsApp message, notification, or receipt needs to show the
+  // SHOP's name / GST / address / logo / UPI — not the logged-in staff
+  // person's. Without this, a staff-generated bill showed the staff's
+  // own name as the seller, which is wrong (the customer needs to see
+  // the shop name they're paying).
+  const [shopProfile, setShopProfile] = useState(user?.role === 'staff' ? null : user);
   const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
   const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
   const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
@@ -281,6 +289,12 @@ const ShopDashboard = () => {
   );
 
   const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
+  // `shop` is the record to read SHOP-level fields from (name, GST, logo,
+  // address, UPI, etc.). For owners this is just `user`. For staff, before
+  // shopProfile loads, fall back to `user` so the page doesn't crash —
+  // but once loadData runs (first thing on mount), shopProfile holds the
+  // real owner record and every bill/PDF/notification picks it up.
+  const shop = (user.role === 'staff' && shopProfile) ? shopProfile : user;
   const isOwner = user.role === 'shop' || user.role === 'admin';
 
   const { isOnline, pendingCount } = useOfflineSync();
@@ -357,7 +371,7 @@ const ShopDashboard = () => {
     if ('Notification' in window) {
       const show = () => {
         try {
-          new Notification(`🛒 New Order — ${user.name}`, {
+          new Notification(`🛒 New Order — ${shop.name}`, {
             body: `You have ${count} new order${count > 1 ? 's' : ''} waiting! Open MyStore OS to accept.`,
             icon: '/logo.png',
             badge: '/logo.png',
@@ -391,10 +405,22 @@ const ShopDashboard = () => {
     const ownerId = user.role === 'staff' ? user.staff_of : user.id;
     const freshOwner = await safe(() => api.getUserById(ownerId));
     if (freshOwner) {
+      // Save the entire owner record so staff billing paths can pull
+      // shop name, GST, address, logo, UPI etc. from the SHOP, not the
+      // logged-in staff member. For owners, this is just their own
+      // refreshed record (kept in sync the same way).
+      setShopProfile(freshOwner);
       // Update local state for display
       if (freshOwner.logo      !== undefined) setLogo(freshOwner.logo || '');
       if (freshOwner.paymentQr !== undefined) setPaymentQr(freshOwner.paymentQr || '');
       if (freshOwner.upiId     !== undefined) setUpiId(freshOwner.upiId || '');
+      // GST + address come from the SHOP owner's profile. A staff person
+      // doesn't have their own GST or shop address — these must reflect
+      // the shop they work at, or every bill they generate will be
+      // missing GST/address info that customers and the tax office need.
+      if (freshOwner.gstin           !== undefined) setGstin(freshOwner.gstin || '');
+      if (freshOwner.stateCode       !== undefined) setStateCode(freshOwner.stateCode || '');
+      if (freshOwner.businessAddress !== undefined) setBusinessAddress(freshOwner.businessAddress || '');
       // Merge into auth session so next render uses fresh data (non-destructive)
       if (user.role !== 'staff') {
         const cached = JSON.parse(localStorage.getItem('mystore_session') || '{}');
@@ -668,7 +694,7 @@ const ShopDashboard = () => {
     const custPhone = parts[2] || '';
     const upiIdForStore = upiId || user.upiId || '';
     // Use notify.js: WhatsApp Cloud API → wa.me fallback → SMS
-    sendCreditReminder(custPhone, custName, c.amount, user.name, upiIdForStore);
+    sendCreditReminder(custPhone, custName, c.amount, shop.name, upiIdForStore);
   };
 
   const handleLogout = () => {
@@ -933,14 +959,14 @@ const ShopDashboard = () => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(isThermal ? 11 : 18);
       doc.setTextColor(15, 23, 42);
-      doc.text(user.name, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
+      doc.text(shop.name, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += isThermal ? 6 : 7;
 
       // Contact line
       doc.setFont("helvetica", "normal");
       doc.setFontSize(isThermal ? 7 : 9);
       doc.setTextColor(100, 116, 139);
-      let contactLine = `Ph: ${user.phone}`;
+      let contactLine = `Ph: ${shop.phone}`;
       if (!isThermal && user.upiId) contactLine += `   |   UPI: ${user.upiId}`;
       doc.text(contactLine, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
@@ -1348,7 +1374,7 @@ const ShopDashboard = () => {
         doc.text('Trial Bill — Upgrade at mystoreos.in for professional invoices', 105, wY, { align: 'center' });
       }
 
-      const safeName = (user.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+      const safeName = (shop.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
       const pdfFileName = invoiceNo
         ? `${safeName}_${modeShort}-${invoiceNo}.pdf`
         : `${safeName}_${billingMode === 'estimate' ? 'Estimate' : billingMode === 'challan' ? 'Challan' : 'Invoice'}.pdf`;
@@ -1404,7 +1430,7 @@ const ShopDashboard = () => {
       // one-tap fallback for when the file sheet isn't supported or is
       // cancelled.
       if (hasFeature('whatsappShare')) {
-        let msg = `*${user.name}*\n`;
+        let msg = `*${shop.name}*\n`;
         if (billingMode === 'estimate') msg += `*PROFORMA ESTIMATE / QUOTATION*\n`;
         else if (billingMode === 'challan') msg += `*DELIVERY CHALLAN*\n`;
         else msg += `*TAX INVOICE / RECEIPT*\n`;
@@ -1439,7 +1465,7 @@ const ShopDashboard = () => {
         let upiUri = null;
         if (billingMode === 'bill' && upiId) {
           const ref = invoiceNo ? `Ref-${invoiceNo}` : ('ORD' + Date.now().toString().slice(-8));
-          const shopForUpi = { upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name };
+          const shopForUpi = { upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name };
           upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
           if (upiUri) {
             if (canTapToPay(shopForUpi)) {
@@ -1474,7 +1500,7 @@ const ShopDashboard = () => {
             await navigator.share({
               files: [pdfFile],
               title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
-              text: billingMode === 'estimate' ? `Here is your estimate from ${user.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${user.name}` : `Thank you for shopping at ${user.name}! Here is your bill.`),
+              text: billingMode === 'estimate' ? `Here is your estimate from ${shop.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${shop.name}` : `Thank you for shopping at ${shop.name}! Here is your bill.`),
             });
             doc.save(pdfFileName); // also keep a local copy on the shop's device
           } catch (shareErr) {
@@ -1508,7 +1534,7 @@ const ShopDashboard = () => {
       // the bill and WhatsApp couldn't be pre-filled.)
       // Auto-send via WhatsApp Cloud API if configured (silent — no browser tab opened)
       if (billingMode === 'bill' && customerPhone && hasWhatsAppAPI()) {
-        sendBillNotification(customerPhone, customerName || 'Customer', total, user.name, invoiceNo);
+        sendBillNotification(customerPhone, customerName || 'Customer', total, shop.name, invoiceNo);
       }
       setBillItems([]);
       setDiscountAmount(0);
@@ -1537,7 +1563,7 @@ const ShopDashboard = () => {
     if (o) {
       const decoded = decodeOrderUserId(o.userId);
       const customerPhone = decoded.phone;
-      const shopName = user.name;
+      const shopName = shop.name;
       const total = o.total;
       if (customerPhone) {
         const msg = `✅ *Order Accepted — ${shopName}*\n\nHi ${decoded.name || 'Customer'}! Your order of *₹${total}* has been accepted.\n\nPlease complete payment to confirm.\n\n_Powered by MyStore OS_`;
@@ -1561,7 +1587,7 @@ const ShopDashboard = () => {
       const decoded = decodeOrderUserId(o.userId);
       const customerPhone = decoded.phone;
       if (customerPhone) {
-        const msg = `💰 *Payment Confirmed — ${user.name}*\n\nHi ${decoded.name || 'Customer'}! Your payment of *₹${o.total}* has been verified.\n\n✅ Order is complete. Thank you for shopping!\n\n_Your bill has been saved. Login to mystoreos.in to view._`;
+        const msg = `💰 *Payment Confirmed — ${shop.name}*\n\nHi ${decoded.name || 'Customer'}! Your payment of *₹${o.total}* has been verified.\n\n✅ Order is complete. Thank you for shopping!\n\n_Your bill has been saved. Login to mystoreos.in to view._`;
         const cleanPhone = customerPhone.replace(/\D/g,'');
         const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
         window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1595,7 +1621,7 @@ const ShopDashboard = () => {
       const decoded = decodeOrderUserId(o.userId);
       if (decoded.phone) {
         const reasonLine = cancelReason.trim() ? `\nReason: ${cancelReason.trim()}` : '';
-        const msg = `❌ *Order Cancelled — ${user.name}*\n\nHi ${decoded.name || 'Customer'}, your order of *₹${o.total}* has been cancelled.${reasonLine}\n\nNo payment was taken for this order. Sorry for the inconvenience!\n\n_Powered by MyStore OS_`;
+        const msg = `❌ *Order Cancelled — ${shop.name}*\n\nHi ${decoded.name || 'Customer'}, your order of *₹${o.total}* has been cancelled.${reasonLine}\n\nNo payment was taken for this order. Sorry for the inconvenience!\n\n_Powered by MyStore OS_`;
         const cleanPhone = decoded.phone.replace(/\D/g, '');
         const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
         window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1847,7 +1873,7 @@ const ShopDashboard = () => {
     const distributorId = firstProd?.distributorId || null;
 
     try {
-      await safe(() => api.placeStockOrder(targetShopId, user.name, items, total, distributorId));
+      await safe(() => api.placeStockOrder(targetShopId, shop.name, items, total, distributorId));
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
       loadData();
@@ -1899,7 +1925,7 @@ const ShopDashboard = () => {
     const total = wholesaleProd.price * qty;
 
     try {
-      await safe(() => api.placeStockOrder(targetShopId, user.name, items, total, wholesaleProd.distributorId || null));
+      await safe(() => api.placeStockOrder(targetShopId, shop.name, items, total, wholesaleProd.distributorId || null));
       toast.success(`⚡ 1-Click Restock: Sent bulk order of "${wholesaleProd.name}" to Distributor!`);
       loadData();
     } catch {
@@ -2037,7 +2063,7 @@ const ShopDashboard = () => {
       if (decoded.phone) {
         const refundModeLabel = { cash: '💵 Cash', upi: '📱 UPI', card: '💳 Card', store_credit: '🎟️ Store Credit' }[returnRefundMode] || returnRefundMode;
         const itemLines = itemsToReturn.map(i => `• ${i.name} x${i.returnQty} — ₹${(i.price * i.returnQty).toFixed(2)}`).join('\n');
-        const msg = `↩️ *Return Processed — ${user.name}*\n\nHi ${decoded.name || 'Customer'}, your return has been processed:\n\n${itemLines}\n\n💰 *Refund Amount: ₹${refundAmount.toFixed(2)}*\nRefund Mode: ${refundModeLabel}\n\n${isFullReturn ? 'This bill has been fully returned.' : 'This was a partial return — your bill remains valid for the rest of the items.'}\n\n_Powered by MyStore OS_`;
+        const msg = `↩️ *Return Processed — ${shop.name}*\n\nHi ${decoded.name || 'Customer'}, your return has been processed:\n\n${itemLines}\n\n💰 *Refund Amount: ₹${refundAmount.toFixed(2)}*\nRefund Mode: ${refundModeLabel}\n\n${isFullReturn ? 'This bill has been fully returned.' : 'This was a partial return — your bill remains valid for the rest of the items.'}\n\n_Powered by MyStore OS_`;
         const cleanPhone = decoded.phone.replace(/\D/g, '');
         const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
         window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -2165,7 +2191,7 @@ const ShopDashboard = () => {
     doc.text('DIGITAL STOREFRONT', W / 2, 12, { align: 'center' });
 
     doc.setFontSize(22);
-    doc.text((user.name || 'Your Store').toUpperCase(), W / 2, 24, { align: 'center', maxWidth: W - 30 });
+    doc.text((shop.name || 'Your Store').toUpperCase(), W / 2, 24, { align: 'center', maxWidth: W - 30 });
 
     // ── White card body with soft shadow effect (concentric rounded
     //    rects at decreasing opacity) ─────────────────────────────────
@@ -2189,7 +2215,7 @@ const ShopDashboard = () => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
     doc.setTextColor(...sub);
-    const contactBits = [user.phone ? `Tel: ${user.phone}` : null, user.businessAddress || null].filter(Boolean);
+    const contactBits = [shop.phone ? `Tel: ${shop.phone}` : null, shop.businessAddress || null].filter(Boolean);
     if (contactBits.length) {
       doc.text(contactBits.join('   |   '), W / 2, y, { align: 'center', maxWidth: W - 36 });
       y += 12;
@@ -2285,7 +2311,7 @@ const ShopDashboard = () => {
     doc.setTextColor(...faint);
     doc.text('Paperless billing for Indian shops   |   mystoreos.in', W / 2, H - 10, { align: 'center' });
 
-    doc.save(`${(user.name || 'Shop').replace(/[^a-zA-Z0-9]/g, '_')}_QR_Poster.pdf`);
+    doc.save(`${(shop.name || 'Shop').replace(/[^a-zA-Z0-9]/g, '_')}_QR_Poster.pdf`);
     toast.success('Premium QR poster downloaded!');
   };
 
@@ -2305,7 +2331,7 @@ const ShopDashboard = () => {
     ctx.drawImage(qrCanvas, 0, 0, size, size);
     const a = document.createElement('a');
     a.href = canvas.toDataURL('image/png');
-    a.download = `${user.name}_QR.png`;
+    a.download = `${shop.name}_QR.png`;
     a.click();
     toast.success('QR downloaded as PNG');
   };
@@ -2568,13 +2594,13 @@ const ShopDashboard = () => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(printFontSize === 'large' ? (isThermal ? 13 : 20) : (isThermal ? 11 : 18));
       doc.setTextColor(15,23,42);
-      doc.text(user.name, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
+      doc.text(shop.name, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += isThermal ? 6 : 7;
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(isThermal ? 7 : 9);
       doc.setTextColor(100,116,139);
-      doc.text(`Ph: ${user.phone}`, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
+      doc.text(`Ph: ${shop.phone}`, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
 
       hy += isThermal ? 2 : 4;
@@ -2681,14 +2707,14 @@ const ShopDashboard = () => {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(isThermal ? 9 : 14);
         doc.setTextColor(tR,tG,tB);
-        doc.text(`COPY ${c+1} — ${user.name}`, isThermal ? pageW/2 : 105, isThermal ? 10 : 20, { align: 'center' });
+        doc.text(`COPY ${c+1} — ${shop.name}`, isThermal ? pageW/2 : 105, isThermal ? 10 : 20, { align: 'center' });
         doc.setFont("helvetica", "normal");
         doc.setFontSize(isThermal ? 7 : 9);
         doc.setTextColor(100,116,139);
         doc.text(`${modeTitle} | Total: Rs.${order.total}`, isThermal ? pageW/2 : 105, isThermal ? 17 : 30, { align: 'center' });
       }
 
-      const safeName = (user.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+      const safeName = (shop.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
       const fileName = `${safeName}_Receipt_${(order.id||'').slice(0,8)}.pdf`;
       const pdfBlob = doc.output('blob');
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
@@ -2854,7 +2880,7 @@ const ShopDashboard = () => {
 
   const handleShareShop = async () => {
     const url = getShopUrl();
-    const msg = `Check out ${user.name} on MyStore OS!\n${url}`;
+    const msg = `Check out ${shop.name} on MyStore OS!\n${url}`;
     
     // Attempt clipboard copying first for seamless UX
     try {
@@ -2868,7 +2894,7 @@ const ShopDashboard = () => {
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: user.name, text: msg, url });
+        await navigator.share({ title: shop.name, text: msg, url });
       } catch (shareErr) {
         // Safe fallback to WhatsApp if the user aborts or browser sharing fails
         if (shareErr && shareErr.name !== 'AbortError') {
@@ -3150,8 +3176,8 @@ const ShopDashboard = () => {
           isOwner={isOwner}
           pendingOrders={pendingOrders}
           handleLogout={handleLogout}
-          userName={user.name}
-          publicCode={user.publicCode}
+          userName={shop.name}
+          publicCode={shop.publicCode}
           syncStatus={{ isOnline, pendingCount }}
         />
 
@@ -3420,14 +3446,14 @@ const ShopDashboard = () => {
         {showPaymentQrModal && (paymentQr || upiId) && (
           <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
             <div onClick={e => e.stopPropagation()} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
-              <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
+              <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{shop.name}</h2>
               <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
               <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
                 {paymentQr ? (
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
                   <QRCodeSVG
-                    value={buildUpiUri({ upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
+                    value={buildUpiUri({ upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
                     size={240}
                   />
                 )}
@@ -3529,7 +3555,7 @@ const ShopDashboard = () => {
         {showBarcodeManager && (
           <BarcodeManager
             products={products}
-            shopName={user.name}
+            shopName={shop.name}
             shopId={targetShopId}
             getSiteConfig={api.getSiteConfig}
             saveSiteConfig={api.saveSiteConfig}
@@ -4121,8 +4147,8 @@ const ShopDashboard = () => {
             MyStore Pro
           </h2>
           <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#CBD5E1' }}>
-            {user.name}
-            {user?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {user.publicCode}</span>}
+            {shop.name}
+            {shop?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {shop.publicCode}</span>}
           </p>
           <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ADE80' : '#F87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
@@ -4225,7 +4251,7 @@ const ShopDashboard = () => {
               setShowScanner={setShowScanner}
               setActiveTab={setActiveTab}
               setShowAddProductModal={setShowAddProductModal}
-              shopName={user?.name || 'Your Shop'}
+              shopName={shop?.name || 'Your Shop'}
               isOwner={isOwner}
             />
           )}
@@ -4382,8 +4408,8 @@ const ShopDashboard = () => {
           <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             <div style={{ background: '#fff', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', overflowY: 'auto', maxHeight: '90vh' }}>
               <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '12px', marginBottom: '12px' }}>
-                <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{user.name}</h2>
-                <p style={{ margin: 0, fontSize: '12px' }}>Ph: {user.phone}</p>
+                <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{shop.name}</h2>
+                <p style={{ margin: 0, fontSize: '12px' }}>Ph: {shop.phone}</p>
                 <p style={{ margin: 0, fontSize: '12px' }}>{new Date(selectedOrder.date).toLocaleString()}</p>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', fontWeight: 'bold' }}>{receiptTitle} #{selectedOrder.id.split('_')[1]}</p>
               </div>
@@ -4699,7 +4725,7 @@ const ShopDashboard = () => {
                             if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
                             const ref = encodeURIComponent('Credit-' + (c.id || '').slice(0, 8));
                             const note = encodeURIComponent(`Payment to ${c.distName || 'Distributor'}`);
-                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(c.distName || user.name)}&am=${c.amount}&tn=${note}&tr=${ref}&cu=INR`, '_blank');
+                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(c.distName || shop.name)}&am=${c.amount}&tn=${note}&tr=${ref}&cu=INR`, '_blank');
                           }} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>
@@ -5035,8 +5061,8 @@ const ShopDashboard = () => {
                     <div style={{ position: 'absolute', right: 0, top: '44px', background: '#1E293B', border: '1px solid #334155', borderRadius: '10px', zIndex: 200, minWidth: '200px', overflow: 'hidden' }}
                       onMouseLeave={() => setTallyMenuOpen(false)}>
                       {[
-                        { label: '📥 Tally XML', action: () => { downloadTallyXML(orders.filter(o => o.status === 'completed'), user.name); setTallyMenuOpen(false); } },
-                        { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), user.gstNumber), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
+                        { label: '📥 Tally XML', action: () => { downloadTallyXML(orders.filter(o => o.status === 'completed'), shop.name); setTallyMenuOpen(false); } },
+                        { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), shop.gstNumber || shop.gstin), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                         { label: '📊 Monthly Summary', action: () => { downloadCSV(generateMonthlySummaryCSV(orders.filter(o => o.status === 'completed')), `Summary_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                       ].map(item => (
                         <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: '#F8FAFC', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
