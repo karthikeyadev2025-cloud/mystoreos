@@ -28,6 +28,7 @@ import DesktopTopBar from '../components/DesktopTopBar';
 import DesktopSidebar from '../components/DesktopSidebar';
 import DesktopPOS from '../components/DesktopPOS';
 import MobilePOS from '../components/MobilePOS';
+import MobileDashboard from '../components/MobileDashboard';
 import DesktopInventory from '../components/DesktopInventory';
 import ProductImageUploader from '../components/ProductImageUploader';
 import DesktopBills from '../components/DesktopBills';
@@ -155,6 +156,7 @@ const ShopDashboard = () => {
   const [newProdSku, setNewProdSku] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+  const [showMobileDashboard, setShowMobileDashboard] = useState(false);
 
   // Edit Product Modal State
   const [showEditProductModal, setShowEditProductModal] = useState(false);
@@ -4199,7 +4201,32 @@ const ShopDashboard = () => {
             billTotal={billTotal}
             onCheckout={sendWhatsAppBill}
             onClearCart={clearCart}
+            onOpenDashboard={() => setShowMobileDashboard(true)}
           />
+          {showMobileDashboard && (
+            <MobileDashboard
+              onClose={() => setShowMobileDashboard(false)}
+              products={products}
+              sales={sales}
+              pendingOrders={pendingOrders}
+              payable={payable}
+              dailyTarget={dailyTarget}
+              handleSetDailyTarget={handleSetDailyTarget}
+              todayBillsCount={Array.isArray(orders) ? orders.filter(b => {
+                if (!b?.created_at && !b?.createdAt) return false;
+                const d = new Date(b.created_at || b.createdAt);
+                const now = new Date();
+                return d.toDateString() === now.toDateString();
+              }).length : 0}
+              handleShowUpiQr={handleShowUpiQr}
+              handleShareShop={handleShareShop}
+              setShowScanner={setShowScanner}
+              setActiveTab={setActiveTab}
+              setShowAddProductModal={setShowAddProductModal}
+              shopName={user?.name || 'Your Shop'}
+              isOwner={isOwner}
+            />
+          )}
         </>
       )}
 

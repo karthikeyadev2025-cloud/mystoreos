@@ -12,7 +12,7 @@
  * No bottom sheets, no hidden states — the cashier always sees the bill.
  */
 import { useState } from 'react';
-import { Search, ScanLine, Plus, X, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, ScanLine, Plus, X, Trash2, ChevronUp, ChevronDown, Receipt, BarChart3 } from 'lucide-react';
 
 export default function MobilePOS({
   products,
@@ -37,6 +37,7 @@ export default function MobilePOS({
   billTotal,
   onCheckout,
   onClearCart,
+  onOpenDashboard,
 }) {
   // Expand/collapse the bill list — auto-expands when items > 0, but the
   // cashier can collapse it manually to see more products.
@@ -77,30 +78,39 @@ export default function MobilePOS({
         <button onClick={() => setShowScanner(true)} aria-label="Scan barcode" style={{ flexShrink: 0, width: 44, height: 44, borderRadius: '10px', background: '#4F46E5', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
           <ScanLine size={20} />
         </button>
+        {isOwner && onOpenDashboard && (
+          <button onClick={onOpenDashboard} aria-label="Open dashboard" style={{ flexShrink: 0, width: 44, height: 44, borderRadius: '10px', background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <BarChart3 size={19} />
+          </button>
+        )}
       </div>
 
       {/* ─── 2. POS TERMINAL — visible right under search ─── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '8px solid #F1F5F9', boxShadow: '0 2px 6px rgba(15,23,42,0.04)' }}>
+      <div style={{ margin: '10px 10px 0', background: '#FFFFFF', borderRadius: 14, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
 
-        {/* Terminal header */}
-        <div style={{ padding: '12px 14px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 14 }}>🧾</span>
+        {/* Terminal gradient header — looks like a real cash drawer / POS device */}
+        <div style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #4338CA 100%)', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+          {/* Subtle pattern overlay for texture */}
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.08, background: 'radial-gradient(circle at top right, #fff 0%, transparent 50%)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <Receipt size={17} color="#fff" />
             </div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>POS Terminal</div>
-              <div style={{ fontSize: 11, color: '#64748B' }}>{itemCount === 0 ? 'No items yet' : `${itemCount} ${itemCount === 1 ? 'item' : 'items'} · ₹${finalTotal}`}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', letterSpacing: '0.3px' }}>POS TERMINAL</div>
+              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
+                {itemCount === 0 ? 'Ready · Tap a product to start' : `${itemCount} ${itemCount === 1 ? 'item' : 'items'} in bill`}
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6, position: 'relative' }}>
             {itemCount > 0 && (
-              <button onClick={() => { if (confirm('Clear bill?')) onClearCart && onClearCart(); }} aria-label="Clear bill" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <Trash2 size={12} /> Clear
+              <button onClick={() => { if (confirm('Clear this bill?')) onClearCart && onClearCart(); }} aria-label="Clear bill" style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(4px)' }}>
+                <Trash2 size={11} /> Clear
               </button>
             )}
-            <button onClick={() => setBillExpanded(v => !v)} aria-label={billExpanded ? 'Collapse bill' : 'Expand bill'} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
-              {billExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <button onClick={() => setBillExpanded(v => !v)} aria-label={billExpanded ? 'Collapse' : 'Expand'} style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', backdropFilter: 'blur(4px)' }}>
+              {billExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </button>
           </div>
         </div>
@@ -109,24 +119,29 @@ export default function MobilePOS({
           <>
             {/* Bill items list */}
             {billItems.length === 0 ? (
-              <div style={{ padding: '14px 14px 18px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
-                Search or scan a product to start a bill
+              <div style={{ padding: '20px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 30, opacity: 0.35 }}>🛒</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Bill is empty</div>
+                <div style={{ fontSize: 11, color: '#94A3B8' }}>Search a product or tap one below to add</div>
               </div>
             ) : (
-              <div style={{ maxHeight: '32vh', overflowY: 'auto', borderTop: '1px solid #F1F5F9' }}>
-                {billItems.map(item => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ maxHeight: '28vh', overflowY: 'auto' }}>
+                {billItems.map((item, idx) => (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: idx === billItems.length - 1 ? 'none' : '1px solid #F1F5F9', background: '#FFFFFF' }}>
+                    <div style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 6, background: '#EEF2FF', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
+                      {idx + 1}
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                      <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>₹{item.price} × {item.qty} = ₹{item.price * item.qty}</div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                      <div style={{ fontSize: 11, color: '#64748B', marginTop: 1 }}>₹{item.price} × {item.qty} <span style={{ color: '#94A3B8' }}>=</span> <span style={{ fontWeight: 700, color: '#0F172A' }}>₹{item.price * item.qty}</span></div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 8, padding: 2 }}>
-                      <button onClick={() => updateBillItemQty(item.id, -1)} aria-label="Decrease" style={{ width: 30, height: 30, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>−</button>
-                      <span style={{ minWidth: 26, textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{item.qty}</span>
-                      <button onClick={() => updateBillItemQty(item.id, 1)} aria-label="Increase" style={{ width: 30, height: 30, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>+</button>
+                      <button onClick={() => updateBillItemQty(item.id, -1)} aria-label="Decrease" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>−</button>
+                      <span style={{ minWidth: 24, textAlign: 'center', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{item.qty}</span>
+                      <button onClick={() => updateBillItemQty(item.id, 1)} aria-label="Increase" style={{ width: 28, height: 28, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, color: '#4F46E5', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>+</button>
                     </div>
-                    <button onClick={() => removeBillItem(item.id)} aria-label="Remove" style={{ background: 'transparent', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: 4 }}>
-                      <Trash2 size={14} />
+                    <button onClick={() => removeBillItem(item.id)} aria-label="Remove" style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4 }}>
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 ))}
@@ -135,76 +150,113 @@ export default function MobilePOS({
 
             {/* Customer + payment + discount (compact, only visible when items exist) */}
             {itemCount > 0 && (
-              <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #F1F5F9', background: '#FAFAFB' }}>
-                {/* Customer name + phone in one row */}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    type="text"
-                    placeholder="Customer name (optional)"
-                    value={customerName || ''}
-                    onChange={e => setCustomerName && setCustomerName(e.target.value)}
-                    style={{ flex: 1, minWidth: 0, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, color: '#0F172A' }}
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Phone"
-                    value={customerPhone || ''}
-                    onChange={e => setCustomerPhone && setCustomerPhone(e.target.value)}
-                    inputMode="tel"
-                    style={{ flex: 1, minWidth: 0, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, color: '#0F172A' }}
-                  />
-                </div>
+              <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10, borderTop: '1px solid #F1F5F9', background: '#F8FAFC' }}>
 
-                {/* Payment method — 4 segmented buttons */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-                  {[
-                    { key: 'Cash', label: 'Cash', color: '#10B981' },
-                    { key: 'UPI', label: 'UPI', color: '#4F46E5' },
-                    { key: 'Card', label: 'Card', color: '#0EA5E9' },
-                    { key: 'Credit', label: 'Credit', color: '#F59E0B' },
-                  ].map(p => (
-                    <button
-                      key={p.key}
-                      onClick={() => setPaymentMethod && setPaymentMethod(p.key)}
-                      style={{
-                        padding: '8px 4px',
-                        background: paymentMethod === p.key ? `${p.color}14` : '#FFFFFF',
-                        border: paymentMethod === p.key ? `2px solid ${p.color}` : '1px solid #E2E8F0',
-                        color: paymentMethod === p.key ? p.color : '#475569',
-                        borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                      }}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Discount % + Total in one row */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8 }}>
-                    <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>Disc %</span>
+                {/* Customer name + phone */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 5 }}>Customer</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
                     <input
-                      type="number"
-                      placeholder="0"
-                      value={manualDiscountPct || ''}
-                      onChange={e => setManualDiscountPct && setManualDiscountPct(e.target.value)}
-                      inputMode="decimal"
-                      min="0" max="100"
-                      style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: '#0F172A', textAlign: 'right' }}
+                      type="text"
+                      placeholder="Name"
+                      value={customerName || ''}
+                      onChange={e => setCustomerName && setCustomerName(e.target.value)}
+                      style={{ flex: 1.2, minWidth: 0, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13.5, color: '#0F172A', outline: 'none' }}
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Phone"
+                      value={customerPhone || ''}
+                      onChange={e => setCustomerPhone && setCustomerPhone(e.target.value)}
+                      inputMode="tel"
+                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13.5, color: '#0F172A', outline: 'none' }}
                     />
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 10, color: '#64748B', fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase' }}>Total</div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: '#0F172A' }}>₹{finalTotal}</div>
+                </div>
+
+                {/* Payment method — 4 segmented buttons with icons */}
+                <div>
+                  <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 5 }}>Payment Method</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 4 }}>
+                    {[
+                      { key: 'Cash', label: 'Cash', icon: '💵', color: '#10B981' },
+                      { key: 'UPI', label: 'UPI', icon: '📱', color: '#4F46E5' },
+                      { key: 'Card', label: 'Card', icon: '💳', color: '#0EA5E9' },
+                      { key: 'Credit', label: 'Credit', icon: '📒', color: '#F59E0B' },
+                    ].map(p => {
+                      const selected = paymentMethod === p.key;
+                      return (
+                        <button
+                          key={p.key}
+                          onClick={() => setPaymentMethod && setPaymentMethod(p.key)}
+                          style={{
+                            padding: '8px 4px',
+                            background: selected ? p.color : 'transparent',
+                            border: 'none',
+                            color: selected ? '#fff' : '#64748B',
+                            borderRadius: 6,
+                            fontSize: 11.5, fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                            transition: 'all .15s',
+                            boxShadow: selected ? `0 2px 6px ${p.color}55` : 'none',
+                          }}
+                        >
+                          <span style={{ fontSize: 14, lineHeight: 1 }}>{p.icon}</span>
+                          <span>{p.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Discount + Subtotal/Discount/Total summary */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>Subtotal</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>₹{billTotal || 0}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
+                    <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      Discount
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={manualDiscountPct || ''}
+                        onChange={e => setManualDiscountPct && setManualDiscountPct(e.target.value)}
+                        inputMode="decimal"
+                        min="0" max="100"
+                        style={{ width: 38, padding: '2px 4px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 4, fontSize: 12, color: '#0F172A', textAlign: 'center', outline: 'none' }}
+                      />
+                      %
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>−₹{(discountAmount || 0) + (manualDiscountAmt || 0)}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: 8 }}>
+                    <span style={{ fontSize: 13, color: '#0F172A', fontWeight: 800 }}>TOTAL</span>
+                    <span style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.5px' }}>₹{finalTotal}</span>
                   </div>
                 </div>
 
                 {/* Generate Bill button */}
                 <button
                   onClick={() => onCheckout && onCheckout()}
-                  style={{ width: '100%', background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', border: 'none', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.3)' }}
+                  style={{
+                    width: '100%',
+                    background: 'linear-gradient(135deg,#10B981,#059669)',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '14px',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    letterSpacing: '0.3px',
+                  }}
                 >
-                  Generate Bill →
+                  ✓ Generate Bill · ₹{finalTotal}
                 </button>
               </div>
             )}
