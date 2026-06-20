@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSiteConfig } from '../lib/siteConfig';
 import { api } from '../lib/api';
 import LandingNav from '../components/landing/LandingNav';
+import LandingPromoBar, { DEFAULT_PROMO } from '../components/landing/LandingPromoBar';
 import LandingHero from '../components/landing/LandingHero';
 import LandingWhoFor from '../components/landing/LandingWhoFor';
 import LandingStats from '../components/landing/LandingStats';
@@ -71,6 +72,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { config } = useSiteConfig();
   const [hero, setHero] = useState(DEFAULT_HERO);
+  const [promo, setPromo] = useState(DEFAULT_PROMO);
   const [stats, setStats] = useState(DEFAULT_STATS);
   const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS);
   const [faq, setFaq] = useState(DEFAULT_FAQ);
@@ -80,6 +82,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     safe(() => api.getSiteConfig('landingHero', DEFAULT_HERO)).then(d => d && setHero(d));
+    safe(() => api.getSiteConfig('landingPromo', DEFAULT_PROMO)).then(d => d && setPromo(d));
     safe(() => api.getSiteConfig('landingStats', DEFAULT_STATS)).then(d => d && setStats(d));
     safe(() => api.getSiteConfig('landingTestimonials', DEFAULT_TESTIMONIALS)).then(d => d && setTestimonials(d));
     safe(() => api.getSiteConfig('landingFAQ', DEFAULT_FAQ)).then(d => d && setFaq(d));
@@ -111,6 +114,7 @@ export default function LandingPage() {
   return (
     <div style={{ background: '#030712', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif', overflowX: 'hidden', minWidth: 375 }}>
       <style>{GCSS}</style>
+      <LandingPromoBar promo={promo} navigate={navigate} />
       <LandingNav config={config} navigate={navigate} />
       <LandingHero hero={hero} navigate={navigate} config={config} />
       <LandingWhoFor />
