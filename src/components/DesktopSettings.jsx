@@ -108,7 +108,14 @@ const DesktopSettings = ({
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const img = new Image();
+      // window.Image explicitly — plain `new Image()` here was resolving to
+      // the lucide-react <Image> ICON component imported at the top of this
+      // file (named import shadowed the global), not the browser's native
+      // Image constructor. That threw "Image is not a constructor" the
+      // instant a file was picked, silently breaking every desktop logo
+      // upload — the click/file-picker worked fine, but the resize step
+      // that's supposed to run right after crashed before saving anything.
+      const img = new window.Image();
       img.onload = () => {
         const ratio = Math.min(400 / img.width, 400 / img.height, 1);
         const canvas = document.createElement('canvas');

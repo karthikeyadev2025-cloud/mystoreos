@@ -105,8 +105,16 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
 
   // ── Discount calculation ───────────────────────────────────────────────────
   // Priority: p.discountPct (set by owner in product form) > p.mrp (legacy)
+  const hasVariantPricing = Array.isArray(p.variantPrices) && p.variantPrices.length > 0;
+  // For variant-priced products, anchor the card's headline price to the
+  // CHEAPEST variant (typical "from ₹X" retail convention) rather than the
+  // shared base `price` field, which is now just a fallback reference.
+  const anchorPrice = hasVariantPricing
+    ? Math.min(...p.variantPrices.map(v => Number(v.price) || Infinity))
+    : Number(p.price) || 0;
+
   let discPct = 0;
-  let displayPrice = Number(p.price) || 0;
+  let displayPrice = anchorPrice;
   let originalPrice = null;
 
   if (p.discountPct && Number(p.discountPct) > 0) {
@@ -114,13 +122,23 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
     discPct = Number(p.discountPct);
     originalPrice = displayPrice;
     displayPrice = Math.round(originalPrice * (1 - discPct / 100));
-  } else if (p.mrp && Number(p.mrp) > Number(p.price)) {
+  } else if (p.mrp && Number(p.mrp) > anchorPrice) {
     // Legacy MRP field
     originalPrice = Number(p.mrp);
     discPct = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
   }
 
   const outOfStock = (p.stock ?? 999) <= 0;
+  // Card quick-add can't know which variant the shopper wants — for
+  // variant-priced products, ADD opens the detail view's proper picker
+  // instead of silently guessing (was a real billing-accuracy risk: a
+  // bare "+" would previously add at the single shared price regardless
+  // of which variant was actually meant).
+  const handleQuickAdd = () => {
+    if (outOfStock) return;
+    if (hasVariantPricing) { onOpen?.(p); return; }
+    updateQty(p.id, 1);
+  };
 
   return (
     <div
@@ -218,9 +236,14 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
           {p.name}
         </h3>
 
-        {(p.weight || p.unit) && (
+        {(p.weight || p.unit) && !hasVariantPricing && (
           <p style={{ fontSize: 11, color: '#94A3B8', margin: 0 }}>
             {p.weight || p.unit}
+          </p>
+        )}
+        {hasVariantPricing && (
+          <p style={{ fontSize: 10, color: '#94A3B8', margin: 0, fontWeight: 600 }}>
+            {p.variantPrices.length} sizes available
           </p>
         )}
 
@@ -230,6 +253,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             // Has discount — show MRP crossed + final price + savings
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                {hasVariantPricing && <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>from</span>}
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
                   ₹{displayPrice}
                 </span>
@@ -243,13 +267,19 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             </div>
           ) : (
             <span style={{ fontSize: 16, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+              {hasVariantPricing && <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, marginRight: 4 }}>from</span>}
               ₹{displayPrice}
             </span>
           )}
         </div>
 
-        {/* Add / Qty button */}
-        {qty > 0 ? (
+        {/* Add / Qty button — for variant products, qty here reflects only
+            the bare-product-id cart key, which is never used once a
+            product has variant pricing (each variant gets its own compound
+            cart key, tracked/shown inside the detail view's picker
+            instead) — so variant products always show ADD, which opens
+            the detail sheet rather than guessing a variant. */}
+        {!hasVariantPricing && qty > 0 ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 36, background: '#4F46E5', borderRadius: 10, marginTop: 6 }}>
             <button
               aria-label="Remove one"
@@ -267,7 +297,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
           <button
             className="sfpc-add"
             disabled={outOfStock}
-            onClick={() => !outOfStock && updateQty(p.id, 1)}
+            onClick={handleQuickAdd}
             style={{
               height: 36, marginTop: 6,
               background: outOfStock ? '#F1F5F9' : '#FFFFFF',
@@ -279,7 +309,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
               width: '100%',
             }}
           >
-            {outOfStock ? 'Unavailable' : 'ADD'}
+            {outOfStock ? 'Unavailable' : hasVariantPricing ? 'SELECT SIZE' : 'ADD'}
           </button>
         )}
       </div>

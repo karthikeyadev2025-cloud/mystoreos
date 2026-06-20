@@ -15,7 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
-import { buildUpiUri } from '../lib/upi';
+import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -386,6 +386,15 @@ const ShopDashboard = () => {
           const v = freshOwner[k];
           if (v !== null && v !== undefined && v !== '') merged[k] = v;
         }
+        // logo/paymentQr/upiId must sync EXACTLY (including being cleared to
+        // empty on removal) — the generic skip-empty-values rule above is
+        // right for fields like name/phone (never overwrite with blank by
+        // accident), but it was the reason a removed/changed logo kept
+        // showing the old cached value: an empty string from the DB was
+        // never allowed to overwrite the stale cached base64 string.
+        merged.logo = freshOwner.logo || '';
+        merged.paymentQr = freshOwner.paymentQr || '';
+        merged.upiId = freshOwner.upiId || '';
         try { localStorage.setItem('mystore_session', JSON.stringify(merged)); } catch {}
       }
     }
@@ -1388,8 +1397,24 @@ const ShopDashboard = () => {
         const totalSavedWA = itemLevelSavings + discountAmount + manualDiscountAmt + loyaltyDiscountRupees;
         if (totalSavedWA > 0) msg += `🎉 *You saved Rs.${totalSavedWA} on this ${billingMode === 'estimate' ? 'estimate' : billingMode === 'challan' ? 'challan' : 'bill'}!*\n`;
         if (billingMode === 'bill' && upiId) {
-          const ref = encodeURIComponent(invoiceNo ? `Ref-${invoiceNo}` : 'ORD');
-          msg += `\nPay instantly via UPI: upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${ref}&cu=INR (enter Rs.${total})\n`;
+          const ref = invoiceNo ? `Ref-${invoiceNo}` : ('ORD' + Date.now().toString().slice(-8));
+          const shopForUpi = { upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name };
+          const upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
+          if (upiUri) {
+            if (canTapToPay(shopForUpi)) {
+              // Merchant VPA — UPI apps allow the amount to be embedded in
+              // a tap link, so the customer just taps and confirms.
+              msg += `\n💳 *Tap to Pay ₹${total}:* ${upiUri}\n`;
+            } else {
+              // Personal VPA — NPCI/UPI app policy does not allow a
+              // tap/link-initiated payment carrying a pre-filled amount to
+              // a personal VPA (only merchant VPAs may do that). This is a
+              // real platform rule, not a limitation of this app — so for
+              // personal VPAs we ask the customer to enter the amount
+              // themselves, which is the only compliant way to do this.
+              msg += `\n📱 *Pay via UPI:* ${upiUri}\n_(Please enter ₹${total} when prompted — UPI apps don't allow amount-prefill for personal UPI IDs)_\n`;
+            }
+          }
         }
         msg += `\n_📎 Bill PDF saved on shop device — attach if needed._`;
 
@@ -2555,13 +2580,19 @@ const ShopDashboard = () => {
 
   const handleLogoChange = async (base64) => {
     setLogo(base64);
-    await safe(() => api.updateProfile(user.id, { logo: base64 }));
+    // Always write to the SHOP's row (targetShopId), not the calling
+    // user's own row — for a staff session, user.id is the staff
+    // member's own account, which nobody else reads from. Writing there
+    // silently saved the logo to an irrelevant row and made it look like
+    // the upload "did nothing" / kept showing the old logo to everyone
+    // else (owner, storefront, bills) who only ever reads the owner's row.
+    await safe(() => api.updateProfile(targetShopId, { logo: base64 }));
     toast.success('Logo updated!');
   };
 
   const handleLogoRemove = async () => {
     setLogo('');
-    await safe(() => api.updateProfile(user.id, { logo: '' }));
+    await safe(() => api.updateProfile(targetShopId, { logo: '' }));
     toast.success('Logo removed');
   };
 
@@ -4622,7 +4653,9 @@ const ShopDashboard = () => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => {
                             if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
-                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&tn=${encodeURIComponent('Credit-' + (c.id||'').slice(0,8))}&cu=INR`, '_blank');
+                            const ref = encodeURIComponent('Credit-' + (c.id || '').slice(0, 8));
+                            const note = encodeURIComponent(`Payment to ${c.distName || 'Distributor'}`);
+                            window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(c.distName || user.name)}&am=${c.amount}&tn=${note}&tr=${ref}&cu=INR`, '_blank');
                           }} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>

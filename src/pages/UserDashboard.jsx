@@ -636,11 +636,19 @@ const UserDashboard = () => {
   };
 
   // Persistent multi-store cart partition actions
-  const updateQty = (id, change) => {
+  // Cart is keyed by product.id for ordinary products (unchanged, zero risk
+  // to all existing behavior) — and by `${productId}::${variantName}` for
+  // products with structured per-variant pricing (e.g. Rice Bag 5kg vs
+  // 20kg), since those are genuinely different priced line items that must
+  // be tracked and billed separately, not merged into one quantity bucket.
+  const cartKey = (id, variant) => (variant ? `${id}::${variant}` : id);
+
+  const updateQty = (id, change, variant) => {
+    const key = cartKey(id, variant);
     setCart(prev => {
-      const current = prev[id] || 0;
+      const current = prev[key] || 0;
       const next = Math.max(0, current + change);
-      const updatedCart = { ...prev, [id]: next };
+      const updatedCart = { ...prev, [key]: next };
       
       // Save updated cart to localStorage global carts ledger
       try {
@@ -659,12 +667,20 @@ const UserDashboard = () => {
     let total = 0;
     let count = 0;
     const items = [];
-    products.forEach(p => {
-      if (cart[p.id]) {
-        total += p.price * cart[p.id];
-        count += cart[p.id];
-        items.push({ ...p, qty: cart[p.id] });
+    Object.keys(cart).forEach(key => {
+      const qty = cart[key];
+      if (!qty) return;
+      const [productId, variantName] = key.split('::');
+      const p = products.find(pp => pp.id === productId);
+      if (!p) return; // product no longer exists/loaded — skip safely
+      let linePrice = p.price;
+      if (variantName && Array.isArray(p.variantPrices)) {
+        const v = p.variantPrices.find(vv => vv.name === variantName);
+        if (v) linePrice = Number(v.price) || p.price;
       }
+      total += linePrice * qty;
+      count += qty;
+      items.push({ ...p, price: linePrice, qty, selectedVariant: variantName || undefined, cartKey: key });
     });
     return { total, count, items };
   };
@@ -944,7 +960,7 @@ const UserDashboard = () => {
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       items.forEach(item => {
         const line = item.price * item.qty;
-        msg += `• *${item.name}*${item.weight ? ` (${item.weight})` : ''}\n`;
+        msg += `• *${item.name}*${item.selectedVariant ? ` (${item.selectedVariant})` : item.weight ? ` (${item.weight})` : ''}\n`;
         msg += `  ${item.qty} × ₹${item.price} = *₹${line}*\n`;
       });
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -1164,7 +1180,7 @@ const UserDashboard = () => {
       <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
         {detailProduct && (
-          <StorefrontProductDetail product={detailProduct} qty={cart[detailProduct.id] || 0} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
+          <StorefrontProductDetail product={detailProduct} cart={cart} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
         )}
 
         {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
@@ -1477,24 +1493,26 @@ const UserDashboard = () => {
                           </div>
                         )}
 
-                        {/* Guest onboarding inline details */}
+                        {/* Unauthenticated checkout — route to the real
+                            registration flow (name + phone + password),
+                            not a dead-end inline form. The old version
+                            here had its own bare name/phone fields with NO
+                            password and called sendWhatsAppOrder directly,
+                            which silently did nothing (sendWhatsAppOrder
+                            requires `user` to be set) — a real dead end
+                            for any customer who landed on this particular
+                            checkout panel. */}
                         {!user && (
-                          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
-                            <h4 style={{ fontSize: '12px', color: '#64748B', marginBottom: '10px', fontWeight: 'bold' }}>One-Time Guest Checkout Details</h4>
-                            <input 
-                              type="text" 
-                              placeholder="Your Full Name" 
-                              value={guestName} 
-                              onChange={e=>setGuestName(e.target.value)} 
-                              style={{ padding: '10px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', marginBottom: '8px', outline: 'none' }} 
-                            />
-                            <input 
-                              type="tel" 
-                              placeholder="10-Digit Mobile Number" 
-                              value={guestPhone} 
-                              onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} 
-                              style={{ padding: '10px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', marginBottom: '0', outline: 'none' }} 
-                            />
+                          <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                            <p style={{ fontSize: '13px', color: '#4F46E5', fontWeight: '700', margin: '0 0 10px' }}>
+                              👤 Create a free account to place this order
+                            </p>
+                            <button
+                              onClick={() => setShowGuestModal(true)}
+                              style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}
+                            >
+                              Sign Up &amp; Continue
+                            </button>
                           </div>
                         )}
 
@@ -1512,10 +1530,10 @@ const UserDashboard = () => {
 
                         {/* Place Order Trigger */}
                         <button 
-                          onClick={sendWhatsAppOrder} 
+                          onClick={() => { if (!user) { setShowGuestModal(true); return; } sendWhatsAppOrder(); }} 
                           style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
                         >
-                          📲 Notify & Place Order via WhatsApp
+                          📲 Notify &amp; Place Order via WhatsApp
                         </button>
                       </>
                     )}
@@ -2127,7 +2145,7 @@ const UserDashboard = () => {
     <div style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
         {detailProduct && (
-          <StorefrontProductDetail product={detailProduct} qty={cart[detailProduct.id] || 0} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
+          <StorefrontProductDetail product={detailProduct} cart={cart} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
         )}
 
       {/* GLOBAL ANNOUNCEMENTS TICKER MARQUEE */}
@@ -3067,49 +3085,6 @@ const UserDashboard = () => {
       )}
 
       {/* 2. GUEST ONBOARDING MODAL */}
-      {showGuestModal && (
-        <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', width: '100%', maxWidth: '350px', borderRadius: '24px', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)' }}>
-            
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                <User size={28} style={{ color: '#E11D48' }} />
-              </div>
-              <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px 0', color: '#0F172A' }}>Customer Onboarding 🚀</h2>
-              <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Please fill this one-time form so the shopkeeper can tag your order invoice.</p>
-            </div>
-            
-            <input 
-              type="text" 
-              placeholder="Your Full Name" 
-              value={guestName} 
-              onChange={e=>setGuestName(e.target.value)} 
-              style={{ width: '100%', padding: '14px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '15px', marginBottom: '14px', outline: 'none' }} 
-            />
-            <input 
-              type="tel" 
-              placeholder="10-Digit Mobile Number" 
-              value={guestPhone} 
-              onChange={e=>setGuestPhone(e.target.value.replace(/\D/g,"").slice(0,10))} 
-              style={{ width: '100%', padding: '14px', background: '#FFFFFF', border: '1.5px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '15px', marginBottom: '20px', outline: 'none' }} 
-            />
-            
-            <button 
-              onClick={handleGuestLogin} 
-              style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(244, 63, 94, 0.2)' }}
-            >
-              Submit & Proceed
-            </button>
-            <button 
-              onClick={() => setShowGuestModal(false)} 
-              style={{ width: '100%', background: 'transparent', color: '#64748b', border: 'none', padding: '10px', borderRadius: '12px', fontSize: '13px', marginTop: '6px', cursor: 'pointer' }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* 3. STORE CHECKOUT MODAL */}
       {showWaModal && (
         <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1050, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>

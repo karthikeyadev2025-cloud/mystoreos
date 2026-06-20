@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function StorefrontProductDetail({ product, qty = 0, updateQty, onClose }) {
+export default function StorefrontProductDetail({ product, cart = {}, updateQty, onClose }) {
   const images = (Array.isArray(product?.images) && product.images.length
     ? product.images
     : product?.image ? [product.image] : []
@@ -10,6 +10,15 @@ export default function StorefrontProductDetail({ product, qty = 0, updateQty, o
   const [imgLoaded, setLoaded] = useState({});
   const touchX = useRef(null);
   const n = images.length;
+
+  const hasVariantPricing = Array.isArray(product?.variantPrices) && product.variantPrices.length > 0;
+  const [selectedVariant, setSelectedVariant] = useState(() => hasVariantPricing ? product.variantPrices[0].name : null);
+
+  // Reset to the first variant whenever a different product is opened
+  useEffect(() => {
+    setSelectedVariant(hasVariantPricing ? product.variantPrices[0].name : null);
+    setIdx(0);
+  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
@@ -28,19 +37,33 @@ export default function StorefrontProductDetail({ product, qty = 0, updateQty, o
     touchX.current = null;
   };
 
-  // Discount — same logic as card
-  let discPct = 0, displayPrice = Number(product.price) || 0, originalPrice = null;
+  // The price shown/billed reflects whichever variant is currently
+  // selected — was previously always the single shared product.price,
+  // so a customer choosing "20kg" still saw and would have been billed
+  // the "5kg" price. Falls back to product.price for products with no
+  // structured variant pricing (the vast majority, unchanged behavior).
+  const activeVariant = hasVariantPricing ? product.variantPrices.find(v => v.name === selectedVariant) : null;
+  const basePrice = activeVariant ? (Number(activeVariant.price) || product.price) : Number(product.price) || 0;
+
+  // Discount — same logic as card, applied on top of the variant's own price
+  let discPct = 0, displayPrice = basePrice, originalPrice = null;
   if (product.discountPct && Number(product.discountPct) > 0) {
     discPct = Number(product.discountPct);
-    originalPrice = displayPrice;
+    originalPrice = basePrice;
     displayPrice = Math.round(originalPrice * (1 - discPct / 100));
-  } else if (product.mrp && Number(product.mrp) > Number(product.price)) {
+  } else if (product.mrp && Number(product.mrp) > basePrice) {
     originalPrice = Number(product.mrp);
     discPct = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
   }
 
   const saving = originalPrice ? (originalPrice - displayPrice) : 0;
   const outOfStock = (product.stock ?? 999) <= 0;
+
+  // Cart key matches the compound key UserDashboard's cartKey() builds for
+  // variant-priced products — kept in sync manually here since this
+  // component doesn't import that helper directly.
+  const thisCartKey = hasVariantPricing && selectedVariant ? `${product.id}::${selectedVariant}` : product.id;
+  const qty = cart[thisCartKey] || 0;
 
   return (
     <div
@@ -126,8 +149,44 @@ export default function StorefrontProductDetail({ product, qty = 0, updateQty, o
         <div style={{ padding: '16px 16px 24px' }}>
           <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', color: '#0F172A', lineHeight: 1.25 }}>{product.name}</h2>
 
-          {(product.weight || product.unit) && (
+          {(product.weight || product.unit) && !hasVariantPricing && (
             <p style={{ fontSize: 13, color: '#94A3B8', margin: '0 0 14px', fontWeight: 500 }}>{product.weight || product.unit}</p>
+          )}
+
+          {/* Variant picker — e.g. Rice Bag: 5kg / 20kg / 50kg, each its
+              own price. Selecting a variant updates the price block below
+              and which cart line gets incremented. */}
+          {hasVariantPricing && (
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px' }}>
+                Choose size / variant
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {product.variantPrices.map((v) => {
+                  const isSelected = v.name === selectedVariant;
+                  return (
+                    <button
+                      key={v.name}
+                      onClick={() => setSelectedVariant(v.name)}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: 10,
+                        border: isSelected ? '2px solid #4F46E5' : '1.5px solid #E2E8F0',
+                        background: isSelected ? '#EEF2FF' : '#FFFFFF',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        minWidth: 64,
+                      }}
+                    >
+                      <span style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#4F46E5' : '#0F172A' }}>{v.name}</span>
+                      <span style={{ fontSize: 11, color: isSelected ? '#4F46E5' : '#64748B', fontWeight: 600 }}>₹{v.price}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* Price block */}
@@ -177,17 +236,17 @@ export default function StorefrontProductDetail({ product, qty = 0, updateQty, o
           {/* Add / Qty */}
           {qty > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52, background: '#4F46E5', borderRadius: 14, boxShadow: '0 4px 16px rgba(79,70,229,0.3)' }}>
-              <button aria-label="Remove one" onClick={() => updateQty(product.id, -1)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>−</button>
+              <button aria-label="Remove one" onClick={() => updateQty(product.id, -1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>−</button>
               <span style={{ color: '#fff', fontSize: 16, fontWeight: 800 }}>{qty} in cart</span>
-              <button aria-label="Add one more" onClick={() => updateQty(product.id, 1)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>+</button>
+              <button aria-label="Add one more" onClick={() => updateQty(product.id, 1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>+</button>
             </div>
           ) : (
             <button
               disabled={outOfStock}
-              onClick={() => !outOfStock && updateQty(product.id, 1)}
+              onClick={() => !outOfStock && updateQty(product.id, 1, selectedVariant)}
               style={{ width: '100%', height: 52, background: outOfStock ? '#F1F5F9' : '#4F46E5', border: 'none', color: outOfStock ? '#94A3B8' : '#fff', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: outOfStock ? 'not-allowed' : 'pointer', boxShadow: outOfStock ? 'none' : '0 4px 16px rgba(79,70,229,0.3)', letterSpacing: '0.3px' }}
             >
-              {outOfStock ? 'Out of Stock' : 'Add to Cart'}
+              {outOfStock ? 'Out of Stock' : hasVariantPricing ? `Add ${selectedVariant} to Cart` : 'Add to Cart'}
             </button>
           )}
         </div>
