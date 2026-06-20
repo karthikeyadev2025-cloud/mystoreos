@@ -48,9 +48,9 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
   // Discount — same logic as card, applied on top of the variant's own price
   let discPct = 0, displayPrice = basePrice, originalPrice = null;
   if (product.discountPct && Number(product.discountPct) > 0) {
-    discPct = Number(product.discountPct);
+    discPct = Math.min(99, Number(product.discountPct));
     originalPrice = basePrice;
-    displayPrice = Math.round(originalPrice * (1 - discPct / 100));
+    displayPrice = Math.max(0, Math.round(originalPrice * (1 - discPct / 100)));
   } else if (product.mrp && Number(product.mrp) > basePrice) {
     originalPrice = Number(product.mrp);
     discPct = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);

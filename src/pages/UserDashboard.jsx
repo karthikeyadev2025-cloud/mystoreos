@@ -693,8 +693,8 @@ const UserDashboard = () => {
       let linePrice = basePrice;
       let lineDiscPct = 0;
       if (p.discountPct && Number(p.discountPct) > 0) {
-        lineDiscPct = Number(p.discountPct);
-        linePrice = Math.round(basePrice * (1 - lineDiscPct / 100));
+        lineDiscPct = Math.min(99, Number(p.discountPct));
+        linePrice = Math.max(0, Math.round(basePrice * (1 - lineDiscPct / 100)));
       } else if (p.mrp && Number(p.mrp) > basePrice) {
         linePrice = basePrice; // basePrice already reflects the discounted sale price for legacy mrp products
       }

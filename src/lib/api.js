@@ -784,7 +784,7 @@ export const api = {
         image_url: cover,
         images: imgs,
         is_featured: !!extraData.isFeatured,
-        discount_pct: parseInt(extraData.discountPct) || 0,
+        discount_pct: Math.max(0, Math.min(99, parseInt(extraData.discountPct) || 0)),
       };
       if (extraData.unit) baseInsert.unit = extraData.unit;
       if (extraData.variantPrices) baseInsert.variant_prices = extraData.variantPrices;
@@ -882,7 +882,7 @@ export const api = {
       }
       if (data.unit !== undefined) updateObj.unit = data.unit || null;
       if (data.isFeatured !== undefined) updateObj.is_featured = !!data.isFeatured;
-      if (data.discountPct !== undefined) updateObj.discount_pct = parseInt(data.discountPct) || 0;
+      if (data.discountPct !== undefined) updateObj.discount_pct = Math.max(0, Math.min(99, parseInt(data.discountPct) || 0));
 
       // Self-healing update: drop any optional column the DB doesn't have yet.
       let attempt = { ...updateObj };
@@ -917,7 +917,7 @@ export const api = {
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
       if (data.image !== undefined) prod.image = data.image;
       if (data.unit !== undefined) prod.unit = data.unit || null;
-      if (data.discountPct !== undefined) prod.discountPct = parseInt(data.discountPct) || 0;
+      if (data.discountPct !== undefined) prod.discountPct = Math.max(0, Math.min(99, parseInt(data.discountPct) || 0));
       saveDB(db);
     }
     return prod;

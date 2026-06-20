@@ -264,12 +264,12 @@ const DesktopPOS = ({
                     : name;
                   const sale = flashSales[p.id];
                   const activeSale = sale && new Date(sale.expiresAt) > new Date();
-                  const standingDiscPct = Number(p.discountPct) || 0;
+                  const standingDiscPct = Math.min(99, Number(p.discountPct) || 0);
                   const hasDiscount = activeSale || standingDiscPct > 0;
                   const displayPrice = activeSale
-                    ? Math.round(p.price * (1 - sale.discount / 100))
+                    ? Math.max(0, Math.round(p.price * (1 - sale.discount / 100)))
                     : standingDiscPct > 0
-                      ? Math.round(p.price * (1 - standingDiscPct / 100))
+                      ? Math.max(0, Math.round(p.price * (1 - standingDiscPct / 100)))
                       : p.price;
                   return (
                     <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: idx === 0 ? '#EEF2FF' : '#F8FAFC', border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '10px', opacity: outOfStock ? 0.55 : 1 }}>
@@ -307,12 +307,12 @@ const DesktopPOS = ({
               const lowStock   = p.stock < (p.reorderLevel || 10);
               const sale       = flashSales[p.id];
               const activeSale = sale && new Date(sale.expiresAt) > new Date();
-              const standingDiscPct = Number(p.discountPct) || 0;
+              const standingDiscPct = Math.min(99, Number(p.discountPct) || 0);
               const hasDiscount = activeSale || standingDiscPct > 0;
               const salePrice  = activeSale
-                ? Math.round(p.price * (1 - sale.discount / 100))
+                ? Math.max(0, Math.round(p.price * (1 - sale.discount / 100)))
                 : standingDiscPct > 0
-                  ? Math.round(p.price * (1 - standingDiscPct / 100))
+                  ? Math.max(0, Math.round(p.price * (1 - standingDiscPct / 100)))
                   : null;
               const minsLeft   = activeSale ? Math.max(0, Math.round((new Date(sale.expiresAt) - new Date()) / 60000)) : 0;
               const timeLabel  = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
@@ -656,11 +656,11 @@ const DesktopPOS = ({
                 {(() => {
                   const sale = flashSales[scanPopupProduct.id];
                   const activeSale = sale && new Date(sale.expiresAt) > new Date();
-                  const standingDiscPct = Number(scanPopupProduct.discountPct) || 0;
+                  const standingDiscPct = Math.min(99, Number(scanPopupProduct.discountPct) || 0);
                   const salePrice = activeSale
-                    ? Math.round(scanPopupProduct.price * (1 - sale.discount / 100))
+                    ? Math.max(0, Math.round(scanPopupProduct.price * (1 - sale.discount / 100)))
                     : standingDiscPct > 0
-                      ? Math.round(scanPopupProduct.price * (1 - standingDiscPct / 100))
+                      ? Math.max(0, Math.round(scanPopupProduct.price * (1 - standingDiscPct / 100)))
                       : null;
                   return activeSale ? (
                     <div>

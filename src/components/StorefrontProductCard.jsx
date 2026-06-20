@@ -118,10 +118,12 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
   let originalPrice = null;
 
   if (p.discountPct && Number(p.discountPct) > 0) {
-    // Owner set a label discount on this product
-    discPct = Number(p.discountPct);
+    // Owner set a label discount on this product. Clamped 0-99 here too —
+    // defense-in-depth in case any product already has a bad value stored
+    // from before discount entry was clamped at the source.
+    discPct = Math.min(99, Number(p.discountPct));
     originalPrice = displayPrice;
-    displayPrice = Math.round(originalPrice * (1 - discPct / 100));
+    displayPrice = Math.max(0, Math.round(originalPrice * (1 - discPct / 100)));
   } else if (p.mrp && Number(p.mrp) > anchorPrice) {
     // Legacy MRP field
     originalPrice = Number(p.mrp);

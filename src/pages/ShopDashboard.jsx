@@ -703,11 +703,11 @@ const ShopDashboard = () => {
       // printer both correctly showed it. Flash sale (time-limited
       // promotional push) takes priority over the standing discount when
       // both happen to be set on the same product.
-      const standingDiscPct = Number(prod.discountPct) || 0;
+      const standingDiscPct = Math.min(99, Number(prod.discountPct) || 0);
       const salePrice = activeSale
-        ? Math.round(effectiveBasePrice * (1 - sale.discount / 100))
+        ? Math.max(0, Math.round(effectiveBasePrice * (1 - sale.discount / 100)))
         : standingDiscPct > 0
-          ? Math.round(effectiveBasePrice * (1 - standingDiscPct / 100))
+          ? Math.max(0, Math.round(effectiveBasePrice * (1 - standingDiscPct / 100)))
           : effectiveBasePrice;
       const firstVariant = hasVariantPricing
         ? prod.variantPrices[0].name
@@ -758,9 +758,9 @@ const ShopDashboard = () => {
           const match = item.variantPrices.find(v => v.name === variant);
           if (match) {
             const newBasePrice = Number(match.price) || item.price;
-            const standingDiscPct = Number(item.discountPct) || 0;
+            const standingDiscPct = Math.min(99, Number(item.discountPct) || 0);
             const newPrice = standingDiscPct > 0
-              ? Math.round(newBasePrice * (1 - standingDiscPct / 100))
+              ? Math.max(0, Math.round(newBasePrice * (1 - standingDiscPct / 100)))
               : newBasePrice;
             return {
               ...item,
@@ -2069,10 +2069,17 @@ const ShopDashboard = () => {
   const handleAddStaff = async () => {
     if (!hasFeature('staffAccounts')) return toast.error("Staff accounts require the PRO plan. Please upgrade.");
     if (!newStaffPhone || !newStaffName) return toast.error("Phone and Name are required");
+    // Was only checking the field was non-empty — a typo'd or malformed
+    // number (e.g. "123" or letters) would silently create a staff
+    // account with a broken login credential. Every other registration
+    // path in the app (Register.jsx, guest checkout) already enforces
+    // this same 10-digit format; staff add was the one gap.
+    const cleanStaffPhone = newStaffPhone.replace(/\D/g, '');
+    if (!/^\d{10}$/.test(cleanStaffPhone)) return toast.error("Enter a valid 10-digit mobile number for staff login");
     const pin = newStaffPin.trim();
     if (!pin || !/^\d{4}$/.test(pin)) return toast.error("Set a 4-digit PIN for this staff member");
     try {
-      await safe(() => api.addStaff(targetShopId, newStaffPhone, pin, newStaffName));
+      await safe(() => api.addStaff(targetShopId, cleanStaffPhone, pin, newStaffName));
       toast.success(`✅ ${newStaffName} added! Their login PIN is ${pin}`);
       setNewStaffName('');
       setNewStaffPhone('');
@@ -3486,7 +3493,7 @@ const ShopDashboard = () => {
                       {d === 0 ? 'None' : `${d}%`}
                     </button>
                   ))}
-                  <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value)}
+                  <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
                     style={{ width: '52px', padding: '6px 8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', color: '#fff', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
                   <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
                 </div>
@@ -3864,7 +3871,7 @@ const ShopDashboard = () => {
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
-                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value)}
+                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
                   style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
                 <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
               </div>
@@ -5847,7 +5854,7 @@ const ShopDashboard = () => {
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
-                <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value)}
+                <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
                   style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
                 <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
               </div>
@@ -6030,7 +6037,7 @@ const ShopDashboard = () => {
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
-                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value)}
+                <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
                   style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
                 <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
               </div>
