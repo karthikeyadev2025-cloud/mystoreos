@@ -74,6 +74,27 @@ export function resolveUnit(product, shopCategory) {
   return defaultUnitForCategory(shopCategory);
 }
 
+// Suggested PRODUCT categories per shop business type — shown as quick-pick
+// chips in Add/Edit Product, but the field stays free text since real shops
+// sell mixed inventory and any fixed list will eventually be wrong for
+// someone. This is just a head start, not a locked enum.
+export const PRODUCT_CATEGORY_SUGGESTIONS = {
+  grocery:     ['Grains', 'Oils & Ghee', 'Dairy', 'Snacks', 'Beverages', 'Cleaning', 'Spices', 'Personal Care', 'Bakery'],
+  pharmacy:    ['Medicines', 'Personal Care', 'Baby Care', 'Health Devices', 'Supplements', 'First Aid'],
+  electronics: ['Mobiles', 'Accessories', 'Home Appliances', 'Audio', 'Cables & Chargers', 'Computers'],
+  clothing:    ['Shirts', 'Trousers', 'Sarees', 'Kidswear', 'Ethnic Wear', 'Innerwear', 'Winterwear'],
+  footwear:    ['Sandals', 'Sneakers', 'Formal Shoes', 'Slippers', 'Kids Footwear'],
+  restaurant:  ['Starters', 'Main Course', 'Beverages', 'Desserts', 'Combos'],
+  salon:       ['Hair Care', 'Skin Care', 'Tools & Equipment', 'Cosmetics', 'Fragrances'],
+  hardware:    ['Tools', 'Electricals', 'Plumbing', 'Paints', 'Fasteners', 'Sanitary'],
+  stationery:  ['Notebooks', 'Pens & Pencils', 'Art Supplies', 'Office Supplies', 'Files & Folders'],
+  general:     ['Grocery', 'Household', 'Personal Care', 'Stationery', 'Misc'],
+};
+
+export function categorySuggestionsFor(shopCategory) {
+  return PRODUCT_CATEGORY_SUGGESTIONS[shopCategory] || PRODUCT_CATEGORY_SUGGESTIONS.general;
+}
+
 // Format a quantity with its unit suffix, e.g. (2, 'pair') → "2 pair",
 // (1.5, 'kg') → "1.5 kg", (3, 'qty') → "3".
 export function formatQty(qty, unit) {

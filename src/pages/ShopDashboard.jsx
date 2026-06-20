@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
-import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX } from '../lib/units';
+import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -141,6 +141,8 @@ const ShopDashboard = () => {
   const [newProdFeatured, setNewProdFeatured] = useState(false);
   const [newProdUnit, setNewProdUnit] = useState('');
   const [newProdDiscountPct, setNewProdDiscountPct] = useState('0');
+  const [newProdCategory, setNewProdCategory] = useState('');
+  const [newProdSku, setNewProdSku] = useState('');
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
 
@@ -163,6 +165,8 @@ const ShopDashboard = () => {
   const [editProdImages, setEditProdImages] = useState([]);
   const [editProdFeatured, setEditProdFeatured] = useState(false);
   const [editProdDiscountPct, setEditProdDiscountPct] = useState('0');
+  const [editProdCategory, setEditProdCategory] = useState('');
+  const [editProdSku, setEditProdSku] = useState('');
 
   // Unit system — driven by the shop's business category
   const shopCategory = user?.shopCategory || 'general';
@@ -568,6 +572,8 @@ const ShopDashboard = () => {
     setEditProdImages(Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []));
     setEditProdFeatured(!!p.isFeatured);
     setEditProdDiscountPct(String(p.discountPct || 0));
+    setEditProdCategory(p.category || '');
+    setEditProdSku(p.sku || '');
     setShowEditProductModal(true);
   };
 
@@ -592,7 +598,9 @@ const ShopDashboard = () => {
         unit: editProdUnit || shopDefaultUnit,
         images: editProdImages,
         isFeatured: editProdFeatured,
-        discountPct: parseInt(editProdDiscountPct) || 0
+        discountPct: parseInt(editProdDiscountPct) || 0,
+        category: editProdCategory.trim() || null,
+        sku: editProdSku.trim() || null,
       }));
       toast.success("Product updated successfully!");
       setShowEditProductModal(false);
@@ -1611,13 +1619,15 @@ const ShopDashboard = () => {
         const name   = (p.name    || '').toLowerCase();
         const barcode = (p.barcode || '').toLowerCase();
         const cat    = (p.category|| '').toLowerCase();
-        // Score: exact prefix > contains all terms > contains any term
+        const sku    = (p.sku     || '').toLowerCase();
+        // Score: exact prefix > exact barcode/SKU > contains all terms > contains any term
         let score = 0;
         if (name.startsWith(q))      score += 100;
-        else if (barcode === q)       score += 90;
+        else if (barcode === q || sku === q) score += 90;
+        else if (sku && sku.includes(q)) score += 70;
         else if (name.includes(q))   score += 60;
-        const allMatch = terms.every(t => name.includes(t) || barcode.includes(t));
-        const anyMatch = terms.some( t => name.includes(t) || barcode.includes(t) || cat.includes(t));
+        const allMatch = terms.every(t => name.includes(t) || barcode.includes(t) || sku.includes(t));
+        const anyMatch = terms.some( t => name.includes(t) || barcode.includes(t) || sku.includes(t) || cat.includes(t));
         if (allMatch && score === 0)  score += 40;
         else if (anyMatch && score === 0) score += 10;
         return { ...p, _score: score };
@@ -1902,6 +1912,8 @@ const ShopDashboard = () => {
         newProdVariants,
         parseInt(newProdReorder) || 10,
         { hsnCode: newProdHsnCode, gstRate: newProdGstRate, costPrice: parseFloat(newProdCostPrice) || 0, image: newProdImages[0] || newProdImage, images: newProdImages, unit: newProdUnit || shopDefaultUnit, isFeatured: newProdFeatured, discountPct: parseInt(newProdDiscountPct) || 0,
+          category: newProdCategory.trim() || null,
+          sku: newProdSku.trim() || null,
           variantPrices: newProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 })).length
             ? newProdVariantPrices.filter(v => v.name.trim() && v.price !== '').map(v => ({ name: v.name.trim(), price: parseFloat(v.price) || 0 }))
             : null }
@@ -1925,6 +1937,8 @@ const ShopDashboard = () => {
       setNewProdFeatured(false);
       setNewProdUnit('');
       setNewProdDiscountPct('0');
+      setNewProdCategory('');
+      setNewProdSku('');
       loadData();
     } catch (e) {
       console.error(e);
@@ -3569,6 +3583,19 @@ const ShopDashboard = () => {
                   </select>
                 </div>
               </div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#64748B' }}>(for storefront filters)</span></label>
+                  <input list="new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }} />
+                  <datalist id="new-prod-cat-list">
+                    {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
+                  </datalist>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: '#64748B' }}>(optional)</span></label>
+                  <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }} />
+                </div>
+              </div>
               <div style={{ marginBottom: '24px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -3925,6 +3952,20 @@ const ShopDashboard = () => {
                   <option value="18">18%</option>
                   <option value="28">28%</option>
                 </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(storefront filters)</span></label>
+                <input list="edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <datalist id="edit-prod-cat-list">
+                  {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
+                </datalist>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
+                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
@@ -4456,6 +4497,16 @@ const ShopDashboard = () => {
                           </span>
                         ))}
                       </div>
+                    )}
+                    {p.category && (
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(79,70,229,0.15)', color: '#818CF8', fontWeight: '700' }}>
+                        🏷️ {p.category}
+                      </span>
+                    )}
+                    {p.sku && (
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(148,163,184,0.15)', color: '#94A3B8', fontWeight: '600', fontFamily: 'monospace' }}>
+                        SKU: {p.sku}
+                      </span>
                     )}
                   </div>
 
@@ -5891,6 +5942,20 @@ const ShopDashboard = () => {
               </div>
             </div>
 
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(filters)</span></label>
+                <input list="m-new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <datalist id="m-new-prod-cat-list">
+                  {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
+                </datalist>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
+                <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -6053,6 +6118,20 @@ const ShopDashboard = () => {
                   <option value="18">18%</option>
                   <option value="28">28%</option>
                 </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(filters)</span></label>
+                <input list="m-edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <datalist id="m-edit-prod-cat-list">
+                  {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
+                </datalist>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
+                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
               </div>
             </div>
 

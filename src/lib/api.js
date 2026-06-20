@@ -138,6 +138,8 @@ const toProduct = (row) => row ? ({
   unit: row.unit || null,
   isFeatured: !!row.is_featured,
   discountPct: parseInt(row.discount_pct) || 0,
+  category: row.category || null,
+  sku: row.sku || null,
   createdAt: row.created_at || null,
 }) : null;
 
@@ -786,6 +788,8 @@ export const api = {
       };
       if (extraData.unit) baseInsert.unit = extraData.unit;
       if (extraData.variantPrices) baseInsert.variant_prices = extraData.variantPrices;
+      if (extraData.category) baseInsert.category = extraData.category;
+      if (extraData.sku) baseInsert.sku = extraData.sku;
       // Self-healing insert: if an optional column (images / unit / image_url)
       // isn't in the DB yet, drop just that column and retry. Lets the gallery
       // work whether or not the migration has been applied.
@@ -842,6 +846,8 @@ export const api = {
         if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
         if (data.variants !== undefined) updateObj.variants = data.variants || null;
         if (data.variantPrices !== undefined) updateObj.variant_prices = data.variantPrices || null;
+        if (data.category !== undefined) updateObj.category = data.category || null;
+        if (data.sku !== undefined) updateObj.sku = data.sku || null;
         if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
         if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
         if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
@@ -861,6 +867,8 @@ export const api = {
       if (data.expiryDate !== undefined) updateObj.expiry_date = data.expiryDate || null;
       if (data.variants !== undefined) updateObj.variants = data.variants || null;
       if (data.variantPrices !== undefined) updateObj.variant_prices = data.variantPrices || null;
+      if (data.category !== undefined) updateObj.category = data.category || null;
+      if (data.sku !== undefined) updateObj.sku = data.sku || null;
       if (data.reorderLevel !== undefined) updateObj.reorder_level = parseInt(data.reorderLevel);
       if (data.hsnCode !== undefined) updateObj.hsn_code = data.hsnCode || null;
       if (data.gstRate !== undefined) updateObj.gst_rate = parseInt(data.gstRate) || 0;
@@ -902,6 +910,8 @@ export const api = {
       if (data.expiryDate !== undefined) prod.expiryDate = data.expiryDate || '';
       if (data.variants !== undefined) prod.variants = data.variants || '';
       if (data.variantPrices !== undefined) prod.variantPrices = data.variantPrices || null;
+      if (data.category !== undefined) prod.category = data.category || null;
+      if (data.sku !== undefined) prod.sku = data.sku || null;
       if (data.reorderLevel !== undefined) prod.reorderLevel = parseInt(data.reorderLevel);
       if (data.hsnCode !== undefined) prod.hsnCode = data.hsnCode || '';
       if (data.gstRate !== undefined) prod.gstRate = parseInt(data.gstRate) || 0;
