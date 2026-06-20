@@ -8,6 +8,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import AIDemandForecast from './AIDemandForecast';
+import { localDateStr, lastNLocalDays } from '../lib/dateUtils';
 
 const CAT_RX = {
   Grains: /\b(rice|wheat|atta|flour|dal|pulses|oats|maize|ragi|bajra)\b/i,
@@ -21,11 +22,7 @@ const CAT_RX = {
 const autoCat = n => { for (const [c, rx] of Object.entries(CAT_RX)) if (rx.test(n)) return c; return 'Other'; };
 
 function last30Days() {
-  const today = new Date();
-  return Array.from({ length: 30 }, (_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() - 29 + i);
-    return d.toISOString().slice(0, 10);
-  });
+  return lastNLocalDays(30);
 }
 
 function buildDailyRevenue(orders) {
@@ -33,7 +30,7 @@ function buildDailyRevenue(orders) {
   return days.map(date => ({
     date: date.slice(5),
     revenue: orders
-      .filter(o => o.status === 'Accepted' && o.date?.slice(0, 10) === date)
+      .filter(o => o.status === 'Accepted' && o.date && localDateStr(new Date(o.date)) === date)
       .reduce((s, o) => s + Number(o.total || 0), 0),
   }));
 }
@@ -54,13 +51,13 @@ function buildCashFlow(orders, stockOrders, customerCredits, credits) {
   const days = last30Days();
   return days.map(date => {
     const cashIn =
-      orders.filter(o => o.status === 'Accepted' && !['estimate', 'challan'].some(t => (o.userId || '').startsWith(t)) && o.date?.slice(0, 10) === date)
+      orders.filter(o => o.status === 'Accepted' && !['estimate', 'challan'].some(t => (o.userId || '').startsWith(t)) && o.date && localDateStr(new Date(o.date)) === date)
         .reduce((s, o) => s + Number(o.total || 0), 0) +
-      (customerCredits || []).filter(c => c.paid && c.date?.slice(0, 10) === date).reduce((s, c) => s + Number(c.amount || 0), 0);
+      (customerCredits || []).filter(c => c.paid && c.date && localDateStr(new Date(c.date)) === date).reduce((s, c) => s + Number(c.amount || 0), 0);
     const cashOut =
-      (stockOrders || []).filter(so => so.status === 'accepted' && so.date?.slice(0, 10) === date)
+      (stockOrders || []).filter(so => so.status === 'accepted' && so.date && localDateStr(new Date(so.date)) === date)
         .reduce((s, so) => s + Number(so.total || 0), 0) +
-      (credits || []).filter(c => c.paid && c.date?.slice(0, 10) === date).reduce((s, c) => s + Number(c.amount || 0), 0);
+      (credits || []).filter(c => c.paid && c.date && localDateStr(new Date(c.date)) === date).reduce((s, c) => s + Number(c.amount || 0), 0);
     return { date: date.slice(5), cashIn, cashOut };
   });
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { IndianRupee, Trash2, Plus, TrendingDown, TrendingUp, Activity } from 'lucide-react';
 import { api } from '../lib/api';
+import { localDateStr } from '../lib/dateUtils';
 
 const EXPENSE_CATS = ['Rent', 'Electricity', 'Wages', 'Supplies', 'Packaging', 'Transport', 'Maintenance', 'Misc'];
 
@@ -10,8 +11,11 @@ const CAT_COLORS = {
   Maintenance: '#F97316', Misc: '#64748B',
 };
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
-const nowYM = () => new Date().toISOString().slice(0, 7);
+// Local calendar day/month — was new Date().toISOString(), which is UTC
+// and would default the expense-entry date / month filter to yesterday
+// for anyone logging an expense between midnight and 5:30 AM IST.
+const todayStr = () => localDateStr();
+const nowYM = () => localDateStr().slice(0, 7);
 
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
 

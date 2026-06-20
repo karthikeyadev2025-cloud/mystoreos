@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { AlertTriangle, Package, Brain, Lock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { localDateStr, lastNLocalDays } from '../lib/dateUtils';
 
 // Exponential smoothing + day-of-week seasonality
 function forecast(salesHistory, daysAhead = 7) {
@@ -35,11 +36,10 @@ function forecast(salesHistory, daysAhead = 7) {
 }
 
 function buildProductSales(orders, products) {
-  const today = new Date();
-  const days30 = Array.from({ length: 30 }, (_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() - 29 + i);
-    return d.toISOString().slice(0, 10);
-  });
+  // Local calendar-day buckets — was using toISOString() (UTC), which
+  // misattributes any sale made before 5:30 AM IST to the previous day's
+  // bucket, feeding wrong day-of-week patterns into the forecast below.
+  const days30 = lastNLocalDays(30);
   const accepted = (orders || []).filter(o =>
     ['Accepted','accepted','Completed','completed'].includes(o.status)
   );
@@ -47,7 +47,7 @@ function buildProductSales(orders, products) {
   (products || []).forEach(p => { productMap[p.id] = p; });
   const salesByProduct = {};
   accepted.forEach(order => {
-    const dateStr = (order.date || '').slice(0, 10);
+    const dateStr = order.date ? localDateStr(new Date(order.date)) : '';
     (order.items || []).forEach(item => {
       const key = item.id || item.name;
       if (!salesByProduct[key]) {

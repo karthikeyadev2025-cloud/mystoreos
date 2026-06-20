@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
 import { buildUpiUri, canTapToPay } from '../lib/upi';
+import { localDateStr } from '../lib/dateUtils';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadTallyXML, generateGSTR1CSV, generateMonthlySummaryCSV, downloadCSV } from '../lib/TallyExporter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -1678,7 +1679,16 @@ const ShopDashboard = () => {
   }, [showScanner, activeTab, products, addToBill, showEditProductModal]);
 
   const reportsData = () => {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    // Compare LOCAL calendar days on both sides — was comparing a UTC date
+    // string (todayStr) against raw UTC created_at timestamps via
+    // .startsWith(), which silently misattributed roughly 5.5 hours of
+    // every night's real sales to "yesterday" for any shop in India
+    // (UTC+5:30): a sale at 1:00 AM IST is still "yesterday" in UTC until
+    // 5:30 AM IST. isToday() now converts each timestamp to the browser's
+    // actual local calendar day before comparing, so "today" means the
+    // shop owner's today, not UTC's today.
+    const todayStr = localDateStr();
+    const isToday = (isoString) => isoString && localDateStr(new Date(isoString)) === todayStr;
     
     // Cash In: accepted sales orders today + customer credits settled today
     // Net of any partial refunds (o.total - o.refundAmount) so a return
@@ -1687,14 +1697,14 @@ const ShopDashboard = () => {
       o.status === 'Accepted' && 
       !(o.userId || '').startsWith('estimate') && 
       !(o.userId || '').startsWith('challan') &&
-      o.date && o.date.startsWith(todayStr)
+      isToday(o.date)
     );
     const netOrderTotal = (o) => Number(o.total || 0) - Number(o.refundAmount || 0);
     const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + netOrderTotal(o), 0);
     
     const todayCustSettled = customerCredits.filter(c => 
       c.paid && 
-      c.date && c.date.startsWith(todayStr)
+      isToday(c.date)
     );
     const todayCustSettledTotal = todayCustSettled.reduce((sum, c) => sum + c.amount, 0);
     
@@ -1703,13 +1713,13 @@ const ShopDashboard = () => {
     // Cash Out: accepted restock orders today + distributor credits settled today
     const todayStockOrders = stockOrders.filter(so => 
       so.status === 'accepted' && 
-      so.date && so.date.startsWith(todayStr)
+      isToday(so.date)
     );
     const todayStockTotal = todayStockOrders.reduce((sum, so) => sum + so.total, 0);
     
     const todayDistSettled = credits.filter(c => 
       c.paid && 
-      c.date && c.date.startsWith(todayStr)
+      isToday(c.date)
     );
     const todayDistSettledTotal = todayDistSettled.reduce((sum, c) => sum + c.amount, 0);
     
