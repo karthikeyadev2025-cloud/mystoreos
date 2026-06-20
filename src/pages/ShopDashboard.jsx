@@ -27,6 +27,7 @@ import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 import DesktopTopBar from '../components/DesktopTopBar';
 import DesktopSidebar from '../components/DesktopSidebar';
 import DesktopPOS from '../components/DesktopPOS';
+import MobilePOS from '../components/MobilePOS';
 import DesktopInventory from '../components/DesktopInventory';
 import ProductImageUploader from '../components/ProductImageUploader';
 import DesktopBills from '../components/DesktopBills';
@@ -4171,63 +4172,25 @@ const ShopDashboard = () => {
             </div>
           )}
 
-          <DesktopPOS
-            footerSlot={null}
+          <MobilePOS
             products={products}
             filteredProducts={filteredProducts}
             billItems={billItems}
-            customItemName={customItemName}
-            setCustomItemName={setCustomItemName}
-            customItemPrice={customItemPrice}
-            setCustomItemPrice={setCustomItemPrice}
-            billingMode={billingMode}
-            setBillingMode={setBillingMode}
-            customerName={customerName}
-            setCustomerName={setCustomerName}
-            customerPhone={customerPhone}
-            setCustomerPhone={setCustomerPhone}
-            customerGstin={customerGstin}
-            setCustomerGstin={setCustomerGstin}
-            customerAddress={customerAddress}
-            setCustomerAddress={setCustomerAddress}
-            customerStateCode={customerStateCode}
-            setCustomerStateCode={setCustomerStateCode}
-            discountAmount={discountAmount}
-            manualDiscountPct={manualDiscountPct}
-            setManualDiscountPct={setManualDiscountPct}
-            manualDiscountAmt={manualDiscountAmt}
-            billTotal={billTotal}
             search={search}
             setSearch={setSearch}
-            pendingOrders={pendingOrders}
-            sales={sales}
-            payable={payable}
-            isOwner={isOwner}
-            setShowScanner={setShowScanner}
-            handleShowUpiQr={handleShowUpiQr}
-            addCustomItem={addCustomItem}
-            updateBillItemQty={updateBillItemQty}
-            updateBillItemVariant={updateBillItemVariant}
-            removeBillItem={removeBillItem}
-            sendWhatsAppBill={sendWhatsAppBill}
             addToBill={addToBill}
-            setActiveTab={setActiveTab}
+            updateBillItemQty={updateBillItemQty}
+            removeBillItem={removeBillItem}
+            setShowScanner={setShowScanner}
             setShowAddProductModal={setShowAddProductModal}
-            loyaltyEnabled={loyaltyEnabled}
-            customerLoyaltyPoints={customerLoyaltyPoints}
-            loyaltyRedeem={loyaltyRedeem}
-            setLoyaltyRedeem={setLoyaltyRedeem}
-            dailyTarget={dailyTarget}
-            handleSetDailyTarget={handleSetDailyTarget}
+            setActiveTab={setActiveTab}
+            isOwner={isOwner}
             flashSales={flashSales}
-            shopCategory={shopCategory}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
             onClearCart={clearCart}
-            updateBillItemDiscount={updateBillItemDiscount}
-            scanPopupProduct={scanPopupProduct}
-            onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
-            onScanPopupClose={() => setScanPopupProduct(null)}
+            onCheckout={sendWhatsAppBill}
+            billTotal={billTotal}
+            discountAmount={discountAmount}
+            manualDiscountAmt={manualDiscountAmt}
           />
         </>
       )}
