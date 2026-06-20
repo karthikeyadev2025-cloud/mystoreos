@@ -146,27 +146,15 @@ body, #root {
     display: flex !important;
     bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
   }
-  /* Search bar is the single most important thing for a cashier on this
-     screen — promote it above the AI warning / KPI stats / daily target
-     cards instead of making them scroll past 3 sections to reach it.
-     Desktop is untouched (these rules only apply under the 1024px
-     breakpoint); flex order does not change DOM order or tab order in a
-     way that matters here since these are independent info cards, not a
-     reading-order-sensitive form. Bottom padding makes room for the
-     sticky cart bar + nav so they never permanently cover the last
-     product card in the grid. */
+  /* DOM order in DesktopPOS now physically puts Search/Product Grid
+     before the AI warning/KPI/daily-target cards (see component source)
+     — no flex `order` trick needed or used here anymore. Bottom padding
+     makes room for the sticky cart bar + nav so they never permanently
+     cover the last product card in the grid. */
   .pos-left-column {
     display: flex !important;
     flex-direction: column !important;
     padding-bottom: 64px !important;
-  }
-  .pos-search-card {
-    order: -1 !important;
-  }
-  .pos-ai-warning,
-  .pos-kpi-row,
-  .pos-daily-target {
-    order: 1 !important;
   }
 
   /* Cart panel was using the exact same compact font sizes and touch
@@ -202,6 +190,23 @@ body, #root {
 }
 /* (Removed the clickable-only left accent bar — it made some stat cards have a
    stripe and others not, which read as misalignment. Cards are now uniform.) */
+
+/* "Add to Cart" — was using onMouseEnter/onMouseLeave JS handlers, a
+   desktop-only pattern that's a no-op on touch screens and can leave a
+   button visually "stuck" in its last hover state after a tap on some
+   mobile browsers. CSS :hover naturally does nothing on touch devices
+   (correct, automatic), and :active gives real immediate tap feedback —
+   the right tool for each input type instead of one JS handler trying
+   to cover both. */
+.pos-add-to-cart-btn:not(:disabled):hover {
+  background: #4F46E5 !important;
+  color: #fff !important;
+}
+.pos-add-to-cart-btn:not(:disabled):active {
+  background: #4338CA !important;
+  color: #fff !important;
+  transform: scale(0.97);
+}
 
 /* ══════════════════════════════════════════════════════
    PREMIUM ACTION BUTTONS — Barcode Scan, Add Product etc

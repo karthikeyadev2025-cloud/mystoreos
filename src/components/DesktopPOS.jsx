@@ -97,84 +97,6 @@ const DesktopPOS = ({
       {/* ── Left Column ── */}
       <div className="pos-left-column" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-        {/* AI Inventory Warning */}
-        {lowStockProducts.length > 0 && (
-          <div className="premium-glass pos-ai-warning" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ fontSize: '32px' }}>🤖</span>
-            <div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: '#7F1D1D', lineHeight: '1.4' }}>
-                Low stock on <b>{lowStockProducts.map(p => p.name).join(', ')}</b>. Based on your sales trend, you may run out soon.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* KPI Row */}
-        <div className="pos-kpi-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('bills')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>New Orders</p>
-            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{pendingOrders}</p>
-            {pendingOrders > 0 && <p style={{ fontSize: '12px', fontWeight: '600', color: '#F59E0B', margin: '4px 0 0' }}>Needs attention</p>}
-          </div>
-          {isOwner && (
-            <div className="premium-glass" style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Today's Sales</p>
-              <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{sales}</p>
-            </div>
-          )}
-          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('products')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Total Products</p>
-            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{products.length}</p>
-          </div>
-          {isOwner && (
-            <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('credit')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Supplier Credit</p>
-              <p style={{ fontSize: '26px', fontWeight: '800', color: payable > 0 ? '#EF4444' : '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{payable}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Daily Target Progress Ring */}
-        {isOwner && (
-          <div className="premium-glass pos-daily-target" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-            {dailyTarget > 0 ? (
-              <>
-                <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
-                  <circle cx="40" cy="40" r="28" fill="none" stroke="#E2E8F0" strokeWidth="7" />
-                  <circle cx="40" cy="40" r="28" fill="none" stroke={ringColor} strokeWidth="7"
-                    strokeDasharray={CIRC} strokeDashoffset={ringOffset}
-                    strokeLinecap="round" transform="rotate(-90 40 40)"
-                    style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-                  <text x="40" y="45" textAnchor="middle" fill="#0F172A" fontSize="13" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif">{targetPctInt}%</text>
-                </svg>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0F172A', marginBottom: '2px' }}>{motivation}</div>
-                  <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>₹{sales.toLocaleString('en-IN')} of ₹{dailyTarget.toLocaleString('en-IN')} daily target</div>
-                  <button onClick={() => setShowTargetInput(v => !v)} style={{ fontSize: '10px', color: '#4F46E5', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>Change Target</button>
-                </div>
-              </>
-            ) : (
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '28px' }}>🎯</span>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>Set a Daily Sales Target</div>
-                  <div style={{ fontSize: '11px', color: '#64748B' }}>Track your progress toward a daily revenue goal</div>
-                </div>
-              </div>
-            )}
-            {(showTargetInput || dailyTarget === 0) && (
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                <span style={{ color: '#64748B', fontSize: '13px' }}>₹</span>
-                <input type="number" placeholder="e.g. 5000" value={targetInput} onChange={e => setTargetInput(e.target.value)}
-                  style={{ width: '90px', padding: '6px 10px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
-                <button onClick={() => { handleSetDailyTarget && handleSetDailyTarget(targetInput); setTargetInput(''); setShowTargetInput(false); }}
-                  style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Set</button>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Search & Quick Actions */}
         <div className="premium-glass pos-search-card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#F1F5F9', borderRadius: '10px', padding: '4px 16px', border: '2px solid transparent', outline: 'none', marginBottom: '16px', transition: 'border-color .15s' }}
@@ -319,7 +241,7 @@ const DesktopPOS = ({
               const timeLabel  = minsLeft >= 60 ? `${Math.floor(minsLeft / 60)}h left` : `${minsLeft}m left`;
               const outOfStock = (p.stock || 0) <= 0;
               return (
-                <div key={p.id} className="premium-glass" style={{ padding: '14px', paddingTop: hasDiscount || outOfStock ? '34px' : '14px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', opacity: outOfStock ? 0.6 : 1 }}>
+                <div key={p.id} className="premium-glass" style={{ padding: '14px', paddingTop: hasDiscount || outOfStock ? '34px' : '14px', borderRadius: '16px', background: outOfStock ? '#F8FAFC' : hasDiscount ? '#FEF2F2' : '#FFFFFF', border: `1px solid ${outOfStock ? '#E2E8F0' : hasDiscount ? '#FCA5A5' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   {activeSale && !outOfStock && (
                     <div style={{ position: 'absolute', top: 0, right: 0, background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: '800', padding: '5px 10px', borderRadius: '0 14px 0 10px', whiteSpace: 'nowrap' }}>
                       🔥 -{sale.discount}% · {timeLabel}
@@ -355,9 +277,8 @@ const DesktopPOS = ({
                   <button
                     onClick={() => !outOfStock && addToBill(p)}
                     disabled={outOfStock}
+                    className="pos-add-to-cart-btn"
                     style={{ background: outOfStock ? '#F1F5F9' : 'rgba(79,70,229,0.08)', border: `1px solid ${outOfStock ? '#E2E8F0' : 'rgba(79,70,229,0.25)'}`, color: outOfStock ? '#94A3B8' : '#4F46E5', width: '100%', padding: '8px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: outOfStock ? 'not-allowed' : 'pointer', marginTop: '12px', transition: 'all 0.2s' }}
-                    onMouseEnter={e => { if (!outOfStock) { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.color = '#fff'; }}}
-                    onMouseLeave={e => { if (!outOfStock) { e.currentTarget.style.background = 'rgba(79,70,229,0.08)'; e.currentTarget.style.color = '#4F46E5'; }}}
                   >
                     {outOfStock ? 'Unavailable' : '+ Add to Cart'}
                   </button>
@@ -374,6 +295,87 @@ const DesktopPOS = ({
           </div>
           )} {/* end grid ternary */}
         </div>
+
+        {/* AI Inventory Warning — moved below Search/Product Grid so the
+            cashier's actual billing workflow (search → results → cart) is
+            never pushed down by status/info cards. */}
+        {lowStockProducts.length > 0 && (
+          <div className="premium-glass pos-ai-warning" style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ fontSize: '32px' }}>🤖</span>
+            <div>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: '#7F1D1D', lineHeight: '1.4' }}>
+                Low stock on <b>{lowStockProducts.map(p => p.name).join(', ')}</b>. Based on your sales trend, you may run out soon.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* KPI Row */}
+        <div className="pos-kpi-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('bills')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>New Orders</p>
+            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{pendingOrders}</p>
+            {pendingOrders > 0 && <p style={{ fontSize: '12px', fontWeight: '600', color: '#F59E0B', margin: '4px 0 0' }}>Needs attention</p>}
+          </div>
+          {isOwner && (
+            <div className="premium-glass" style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Today's Sales</p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{sales}</p>
+            </div>
+          )}
+          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('products')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Total Products</p>
+            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{products.length}</p>
+          </div>
+          {isOwner && (
+            <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('credit')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Supplier Credit</p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: payable > 0 ? '#EF4444' : '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{payable}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Daily Target Progress Ring */}
+        {isOwner && (
+          <div className="premium-glass pos-daily-target" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+            {dailyTarget > 0 ? (
+              <>
+                <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#E2E8F0" strokeWidth="7" />
+                  <circle cx="40" cy="40" r="28" fill="none" stroke={ringColor} strokeWidth="7"
+                    strokeDasharray={CIRC} strokeDashoffset={ringOffset}
+                    strokeLinecap="round" transform="rotate(-90 40 40)"
+                    style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
+                  <text x="40" y="45" textAnchor="middle" fill="#0F172A" fontSize="13" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif">{targetPctInt}%</text>
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#0F172A', marginBottom: '2px' }}>{motivation}</div>
+                  <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>₹{sales.toLocaleString('en-IN')} of ₹{dailyTarget.toLocaleString('en-IN')} daily target</div>
+                  <button onClick={() => setShowTargetInput(v => !v)} style={{ fontSize: '10px', color: '#4F46E5', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>Change Target</button>
+                </div>
+              </>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '28px' }}>🎯</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>Set a Daily Sales Target</div>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>Track your progress toward a daily revenue goal</div>
+                </div>
+              </div>
+            )}
+            {(showTargetInput || dailyTarget === 0) && (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#64748B', fontSize: '13px' }}>₹</span>
+                <input type="number" placeholder="e.g. 5000" value={targetInput} onChange={e => setTargetInput(e.target.value)}
+                  style={{ width: '90px', padding: '6px 10px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none' }} />
+                <button onClick={() => { handleSetDailyTarget && handleSetDailyTarget(targetInput); setTargetInput(''); setShowTargetInput(false); }}
+                  style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Set</button>
+              </div>
+            )}
+          </div>
+        )}
+
         {footerSlot}
       </div>
 

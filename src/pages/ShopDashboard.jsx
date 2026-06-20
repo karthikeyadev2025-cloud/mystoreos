@@ -4147,9 +4147,80 @@ const ShopDashboard = () => {
 
       {activeTab === 'home' && (
         <>
-          {/* Offer Banner */}
+          {/* Search + Cart + Checkout renders FIRST — this is the actual,
+              direct fix for "POS at the bottom of the page" reported
+              multiple times. The previous fix only used CSS `order` to
+              reorder content INSIDE DesktopPOS's own internal columns —
+              but the Offer Banner / AI Insights / Stats Row / Action Grid
+              below were OUTSIDE DesktopPOS entirely, in this parent
+              component, rendering before it unconditionally. No CSS trick
+              inside the child component could ever reach back and reorder
+              content in the parent. Moving the actual JSX so DesktopPOS
+              (search bar at its own internal top) is the first thing in
+              the DOM, full stop — no order:-1 hacks needed, the real
+              source order now matches what's visually wanted. */}
+          <DesktopPOS
+            footerSlot={null}
+            products={products}
+            filteredProducts={filteredProducts}
+            billItems={billItems}
+            customItemName={customItemName}
+            setCustomItemName={setCustomItemName}
+            customItemPrice={customItemPrice}
+            setCustomItemPrice={setCustomItemPrice}
+            billingMode={billingMode}
+            setBillingMode={setBillingMode}
+            customerName={customerName}
+            setCustomerName={setCustomerName}
+            customerPhone={customerPhone}
+            setCustomerPhone={setCustomerPhone}
+            customerGstin={customerGstin}
+            setCustomerGstin={setCustomerGstin}
+            customerAddress={customerAddress}
+            setCustomerAddress={setCustomerAddress}
+            customerStateCode={customerStateCode}
+            setCustomerStateCode={setCustomerStateCode}
+            discountAmount={discountAmount}
+            manualDiscountPct={manualDiscountPct}
+            setManualDiscountPct={setManualDiscountPct}
+            manualDiscountAmt={manualDiscountAmt}
+            billTotal={billTotal}
+            search={search}
+            setSearch={setSearch}
+            pendingOrders={pendingOrders}
+            sales={sales}
+            payable={payable}
+            isOwner={isOwner}
+            setShowScanner={setShowScanner}
+            handleShowUpiQr={handleShowUpiQr}
+            addCustomItem={addCustomItem}
+            updateBillItemQty={updateBillItemQty}
+            updateBillItemVariant={updateBillItemVariant}
+            removeBillItem={removeBillItem}
+            sendWhatsAppBill={sendWhatsAppBill}
+            addToBill={addToBill}
+            setActiveTab={setActiveTab}
+            setShowAddProductModal={setShowAddProductModal}
+            loyaltyEnabled={loyaltyEnabled}
+            customerLoyaltyPoints={customerLoyaltyPoints}
+            loyaltyRedeem={loyaltyRedeem}
+            setLoyaltyRedeem={setLoyaltyRedeem}
+            dailyTarget={dailyTarget}
+            handleSetDailyTarget={handleSetDailyTarget}
+            flashSales={flashSales}
+            shopCategory={shopCategory}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            onClearCart={clearCart}
+            updateBillItemDiscount={updateBillItemDiscount}
+            scanPopupProduct={scanPopupProduct}
+            onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
+            onScanPopupClose={() => setScanPopupProduct(null)}
+          />
+
+          {/* Offer Banner — now below the POS, not above it */}
           {shopBanner?.active && shopBanner?.title && (
-            <div style={{ margin: '12px 12px 0', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+            <div style={{ margin: '20px 12px 0', background: 'linear-gradient(135deg,#4F46E5,#4F46E5)', borderRadius: '12px', padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
               <div>
                 <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>🏷️ {shopBanner.title}</div>
                 {shopBanner.subtitle && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', marginTop: '3px' }}>{shopBanner.subtitle}</div>}
@@ -4218,74 +4289,6 @@ const ShopDashboard = () => {
               <div style={{textAlign: 'center'}}><p style={styles.gridTitle}>Share Shop</p><p style={styles.gridSub}>Share Link</p></div>
             </div>
           </div>
-
-          {/* Search + Cart + Checkout — same component as desktop (now
-              responsive via CSS), so mobile and desktop billing behave
-              identically: search results sit directly under the search
-              box with no scroll distance, item-level AND bill-level
-              discounts both work, variant pricing works, everything stays
-              in sync — instead of the old separate, incomplete mobile
-              "Quick Bill" implementation that had no manual discount
-              control at all and buried results far below unrelated
-              banners/stats. */}
-          <DesktopPOS
-            footerSlot={null}
-            products={products}
-            filteredProducts={filteredProducts}
-            billItems={billItems}
-            customItemName={customItemName}
-            setCustomItemName={setCustomItemName}
-            customItemPrice={customItemPrice}
-            setCustomItemPrice={setCustomItemPrice}
-            billingMode={billingMode}
-            setBillingMode={setBillingMode}
-            customerName={customerName}
-            setCustomerName={setCustomerName}
-            customerPhone={customerPhone}
-            setCustomerPhone={setCustomerPhone}
-            customerGstin={customerGstin}
-            setCustomerGstin={setCustomerGstin}
-            customerAddress={customerAddress}
-            setCustomerAddress={setCustomerAddress}
-            customerStateCode={customerStateCode}
-            setCustomerStateCode={setCustomerStateCode}
-            discountAmount={discountAmount}
-            manualDiscountPct={manualDiscountPct}
-            setManualDiscountPct={setManualDiscountPct}
-            manualDiscountAmt={manualDiscountAmt}
-            billTotal={billTotal}
-            search={search}
-            setSearch={setSearch}
-            pendingOrders={pendingOrders}
-            sales={sales}
-            payable={payable}
-            isOwner={isOwner}
-            setShowScanner={setShowScanner}
-            handleShowUpiQr={handleShowUpiQr}
-            addCustomItem={addCustomItem}
-            updateBillItemQty={updateBillItemQty}
-            updateBillItemVariant={updateBillItemVariant}
-            removeBillItem={removeBillItem}
-            sendWhatsAppBill={sendWhatsAppBill}
-            addToBill={addToBill}
-            setActiveTab={setActiveTab}
-            setShowAddProductModal={setShowAddProductModal}
-            loyaltyEnabled={loyaltyEnabled}
-            customerLoyaltyPoints={customerLoyaltyPoints}
-            loyaltyRedeem={loyaltyRedeem}
-            setLoyaltyRedeem={setLoyaltyRedeem}
-            dailyTarget={dailyTarget}
-            handleSetDailyTarget={handleSetDailyTarget}
-            flashSales={flashSales}
-            shopCategory={shopCategory}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            onClearCart={clearCart}
-            updateBillItemDiscount={updateBillItemDiscount}
-            scanPopupProduct={scanPopupProduct}
-            onScanPopupAdd={(prod) => { addToBill(prod); setScanPopupProduct(null); }}
-            onScanPopupClose={() => setScanPopupProduct(null)}
-          />
         </>
       )}
 
