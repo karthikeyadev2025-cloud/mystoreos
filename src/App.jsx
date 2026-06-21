@@ -57,7 +57,17 @@ const PrivateRoute = ({ children, role }) => {
 const RoleRouter = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" />;
-  if (user.status === 'pending') return <Navigate to="/waiting" />;
+  if (user.status === 'pending') {
+    // Resume-onboarding: shop/distributor who haven't completed the
+    // onboarding form yet get sent back to finish it, instead of being
+    // stuck on /waiting with a half-filled profile that admin can't
+    // approve. onboardingCompleted defaults to true in toUser when the
+    // column isn't yet present, so existing pending shops aren't affected.
+    if ((user.role === 'shop' || user.role === 'distributor') && user.onboardingCompleted === false) {
+      return <Navigate to="/onboarding" />;
+    }
+    return <Navigate to="/waiting" />;
+  }
   switch (user.role) {
     case 'shop':        return <Navigate to="/shop" />;
     case 'staff':       return <Navigate to="/shop" />;

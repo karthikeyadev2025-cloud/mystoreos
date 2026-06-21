@@ -135,6 +135,10 @@ const toUser = (row) => row ? ({
   shopBanner: row.shop_banner || null,
   caId: row.ca_id || null,
   publicCode: row.public_code || null,
+  // Default true so existing rows (where the column may not exist yet, e.g.
+  // migration not run) don't get bounced back into onboarding. Fresh
+  // shop/distributor registrations explicitly set this to false.
+  onboardingCompleted: row.onboarding_completed !== false,
 }) : null;
 
 const toProduct = (row) => row ? ({
@@ -402,14 +406,23 @@ export const api = {
       subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
       hide_from_search: role === 'shop' ? true : false,
       trial_started_at: new Date().toISOString(),
+      onboarding_completed: !needsApproval,   // false for shop/distributor → must finish onboarding form
     };
     if (normalizedPhone && normalizedPhone.length === 10) insertObj.phone = normalizedPhone;
-    // Self-heal around the phone column not having a unique constraint quirk
-    // (or, in the rare case, the column missing) — drop phone and retry once.
-    let { data, error } = await supabase.from('users').insert(insertObj).select().maybeSingle();
-    if (error && normalizedPhone && /phone/i.test(error.message || '')) {
-      delete insertObj.phone;
-      ({ data, error } = await supabase.from('users').insert(insertObj).select().maybeSingle());
+    // Self-heal: if either phone OR onboarding_completed column is missing
+    // or rejects the value (unique constraint, schema cache lag), drop the
+    // problem field and retry. The default value on the column kicks in.
+    let attempt = { ...insertObj };
+    let data = null, error = null;
+    for (let tries = 0; tries < 3; tries++) {
+      ({ data, error } = await supabase.from('users').insert(attempt).select().maybeSingle());
+      if (!error) break;
+      const msg = error.message || '';
+      const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+        || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i)
+        || (normalizedPhone && /phone/i.test(msg) ? [null, 'phone'] : null);
+      if (!miss || !(miss[1] in attempt)) break;
+      delete attempt[miss[1]];
     }
     if (error) throw new Error(error.message);
     return toUser(data);
@@ -498,15 +511,21 @@ export const api = {
           }
           const profile = efData.profile || efData.user;
           if (profile?.id) {
-            const isNonCustomer = role !== 'customer';
-            const correctStatus = isNonCustomer ? 'pending' : 'active';
-            const correctSubscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
-            await supabase.from('users').update({
-              role, status: correctStatus, subscription: correctSubscription,
-            }).eq('id', profile.id);
-            profile.role = role;
-            profile.status = correctStatus;
-            profile.subscription = correctSubscription;
+            // Fallback for the case where the edge function hasn't been
+            // redeployed since we added onboarding_completed support: set
+            // the flag client-side. Idempotent when the function already
+            // set it. Targeted single-field update — not the role/status/
+            // subscription block we used to do, which was both redundant
+            // (the edge function sets all three correctly) and a code
+            // smell because it relied on RLS letting the just-registered
+            // user update their own row.
+            const requiresOnboarding = role === 'shop' || role === 'distributor';
+            if (requiresOnboarding && profile.onboardingCompleted !== false) {
+              try {
+                await supabase.from('users').update({ onboarding_completed: false }).eq('id', profile.id);
+                profile.onboardingCompleted = false;
+              } catch { /* column doesn't exist yet — migration pending; ignore */ }
+            }
           }
           if (profile) return profile;
         }
@@ -1577,6 +1596,7 @@ export const api = {
       if (data.distributorPlanExpiresAt !== undefined) updateObj.distributor_plan_expires_at = data.distributorPlanExpiresAt;
       if (data.hideFromSearch !== undefined) updateObj.hide_from_search = data.hideFromSearch;
       if (data.shopCategory !== undefined) updateObj.shop_category = data.shopCategory;
+      if (data.onboardingCompleted !== undefined) updateObj.onboarding_completed = data.onboardingCompleted;
       if (data.openingHour !== undefined) updateObj.opening_hour = data.openingHour;
       if (data.closingHour !== undefined) updateObj.closing_hour = data.closingHour;
       if (data.weeklyHolidays !== undefined) updateObj.weekly_holidays = data.weeklyHolidays;

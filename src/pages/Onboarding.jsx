@@ -140,6 +140,21 @@ export default function Onboarding() {
             { image: prodImage }
           ));
         }
+        // Mark onboarding complete on the server, then refresh the in-memory
+        // user so the next route guard (RoleRouter / WaitingApproval) sees
+        // onboardingCompleted=true and doesn't bounce the shop owner back
+        // to /onboarding. Without this refresh, the user state still says
+        // false, RoleRouter redirects to /onboarding, and the cycle never
+        // breaks — they'd be stuck in onboarding forever.
+        try {
+          await api.updateProfile(user.id, { onboardingCompleted: true });
+          const fresh = await api.getUserById(user.id);
+          if (fresh) login(fresh);
+        } catch (_e) {
+          // Column missing (migration not run) — onboardingCompleted
+          // defaults to true in toUser, so RoleRouter won't bounce them.
+          // Safe to continue.
+        }
         setStep(3);
       }
     } catch {

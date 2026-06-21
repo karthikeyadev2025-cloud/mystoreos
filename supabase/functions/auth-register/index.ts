@@ -69,15 +69,33 @@ serve(async (req) => {
     const trial_started_at = requiresApproval ? new Date().toISOString() : null;
     const plan_expires_at = requiresApproval ? trialEnd : null;
 
-    // Insert profile with id = auth UUID so RLS can use auth.uid() = id
-    const { data: profileRow, error: insertErr } = await admin.from('users').insert({
+    // Insert profile with id = auth UUID so RLS can use auth.uid() = id.
+    // onboarding_completed: false for shop/distributor (must finish the
+    // 4-step onboarding form), true for everyone else (no onboarding to do).
+    // Self-healing insert in case the column doesn't exist yet (migration
+    // 20260621_users_onboarding_completed.sql not yet run) — strip the
+    // field and retry, default value 'true' on the schema kicks in.
+    const baseInsert: Record<string, unknown> = {
       id: uid, phone,
       pass: await bcrypt.hash(password, 10),
       pass_verify: password,
       role, name,
       status: requiresApproval ? 'pending' : 'active',
       subscription, subscription_tier, trial_started_at, plan_expires_at,
-    }).select().single();
+      onboarding_completed: !requiresApproval,
+    };
+    let profileRow: any = null;
+    let insertErr: any = null;
+    {
+      const attempt = { ...baseInsert };
+      let res = await admin.from('users').insert(attempt).select().single();
+      if (res.error && /find the ['"]?onboarding_completed['"]? column/i.test(res.error.message || '')) {
+        delete (attempt as any).onboarding_completed;
+        res = await admin.from('users').insert(attempt).select().single();
+      }
+      profileRow = res.data;
+      insertErr = res.error;
+    }
 
     if (insertErr) {
       // Rollback auth user creation on profile insert failure

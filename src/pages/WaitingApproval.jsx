@@ -11,6 +11,14 @@ export default function WaitingApproval() {
     if (!user) { navigate('/login'); return; }
     if (user.status === 'active') { navigate('/dashboard'); return; }
     if (user.role === 'customer') { navigate('/dashboard'); return; }
+    // Defensive: if a shop/distributor lands here but hasn't completed the
+    // onboarding form yet (closed the browser before step 3), send them
+    // back to /onboarding to finish — otherwise admin sees a half-filled
+    // application and can't approve.
+    if ((user.role === 'shop' || user.role === 'distributor') && user.onboardingCompleted === false) {
+      navigate('/onboarding');
+      return;
+    }
     const interval = setInterval(async () => {
       try {
         const fresh = await api.getUserById(user.id);
