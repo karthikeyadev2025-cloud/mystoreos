@@ -157,6 +157,13 @@ const ShopDashboard = () => {
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [showMobileDashboard, setShowMobileDashboard] = useState(false);
+  // Persistent "send PDF too" banner after a wa.me text bill goes out.
+  // null = not visible. Object = { pdfFile, customerPhone, mode } drives a
+  // banner pinned to the bottom of the screen that stays put until the
+  // cashier either taps "Send PDF receipt too" or dismisses it.
+  // Replaces the auto-dismiss toast that disappeared after 8s — cashiers
+  // often missed the option entirely.
+  const [pdfShareBanner, setPdfShareBanner] = useState(null);
 
   // Edit Product Modal State
   const [showEditProductModal, setShowEditProductModal] = useState(false);
@@ -1504,34 +1511,21 @@ const ShopDashboard = () => {
             else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1); // 0-xxx → xxx
             if (digits.length === 10) digits = '91' + digits;             // bare 10-digit → prepend 91
             window.open(`https://wa.me/${digits}?text=${encodeURIComponent(msg)}`, '_blank');
-            // The text bill has landed in the customer's WhatsApp chat. If
-            // the cashier ALSO wants to send the formal PDF (higher-value
-            // bills, GSTIN customers, formal records), one tap on this toast
-            // pops the file share sheet — they can pick the same customer
-            // who's now at the top of their recents. Optional, not forced.
+            // Brief confirmation that WhatsApp opened…
+            toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 3000 });
+            // …and surface the formal PDF as an unmissable persistent banner
+            // pinned to the bottom of the screen. Stays put until the cashier
+            // either sends the PDF or explicitly dismisses it. Previously this
+            // was an 8-second toast that quietly disappeared and cashiers
+            // missed it — especially in busy shop sessions with multiple
+            // bills back-to-back.
             const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [pdfFile] }));
             if (canShareFile) {
-              toast.success(
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4 }}>📄 WhatsApp opened for {customerPhone}</div>
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      try {
-                        await navigator.share({
-                          files: [pdfFile],
-                          title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
-                          text: `Receipt PDF from ${shop.name}`,
-                        });
-                      } catch (err) { /* user dismissed share sheet — fine */ }
-                    }}
-                    style={{ background: '#10B981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 2 }}
-                  >📎 Share PDF too</button>
-                </div>,
-                { autoClose: 8000, closeOnClick: false }
-              );
-            } else {
-              toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
+              setPdfShareBanner({
+                pdfFile,
+                customerPhone,
+                mode: billingMode,
+              });
             }
           } else {
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
@@ -3185,10 +3179,93 @@ const ShopDashboard = () => {
     navBtn: { textAlign: 'center', cursor: 'pointer' }
   };
 
+  // Persistent "Send PDF receipt too" banner — rendered in both desktop and
+  // mobile returns. Pins to the bottom of the screen and stays visible until
+  // the cashier acts on it. Replaces the auto-dismissing 8s toast that
+  // cashiers were missing during busy back-to-back billing sessions.
+  const pdfShareBannerEl = pdfShareBanner ? (
+    <div style={{
+      position: 'fixed',
+      left: 0, right: 0,
+      bottom: isMobile ? 70 : 0,        // sit above the mobile bottom nav (~64px)
+      zIndex: 1100,
+      padding: '0 12px',
+      pointerEvents: 'none',             // wrapper transparent; inner card clickable
+    }}>
+      <div style={{
+        maxWidth: 720,
+        margin: '0 auto 10px',
+        background: '#FFFFFF',
+        border: '1px solid #BBF7D0',
+        borderLeft: '4px solid #10B981',
+        borderRadius: 14,
+        padding: '12px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        boxShadow: '0 10px 28px rgba(15,23,42,0.18)',
+        pointerEvents: 'auto',
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+            📎 Send PDF receipt too?
+          </div>
+          <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
+            Text bill went to {pdfShareBanner.customerPhone} · the customer's chat is at the top of your WhatsApp recents
+          </div>
+        </div>
+        <button
+          onClick={async () => {
+            try {
+              await navigator.share({
+                files: [pdfShareBanner.pdfFile],
+                title: pdfShareBanner.mode === 'estimate' ? 'Estimate / Quotation' : (pdfShareBanner.mode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
+                text: `Receipt PDF from ${shop.name}`,
+              });
+            } catch (_e) { /* cashier dismissed share sheet — fine */ }
+            // Banner stays open after a share attempt so the cashier can also
+            // re-send if needed (e.g. they accidentally picked the wrong
+            // contact). Explicit dismiss button does the actual close.
+          }}
+          style={{
+            flexShrink: 0,
+            background: 'linear-gradient(135deg,#10B981,#059669)',
+            color: '#fff',
+            border: 'none',
+            padding: '10px 14px',
+            borderRadius: 10,
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(16,185,129,0.35)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Send PDF
+        </button>
+        <button
+          onClick={() => setPdfShareBanner(null)}
+          aria-label="Dismiss"
+          style={{
+            flexShrink: 0,
+            background: 'transparent',
+            border: 'none',
+            color: '#94A3B8',
+            cursor: 'pointer',
+            padding: 6,
+            fontSize: 18,
+            lineHeight: 1,
+          }}
+        >×</button>
+      </div>
+    </div>
+  ) : null;
+
   if (!isMobile) {
     return (
       <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
+        {pdfShareBannerEl}
         {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
             downloadQrPng (passed down into DesktopSettings' "Your Store QR
             Code" card). This is the DESKTOP render branch — ShopDashboard
@@ -4186,6 +4263,7 @@ const ShopDashboard = () => {
   return (
     <div style={styles.bg}>
       <ToastContainer theme="dark" position="top-center" />
+      {pdfShareBannerEl}
 
       {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
           downloadQrPng — rendering it here (unconditionally, regardless
