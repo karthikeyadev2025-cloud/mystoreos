@@ -940,12 +940,12 @@ const UserDashboard = () => {
       }
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
-      // Auto-continue to placing the order — the customer never has to tap
-      // a second button. Brief delay so login state propagates and `user`
-      // becomes non-null in the next render before sendWhatsAppOrder runs.
+      // Pass loggedInUser directly to sendWhatsAppOrder — it bypasses the
+      // closure problem (sendWhatsAppOrder is referenced from the OLD
+      // render where user was still null). No setTimeout dance needed.
       setShowGuestModal(false);
       toast.success(`🎉 Welcome ${loggedInUser.name?.split(' ')[0] || ''}! Placing your order…`);
-      setTimeout(() => { sendWhatsAppOrder(); }, 400);
+      sendWhatsAppOrder(loggedInUser);
     } catch (err) {
       toast.error(err.message || 'Could not create account. Try again.');
     }
@@ -967,21 +967,24 @@ const UserDashboard = () => {
     }
   };
 
-  const sendWhatsAppOrder = async () => {
+  const sendWhatsAppOrder = async (overrideUser = null) => {
+    // overrideUser exists because of a real React closure trap: when the
+    // guest registration just completes and we want to immediately place
+    // the order, login() schedules a re-render but the function reference
+    // we're holding was defined in the render where user was still null.
+    // Calling sendWhatsAppOrder() with no arg would read the captured-null
+    // user from the old closure and re-open the modal — exactly the
+    // 'checkout not working' bug. Passing loggedInUser explicitly
+    // sidesteps the closure entirely.
+    const effectiveUser = overrideUser || user;
     const { total, items } = getCartTotals();
     try {
-      // No user = pop the inline registration modal instead of silently
-      // returning. The previous `if (!user) return;` is exactly why "Generate
-      // Bill does nothing" was reported — a guest who shared a link, added
-      // items, and tapped Place Order saw zero response. After registration
-      // succeeds, this same function gets called again from the success
-      // step, with a logged-in user, and proceeds to actually place the order.
-      if (!user) {
+      if (!effectiveUser) {
         setShowGuestModal(true);
         return;
       }
 
-      const placedOrder = await api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total);
+      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total);
       const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
       setLastOrderId(orderId);
       
@@ -991,8 +994,8 @@ const UserDashboard = () => {
       
       let msg = `*🛒 NEW ORDER — ${shopInfo?.name || 'Your Store'}*\n`;
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `👤 *Customer:* ${user.name}\n`;
-      msg += `📱 *Mobile:* +91${user.phone}\n`;
+      msg += `👤 *Customer:* ${effectiveUser.name}\n`;
+      msg += `📱 *Mobile:* +91${effectiveUser.phone}\n`;
       msg += `🕐 *Time:* ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}\n`;
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       items.forEach(item => {
