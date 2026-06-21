@@ -1491,7 +1491,35 @@ const ShopDashboard = () => {
             else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1); // 0-xxx → xxx
             if (digits.length === 10) digits = '91' + digits;             // bare 10-digit → prepend 91
             window.open(`https://wa.me/${digits}?text=${encodeURIComponent(msg)}`, '_blank');
-            toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
+            // The text bill has landed in the customer's WhatsApp chat. If
+            // the cashier ALSO wants to send the formal PDF (higher-value
+            // bills, GSTIN customers, formal records), one tap on this toast
+            // pops the file share sheet — they can pick the same customer
+            // who's now at the top of their recents. Optional, not forced.
+            const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [pdfFile] }));
+            if (canShareFile) {
+              toast.success(
+                <div>
+                  <div style={{ fontWeight: 700, marginBottom: 4 }}>📄 WhatsApp opened for {customerPhone}</div>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      try {
+                        await navigator.share({
+                          files: [pdfFile],
+                          title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
+                          text: `Receipt PDF from ${shop.name}`,
+                        });
+                      } catch (err) { /* user dismissed share sheet — fine */ }
+                    }}
+                    style={{ background: '#10B981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 2 }}
+                  >📎 Share PDF too</button>
+                </div>,
+                { autoClose: 8000, closeOnClick: false }
+              );
+            } else {
+              toast.success(`📄 WhatsApp opened for ${customerPhone}`, { autoClose: 4000 });
+            }
           } else {
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             toast.info('No customer number on this bill — pick a contact in WhatsApp.', { autoClose: 4000 });
