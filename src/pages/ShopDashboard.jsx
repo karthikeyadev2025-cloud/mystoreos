@@ -157,13 +157,16 @@ const ShopDashboard = () => {
   const [scannedBarcode, setScannedBarcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [showMobileDashboard, setShowMobileDashboard] = useState(false);
-  // Persistent "send PDF too" banner after a wa.me text bill goes out.
-  // null = not visible. Object = { pdfFile, customerPhone, mode } drives a
-  // banner pinned to the bottom of the screen that stays put until the
-  // cashier either taps "Send PDF receipt too" or dismisses it.
-  // Replaces the auto-dismiss toast that disappeared after 8s — cashiers
-  // often missed the option entirely.
-  const [pdfShareBanner, setPdfShareBanner] = useState(null);
+  // Persistent "send PDF too" banner queue after wa.me text bills go out.
+  // QUEUE — not single value — so a second bill generated before the first
+  // banner is dismissed doesn't silently overwrite it. Each Bill A/B/C
+  // entry is preserved; the active banner is queue[0], and only the ×
+  // dismiss button advances to the next. Send PDF leaves the banner
+  // active (cashier may want to re-send if they picked the wrong contact).
+  // Without the queue, the cashier could lose Bill A's PDF entirely if
+  // they tap Generate Bill on B while A's banner is still showing.
+  const [pdfShareQueue, setPdfShareQueue] = useState([]);
+  const pdfShareBanner = pdfShareQueue[0] || null;
 
   // Edit Product Modal State
   const [showEditProductModal, setShowEditProductModal] = useState(false);
@@ -1521,11 +1524,12 @@ const ShopDashboard = () => {
             // bills back-to-back.
             const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [pdfFile] }));
             if (canShareFile) {
-              setPdfShareBanner({
+              setPdfShareQueue(prev => [...prev, {
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
                 pdfFile,
                 customerPhone,
                 mode: billingMode,
-              });
+              }]);
             }
           } else {
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
@@ -3183,6 +3187,10 @@ const ShopDashboard = () => {
   // mobile returns. Pins to the bottom of the screen and stays visible until
   // the cashier acts on it. Replaces the auto-dismissing 8s toast that
   // cashiers were missing during busy back-to-back billing sessions.
+  // When a second bill is generated while a banner is still up, it's queued
+  // (not overwritten) — Bill A's banner stays, Bill B waits until A is
+  // dismissed. A small pill shows how many are waiting.
+  const queuedAfterCurrent = Math.max(0, pdfShareQueue.length - 1);
   const pdfShareBannerEl = pdfShareBanner ? (
     <div style={{
       position: 'fixed',
@@ -3207,8 +3215,13 @@ const ShopDashboard = () => {
         pointerEvents: 'auto',
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             📎 Send PDF receipt too?
+            {queuedAfterCurrent > 0 && (
+              <span style={{ fontSize: 10.5, background: '#FEF3C7', color: '#92400E', padding: '1px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>
+                +{queuedAfterCurrent} more {queuedAfterCurrent === 1 ? 'bill' : 'bills'} waiting
+              </span>
+            )}
           </div>
           <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
             Text bill went to {pdfShareBanner.customerPhone} · the customer's chat is at the top of your WhatsApp recents
@@ -3225,7 +3238,8 @@ const ShopDashboard = () => {
             } catch (_e) { /* cashier dismissed share sheet — fine */ }
             // Banner stays open after a share attempt so the cashier can also
             // re-send if needed (e.g. they accidentally picked the wrong
-            // contact). Explicit dismiss button does the actual close.
+            // contact). Explicit × button does the actual close + advances
+            // the queue to the next bill, if any.
           }}
           style={{
             flexShrink: 0,
@@ -3244,8 +3258,9 @@ const ShopDashboard = () => {
           Send PDF
         </button>
         <button
-          onClick={() => setPdfShareBanner(null)}
-          aria-label="Dismiss"
+          onClick={() => setPdfShareQueue(prev => prev.slice(1))}
+          aria-label={queuedAfterCurrent > 0 ? `Skip · ${queuedAfterCurrent} more waiting` : 'Dismiss'}
+          title={queuedAfterCurrent > 0 ? `Skip · ${queuedAfterCurrent} more waiting` : 'Dismiss'}
           style={{
             flexShrink: 0,
             background: 'transparent',
