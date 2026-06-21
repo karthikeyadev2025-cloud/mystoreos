@@ -345,7 +345,7 @@ const UserDashboard = () => {
   const loadOrderHistory = useCallback(async () => {
     if (!user || !user.id) return;
     try {
-      const data = await api.getUserOrders(user.id);
+      const data = await api.getUserOrders(user.id, user.phone);
       setOrders(data || []);
     } catch (err) {
       console.error('Failed to load orders', err);

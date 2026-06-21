@@ -113,10 +113,21 @@ const Register = () => {
   const { login } = useAuth();
   const { config } = useSiteConfig();
   const registrationClosed = config?.registrationOpen === false;
+  // Claim mode: when a shop sends a bill to a customer not yet on
+  // MyStore, the WhatsApp message includes a link
+  // /register?phone={normalized}&claim=1 that lands here. The phone is
+  // prefilled and locked (read-only) so the customer can only register
+  // with the phone the bill was sent to — and businessType is forced to
+  // 'customer' since they're a buyer, not a shop. After they register,
+  // getUserOrders unions their bills in via the customer_phone column.
+  const claimPhone = (searchParams.get('phone') || '').replace(/\D/g, '').slice(-10);
+  const claimMode = searchParams.get('claim') === '1' && claimPhone.length === 10;
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(claimMode ? claimPhone : '');
   const [pass, setPass] = useState('');
-  const [businessType, setBusinessType] = useState(searchParams.get('type') || 'shop');
+  const [businessType, setBusinessType] = useState(
+    claimMode ? 'customer' : (searchParams.get('type') || 'shop')
+  );
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -174,21 +185,31 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleRegister}>
-            {/* Business Type Selector */}
-            <div style={{ marginBottom: 20 }}>
-              <label className="reg-label">ACCOUNT TYPE</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {TYPES.map(({ value, icon, label }) => (
-                  <button key={value} type="button"
-                    onClick={() => setBusinessType(value)}
-                    className={`reg-type-btn${businessType === value ? ' active' : ''}`}
-                  >
-                    <span style={{ fontSize: 20 }}>{icon}</span>
-                    <span style={{ fontSize: 11 }}>{label}</span>
-                  </button>
-                ))}
+            {claimMode && (
+              <div style={{ background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', borderRadius: 12, padding: '14px 16px', marginBottom: 18, boxShadow: '0 6px 16px rgba(79,70,229,.25)' }}>
+                <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 4 }}>📲 Claim your bills</div>
+                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.9)', lineHeight: 1.45 }}>
+                  Create your free account with <b>{claimPhone}</b> and every bill sent to this number — from any MyStore shop — will appear in your purchase history automatically, even bills sent before today.
+                </div>
               </div>
-            </div>
+            )}
+            {/* Business Type Selector — hidden in claim mode (always 'customer') */}
+            {!claimMode && (
+              <div style={{ marginBottom: 20 }}>
+                <label className="reg-label">ACCOUNT TYPE</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {TYPES.map(({ value, icon, label }) => (
+                    <button key={value} type="button"
+                      onClick={() => setBusinessType(value)}
+                      className={`reg-type-btn${businessType === value ? ' active' : ''}`}
+                    >
+                      <span style={{ fontSize: 20 }}>{icon}</span>
+                      <span style={{ fontSize: 11 }}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Name */}
             <div style={{ marginBottom: 16 }}>
@@ -211,11 +232,18 @@ const Register = () => {
                 className="reg-input"
                 type="tel"
                 value={phone}
-                onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                onChange={e => !claimMode && setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="10-digit mobile number"
                 maxLength={10}
                 inputMode="numeric"
+                readOnly={claimMode}
+                style={claimMode ? { background: '#F1F5F9', cursor: 'not-allowed' } : undefined}
               />
+              {claimMode && (
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5 }}>
+                  Locked — registering with the number your bill was sent to.
+                </div>
+              )}
             </div>
 
             {/* Password */}

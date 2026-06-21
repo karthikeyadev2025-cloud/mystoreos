@@ -885,7 +885,7 @@ const ShopDashboard = () => {
         qty: b.qty || 1,
         selectedVariant: b.selectedVariant || '',
         itemDiscount: b.itemDiscount || 0
-      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode },
+      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode, phone: customerPhone },
       billingMode === 'bill' ? 'Accepted' : 'Pending',
       paymentMethod || 'Cash'));
 
@@ -1473,6 +1473,19 @@ const ShopDashboard = () => {
             } else {
               msg += `\n📱 *Pay via UPI:* ${upiUri}\n_(Please enter ₹${total} when prompted — UPI apps don't allow amount-prefill for personal UPI IDs)_\n`;
             }
+          }
+        }
+
+        // Register-to-claim-your-bills link. Only added when a customer
+        // phone is on the bill (otherwise nothing to claim later) and only
+        // for actual bills (not estimates/challans). Phone is normalized
+        // and prefilled in the register page so the customer can't change
+        // it — that's how they claim THIS phone's bills, not someone else's.
+        if (billingMode === 'bill' && customerPhone) {
+          const normPhoneForLink = String(customerPhone).replace(/\D/g, '').slice(-10);
+          if (normPhoneForLink.length === 10) {
+            const claimUrl = `${window.location.origin}/register?phone=${normPhoneForLink}&claim=1`;
+            msg += `\n━━━━━━━━━━━━━━━━━━\n📲 *Save your purchase history!*\nCreate a free MyStore account and ALL your bills from us (and other MyStore shops) will appear in one place — even bills sent to you before you signed up.\n👉 ${claimUrl}\n`;
           }
         }
 

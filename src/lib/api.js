@@ -1043,29 +1043,77 @@ export const api = {
     }).reverse();
   },
 
-  async getUserOrders(userId) {
+  async getUserOrders(userId, userPhone = null) {
+    // Customer's purchase history = orders where user_id is theirs OR
+    // customer_phone matches their normalized phone. The second path is
+    // the phone-based reconciliation: when a shop bills a guest with
+    // phone 9063878382 and that person later creates an account with
+    // the same phone, those past bills show up immediately in their
+    // "My Bills" view without any manual claim flow.
     if (isSupabaseConfigured) {
-      const { data: orders } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      const normalizedPhone = userPhone ? String(userPhone).replace(/\D/g, '').slice(-10) : null;
+      let ordersById = [];
+      let ordersByPhone = [];
+
+      const { data: byId } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      ordersById = byId || [];
+
+      if (normalizedPhone && normalizedPhone.length === 10) {
+        // Fetch additional orders matched by phone — exclude the user's
+        // own user_id so we don't double-count. If the customer_phone
+        // column doesn't exist yet (migration not run), this throws —
+        // we silently fall through to phone-less behavior.
+        try {
+          const { data: byPhone, error: phoneErr } = await supabase.from('orders')
+            .select('*')
+            .eq('customer_phone', normalizedPhone)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false });
+          if (!phoneErr) ordersByPhone = byPhone || [];
+        } catch { /* column missing — ignore, just use ordersById */ }
+      }
+
+      // Merge and de-dup (same order shouldn't appear twice if it ever
+      // both matches userId and customer_phone).
+      const merged = [...ordersById];
+      const seen = new Set(ordersById.map(o => o.id));
+      for (const o of ordersByPhone) {
+        if (!seen.has(o.id)) { merged.push(o); seen.add(o.id); }
+      }
+      merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
       const { data: users } = await supabase.from('users').select('id, name').eq('role', 'shop');
       const shopMap = {};
       (users || []).forEach(u => { shopMap[u.id] = u.name; });
-      return (orders || []).map(o => ({ ...toOrder(o), shopName: shopMap[o.shop_id] || 'Unknown Shop' }));
+      return merged.map(o => ({ ...toOrder(o), shopName: shopMap[o.shop_id] || 'Unknown Shop' }));
     }
     const db = getDB();
-    return db.orders.filter(o => o.userId === userId).map(o => {
+    const normalizedPhone = userPhone ? String(userPhone).replace(/\D/g, '').slice(-10) : null;
+    return db.orders.filter(o =>
+      o.userId === userId
+      || (normalizedPhone && o.customerPhone && String(o.customerPhone).replace(/\D/g, '').slice(-10) === normalizedPhone)
+    ).map(o => {
       const shop = db.users.find(u => u.id === o.shopId);
       return { ...o, shopName: shop ? shop.name : 'Unknown Shop' };
     }).reverse();
   },
 
   async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending', paymentMethod = 'Cash') {
+    // Normalize the customer phone to a canonical last-10-digits form.
+    // This is what we store on the row and what we match against when
+    // the customer later creates an account and looks up "My Bills".
+    // Without normalization, a bill saved as '+91 90638 78382' wouldn't
+    // match a user who registered as '9063878382', and the phone-based
+    // bill reconciliation feature would silently fail.
+    const rawPhone = customerData.phone || '';
+    const normalizedPhone = String(rawPhone).replace(/\D/g, '').slice(-10) || null;
     if (isSupabaseConfigured) {
       if (!navigator.onLine) {
         const tempId = crypto.randomUUID();
-        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status, customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null, payment_method: paymentMethod || 'Cash' };
+        const row = { id: tempId, user_id: userId, shop_id: shopId, items, total, status, customer_gstin: customerData.gstin || null, customer_address: customerData.address || null, customer_state_code: customerData.stateCode || null, customer_phone: normalizedPhone, payment_method: paymentMethod || 'Cash' };
         await enqueue({ table: 'orders', action: 'insert', data: row });
         const db = getDB(); db.orders = db.orders || [];
-        db.orders.push({ id: tempId, userId, shopId, items, total, status, date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '' });
+        db.orders.push({ id: tempId, userId, shopId, items, total, status, date: new Date().toISOString(), customerGstin: customerData.gstin || '', customerAddress: customerData.address || '', customerStateCode: customerData.stateCode || '', customerPhone: normalizedPhone || '' });
         saveDB(db); return toOrder({ ...row, created_at: new Date().toISOString() });
       }
       let resolvedId = shopId;
@@ -1081,7 +1129,7 @@ export const api = {
         }
       }
 
-      const { data, error } = await supabase.from('orders').insert({
+      const insertObj = {
         user_id: userId,
         shop_id: resolvedId,
         items,
@@ -1090,8 +1138,22 @@ export const api = {
         customer_gstin: customerData.gstin || null,
         customer_address: customerData.address || null,
         customer_state_code: customerData.stateCode || null,
+        customer_phone: normalizedPhone,
         payment_method: paymentMethod || 'Cash'
-      }).select().maybeSingle();
+      };
+      // Self-heal around the customer_phone column not existing yet
+      // (migration not run): retry without it instead of failing the bill.
+      let attempt = { ...insertObj };
+      let data = null, error = null;
+      for (let tries = 0; tries < 4; tries++) {
+        ({ data, error } = await supabase.from('orders').insert(attempt).select().maybeSingle());
+        if (!error) break;
+        const msg = error.message || '';
+        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
+        if (!miss || !(miss[1] in attempt)) break;
+        delete attempt[miss[1]];
+      }
       if (error) throw new Error(error.message);
       
       // Decrement product inventory stock levels in Supabase
