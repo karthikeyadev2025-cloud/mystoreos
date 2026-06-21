@@ -20,16 +20,17 @@ CREATE INDEX IF NOT EXISTS orders_customer_phone_idx
   ON orders (customer_phone)
   WHERE customer_phone IS NOT NULL;
 
--- Backfill: parse the phone out of existing 'walk-in:Name:phone…' user_id
--- strings so historical bills work too. Only updates rows that don't
--- already have customer_phone set.
+-- Backfill: parse the phone out of existing 'walk-in:Name:phone…',
+-- 'estimate:Name:phone…', or 'challan:Name:phone…' user_id strings
+-- so historical bills work too. Only updates rows that don't already
+-- have customer_phone set.
 UPDATE orders
 SET customer_phone = REGEXP_REPLACE(
   COALESCE(SPLIT_PART(user_id, ':', 3), ''),
   '\D', '', 'g'
 )
 WHERE customer_phone IS NULL
-  AND user_id LIKE 'walk-in:%'
+  AND (user_id LIKE 'walk-in:%' OR user_id LIKE 'estimate:%' OR user_id LIKE 'challan:%')
   AND SPLIT_PART(user_id, ':', 3) IS NOT NULL
   AND LENGTH(REGEXP_REPLACE(SPLIT_PART(user_id, ':', 3), '\D', '', 'g')) BETWEEN 10 AND 15;
 

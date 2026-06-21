@@ -1103,6 +1103,24 @@ export const api = {
             .order('created_at', { ascending: false });
           if (!phoneErr) ordersByPhone = byPhone || [];
         } catch { /* column missing — ignore, just use ordersById */ }
+
+        // BELT-AND-BRACES: the customer_phone column may not exist yet
+        // (migration not run) OR a particular row may have been saved
+        // BEFORE the migration ran (column existed but row was inserted
+        // via offline-sync queue with the field stripped, etc.). The
+        // ORIGINAL source of truth is the synthetic user_id string —
+        // 'walk-in:Name:9876543210:staff:...' — which has been written
+        // since day one. We can find those rows via LIKE-match on the
+        // raw user_id and merge them in. Safe to dedupe later because
+        // we union into the same Set.
+        try {
+          const { data: byEmbed, error: embedErr } = await supabase.from('orders')
+            .select('*')
+            .or(`user_id.like.walk-in:%:${normalizedPhone}:%,user_id.like.walk-in:%:${normalizedPhone},user_id.like.estimate:%:${normalizedPhone}:%,user_id.like.estimate:%:${normalizedPhone},user_id.like.challan:%:${normalizedPhone}:%,user_id.like.challan:%:${normalizedPhone}`)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false });
+          if (!embedErr && byEmbed) ordersByPhone = [...ordersByPhone, ...byEmbed];
+        } catch { /* ignore — best-effort fallback */ }
       }
 
       // Merge and de-dup (same order shouldn't appear twice if it ever

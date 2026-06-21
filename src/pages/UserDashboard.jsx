@@ -924,30 +924,49 @@ const UserDashboard = () => {
     if (!guestPassword || guestPassword.length < 4) return toast.error('Set a password — minimum 4 characters');
     try {
       let loggedInUser;
+      // Try to register the brand-new customer first. api.register returns
+      // the freshly-created profile AND sets the Supabase session, so we
+      // don't need to re-login. The previous version did a redundant
+      // api.login(phone, pass) right after, which masked real register
+      // failures and surfaced a misleading "account exists with different
+      // password" message even when the actual cause was a server/network
+      // error during register.
       try {
-        // Try registering as a new customer with their chosen password
-        await api.register(guestName.trim(), guestPhone, guestPassword, 'customer');
-        loggedInUser = await api.login(guestPhone, guestPassword);
-      } catch {
-        // Account already exists — try logging in with entered password
-        try {
-          loggedInUser = await api.login(guestPhone, guestPassword);
-        } catch {
-          // Password mismatch — show helpful message
-          toast.error('Account exists with a different password. Enter your existing password to continue.');
+        loggedInUser = await api.register(guestName.trim(), guestPhone, guestPassword, 'customer');
+      } catch (regErr) {
+        const msg = regErr?.message || '';
+        // Phone-already-exists → fall through to login.
+        if (/already\s*(registered|exists|been)/i.test(msg)) {
+          try {
+            loggedInUser = await api.login(guestPhone, guestPassword);
+          } catch (loginErr) {
+            toast.error('This number already has an account, but the password is different. Try a different number, or sign in.');
+            return;
+          }
+        } else {
+          // Real registration error — show what actually went wrong.
+          toast.error(msg || 'Could not create account. Try again.');
           return;
         }
       }
+
+      if (!loggedInUser) {
+        // Defensive: register succeeded server-side but the client didn't
+        // get back a profile object. Try one explicit login.
+        try { loggedInUser = await api.login(guestPhone, guestPassword); }
+        catch { toast.error('Account created but sign-in failed — please try logging in.'); return; }
+      }
+
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
-      // Pass loggedInUser directly to sendWhatsAppOrder — it bypasses the
-      // closure problem (sendWhatsAppOrder is referenced from the OLD
-      // render where user was still null). No setTimeout dance needed.
       setShowGuestModal(false);
       toast.success(`🎉 Welcome ${loggedInUser.name?.split(' ')[0] || ''}! Placing your order…`);
+      // Pass loggedInUser directly to sendWhatsAppOrder — bypasses the
+      // closure trap (sendWhatsAppOrder referenced from the render where
+      // user was still null).
       sendWhatsAppOrder(loggedInUser);
     } catch (err) {
-      toast.error(err.message || 'Could not create account. Try again.');
+      toast.error(err?.message || 'Could not create account. Try again.');
     }
   };
 
@@ -1704,11 +1723,11 @@ const UserDashboard = () => {
                   </button>
                 ) : (
                   <button 
-                    onClick={() => navigate('/login')}
+                    onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')}
                     className="sidebar-nav-item active"
                     style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
                   >
-                    Sign In to Account
+                    {isStoreMode ? 'Create Account' : 'Sign In to Account'}
                   </button>
                 )}
               </div>
@@ -2599,10 +2618,10 @@ const UserDashboard = () => {
                 </div>
               ) : (
                 <button 
-                  onClick={() => navigate('/login')}
+                  onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')}
                   style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '16px', fontSize: '12px', width: 'auto', fontWeight: 'bold', cursor: 'pointer' }}
                 >
-                  Sign In
+                  {isStoreMode ? 'Create Account' : 'Sign In'}
                 </button>
               )}
             </div>
@@ -2937,7 +2956,7 @@ const UserDashboard = () => {
                   <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
                     <Info size={32} style={{ color: '#64748b', margin: '0 auto 12px' }} />
                     <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '16px' }}>Sign in to view your transaction invoices history.</p>
-                    <button onClick={() => navigate('/login')} style={{ width: 'auto', background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>Sign In Now</button>
+                    <button onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')} style={{ width: 'auto', background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>{isStoreMode ? 'Create Account' : 'Sign In Now'}</button>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
