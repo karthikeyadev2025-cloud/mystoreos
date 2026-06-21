@@ -15,7 +15,7 @@ const TABS = [
   { id: 'profile',   Icon: Settings,  label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', syncStatus = {} }) {
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {} }) {
   const visible = TABS.filter(t => !t.ownerOnly || isOwner);
   return (
     <aside style={{ width: 240, background: '#0F172A', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'fixed', left: 0, top: 0, height: '100vh', overflowY: 'auto', zIndex: 50, fontFamily: FONT }}>
@@ -63,6 +63,14 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
           </div>
           <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
         </div>
+        {/* Branch switcher — visible only when the owner has 2+ branches.
+            Sits between the shop identity and the Sign out button so it's
+            always reachable but doesn't crowd the primary nav. */}
+        {branchSwitcherEl && (
+          <div style={{ marginBottom: 10 }}>
+            {branchSwitcherEl}
+          </div>
+        )}
         <button onClick={handleLogout}
           style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'transparent', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px', fontFamily: FONT, fontWeight: 600, fontSize: 12.5, cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; }}

@@ -36,6 +36,7 @@ import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
 import DesktopReports from '../components/DesktopReports';
 import DesktopSettings from '../components/DesktopSettings';
+import BranchesManager from '../components/BranchesManager';
 import DesktopCustomers from '../components/DesktopCustomers';
 import DesktopExpenses from '../components/DesktopExpenses';
 
@@ -298,7 +299,33 @@ const ShopDashboard = () => {
     () => !!sessionStorage.getItem(`mystore_trial_banner_dismissed_${user.id}`)
   );
 
-  const targetShopId = user.role === 'staff' ? user.staff_of : user.id;
+  // Active branch — owner with multiple shops can switch which one they're
+  // viewing. Persisted to localStorage per logged-in user so refresh stays
+  // on the same branch. For staff (who don't own branches) this stays null
+  // and targetShopId falls through to their staff_of shop.
+  const [branches, setBranches] = useState([]);          // owner's main + non-deleted branches
+  const [activeBranchId, setActiveBranchIdState] = useState(() => {
+    if (typeof window === 'undefined' || !user?.id) return null;
+    try { return localStorage.getItem(`mystore_active_branch_${user.id}`) || null; }
+    catch { return null; }
+  });
+  const setActiveBranchId = (id) => {
+    setActiveBranchIdState(id);
+    try {
+      if (id) localStorage.setItem(`mystore_active_branch_${user.id}`, id);
+      else localStorage.removeItem(`mystore_active_branch_${user.id}`);
+    } catch { /* localStorage disabled — fine, just no persistence */ }
+  };
+
+  // For staff: still scoped to their staff_of shop. For owner: defaults to
+  // their main shop (user.id), but if they've picked a branch, all queries
+  // re-target to that branch's id. Single chokepoint that the rest of the
+  // dashboard reads from — every existing api.getShopProducts/Orders/Staff
+  // call already passes targetShopId, so they all become branch-aware for
+  // free.
+  const targetShopId = user.role === 'staff'
+    ? user.staff_of
+    : (activeBranchId && branches.some(b => b.id === activeBranchId) ? activeBranchId : user.id);
   // `shop` is the record to read SHOP-level fields from (name, GST, logo,
   // address, UPI, etc.). For owners this is just `user`. For staff, before
   // shopProfile loads, fall back to `user` so the page doesn't crash —
@@ -414,6 +441,13 @@ const ShopDashboard = () => {
     // across devices (mobile upload reflects on desktop and vice versa)
     const ownerId = user.role === 'staff' ? user.staff_of : user.id;
     const freshOwner = await safe(() => api.getUserById(ownerId));
+    // Owner-only: pull the list of branches (main shop + non-deleted
+    // sub-shops). Used to populate the branch switcher in the header.
+    // Staff never see/manage branches — they're locked to staff_of.
+    if (user.role !== 'staff') {
+      const list = await safe(() => api.getOwnedBranches(ownerId));
+      if (Array.isArray(list)) setBranches(list);
+    }
     if (freshOwner) {
       // Save the entire owner record so staff billing paths can pull
       // shop name, GST, address, logo, UPI etc. from the SHOP, not the
@@ -3183,6 +3217,49 @@ const ShopDashboard = () => {
     navBtn: { textAlign: 'center', cursor: 'pointer' }
   };
 
+  // Branch switcher — only shown when the owner has 2+ branches. Dropdown
+  // lets them switch which branch's products/orders/staff/reports they're
+  // viewing. activeBranchId is null = main shop selected.
+  const visibleBranches = branches.filter(b => !b.branchDeletedAt);
+  const hasMultipleBranches = visibleBranches.length >= 2;
+  const currentBranch = visibleBranches.find(b => b.id === targetShopId) || visibleBranches.find(b => !b.parentShopId) || null;
+  const branchSwitcherEl = (hasMultipleBranches && user.role !== 'staff') ? (
+    <select
+      value={targetShopId}
+      onChange={(e) => {
+        const picked = e.target.value;
+        // Main shop is identified by parentShopId === null. Setting
+        // activeBranchId back to null when the owner picks the main
+        // shop keeps the localStorage key clean.
+        const isMain = !visibleBranches.find(b => b.id === picked)?.parentShopId;
+        setActiveBranchId(isMain ? null : picked);
+      }}
+      title="Switch branch"
+      style={{
+        padding: '6px 28px 6px 10px',
+        borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.25)',
+        background: 'rgba(255,255,255,0.15)',
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 700,
+        cursor: 'pointer',
+        maxWidth: 180,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,<svg width=\"10\" height=\"6\" viewBox=\"0 0 10 6\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"%23ffffff\" d=\"M0 0l5 6 5-6z\"/></svg>')",
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 8px center',
+      }}
+    >
+      {visibleBranches.map(b => (
+        <option key={b.id} value={b.id} style={{ color: '#0F172A' }}>
+          {b.name}{!b.parentShopId ? ' (Main)' : ''}
+        </option>
+      ))}
+    </select>
+  ) : null;
+
   // Persistent "Send PDF receipt too" banner — rendered in both desktop and
   // mobile returns. Pins to the bottom of the screen and stays visible until
   // the cashier acts on it. Replaces the auto-dismissing 8s toast that
@@ -3333,8 +3410,9 @@ const ShopDashboard = () => {
           isOwner={isOwner}
           pendingOrders={pendingOrders}
           handleLogout={handleLogout}
-          userName={shop.name}
+          userName={currentBranch?.name || shop.name}
           publicCode={shop.publicCode}
+          branchSwitcherEl={branchSwitcherEl}
           syncStatus={{ isOnline, pendingCount }}
         />
 
@@ -3503,8 +3581,18 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'profile' && isOwner && (
-            <DesktopSettings 
-              user={user}
+            <>
+              <BranchesManager
+                ownerId={user.id}
+                onChange={async () => {
+                  // Reload the parent's branches state so the switcher
+                  // dropdown reflects the change immediately.
+                  const fresh = await safe(() => api.getOwnedBranches(user.id));
+                  if (Array.isArray(fresh)) setBranches(fresh);
+                }}
+              />
+              <DesktopSettings 
+                user={user}
               gstin={gstin}
               setGstin={setGstin}
               stateCode={stateCode}
@@ -3597,6 +3685,7 @@ const ShopDashboard = () => {
               handleUnlinkDistributor={handleUnlinkDistributor}
               handleResetTestData={handleResetTestData}
             />
+            </>
           )}
         </div>
         </div>
@@ -4306,9 +4395,10 @@ const ShopDashboard = () => {
             <div style={{ width: 12, height: 12, background: 'white', borderRadius: '50%' }}></div>
             MyStore Pro
           </h2>
-          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#CBD5E1' }}>
-            {shop.name}
-            {shop?.publicCode && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {shop.publicCode}</span>}
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            {currentBranch?.name || shop.name}
+            {shop?.publicCode && <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {shop.publicCode}</span>}
+            {branchSwitcherEl}
           </p>
           <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ADE80' : '#F87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
@@ -5290,6 +5380,15 @@ const ShopDashboard = () => {
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
+
+            {/* Branches manager — first card so it's easy to find */}
+            <BranchesManager
+              ownerId={user.id}
+              onChange={async () => {
+                const fresh = await safe(() => api.getOwnedBranches(user.id));
+                if (Array.isArray(fresh)) setBranches(fresh);
+              }}
+            />
 
             {/* SaaS Subscription Info Card */}
             <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>

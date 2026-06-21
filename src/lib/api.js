@@ -135,6 +135,12 @@ const toUser = (row) => row ? ({
   shopBanner: row.shop_banner || null,
   caId: row.ca_id || null,
   publicCode: row.public_code || null,
+  // Multi-branch fields. parentShopId is null for the owner's main shop,
+  // and = main shop's id for every branch. branchDeletedAt is set when a
+  // branch is soft-removed (historical orders still point to it, so we
+  // can't hard-delete).
+  parentShopId: row.parent_shop_id || null,
+  branchDeletedAt: row.branch_deleted_at || null,
   // Default true so existing rows (where the column may not exist yet, e.g.
   // migration not run) don't get bounced back into onboarding. Fresh
   // shop/distributor registrations explicitly set this to false.
@@ -1433,6 +1439,182 @@ export const api = {
   },
 
   // ---- SHOPS ----
+  // ───── BRANCH MANAGEMENT (multi-shop / multi-location) ────────────────
+  //
+  // Lifecycle: an owner registers as a regular shop (their row has
+  // parent_shop_id = NULL — this is the "main" shop). They can then
+  // create branches via createBranch — each branch is a new users row
+  // with role='shop' and parent_shop_id = the main shop's id. Switching
+  // between branches in the dashboard just changes which shop's id all
+  // existing queries (getShopProducts, getShopOrders, getShopStaff,
+  // etc.) are scoped to. No other API changes needed downstream.
+
+  async getOwnedBranches(ownerId) {
+    // Returns the owner's main shop + all their active (non-deleted)
+    // branches, sorted with the main shop first. Used to populate the
+    // branch-switcher dropdown.
+    if (!ownerId) return [];
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase.from('users')
+          .select('*')
+          .or(`id.eq.${ownerId},parent_shop_id.eq.${ownerId}`)
+          .eq('role', 'shop')
+          .order('parent_shop_id', { ascending: true, nullsFirst: true })  // main shop (NULL parent) first
+          .order('created_at', { ascending: true });
+        if (error) {
+          // Column doesn't exist yet (migration not run) — fall back to
+          // just returning the main shop so the rest of the dashboard
+          // works as before.
+          if (/parent_shop_id|branch_deleted_at/i.test(error.message || '')) {
+            const { data: own } = await supabase.from('users').select('*').eq('id', ownerId).maybeSingle();
+            return own ? [toUser(own)] : [];
+          }
+          throw new Error(error.message);
+        }
+        // Filter out soft-deleted branches client-side (.or() makes it
+        // awkward to AND in branch_deleted_at IS NULL).
+        return (data || [])
+          .filter(r => !r.branch_deleted_at)
+          .map(toUser);
+      } catch (err) {
+        console.error('getOwnedBranches failed:', err);
+        return [];
+      }
+    }
+    const db = getDB();
+    return db.users
+      .filter(u => u.role === 'shop' && (u.id === ownerId || u.parentShopId === ownerId) && !u.branchDeletedAt)
+      .sort((a, b) => (a.parentShopId ? 1 : 0) - (b.parentShopId ? 1 : 0));
+  },
+
+  async createBranch({ ownerId, name, phone, address = '', gstin = '', stateCode = '' }) {
+    if (!ownerId) throw new Error('Owner ID required');
+    if (!name || !name.trim()) throw new Error('Branch name is required');
+    if (!phone || !/^\d{10}$/.test(String(phone).replace(/\D/g, '').slice(-10))) {
+      throw new Error('Enter a valid 10-digit branch phone');
+    }
+    const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
+
+    if (isSupabaseConfigured) {
+      // Verify the parent exists and is a shop. Prevents creating
+      // branches under random non-shop user ids (defense in depth — RLS
+      // should also enforce this server-side).
+      const { data: parent, error: parentErr } = await supabase.from('users')
+        .select('id, role, subscription_tier, gstin, state_code').eq('id', ownerId).maybeSingle();
+      if (parentErr) throw new Error(parentErr.message);
+      if (!parent || parent.role !== 'shop') throw new Error('Only shop owners can create branches.');
+
+      const insertObj = {
+        name: name.trim(),
+        phone: normalizedPhone,
+        role: 'shop',
+        status: 'active',                            // inherits parent's approved status
+        subscription: 'trial',
+        subscription_tier: parent.subscription_tier || 'starter',
+        hide_from_search: false,                     // visible in marketplace by default; owner can toggle
+        parent_shop_id: ownerId,
+        business_address: address || null,
+        gstin: gstin || parent.gstin || null,        // default to parent's GSTIN if same legal entity
+        state_code: stateCode || parent.state_code || null,
+        onboarding_completed: true,                  // branches skip the onboarding flow
+        pass: 'branch_no_password',                  // branches don't have independent login in v1
+      };
+      // Self-heal around branch_deleted_at / parent_shop_id columns not
+      // existing yet (migration not run).
+      let attempt = { ...insertObj };
+      let data = null, error = null;
+      for (let tries = 0; tries < 3; tries++) {
+        ({ data, error } = await supabase.from('users').insert(attempt).select().maybeSingle());
+        if (!error) break;
+        const msg = error.message || '';
+        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
+        if (!miss || !(miss[1] in attempt)) break;
+        delete attempt[miss[1]];
+      }
+      if (error) throw new Error(error.message);
+      return toUser(data);
+    }
+    // Local (mockDB) fallback
+    const db = getDB();
+    const branchId = (crypto?.randomUUID?.() || `branch-${Date.now()}`);
+    const branch = {
+      id: branchId,
+      role: 'shop',
+      name: name.trim(),
+      phone: normalizedPhone,
+      parentShopId: ownerId,
+      status: 'active',
+      subscription: 'trial',
+      hideFromSearch: false,
+      businessAddress: address,
+      gstin, stateCode,
+      onboardingCompleted: true,
+    };
+    db.users.push(branch);
+    saveDB(db);
+    return branch;
+  },
+
+  async updateBranch(branchId, ownerId, updates) {
+    if (!branchId || !ownerId) throw new Error('IDs required');
+    if (isSupabaseConfigured) {
+      // Verify ownership before allowing the update. Either it's the
+      // owner's own row (their main shop) or a branch they own.
+      const { data: target } = await supabase.from('users').select('id, parent_shop_id').eq('id', branchId).maybeSingle();
+      if (!target) throw new Error('Branch not found');
+      if (target.id !== ownerId && target.parent_shop_id !== ownerId) {
+        throw new Error("You don't own this branch");
+      }
+      // Map allowed updates from camelCase
+      const obj = {};
+      if (updates.name !== undefined) obj.name = updates.name;
+      if (updates.phone !== undefined) obj.phone = String(updates.phone).replace(/\D/g, '').slice(-10);
+      if (updates.businessAddress !== undefined) obj.business_address = updates.businessAddress;
+      if (updates.gstin !== undefined) obj.gstin = updates.gstin;
+      if (updates.stateCode !== undefined) obj.state_code = updates.stateCode;
+      if (updates.hideFromSearch !== undefined) obj.hide_from_search = !!updates.hideFromSearch;
+      const { data, error } = await supabase.from('users').update(obj).eq('id', branchId).select().maybeSingle();
+      if (error) throw new Error(error.message);
+      return toUser(data);
+    }
+    const db = getDB();
+    const idx = db.users.findIndex(u => u.id === branchId);
+    if (idx === -1) throw new Error('Branch not found');
+    if (db.users[idx].id !== ownerId && db.users[idx].parentShopId !== ownerId) throw new Error("You don't own this branch");
+    db.users[idx] = { ...db.users[idx], ...updates };
+    saveDB(db);
+    return db.users[idx];
+  },
+
+  async deleteBranch(branchId, ownerId) {
+    if (!branchId || !ownerId) throw new Error('IDs required');
+    if (branchId === ownerId) throw new Error('Cannot delete the main shop — only its branches.');
+    if (isSupabaseConfigured) {
+      // Verify the row is a branch of this owner before soft-deleting.
+      const { data: target } = await supabase.from('users').select('id, parent_shop_id').eq('id', branchId).maybeSingle();
+      if (!target) throw new Error('Branch not found');
+      if (target.parent_shop_id !== ownerId) throw new Error("You don't own this branch");
+      // Soft delete — historical orders/products keep their shop_id
+      // pointer working, so we never hard-delete. Branch disappears from
+      // the switcher but its bills are still readable for reports.
+      const { error } = await supabase.from('users')
+        .update({ branch_deleted_at: new Date().toISOString(), hide_from_search: true })
+        .eq('id', branchId);
+      if (error) throw new Error(error.message);
+      return true;
+    }
+    const db = getDB();
+    const idx = db.users.findIndex(u => u.id === branchId);
+    if (idx === -1) throw new Error('Branch not found');
+    if (db.users[idx].parentShopId !== ownerId) throw new Error("You don't own this branch");
+    db.users[idx].branchDeletedAt = new Date().toISOString();
+    db.users[idx].hideFromSearch = true;
+    saveDB(db);
+    return true;
+  },
+
   async getShopById(shopId) {
     if (!shopId || typeof shopId !== 'string') return null;
     if (isSupabaseConfigured) {
