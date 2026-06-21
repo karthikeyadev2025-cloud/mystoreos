@@ -20,14 +20,47 @@ export default function AuthCallback() {
       try {
         const res = await api.resolveOAuthProfile();
         if (cancelled) return;
+        // Claim-mode roundtrip: customer tapped 'Continue with Google' on a
+        // /register?phone=X&claim=1 link. We stashed the phone in
+        // sessionStorage before redirecting; pick it up here.
+        let claimPhone = null;
+        try {
+          const claim = JSON.parse(sessionStorage.getItem('mystore_oauth_claim') || 'null');
+          if (claim?.phone && /^\d{10}$/.test(claim.phone)) claimPhone = claim.phone;
+        } catch {}
+
         if (res.isNew) {
-          // Stash the Google identity for the onboarding type-picker to use.
+          // If we're in claim mode, skip the role-picker — they're a
+          // customer by definition (a shop bill was sent to their phone),
+          // create the profile directly with phone + Google email, and
+          // send them straight to /dashboard where past bills appear.
+          if (claimPhone) {
+            try {
+              const profile = await api.createOAuthProfile({
+                email: res.email, name: res.name, authUid: res.authUid,
+                role: 'customer', phone: claimPhone,
+              });
+              sessionStorage.removeItem('mystore_oauth_claim');
+              login(profile);
+              navigate('/dashboard', { replace: true });
+              return;
+            } catch (createErr) {
+              // Fall through to the normal role-picker flow if direct
+              // create fails (e.g. duplicate phone constraint elsewhere).
+              if (!cancelled) setError(createErr.message || 'Could not finish sign-in.');
+              return;
+            }
+          }
+          // Normal new-user OAuth flow — role picker
           sessionStorage.setItem('oauth_pending', JSON.stringify({
             email: res.email, name: res.name, authUid: res.authUid,
           }));
           navigate('/onboarding?oauth=1', { replace: true });
           return;
         }
+        // Existing user — log in. If they came from claim mode, the
+        // phone-based reconciliation in getUserOrders does the rest.
+        sessionStorage.removeItem('mystore_oauth_claim');
         login(res.profile);
         navigate('/dashboard', { replace: true });
       } catch (ex) {

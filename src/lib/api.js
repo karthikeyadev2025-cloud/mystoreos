@@ -384,11 +384,16 @@ export const api = {
 
   // Create the profile for a brand-new Google user AFTER they pick a role.
   // shop/distributor land in 'pending' (admin approval); customer is active.
-  async createOAuthProfile({ email, name, role, authUid }) {
+  async createOAuthProfile({ email, name, role, authUid, phone }) {
     if (!isSupabaseConfigured) throw new Error('Not available');
     const cleanEmail = (email || '').toLowerCase();
     const needsApproval = role === 'shop' || role === 'distributor';
-    const { data, error } = await supabase.from('users').insert({
+    // Phone is optional — present only when this OAuth registration came
+    // through a claim link (/register?phone=X&claim=1 → Continue with
+    // Google). Normalized to last-10 digits for consistent matching with
+    // the orders.customer_phone column.
+    const normalizedPhone = phone ? String(phone).replace(/\D/g, '').slice(-10) : null;
+    const insertObj = {
       id: authUid, email: cleanEmail, name, role,
       status: needsApproval ? 'pending' : 'active',
       auth_provider: 'google', email_verified: true,
@@ -397,7 +402,15 @@ export const api = {
       subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
       hide_from_search: role === 'shop' ? true : false,
       trial_started_at: new Date().toISOString(),
-    }).select().maybeSingle();
+    };
+    if (normalizedPhone && normalizedPhone.length === 10) insertObj.phone = normalizedPhone;
+    // Self-heal around the phone column not having a unique constraint quirk
+    // (or, in the rare case, the column missing) — drop phone and retry once.
+    let { data, error } = await supabase.from('users').insert(insertObj).select().maybeSingle();
+    if (error && normalizedPhone && /phone/i.test(error.message || '')) {
+      delete insertObj.phone;
+      ({ data, error } = await supabase.from('users').insert(insertObj).select().maybeSingle());
+    }
     if (error) throw new Error(error.message);
     return toUser(data);
   },
