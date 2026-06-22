@@ -22,6 +22,7 @@ const DesktopTopBar = ({
   activeTab, setActiveTab, isOwner,
   pendingOrders, handleLogout,
   userName, publicCode, syncStatus,
+  branchSwitcherEl,
 }) => {
   return (
     <div style={{ position:'sticky', top:0, zIndex:999, fontFamily:FONT }}>
@@ -59,6 +60,12 @@ const DesktopTopBar = ({
           <div style={{ width:32, height:32, borderRadius:7, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
             <Bell size={15} color="rgba(255,255,255,0.55)" />
           </div>
+          {/* Branch switcher — only shown when owner has 2+ branches */}
+          {branchSwitcherEl && (
+            <div style={{ display:'flex', alignItems:'center' }}>
+              {branchSwitcherEl}
+            </div>
+          )}
           {/* User */}
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'5px 10px 5px 5px', borderRadius:8, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer' }}>
             <div style={{ width:26, height:26, background:GOLD, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:800, color:INK }}>{(userName||'S').slice(0,2).toUpperCase()}</div>
