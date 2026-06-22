@@ -873,26 +873,6 @@ const UserDashboard = () => {
     }
   }, [scratchModalOpen]);
 
-  const handleScratchMove = (e) => {
-    const canvas = scratchCanvasRef.current;
-    if (!canvas || !isDrawingScratch.current || scratchCardRevealed) return;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
-    ctx.fill();
-    
-    checkScratchPercent();
-  };
-
   const checkScratchPercent = () => {
     const canvas = scratchCanvasRef.current;
     if (!canvas || scratchCardRevealed) return;
@@ -924,6 +904,25 @@ const UserDashboard = () => {
     }
   };
 
+  const handleScratchMove = (e) => {
+    const canvas = scratchCanvasRef.current;
+    if (!canvas || !isDrawingScratch.current || scratchCardRevealed) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+    
+    checkScratchPercent();
+  };
   // If the Supabase session expires or SIGNED_OUT fires while the WA
   // Declared BEFORE any useEffect or handler that calls it.
   // Moving it after caused TDZ: "Cannot access before initialization" in
