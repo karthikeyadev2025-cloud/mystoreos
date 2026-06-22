@@ -215,6 +215,12 @@ const UserDashboard = () => {
 
   // Shop Catalogue Mode states
   const [shopInfo, setShopInfo] = useState(null);
+  // Other branches of the same brand. Populated for branded shops that
+  // run multiple locations (e.g. RK Mens & Jeans — Main + branches);
+  // empty for standalone shops. Shown to customers as an "Also visit
+  // our other locations" card so they can jump between branches of the
+  // same brand without losing trust.
+  const [relatedBranches, setRelatedBranches] = useState([]);
   const [products, setProducts] = useState([]);
   const [localSearch, setLocalSearch] = useState(initialSearch);
   const [detailProduct, setDetailProduct] = useState(null);
@@ -370,6 +376,14 @@ const UserDashboard = () => {
           longitude: 80.4365
         });
       }
+
+      // Cross-link to the brand's other branches. Empty array for
+      // standalone shops (most). Best-effort — failure here doesn't
+      // affect the rest of the catalogue load.
+      try {
+        const others = await api.getRelatedBranches(ACTIVE_SHOP_ID);
+        setRelatedBranches(Array.isArray(others) ? others : []);
+      } catch { setRelatedBranches([]); }
 
       const data = await api.getShopProducts(ACTIVE_SHOP_ID);
       if (data && data.length > 0) {
@@ -1313,6 +1327,11 @@ const UserDashboard = () => {
                 </div>
               </div>
 
+              {/* Other Locations card on desktop sidebar — fits below the
+                  shop identity, above the walking-map button. Only renders
+                  if this shop is part of a multi-branch brand. */}
+              {otherLocationsEl}
+
               {/* Proximity walking map guide toggle button */}
               <button
                 onClick={() => setShowWalkingMap(!showWalkingMap)}
@@ -2243,6 +2262,56 @@ const UserDashboard = () => {
     );
   }
 
+  // "Also visit our other locations" card. Shown when the customer is on
+  // /s/<branchId> for a shop that's part of a multi-branch brand. Each
+  // tile is a clickable link to that branch's storefront. Honestly
+  // useful for customers — moving between RK Mens & Jeans — Main and
+  // RK Mens & Jeans — Hitech City stays inside the brand instead of
+  // bouncing back to the marketplace and searching again.
+  const otherLocationsEl = (isStoreMode && relatedBranches.length > 0) ? (
+    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏪</div>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Also visit our other {relatedBranches.length === 1 ? 'location' : 'locations'}</div>
+          <div style={{ fontSize: 10.5, color: '#64748B', marginTop: 1 }}>Same brand · same trust · different location</div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {relatedBranches.map(b => (
+          <a
+            key={b.id}
+            href={`/s/${b.id}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '8px 10px',
+              border: '1px solid #E2E8F0',
+              borderRadius: 9,
+              background: '#F8FAFC',
+              textDecoration: 'none',
+              color: '#0F172A',
+            }}
+          >
+            <div style={{ width: 32, height: 32, borderRadius: 7, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>
+              {(b.name || 'B').slice(0, 2).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {b.name}{!b.parentShopId && <span style={{ marginLeft: 6, fontSize: 9, background: '#4F46E5', color: '#fff', padding: '1.5px 6px', borderRadius: 999, fontWeight: 800 }}>MAIN</span>}
+              </div>
+              {b.businessAddress && (
+                <div style={{ fontSize: 10.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.businessAddress}</div>
+              )}
+            </div>
+            <div style={{ fontSize: 16, color: '#4F46E5', flexShrink: 0 }}>›</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
@@ -2355,6 +2424,11 @@ const UserDashboard = () => {
                   ⚡ Instant Invoice
                 </span>
               </div>
+
+              {/* Other Locations (multi-branch brands) — sits right under
+                  the badges so customers see at a glance that this brand
+                  has more locations they might prefer. */}
+              {otherLocationsEl && <div style={{ marginTop: 14, textAlign: 'left' }}>{otherLocationsEl}</div>}
 
               {/* Proximity Route Walking Map Toggle */}
               <div style={{ marginTop: '14px' }}>

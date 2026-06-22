@@ -1615,6 +1615,19 @@ export const api = {
     return true;
   },
 
+  async getRelatedBranches(shopId) {
+    // Customer-facing helper. Given any shop id (main OR branch), returns
+    // all OTHER active shops in the same brand family — used by the
+    // storefront to render an "Also visit our other locations" card.
+    // Excludes the shop being viewed and any soft-deleted branches.
+    if (!shopId) return [];
+    const shop = await this.getShopById(shopId);
+    if (!shop) return [];
+    const ownerId = shop.parentShopId || shop.id;
+    const all = await this.getOwnedBranches(ownerId);
+    return all.filter(b => b.id !== shopId && !b.branchDeletedAt);
+  },
+
   async getShopById(shopId) {
     if (!shopId || typeof shopId !== 'string') return null;
     if (isSupabaseConfigured) {

@@ -317,6 +317,15 @@ const ShopDashboard = () => {
     } catch { /* localStorage disabled — fine, just no persistence */ }
   };
 
+  // Combined-reports scope toggle. 'branch' = report on currently-selected
+  // branch only (the default — preserves single-branch behavior). 'all' =
+  // union sales across every branch the owner runs. Owners use this when
+  // they want a god's-eye view of the whole business across all locations
+  // (e.g. RK Mens & Jeans: how did Main + Hitech City do combined today?).
+  const [reportsScope, setReportsScope] = useState('branch');
+  const [allBranchOrders, setAllBranchOrders] = useState([]);
+  const [allBranchOrdersLoading, setAllBranchOrdersLoading] = useState(false);
+
   // For staff: still scoped to their staff_of shop. For owner: defaults to
   // their main shop (user.id), but if they've picked a branch, all queries
   // re-target to that branch's id. Single chokepoint that the rest of the
@@ -558,6 +567,50 @@ const ShopDashboard = () => {
   // Live sync shop profile (logo, QR, UPI, name, phone) across all devices —
   // e.g. logo uploaded on mobile reflects instantly on desktop and vice versa.
   useRealtimeTable({ table: 'users', filter: `id=eq.${user.role === 'staff' ? user.staff_of : user.id}`, onRefresh: loadData, pollInterval: 15_000 });
+
+  // Load orders across ALL branches when the owner switches Reports to
+  // "All branches combined". Only fires when scope is 'all', user owns
+  // 2+ branches, and we're on the reports tab — keeps this off the hot
+  // path for everyone else. Re-runs when the branch list changes (new
+  // branch added means refetch so its data is included) or when the
+  // owner explicitly switches to combined mode.
+  useEffect(() => {
+    if (reportsScope !== 'all' || user.role === 'staff' || branches.length < 2) {
+      setAllBranchOrders([]);
+      return;
+    }
+    let cancelled = false;
+    setAllBranchOrdersLoading(true);
+    (async () => {
+      try {
+        const results = await Promise.all(
+          branches.map(b => safe(() => api.getShopOrders(b.id)).then(r => r || []))
+        );
+        if (cancelled) return;
+        // Flatten + dedupe by order id (defensive — shouldn't have dupes
+        // since shop_id is unique per row, but cheap insurance).
+        const seen = new Set();
+        const merged = [];
+        for (const arr of results) {
+          for (const o of arr) {
+            if (!seen.has(o.id)) { seen.add(o.id); merged.push(o); }
+          }
+        }
+        merged.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setAllBranchOrders(merged);
+      } catch (err) {
+        console.error('Failed to load all-branch orders:', err);
+      } finally {
+        if (!cancelled) setAllBranchOrdersLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [reportsScope, branches, user.role]);
+
+  // The orders array Reports tab actually reads — branch-scoped or all-
+  // branches-combined based on the toggle. reportsData() reads this
+  // from closure, so no prop drilling needed.
+  const displayOrders = reportsScope === 'all' ? allBranchOrders : orders;
 
   // Trial expiry reminder: day 5 and day 7 (once per day, tracked in localStorage)
   useEffect(() => {
@@ -1834,11 +1887,19 @@ const ShopDashboard = () => {
     // shop owner's today, not UTC's today.
     const todayStr = localDateStr();
     const isToday = (isoString) => isoString && localDateStr(new Date(isoString)) === todayStr;
-    
+
+    // Which orders feed this report — branch-scoped or all-branches-
+    // combined depending on the toggle at the top of the Reports tab.
+    // In 'all' mode, credits/stockOrders are NOT combined across
+    // branches (those are tracked per-branch); only the top-line sales
+    // metrics + a per-branch revenue breakdown are cross-branch.
+    const isAllScope = reportsScope === 'all';
+    const sourceOrders = isAllScope ? allBranchOrders : orders;
+
     // Cash In: accepted sales orders today + customer credits settled today
     // Net of any partial refunds (o.total - o.refundAmount) so a return
     // doesn't leave inflated revenue/profit numbers behind.
-    const todaySalesOrders = orders.filter(o => 
+    const todaySalesOrders = sourceOrders.filter(o => 
       o.status === 'Accepted' && 
       !(o.userId || '').startsWith('estimate') && 
       !(o.userId || '').startsWith('challan') &&
@@ -1847,7 +1908,7 @@ const ShopDashboard = () => {
     const netOrderTotal = (o) => Number(o.total || 0) - Number(o.refundAmount || 0);
     const todaySalesTotal = todaySalesOrders.reduce((sum, o) => sum + netOrderTotal(o), 0);
     
-    const todayCustSettled = customerCredits.filter(c => 
+    const todayCustSettled = isAllScope ? [] : customerCredits.filter(c => 
       c.paid && 
       isToday(c.date)
     );
@@ -1856,13 +1917,13 @@ const ShopDashboard = () => {
     const cashIn = todaySalesTotal + todayCustSettledTotal;
     
     // Cash Out: accepted restock orders today + distributor credits settled today
-    const todayStockOrders = stockOrders.filter(so => 
+    const todayStockOrders = isAllScope ? [] : stockOrders.filter(so => 
       so.status === 'accepted' && 
       isToday(so.date)
     );
     const todayStockTotal = todayStockOrders.reduce((sum, so) => sum + so.total, 0);
     
-    const todayDistSettled = credits.filter(c => 
+    const todayDistSettled = isAllScope ? [] : credits.filter(c => 
       c.paid && 
       isToday(c.date)
     );
@@ -1934,8 +1995,39 @@ const ShopDashboard = () => {
     
     // Sort ledger items by time
     ledgerItems.sort((a, b) => a.time.localeCompare(b.time));
-    
-    return { cashIn, cashOut, netProfit, marginPercent, ledgerItems };
+
+    // Per-branch breakdown — only meaningful when the owner has 2+
+    // branches AND we're looking at combined data. Each entry shows
+    // how much that branch contributed today + total revenue & bills
+    // for the current month so the owner can spot which location is
+    // pulling its weight at a glance.
+    let branchBreakdown = [];
+    if (isAllScope && branches.length >= 2) {
+      const monthStart = new Date();
+      monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+      const isThisMonth = (iso) => iso && new Date(iso) >= monthStart;
+      branchBreakdown = branches.map(b => {
+        const branchOrders = sourceOrders.filter(o =>
+          o.shopId === b.id &&
+          o.status === 'Accepted' &&
+          !(o.userId || '').startsWith('estimate') &&
+          !(o.userId || '').startsWith('challan')
+        );
+        const todayList = branchOrders.filter(o => isToday(o.date));
+        const monthList = branchOrders.filter(o => isThisMonth(o.date));
+        return {
+          branchId: b.id,
+          branchName: b.name,
+          isMain: !b.parentShopId,
+          todayBills: todayList.length,
+          todayRevenue: todayList.reduce((s, o) => s + netOrderTotal(o), 0),
+          monthBills: monthList.length,
+          monthRevenue: monthList.reduce((s, o) => s + netOrderTotal(o), 0),
+        };
+      }).sort((a, b) => b.monthRevenue - a.monthRevenue);   // best performer first
+    }
+
+    return { cashIn, cashOut, netProfit, marginPercent, ledgerItems, branchBreakdown, isAllScope };
   };
 
   const handleRestockQtyChange = (prodId, delta) => {
@@ -3260,6 +3352,98 @@ const ShopDashboard = () => {
     </select>
   ) : null;
 
+  // Reports scope toggle + per-branch breakdown card. Only rendered when
+  // the owner has 2+ branches; otherwise the existing single-branch
+  // reports are unchanged. Goes above the existing Desktop/Mobile reports
+  // UI so the rest of those components don't need to know about scope.
+  const reportsScopeUI = (hasMultipleBranches && user.role !== 'staff') ? (
+    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 12, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#475569', letterSpacing: 0.3 }}>VIEW:</span>
+        <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 9, padding: 3, gap: 2 }}>
+          <button
+            onClick={() => setReportsScope('branch')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 7,
+              border: 'none',
+              background: reportsScope === 'branch' ? '#4F46E5' : 'transparent',
+              color: reportsScope === 'branch' ? '#fff' : '#475569',
+              fontWeight: 700, fontSize: 12, cursor: 'pointer',
+            }}
+          >This branch</button>
+          <button
+            onClick={() => setReportsScope('all')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 7,
+              border: 'none',
+              background: reportsScope === 'all' ? '#4F46E5' : 'transparent',
+              color: reportsScope === 'all' ? '#fff' : '#475569',
+              fontWeight: 700, fontSize: 12, cursor: 'pointer',
+            }}
+          >All branches combined</button>
+        </div>
+        {reportsScope === 'all' && allBranchOrdersLoading && (
+          <span style={{ fontSize: 11, color: '#64748B', marginLeft: 4 }}>Loading data from all branches…</span>
+        )}
+        {reportsScope === 'all' && !allBranchOrdersLoading && (
+          <span style={{ fontSize: 11, color: '#64748B', marginLeft: 4 }}>Ledger details hidden — switch to a branch to see them</span>
+        )}
+      </div>
+    </div>
+  ) : null;
+
+  // Per-branch performance card. Shown only when the owner has 2+
+  // branches AND is in 'all' scope — gives a glance comparison of how
+  // each location did today + this month, sorted by best performer.
+  const reportsBreakdownEl = (() => {
+    const data = reportsData();
+    if (!data.isAllScope || !data.branchBreakdown?.length) return null;
+    const totalMonth = data.branchBreakdown.reduce((s, b) => s + b.monthRevenue, 0) || 1;
+    return (
+      <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>📊 Per-Branch Performance</h3>
+        <p style={{ margin: '0 0 12px', fontSize: 11.5, color: '#64748B' }}>
+          Today's bills · today's revenue · this month total · share of monthly revenue
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {data.branchBreakdown.map((b, idx) => {
+            const sharePct = Math.round((b.monthRevenue / totalMonth) * 100);
+            return (
+              <div key={b.branchId} style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 10, background: idx === 0 ? '#F0FDF4' : '#FFFFFF' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{b.branchName}</span>
+                  {b.isMain && <span style={{ fontSize: 9.5, background: '#4F46E5', color: '#fff', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
+                  {idx === 0 && data.branchBreakdown.length > 1 && (
+                    <span style={{ fontSize: 9.5, background: '#16A34A', color: '#fff', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>🏆 TOP</span>
+                  )}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8, fontSize: 11.5 }}>
+                  <div>
+                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>TODAY</div>
+                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{b.todayBills} bills · ₹{Math.round(b.todayRevenue).toLocaleString('en-IN')}</div>
+                  </div>
+                  <div>
+                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>THIS MONTH</div>
+                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{b.monthBills} bills · ₹{Math.round(b.monthRevenue).toLocaleString('en-IN')}</div>
+                  </div>
+                  <div>
+                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>SHARE</div>
+                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{sharePct}%</div>
+                    <div style={{ marginTop: 4, background: '#E2E8F0', height: 4, borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ background: '#4F46E5', height: '100%', width: `${sharePct}%`, transition: 'width .35s' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  })();
+
   // Persistent "Send PDF receipt too" banner — rendered in both desktop and
   // mobile returns. Pins to the bottom of the screen and stays visible until
   // the cashier acts on it. Replaces the auto-dismissing 8s toast that
@@ -3567,17 +3751,21 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'reports' && isOwner && (
-            <DesktopReports
-              reportsData={reportsData}
-              orders={orders}
-              downloadTallyXML={downloadTallyXML}
-              user={user}
-              credits={credits}
-              customerCredits={customerCredits}
-              stockOrders={stockOrders}
-              dailyTarget={dailyTarget}
-              products={products}
-            />
+            <>
+              {reportsScopeUI}
+              {reportsBreakdownEl}
+              <DesktopReports
+                reportsData={reportsData}
+                orders={displayOrders}
+                downloadTallyXML={downloadTallyXML}
+                user={user}
+                credits={credits}
+                customerCredits={customerCredits}
+                stockOrders={stockOrders}
+                dailyTarget={dailyTarget}
+                products={products}
+              />
+            </>
           )}
 
           {activeTab === 'profile' && isOwner && (
@@ -5204,6 +5392,8 @@ const ShopDashboard = () => {
             </div>
             
             <div style={{ padding: '16px' }}>
+              {reportsScopeUI}
+              {reportsBreakdownEl}
               
               {/* Profit & Loss Margin Gauge */}
               <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
