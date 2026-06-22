@@ -980,6 +980,14 @@ const ShopDashboard = () => {
         finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
       }
 
+      // Allocate the invoice number BEFORE placeOrder so the DB row and
+      // the PDF both get the same number. The old order burned two counters
+      // per bill: placeOrder called next_invoice_no internally (burned #N),
+      // then getNextInvoiceNumber burned #N+1 — PDF showed #N+1, DB had #N.
+      // Known tradeoff: if placeOrder fails after this, the number is burned.
+      // Future fix: rollback RPC or allocate after PDF render succeeds.
+      const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
+
       await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
         id: b.id,
         name: b.name,
@@ -990,8 +998,7 @@ const ShopDashboard = () => {
       })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode, phone: customerPhone },
       billingMode === 'bill' ? 'Accepted' : 'Pending',
       paymentMethod || 'Cash',
-      // Pass the int we already pulled via getNextInvoiceNumber — same
-      // number that's stamped on the PDF the customer just received.
+      // Pass the int allocated above — same number stamped on the PDF.
       // Storing it on the order row keeps the printed bill and the
       // queryable DB in lockstep, which is what GST audits require.
       invoiceNo?.int || null));
@@ -1001,8 +1008,6 @@ const ShopDashboard = () => {
         if (loyaltyRedeem > 0) await safe(() => api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem));
         loyaltyResult = await safe(() => api.awardLoyaltyPoints(targetShopId, customerPhone, total));
       }
-
-      const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
 
       // Sound synthesis announcement for completed bill (not for estimate/challan)
       if (billingMode === 'bill' && 'speechSynthesis' in window) {

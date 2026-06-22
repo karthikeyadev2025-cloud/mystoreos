@@ -1777,6 +1777,43 @@ export const api = {
     if (!ownerId) throw new Error('Owner ID required');
 
     if (isSupabaseConfigured) {
+      // ── Atomic path via Postgres function ─────────────────────────────
+      // transfer_stock() runs entirely inside one transaction: all stock
+      // moves and the voucher insert either all succeed or all roll back.
+      // Falls back to the sequential JS path only if the migration hasn't
+      // been deployed yet (function-not-found error).
+      try {
+        const { data: rpcResult, error: rpcErr } = await supabase.rpc('transfer_stock', {
+          p_from_shop_id: fromShopId,
+          p_to_shop_id: toShopId,
+          p_owner_id: ownerId,
+          p_note: note || null,
+          p_items: items.map(it => ({
+            productId: it.productId,
+            qty: it.qty,
+            productName: it.productName || null,
+          })),
+        });
+        if (rpcErr) {
+          // If the function doesn't exist yet, fall through to the JS path
+          if (/function .* does not exist/i.test(rpcErr.message || '')) {
+            console.warn('transfer_stock RPC not found — falling back to sequential JS transfer');
+          } else {
+            throw new Error(rpcErr.message);
+          }
+        } else {
+          return {
+            id: rpcResult.id,
+            status: rpcResult.status,
+            failures: rpcResult.failures || [],
+          };
+        }
+      } catch (rpcCallErr) {
+        if (!/function .* does not exist/i.test(rpcCallErr?.message || '')) throw rpcCallErr;
+        console.warn('transfer_stock RPC not found — falling back to sequential JS transfer');
+      }
+
+      // ── Sequential JS fallback (pre-migration environments) ───────────
       // Family ownership check — both shops must share a brand root
       // (one is parent of the other, or they're siblings) AND the
       // caller must own that brand. Stops anyone from moving stock
