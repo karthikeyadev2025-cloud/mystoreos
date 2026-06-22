@@ -1495,10 +1495,15 @@ export const api = {
     if (isSupabaseConfigured) {
       try {
         // Resolve the root owner: if ownerId is itself a branch, look up
-        // its parent_shop_id and use that as the root.
-        const { data: self } = await supabase.from('users')
-          .select('id, parent_shop_id').eq('id', ownerId).maybeSingle();
-        const rootId = (self?.parent_shop_id) || ownerId;
+        // its parent_shop_id and use that as the root. The self-lookup may
+        // fail with 400 if RLS blocks it (e.g. customer session) — that's
+        // fine, fall through to using ownerId directly as the root.
+        let rootId = ownerId;
+        try {
+          const { data: self, error: selfErr } = await supabase.from('users')
+            .select('id, parent_shop_id').eq('id', ownerId).maybeSingle();
+          if (!selfErr && self?.parent_shop_id) rootId = self.parent_shop_id;
+        } catch { /* RLS blocked — use ownerId as root */ }
 
         const { data, error } = await supabase.from('users')
           .select('*')
@@ -1507,9 +1512,14 @@ export const api = {
           .order('parent_shop_id', { ascending: true, nullsFirst: true })  // main shop (NULL parent) first
           .order('created_at', { ascending: true });
         if (error) {
-          // Column doesn't exist yet (migration not run) — fall back to
-          // just returning the main shop so the rest of the dashboard
-          // works as before.
+          // 400 = RLS blocked (e.g. customer session, no rights to read users table).
+          // Just return the single shop record via getShopById which uses a
+          // more permissive public read path.
+          if (error.code === 'PGRST301' || error.message?.includes('400') || /permission|policy|rls/i.test(error.message || '')) {
+            const { data: own } = await supabase.from('users').select('*').eq('id', rootId).maybeSingle();
+            return own ? [toUser(own)] : [];
+          }
+          // Column doesn't exist yet (migration not run)
           if (/parent_shop_id|branch_deleted_at/i.test(error.message || '')) {
             const { data: own } = await supabase.from('users').select('*').eq('id', ownerId).maybeSingle();
             return own ? [toUser(own)] : [];
@@ -2153,12 +2163,38 @@ export const api = {
     // all OTHER active shops in the same brand family — used by the
     // storefront to render an "Also visit our other locations" card.
     // Excludes the shop being viewed and any soft-deleted branches.
+    //
+    // Uses a direct DB query instead of getOwnedBranches to avoid the
+    // double users-table read that triggers RLS 400s in customer sessions.
     if (!shopId) return [];
-    const shop = await this.getShopById(shopId);
+    if (isSupabaseConfigured) {
+      try {
+        // Step 1: get this shop's row to find its root
+        const { data: self } = await supabase.from('users')
+          .select('id, parent_shop_id, branch_deleted_at')
+          .eq('id', shopId).maybeSingle();
+        if (!self) return [];
+        const rootId = self.parent_shop_id || self.id;
+
+        // Step 2: get all shops in this family
+        const { data, error } = await supabase.from('users')
+          .select('id, name, phone, business_address, logo, parent_shop_id, branch_deleted_at, hide_from_search, latitude, longitude')
+          .or(`id.eq.${rootId},parent_shop_id.eq.${rootId}`)
+          .eq('role', 'shop');
+        if (error) return []; // RLS blocked — no related branches to show
+        return (data || [])
+          .filter(r => r.id !== shopId && !r.branch_deleted_at)
+          .map(toUser);
+      } catch { return []; }
+    }
+    const db = getDB();
+    const shop = db.users.find(u => u.id === shopId);
     if (!shop) return [];
-    const ownerId = shop.parentShopId || shop.id;
-    const all = await this.getOwnedBranches(ownerId);
-    return all.filter(b => b.id !== shopId && !b.branchDeletedAt);
+    const rootId = shop.parentShopId || shop.id;
+    return db.users
+      .filter(u => u.role === 'shop' && u.id !== shopId && !u.branchDeletedAt &&
+        (u.id === rootId || u.parentShopId === rootId))
+      .map(u => ({ ...u }));
   },
 
   async getShopById(shopId) {
