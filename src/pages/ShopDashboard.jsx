@@ -3776,7 +3776,7 @@ const ShopDashboard = () => {
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
           {activeTab === 'home' && (
             <DesktopPOS 
-              footerSlot={isOwner ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
+              footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
               products={products}
               filteredProducts={filteredProducts}
               billItems={billItems}
@@ -4776,7 +4776,7 @@ const ShopDashboard = () => {
         </button>
       </div>
 
-      {isOwner && isOnTrial && !trialBannerDismissed && (
+      {isOwner && isViewingMain && isOnTrial && !trialBannerDismissed && (
         <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16A34A,#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#D97706,#B45309)' : 'linear-gradient(90deg,#DC2626,#B91C1C)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
             ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
@@ -6413,7 +6413,7 @@ const ShopDashboard = () => {
           </div>
 
           {/* DANGER ZONE — Reset Test Data (mobile) — main shop only */}
-          {isOwner && isMainOwner && (
+          {isOwner && isViewingMain && (
             <div style={{ background: '#1E0E0E', border: '1.5px solid #7F1D1D', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#FCA5A5', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
               <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
