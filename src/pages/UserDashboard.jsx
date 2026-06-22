@@ -921,6 +921,18 @@ const UserDashboard = () => {
     }
   };
 
+  // If the Supabase session expires or SIGNED_OUT fires while the WA
+  // checkout modal is open, close it and send the customer back to the
+  // guest registration flow. Without this, clicking "Place Order" after
+  // session loss hits placeOrder with user=null and crashes at Postgres
+  // with "null value in column user_id".
+  useEffect(() => {
+    if (!user && showWaModal) {
+      setShowWaModal(false);
+      setShowGuestModal(true);
+    }
+  }, [user, showWaModal]);
+
   const handleCheckoutClick = () => {
     // Don't allow ordering when the shop is currently closed.
     if (shopInfo && !isShopOpenNow(shopInfo)) {
