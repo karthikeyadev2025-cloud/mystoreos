@@ -3089,19 +3089,14 @@ export const api = {
     if (!isSupabaseConfigured) return;
     try {
       const authUid = await this._getAuthUid() || userId;
-      // Delete any existing session for this device first, then insert fresh.
-      // Avoids 409 Conflict on session_token UNIQUE when the same device
-      // re-registers before the previous session row is cleaned up.
-      await supabase.from('active_sessions')
-        .delete()
-        .eq('user_id', authUid)
-        .eq('device_fingerprint', deviceFingerprint);
-      await supabase.from('active_sessions').insert({
+      // Single atomic upsert on (user_id, device_fingerprint) unique constraint.
+      // Requires active_sessions_user_device_unique constraint — see migration.
+      await supabase.from('active_sessions').upsert({
         user_id: authUid,
         session_token: crypto.randomUUID(),
         device_fingerprint: deviceFingerprint,
         last_seen_at: new Date().toISOString(),
-      });
+      }, { onConflict: 'user_id,device_fingerprint' });
     } catch { /* non-critical — ignore RLS failures for legacy accounts */ }
   },
 
