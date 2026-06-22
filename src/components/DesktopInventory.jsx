@@ -31,6 +31,7 @@ const DesktopInventory = ({
   handleOpenEditModal,
   handleDeleteProduct,
   handleBulkCsvImport,
+  onCopyToBranch,
   flashSales = {},
   handleSetFlashSale,
   handleClearFlashSale,
@@ -421,6 +422,15 @@ const DesktopInventory = ({
                   <button onClick={() => { setAdjustTarget(adjustTarget === p.id ? null : p.id); setAdjustDelta(''); setAdjustReason('Correction'); }} style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4F46E5', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Adjust
                   </button>
+                  {onCopyToBranch && (
+                    <button
+                      onClick={() => onCopyToBranch(p)}
+                      title="Copy this product to another branch (stock = 0)"
+                      style={{ background: '#F0FDF4', border: '1px solid #86EFAC', color: '#16A34A', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      📋 Copy to branch
+                    </button>
+                  )}
                   <button onClick={() => handleOpenEditModal(p)} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Edit
                   </button>

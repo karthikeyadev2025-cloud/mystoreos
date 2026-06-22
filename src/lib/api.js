@@ -1750,6 +1750,81 @@ export const api = {
     return { imported, skipped, products: newProducts };
   },
 
+  async copySingleProductToBranch(productId, targetShopId, ownerId) {
+    // Copy one specific product from wherever it lives (main or any branch)
+    // into targetShopId. Ownership-checked: both the product's source shop
+    // and the target must belong to the same brand (same parent root) as
+    // the caller. Stock is reset to 0 on the copy — the branch sets its
+    // own opening stock. If the product already exists in targetShopId
+    // (matched by barcode if present, else name), returns { skipped: true }
+    // instead of creating a duplicate.
+    if (!productId || !targetShopId || !ownerId) throw new Error('IDs required');
+    if (isSupabaseConfigured) {
+      // Fetch the product and its source shop
+      const { data: product, error: pErr } = await supabase.from('products')
+        .select('*').eq('id', productId).maybeSingle();
+      if (pErr) throw new Error(pErr.message);
+      if (!product) throw new Error('Product not found');
+
+      const sourceShopId = product.shop_id;
+      if (sourceShopId === targetShopId) throw new Error('Product is already in this branch');
+
+      // Ownership check: both shops must share a brand root
+      const { data: shops } = await supabase.from('users')
+        .select('id, parent_shop_id').in('id', [sourceShopId, targetShopId]);
+      if (!shops || shops.length !== 2) throw new Error('Could not verify shop ownership');
+      const src = shops.find(s => s.id === sourceShopId);
+      const tgt = shops.find(s => s.id === targetShopId);
+      const srcRoot = src.parent_shop_id || src.id;
+      const tgtRoot = tgt.parent_shop_id || tgt.id;
+      if (srcRoot !== tgtRoot) throw new Error('Both shops must belong to the same brand');
+      if (srcRoot !== ownerId && sourceShopId !== ownerId && targetShopId !== ownerId) {
+        throw new Error("You don't own these branches");
+      }
+
+      // Dedupe check — same logic as importProductsFromShop
+      const { data: existing } = await supabase.from('products')
+        .select('id, name, barcode').eq('shop_id', targetShopId);
+      const existingBarcodes = new Set((existing || []).map(p => p.barcode).filter(Boolean));
+      const existingNames = new Set((existing || []).map(p => (p.name || '').toLowerCase()));
+      if (product.barcode && existingBarcodes.has(product.barcode)) return { skipped: true, reason: 'barcode' };
+      if (!product.barcode && existingNames.has((product.name || '').toLowerCase())) return { skipped: true, reason: 'name' };
+
+      const newRow = { ...product };
+      delete newRow.id;
+      delete newRow.created_at;
+      delete newRow.updated_at;
+      newRow.shop_id = targetShopId;
+      newRow.stock = 0; // branch sets its own opening stock
+
+      let attempt = { ...newRow };
+      let data = null, error = null;
+      for (let tries = 0; tries < 6; tries++) {
+        ({ data, error } = await supabase.from('products').insert(attempt).select().maybeSingle());
+        if (!error) break;
+        const msg = error.message || '';
+        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
+        if (!miss || !(miss[1] in attempt)) break;
+        const c = { ...attempt }; delete c[miss[1]]; attempt = c;
+      }
+      if (error) throw new Error(error.message);
+      return { skipped: false, product: toProduct(data) };
+    }
+    // Local fallback
+    const db = getDB();
+    db.products = db.products || [];
+    const product = db.products.find(p => p.id === productId);
+    if (!product) throw new Error('Product not found');
+    if (product.shopId === targetShopId) throw new Error('Product is already in this branch');
+    const existingNames = new Set(db.products.filter(p => p.shopId === targetShopId).map(p => (p.name||'').toLowerCase()));
+    if (existingNames.has((product.name||'').toLowerCase())) return { skipped: true, reason: 'name' };
+    const copy = { ...product, id: crypto.randomUUID(), shopId: targetShopId, stock: 0 };
+    db.products.push(copy);
+    saveDB(db);
+    return { skipped: false, product: copy };
+  },
+
   async createStockTransfer({ fromShopId, toShopId, items, ownerId, note = '' }) {
     // Move inventory between two branches of the same brand. Books the
     // movement in stock_transfers (audit trail for tax/audit) AND

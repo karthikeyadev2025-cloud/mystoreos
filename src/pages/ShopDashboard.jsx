@@ -2075,6 +2075,47 @@ const ShopDashboard = () => {
     }
   };
 
+  // Copy a single product from the current (main) shop into a chosen branch.
+  // Called from DesktopInventory's per-product "Copy to branch" button.
+  // Shows a branch-picker if owner has more than one branch to choose from.
+  const [copyToBranchModal, setCopyToBranchModal] = useState(null); // { productId, productName }
+  const [copyToBranchTarget, setCopyToBranchTarget] = useState('');
+  const [copyToBranchLoading, setCopyToBranchLoading] = useState(false);
+
+  const handleCopyProductToBranch = (product) => {
+    const otherBranches = visibleBranches.filter(b => b.id !== targetShopId);
+    if (otherBranches.length === 0) {
+      toast.error('No other branches to copy to. Add a branch first in Settings.');
+      return;
+    }
+    // Auto-select if only one branch exists
+    setCopyToBranchTarget(otherBranches.length === 1 ? otherBranches[0].id : '');
+    setCopyToBranchModal({ productId: product.id, productName: product.name });
+  };
+
+  const executeCopyToBranch = async () => {
+    if (!copyToBranchModal || !copyToBranchTarget) return;
+    setCopyToBranchLoading(true);
+    try {
+      const result = await api.copySingleProductToBranch(
+        copyToBranchModal.productId,
+        copyToBranchTarget,
+        user.id
+      );
+      const branchName = visibleBranches.find(b => b.id === copyToBranchTarget)?.name || 'branch';
+      if (result.skipped) {
+        toast.info(`"${copyToBranchModal.productName}" already exists in ${branchName}.`);
+      } else {
+        toast.success(`"${copyToBranchModal.productName}" copied to ${branchName} (stock set to 0).`);
+      }
+      setCopyToBranchModal(null);
+    } catch (err) {
+      toast.error(err?.message || 'Copy failed');
+    } finally {
+      setCopyToBranchLoading(false);
+    }
+  };
+
   const handleRestockQtyChange = (prodId, delta) => {
     setRestockCart(prev => {
       const current = prev[prodId] || 0;
@@ -3762,6 +3803,7 @@ const ShopDashboard = () => {
               salesData={salesData}
               shopCategory={shopCategory}
               onShowBarcodeManager={openBarcodeManager}
+              onCopyToBranch={hasMultipleBranches ? handleCopyProductToBranch : null}
             />
             </>
           )}
@@ -7178,6 +7220,60 @@ const ShopDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* ── Copy Product to Branch modal ──────────────────────────────── */}
+      {copyToBranchModal && (() => {
+        const otherBranches = visibleBranches.filter(b => b.id !== targetShopId);
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
+            <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+              <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
+                📋 Copy to Branch
+              </h3>
+              <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#64748B', lineHeight: 1.5 }}>
+                Copying <b>"{copyToBranchModal.productName}"</b> to another branch. Stock will be set to 0 — set the opening stock in the branch after copying.
+              </p>
+
+              {otherBranches.length === 1 ? (
+                <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#0F172A', fontWeight: 700 }}>
+                  → {otherBranches[0].name}
+                </div>
+              ) : (
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6, letterSpacing: 0.3 }}>SELECT BRANCH</label>
+                  <select
+                    value={copyToBranchTarget}
+                    onChange={e => setCopyToBranchTarget(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E2E8F0', borderRadius: 9, fontSize: 13, color: '#0F172A', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  >
+                    <option value="">— Pick a branch —</option>
+                    {otherBranches.map(b => (
+                      <option key={b.id} value={b.id}>{b.name}{!b.parentShopId ? ' (Main)' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => setCopyToBranchModal(null)}
+                  disabled={copyToBranchLoading}
+                  style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeCopyToBranch}
+                  disabled={!copyToBranchTarget || copyToBranchLoading}
+                  style={{ flex: 2, background: (!copyToBranchTarget || copyToBranchLoading) ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: (!copyToBranchTarget || copyToBranchLoading) ? 'not-allowed' : 'pointer' }}
+                >
+                  {copyToBranchLoading ? 'Copying…' : 'Copy to branch →'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
