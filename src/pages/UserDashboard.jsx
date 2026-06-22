@@ -1130,7 +1130,11 @@ const UserDashboard = () => {
       setScratchModalOpen(true);
 
       // Persist order to DB — non-blocking, UX already done
-      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total);
+      // Pass customer phone so customer_phone column is written — this is
+      // what ties shop-billed orders (owner typed their phone) to this
+      // account when they later register. Without it, customer_phone = null
+      // and phone-based bill reconciliation misses their own storefront orders.
+      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total, { phone: effectiveUser.phone || '' });
       const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
       setLastOrderId(orderId);
       playPaymentSuccessSound();
