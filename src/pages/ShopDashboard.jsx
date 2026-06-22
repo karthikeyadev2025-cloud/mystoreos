@@ -989,7 +989,12 @@ const ShopDashboard = () => {
         itemDiscount: b.itemDiscount || 0
       })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode, phone: customerPhone },
       billingMode === 'bill' ? 'Accepted' : 'Pending',
-      paymentMethod || 'Cash'));
+      paymentMethod || 'Cash',
+      // Pass the int we already pulled via getNextInvoiceNumber — same
+      // number that's stamped on the PDF the customer just received.
+      // Storing it on the order row keeps the printed bill and the
+      // queryable DB in lockstep, which is what GST audits require.
+      invoiceNo?.int || null));
 
       let loyaltyResult = null;
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {

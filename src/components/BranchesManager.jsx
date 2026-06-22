@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../lib/api';
-import { Plus, Trash2, Edit3, X, Store, Loader2, KeyRound, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit3, X, Store, Loader2, KeyRound, Copy, ArrowLeftRight } from 'lucide-react';
+import StockTransferModal from './StockTransferModal';
 
 // Self-contained card that lets the shop owner manage their physical
 // branches. Lives in the Settings tab on both desktop and mobile.
@@ -24,6 +25,7 @@ export default function BranchesManager({ ownerId, onChange }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null); // null = create mode, branch obj = edit mode
   const [resetting, setResetting] = useState(null); // branch obj currently being password-reset, or null
+  const [stockTransferOpen, setStockTransferOpen] = useState(false);
 
   const reload = useCallback(async () => {
     if (!ownerId) return;
@@ -64,12 +66,23 @@ export default function BranchesManager({ ownerId, onChange }) {
             Run multiple shop locations? Add each branch here. Switch between them from the dropdown next to your shop name.
           </p>
         </div>
-        <button
-          onClick={() => { setEditing(null); setModalOpen(true); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
-        >
-          <Plus size={15} /> Add Branch
-        </button>
+        <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexWrap: 'wrap' }}>
+          {list.filter(b => !b.branchDeletedAt).length >= 2 && (
+            <button
+              onClick={() => setStockTransferOpen(true)}
+              title="Move inventory between branches"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFFFF', color: '#4F46E5', border: '1.5px solid #C7D2FE', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              <ArrowLeftRight size={15} /> Stock Transfer
+            </button>
+          )}
+          <button
+            onClick={() => { setEditing(null); setModalOpen(true); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            <Plus size={15} /> Add Branch
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -143,6 +156,15 @@ export default function BranchesManager({ ownerId, onChange }) {
           branch={resetting}
           ownerId={ownerId}
           onClose={() => setResetting(null)}
+        />
+      )}
+
+      {stockTransferOpen && (
+        <StockTransferModal
+          ownerId={ownerId}
+          branches={list}
+          onClose={() => setStockTransferOpen(false)}
+          onComplete={() => { /* products refresh happens on the next ShopDashboard reload */ }}
         />
       )}
     </div>

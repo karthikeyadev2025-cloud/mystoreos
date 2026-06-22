@@ -45,10 +45,12 @@ serve(async (req) => {
     const data = await resp.json();
     const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (reply) return json({ reply });
-    // No candidate returned — log + surface a concise reason (TEMP, for debugging).
+    // No candidate returned — log server-side but show the customer a
+    // clean message. Earlier this surfaced the raw API error to the
+    // user as a diagnostic; that's now removed so customers don't see
+    // internal error details.
     console.error('support-chat no candidate:', JSON.stringify(data).slice(0, 600));
-    const why = data?.error?.message ? ` [${String(data.error.message).slice(0, 160)}]` : '';
-    return json({ reply: "Sorry, I couldn't process that. Please raise a ticket and our team will help." + why });
+    return json({ reply: "Sorry, I couldn't process that. Please raise a ticket and our team will help." });
   } catch (e) {
     return json({ reply: 'Something went wrong. Please raise a support ticket and our team will help.' });
   }

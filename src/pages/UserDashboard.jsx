@@ -332,7 +332,11 @@ const UserDashboard = () => {
 
   const loadShops = useCallback(async () => {
     try {
-      const data = await api.getAllShops();
+      // Customer marketplace dedupes multi-branch brands — getMarketplaceShops
+      // returns one card per brand (the main shop) with a branchCount field
+      // for the UI to show '5 locations'. Branches and hidden shops are
+      // filtered out server-side.
+      const data = await api.getMarketplaceShops();
       setShops(data || []);
     } catch (err) {
       console.error('Failed to load shops', err);

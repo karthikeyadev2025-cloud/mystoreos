@@ -55,6 +55,16 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
         <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shop.name}</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#64748B', textTransform: 'capitalize', flexWrap: 'wrap' }}>
           <span style={{ background: '#F1F5F9', padding: '2px 7px', borderRadius: 6, fontWeight: 600, color: '#475569' }}>{category}</span>
+          {/* Multi-branch brands get a "N locations" pill so customers
+              immediately see this brand has multiple outlets. Tapping the
+              card lands on the main shop's storefront which carries the
+              "Also visit our other locations" cross-link card built in
+              Phase 4 of branches. */}
+          {shop.branchCount > 0 && (
+            <span style={{ background: '#EEF2FF', padding: '2px 7px', borderRadius: 6, fontWeight: 700, color: '#4F46E5', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+              🏪 {shop.branchCount + 1} locations
+            </span>
+          )}
           {rating ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontWeight: 600, color: '#059669' }}>
               <Star size={11} fill="#059669" color="#059669" />{rating}

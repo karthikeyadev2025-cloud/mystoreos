@@ -189,6 +189,11 @@ const toOrder = (row) => row ? ({
   refundAmount: row.refund_amount != null ? Number(row.refund_amount) : null,
   refundMode: row.refund_mode || null,
   returnedItems: row.returned_items || null,
+  customerPhone: row.customer_phone || null,
+  // Sequential per-shop invoice number, stamped at insert time via the
+  // next_invoice_no() Postgres function. Null for orders placed before
+  // the migration ran (we fall back to the UUID slice for those).
+  invoiceNo: row.invoice_no || null,
 }) : null;
 
 const toCredit = (row) => row ? ({
@@ -1154,7 +1159,7 @@ export const api = {
     }).reverse();
   },
 
-  async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending', paymentMethod = 'Cash') {
+  async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending', paymentMethod = 'Cash', invoiceNoInt = null) {
     // Hard guard at the API boundary. Lets us throw a clear human error
     // instead of letting a stale frontend reach Postgres and get back the
     // cryptic 'null value in column "user_id" of relation "orders"
@@ -1199,6 +1204,19 @@ export const api = {
         }
       }
 
+      // Use the invoice number the caller already allocated (shop side
+      // calls api.getNextInvoiceNumber before rendering the PDF, then
+      // passes the int here so the persisted order matches the printed
+      // PDF). For customer-side checkouts, no pre-allocation — we call
+      // the RPC here. RPC missing → leave null (legacy behavior).
+      let invoiceNo = invoiceNoInt;
+      if (!invoiceNo) {
+        try {
+          const { data: invData, error: invErr } = await supabase.rpc('next_invoice_no', { p_shop_id: resolvedId });
+          if (!invErr && typeof invData === 'number') invoiceNo = invData;
+        } catch (_e) { /* function not available — leave null */ }
+      }
+
       const insertObj = {
         user_id: userId,
         shop_id: resolvedId,
@@ -1209,7 +1227,8 @@ export const api = {
         customer_address: customerData.address || null,
         customer_state_code: customerData.stateCode || null,
         customer_phone: normalizedPhone,
-        payment_method: paymentMethod || 'Cash'
+        payment_method: paymentMethod || 'Cash',
+        invoice_no: invoiceNo,
       };
       // Self-heal around the customer_phone column not existing yet
       // (migration not run): retry without it instead of failing the bill.
@@ -1731,6 +1750,223 @@ export const api = {
     return { imported, skipped, products: newProducts };
   },
 
+  async createStockTransfer({ fromShopId, toShopId, items, ownerId, note = '' }) {
+    // Move inventory between two branches of the same brand. Books the
+    // movement in stock_transfers (audit trail for tax/audit) AND
+    // updates the actual stock counts on both sides. Atomicity caveat:
+    // Supabase JS doesn't expose transactions, so we do best-effort
+    // sequential updates and record any partial failures on the
+    // transfer row's status. For low-frequency manual transfers this
+    // is acceptable; high-frequency systems would push this into a
+    // Postgres function.
+    //
+    // Items shape: [{ productId, qty, productName? }, ...]
+    //   productId = source's product row id
+    //   qty = positive integer
+    //   productName = optional, used for denormalized display only
+    //
+    // Behavior per item:
+    //   1. Decrement source.stock by qty (fail if would go negative)
+    //   2. Try to find matching product on target by barcode (preferred)
+    //      else by case-insensitive name match. If found → increment
+    //      its stock by qty. If not found → create new product on
+    //      target copying source's attributes, with stock = qty.
+    if (!fromShopId || !toShopId) throw new Error('Source and destination branch required');
+    if (fromShopId === toShopId) throw new Error('Source and destination must be different branches');
+    if (!Array.isArray(items) || items.length === 0) throw new Error('Pick at least one product to transfer');
+    if (!ownerId) throw new Error('Owner ID required');
+
+    if (isSupabaseConfigured) {
+      // Family ownership check — both shops must share a brand root
+      // (one is parent of the other, or they're siblings) AND the
+      // caller must own that brand. Stops anyone from moving stock
+      // between random shops.
+      const { data: shops } = await supabase.from('users')
+        .select('id, parent_shop_id, role').in('id', [fromShopId, toShopId]);
+      if (!shops || shops.length !== 2) throw new Error('Could not verify shop ownership');
+      const src = shops.find(s => s.id === fromShopId);
+      const tgt = shops.find(s => s.id === toShopId);
+      const srcRoot = src.parent_shop_id || src.id;
+      const tgtRoot = tgt.parent_shop_id || tgt.id;
+      if (srcRoot !== tgtRoot) throw new Error('Both branches must belong to the same brand');
+      if (srcRoot !== ownerId && fromShopId !== ownerId && toShopId !== ownerId) {
+        throw new Error("You don't own these branches");
+      }
+
+      // Load source products for the requested item IDs — validates
+      // existence and gives us the current stock + all attributes for
+      // copy-to-target if needed.
+      const ids = items.map(i => i.productId);
+      const { data: srcProducts, error: srcErr } = await supabase.from('products')
+        .select('*').eq('shop_id', fromShopId).in('id', ids);
+      if (srcErr) throw new Error(srcErr.message);
+      if (!srcProducts || srcProducts.length !== ids.length) {
+        throw new Error('Some products no longer exist on the source branch');
+      }
+
+      // Pre-flight stock validation — refuse to start if ANY item is
+      // short. Better to fail loudly upfront than half-complete the
+      // transfer.
+      for (const it of items) {
+        const sp = srcProducts.find(p => p.id === it.productId);
+        const have = Number(sp?.stock || 0);
+        const need = Math.max(1, parseInt(it.qty, 10) || 0);
+        if (need <= 0) throw new Error(`Quantity must be > 0 for ${sp?.name || 'an item'}`);
+        if (have < need) {
+          throw new Error(`Not enough stock for ${sp?.name || 'item'} — source has ${have}, asking for ${need}`);
+        }
+      }
+
+      // Pull target's existing products once for matching.
+      const { data: tgtProducts } = await supabase.from('products')
+        .select('id, name, barcode, stock').eq('shop_id', toShopId);
+      const tgtByBarcode = new Map((tgtProducts || []).filter(p => p.barcode).map(p => [p.barcode, p]));
+      const tgtByName = new Map((tgtProducts || []).map(p => [(p.name || '').toLowerCase(), p]));
+
+      // Insert the transfer voucher first (status='in_progress') so
+      // even partial failures leave an audit row. We'll update status
+      // at the end.
+      const denormItems = items.map(it => {
+        const sp = srcProducts.find(p => p.id === it.productId);
+        return {
+          productId: it.productId,
+          productName: sp?.name || it.productName || 'Unnamed product',
+          barcode: sp?.barcode || null,
+          qty: Math.max(1, parseInt(it.qty, 10) || 0),
+        };
+      });
+      const { data: transferRow, error: insErr } = await supabase.from('stock_transfers').insert({
+        from_shop_id: fromShopId,
+        to_shop_id: toShopId,
+        items: denormItems,
+        created_by: ownerId,
+        note: note || null,
+        status: 'in_progress',
+      }).select().maybeSingle();
+      if (insErr) throw new Error(insErr.message);
+
+      // Execute the per-item moves. Any failure → mark the transfer
+      // 'partial' but don't roll back already-applied items (we don't
+      // have transactions). The owner can read the failed items on
+      // the voucher and reconcile.
+      const failures = [];
+      for (const it of denormItems) {
+        const sp = srcProducts.find(p => p.id === it.productId);
+        try {
+          // 1. Decrement source
+          const newSrcStock = Number(sp.stock || 0) - it.qty;
+          const { error: decErr } = await supabase.from('products')
+            .update({ stock: newSrcStock }).eq('id', sp.id);
+          if (decErr) throw new Error(`source decrement failed: ${decErr.message}`);
+
+          // 2. Find matching target product
+          let match = (sp.barcode && tgtByBarcode.get(sp.barcode)) || tgtByName.get((sp.name || '').toLowerCase());
+          if (match) {
+            const newTgtStock = Number(match.stock || 0) + it.qty;
+            const { error: incErr } = await supabase.from('products')
+              .update({ stock: newTgtStock }).eq('id', match.id);
+            if (incErr) throw new Error(`target increment failed: ${incErr.message}`);
+          } else {
+            // No match → create the product on the target by cloning
+            // source's row with stock = qty. Same self-heal pattern
+            // as importProductsFromShop for any optional columns.
+            const newRow = { ...sp };
+            delete newRow.id;
+            delete newRow.created_at;
+            delete newRow.updated_at;
+            newRow.shop_id = toShopId;
+            newRow.stock = it.qty;
+            let attempt = { ...newRow };
+            for (let tries = 0; tries < 6; tries++) {
+              const { error: createErr } = await supabase.from('products').insert(attempt);
+              if (!createErr) break;
+              const msg = createErr.message || '';
+              const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+                || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
+              if (!miss) throw new Error(`target create failed: ${createErr.message}`);
+              const c = { ...attempt }; delete c[miss[1]]; attempt = c;
+            }
+          }
+        } catch (err) {
+          failures.push({ productId: it.productId, productName: it.productName, error: String(err?.message || err) });
+        }
+      }
+
+      // Finalize transfer status based on outcome
+      const finalStatus = failures.length === 0 ? 'completed' : (failures.length === denormItems.length ? 'failed' : 'partial');
+      await supabase.from('stock_transfers')
+        .update({ status: finalStatus, items: denormItems.map(it => ({ ...it, failed: failures.find(f => f.productId === it.productId)?.error || null })) })
+        .eq('id', transferRow.id);
+
+      return { id: transferRow.id, status: finalStatus, failures };
+    }
+    // Local (mockDB) fallback
+    const db = getDB();
+    db.stockTransfers = db.stockTransfers || [];
+    db.products = db.products || [];
+    for (const it of items) {
+      const sp = db.products.find(p => p.id === it.productId && p.shopId === fromShopId);
+      if (!sp || sp.stock < it.qty) throw new Error(`Not enough stock for ${sp?.name || 'item'}`);
+      sp.stock -= it.qty;
+      let match = db.products.find(p =>
+        p.shopId === toShopId && ((sp.barcode && p.barcode === sp.barcode) || p.name?.toLowerCase() === sp.name?.toLowerCase())
+      );
+      if (match) match.stock += it.qty;
+      else db.products.push({ ...sp, id: crypto.randomUUID(), shopId: toShopId, stock: it.qty });
+    }
+    const t = { id: crypto.randomUUID(), fromShopId, toShopId, items, createdBy: ownerId, note, status: 'completed', createdAt: new Date().toISOString() };
+    db.stockTransfers.push(t);
+    saveDB(db);
+    return { id: t.id, status: 'completed', failures: [] };
+  },
+
+  async getStockTransfers(shopId, options = {}) {
+    // Returns transfers involving this shop (either direction), most
+    // recent first. Used by the "Recent transfers" list in the
+    // BranchesManager so the owner has the audit trail at hand.
+    const limit = Math.min(50, Math.max(1, options.limit || 20));
+    if (!shopId) return [];
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase.from('stock_transfers')
+          .select('*')
+          .or(`from_shop_id.eq.${shopId},to_shop_id.eq.${shopId}`)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        if (error) {
+          // Table doesn't exist yet (migration not run)
+          if (/relation .* does not exist/i.test(error.message || '')) return [];
+          throw new Error(error.message);
+        }
+        // Resolve shop names so the voucher renders cleanly without an
+        // extra round-trip per row in the UI.
+        const ids = Array.from(new Set([...(data || []).map(r => r.from_shop_id), ...(data || []).map(r => r.to_shop_id)]));
+        const { data: shops } = await supabase.from('users').select('id, name').in('id', ids);
+        const nameById = new Map((shops || []).map(s => [s.id, s.name]));
+        return (data || []).map(r => ({
+          id: r.id,
+          fromShopId: r.from_shop_id,
+          toShopId: r.to_shop_id,
+          fromShopName: nameById.get(r.from_shop_id) || 'Unknown',
+          toShopName: nameById.get(r.to_shop_id) || 'Unknown',
+          items: r.items || [],
+          createdBy: r.created_by,
+          note: r.note,
+          status: r.status,
+          createdAt: r.created_at,
+        }));
+      } catch (err) {
+        console.error('getStockTransfers failed:', err);
+        return [];
+      }
+    }
+    const db = getDB();
+    return (db.stockTransfers || [])
+      .filter(t => t.fromShopId === shopId || t.toShopId === shopId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, limit);
+  },
+
   async updateBranch(branchId, ownerId, updates) {
     if (!branchId || !ownerId) throw new Error('IDs required');
     if (isSupabaseConfigured) {
@@ -1848,6 +2084,51 @@ export const api = {
     }
     const db = getDB();
     return db.users.filter(u => u.role === 'shop' || u.role === 'distributor');
+  },
+
+  // Customer marketplace listing — DEDUPES multi-branch brands so a brand
+  // with 5 locations shows up as ONE card with a "5 locations" pill,
+  // instead of five separate cards. Tapping the card lands on the main
+  // shop's storefront which already has the "Also visit our other
+  // locations" cross-link card (storefront cross-linking, Phase 4).
+  //
+  // Distributors are kept un-grouped (different model). Soft-deleted
+  // branches are excluded server-side via the partial index check.
+  async getMarketplaceShops() {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('users')
+        .select('*')
+        .in('role', ['shop', 'distributor'])
+        .eq('hide_from_search', false);
+      const all = (data || []).filter(r => !r.branch_deleted_at).map(toUser);
+      // Build branch counts per brand root. Each shop with a
+      // parentShopId contributes to its parent's count; standalone main
+      // shops just have their own count.
+      const branchCountByRoot = new Map();
+      for (const s of all) {
+        if (s.parentShopId) {
+          branchCountByRoot.set(s.parentShopId, (branchCountByRoot.get(s.parentShopId) || 0) + 1);
+        }
+      }
+      // Surface only the main shops (no parentShopId) + every distributor.
+      // Each main carries an extra branchCount field. Standalones (no
+      // children) get branchCount: 0 — UI can decide whether to render
+      // the "N locations" pill.
+      return all
+        .filter(s => s.role === 'distributor' || !s.parentShopId)
+        .map(s => ({ ...s, branchCount: branchCountByRoot.get(s.id) || 0 }));
+    }
+    const db = getDB();
+    const all = db.users.filter(u =>
+      (u.role === 'shop' || u.role === 'distributor') && !u.hideFromSearch && !u.branchDeletedAt
+    );
+    const counts = new Map();
+    for (const s of all) {
+      if (s.parentShopId) counts.set(s.parentShopId, (counts.get(s.parentShopId) || 0) + 1);
+    }
+    return all
+      .filter(s => s.role === 'distributor' || !s.parentShopId)
+      .map(s => ({ ...s, branchCount: counts.get(s.id) || 0 }));
   },
 
   // Admin: get order count + total revenue per shop in one query
@@ -2734,13 +3015,39 @@ export const api = {
   },
 
   async getNextInvoiceNumber(userId) {
+    // Atomic per-shop allocation via the next_invoice_no() Postgres
+    // function (race-free across concurrent bills, unlike the older
+    // site_config counter which had a fetch-then-write race). Returns
+    // an object so the caller can use the formatted string for display
+    // AND the integer for storage on order.invoice_no.
+    const prefix = await this.getSiteConfig(`invPrefix_${userId}`, 'INV');
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase.rpc('next_invoice_no', { p_shop_id: userId });
+        if (!error && typeof data === 'number') {
+          return {
+            int: data,
+            formatted: `${prefix}-${String(data).padStart(4, '0')}`,
+            // Backwards-compat: existing code uses the result directly in
+            // template strings like `${invoiceNo}` and concatenates to
+            // build display labels — preserve that by overriding toString.
+            toString() { return this.formatted; },
+          };
+        }
+      } catch (_e) { /* RPC missing (migration not run) — fall through */ }
+    }
+    // Legacy site_config fallback for environments where the migration
+    // hasn't been applied yet. Race condition exists but is unchanged
+    // from prior behavior.
     const counterKey = `invCounter_${userId}`;
-    const prefixKey = `invPrefix_${userId}`;
-    const prefix = await this.getSiteConfig(prefixKey, 'INV');
     const current = parseInt(await this.getSiteConfig(counterKey, 0)) || 0;
     const next = current + 1;
     await this.saveSiteConfig(counterKey, next);
-    return `${prefix}-${String(next).padStart(4, '0')}`;
+    return {
+      int: next,
+      formatted: `${prefix}-${String(next).padStart(4, '0')}`,
+      toString() { return this.formatted; },
+    };
   },
 
   // ── Reset Test Data ──────────────────────────────────────────────────────
@@ -2804,15 +3111,38 @@ export const api = {
     return { orders: removedOrders, credits: removedCredits, stockOrders: removedStock || 0 };
   },
 
+  // Loyalty points are unified across every branch of the same brand.
+  // RK's customer who buys ₹500 at Main shop and ₹500 at the Hitech City
+  // branch should see ONE 100-point balance, not 50 in each. We resolve
+  // the brand root (parent_shop_id || self) and key the counter on that.
+  // Standalone shops (no parent, no children) behave exactly as before —
+  // their brand root is their own id.
+  async _resolveBrandRoot(shopId) {
+    if (!shopId) return shopId;
+    if (!isSupabaseConfigured) {
+      const db = getDB();
+      const u = db.users.find(x => x.id === shopId);
+      return (u?.parentShopId) || shopId;
+    }
+    try {
+      const { data } = await supabase.from('users').select('parent_shop_id').eq('id', shopId).maybeSingle();
+      return data?.parent_shop_id || shopId;
+    } catch {
+      return shopId;        // column missing (migration not run) → standalone behavior
+    }
+  },
+
   async getLoyaltyPoints(shopId, phone) {
     if (!phone) return 0;
-    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    const brandRoot = await this._resolveBrandRoot(shopId);
+    const key = `loyalty_${brandRoot}_${phone.replace(/\D/g, '')}`;
     return parseInt(await this.getSiteConfig(key, 0)) || 0;
   },
 
   async awardLoyaltyPoints(shopId, phone, orderTotal) {
     if (!phone) return 0;
-    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    const brandRoot = await this._resolveBrandRoot(shopId);
+    const key = `loyalty_${brandRoot}_${phone.replace(/\D/g, '')}`;
     const current = parseInt(await this.getSiteConfig(key, 0)) || 0;
     const earned = Math.floor(orderTotal / 10);
     const next = current + earned;
@@ -2822,7 +3152,8 @@ export const api = {
 
   async redeemLoyaltyPoints(shopId, phone, pointsToRedeem) {
     if (!phone || pointsToRedeem <= 0) return 0;
-    const key = `loyalty_${shopId}_${phone.replace(/\D/g, '')}`;
+    const brandRoot = await this._resolveBrandRoot(shopId);
+    const key = `loyalty_${brandRoot}_${phone.replace(/\D/g, '')}`;
     const current = parseInt(await this.getSiteConfig(key, 0)) || 0;
     const redeemed = Math.min(pointsToRedeem, current);
     const remaining = current - redeemed;
