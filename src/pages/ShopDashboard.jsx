@@ -347,10 +347,11 @@ const ShopDashboard = () => {
   // sub-branches. Branches see all their own data and run normally; they
   // just can't manage the branch list.
   const isMainOwner = user.role === 'shop' && !user.parentShopId;
-  // True when the branch switcher is on the main shop (not a branch).
-  // Used to hide main-only Settings sections (Subscription, Branches,
-  // Discoverability, Reset Test Data) when the owner switches to a branch.
-  const isViewingMain = targetShopId === user.id;
+  // True when the dashboard is showing the main shop's data/settings.
+  // False in two cases:
+  //   1. Main owner switched the dropdown to a branch
+  //   2. User is logged in directly as a branch account (parentShopId set)
+  const isViewingMain = targetShopId === user.id && !user.parentShopId;
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
