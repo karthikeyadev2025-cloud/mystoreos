@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../lib/api';
-import { Plus, Trash2, Edit3, X, Store, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit3, X, Store, Loader2, KeyRound, Copy } from 'lucide-react';
 
 // Self-contained card that lets the shop owner manage their physical
 // branches. Lives in the Settings tab on both desktop and mobile.
@@ -23,6 +23,7 @@ export default function BranchesManager({ ownerId, onChange }) {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null); // null = create mode, branch obj = edit mode
+  const [resetting, setResetting] = useState(null); // branch obj currently being password-reset, or null
 
   const reload = useCallback(async () => {
     if (!ownerId) return;
@@ -98,13 +99,20 @@ export default function BranchesManager({ ownerId, onChange }) {
                   </div>
                 </div>
                 {!isMain && (
-                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap' }}>
                     <button
                       onClick={() => { setEditing(b); setModalOpen(true); }}
                       title="Edit branch"
                       style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F1F5F9', color: '#475569', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                     >
                       <Edit3 size={13} /> Edit
+                    </button>
+                    <button
+                      onClick={() => setResetting(b)}
+                      title="Set or reset the branch login password"
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#EEF2FF', color: '#4F46E5', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      <KeyRound size={13} /> Reset password
                     </button>
                     <button
                       onClick={() => handleDelete(b)}
@@ -129,6 +137,14 @@ export default function BranchesManager({ ownerId, onChange }) {
           onSaved={async () => { setModalOpen(false); await reload(); if (onChange) onChange(); }}
         />
       )}
+
+      {resetting && (
+        <ResetPasswordModal
+          branch={resetting}
+          ownerId={ownerId}
+          onClose={() => setResetting(null)}
+        />
+      )}
     </div>
   );
 }
@@ -137,15 +153,21 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
   const isEdit = !!editing;
   const [name, setName] = useState(editing?.name || '');
   const [phone, setPhone] = useState(editing?.phone || '');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [address, setAddress] = useState(editing?.businessAddress || '');
   const [gstin, setGstin] = useState(editing?.gstin || '');
   const [stateCode, setStateCode] = useState(editing?.stateCode || '');
   const [saving, setSaving] = useState(false);
+  const [createdCreds, setCreatedCreds] = useState(null);  // { phone, password } shown after create
 
   const handleSubmit = async () => {
     if (!name.trim()) return toast.error('Branch name is required');
     const cleanedPhone = String(phone).replace(/\D/g, '').slice(-10);
     if (!/^\d{10}$/.test(cleanedPhone)) return toast.error('Enter a valid 10-digit branch phone');
+    if (!isEdit) {
+      if (!password || password.length < 4) return toast.error('Set a branch password — at least 4 characters');
+    }
     setSaving(true);
     try {
       if (isEdit) {
@@ -157,24 +179,55 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
           stateCode: stateCode.trim(),
         });
         toast.success('Branch updated');
+        onSaved();
       } else {
         await api.createBranch({
           ownerId,
           name: name.trim(),
           phone: cleanedPhone,
+          password,
           address: address.trim(),
           gstin: gstin.trim(),
           stateCode: stateCode.trim(),
         });
-        toast.success('Branch added');
+        // Show the credentials once so the owner can share them with
+        // their branch manager. Once dismissed, the modal closes and
+        // the password is gone from the UI — they'd have to use Reset
+        // Password to see/set a new one.
+        setCreatedCreds({ phone: cleanedPhone, password });
       }
-      onSaved();
     } catch (err) {
       toast.error(err?.message || 'Could not save branch');
     } finally {
       setSaving(false);
     }
   };
+
+  // Branch created — show one-time credentials handoff card
+  if (createdCreds) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
+        <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A', textAlign: 'center' }}>Branch added</h3>
+          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: '#64748B', textAlign: 'center' }}>
+            Share these login credentials with your branch staff. They'll sign in at <b>{window.location.origin}/login</b> with this phone and password.
+          </p>
+          <CredentialRow label="Phone (login ID)" value={createdCreds.phone} />
+          <CredentialRow label="Password" value={createdCreds.password} />
+          <p style={{ fontSize: 11, color: '#92400E', background: '#FEF3C7', padding: '8px 10px', borderRadius: 8, margin: '14px 0' }}>
+            ⚠️ This is the only time we'll show the password here. Copy it now. If you forget it later, use <b>Reset Password</b> on the branch row.
+          </p>
+          <button
+            onClick={() => { setCreatedCreds(null); onSaved(); }}
+            style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
+          >
+            Done — I've saved these
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
@@ -199,7 +252,7 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
           />
         </Field>
 
-        <Field label="Branch Phone" required>
+        <Field label={isEdit ? 'Branch Phone' : 'Branch Phone (login ID)'} required hint={isEdit ? '' : "Your branch staff will use this to log in"}>
           <input
             type="tel"
             value={phone}
@@ -210,6 +263,27 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
             style={inputStyle}
           />
         </Field>
+
+        {!isEdit && (
+          <Field label="Branch Password" required hint="Min 4 characters · share with branch staff">
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Set a password for this branch"
+                style={{ ...inputStyle, paddingRight: 64 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </Field>
+        )}
 
         <Field label="Address" hint="Shown on bills + storefront">
           <textarea
@@ -259,6 +333,123 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
             style={{ flex: 1, background: saving ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
           >
             {saving ? 'Saving…' : (isEdit ? 'Save changes' : 'Add branch')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Small helper card for showing credentials with a copy button.
+function CredentialRow({ label, value }) {
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied`);
+    } catch { toast.error('Could not copy — select manually'); }
+  };
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, marginBottom: 8 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10.5, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>{label.toUpperCase()}</div>
+        <div style={{ fontSize: 14, color: '#0F172A', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", marginTop: 2, wordBreak: 'break-all' }}>{value}</div>
+      </div>
+      <button
+        onClick={copy}
+        style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+      >
+        <Copy size={13} /> Copy
+      </button>
+    </div>
+  );
+}
+
+function ResetPasswordModal({ branch, ownerId, onClose }) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [doneCreds, setDoneCreds] = useState(null);
+
+  const handleSubmit = async () => {
+    if (!password || password.length < 4) return toast.error('Password must be at least 4 characters');
+    setSaving(true);
+    try {
+      await api.setBranchPassword(branch.id, ownerId, password);
+      setDoneCreds({ phone: branch.phone, password });
+    } catch (err) {
+      toast.error(err?.message || 'Could not reset password');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (doneCreds) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
+        <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A', textAlign: 'center' }}>Password reset</h3>
+          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: '#64748B', textAlign: 'center' }}>
+            <b>{branch.name}</b>'s new credentials below. Share them with your branch staff — the old password will no longer work.
+          </p>
+          <CredentialRow label="Phone (login ID)" value={doneCreds.phone} />
+          <CredentialRow label="New password" value={doneCreds.password} />
+          <button
+            onClick={onClose}
+            style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer', marginTop: 4 }}
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
+      <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 20, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0F172A' }}>Reset password</h3>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 6 }}>
+            <X size={18} />
+          </button>
+        </div>
+        <p style={{ margin: '0 0 14px', fontSize: 12, color: '#64748B' }}>
+          For branch <b>{branch.name}</b> (login phone: <code style={{ background: '#F1F5F9', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>{branch.phone}</code>). The old password will stop working immediately.
+        </p>
+        <Field label="New Password" required hint="Min 4 characters">
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Enter a new password"
+              style={{ ...inputStyle, paddingRight: 64 }}
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(s => !s)}
+              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+        </Field>
+        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <button
+            onClick={onClose}
+            disabled={saving}
+            style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            style={{ flex: 1, background: saving ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
+          >
+            {saving ? 'Resetting…' : 'Reset password'}
           </button>
         </div>
       </div>

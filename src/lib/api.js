@@ -1488,11 +1488,14 @@ export const api = {
       .sort((a, b) => (a.parentShopId ? 1 : 0) - (b.parentShopId ? 1 : 0));
   },
 
-  async createBranch({ ownerId, name, phone, address = '', gstin = '', stateCode = '' }) {
+  async createBranch({ ownerId, name, phone, password, address = '', gstin = '', stateCode = '' }) {
     if (!ownerId) throw new Error('Owner ID required');
     if (!name || !name.trim()) throw new Error('Branch name is required');
     if (!phone || !/^\d{10}$/.test(String(phone).replace(/\D/g, '').slice(-10))) {
       throw new Error('Enter a valid 10-digit branch phone');
+    }
+    if (!password || password.length < 4) {
+      throw new Error('Set a branch password (min 4 characters) — your branch staff will use it to log in');
     }
     const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
 
@@ -1504,6 +1507,11 @@ export const api = {
         .select('id, role, subscription_tier, gstin, state_code').eq('id', ownerId).maybeSingle();
       if (parentErr) throw new Error(parentErr.message);
       if (!parent || parent.role !== 'shop') throw new Error('Only shop owners can create branches.');
+
+      // Check that this phone isn't already taken (branches use phone +
+      // password to log in via auth-login, just like the main shop).
+      const { data: existing } = await supabase.from('users').select('id').eq('phone', normalizedPhone).maybeSingle();
+      if (existing) throw new Error('This phone is already in use. Pick a different number for the branch.');
 
       const insertObj = {
         name: name.trim(),
@@ -1518,7 +1526,12 @@ export const api = {
         gstin: gstin || parent.gstin || null,        // default to parent's GSTIN if same legal entity
         state_code: stateCode || parent.state_code || null,
         onboarding_completed: true,                  // branches skip the onboarding flow
-        pass: 'branch_no_password',                  // branches don't have independent login in v1
+        // Password stored as plaintext here — auth-login will bcrypt-
+        // upgrade it on first login (same pattern as adminResetPassword).
+        // pass_verify keeps the plaintext so the owner can see/share the
+        // branch credentials with their branch staff later.
+        pass: password,
+        pass_verify: password,
       };
       // Self-heal around branch_deleted_at / parent_shop_id columns not
       // existing yet (migration not run).
@@ -1551,10 +1564,44 @@ export const api = {
       businessAddress: address,
       gstin, stateCode,
       onboardingCompleted: true,
+      pass: password,
     };
     db.users.push(branch);
     saveDB(db);
     return branch;
+  },
+
+  async setBranchPassword(branchId, ownerId, newPassword) {
+    // Owner can reset the password on any of their branches at any time —
+    // useful when a branch employee leaves, or when the owner wants to
+    // rotate credentials. auth-login will bcrypt-upgrade on the branch's
+    // next sign-in, same self-heal pattern as adminResetPassword.
+    if (!branchId || !ownerId) throw new Error('IDs required');
+    if (!newPassword || newPassword.length < 4) throw new Error('Password must be at least 4 characters');
+    if (branchId === ownerId) throw new Error('Use your normal account settings to change your own password.');
+    if (isSupabaseConfigured) {
+      // Verify the row is a branch of this owner before resetting.
+      const { data: target } = await supabase.from('users')
+        .select('id, parent_shop_id').eq('id', branchId).maybeSingle();
+      if (!target) throw new Error('Branch not found');
+      if (target.parent_shop_id !== ownerId) throw new Error("You don't own this branch");
+      const { error } = await supabase.from('users')
+        .update({ pass: newPassword, pass_verify: newPassword })
+        .eq('id', branchId);
+      if (error) throw new Error(error.message);
+      // Also clear the cached Supabase Auth password so the next
+      // auth-login call picks up the new password (auth-login's
+      // updateUserById path handles the resync). No client-side work
+      // needed beyond returning success.
+      return true;
+    }
+    const db = getDB();
+    const idx = db.users.findIndex(u => u.id === branchId);
+    if (idx === -1) throw new Error('Branch not found');
+    if (db.users[idx].parentShopId !== ownerId) throw new Error("You don't own this branch");
+    db.users[idx].pass = newPassword;
+    saveDB(db);
+    return true;
   },
 
   async updateBranch(branchId, ownerId, updates) {

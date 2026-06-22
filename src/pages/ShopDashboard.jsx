@@ -342,6 +342,11 @@ const ShopDashboard = () => {
   // real owner record and every bill/PDF/notification picks it up.
   const shop = (user.role === 'staff' && shopProfile) ? shopProfile : user;
   const isOwner = user.role === 'shop' || user.role === 'admin';
+  // Owner of the MAIN shop (not a branch logged in directly). Used to gate
+  // the "Manage Branches" UI — branch users don't create sub-branches of
+  // sub-branches. Branches see all their own data and run normally; they
+  // just can't manage the branch list.
+  const isMainOwner = user.role === 'shop' && !user.parentShopId;
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
@@ -3770,15 +3775,17 @@ const ShopDashboard = () => {
 
           {activeTab === 'profile' && isOwner && (
             <>
-              <BranchesManager
-                ownerId={user.id}
-                onChange={async () => {
-                  // Reload the parent's branches state so the switcher
-                  // dropdown reflects the change immediately.
-                  const fresh = await safe(() => api.getOwnedBranches(user.id));
-                  if (Array.isArray(fresh)) setBranches(fresh);
-                }}
-              />
+              {isMainOwner && (
+                <BranchesManager
+                  ownerId={user.id}
+                  onChange={async () => {
+                    // Reload the parent's branches state so the switcher
+                    // dropdown reflects the change immediately.
+                    const fresh = await safe(() => api.getOwnedBranches(user.id));
+                    if (Array.isArray(fresh)) setBranches(fresh);
+                  }}
+                />
+              )}
               <DesktopSettings 
                 user={user}
               gstin={gstin}
@@ -5571,15 +5578,18 @@ const ShopDashboard = () => {
           </div>
           <div style={{ padding: '16px' }}>
 
-            {/* Branches manager — first card so it's easy to find */}
-            <BranchesManager
-              ownerId={user.id}
-              onChange={async () => {
-                const fresh = await safe(() => api.getOwnedBranches(user.id));
-                if (Array.isArray(fresh)) setBranches(fresh);
-              }}
-            />
-
+            {/* Branches manager — first card so it's easy to find.
+                Only main owners see this; branches logged in directly
+                don't manage sub-branches. */}
+            {isMainOwner && (
+              <BranchesManager
+                ownerId={user.id}
+                onChange={async () => {
+                  const fresh = await safe(() => api.getOwnedBranches(user.id));
+                  if (Array.isArray(fresh)) setBranches(fresh);
+                }}
+              />
+            )}
             {/* SaaS Subscription Info Card */}
             <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
