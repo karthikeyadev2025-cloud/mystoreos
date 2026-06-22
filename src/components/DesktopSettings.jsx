@@ -58,6 +58,7 @@ const DesktopSettings = ({
   handleAddStaff,
   user,
   handleResetTestData = () => {},
+  isViewingMain = true,
   myDistributors = [],
   distCodeInput = '',
   setDistCodeInput = () => {},
@@ -572,8 +573,9 @@ const DesktopSettings = ({
           </button>
         </div>
 
-        {/* SaaS Subscription Info Card */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+        {/* SaaS Subscription — main shop only */}
+        {isViewingMain && (
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             ⚡ SaaS Subscription Plan
           </h3>
@@ -588,6 +590,7 @@ const DesktopSettings = ({
             Change or Upgrade Plan
           </button>
         </div>
+        )}
 
         {/* Billing History */}
         {paymentHistory.length > 0 && (
@@ -626,8 +629,9 @@ const DesktopSettings = ({
           </div>
         )}
 
-        {/* Store Discoverability — admin-controlled premium feature (coming soon) */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', position: 'relative', overflow: 'hidden' }}>
+        {/* Store Discoverability — main shop only */}
+        {isViewingMain && (
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', position: 'relative', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Eye size={18} color="#94A3B8" /> Store Discoverability
@@ -644,9 +648,11 @@ const DesktopSettings = ({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Your Store QR Code */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+        {/* Your Store QR Code — main shop only */}
+        {isViewingMain && (
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: '#0F172A', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={18} color="#64748B" /> Your Store QR Code
           </h3>
@@ -713,6 +719,7 @@ const DesktopSettings = ({
             </button>
           </div>
         </div>
+        )}
 
         {/* Shop ID & Distributor linking */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
@@ -943,7 +950,6 @@ const DesktopSettings = ({
               💡 First photo is the cover image shown in search results. Drag to reorder is coming soon.
             </p>
           )}
-        </div>
 
         {/* Danger Zone — Reset Test Data — main shop only, not branches */}
         {(user.role === 'shop' || user.isOwner) && !user.parentShopId && (
@@ -981,6 +987,7 @@ const DesktopSettings = ({
           Build: {typeof __BUILD_STAMP__ !== 'undefined' ? new Date(__BUILD_STAMP__).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'dev'}
         </p>
 
+      </div>
     </div>
   );
 };

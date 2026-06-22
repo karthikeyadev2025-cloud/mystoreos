@@ -347,6 +347,10 @@ const ShopDashboard = () => {
   // sub-branches. Branches see all their own data and run normally; they
   // just can't manage the branch list.
   const isMainOwner = user.role === 'shop' && !user.parentShopId;
+  // True when the branch switcher is on the main shop (not a branch).
+  // Used to hide main-only Settings sections (Subscription, Branches,
+  // Discoverability, Reset Test Data) when the owner switches to a branch.
+  const isViewingMain = targetShopId === user.id;
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
@@ -3941,7 +3945,7 @@ const ShopDashboard = () => {
 
           {activeTab === 'profile' && isOwner && (
             <>
-              {isMainOwner && (
+              {isMainOwner && isViewingMain && (
                 <BranchesManager
                   ownerId={user.id}
                   onChange={async () => {
@@ -4044,7 +4048,8 @@ const ShopDashboard = () => {
               setDistCodeInput={setDistCodeInput}
               handleLinkDistributor={handleLinkDistributor}
               handleUnlinkDistributor={handleUnlinkDistributor}
-              handleResetTestData={isMainOwner ? handleResetTestData : undefined}
+              handleResetTestData={isMainOwner && isViewingMain ? handleResetTestData : undefined}
+              isViewingMain={isViewingMain}
             />
             </>
           )}
@@ -5748,7 +5753,7 @@ const ShopDashboard = () => {
             {/* Branches manager — first card so it's easy to find.
                 Only main owners see this; branches logged in directly
                 don't manage sub-branches. */}
-            {isMainOwner && (
+            {isMainOwner && isViewingMain && (
               <BranchesManager
                 ownerId={user.id}
                 onChange={async () => {
@@ -5757,8 +5762,8 @@ const ShopDashboard = () => {
                 }}
               />
             )}
-            {/* SaaS Subscription Info Card */}
-            <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
+            {/* SaaS Subscription Info Card — main shop only */}
+            {isViewingMain && <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
                 <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#FBBF24' : '#10B981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
@@ -5799,7 +5804,7 @@ const ShopDashboard = () => {
               >
                 {isOnTrial ? '⚡ Upgrade Plan Now' : '🔄 Change Plan'}
               </button>
-            </div>
+            </div>}
 
             {/* Logo Upload Section */}
             <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
