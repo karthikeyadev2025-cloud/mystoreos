@@ -1486,12 +1486,23 @@ export const api = {
     // Returns the owner's main shop + all their active (non-deleted)
     // branches, sorted with the main shop first. Used to populate the
     // branch-switcher dropdown.
+    //
+    // Works for both main-shop login (user.id = main shop UUID) AND
+    // branch login (user.id = branch UUID, user.parentShopId = main UUID).
+    // For a branch login, we resolve the root first so we can return the
+    // full family (main + all siblings), not just the branch itself.
     if (!ownerId) return [];
     if (isSupabaseConfigured) {
       try {
+        // Resolve the root owner: if ownerId is itself a branch, look up
+        // its parent_shop_id and use that as the root.
+        const { data: self } = await supabase.from('users')
+          .select('id, parent_shop_id').eq('id', ownerId).maybeSingle();
+        const rootId = (self?.parent_shop_id) || ownerId;
+
         const { data, error } = await supabase.from('users')
           .select('*')
-          .or(`id.eq.${ownerId},parent_shop_id.eq.${ownerId}`)
+          .or(`id.eq.${rootId},parent_shop_id.eq.${rootId}`)
           .eq('role', 'shop')
           .order('parent_shop_id', { ascending: true, nullsFirst: true })  // main shop (NULL parent) first
           .order('created_at', { ascending: true });

@@ -2096,11 +2096,14 @@ const ShopDashboard = () => {
   const executeCopyToBranch = async () => {
     if (!copyToBranchModal || !copyToBranchTarget) return;
     setCopyToBranchLoading(true);
+    // Resolve to the root owner: if user is logged in as a branch,
+    // use parentShopId; otherwise use user.id (main shop).
+    const rootOwnerId = user.parentShopId || user.id;
     try {
       const result = await api.copySingleProductToBranch(
         copyToBranchModal.productId,
         copyToBranchTarget,
-        user.id
+        rootOwnerId
       );
       const branchName = visibleBranches.find(b => b.id === copyToBranchTarget)?.name || 'branch';
       if (result.skipped) {
@@ -3444,34 +3447,76 @@ const ShopDashboard = () => {
   // instead of re-entering every product by hand. Idempotent (the API
   // de-dupes by barcode + name) — they can tap it again after adding
   // new items to main and only the new ones get copied.
+  // ── Branch catalogue management card ──────────────────────────────────
+  // Two modes depending on which shop is active:
+  //
+  // Mode A — ON BRANCH: "Import from Main" — pull main shop's catalogue
+  //   into this branch. Shown when targetShopId has a parentShopId.
+  //
+  // Mode B — ON MAIN SHOP: "Push to Branch" — select a branch and push
+  //   the entire catalogue to it in one click. Shown when on main shop
+  //   and at least one branch exists. This is what the owner sees when
+  //   they just created a branch and want to seed it immediately.
+  //
+  // Both modes call the same importProductsFromShop API with dedupe.
   const currentBranchForImport = visibleBranches.find(b => b.id === targetShopId);
-  const canImportFromMain = !!currentBranchForImport?.parentShopId && user.role !== 'staff';
-  const importFromMainEl = canImportFromMain ? (
+  const isOnBranch = !!currentBranchForImport?.parentShopId;
+  const isOnMainShop = !isOnBranch;
+  const otherBranchesFromMain = visibleBranches.filter(b => b.parentShopId === targetShopId || b.parentShopId);
+  // Branches that can receive a push FROM the current main shop
+  const branchesForPush = visibleBranches.filter(b => b.parentShopId === targetShopId);
+
+  const canImportFromMain = isOnBranch && user.role !== 'staff';
+  const canPushToABranch = isOnMainShop && branchesForPush.length > 0 && user.role !== 'staff';
+
+  const importFromMainEl = (canImportFromMain || canPushToABranch) ? (
+    canImportFromMain ? (
     <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       <div style={{ width: 36, height: 36, borderRadius: 9, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, flexShrink: 0 }}>📦</div>
       <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Same catalogue as your main shop?</div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Copy all products from Main Shop</div>
         <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, lineHeight: 1.45 }}>
-          Bulk-import every product from main into this branch. Already-added products are skipped automatically — safe to re-run after you add new items to main.
+          Copies every product from the main shop into this branch. Products already here are skipped — safe to run again after adding new items to main.
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
         <button
           onClick={() => handleImportFromMain({ copyStock: false })}
-          title="Import all products; reset stock to 0 (you'll set opening stock per item)"
+          title="Copy all products; set stock to 0 on this branch"
           style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#FFFFFF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
-          Import (stock = 0)
+          Copy products (stock = 0)
         </button>
         <button
           onClick={() => handleImportFromMain({ copyStock: true })}
-          title="Import all products AND copy main's current stock counts"
+          title="Copy all products AND copy current stock counts from main"
           style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
-          Import + copy stock
+          Copy + bring stock
         </button>
       </div>
     </div>
+    ) : (
+    // Mode B: on main shop, push to a branch
+    <PushToBranchCard
+      branches={branchesForPush}
+      onPush={async (targetBranchId, copyStock) => {
+        try {
+          const result = await api.importProductsFromShop(targetShopId, targetBranchId, { copyStock });
+          const branchName = branchesForPush.find(b => b.id === targetBranchId)?.name || 'branch';
+          if (result.imported === 0 && result.skipped === 0) {
+            toast.info('Main shop has no products yet.');
+          } else if (result.imported === 0) {
+            toast.info(`No new products — all ${result.skipped} already exist in ${branchName}.`);
+          } else {
+            toast.success(`Copied ${result.imported} product${result.imported === 1 ? '' : 's'} to ${branchName}${result.skipped ? ` (${result.skipped} already existed)` : ''}.`);
+          }
+        } catch (err) {
+          toast.error(err?.message || 'Copy failed');
+        }
+      }}
+    />
+    )
   ) : null;
 
   // Reports scope toggle + per-branch breakdown card. Only rendered when
@@ -7278,5 +7323,77 @@ const ShopDashboard = () => {
     </div>
   );
 };
+
+// ── PushToBranchCard ─────────────────────────────────────────────────────
+// Shown on the Products tab when the main shop owner has at least one branch.
+// Lets them push the entire product catalogue to a selected branch in one click.
+// Displayed at the top of the products list — same position as importFromMainEl
+// on the branch side.
+function PushToBranchCard({ branches, onPush }) {
+  const [selectedBranchId, setSelectedBranchId] = useState(
+    branches.length === 1 ? branches[0].id : ''
+  );
+  const [pushing, setPushing] = useState(false);
+
+  const handlePush = async (copyStock) => {
+    if (!selectedBranchId) return;
+    setPushing(true);
+    try {
+      await onPush(selectedBranchId, copyStock);
+    } finally {
+      setPushing(false);
+    }
+  };
+
+  return (
+    <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', border: '1px solid #86EFAC', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+        <div style={{ width: 36, height: 36, borderRadius: 9, background: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, flexShrink: 0 }}>🏪</div>
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Copy catalogue to a branch</div>
+          <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, lineHeight: 1.45 }}>
+            Copies all products from this main shop to the selected branch. Products already in the branch are skipped — safe to run again after adding new items here.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        {branches.length > 1 ? (
+          <select
+            value={selectedBranchId}
+            onChange={e => setSelectedBranchId(e.target.value)}
+            disabled={pushing}
+            style={{ flex: 1, minWidth: 160, padding: '8px 12px', border: '1.5px solid #86EFAC', borderRadius: 8, fontSize: 13, color: '#0F172A', outline: 'none', fontFamily: 'inherit', background: '#fff', cursor: 'pointer' }}
+          >
+            <option value="">— Select branch —</option>
+            {branches.map(b => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+        ) : (
+          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', border: '1px solid #86EFAC', borderRadius: 8, fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
+            → {branches[0]?.name}
+          </div>
+        )}
+        <button
+          onClick={() => handlePush(false)}
+          disabled={!selectedBranchId || pushing}
+          title="Copy all products; set stock to 0 on branch"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? '#fff' : '#E2E8F0', color: selectedBranchId && !pushing ? '#16A34A' : '#94A3B8', border: '1.5px solid #86EFAC', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+        >
+          Copy products (stock = 0)
+        </button>
+        <button
+          onClick={() => handlePush(true)}
+          disabled={!selectedBranchId || pushing}
+          title="Copy all products AND copy current stock counts"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'linear-gradient(135deg,#16A34A,#15803D)' : '#E2E8F0', color: selectedBranchId && !pushing ? '#fff' : '#94A3B8', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+        >
+          {pushing ? 'Copying…' : 'Copy + bring stock'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default ShopDashboard;
