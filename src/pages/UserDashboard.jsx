@@ -925,7 +925,17 @@ const UserDashboard = () => {
       toast.error(`${shopInfo.name || 'This shop'} is currently closed. Open hours: ${fmt(oh)} – ${fmt(ch)}.`);
       return;
     }
-    if (!user) {
+    // Check user.id specifically — a stale/corrupt session could leave a
+    // user object in state without an id field. Without this id check,
+    // we'd open the WhatsApp confirm modal, the customer would tap
+    // 'Place Order', and the placeOrder call would crash at the DB with
+    // a null-userId Postgres error they can't recover from. Now we
+    // route them back through the guest registration flow instead.
+    if (!user || !user.id) {
+      if (user && !user.id) {
+        console.warn('handleCheckoutClick: user object present but missing id', user);
+        try { localStorage.removeItem('mystore_session'); } catch { /* ignore */ }
+      }
       setShowGuestModal(true);
     } else {
       setShowWaModal(true);
@@ -971,6 +981,17 @@ const UserDashboard = () => {
         catch { toast.error('Account created but sign-in failed — please try logging in.'); return; }
       }
 
+      // Belt-and-braces: every downstream call (api.placeOrder, the auth
+      // context, the storefront's per-user state) assumes user.id is a
+      // real string. A returned profile WITHOUT id would silently get
+      // saved to localStorage and reproduce the 'null user_id' Postgres
+      // error on the very next checkout click. Catch that here.
+      if (!loggedInUser.id) {
+        console.warn('handleGuestLogin: register/login returned a profile with no id', loggedInUser);
+        toast.error('Sign-in did not return a user ID. Please try logging in again.');
+        return;
+      }
+
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
       setShowGuestModal(false);
@@ -1012,7 +1033,23 @@ const UserDashboard = () => {
     const effectiveUser = overrideUser || user;
     const { total, items } = getCartTotals();
     try {
-      if (!effectiveUser) {
+      // Two-tier check: missing user OR malformed user (no id field).
+      // The second case used to crash with the cryptic Postgres error
+      // 'null value in column "user_id" of relation "orders" violates
+      // not-null constraint' — a stale/corrupt localStorage session
+      // could put a user object into auth state without an id, slip
+      // past the existing !effectiveUser guard, and only fail at the DB.
+      // Now both cases route the customer back to the registration modal
+      // with a clear in-app explanation, instead of a Postgres-flavored
+      // error toast they can't act on.
+      if (!effectiveUser || !effectiveUser.id) {
+        if (effectiveUser && !effectiveUser.id) {
+          // Diagnostic: this should never happen in normal flow. Log it
+          // so we can find the root cause if/when a customer reports it.
+          console.warn('sendWhatsAppOrder: user object present but missing id', effectiveUser);
+          // Wipe the corrupt session so the next click is a clean guest path.
+          try { localStorage.removeItem('mystore_session'); } catch { /* ignore */ }
+        }
         setShowGuestModal(true);
         return;
       }

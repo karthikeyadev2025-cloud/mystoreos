@@ -1155,6 +1155,20 @@ export const api = {
   },
 
   async placeOrder(userId, shopId, items, total, customerData = {}, status = 'Pending', paymentMethod = 'Cash') {
+    // Hard guard at the API boundary. Lets us throw a clear human error
+    // instead of letting a stale frontend reach Postgres and get back the
+    // cryptic 'null value in column "user_id" of relation "orders"
+    // violates not-null constraint'. Empty-string check catches the
+    // case where a JSON-stringified-undefined snuck through somewhere.
+    if (!userId || (typeof userId === 'string' && userId.trim() === '')) {
+      throw new Error('Could not identify the buyer. Please sign in or sign up before placing this order.');
+    }
+    if (!shopId || (typeof shopId === 'string' && shopId.trim() === '')) {
+      throw new Error('Could not identify the shop. Please refresh the page and try again.');
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error('Your cart is empty. Add at least one item before placing the order.');
+    }
     // Normalize the customer phone to a canonical last-10-digits form.
     // This is what we store on the row and what we match against when
     // the customer later creates an account and looks up "My Bills".

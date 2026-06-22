@@ -7,7 +7,18 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem("mystore_session");
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      // Reject malformed sessions (must have at least an id) so a stale
+      // localStorage write from older code doesn't keep showing the
+      // customer as 'logged in' with no id — which slipped past the
+      // existing checkout guards and crashed at Postgres with the
+      // 'null value in column user_id' error.
+      if (!parsed?.id) {
+        try { localStorage.removeItem("mystore_session"); } catch { /* ignore */ }
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -92,6 +103,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
+    // Hard-validate: never persist a user object without an id. This
+    // sidesteps the entire class of bugs where some half-finished code
+    // path passes a partial profile and downstream code (placeOrder,
+    // RoleRouter, etc.) silently picks it up and crashes at the DB.
+    if (!userData || !userData.id) {
+      console.warn('login(): refused to set user without id', userData);
+      return;
+    }
     try { localStorage.setItem("mystore_session", JSON.stringify(userData)); } catch (_e) { /* ignore */ }
     setUser(userData);
   };
