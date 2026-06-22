@@ -1731,7 +1731,36 @@ const UserDashboard = () => {
 
                         {/* Place Order Trigger */}
                         <button 
-                          onClick={() => { if (!user) { openAuthModal(); return; } sendWhatsAppOrder(); }} 
+                          onClick={() => {
+                            if (!user) { openAuthModal(); return; }
+                            const { total, items } = getCartTotals();
+                            const shopPhone = shopInfo?.phone || '9876543210';
+                            let msg = 'NEW ORDER — ' + (shopInfo?.name || 'Your Store') + '\n';
+                            msg += 'Customer: ' + (user?.name || 'Customer') + '\n';
+                            msg += 'Mobile: +91' + (user?.phone || '') + '\n';
+                            msg += 'Time: ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '\n';
+                            msg += '------------------------\n';
+                            items.forEach(item => {
+                              const v = item.selectedVariant ? ' (' + item.selectedVariant + ')' : '';
+                              msg += item.name + v + ' x' + item.qty + ' = Rs.' + (item.price * item.qty) + '\n';
+                            });
+                            msg += '------------------------\n';
+                            msg += 'TOTAL: Rs.' + total + '\n';
+                            msg += 'Payment: ' + (paymentMethod === 'upi' ? 'UPI' : 'Cash') + '\n';
+                            if (paymentProof) msg += 'UPI Ref: ' + paymentProof + '\n';
+                            msg += 'Reply CONFIRMED to accept.\n_Powered by MyStore OS_';
+                            window.open('https://wa.me/91' + shopPhone + '?text=' + encodeURIComponent(msg), '_blank');
+                            setCart({});
+                            try {
+                              const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
+                              delete allCarts[ACTIVE_SHOP_ID];
+                              localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
+                            } catch { /* ignore */ }
+                            setPaymentProof('');
+                            api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total, { phone: user.phone || '' })
+                              .then(p => { setLastOrderId(p?.id || ('o_' + Math.random().toString(36).substring(2,10))); loadOrderHistory(); })
+                              .catch(err => { console.error(err); toast.error('Order sent but could not save to history.'); });
+                          }} 
                           style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
                         >
                           📲 Notify &amp; Place Order via WhatsApp
@@ -2227,9 +2256,50 @@ const UserDashboard = () => {
                   </p>
                   <button
                     onClick={() => {
+                      // MUST call window.open synchronously here — sendWhatsAppOrder
+                      // is async so invoking it yields to microtask queue immediately,
+                      // breaking the user-gesture chain and blocking window.open on mobile.
+                      const u = authLoggedInUser;
+                      const { total, items } = getCartTotals();
+                      const shopPhone = shopInfo?.phone || '9876543210';
+                      // Build plain-text message (no emoji unicode escapes — pure chars)
+                      let msg = 'NEW ORDER — ' + (shopInfo?.name || 'Your Store') + '\n';
+                      msg += 'Customer: ' + u.name + '\n';
+                      msg += 'Mobile: +91' + u.phone + '\n';
+                      msg += 'Time: ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '\n';
+                      msg += '------------------------\n';
+                      items.forEach(item => {
+                        const v = item.selectedVariant ? ' (' + item.selectedVariant + ')' : '';
+                        msg += item.name + v + ' x' + item.qty + ' = Rs.' + (item.price * item.qty) + '\n';
+                      });
+                      msg += '------------------------\n';
+                      msg += 'TOTAL: Rs.' + total + '\n';
+                      msg += 'Payment: ' + (paymentMethod === 'upi' ? 'UPI' : 'Cash') + '\n';
+                      if (paymentProof) msg += 'UPI Ref: ' + paymentProof + '\n';
+                      msg += 'Reply CONFIRMED to accept.\n_Powered by MyStore OS_';
+                      // Synchronous window.open — inside user gesture ✓
+                      window.open('https://wa.me/91' + shopPhone + '?text=' + encodeURIComponent(msg), '_blank');
+                      // Close modal
                       setShowGuestModal(false);
                       setAuthStep('form');
-                      sendWhatsAppOrder(authLoggedInUser);
+                      // Clear cart immediately
+                      setCart({});
+                      try {
+                        const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
+                        delete allCarts[ACTIVE_SHOP_ID];
+                        localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
+                      } catch { /* ignore */ }
+                      setPaymentProof('');
+                      // DB save in background — non-blocking
+                      api.placeOrder(u.id, ACTIVE_SHOP_ID, items, total, { phone: u.phone || '' })
+                        .then(placedOrder => {
+                          setLastOrderId(placedOrder?.id || ('o_' + Math.random().toString(36).substring(2, 10)));
+                          loadOrderHistory();
+                        })
+                        .catch(err => {
+                          console.error('Order DB save failed:', err);
+                          toast.error('Order sent to shop on WhatsApp but could not save to history.');
+                        });
                     }}
                     style={{ width: '100%', background: 'linear-gradient(135deg,#25d366,#128c7e)', color: '#fff', border: 'none', padding: '15px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
                   >
@@ -3572,7 +3642,53 @@ const UserDashboard = () => {
               </p>
             </div>
             <button 
-              onClick={sendWhatsAppOrder} 
+              onClick={() => {
+                // window.open must be synchronous — calling async sendWhatsAppOrder()
+                // directly yields to microtask queue before window.open runs, blocking it on mobile.
+                const effectiveUser = user;
+                const { total, items } = getCartTotals();
+                const shopPhone = shopInfo?.phone || '9876543210';
+                let msg = 'NEW ORDER — ' + (shopInfo?.name || 'Your Store') + '\n';
+                msg += 'Customer: ' + (effectiveUser?.name || 'Customer') + '\n';
+                msg += 'Mobile: +91' + (effectiveUser?.phone || '') + '\n';
+                msg += 'Time: ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '\n';
+                msg += '------------------------\n';
+                items.forEach(item => {
+                  const v = item.selectedVariant ? ' (' + item.selectedVariant + ')' : '';
+                  msg += item.name + v + ' x' + item.qty + ' = Rs.' + (item.price * item.qty) + '\n';
+                });
+                msg += '------------------------\n';
+                msg += 'TOTAL: Rs.' + total + '\n';
+                msg += 'Payment: ' + (paymentMethod === 'upi' ? 'UPI' : 'Cash') + '\n';
+                if (paymentProof) msg += 'UPI Ref: ' + paymentProof + '\n';
+                msg += 'Reply CONFIRMED to accept.\n_Powered by MyStore OS_';
+                window.open('https://wa.me/91' + shopPhone + '?text=' + encodeURIComponent(msg), '_blank');
+                // UI cleanup
+                setCart({});
+                try {
+                  const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
+                  delete allCarts[ACTIVE_SHOP_ID];
+                  localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
+                } catch { /* ignore */ }
+                setPaymentProof('');
+                setShowWaModal(false);
+                const wonAmount = Math.floor(Math.random() * 91) + 10;
+                setScratchCardAmount(wonAmount);
+                setScratchCardRevealed(false);
+                setScratchModalOpen(true);
+                // DB save in background
+                if (effectiveUser?.id) {
+                  api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total, { phone: effectiveUser.phone || '' })
+                    .then(placedOrder => {
+                      setLastOrderId(placedOrder?.id || ('o_' + Math.random().toString(36).substring(2, 10)));
+                      loadOrderHistory();
+                    })
+                    .catch(err => {
+                      console.error('Order DB save failed:', err);
+                      toast.error('Order sent to shop but could not save to history.');
+                    });
+                }
+              }}
               style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '15px', borderRadius: '12px', fontSize: '15px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
             >
               📲 Place Order &amp; Notify Shop
