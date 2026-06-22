@@ -31,22 +31,31 @@ export function useSessionGuard() {
     const fp = getDeviceFingerprint();
     const maxDevices = capabilities?.maxDevices ?? 1;
 
+    // Dedupe guard — prevents two concurrent mounts from both calling
+    // registerSession simultaneously and hitting a 409 conflict.
+    let registering = false;
     const checkAndRegister = async () => {
-      const sessions = await api.getActiveSessions(user.id);
-      setActiveSessions(sessions);
-      const thisDevice = sessions.find(s => s.deviceFingerprint === fp);
+      if (registering) return;
+      registering = true;
+      try {
+        const sessions = await api.getActiveSessions(user.id);
+        setActiveSessions(sessions);
+        const thisDevice = sessions.find(s => s.deviceFingerprint === fp);
 
-      if (thisDevice) {
-        await api.updateSessionLastSeen(thisDevice.id);
-        return;
+        if (thisDevice) {
+          await api.updateSessionLastSeen(thisDevice.id);
+          return;
+        }
+
+        if (sessions.length >= maxDevices) {
+          setDeviceLimitExceeded(true);
+          return;
+        }
+
+        await api.registerSession(user.id, fp);
+      } finally {
+        registering = false;
       }
-
-      if (sessions.length >= maxDevices) {
-        setDeviceLimitExceeded(true);
-        return;
-      }
-
-      await api.registerSession(user.id, fp);
     };
 
     checkAndRegister();

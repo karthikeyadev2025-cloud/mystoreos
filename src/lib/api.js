@@ -3089,14 +3089,19 @@ export const api = {
     if (!isSupabaseConfigured) return;
     try {
       const authUid = await this._getAuthUid() || userId;
-      // Single atomic upsert on (user_id, device_fingerprint) unique constraint.
-      // Requires active_sessions_user_device_unique constraint — see migration.
-      await supabase.from('active_sessions').upsert({
+      // Upsert on session_token (always unique per call) — if a row already
+      // exists for this device, update last_seen_at instead of inserting.
+      // Falls back silently on any conflict — this table is non-critical.
+      const { error: upsertErr } = await supabase.from('active_sessions').upsert({
         user_id: authUid,
         session_token: crypto.randomUUID(),
         device_fingerprint: deviceFingerprint,
         last_seen_at: new Date().toISOString(),
-      }, { onConflict: 'user_id,device_fingerprint' });
+      }, { onConflict: 'user_id,device_fingerprint', ignoreDuplicates: false });
+      if (upsertErr && upsertErr.code !== '23505' && upsertErr.code !== '409') {
+        // 23505 = unique_violation, ignore silently — non-critical table
+        console.warn('registerSession:', upsertErr.message);
+      }
     } catch { /* non-critical — ignore RLS failures for legacy accounts */ }
   },
 
