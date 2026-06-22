@@ -1058,14 +1058,10 @@ const UserDashboard = () => {
         return;
       }
 
-      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total);
-      const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
-      setLastOrderId(orderId);
-      
-      // Order placed — confirm to shopper (payment happens next, not yet received)
-      playPaymentSuccessSound();
-      speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
-      
+      // Build WA message BEFORE any await — browsers block window.open()
+      // calls that don't fire synchronously in a user gesture handler.
+      // Old code: await placeOrder() → window.open() — mobile browsers
+      // silently suppressed the popup, leaving the customer stuck.
       let msg = `*🛒 NEW ORDER — ${shopInfo?.name || 'Your Store'}*\n`;
       msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       msg += `👤 *Customer:* ${effectiveUser.name}\n`;
@@ -1096,31 +1092,37 @@ const UserDashboard = () => {
       msg += `Reply *CONFIRMED* to accept this order.\n`;
       msg += `_Powered by MyStore OS_`;
 
+
       const shopPhone = shopInfo?.phone || '9876543210';
+      // Synchronous open — still in user gesture call stack
       window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-      
-      // Clear cart for this specific shop
+
+      // Clear cart and close modal immediately — don't wait for DB
       setCart({});
       try {
         const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
         delete allCarts[ACTIVE_SHOP_ID];
         localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
-      } catch { // ignore cart clear error
-      }
-
+      } catch { /* ignore */ }
       setPaymentProof('');
       setShowWaModal(false);
-      
-      // Initialize post-checkout loyalty coins Scratch Card Modal!
-      const wonAmount = Math.floor(Math.random() * 91) + 10; // random 10 to 100 loyalty coins
+
+      // Scratch card
+      const wonAmount = Math.floor(Math.random() * 91) + 10;
       setScratchCardAmount(wonAmount);
       setScratchCardRevealed(false);
       setScratchModalOpen(true);
-      
+
+      // Persist order to DB — non-blocking, UX already done
+      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total);
+      const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
+      setLastOrderId(orderId);
+      playPaymentSuccessSound();
+      speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
       loadOrderHistory();
     } catch (err) {
       console.error(err);
-      alert("Error placing order: " + err.message);
+      toast.error('Order could not be saved. Please contact the shop. Error: ' + (err.message || err));
     }
   };
 
@@ -1514,9 +1516,26 @@ const UserDashboard = () => {
                 {/* Right Column: Checkout cart bill sheet & payments */}
                 <div>
                   <div className="premium-glass-card" style={{ padding: '20px', position: 'sticky', top: '24px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#4F46E5', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <ShoppingCart size={18} /> Active Checkout Cart
-                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#4F46E5', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShoppingCart size={18} /> Active Checkout Cart
+                      </h3>
+                      {getCartTotals().count > 0 && (
+                        <button
+                          onClick={() => {
+                            setCart({});
+                            try {
+                              const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
+                              delete allCarts[ACTIVE_SHOP_ID];
+                              localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
+                            } catch { /* ignore */ }
+                          }}
+                          style={{ background: 'transparent', border: '1px solid #E2E8F0', color: '#94A3B8', fontSize: '11px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Clear Cart
+                        </button>
+                      )}
+                    </div>
 
                     {getCartTotals().count === 0 ? (
                       <div style={{ textAlign: 'center', padding: '30px 10px', color: '#64748b' }}>
