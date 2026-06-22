@@ -2035,6 +2035,36 @@ const ShopDashboard = () => {
     return { cashIn, cashOut, netProfit, marginPercent, ledgerItems, branchBreakdown, isAllScope };
   };
 
+  const handleImportFromMain = async (options = { copyStock: false }) => {
+    // Bulk-copy the main shop's products into the currently-viewed branch.
+    // Source = the branch's parent_shop_id (we're standing on the branch).
+    // Target = targetShopId. Existing-products dedupe by barcode + name
+    // is handled in the API — running this twice after adding new items
+    // to main only imports the new ones.
+    const currentBranch = visibleBranches.find(b => b.id === targetShopId);
+    const sourceShopId = currentBranch?.parentShopId;
+    if (!sourceShopId) {
+      toast.error('You can only import into a branch — there is no main shop to copy from.');
+      return null;
+    }
+    try {
+      const result = await api.importProductsFromShop(sourceShopId, targetShopId, options);
+      if (result.imported === 0 && result.skipped === 0) {
+        toast.info('Main shop has no products to import yet.');
+      } else if (result.imported === 0) {
+        toast.info(`No new products to import — all ${result.skipped} already exist in this branch.`);
+      } else {
+        toast.success(`Imported ${result.imported} product${result.imported === 1 ? '' : 's'} from main${result.skipped ? ` (${result.skipped} skipped, already in branch)` : ''}.`);
+      }
+      // Refresh the products list so the imports show up immediately.
+      setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
+      return result;
+    } catch (err) {
+      toast.error(err?.message || 'Could not import products');
+      return null;
+    }
+  };
+
   const handleRestockQtyChange = (prodId, delta) => {
     setRestockCart(prev => {
       const current = prev[prodId] || 0;
@@ -3357,6 +3387,42 @@ const ShopDashboard = () => {
     </select>
   ) : null;
 
+  // "Import from Main Shop" card — shown on the Products tab when the
+  // owner (or branch user) is standing on a branch (not the main shop).
+  // Lets them bulk-seed the branch's catalogue from the main shop
+  // instead of re-entering every product by hand. Idempotent (the API
+  // de-dupes by barcode + name) — they can tap it again after adding
+  // new items to main and only the new ones get copied.
+  const currentBranchForImport = visibleBranches.find(b => b.id === targetShopId);
+  const canImportFromMain = !!currentBranchForImport?.parentShopId && user.role !== 'staff';
+  const importFromMainEl = canImportFromMain ? (
+    <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, flexShrink: 0 }}>📦</div>
+      <div style={{ flex: 1, minWidth: 200 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Same catalogue as your main shop?</div>
+        <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, lineHeight: 1.45 }}>
+          Bulk-import every product from main into this branch. Already-added products are skipped automatically — safe to re-run after you add new items to main.
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+        <button
+          onClick={() => handleImportFromMain({ copyStock: false })}
+          title="Import all products; reset stock to 0 (you'll set opening stock per item)"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#FFFFFF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+        >
+          Import (stock = 0)
+        </button>
+        <button
+          onClick={() => handleImportFromMain({ copyStock: true })}
+          title="Import all products AND copy main's current stock counts"
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
+        >
+          Import + copy stock
+        </button>
+      </div>
+    </div>
+  ) : null;
+
   // Reports scope toggle + per-branch breakdown card. Only rendered when
   // the owner has 2+ branches; otherwise the existing single-branch
   // reports are unchanged. Goes above the existing Desktop/Mobile reports
@@ -3669,8 +3735,10 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'products' && isOwner && (
-            <DesktopInventory
-              products={products}
+            <>
+              {importFromMainEl}
+              <DesktopInventory
+                products={products}
               setShowAddProductModal={setShowAddProductModal}
               checkExpiryStatus={checkExpiryStatus}
               handleOneClickRestock={handleOneClickRestock}
@@ -3685,6 +3753,7 @@ const ShopDashboard = () => {
               shopCategory={shopCategory}
               onShowBarcodeManager={openBarcodeManager}
             />
+            </>
           )}
 
           {activeTab === 'customers' && isOwner && (
@@ -5015,6 +5084,7 @@ const ShopDashboard = () => {
           {products.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94A3B8'}}>No products in inventory.</p>}
           
           <div style={{ padding: '12px' }}>
+            {importFromMainEl}
             {products.map(p => {
               const expStatus = checkExpiryStatus(p.expiryDate);
               const isLowStock = p.stock < (p.reorderLevel || 10);

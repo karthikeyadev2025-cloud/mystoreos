@@ -1604,6 +1604,119 @@ export const api = {
     return true;
   },
 
+  async importProductsFromShop(sourceShopId, targetShopId, options = {}) {
+    // Copy every product from sourceShopId into targetShopId. Used to
+    // bulk-seed a new branch with the main shop's catalogue so the owner
+    // doesn't re-enter 100+ products by hand. Each copied product gets:
+    //   • A fresh id (new UUID) — independent row, no shared row with main
+    //   • shop_id = targetShopId so all the existing shop-scoped queries
+    //     (sales, inventory, restock) pick it up correctly
+    //   • All product attributes copied verbatim (name, price, barcode,
+    //     batch, expiry, variants, GST/HSN, cost price, images, category)
+    //   • Stock — either set to a default (usually 0; branch counts
+    //     opening inventory at their own pace) or copied from source if
+    //     options.copyStock is true
+    //
+    // Verification: the caller must own (or be) BOTH shops. Branches and
+    // main share a parent_shop_id chain — that's the legitimate family.
+    // Without this check, anyone with a shop id could clone any other
+    // shop's catalogue. Defense in depth — RLS should also enforce.
+    if (!sourceShopId || !targetShopId) throw new Error('Source and target shop IDs required');
+    if (sourceShopId === targetShopId) throw new Error('Cannot import a shop into itself');
+
+    if (isSupabaseConfigured) {
+      // Family check: the two shops must share a parent or be parent/child.
+      const { data: shops } = await supabase.from('users')
+        .select('id, parent_shop_id').in('id', [sourceShopId, targetShopId]);
+      if (!shops || shops.length !== 2) throw new Error('Could not verify shop ownership');
+      const src = shops.find(s => s.id === sourceShopId);
+      const tgt = shops.find(s => s.id === targetShopId);
+      const srcRoot = src.parent_shop_id || src.id;
+      const tgtRoot = tgt.parent_shop_id || tgt.id;
+      if (srcRoot !== tgtRoot) throw new Error('Both shops must belong to the same brand');
+
+      // Fetch all source products
+      const { data: sourceProducts, error: fetchErr } = await supabase.from('products')
+        .select('*').eq('shop_id', sourceShopId);
+      if (fetchErr) throw new Error(fetchErr.message);
+      if (!sourceProducts || sourceProducts.length === 0) {
+        return { imported: 0, skipped: 0, products: [] };
+      }
+
+      // Optional: skip products already in target (matched by barcode if
+      // present, else by name). Avoids duplicates when the owner imports
+      // a second time after adding new products to main.
+      const { data: existingTarget } = await supabase.from('products')
+        .select('name, barcode').eq('shop_id', targetShopId);
+      const existingBarcodes = new Set((existingTarget || []).map(p => p.barcode).filter(Boolean));
+      const existingNames = new Set((existingTarget || []).map(p => (p.name || '').toLowerCase()));
+
+      const rowsToInsert = [];
+      let skipped = 0;
+      for (const p of sourceProducts) {
+        if (p.barcode && existingBarcodes.has(p.barcode)) { skipped++; continue; }
+        if (!p.barcode && existingNames.has((p.name || '').toLowerCase())) { skipped++; continue; }
+        // Copy all attributes except id (new) and shop_id (re-targeted).
+        // created_at/updated_at let Supabase auto-set. Stock either 0
+        // (default) or source's stock (copyStock option).
+        const newRow = { ...p };
+        delete newRow.id;
+        delete newRow.created_at;
+        delete newRow.updated_at;
+        newRow.shop_id = targetShopId;
+        newRow.stock = options.copyStock ? (p.stock || 0) : 0;
+        rowsToInsert.push(newRow);
+      }
+
+      if (rowsToInsert.length === 0) {
+        return { imported: 0, skipped, products: [] };
+      }
+
+      // Insert in batches of 100 so we don't trip request-size limits.
+      // Self-heal around any optional column that may not exist in the
+      // products table yet (images, is_featured, discount_pct, etc.) —
+      // drop and retry, same pattern as addProduct.
+      const inserted = [];
+      const BATCH_SIZE = 100;
+      for (let i = 0; i < rowsToInsert.length; i += BATCH_SIZE) {
+        let batch = rowsToInsert.slice(i, i + BATCH_SIZE);
+        for (let tries = 0; tries < 6; tries++) {
+          const { data, error } = await supabase.from('products').insert(batch).select();
+          if (!error) {
+            inserted.push(...(data || []).map(toProduct));
+            break;
+          }
+          const msg = error.message || '';
+          const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
+            || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
+          if (!miss) throw new Error(error.message);
+          // Strip the missing column from EVERY row in the batch and retry.
+          batch = batch.map(r => { const c = { ...r }; delete c[miss[1]]; return c; });
+        }
+      }
+      return { imported: inserted.length, skipped, products: inserted };
+    }
+    // Local (mockDB) fallback
+    const db = getDB();
+    db.products = db.products || [];
+    const sources = db.products.filter(p => p.shopId === sourceShopId);
+    const existingTarget = db.products.filter(p => p.shopId === targetShopId);
+    const existingBarcodes = new Set(existingTarget.map(p => p.barcode).filter(Boolean));
+    const existingNames = new Set(existingTarget.map(p => (p.name || '').toLowerCase()));
+    let imported = 0, skipped = 0;
+    const newProducts = [];
+    for (const p of sources) {
+      if (p.barcode && existingBarcodes.has(p.barcode)) { skipped++; continue; }
+      if (!p.barcode && existingNames.has((p.name || '').toLowerCase())) { skipped++; continue; }
+      const copy = { ...p, id: crypto.randomUUID(), shopId: targetShopId, stock: options.copyStock ? p.stock : 0 };
+      db.products.push(copy);
+      newProducts.push(copy);
+      imported++;
+    }
+    saveDB(db);
+    return { imported, skipped, products: newProducts };
+  },
+
   async updateBranch(branchId, ownerId, updates) {
     if (!branchId || !ownerId) throw new Error('IDs required');
     if (isSupabaseConfigured) {
