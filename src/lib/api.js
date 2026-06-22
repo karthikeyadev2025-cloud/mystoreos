@@ -3089,6 +3089,13 @@ export const api = {
     if (!isSupabaseConfigured) return;
     try {
       const authUid = await this._getAuthUid() || userId;
+      // Delete any existing session for this device first, then insert fresh.
+      // Avoids 409 Conflict on session_token UNIQUE when the same device
+      // re-registers before the previous session row is cleaned up.
+      await supabase.from('active_sessions')
+        .delete()
+        .eq('user_id', authUid)
+        .eq('device_fingerprint', deviceFingerprint);
       await supabase.from('active_sessions').insert({
         user_id: authUid,
         session_token: crypto.randomUUID(),
