@@ -295,6 +295,7 @@ const UserDashboard = () => {
   const [guestShowPw, setGuestShowPw] = useState(false);
   const [guestStep, setGuestStep] = useState('form'); // 'form' | 'success'
   const [paymentProof, setPaymentProof] = useState('');
+  const [pendingWaUrl, setPendingWaUrl] = useState(null); // set after guest-path order, shown as tap button
   const [isLocatingCatalog, setIsLocatingCatalog] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const scannerRef = useRef(null);
@@ -1012,10 +1013,11 @@ const UserDashboard = () => {
       login(loggedInUser);
       setShowGuestModal(false);
       toast.success(`🎉 Welcome ${loggedInUser.name?.split(' ')[0] || ''}! Placing your order…`);
-      // Pass loggedInUser directly to sendWhatsAppOrder — bypasses the
-      // closure trap (sendWhatsAppOrder referenced from the render where
-      // user was still null).
-      sendWhatsAppOrder(loggedInUser);
+      // syncOpen: false because we're deep inside an async chain
+      // (after await api.register / await api.login). Browser blocks
+      // window.open in async context — pendingWaUrl will be set instead
+      // and a tap-button shown to the customer.
+      sendWhatsAppOrder(loggedInUser, { syncOpen: false });
     } catch (err) {
       toast.error(err?.message || 'Could not create account. Try again.');
     }
@@ -1037,15 +1039,15 @@ const UserDashboard = () => {
     }
   };
 
-  const sendWhatsAppOrder = async (overrideUser = null) => {
-    // overrideUser exists because of a real React closure trap: when the
-    // guest registration just completes and we want to immediately place
-    // the order, login() schedules a re-render but the function reference
-    // we're holding was defined in the render where user was still null.
-    // Calling sendWhatsAppOrder() with no arg would read the captured-null
-    // user from the old closure and re-open the modal — exactly the
-    // 'checkout not working' bug. Passing loggedInUser explicitly
-    // sidesteps the closure entirely.
+  const sendWhatsAppOrder = async (overrideUser = null, { syncOpen = true } = {}) => {
+    // overrideUser: pass loggedInUser from guest-register path to sidestep
+    // the React closure trap (user was null when the fn was defined).
+    //
+    // syncOpen: true = window.open fires synchronously (still inside the
+    // user gesture call stack — browser allows it). false = we're inside
+    // an async chain (e.g. after await api.register) and the browser will
+    // block window.open. In that case we store the WA URL in pendingWaUrl
+    // state and show a tap button in the UI instead.
     const effectiveUser = overrideUser || user;
     const { total, items } = getCartTotals();
     try {
@@ -1106,8 +1108,16 @@ const UserDashboard = () => {
 
 
       const shopPhone = shopInfo?.phone || '9876543210';
-      // Synchronous open — still in user gesture call stack
-      window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      const waUrl = `https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`;
+
+      if (syncOpen) {
+        // Still inside user gesture call stack — browser allows window.open
+        window.open(waUrl, '_blank');
+      } else {
+        // Called from async chain (e.g. after await api.register) — browser
+        // blocks window.open. Store URL and show a tap button in the UI.
+        setPendingWaUrl(waUrl);
+      }
 
       // Clear cart and close modal immediately — don't wait for DB
       setCart({});
@@ -1536,6 +1546,7 @@ const UserDashboard = () => {
                         <button
                           onClick={() => {
                             setCart({});
+                            setPendingWaUrl(null);
                             try {
                               const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
                               delete allCarts[ACTIVE_SHOP_ID];
@@ -3563,6 +3574,36 @@ const UserDashboard = () => {
               Go Back
             </button>
 
+          </div>
+        </div>
+      )}
+
+      {/* Pending WhatsApp — shown after guest-path order when window.open
+           was blocked (called from async chain after api.register/login).
+           Customer just taps this one button to open WhatsApp. */}
+      {pendingWaUrl && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 20 }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 20, padding: 28, maxWidth: 360, width: '100%', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,0.35)' }}>
+            <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
+            <h3 style={{ margin: '0 0 8px', fontSize: 19, fontWeight: 900, color: '#0F172A' }}>Order placed!</h3>
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
+              Tap the button below to send your order details to the shop on WhatsApp.
+            </p>
+            <a
+              href={pendingWaUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setPendingWaUrl(null)}
+              style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg,#25d366,#128c7e)', color: '#fff', border: 'none', padding: '15px', borderRadius: 12, fontSize: 16, fontWeight: 800, textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}
+            >
+              📲 Send order on WhatsApp
+            </a>
+            <button
+              onClick={() => setPendingWaUrl(null)}
+              style={{ background: 'transparent', border: 'none', color: '#94A3B8', fontSize: 13, cursor: 'pointer', padding: 8 }}
+            >
+              Skip — I'll contact the shop myself
+            </button>
           </div>
         </div>
       )}
