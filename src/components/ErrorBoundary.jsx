@@ -70,7 +70,7 @@ class ErrorBoundary extends Component {
               We hit an unexpected error. Your data is safe — try refreshing the page or click retry below.
             </p>
 
-            {isDev && errorString && (
+            {errorString && (
               <div style={{
                 background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
                 borderRadius: '10px', padding: '12px', marginBottom: '20px', textAlign: 'left',
