@@ -925,10 +925,16 @@ const UserDashboard = () => {
   };
 
   // If the Supabase session expires or SIGNED_OUT fires while the WA
-  // checkout modal is open, close it and send the customer back to the
-  // guest registration flow. Without this, clicking "Place Order" after
-  // session loss hits placeOrder with user=null and crashes at Postgres
-  // with "null value in column user_id".
+  // Declared BEFORE any useEffect or handler that calls it.
+  // Moving it after caused TDZ: "Cannot access before initialization" in
+  // minified production builds — Vite/esbuild doesn't hoist const declarations.
+  const openAuthModal = () => {
+    setGuestName(''); setGuestPhone(''); setGuestPassword('');
+    setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
+    setShowGuestModal(true);
+  };
+
+  // If session expires while WA modal is open, close it and route back to auth.
   useEffect(() => {
     if (!user && showWaModal) {
       setShowWaModal(false);
@@ -961,12 +967,6 @@ const UserDashboard = () => {
     } else {
       setShowWaModal(true);
     }
-  };
-
-  const openAuthModal = () => {
-    setGuestName(''); setGuestPhone(''); setGuestPassword('');
-    setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
-    setShowGuestModal(true);
   };
 
   const handleAuthSubmit = async () => {
