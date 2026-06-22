@@ -945,8 +945,8 @@ const DesktopSettings = ({
           )}
         </div>
 
-        {/* Danger Zone — Reset Test Data */}
-        {(user.role === 'shop' || user.isOwner) && (
+        {/* Danger Zone — Reset Test Data — main shop only, not branches */}
+        {(user.role === 'shop' || user.isOwner) && !user.parentShopId && (
           <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid #FECACA', background: '#FFFBFA', boxShadow: '0 1px 3px rgba(220,38,38,0.06)' }}>
             <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertTriangle size={18} color="#DC2626" /> Danger Zone

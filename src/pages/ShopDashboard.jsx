@@ -4044,7 +4044,7 @@ const ShopDashboard = () => {
               setDistCodeInput={setDistCodeInput}
               handleLinkDistributor={handleLinkDistributor}
               handleUnlinkDistributor={handleUnlinkDistributor}
-              handleResetTestData={handleResetTestData}
+              handleResetTestData={isMainOwner ? handleResetTestData : undefined}
             />
             </>
           )}
@@ -6406,8 +6406,8 @@ const ShopDashboard = () => {
             </div>
           </div>
 
-          {/* DANGER ZONE — Reset Test Data (mobile) */}
-          {isOwner && (
+          {/* DANGER ZONE — Reset Test Data (mobile) — main shop only */}
+          {isOwner && isMainOwner && (
             <div style={{ background: '#1E0E0E', border: '1.5px solid #7F1D1D', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#FCA5A5', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
               <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
