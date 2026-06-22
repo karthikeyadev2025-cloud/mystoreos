@@ -289,13 +289,15 @@ const UserDashboard = () => {
   const [cart, setCart] = useState({});
   const [showWaModal, setShowWaModal] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
+  const [authTab, setAuthTab] = useState('signup');
+  const [authStep, setAuthStep] = useState('form');
+  const [authLoggedInUser, setAuthLoggedInUser] = useState(null);
   const [guestName, setGuestName] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   const [guestPassword, setGuestPassword] = useState('');
   const [guestShowPw, setGuestShowPw] = useState(false);
-  const [guestStep, setGuestStep] = useState('form'); // 'form' | 'success'
+  const [authLoading, setAuthLoading] = useState(false);
   const [paymentProof, setPaymentProof] = useState('');
-  const [pendingWaUrl, setPendingWaUrl] = useState(null); // set after guest-path order, shown as tap button
   const [isLocatingCatalog, setIsLocatingCatalog] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const scannerRef = useRef(null);
@@ -930,6 +932,8 @@ const UserDashboard = () => {
   useEffect(() => {
     if (!user && showWaModal) {
       setShowWaModal(false);
+      setGuestName(''); setGuestPhone(''); setGuestPassword('');
+      setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
       setShowGuestModal(true);
     }
   }, [user, showWaModal]);
@@ -953,73 +957,72 @@ const UserDashboard = () => {
         console.warn('handleCheckoutClick: user object present but missing id', user);
         try { localStorage.removeItem('mystore_session'); } catch { /* ignore */ }
       }
-      setShowGuestModal(true);
+      openAuthModal();
     } else {
       setShowWaModal(true);
     }
   };
 
-  const handleGuestLogin = async () => {
-    if (!guestName.trim()) return toast.error('Enter your name');
-    if (!/^\d{10}$/.test(guestPhone)) return toast.error('Enter a valid 10-digit mobile number');
-    if (!guestPassword || guestPassword.length < 4) return toast.error('Set a password — minimum 4 characters');
+  const openAuthModal = () => {
+    setGuestName(''); setGuestPhone(''); setGuestPassword('');
+    setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
+    setShowGuestModal(true);
+  };
+
+  const handleAuthSubmit = async () => {
+    if (authTab === 'signup') {
+      if (!guestName.trim()) return toast.error('Enter your name');
+      if (!/^\d{10}$/.test(guestPhone)) return toast.error('Enter a valid 10-digit mobile number');
+      if (!guestPassword || guestPassword.length < 4) return toast.error('Password must be at least 4 characters');
+    } else {
+      if (!/^\d{10}$/.test(guestPhone)) return toast.error('Enter your 10-digit mobile number');
+      if (!guestPassword) return toast.error('Enter your password');
+    }
+    setAuthLoading(true);
     try {
       let loggedInUser;
-      // Try to register the brand-new customer first. api.register returns
-      // the freshly-created profile AND sets the Supabase session, so we
-      // don't need to re-login. The previous version did a redundant
-      // api.login(phone, pass) right after, which masked real register
-      // failures and surfaced a misleading "account exists with different
-      // password" message even when the actual cause was a server/network
-      // error during register.
-      try {
-        loggedInUser = await api.register(guestName.trim(), guestPhone, guestPassword, 'customer');
-      } catch (regErr) {
-        const msg = regErr?.message || '';
-        // Phone-already-exists → fall through to login.
-        if (/already\s*(registered|exists|been)/i.test(msg)) {
-          try {
-            loggedInUser = await api.login(guestPhone, guestPassword);
-          } catch (loginErr) {
-            toast.error('This number already has an account, but the password is different. Try a different number, or sign in.');
+      if (authTab === 'signup') {
+        try {
+          loggedInUser = await api.register(guestName.trim(), guestPhone, guestPassword, 'customer');
+        } catch (regErr) {
+          const msg = regErr?.message || '';
+          if (/already\s*(registered|exists|been)/i.test(msg)) {
+            // Phone already registered — try login with the given password
+            try {
+              loggedInUser = await api.login(guestPhone, guestPassword);
+            } catch {
+              toast.error('This number already has an account but the password is wrong. Switch to Login tab.');
+              return;
+            }
+          } else {
+            toast.error(msg || 'Could not create account. Try again.');
             return;
           }
-        } else {
-          // Real registration error — show what actually went wrong.
-          toast.error(msg || 'Could not create account. Try again.');
+        }
+      } else {
+        try {
+          loggedInUser = await api.login(guestPhone, guestPassword);
+        } catch (loginErr) {
+          toast.error(loginErr?.message || 'Wrong number or password.');
           return;
         }
       }
 
-      if (!loggedInUser) {
-        // Defensive: register succeeded server-side but the client didn't
-        // get back a profile object. Try one explicit login.
-        try { loggedInUser = await api.login(guestPhone, guestPassword); }
-        catch { toast.error('Account created but sign-in failed — please try logging in.'); return; }
-      }
-
-      // Belt-and-braces: every downstream call (api.placeOrder, the auth
-      // context, the storefront's per-user state) assumes user.id is a
-      // real string. A returned profile WITHOUT id would silently get
-      // saved to localStorage and reproduce the 'null user_id' Postgres
-      // error on the very next checkout click. Catch that here.
-      if (!loggedInUser.id) {
-        console.warn('handleGuestLogin: register/login returned a profile with no id', loggedInUser);
-        toast.error('Sign-in did not return a user ID. Please try logging in again.');
+      if (!loggedInUser?.id) {
+        toast.error('Sign-in did not return a valid account. Please try again.');
         return;
       }
 
       localStorage.setItem('mystore_session', JSON.stringify(loggedInUser));
       login(loggedInUser);
-      setShowGuestModal(false);
-      toast.success(`🎉 Welcome ${loggedInUser.name?.split(' ')[0] || ''}! Placing your order…`);
-      // syncOpen: false because we're deep inside an async chain
-      // (after await api.register / await api.login). Browser blocks
-      // window.open in async context — pendingWaUrl will be set instead
-      // and a tap-button shown to the customer.
-      sendWhatsAppOrder(loggedInUser, { syncOpen: false });
+      setAuthLoggedInUser(loggedInUser);
+      // Move to 'ready' step — customer taps "Place Order" button themselves
+      // (synchronous user gesture) so window.open is never blocked
+      setAuthStep('ready');
     } catch (err) {
-      toast.error(err?.message || 'Could not create account. Try again.');
+      toast.error(err?.message || 'Something went wrong. Try again.');
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -1039,7 +1042,7 @@ const UserDashboard = () => {
     }
   };
 
-  const sendWhatsAppOrder = async (overrideUser = null, { syncOpen = true } = {}) => {
+  const sendWhatsAppOrder = async (overrideUser = null) => {
     // overrideUser: pass loggedInUser from guest-register path to sidestep
     // the React closure trap (user was null when the fn was defined).
     //
@@ -1068,7 +1071,7 @@ const UserDashboard = () => {
           // Wipe the corrupt session so the next click is a clean guest path.
           try { localStorage.removeItem('mystore_session'); } catch { /* ignore */ }
         }
-        setShowGuestModal(true);
+        openAuthModal();
         return;
       }
 
@@ -1108,16 +1111,7 @@ const UserDashboard = () => {
 
 
       const shopPhone = shopInfo?.phone || '9876543210';
-      const waUrl = `https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`;
-
-      if (syncOpen) {
-        // Still inside user gesture call stack — browser allows window.open
-        window.open(waUrl, '_blank');
-      } else {
-        // Called from async chain (e.g. after await api.register) — browser
-        // blocks window.open. Store URL and show a tap button in the UI.
-        setPendingWaUrl(waUrl);
-      }
+      window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
 
       // Clear cart and close modal immediately — don't wait for DB
       setCart({});
@@ -1546,8 +1540,7 @@ const UserDashboard = () => {
                         <button
                           onClick={() => {
                             setCart({});
-                            setPendingWaUrl(null);
-                            try {
+                                                  try {
                               const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
                               delete allCarts[ACTIVE_SHOP_ID];
                               localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
@@ -1712,7 +1705,7 @@ const UserDashboard = () => {
                               👤 Create a free account to place this order
                             </p>
                             <button
-                              onClick={() => setShowGuestModal(true)}
+                              onClick={() => openAuthModal()}
                               style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}
                             >
                               Sign Up &amp; Continue
@@ -1734,7 +1727,7 @@ const UserDashboard = () => {
 
                         {/* Place Order Trigger */}
                         <button 
-                          onClick={() => { if (!user) { setShowGuestModal(true); return; } sendWhatsAppOrder(); }} 
+                          onClick={() => { if (!user) { openAuthModal(); return; } sendWhatsAppOrder(); }} 
                           style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
                         >
                           📲 Notify &amp; Place Order via WhatsApp
@@ -1825,7 +1818,7 @@ const UserDashboard = () => {
                   </button>
                 ) : (
                   <button 
-                    onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')}
+                    onClick={() => isStoreMode ? openAuthModal() : navigate('/login')}
                     className="sidebar-nav-item active"
                     style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
                   >
@@ -2217,43 +2210,66 @@ const UserDashboard = () => {
         {showGuestModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
             <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '380px', borderRadius: '24px', padding: '28px', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
-              {guestStep === 'success' ? (
-                /* ── Success step ── */
+
+              {authStep === 'ready' ? (
+                /* ── Step 2: account ready, one tap to place order ── */
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '52px', marginBottom: '12px' }}>🎉</div>
-                  <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 8px', color: '#0F172A' }}>Account Created!</h2>
-                  <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 6px', lineHeight: 1.6 }}>
-                    Your orders, bills, and loyalty points will now be saved to your account.
-                  </p>
-                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 20px' }}>
-                    📱 Login anytime at <strong>mystoreos.in</strong> with your mobile number and password.
+                  <div style={{ fontSize: '52px', marginBottom: '12px' }}>✅</div>
+                  <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 8px', color: '#0F172A' }}>
+                    {authTab === 'signup' ? 'Account Created!' : 'Logged In!'}
+                  </h2>
+                  <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 20px', lineHeight: 1.6 }}>
+                    Hi <b>{authLoggedInUser?.name?.split(' ')[0] || 'there'}</b>! Tap below to send your order to the shop on WhatsApp.
                   </p>
                   <button
-                    onClick={() => { setGuestStep('form'); setShowGuestModal(false); setShowWaModal(true); }}
-                    style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: 'pointer' }}
+                    onClick={() => {
+                      setShowGuestModal(false);
+                      setAuthStep('form');
+                      sendWhatsAppOrder(authLoggedInUser);
+                    }}
+                    style={{ width: '100%', background: 'linear-gradient(135deg,#25d366,#128c7e)', color: '#fff', border: 'none', padding: '15px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
                   >
-                    Continue to Order ➔
+                    📲 Place Order on WhatsApp
+                  </button>
+                  <button
+                    onClick={() => { setShowGuestModal(false); setAuthStep('form'); }}
+                    style={{ background: 'transparent', border: 'none', color: '#94A3B8', padding: '8px', fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    Cancel
                   </button>
                 </div>
               ) : (
-                /* ── Form step ── */
+                /* ── Step 1: login / signup form ── */
                 <>
-                  <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                     <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>🛒</div>
-                    <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 4px', color: '#0F172A' }}>Quick Sign Up</h2>
-                    <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>Create your free account to place orders &amp; track bills</p>
+                    <h2 style={{ fontSize: '19px', fontWeight: '900', margin: '0 0 4px', color: '#0F172A' }}>Sign in to place order</h2>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Your bills &amp; orders are saved to your account</p>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
-                    <input
-                      type="text"
-                      placeholder="Your Full Name"
-                      value={guestName}
-                      onChange={e => setGuestName(e.target.value)}
-                      style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                      onFocus={e => e.target.style.borderColor = '#4F46E5'}
-                      onBlur={e => e.target.style.borderColor = '#E2E8F0'}
-                    />
+                  {/* Tab switcher */}
+                  <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, marginBottom: 18 }}>
+                    {['signup', 'login'].map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setAuthTab(tab)}
+                        style={{ flex: 1, padding: '8px', borderRadius: 8, border: 'none', background: authTab === tab ? '#4F46E5' : 'transparent', color: authTab === tab ? '#fff' : '#64748B', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                      >
+                        {tab === 'signup' ? 'New Customer' : 'Already have account'}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                    {authTab === 'signup' && (
+                      <input
+                        type="text"
+                        placeholder="Your Full Name"
+                        value={guestName}
+                        onChange={e => setGuestName(e.target.value)}
+                        style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    )}
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13, fontWeight: 600, pointerEvents: 'none' }}>+91</span>
                       <input
@@ -2261,20 +2277,17 @@ const UserDashboard = () => {
                         placeholder="10-digit mobile number"
                         value={guestPhone}
                         onChange={e => setGuestPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
-                        style={{ width: '100%', padding: '12px 14px 12px 42px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                        onFocus={e => e.target.style.borderColor = '#4F46E5'}
-                        onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                        inputMode="numeric"
+                        style={{ width: '100%', padding: '12px 14px 12px 44px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
                       />
                     </div>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={guestShowPw ? 'text' : 'password'}
-                        placeholder="Create a password (min 4 chars)"
+                        placeholder={authTab === 'signup' ? 'Create a password (min 4 chars)' : 'Your password'}
                         value={guestPassword}
                         onChange={e => setGuestPassword(e.target.value)}
                         style={{ width: '100%', padding: '12px 42px 12px 14px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box' }}
-                        onFocus={e => e.target.style.borderColor = '#4F46E5'}
-                        onBlur={e => e.target.style.borderColor = '#E2E8F0'}
                       />
                       <button type="button" onClick={() => setGuestShowPw(v => !v)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}>
                         {guestShowPw ? '🙈' : '👁'}
@@ -2282,18 +2295,12 @@ const UserDashboard = () => {
                     </div>
                   </div>
 
-                  <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', display: 'flex', gap: '8px' }}>
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#4F46E5', lineHeight: 1.5 }}>
-                      Remember this password — you can use it to login and view all your past bills &amp; orders at any time.
-                    </p>
-                  </div>
-
                   <button
-                    onClick={handleGuestLogin}
-                    style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 16px rgba(79,70,229,0.35)' }}
+                    onClick={handleAuthSubmit}
+                    disabled={authLoading}
+                    style={{ width: '100%', background: authLoading ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: authLoading ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
                   >
-                    Create Account &amp; Continue
+                    {authLoading ? 'Please wait…' : (authTab === 'signup' ? 'Create Account →' : 'Login →')}
                   </button>
                   <button
                     onClick={() => setShowGuestModal(false)}
@@ -2775,7 +2782,7 @@ const UserDashboard = () => {
                 </div>
               ) : (
                 <button 
-                  onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')}
+                  onClick={() => isStoreMode ? openAuthModal() : navigate('/login')}
                   style={{ background: 'linear-gradient(135deg, #4F46E5, #4F46E5)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '16px', fontSize: '12px', width: 'auto', fontWeight: 'bold', cursor: 'pointer' }}
                 >
                   {isStoreMode ? 'Create Account' : 'Sign In'}
@@ -3113,7 +3120,7 @@ const UserDashboard = () => {
                   <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
                     <Info size={32} style={{ color: '#64748b', margin: '0 auto 12px' }} />
                     <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '16px' }}>Sign in to view your transaction invoices history.</p>
-                    <button onClick={() => isStoreMode ? setShowGuestModal(true) : navigate('/login')} style={{ width: 'auto', background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>{isStoreMode ? 'Create Account' : 'Sign In Now'}</button>
+                    <button onClick={() => isStoreMode ? openAuthModal() : navigate('/login')} style={{ width: 'auto', background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>{isStoreMode ? 'Create Account' : 'Sign In Now'}</button>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -3574,36 +3581,6 @@ const UserDashboard = () => {
               Go Back
             </button>
 
-          </div>
-        </div>
-      )}
-
-      {/* Pending WhatsApp — shown after guest-path order when window.open
-           was blocked (called from async chain after api.register/login).
-           Customer just taps this one button to open WhatsApp. */}
-      {pendingWaUrl && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 20 }}>
-          <div style={{ background: '#FFFFFF', borderRadius: 20, padding: 28, maxWidth: 360, width: '100%', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,0.35)' }}>
-            <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
-            <h3 style={{ margin: '0 0 8px', fontSize: 19, fontWeight: 900, color: '#0F172A' }}>Order placed!</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
-              Tap the button below to send your order details to the shop on WhatsApp.
-            </p>
-            <a
-              href={pendingWaUrl}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setPendingWaUrl(null)}
-              style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg,#25d366,#128c7e)', color: '#fff', border: 'none', padding: '15px', borderRadius: 12, fontSize: 16, fontWeight: 800, textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}
-            >
-              📲 Send order on WhatsApp
-            </a>
-            <button
-              onClick={() => setPendingWaUrl(null)}
-              style={{ background: 'transparent', border: 'none', color: '#94A3B8', fontSize: 13, cursor: 'pointer', padding: 8 }}
-            >
-              Skip — I'll contact the shop myself
-            </button>
           </div>
         </div>
       )}
