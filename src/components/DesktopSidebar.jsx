@@ -53,20 +53,29 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
         })}
       </nav>
       <div style={{ padding: 14, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-            {(userName || 'S').slice(0, 2).toUpperCase()}
+        {branchSwitcherEl ? (
+          /* Multi-branch: avatar + switcher (which shows active branch name) + sync */
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+              {(userName || 'S').slice(0, 2).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {branchSwitcherEl}
+              <div style={{ color: '#94A3B8', fontSize: 10, fontFamily: "'JetBrains Mono', monospace", marginTop: 3 }}>{publicCode}</div>
+            </div>
+            <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
           </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userName}</div>
-            <div style={{ color: '#94A3B8', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace" }}>{publicCode}</div>
-          </div>
-          <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
-        </div>
-        {/* Branch switcher — visible only when the owner has 2+ branches. */}
-        {branchSwitcherEl && (
-          <div style={{ marginBottom: 10 }}>
-            {branchSwitcherEl}
+        ) : (
+          /* Single shop: original avatar + name + code */
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+              {(userName || 'S').slice(0, 2).toUpperCase()}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userName}</div>
+              <div style={{ color: '#94A3B8', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace" }}>{publicCode}</div>
+            </div>
+            <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
           </div>
         )}
         <button onClick={handleLogout}
