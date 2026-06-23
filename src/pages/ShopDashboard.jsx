@@ -7383,99 +7383,360 @@ const ShopDashboard = () => {
 // god's-eye view of which branch is performing best, which is the whole
 // point of running multi-branch.
 function CompareBranchesPanel({ orders, branches }) {
-  // Filter to today's confirmed bills only — comparing today's performance
-  // is the most common question owners ask first. They can drill into
-  // longer windows via the regular Reports view below.
-  const today = new Date(); today.setHours(0,0,0,0);
+  const [range, setRange] = useState('today'); // today | week | month | all
+  const [metric, setMetric] = useState('revenue'); // revenue | bills | items
+
+  // Branch color palette — stable per branch index across the panel
+  const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#EF4444', '#84CC16'];
+  const branchColor = (i) => COLORS[i % COLORS.length];
+
+  // Time window
+  const now = new Date();
+  const start = new Date(now);
+  if (range === 'today') start.setHours(0,0,0,0);
+  else if (range === 'week') { start.setDate(now.getDate() - 6); start.setHours(0,0,0,0); }
+  else if (range === 'month') { start.setDate(now.getDate() - 29); start.setHours(0,0,0,0); }
+  else start.setFullYear(2000); // 'all'
+
   const isBill = o => !o.userId?.startsWith('estimate') && !o.userId?.startsWith('challan')
     && o.status !== 'Cancelled';
-  const todayOrders = orders.filter(o => {
+  const inRange = (o) => {
     if (!isBill(o)) return false;
     const t = new Date(o.timestamp || 0);
-    return t >= today;
-  });
+    return t >= start;
+  };
+  const scopedOrders = orders.filter(inRange);
 
-  // Per-branch stats
-  const perBranch = branches.map(b => {
-    const branchOrders = todayOrders.filter(o => o._branchId === b.id);
-    const revenue = branchOrders.reduce((sum, o) =>
-      sum + (Number(o.total) || 0) - (Number(o.refundAmount) || 0), 0);
-    // Top item by units sold today
+  // Per-branch aggregates
+  const perBranch = branches.map((b, idx) => {
+    const bOrders = scopedOrders.filter(o => o._branchId === b.id);
+    const revenue = bOrders.reduce((s, o) => s + (Number(o.total) || 0) - (Number(o.refundAmount) || 0), 0);
+    const itemsSold = bOrders.reduce((s, o) =>
+      s + (o.items || []).reduce((ss, it) => ss + (Number(it.qty) || 0), 0), 0);
+    const avgBill = bOrders.length ? Math.round(revenue / bOrders.length) : 0;
+
+    // Top 3 items
     const itemTally = {};
-    branchOrders.forEach(o => (o.items || []).forEach(it => {
+    bOrders.forEach(o => (o.items || []).forEach(it => {
       const name = it.name || it.productName || 'Item';
-      itemTally[name] = (itemTally[name] || 0) + (Number(it.qty) || 0);
+      if (!itemTally[name]) itemTally[name] = { qty: 0, revenue: 0 };
+      itemTally[name].qty += Number(it.qty) || 0;
+      itemTally[name].revenue += (Number(it.price) || 0) * (Number(it.qty) || 0);
     }));
-    const topItem = Object.entries(itemTally).sort((a,b) => b[1] - a[1])[0];
+    const top3 = Object.entries(itemTally)
+      .sort((a, b) => b[1].qty - a[1].qty)
+      .slice(0, 3)
+      .map(([name, v]) => ({ name, qty: v.qty, revenue: v.revenue }));
+
+    // Payment method mix
+    const payMix = { cash: 0, upi: 0, card: 0, credit: 0, other: 0 };
+    bOrders.forEach(o => {
+      const m = (o.paymentMethod || '').toLowerCase();
+      const amt = (Number(o.total) || 0) - (Number(o.refundAmount) || 0);
+      if (m.includes('upi')) payMix.upi += amt;
+      else if (m.includes('cash')) payMix.cash += amt;
+      else if (m.includes('card')) payMix.card += amt;
+      else if (m.includes('credit')) payMix.credit += amt;
+      else payMix.other += amt;
+    });
+
+    // Hour-of-day spread (busiest hour)
+    const hourly = Array(24).fill(0);
+    bOrders.forEach(o => { hourly[new Date(o.timestamp || 0).getHours()]++; });
+    const busiestHour = hourly.indexOf(Math.max(...hourly));
+
     return {
       id: b.id,
       name: b.name + (!b.parentShopId ? ' (Main)' : ''),
-      revenue,
-      count: branchOrders.length,
-      topItem: topItem ? `${topItem[0]} (${topItem[1]})` : '—',
+      shortName: b.name.length > 18 ? b.name.slice(0, 16) + '…' : b.name,
+      color: branchColor(idx),
+      revenue, itemsSold, avgBill, count: bOrders.length,
+      top3, payMix,
+      busiestHour: bOrders.length ? busiestHour : null,
     };
   });
 
-  const maxRevenue = Math.max(1, ...perBranch.map(p => p.revenue));
   const totalRevenue = perBranch.reduce((s, p) => s + p.revenue, 0);
   const totalCount = perBranch.reduce((s, p) => s + p.count, 0);
+  const totalItems = perBranch.reduce((s, p) => s + p.itemsSold, 0);
+  const avgBillAll = totalCount ? Math.round(totalRevenue / totalCount) : 0;
+
+  // Daily trend data — one entry per day in the range, with a revenue column per branch
+  const days = [];
+  const dayCount = range === 'today' ? 1 : range === 'week' ? 7 : range === 'month' ? 30 : 90;
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    d.setHours(0,0,0,0);
+    const dayStart = d.getTime();
+    const dayEnd = dayStart + 86400000;
+    const row = {
+      label: range === 'today'
+        ? d.getHours() + ':00'  // not used, today is single
+        : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+    };
+    perBranch.forEach(p => {
+      const r = scopedOrders
+        .filter(o => o._branchId === p.id)
+        .filter(o => {
+          const t = new Date(o.timestamp || 0).getTime();
+          return t >= dayStart && t < dayEnd;
+        })
+        .reduce((s, o) => s + (Number(o.total) || 0) - (Number(o.refundAmount) || 0), 0);
+      row[p.id] = r;
+    });
+    days.push(row);
+  }
+
+  // For 'today', build hourly trend instead of daily
+  let trendData = days;
+  if (range === 'today') {
+    trendData = Array(24).fill(0).map((_, h) => {
+      const row = { label: `${h}:00` };
+      perBranch.forEach(p => {
+        row[p.id] = scopedOrders
+          .filter(o => o._branchId === p.id && new Date(o.timestamp || 0).getHours() === h)
+          .reduce((s, o) => s + (Number(o.total) || 0) - (Number(o.refundAmount) || 0), 0);
+      });
+      return row;
+    });
+  }
+
+  // Bar chart data for the active metric
+  const barData = perBranch.map(p => ({
+    name: p.shortName,
+    value: metric === 'revenue' ? p.revenue : metric === 'bills' ? p.count : p.itemsSold,
+    color: p.color,
+  }));
+
+  // Winner (best branch by current metric)
+  const winner = [...perBranch].sort((a, b) => {
+    const av = metric === 'revenue' ? a.revenue : metric === 'bills' ? a.count : a.itemsSold;
+    const bv = metric === 'revenue' ? b.revenue : metric === 'bills' ? b.count : b.itemsSold;
+    return bv - av;
+  })[0];
+
+  const fmtINR = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
+  // Pill button style helper
+  const pillBtn = (active) => ({
+    padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+    border: '1px solid ' + (active ? '#4F46E5' : '#E2E8F0'),
+    background: active ? '#4F46E5' : '#FFFFFF',
+    color: active ? '#FFFFFF' : '#475569',
+    transition: 'all 0.15s',
+  });
 
   return (
-    <div style={{
-      background: '#FFFFFF',
-      border: '1px solid #E2E8F0',
-      borderRadius: 14,
-      padding: 20,
-      marginBottom: 16,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
-        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0F172A' }}>
-          📊 Compare Branches — Today
-        </h3>
-        <div style={{ fontSize: 12, color: '#64748B' }}>
-          Total: <b style={{ color: '#0F172A' }}>₹{totalRevenue.toLocaleString('en-IN')}</b> across <b style={{ color: '#0F172A' }}>{totalCount}</b> bill{totalCount === 1 ? '' : 's'}
+    <div style={{ marginBottom: 16 }}>
+      {/* Header + toggles */}
+      <div style={{
+        background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14,
+        padding: 18, marginBottom: 12,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0F172A' }}>
+            📊 Compare Branches
+          </h3>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[['today','Today'],['week','7d'],['month','30d'],['all','All']].map(([k, label]) => (
+              <button key={k} onClick={() => setRange(k)} style={pillBtn(range === k)}>{label}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Headline KPIs */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
+          <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', padding: 14, borderRadius: 10, border: '1px solid #C7D2FE' }}>
+            <div style={{ fontSize: 11, color: '#4338CA', fontWeight: 700, marginBottom: 4 }}>TOTAL REVENUE</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#312E81' }}>{fmtINR(totalRevenue)}</div>
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', padding: 14, borderRadius: 10, border: '1px solid #6EE7B7' }}>
+            <div style={{ fontSize: 11, color: '#047857', fontWeight: 700, marginBottom: 4 }}>BILLS</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#064E3B' }}>{totalCount}</div>
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)', padding: 14, borderRadius: 10, border: '1px solid #FBBF24' }}>
+            <div style={{ fontSize: 11, color: '#92400E', fontWeight: 700, marginBottom: 4 }}>AVG BILL</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#78350F' }}>{fmtINR(avgBillAll)}</div>
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #FCE7F3, #FBCFE8)', padding: 14, borderRadius: 10, border: '1px solid #F9A8D4' }}>
+            <div style={{ fontSize: 11, color: '#9D174D', fontWeight: 700, marginBottom: 4 }}>ITEMS SOLD</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#831843' }}>{totalItems}</div>
+          </div>
+        </div>
+
+        {/* Winner banner */}
+        {winner && winner.count > 0 && (
+          <div style={{ marginTop: 12, padding: 10, borderRadius: 8, background: '#F0FDF4', border: '1px solid #86EFAC', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 18 }}>🏆</span>
+            <span style={{ fontSize: 13, color: '#166534' }}>
+              <b>{winner.name}</b> leads with{' '}
+              {metric === 'revenue' ? <b>{fmtINR(winner.revenue)}</b>
+                : metric === 'bills' ? <b>{winner.count} bills</b>
+                : <b>{winner.itemsSold} items sold</b>}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Bar comparison chart */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+          <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>Branch-by-Branch</h4>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[['revenue','Revenue'],['bills','Bills'],['items','Items']].map(([k, label]) => (
+              <button key={k} onClick={() => setMetric(k)} style={pillBtn(metric === k)}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ height: 220 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={barData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#475569' }} />
+              <YAxis tick={{ fontSize: 11, fill: '#475569' }}
+                tickFormatter={(v) => metric === 'revenue' ? (v >= 1000 ? `₹${(v/1000).toFixed(0)}k` : `₹${v}`) : v} />
+              <Tooltip
+                formatter={(v) => metric === 'revenue' ? fmtINR(v) : v}
+                contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid #E2E8F0' }}
+              />
+              <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                {barData.map((d, i) => <Bar key={i} fill={d.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* Trend over time — one line per branch */}
+      {range !== 'today' || trendData.some(r => perBranch.some(p => r[p.id] > 0)) ? (
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 12 }}>
+          <h4 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>
+            {range === 'today' ? 'Hourly Trend (Today)' : 'Revenue Trend'}
+          </h4>
+          <div style={{ height: 240 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={trendData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#475569' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#475569' }}
+                  tickFormatter={(v) => v >= 1000 ? `₹${(v/1000).toFixed(0)}k` : `₹${v}`} />
+                <Tooltip
+                  formatter={(v) => fmtINR(v)}
+                  contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid #E2E8F0' }}
+                />
+                {perBranch.map(p => (
+                  <Bar key={p.id} dataKey={p.id} name={p.name} stackId="a" fill={p.color} radius={[4, 4, 0, 0]} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 10, paddingTop: 10, borderTop: '1px solid #F1F5F9' }}>
+            {perBranch.map(p => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#475569' }}>
+                <span style={{ width: 10, height: 10, borderRadius: 3, background: p.color }} />
+                {p.name}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Per-branch detail cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         {perBranch.map(p => {
-          const pct = (p.revenue / maxRevenue) * 100;
+          const payTotal = p.payMix.cash + p.payMix.upi + p.payMix.card + p.payMix.credit + p.payMix.other;
           const sharePct = totalRevenue ? Math.round((p.revenue / totalRevenue) * 100) : 0;
           return (
-            <div key={p.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{p.name}</div>
-                <div style={{ fontSize: 12, color: '#475569' }}>
-                  <b style={{ color: '#0F172A' }}>₹{p.revenue.toLocaleString('en-IN')}</b>
-                  <span style={{ color: '#94A3B8', margin: '0 6px' }}>·</span>
-                  {p.count} bill{p.count === 1 ? '' : 's'}
-                  {sharePct > 0 && (
-                    <>
-                      <span style={{ color: '#94A3B8', margin: '0 6px' }}>·</span>
-                      {sharePct}% share
-                    </>
-                  )}
+            <div key={p.id} style={{
+              background: '#FFFFFF', border: `2px solid ${p.color}33`, borderRadius: 12, padding: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                {sharePct > 0 && (
+                  <span style={{ background: p.color + '22', color: p.color, fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
+                    {sharePct}%
+                  </span>
+                )}
+              </div>
+
+              {/* Mini stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>REVENUE</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{fmtINR(p.revenue)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>BILLS</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{p.count}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>AVG BILL</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#475569' }}>{fmtINR(p.avgBill)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>ITEMS</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#475569' }}>{p.itemsSold}</div>
                 </div>
               </div>
-              <div style={{ height: 10, background: '#F1F5F9', borderRadius: 6, overflow: 'hidden' }}>
-                <div style={{
-                  width: `${pct}%`,
-                  height: '100%',
-                  background: `linear-gradient(90deg, #4F46E5, #818CF8)`,
-                  transition: 'width 0.4s ease-out',
-                }} />
-              </div>
-              <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>
-                Top item: <span style={{ color: '#0F172A', fontWeight: 600 }}>{p.topItem}</span>
-              </div>
+
+              {/* Payment mix */}
+              {payTotal > 0 && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700, marginBottom: 4 }}>PAYMENT MIX</div>
+                  <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', background: '#F1F5F9' }}>
+                    {p.payMix.cash > 0 && <div title={`Cash: ${fmtINR(p.payMix.cash)}`} style={{ width: `${(p.payMix.cash/payTotal)*100}%`, background: '#10B981' }} />}
+                    {p.payMix.upi > 0 && <div title={`UPI: ${fmtINR(p.payMix.upi)}`} style={{ width: `${(p.payMix.upi/payTotal)*100}%`, background: '#4F46E5' }} />}
+                    {p.payMix.card > 0 && <div title={`Card: ${fmtINR(p.payMix.card)}`} style={{ width: `${(p.payMix.card/payTotal)*100}%`, background: '#F59E0B' }} />}
+                    {p.payMix.credit > 0 && <div title={`Credit: ${fmtINR(p.payMix.credit)}`} style={{ width: `${(p.payMix.credit/payTotal)*100}%`, background: '#EC4899' }} />}
+                    {p.payMix.other > 0 && <div title={`Other: ${fmtINR(p.payMix.other)}`} style={{ width: `${(p.payMix.other/payTotal)*100}%`, background: '#94A3B8' }} />}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4, fontSize: 10, color: '#64748B' }}>
+                    {p.payMix.cash > 0 && <span>💵 {Math.round((p.payMix.cash/payTotal)*100)}%</span>}
+                    {p.payMix.upi > 0 && <span>📱 {Math.round((p.payMix.upi/payTotal)*100)}%</span>}
+                    {p.payMix.card > 0 && <span>💳 {Math.round((p.payMix.card/payTotal)*100)}%</span>}
+                    {p.payMix.credit > 0 && <span>📒 {Math.round((p.payMix.credit/payTotal)*100)}%</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Top 3 items */}
+              {p.top3.length > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700, marginBottom: 6 }}>TOP ITEMS</div>
+                  {p.top3.map((it, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: 12 }}>
+                      <span style={{ color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} {it.name}
+                      </span>
+                      <span style={{ color: '#64748B', fontWeight: 700, marginLeft: 8, flexShrink: 0 }}>{it.qty}×</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Busiest hour */}
+              {p.busiestHour !== null && (
+                <div style={{ paddingTop: 10, borderTop: '1px solid #F1F5F9', fontSize: 11, color: '#64748B' }}>
+                  🕐 Busiest: <b style={{ color: '#0F172A' }}>{p.busiestHour}:00 – {p.busiestHour + 1}:00</b>
+                </div>
+              )}
+
+              {p.count === 0 && (
+                <div style={{ padding: '8px 0', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>
+                  No bills in this period
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       {totalCount === 0 && (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
-          No bills placed today across any branch yet.
+        <div style={{ marginTop: 12, padding: 20, textAlign: 'center', color: '#94A3B8', fontSize: 13, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14 }}>
+          No bills placed in this period across any branch.
         </div>
       )}
     </div>
