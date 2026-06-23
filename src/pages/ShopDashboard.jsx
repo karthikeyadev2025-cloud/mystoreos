@@ -3434,7 +3434,12 @@ const ShopDashboard = () => {
   // lets them switch which branch's products/orders/staff/reports they're
   // viewing. activeBranchId is null = main shop selected.
   const visibleBranches = branches.filter(b => !b.branchDeletedAt);
-  const hasMultipleBranches = visibleBranches.length >= 2;
+  // hasMultipleBranches is the gate for all multi-branch UI (switcher, reports
+  // scope toggle, per-product copy-to-branch button). Branch logins never
+  // own other branches — they only manage themselves — so force false even
+  // if visibleBranches happens to contain siblings (it does, because
+  // getOwnedBranches returns the full family for shared data lookups).
+  const hasMultipleBranches = visibleBranches.length >= 2 && !user.parentShopId;
   const currentBranch = visibleBranches.find(b => b.id === targetShopId) || visibleBranches.find(b => !b.parentShopId) || null;
   const branchSwitcherEl = (hasMultipleBranches && user.role !== 'staff') ? (
     <select
