@@ -7403,7 +7403,7 @@ function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }
     && o.status !== 'Cancelled';
   const scopedOrders = orders.filter(o => {
     if (!isBill(o)) return false;
-    return new Date(o.timestamp || 0) >= start;
+    return new Date(o.timestamp || o.date || o.created_at || 0) >= start;
   });
 
   const perBranch = branches.map((b, idx) => {
@@ -7562,7 +7562,7 @@ function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }
         ) : recentBills.map((o, idx) => {
           const branchObj = perBranch.find(p => p.id === o._branchId);
           const total = (Number(o.total) || 0) - (Number(o.refundAmount) || 0);
-          const t = new Date(o.timestamp || 0);
+          const t = new Date(o.timestamp || o.date || o.created_at || 0);
           const timeStr = t.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
           const dateStr = t.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
           return (
