@@ -1647,18 +1647,12 @@ const ShopDashboard = () => {
           }
         }
 
-        // Register-to-claim-your-bills link. Only added when a customer
-        // phone is on the bill (otherwise nothing to claim later) and only
-        // for actual bills (not estimates/challans). Phone is normalized
-        // and prefilled in the register page so the customer can't change
-        // it — that's how they claim THIS phone's bills, not someone else's.
-        if (billingMode === 'bill' && customerPhone) {
-          const normPhoneForLink = String(customerPhone).replace(/\D/g, '').slice(-10);
-          if (normPhoneForLink.length === 10) {
-            const claimUrl = `${window.location.origin}/register?phone=${normPhoneForLink}&claim=1`;
-            msg += `\n━━━━━━━━━━━━━━━━━━\n📲 *Save your purchase history!*\nCreate a free MyStore account and ALL your bills from us (and other MyStore shops) will appear in one place — even bills sent to you before you signed up.\n👉 ${claimUrl}\n`;
-          }
-        }
+        // Soft, single-line attribution. No signup pressure, no "claim
+        // your bills" CTA, no register link. Shopkeepers told us forcing
+        // their customers to sign up to MyStore was driving the shopkeepers
+        // away — they don't want to feel like they're handing their
+        // customer list to a platform. Keep it tiny like an email signature.
+        msg += `\n_via MyStore OS · mystoreos.in_\n`;
 
         const sendDirectText = () => {
           if (customerPhone) {
@@ -1811,7 +1805,7 @@ const ShopDashboard = () => {
       const decoded = decodeOrderUserId(o.userId);
       const customerPhone = decoded.phone;
       if (customerPhone) {
-        const msg = `💰 *Payment Confirmed — ${shop.name}*\n\nHi ${decoded.name || 'Customer'}! Your payment of *₹${o.total}* has been verified.\n\n✅ Order is complete. Thank you for shopping!\n\n_Your bill has been saved. Login to mystoreos.in to view._`;
+        const msg = `💰 *Payment Confirmed — ${shop.name}*\n\nHi ${decoded.name || 'Customer'}! Your payment of *₹${o.total}* has been verified.\n\n✅ Order is complete. Thank you for shopping!\n\n_via MyStore OS · mystoreos.in_`;
         const cleanPhone = customerPhone.replace(/\D/g,'');
         const withCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
         window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, '_blank');

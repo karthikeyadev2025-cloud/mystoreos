@@ -424,9 +424,9 @@ const DesktopPOS = ({
           </button>
           {showCustomerDetails && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '10px' }}>
-              <input type="text" placeholder="Customer Name" value={customerName} onChange={e => setCustomerName(e.target.value)}
+              <input type="text" placeholder="Customer Name (Optional)" value={customerName} onChange={e => setCustomerName(e.target.value)}
                 style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
-              <input type="tel" placeholder="Mobile Number" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
+              <input type="tel" placeholder="Mobile Number (Optional)" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
                 style={{ width: '100%', padding: '8px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
               {loyaltyEnabled && customerPhone && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid #C7D2FE' }}>

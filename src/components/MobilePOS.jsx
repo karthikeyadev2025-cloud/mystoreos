@@ -227,7 +227,7 @@ export default function MobilePOS({
 
                 {/* Customer name + phone */}
                 <div>
-                  <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 5 }}>Customer</div>
+                  <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 5 }}>Customer <span style={{ fontWeight: 500, opacity: 0.7 }}>(Optional)</span></div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <input
                       type="text"
