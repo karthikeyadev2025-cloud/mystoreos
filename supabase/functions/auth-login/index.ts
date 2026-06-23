@@ -30,6 +30,8 @@ function rowToProfile(row: Record<string, unknown>) {
     distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
     distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
     distributorTrialStartedAt: row.distributor_trial_started_at || null,
+    parentShopId: row.parent_shop_id || null,
+    branchDeletedAt: row.branch_deleted_at || null,
   };
 }
 
