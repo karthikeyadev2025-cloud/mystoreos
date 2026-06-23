@@ -1,10 +1,11 @@
-import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut } from 'lucide-react';
+import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2 } from 'lucide-react';
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 // Real tabs (ids match ShopDashboard's activeTab exactly)
 const TABS = [
   { id: 'home',      Icon: Home,      label: 'POS / Home' },
+  { id: 'branches',  Icon: Building2, label: 'Branches',    ownerOnly: true, multiBranchOnly: true },
   { id: 'products',  Icon: Package,   label: 'Products',    ownerOnly: true },
   { id: 'bills',     Icon: Receipt,   label: 'All Bills',   badge: true },
   { id: 'customers', Icon: Users,     label: 'Customers' },
@@ -15,8 +16,12 @@ const TABS = [
   { id: 'profile',   Icon: Settings,  label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {} }) {
-  const visible = TABS.filter(t => !t.ownerOnly || isOwner);
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false }) {
+  const visible = TABS.filter(t => {
+    if (t.ownerOnly && !isOwner) return false;
+    if (t.multiBranchOnly && !hasMultipleBranches) return false;
+    return true;
+  });
   return (
     <aside style={{ width: 240, background: '#0F172A', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'fixed', left: 0, top: 0, height: '100vh', overflowY: 'auto', zIndex: 50, fontFamily: FONT }}>
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
