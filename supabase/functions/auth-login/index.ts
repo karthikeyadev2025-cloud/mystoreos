@@ -66,6 +66,29 @@ serve(async (req) => {
       : stored === password;
     if (!valid) return json({ error: 'Wrong password. Try again or use Forgot Password.' }, 401);
 
+    // ── Branch subscription inheritance ──────────────────────────────
+    // If this is a branch (parent_shop_id set), look up the parent's
+    // current subscription state and merge it into the branch profile.
+    // This way: when the main owner upgrades to Pro, every branch
+    // automatically gets Pro on their next login. The branch row in DB
+    // doesn't change — we just override the profile object we return.
+    let resolvedProfile = profile;
+    if (profile.parent_shop_id) {
+      const { data: parent } = await admin
+        .from('users').select('subscription, subscription_tier, plan_expires_at, trial_started_at, trial_end_date')
+        .eq('id', profile.parent_shop_id).maybeSingle();
+      if (parent) {
+        resolvedProfile = {
+          ...profile,
+          subscription: parent.subscription,
+          subscription_tier: parent.subscription_tier,
+          plan_expires_at: parent.plan_expires_at,
+          trial_started_at: parent.trial_started_at,
+          trial_end_date: parent.trial_end_date,
+        };
+      }
+    }
+
     const email = `${phone}@mystore.internal`;
 
     // Try sign-in (user may already exist in auth.users)
@@ -75,7 +98,7 @@ serve(async (req) => {
       if (!stored.startsWith('$2b$') && !stored.startsWith('$2a$')) {
         await admin.from('users').update({ pass: await bcrypt.hash(password, 10) }).eq('phone', phone);
       }
-      return json({ session: signIn1.session, profile: rowToProfile(profile) });
+      return json({ session: signIn1.session, profile: rowToProfile(resolvedProfile) });
     }
 
     // User not in auth.users — create with the SAME id as the profile
@@ -103,7 +126,7 @@ serve(async (req) => {
       await admin.from('users').update({ pass: await bcrypt.hash(password, 10) }).eq('phone', phone);
     }
 
-    return json({ session: signIn2.session, profile: rowToProfile(profile) });
+    return json({ session: signIn2.session, profile: rowToProfile(resolvedProfile) });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }

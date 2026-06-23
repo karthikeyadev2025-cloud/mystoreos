@@ -3570,43 +3570,10 @@ const ShopDashboard = () => {
   // the owner has 2+ branches; otherwise the existing single-branch
   // reports are unchanged. Goes above the existing Desktop/Mobile reports
   // UI so the rest of those components don't need to know about scope.
-  const reportsScopeUI = (hasMultipleBranches && user.role !== 'staff') ? (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 12, marginBottom: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#475569', letterSpacing: 0.3 }}>VIEW:</span>
-        <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 9, padding: 3, gap: 2 }}>
-          <button
-            onClick={() => setReportsScope('branch')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 7,
-              border: 'none',
-              background: reportsScope === 'branch' ? '#4F46E5' : 'transparent',
-              color: reportsScope === 'branch' ? '#fff' : '#475569',
-              fontWeight: 700, fontSize: 12, cursor: 'pointer',
-            }}
-          >This branch</button>
-          <button
-            onClick={() => setReportsScope('all')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 7,
-              border: 'none',
-              background: reportsScope === 'all' ? '#4F46E5' : 'transparent',
-              color: reportsScope === 'all' ? '#fff' : '#475569',
-              fontWeight: 700, fontSize: 12, cursor: 'pointer',
-            }}
-          >All branches combined</button>
-        </div>
-        {reportsScope === 'all' && allBranchOrdersLoading && (
-          <span style={{ fontSize: 11, color: '#64748B', marginLeft: 4 }}>Loading data from all branches…</span>
-        )}
-        {reportsScope === 'all' && !allBranchOrdersLoading && (
-          <span style={{ fontSize: 11, color: '#64748B', marginLeft: 4 }}>Ledger details hidden — switch to a branch to see them</span>
-        )}
-      </div>
-    </div>
-  ) : null;
+  // Legacy reportsScopeUI removed. The "All Branches (Combined)" option
+  // in the global branch switcher (sidebar bottom) is now the single
+  // source of truth for cross-branch viewing. No per-tab toggle needed.
+  const reportsScopeUI = null;
 
   // Per-branch performance card. Shown only when the owner has 2+
   // branches AND is in 'all' scope — gives a glance comparison of how
@@ -3880,7 +3847,10 @@ const ShopDashboard = () => {
             />
           )}
 
-          {activeTab === 'products' && isOwner && (
+          {activeTab === 'products' && isOwner && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'products' && isOwner && !isCombinedScope && (
             <>
               {importFromMainEl}
               <DesktopInventory
@@ -3903,14 +3873,20 @@ const ShopDashboard = () => {
             </>
           )}
 
-          {activeTab === 'customers' && isOwner && (
+          {activeTab === 'customers' && isOwner && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'customers' && isOwner && !isCombinedScope && (
             <DesktopCustomers
               orders={orders}
               targetShopId={targetShopId}
             />
           )}
 
-          {activeTab === 'expenses' && isOwner && (
+          {activeTab === 'expenses' && isOwner && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'expenses' && isOwner && !isCombinedScope && (
             <DesktopExpenses
               targetShopId={targetShopId}
               orders={orders}
@@ -3936,7 +3912,10 @@ const ShopDashboard = () => {
             />
           )}
 
-          {activeTab === 'credit' && isOwner && (
+          {activeTab === 'credit' && isOwner && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'credit' && isOwner && !isCombinedScope && (
             <DesktopCredit 
               creditTabSub={creditTabSub}
               setCreditTabSub={setCreditTabSub}
@@ -3960,7 +3939,10 @@ const ShopDashboard = () => {
             />
           )}
 
-          {activeTab === 'restock' && isOwner && (
+          {activeTab === 'restock' && isOwner && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'restock' && isOwner && !isCombinedScope && (
             <DesktopRestock 
               wholesaleCatalog={wholesaleCatalog}
               restockCart={restockCart}
@@ -5008,6 +4990,7 @@ const ShopDashboard = () => {
                       <span style={{fontWeight:'bold', fontSize: '15px', color: '#fff'}}>{name}</span>
                       {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8'}}>Ph: {phone}</p>}
                       {staffName && <p style={{margin: '2px 0 0 0', fontSize: '10px', color: '#818CF8'}}>👤 Billed by: {staffName}</p>}
+                      {o._branchName && <p style={{margin: '4px 0 0 0', fontSize: '10px', color: '#fff', background: '#4F46E5', display: 'inline-block', padding: '2px 7px', borderRadius: 5, fontWeight: 700}}>🏪 {o._branchName}</p>}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                       {badgeText && (
@@ -5225,7 +5208,10 @@ const ShopDashboard = () => {
       })()}
 
       {/* PRODUCTS INVENTORY TAB */}
-      {activeTab === 'products' && (
+      {activeTab === 'products' && isCombinedScope && (
+        <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+      )}
+      {activeTab === 'products' && !isCombinedScope && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Inventory</h2>
@@ -5337,7 +5323,10 @@ const ShopDashboard = () => {
       )}
 
       {/* CREDIT LEDGER TAB */}
-      {activeTab === 'credit' && (
+      {activeTab === 'credit' && isCombinedScope && (
+        <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+      )}
+      {activeTab === 'credit' && !isCombinedScope && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Credit Book (బకాయిలు)</h2>
@@ -5513,7 +5502,10 @@ const ShopDashboard = () => {
       )}
 
       {/* RESTOCKING SUPPLY TAB */}
-      {isOwner && activeTab === 'restock' && (
+      {isOwner && activeTab === 'restock' && isCombinedScope && (
+        <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+      )}
+      {isOwner && activeTab === 'restock' && !isCombinedScope && (
         <div style={{ paddingBottom: 80 }}>
           <div style={{ background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D' }}>
             <h2 style={{ margin: 0, fontSize: 18, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
