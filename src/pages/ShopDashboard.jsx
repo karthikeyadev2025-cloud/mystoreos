@@ -359,6 +359,30 @@ const ShopDashboard = () => {
   // _branchName). Main owners only — branches and staff don't have this tab.
   const isCombinedScope = activeTab === 'branches' && !user.parentShopId && user.role !== 'staff';
 
+  // ── Clear stale shop-scoped state on branch switch ───────────────────
+  // Without this, switching from main → branch (or back) shows the OLD
+  // shop's products/orders/credits/customers for 2–5 seconds (DB round-trip
+  // time) before loadData fetches the new shop's data. Looks like a bug,
+  // confuses owners. Clearing immediately = correct empty state for a brief
+  // moment, then real data fills in. No mismatched flash.
+  // Skipped in combined scope because BranchesDashboard expects orders
+  // populated from all branches and clearing would cause a flicker.
+  const prevTargetRef = useRef(targetShopId);
+  useEffect(() => {
+    if (prevTargetRef.current !== targetShopId && !isCombinedScope) {
+      setProducts([]);
+      setOrders([]);
+      setCredits([]);
+      setCustomerCredits([]);
+      setStockOrders([]);
+      setFlashSales({});
+      setStaffList([]);
+      setMyDistributors([]);
+      setWholesaleCatalog([]);
+    }
+    prevTargetRef.current = targetShopId;
+  }, [targetShopId, isCombinedScope]);
+
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
   const loyaltyEnabled = hasFeature('loyaltyPoints');
