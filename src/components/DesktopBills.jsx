@@ -154,6 +154,7 @@ const DesktopBills = ({
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2, flexWrap: 'wrap' }}>
                         {phone && <span style={{ fontSize: 11, color: '#64748B' }}>📱 {phone}</span>}
                         {staffName && <span style={{ fontSize: 10, color: '#818CF8' }}>👤 {staffName}</span>}
+                        {o._branchName && <span style={{ fontSize: 10, color: '#fff', background: '#4F46E5', padding: '2px 7px', borderRadius: 5, fontWeight: 700 }}>🏪 {o._branchName}</span>}
                         <span style={{ fontSize: 10, color: '#94A3B8' }}>#{o.id.slice(0,8).toUpperCase()}</span>
                       </div>
                     </div>

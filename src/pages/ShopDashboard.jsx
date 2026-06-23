@@ -352,6 +352,9 @@ const ShopDashboard = () => {
   //   1. Main owner switched the dropdown to a branch
   //   2. User is logged in directly as a branch account (parentShopId set)
   const isViewingMain = targetShopId === user.id && !user.parentShopId;
+  // True when the owner picked 'All Branches' from the switcher.
+  // Only available to main owners (not branch staff or branch logins).
+  const isCombinedScope = activeBranchId === 'all' && !user.parentShopId && user.role !== 'staff';
 
   const { isOnline, pendingCount } = useOfflineSync();
   const { isExpired, hasFeature, capabilities, planLabel } = useSubscription();
@@ -506,7 +509,27 @@ const ShopDashboard = () => {
     }
 
     setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
-    const rawOrders = (await safe(() => api.getShopOrders(targetShopId))) || [];
+    // In Combined ("All Branches") scope: load and merge orders from every
+    // branch the owner runs, tagging each with branch info so the UI can
+    // show a Branch column. The main shop's own orders are included since
+    // it's also in `branches` (with parent_shop_id = null).
+    let rawOrders;
+    if (isCombinedScope && branches.length) {
+      const allLists = await Promise.all(
+        branches.map(b =>
+          safe(() => api.getShopOrders(b.id)).then(list => (list || []).map(o => ({
+            ...o,
+            _branchId: b.id,
+            _branchName: b.name + (!b.parentShopId ? ' (Main)' : ''),
+          })))
+        )
+      );
+      rawOrders = allLists.flat().sort((a, b) =>
+        new Date(b.timestamp || 0) - new Date(a.timestamp || 0)
+      );
+    } else {
+      rawOrders = (await safe(() => api.getShopOrders(targetShopId))) || [];
+    }
     // Normalize status capitalization for Tally/GST export filters
     const normalizedOrders = rawOrders.map(o => ({
       ...o,
@@ -563,7 +586,7 @@ const ShopDashboard = () => {
       setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
     }
-  }, [targetShopId, isOwner]);
+  }, [targetShopId, isOwner, isCombinedScope, branches]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -620,7 +643,11 @@ const ShopDashboard = () => {
   // The orders array Reports tab actually reads — branch-scoped or all-
   // branches-combined based on the toggle. reportsData() reads this
   // from closure, so no prop drilling needed.
-  const displayOrders = reportsScope === 'all' ? allBranchOrders : orders;
+  // When in 'All Branches' combined scope, `orders` already contains data
+  // aggregated from every branch (loaded in loadData with _branchName tags).
+  // The legacy reportsScope toggle still works for the case where the owner
+  // is on a single branch but wants a quick cross-branch view in Reports.
+  const displayOrders = isCombinedScope ? orders : (reportsScope === 'all' ? allBranchOrders : orders);
 
   // Trial expiry reminder: day 5 and day 7 (once per day, tracked in localStorage)
   useEffect(() => {
@@ -3411,9 +3438,14 @@ const ShopDashboard = () => {
   const currentBranch = visibleBranches.find(b => b.id === targetShopId) || visibleBranches.find(b => !b.parentShopId) || null;
   const branchSwitcherEl = (hasMultipleBranches && user.role !== 'staff') ? (
     <select
-      value={targetShopId}
+      value={activeBranchId === 'all' ? 'all' : targetShopId}
       onChange={(e) => {
         const picked = e.target.value;
+        if (picked === 'all') {
+          // Special: combined view across all branches (main owner only).
+          setActiveBranchId('all');
+          return;
+        }
         // Main shop is identified by parentShopId === null. Setting
         // activeBranchId back to null when the owner picks the main
         // shop keeps the localStorage key clean.
@@ -3438,6 +3470,11 @@ const ShopDashboard = () => {
         backgroundPosition: 'right 8px center',
       }}
     >
+      {!user.parentShopId && (
+        <option value="all" style={{ color: '#0F172A', fontWeight: 800 }}>
+          📊 All Branches (Combined)
+        </option>
+      )}
       {visibleBranches.map(b => (
         <option key={b.id} value={b.id} style={{ color: '#0F172A' }}>
           {b.name}{!b.parentShopId ? ' (Main)' : ''}
@@ -3774,7 +3811,10 @@ const ShopDashboard = () => {
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
-          {activeTab === 'home' && (
+          {activeTab === 'home' && isCombinedScope && (
+            <CombinedScopeBanner setActiveBranchId={setActiveBranchId} branches={visibleBranches} />
+          )}
+          {activeTab === 'home' && !isCombinedScope && (
             <DesktopPOS 
               footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
               products={products}
@@ -3929,6 +3969,9 @@ const ShopDashboard = () => {
           {activeTab === 'reports' && isOwner && (
             <>
               {reportsScopeUI}
+              {isCombinedScope && (
+                <CompareBranchesPanel orders={orders} branches={visibleBranches} />
+              )}
               {reportsBreakdownEl}
               <DesktopReports
                 reportsData={reportsData}
@@ -7335,6 +7378,159 @@ const ShopDashboard = () => {
 // Lets them push the entire product catalogue to a selected branch in one click.
 // Displayed at the top of the products list — same position as importFromMainEl
 // on the branch side.
+// Side-by-side comparison of branches: revenue, orders, top items per branch.
+// Only shown when "All Branches (Combined)" is selected. Shows the owner a
+// god's-eye view of which branch is performing best, which is the whole
+// point of running multi-branch.
+function CompareBranchesPanel({ orders, branches }) {
+  // Filter to today's confirmed bills only — comparing today's performance
+  // is the most common question owners ask first. They can drill into
+  // longer windows via the regular Reports view below.
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isBill = o => !o.userId?.startsWith('estimate') && !o.userId?.startsWith('challan')
+    && o.status !== 'Cancelled';
+  const todayOrders = orders.filter(o => {
+    if (!isBill(o)) return false;
+    const t = new Date(o.timestamp || 0);
+    return t >= today;
+  });
+
+  // Per-branch stats
+  const perBranch = branches.map(b => {
+    const branchOrders = todayOrders.filter(o => o._branchId === b.id);
+    const revenue = branchOrders.reduce((sum, o) =>
+      sum + (Number(o.total) || 0) - (Number(o.refundAmount) || 0), 0);
+    // Top item by units sold today
+    const itemTally = {};
+    branchOrders.forEach(o => (o.items || []).forEach(it => {
+      const name = it.name || it.productName || 'Item';
+      itemTally[name] = (itemTally[name] || 0) + (Number(it.qty) || 0);
+    }));
+    const topItem = Object.entries(itemTally).sort((a,b) => b[1] - a[1])[0];
+    return {
+      id: b.id,
+      name: b.name + (!b.parentShopId ? ' (Main)' : ''),
+      revenue,
+      count: branchOrders.length,
+      topItem: topItem ? `${topItem[0]} (${topItem[1]})` : '—',
+    };
+  });
+
+  const maxRevenue = Math.max(1, ...perBranch.map(p => p.revenue));
+  const totalRevenue = perBranch.reduce((s, p) => s + p.revenue, 0);
+  const totalCount = perBranch.reduce((s, p) => s + p.count, 0);
+
+  return (
+    <div style={{
+      background: '#FFFFFF',
+      border: '1px solid #E2E8F0',
+      borderRadius: 14,
+      padding: 20,
+      marginBottom: 16,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0F172A' }}>
+          📊 Compare Branches — Today
+        </h3>
+        <div style={{ fontSize: 12, color: '#64748B' }}>
+          Total: <b style={{ color: '#0F172A' }}>₹{totalRevenue.toLocaleString('en-IN')}</b> across <b style={{ color: '#0F172A' }}>{totalCount}</b> bill{totalCount === 1 ? '' : 's'}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {perBranch.map(p => {
+          const pct = (p.revenue / maxRevenue) * 100;
+          const sharePct = totalRevenue ? Math.round((p.revenue / totalRevenue) * 100) : 0;
+          return (
+            <div key={p.id}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: '#475569' }}>
+                  <b style={{ color: '#0F172A' }}>₹{p.revenue.toLocaleString('en-IN')}</b>
+                  <span style={{ color: '#94A3B8', margin: '0 6px' }}>·</span>
+                  {p.count} bill{p.count === 1 ? '' : 's'}
+                  {sharePct > 0 && (
+                    <>
+                      <span style={{ color: '#94A3B8', margin: '0 6px' }}>·</span>
+                      {sharePct}% share
+                    </>
+                  )}
+                </div>
+              </div>
+              <div style={{ height: 10, background: '#F1F5F9', borderRadius: 6, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${pct}%`,
+                  height: '100%',
+                  background: `linear-gradient(90deg, #4F46E5, #818CF8)`,
+                  transition: 'width 0.4s ease-out',
+                }} />
+              </div>
+              <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>
+                Top item: <span style={{ color: '#0F172A', fontWeight: 600 }}>{p.topItem}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {totalCount === 0 && (
+        <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
+          No bills placed today across any branch yet.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Banner shown on POS/Home when owner has picked "All Branches (Combined)".
+function CombinedScopeBanner({ setActiveBranchId, branches }) {
+  return (
+    <div style={{ padding: 24 }}>
+      <div style={{
+        background: 'linear-gradient(135deg, #EEF2FF, #FAF5FF)',
+        border: '1px solid #C7D2FE',
+        borderRadius: 16,
+        padding: '32px 28px',
+        textAlign: 'center',
+        maxWidth: 640,
+        margin: '32px auto',
+      }}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#0F172A' }}>
+          All Branches — Combined View
+        </h2>
+        <p style={{ margin: '10px 0 24px', color: '#475569', fontSize: 14, lineHeight: 1.6 }}>
+          You're viewing aggregated data across all your branches.<br />
+          To create a new bill, pick a specific branch first.
+        </p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {branches.map(b => (
+            <button
+              key={b.id}
+              onClick={() => setActiveBranchId(b.parentShopId ? b.id : null)}
+              style={{
+                padding: '10px 18px',
+                borderRadius: 10,
+                border: '1px solid #C7D2FE',
+                background: '#fff',
+                color: '#4F46E5',
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              {b.name}{!b.parentShopId ? ' (Main)' : ''}
+            </button>
+          ))}
+        </div>
+        <div style={{ marginTop: 20, padding: '12px 16px', background: '#F1F5F9', borderRadius: 8, fontSize: 12, color: '#475569' }}>
+          💡 Combined view works on: All Bills · Reports · Customers · Credit Book · Expenses · Day Book
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PushToBranchCard({ branches, onPush }) {
   const [selectedBranchId, setSelectedBranchId] = useState(
     branches.length === 1 ? branches[0].id : ''
