@@ -3444,7 +3444,12 @@ const ShopDashboard = () => {
   // getOwnedBranches returns the full family for shared data lookups).
   const hasMultipleBranches = visibleBranches.length >= 2 && !user.parentShopId;
   const currentBranch = visibleBranches.find(b => b.id === targetShopId) || visibleBranches.find(b => !b.parentShopId) || null;
-  const branchSwitcherEl = (hasMultipleBranches && user.role !== 'staff') ? (
+  // Branch switcher dropdown removed. The dedicated 'Branches' tab
+  // (Building2 icon in nav) shows a unified overview, and each branch
+  // card on that tab is clickable to switch context. Cleaner mental
+  // model than a dropdown duplicated next to the shop name.
+  const branchSwitcherEl = null;
+  const _disabledBranchSwitcher = (hasMultipleBranches && user.role !== 'staff') ? (
     <select
       value={targetShopId}
       onChange={(e) => {

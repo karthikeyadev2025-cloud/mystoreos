@@ -58,31 +58,18 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
         })}
       </nav>
       <div style={{ padding: 14, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        {branchSwitcherEl ? (
-          /* Multi-branch layout: compact identity row + full-width switcher below */
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
-                {(userName || 'S').slice(0, 2).toUpperCase()}
-              </div>
-              <div style={{ color: '#94A3B8', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace", flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{publicCode}</div>
-              <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
-            </div>
-            <div style={{ marginBottom: 10 }}>{branchSwitcherEl}</div>
-          </>
-        ) : (
-          /* Single shop: original avatar + name + code */
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-              {(userName || 'S').slice(0, 2).toUpperCase()}
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userName}</div>
-              <div style={{ color: '#94A3B8', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace" }}>{publicCode}</div>
-            </div>
-            <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
+        {/* Identity row only — no switcher dropdown. Branches tab handles
+            switching via clickable branch cards. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+            {(userName || 'S').slice(0, 2).toUpperCase()}
           </div>
-        )}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userName}</div>
+            <div style={{ color: '#94A3B8', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace" }}>{publicCode}</div>
+          </div>
+          <span title={syncStatus.isOnline === false ? 'Offline' : 'Synced'} style={{ width: 8, height: 8, borderRadius: '50%', background: syncStatus.isOnline === false ? '#F59E0B' : '#10B981', flexShrink: 0 }} />
+        </div>
         <button onClick={handleLogout}
           style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'transparent', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px', fontFamily: FONT, fontWeight: 600, fontSize: 12.5, cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; }}
