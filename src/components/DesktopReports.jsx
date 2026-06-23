@@ -153,7 +153,7 @@ const DesktopReports = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Margin gauge */}
-          <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <BarChart2 size={18} color="#FBBF24" /> Net Margin Analytics
             </h3>
@@ -190,7 +190,7 @@ const DesktopReports = ({
           </div>
 
           {/* Tally Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: '#ECFDF5' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: '#ECFDF5' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Tally ERP / Prime Exporter</h3>
@@ -210,7 +210,7 @@ const DesktopReports = ({
           </div>
 
           {/* GSTR-1 */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #DDD6FE', background: '#F5F3FF' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #DDD6FE', background: '#F5F3FF' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>GSTR-1 CSV Exporter</h3>
@@ -226,7 +226,7 @@ const DesktopReports = ({
           </div>
 
           {/* Zoho CRM Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: '#FEF3C7', position: 'relative' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: '#FEF3C7', position: 'relative' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Export to CRM</h3>
@@ -255,7 +255,7 @@ const DesktopReports = ({
         </div>
 
         {/* Day Book ledger */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Book size={20} color="#FBBF24" /> Today's Retail Day Book
           </h3>
@@ -287,7 +287,7 @@ const DesktopReports = ({
 
       {/* Row 2 — 30-day revenue AreaChart + top 10 products BarChart */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <TrendingUp size={16} color="#4F46E5" /> 30-Day Revenue Trend
@@ -314,7 +314,7 @@ const DesktopReports = ({
           </ResponsiveContainer>
         </div>
 
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingUp size={16} color="#F59E0B" /> Top 10 Products (revenue this month)
           </h3>
@@ -339,7 +339,7 @@ const DesktopReports = ({
 
       {/* Row 3 — Cash flow 30d | Credit gauge + Weekly target + Category margins */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingDown size={16} color="#EF4444" /> Cash In vs Out — 30 Days
           </h3>
@@ -369,7 +369,7 @@ const DesktopReports = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Outstanding credit bars */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
             <h4 style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Outstanding Credit</h4>
             {[['Receivable (customers owe you)', totalReceivable, '#10B981'], ['Payable (you owe suppliers)', totalPayable, '#EF4444']].map(([label, amount, color]) => (
               <div key={label} style={{ marginBottom: '10px' }}>
@@ -385,7 +385,7 @@ const DesktopReports = ({
           </div>
 
           {/* Weekly revenue vs target */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
             <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Weekly Revenue vs Target</h4>
             {weeklyTarget === 0 ? (
               <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Set a daily target in Settings to track weekly progress.</p>
@@ -405,7 +405,7 @@ const DesktopReports = ({
 
           {/* Profit margin by product category */}
           {catMargins.length > 0 && (
-            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
               <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Margin by Category</h4>
               <ResponsiveContainer width="100%" height={130}>
                 <BarChart data={catMargins} margin={{ top: 0, right: 4, left: -28, bottom: 32 }}>
