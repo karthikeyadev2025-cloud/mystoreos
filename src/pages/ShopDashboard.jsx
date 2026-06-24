@@ -9,7 +9,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
 import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
@@ -91,7 +91,6 @@ const ShopDashboard = () => {
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
-  const [isBranchSwitching, setIsBranchSwitching] = useState(false);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
@@ -305,17 +304,23 @@ const ShopDashboard = () => {
   // on the same branch. For staff (who don't own branches) this stays null
   // and targetShopId falls through to their staff_of shop.
   const [branches, setBranches] = useState([]);          // owner's main + non-deleted branches
-  const [activeBranchId, setActiveBranchIdState] = useState(() => {
-    if (typeof window === 'undefined' || !user?.id) return null;
-    try { return localStorage.getItem(`mystore_active_branch_${user.id}`) || null; }
-    catch { return null; }
-  });
+  // URL-based branch context:
+  //   /shop              → main shop (branchId param = undefined → activeBranchId = null)
+  //   /shop/branch/:id   → specific branch (activeBranchId = id)
+  //
+  // Each URL change causes a full component re-mount via React Router,
+  // which means zero stale state bleeding between contexts. The old
+  // setState approach kept the component alive and caused visible
+  // flashes of wrong-shop data for 300-800ms during the re-fetch.
+  const { branchId: urlBranchId } = useParams();
+  const activeBranchId = urlBranchId || null;
+
   const setActiveBranchId = (id) => {
-    setActiveBranchIdState(id);
-    try {
-      if (id) localStorage.setItem(`mystore_active_branch_${user.id}`, id);
-      else localStorage.removeItem(`mystore_active_branch_${user.id}`);
-    } catch { /* localStorage disabled — fine, just no persistence */ }
+    if (id) {
+      navigate(`/shop/branch/${id}`, { replace: false });
+    } else {
+      navigate('/shop', { replace: false });
+    }
   };
 
   // Combined-reports scope toggle. 'branch' = report on currently-selected
@@ -371,7 +376,6 @@ const ShopDashboard = () => {
   const prevTargetRef = useRef(targetShopId);
   useEffect(() => {
     if (prevTargetRef.current !== targetShopId && !isCombinedScope) {
-      setIsBranchSwitching(true);
       setProducts([]);
       setOrders([]);
       setCredits([]);
@@ -615,8 +619,6 @@ const ShopDashboard = () => {
       setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
     }
-    // Data loaded — clear any branch-switching overlay
-    setIsBranchSwitching(false);
   }, [targetShopId, isOwner, isCombinedScope, branches]);
 
   useEffect(() => {
@@ -3804,18 +3806,7 @@ const ShopDashboard = () => {
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px', position: 'relative' }}>
-          {/* Branch switching overlay — shows briefly while data loads for new branch context */}
-          {isBranchSwitching && (
-            <div style={{
-              position: 'absolute', inset: 0, zIndex: 50,
-              background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
-              borderRadius: 8,
-            }}>
-              <div style={{ width: 40, height: 40, border: '3px solid #4F46E5', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-              <span style={{ color: '#E0E7FF', fontSize: 14, fontWeight: 600 }}>Switching branch…</span>
-            </div>
-          )}
+
           {activeTab === 'home' && (
             <DesktopPOS 
               footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
@@ -4793,17 +4784,7 @@ const ShopDashboard = () => {
       <ToastContainer theme="dark" position="top-center" />
       {pdfShareBannerEl}
 
-      {/* Branch switching overlay for mobile */}
-      {isBranchSwitching && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(4px)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16,
-        }}>
-          <div style={{ width: 44, height: 44, border: '3px solid #4F46E5', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-          <span style={{ color: '#E0E7FF', fontSize: 15, fontWeight: 700 }}>Switching branch…</span>
-        </div>
-      )}
+
           downloadQrPng — rendering it here (unconditionally, regardless
           of active tab) guarantees it's available no matter which screen
           the owner clicks "Download Poster" from. The previous approach
@@ -7430,6 +7411,7 @@ const ShopDashboard = () => {
 // switcher. No edit operations here — to act on data, owner picks a
 // branch from the dropdown and goes to that branch's normal tabs.
 function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }) {
+  const navigate = useNavigate();
   const [range, setRange] = useState('today');
   const [metric, setMetric] = useState('revenue');
 
@@ -7490,9 +7472,12 @@ function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }
   });
 
   const goToBranch = (branchId, parentShopId) => {
-    // null = main, branchId = branch
-    setActiveBranchId(parentShopId ? branchId : null);
-    setActiveTab('home');
+    // parentShopId null = this IS the main shop
+    if (parentShopId) {
+      navigate(`/shop/branch/${branchId}`);
+    } else {
+      navigate('/shop');
+    }
   };
 
   const maxRevenue = Math.max(1, ...perBranch.map(p => p.revenue));

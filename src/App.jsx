@@ -239,13 +239,22 @@ function App() {
                 } />
 
                 <Route path="/dashboard" element={<RoleRouter />} />
-                <Route path="/shop/*" element={
+                <Route path="/shop" element={
                   <PrivateRoute role={['shop', 'staff']}>
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />
+                <Route path="/shop/branch/:branchId" element={
+                  <PrivateRoute role={['shop', 'staff']}>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                {/* Legacy wildcard — catch any /shop/* sub-paths */}
+                <Route path="/shop/*" element={<Navigate to="/shop" replace />} />
                 <Route path="/user/*" element={
                   <PrivateRoute role="customer">
                     <Suspense fallback={<DashboardSkeleton />}>
