@@ -253,8 +253,6 @@ function App() {
                     </Suspense>
                   </PrivateRoute>
                 } />
-                {/* Legacy wildcard — catch any /shop/* sub-paths */}
-                <Route path="/shop/*" element={<Navigate to="/shop" replace />} />
                 <Route path="/user/*" element={
                   <PrivateRoute role="customer">
                     <Suspense fallback={<DashboardSkeleton />}>
