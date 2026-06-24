@@ -3450,7 +3450,7 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', color: '#0F172A', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
+    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', width: '100%', maxWidth: '100%', overflowX: 'hidden', color: '#0F172A', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
     header: { background: '#0F172A', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1E293B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
@@ -5098,7 +5098,7 @@ const ShopDashboard = () => {
         else if (type === 'challan') receiptTitle = 'DELIVERY CHALLAN';
 
         return (
-          <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             <div style={{ background: '#fff', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', overflowY: 'auto', maxHeight: '90vh' }}>
               <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '12px', marginBottom: '12px' }}>
                 <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{shop.name}</h2>
@@ -6520,7 +6520,7 @@ const ShopDashboard = () => {
 
       {/* PAYMENT QR DISPLAY MODAL */}
       {showPaymentQrModal && (paymentQr || upiId) && (
-        <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
           <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
           <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
@@ -6546,7 +6546,7 @@ const ShopDashboard = () => {
 
       {/* SCANNER MODAL */}
       {showScanner && (
-        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <div id="reader" style={{ width: '100%' }}></div>
             <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
@@ -6648,7 +6648,7 @@ const ShopDashboard = () => {
 
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
-        <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
+        <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
             <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>📦 Add Product to Inventory</h2>
             
@@ -6821,7 +6821,7 @@ const ShopDashboard = () => {
 
       {/* EDIT PRODUCT MODAL */}
       {showEditProductModal && !showScanner && (
-        <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
           <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
             <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>✏️ Edit Product Details</h2>
             
@@ -7001,7 +7001,7 @@ const ShopDashboard = () => {
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'space-around', background: '#FFFFFF', padding: '12px 0 calc(12px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-around', background: '#FFFFFF', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)' }}>
         <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
           <Home size={20} style={{ margin: '0 auto 4px auto' }} />
           <p style={{ fontSize: '10px', margin: 0 }}>Home</p>
