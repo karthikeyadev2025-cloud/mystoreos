@@ -1,0 +1,80 @@
+{
+  "name": "MyStore OS — Billing & Inventory",
+  "short_name": "MyStore OS",
+  "description": "Free GST billing, inventory, and POS app for Indian shops",
+  "start_url": "/shop",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "lang": "en-IN",
+  "scope": "/",
+  "categories": ["business", "productivity", "shopping", "finance"],
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=in.mystoreos.app",
+      "id": "in.mystoreos.app"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-1-billing.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Bill in 2 seconds"
+    },
+    {
+      "src": "/screenshots/screenshot-2-inventory.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Smart inventory"
+    },
+    {
+      "src": "/screenshots/screenshot-5-reports.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Powerful reports"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Bill",
+      "short_name": "New Bill",
+      "description": "Start a new sale",
+      "url": "/shop?action=new-bill",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "All Bills",
+      "short_name": "Bills",
+      "description": "View all bills",
+      "url": "/shop?tab=bills",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

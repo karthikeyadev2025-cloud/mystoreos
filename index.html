@@ -33,7 +33,8 @@
     <link rel="alternate" hreflang="x-default" href="https://mystoreos.in/" />
 
     <!-- Theme & App meta -->
-    <meta name="theme-color" content="#030712" />
+    <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -69,7 +70,7 @@
     <meta property="og:url" content="https://mystoreos.in/" />
     <meta property="og:locale" content="en_IN" />
     <meta property="og:locale:alternate" content="te_IN" />
-    <meta property="og:image" content="https://mystoreos.in/logo.png" />
+    <meta property="og:image" content="https://mystoreos.in/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="MyStore OS — Smart Kirana Shop Management App" />
@@ -82,7 +83,7 @@
     <meta name="twitter:creator" content="@mystoreos" />
     <meta name="twitter:title" content="MyStore OS — #1 GST Billing App for Indian Kirana Shops" />
     <meta name="twitter:description" content="Paperless billing, expiry tracking, UPI payment links, WhatsApp invoicing — the complete kirana shop OS. Free 7-day trial." />
-    <meta name="twitter:image" content="https://mystoreos.in/logo.png" />
+    <meta name="twitter:image" content="https://mystoreos.in/og-image.png" />
     <meta name="twitter:image:alt" content="MyStore OS kirana shop billing app" />
 
     <!-- ═══════════════════════════════════════════════════════════════════════
@@ -101,7 +102,7 @@
       "url": "https://mystoreos.in",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://mystoreos.in/favicon.svg",
+        "url": "https://mystoreos.in/icon-512x512.png",
         "width": 512,
         "height": 512
       },
@@ -528,9 +529,20 @@
     <link rel="dns-prefetch" href="https://zdertmpzervgjicuwsfz.supabase.co" />
     <link rel="preconnect" href="https://checkout.razorpay.com" />
 
-    <!-- Favicons -->
+    <!-- Favicons & app icons — covers every device and browser.
+         All icons are the bold M monogram on the #4F46E5 → #818CF8
+         purple gradient, matching the in-app sidebar logo. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#4F46E5" />
+    <meta name="msapplication-TileColor" content="#4F46E5" />
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
