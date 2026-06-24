@@ -1003,11 +1003,14 @@ export const api = {
   // ---- STAFF ----
   async addStaff(shopId, phone, pass, name) {
     if (isSupabaseConfigured) {
-      // Direct insert is blocked by RLS (403). Use the add-staff edge function
-      // which runs with the service-role key and also creates the auth.users entry
-      // so the staff member can actually log in.
+      // Must pass the user's JWT so the edge function can verify who's calling.
+      // supabase.functions.invoke sends anon key by default; we override with
+      // the current session token so the edge function can call auth.getUser().
+      const { data: { session } } = await supabase.auth.getSession();
+      const userToken = session?.access_token;
       const { data, error } = await supabase.functions.invoke('add-staff', {
         body: { shopId, phone, name, pin: pass || '1234' },
+        headers: userToken ? { Authorization: `Bearer ${userToken}` } : {},
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
