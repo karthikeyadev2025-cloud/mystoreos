@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
 const CORS = {
-  'Access-Control-Allow-Origin': 'https://mystoreos.in',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -20,7 +20,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Verify caller is the actual shop owner by checking their JWT
     const authHeader = req.headers.get('Authorization') || '';
     const callerToken = authHeader.replace('Bearer ', '');
     if (!callerToken) return json({ error: 'Unauthorized' }, 401);
@@ -29,53 +28,69 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Resolve caller identity from their JWT
+    // Resolve caller from JWT
     const { data: { user: caller }, error: callerErr } = await admin.auth.getUser(callerToken);
     if (callerErr || !caller) return json({ error: 'Unauthorized' }, 401);
 
-    // Look up caller's profile and confirm they own the shop
-    const { data: callerProfile } = await admin.from('users').select('id, role, staff_of').eq('id', caller.id).maybeSingle()
-      ?? await admin.from('users').select('id, role, staff_of').eq('phone', caller.email?.split('@')[0] ?? '').maybeSingle();
+    // Fetch full caller profile — need id, role, parent_shop_id, staff_of
+    const { data: callerProfile, error: profileErr } = await admin
+      .from('users')
+      .select('id, role, parent_shop_id, staff_of')
+      .eq('id', caller.id)
+      .maybeSingle();
 
-    if (!callerProfile) return json({ error: 'Caller profile not found' }, 403);
-
-    // ownerId = who actually owns the shop being modified.
-    // For a branch login: callerProfile.id IS the branch shop ID (branches
-    // have role='shop' and a parent_shop_id set). They should be allowed
-    // to add staff to their own branch (shopId === callerProfile.id).
-    // For staff: staff_of is their shop, but staff can't add other staff.
-    // For main owner: callerProfile.id === shopId directly.
-    const isMainOwner = callerProfile.role === 'shop' && callerProfile.id === shopId;
-    const isBranchOwner = callerProfile.role === 'shop' && callerProfile.id === shopId;
-    const isAdmin = callerProfile.role === 'admin';
-
-    // Also allow: main owner adding staff to a branch they own
-    // (check parent_shop_id of the target shop matches caller)
-    let isParentOwner = false;
-    if (callerProfile.role === 'shop') {
-      const { data: targetShop } = await admin.from('users').select('parent_shop_id').eq('id', shopId).maybeSingle();
-      isParentOwner = targetShop?.parent_shop_id === callerProfile.id;
+    // Fallback: look up by phone (for legacy auth flow)
+    let profile = callerProfile;
+    if (!profile) {
+      const phone_from_email = caller.email?.replace('@mystore.internal', '') ?? '';
+      const { data: fallback } = await admin
+        .from('users')
+        .select('id, role, parent_shop_id, staff_of')
+        .eq('phone', phone_from_email)
+        .maybeSingle();
+      profile = fallback;
     }
 
-    if (!isMainOwner && !isBranchOwner && !isParentOwner && !isAdmin) {
-      return json({ error: 'You can only add staff to your own shop' }, 403);
+    if (!profile) return json({ error: 'Caller profile not found' }, 403);
+
+    // Authorization logic:
+    // 1. Admin role — always allowed
+    // 2. Main owner (role=shop, no parent_shop_id) adding staff to their own shop
+    // 3. Branch owner (role=shop, has parent_shop_id) adding staff to their own branch
+    // 4. Main owner adding staff to one of their branches (shopId's parent_shop_id = caller.id)
+    const isAdmin = profile.role === 'admin';
+    const isOwnShop = profile.role === 'shop' && profile.id === shopId;
+
+    // Check if shopId is a branch owned by this caller
+    let isOwnBranch = false;
+    if (profile.role === 'shop' && profile.id !== shopId) {
+      const { data: targetShop } = await admin
+        .from('users')
+        .select('parent_shop_id')
+        .eq('id', shopId)
+        .maybeSingle();
+      isOwnBranch = targetShop?.parent_shop_id === profile.id;
+    }
+
+    if (!isAdmin && !isOwnShop && !isOwnBranch) {
+      return json({ error: 'You can only add staff to your own shop or branches' }, 403);
     }
 
     // Check phone not already in use
     const { data: existing } = await admin.from('users').select('id').eq('phone', phone).maybeSingle();
-    if (existing) return json({ error: 'A user with this phone number already exists' }, 409);
+    if (existing) return json({ error: 'This phone number is already registered' }, 409);
 
     const email = `${phone}@mystore.internal`;
     const hashedPin = await bcrypt.hash(pin, 10);
 
-    // Create Supabase Auth user so staff can log in
+    // Create Supabase Auth user
     let uid: string;
     const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
       email, password: pin, email_confirm: true,
     });
 
     if (authErr) {
-      // Auth user already exists — find and update password
+      // Auth user might already exist — find and reuse
       const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000, page: 1 });
       const existingAuth = users?.find((u) => u.email === email);
       if (!existingAuth) return json({ error: `Auth setup failed: ${authErr.message}` }, 500);
@@ -85,7 +100,7 @@ serve(async (req) => {
       uid = authUser.user!.id;
     }
 
-    // Insert staff profile with id = auth UUID so RLS resolves correctly on login
+    // Insert staff profile
     const { data: staffRow, error: insertErr } = await admin.from('users').insert({
       id: uid,
       phone,
@@ -98,7 +113,6 @@ serve(async (req) => {
     }).select().maybeSingle();
 
     if (insertErr) {
-      // Rollback: remove auth user we just created
       await admin.auth.admin.deleteUser(uid);
       return json({ error: insertErr.message }, 500);
     }
