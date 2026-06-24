@@ -1035,19 +1035,21 @@ export const api = {
 
   async deleteStaff(staffId) {
     if (isSupabaseConfigured) {
-      // Soft-delete: set status to 'disabled' so the staff member can't log in
-      // but their billing history is preserved on orders they created.
-      const { error } = await supabase
-        .from('users')
-        .update({ status: 'disabled' })
-        .eq('id', staffId)
-        .eq('role', 'staff'); // safety check — never disable a shop owner
+      // Use the remove-staff edge function which runs with service role key
+      // to bypass RLS (shop owners don't have DELETE policy on users table).
+      // The function verifies the caller owns the staff member before deleting.
+      const { data: { session } } = await supabase.auth.getSession();
+      const userToken = session?.access_token;
+      const { data, error } = await supabase.functions.invoke('remove-staff', {
+        body: { staffId },
+        headers: userToken ? { Authorization: `Bearer ${userToken}` } : {},
+      });
       if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
       return true;
     }
     const db = getDB();
-    const u = db.users.find(u => u.id === staffId);
-    if (u) u.status = 'disabled';
+    db.users = db.users.filter(u => u.id !== staffId);
     saveDB(db);
     return true;
   },
