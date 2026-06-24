@@ -97,10 +97,16 @@ export function getCaps(user) {
   if (!user) return PLAN_CAPS.trial;
   if (user.role === 'admin') return PLAN_CAPS.enterprise;
   if (user.role === 'staff') return PLAN_CAPS.pro;
-  // Map subscription field to tier
+  // For shop owners (main + branches): subscriptionTier is the explicit
+  // paid tier set by admin or inherited from parent via auth-login.
+  // Always trust it when present — it overrides the subscription field.
+  if (user.subscriptionTier && PLAN_CAPS[user.subscriptionTier]) {
+    return PLAN_CAPS[user.subscriptionTier];
+  }
+  // Fallback: derive from subscription field
   const sub = user.subscription || 'trial';
-  const tier = user.subscriptionTier || (sub === 'active' ? 'pro' : sub);
-  return PLAN_CAPS[tier] ?? PLAN_CAPS.trial;
+  if (sub === 'active') return PLAN_CAPS.pro;
+  return PLAN_CAPS[sub] ?? PLAN_CAPS.trial;
 }
 
 export function hasCap(user, feature) {

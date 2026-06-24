@@ -997,3 +997,8 @@ input[type=number] { -moz-appearance: textfield; }
   border-left: 3px solid #4F46E5 !important;
   font-weight: 600 !important;
 }
+
+/* Branch-switching overlay spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

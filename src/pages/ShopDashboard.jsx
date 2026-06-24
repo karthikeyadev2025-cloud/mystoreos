@@ -91,6 +91,7 @@ const ShopDashboard = () => {
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
+  const [isBranchSwitching, setIsBranchSwitching] = useState(false);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
@@ -370,6 +371,7 @@ const ShopDashboard = () => {
   const prevTargetRef = useRef(targetShopId);
   useEffect(() => {
     if (prevTargetRef.current !== targetShopId && !isCombinedScope) {
+      setIsBranchSwitching(true);
       setProducts([]);
       setOrders([]);
       setCredits([]);
@@ -613,6 +615,8 @@ const ShopDashboard = () => {
       setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
     }
+    // Data loaded — clear any branch-switching overlay
+    setIsBranchSwitching(false);
   }, [targetShopId, isOwner, isCombinedScope, branches]);
 
   useEffect(() => {
@@ -3799,7 +3803,19 @@ const ShopDashboard = () => {
         />
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px' }}>
+        <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px', position: 'relative' }}>
+          {/* Branch switching overlay — shows briefly while data loads for new branch context */}
+          {isBranchSwitching && (
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 50,
+              background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
+              borderRadius: 8,
+            }}>
+              <div style={{ width: 40, height: 40, border: '3px solid #4F46E5', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              <span style={{ color: '#E0E7FF', fontSize: 14, fontWeight: 600 }}>Switching branch…</span>
+            </div>
+          )}
           {activeTab === 'home' && (
             <DesktopPOS 
               footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
@@ -4777,7 +4793,17 @@ const ShopDashboard = () => {
       <ToastContainer theme="dark" position="top-center" />
       {pdfShareBannerEl}
 
-      {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
+      {/* Branch switching overlay for mobile */}
+      {isBranchSwitching && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(4px)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16,
+        }}>
+          <div style={{ width: 44, height: 44, border: '3px solid #4F46E5', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+          <span style={{ color: '#E0E7FF', fontSize: 15, fontWeight: 700 }}>Switching branch…</span>
+        </div>
+      )}
           downloadQrPng — rendering it here (unconditionally, regardless
           of active tab) guarantees it's available no matter which screen
           the owner clicks "Download Poster" from. The previous approach
