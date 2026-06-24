@@ -2,13 +2,29 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
-const CORS = {
-  'Access-Control-Allow-Origin': 'https://mystoreos.in',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Allow all origins: web (mystoreos.in), Android (https://localhost),
+// iOS (capacitor://localhost), and Capacitor custom schemes
+const getAllowedOrigin = (req: Request): string => {
+  const origin = req.headers.get('origin') || '';
+  const allowed = [
+    'https://mystoreos.in',
+    'http://localhost',
+    'https://localhost',
+    'capacitor://localhost',
+    'ionic://localhost',
+  ];
+  if (allowed.some(o => origin.startsWith(o)) || origin === '') return origin || '*';
+  return 'https://mystoreos.in';
 };
 
-const json = (data: object, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+const getCORS = (req: Request) => ({
+  'Access-Control-Allow-Origin': getAllowedOrigin(req),
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+});
+
+const json = (data: object, status = 200, req?: Request) =>
+  new Response(JSON.stringify(data), { status, headers: { ...(req ? getCORS(req) : {'Access-Control-Allow-Origin': '*'}), 'Content-Type': 'application/json' } });
 
 function rowToProfile(row: Record<string, unknown>) {
   return {
@@ -36,11 +52,11 @@ function rowToProfile(row: Record<string, unknown>) {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: getCORS(req) });
 
   try {
     const { phone, password } = await req.json();
-    if (!phone || !password) return json({ error: 'phone and password required' }, 400);
+    if (!phone || !password) return json({ error: 'phone and password required' }, 400, req);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -56,8 +72,8 @@ serve(async (req) => {
     // Load profile by phone
     const { data: profile, error: profErr } = await admin
       .from('users').select('*').eq('phone', phone).single();
-    if (profErr || !profile) return json({ error: 'Phone number not found. Please register first.' }, 401);
-    if (profile.status === 'pending') return json({ error: 'Account pending admin approval' }, 403);
+    if (profErr || !profile) return json({ error: 'Phone number not found. Please register first.' }, 401, req);
+    if (profile.status === 'pending') return json({ error: 'Account pending admin approval' }, 403, req);
 
     // Verify password server-side
     const stored = profile.pass || '';
