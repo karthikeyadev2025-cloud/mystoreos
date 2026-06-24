@@ -1,4 +1,4 @@
-package in.mystoreos.app;
+package in.mystoreos.retail;
 
 import com.getcapacitor.BridgeActivity;
 
