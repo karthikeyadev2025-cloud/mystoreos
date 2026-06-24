@@ -2468,6 +2468,18 @@ const ShopDashboard = () => {
     }
   };
 
+  const handleDeleteStaff = async (staffId, staffName) => {
+    if (!window.confirm(`Remove ${staffName} from staff? They will no longer be able to log in.`)) return;
+    try {
+      await api.deleteStaff(staffId);
+      toast.success(`${staffName} removed from staff`);
+      const updatedStaff = await safe(() => api.getShopStaff(targetShopId));
+      if (updatedStaff) setStaffList(updatedStaff);
+    } catch(err) {
+      toast.error(err.message || 'Failed to remove staff');
+    }
+  };
+
   const handleGrabLocation = () => {
     if (!navigator.geolocation) {
       return toast.error("Geolocation is not supported by your browser");
@@ -4058,6 +4070,7 @@ const ShopDashboard = () => {
               newStaffPin={newStaffPin}
               setNewStaffPin={setNewStaffPin}
               handleAddStaff={handleAddStaff}
+              handleDeleteStaff={handleDeleteStaff}
               sysSettings={sysSettings}
               setSysSettings={setSysSettings}
               handleUpdateRazorpay={handleUpdateRazorpay}
@@ -6467,7 +6480,16 @@ const ShopDashboard = () => {
                     <h5 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{s.name}</h5>
                     <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Ph: {s.phone}</p>
                   </div>
-                  <span style={{ background: 'rgba(34,197,94,0.2)', color: '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: '1px solid #22C55E', fontWeight: 'bold' }}>● Active</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ background: s.status === 'disabled' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: s.status === 'disabled' ? '#EF4444' : '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${s.status === 'disabled' ? '#EF4444' : '#22C55E'}`, fontWeight: 'bold' }}>
+                      {s.status === 'disabled' ? '● Disabled' : '● Active'}
+                    </span>
+                    {s.status !== 'disabled' && (
+                      <button onClick={() => handleDeleteStaff(s.id, s.name)} style={{ background: 'none', border: '1px solid #EF4444', color: '#EF4444', borderRadius: '6px', padding: '4px 8px', fontSize: '10px', cursor: 'pointer', fontWeight: 600 }}>
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

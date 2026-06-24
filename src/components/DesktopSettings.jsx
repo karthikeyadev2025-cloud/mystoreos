@@ -56,6 +56,7 @@ const DesktopSettings = ({
   newStaffPin,
   setNewStaffPin,
   handleAddStaff,
+  handleDeleteStaff = () => {},
   user,
   handleResetTestData = () => {},
   isViewingMain = true,
@@ -815,7 +816,16 @@ const DesktopSettings = ({
                         <div style={{ fontSize: '10px', color: '#64748B' }}>📱 {s.phone}</div>
                       </div>
                     </div>
-                    <span style={{ background: '#DCFCE7', color: '#15803D', fontSize: '10px', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>● Active</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ background: s.status === 'disabled' ? '#FEE2E2' : '#DCFCE7', color: s.status === 'disabled' ? '#DC2626' : '#15803D', fontSize: '10px', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                        {s.status === 'disabled' ? '● Disabled' : '● Active'}
+                      </span>
+                      {s.status !== 'disabled' && (
+                        <button onClick={() => handleDeleteStaff(s.id, s.name)} style={{ background: 'none', border: '1px solid #FCA5A5', color: '#EF4444', borderRadius: '6px', padding: '3px 8px', fontSize: '10px', cursor: 'pointer', fontWeight: 600 }}>
+                          Remove
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

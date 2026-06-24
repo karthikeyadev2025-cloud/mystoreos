@@ -1030,6 +1030,25 @@ export const api = {
     return db.users.filter(u => u.role === 'staff' && u.staff_of === shopId);
   },
 
+  async deleteStaff(staffId) {
+    if (isSupabaseConfigured) {
+      // Soft-delete: set status to 'disabled' so the staff member can't log in
+      // but their billing history is preserved on orders they created.
+      const { error } = await supabase
+        .from('users')
+        .update({ status: 'disabled' })
+        .eq('id', staffId)
+        .eq('role', 'staff'); // safety check — never disable a shop owner
+      if (error) throw new Error(error.message);
+      return true;
+    }
+    const db = getDB();
+    const u = db.users.find(u => u.id === staffId);
+    if (u) u.status = 'disabled';
+    saveDB(db);
+    return true;
+  },
+
   async verifyAdminPin(shopId, pin) {
     if (isSupabaseConfigured) {
       const { data } = await supabase.from('users').select('pass').eq('id', shopId).maybeSingle();
