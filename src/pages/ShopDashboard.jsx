@@ -2460,7 +2460,9 @@ const ShopDashboard = () => {
       setNewStaffPhone('');
       setNewStaffPin('');
       setShowStaffModal(false);
-      loadData();
+      // Refresh staff list directly — faster and avoids full loadData stale closure issue
+      const updatedStaff = await safe(() => api.getShopStaff(targetShopId));
+      if (updatedStaff) setStaffList(updatedStaff);
     } catch(err) {
       toast.error(err.message);
     }
