@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useState, lazy, Suspense } from 'react';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { useOfflineSync } from './hooks/useOfflineSync';
@@ -52,6 +52,21 @@ const PrivateRoute = ({ children, role }) => {
     if (!roles.includes(user.role)) return <Navigate to="/" />;
   }
   return children;
+};
+
+// Forces a full ShopDashboard remount when switching between main (/shop)
+// and a branch (/shop/branch/:branchId). Without the key prop, React reuses
+// the same component instance and only updates props — activeTab, orders,
+// products etc all persist from the previous context causing visible stale data.
+const BranchKeyWrapper = () => {
+  const { branchId } = useParams();
+  return (
+    <ErrorBoundary fullPage>
+      <WideAppLayout>
+        <ShopDashboard key={`branch-${branchId}`} />
+      </WideAppLayout>
+    </ErrorBoundary>
+  );
 };
 
 const RoleRouter = () => {
@@ -242,14 +257,14 @@ function App() {
                 <Route path="/shop" element={
                   <PrivateRoute role={['shop', 'staff']}>
                     <Suspense fallback={<DashboardSkeleton />}>
-                      <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                      <ErrorBoundary fullPage><WideAppLayout><ShopDashboard key="main" /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />
                 <Route path="/shop/branch/:branchId" element={
                   <PrivateRoute role={['shop', 'staff']}>
                     <Suspense fallback={<DashboardSkeleton />}>
-                      <ErrorBoundary fullPage><WideAppLayout><ShopDashboard /></WideAppLayout></ErrorBoundary>
+                      <BranchKeyWrapper />
                     </Suspense>
                   </PrivateRoute>
                 } />
