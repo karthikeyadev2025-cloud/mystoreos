@@ -38,8 +38,26 @@ serve(async (req) => {
       ?? await admin.from('users').select('id, role, staff_of').eq('phone', caller.email?.split('@')[0] ?? '').maybeSingle();
 
     if (!callerProfile) return json({ error: 'Caller profile not found' }, 403);
-    const ownerId = callerProfile.role === 'staff' ? callerProfile.staff_of : callerProfile.id;
-    if (ownerId !== shopId && callerProfile.role !== 'admin') {
+
+    // ownerId = who actually owns the shop being modified.
+    // For a branch login: callerProfile.id IS the branch shop ID (branches
+    // have role='shop' and a parent_shop_id set). They should be allowed
+    // to add staff to their own branch (shopId === callerProfile.id).
+    // For staff: staff_of is their shop, but staff can't add other staff.
+    // For main owner: callerProfile.id === shopId directly.
+    const isMainOwner = callerProfile.role === 'shop' && callerProfile.id === shopId;
+    const isBranchOwner = callerProfile.role === 'shop' && callerProfile.id === shopId;
+    const isAdmin = callerProfile.role === 'admin';
+
+    // Also allow: main owner adding staff to a branch they own
+    // (check parent_shop_id of the target shop matches caller)
+    let isParentOwner = false;
+    if (callerProfile.role === 'shop') {
+      const { data: targetShop } = await admin.from('users').select('parent_shop_id').eq('id', shopId).maybeSingle();
+      isParentOwner = targetShop?.parent_shop_id === callerProfile.id;
+    }
+
+    if (!isMainOwner && !isBranchOwner && !isParentOwner && !isAdmin) {
       return json({ error: 'You can only add staff to your own shop' }, 403);
     }
 
