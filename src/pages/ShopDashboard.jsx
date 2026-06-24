@@ -4784,7 +4784,7 @@ const ShopDashboard = () => {
       <ToastContainer theme="dark" position="top-center" />
       {pdfShareBannerEl}
 
-
+      {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
           downloadQrPng — rendering it here (unconditionally, regardless
           of active tab) guarantees it's available no matter which screen
           the owner clicks "Download Poster" from. The previous approach
