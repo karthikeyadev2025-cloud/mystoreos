@@ -268,10 +268,33 @@ export const api = {
       // anon read shop rows), so instead we give the function a generous first
       // try, then ONE fast retry (the function is warm by then), and surface a
       // clear message rather than hanging on "Signing in…".
-      const callOnce = (ms) => {
-        const invoke = supabase.functions.invoke('auth-login', { body: { phone, password: pass } });
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('edge_timeout')), ms));
-        return Promise.race([invoke, timeout]);
+      // Use direct fetch instead of supabase.functions.invoke
+      // Reason: supabase.functions.invoke sends the anon key as Bearer token
+      // which Supabase now rejects with UNAUTHORIZED_LEGACY_JWT on Edge Functions.
+      // Direct fetch with just apikey header works correctly.
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const callOnce = async (ms) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), ms);
+        try {
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/auth-login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': ANON_KEY,
+            },
+            body: JSON.stringify({ phone, password: pass }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          const data = await res.json();
+          return { data, error: null };
+        } catch (e) {
+          clearTimeout(timeoutId);
+          if (e.name === 'AbortError') throw new Error('edge_timeout');
+          throw e;
+        }
       };
 
       let data, error, timedOut = false;
