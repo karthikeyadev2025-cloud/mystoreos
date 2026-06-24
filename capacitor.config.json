@@ -7,25 +7,20 @@
     "allowNavigation": [
       "*.supabase.co",
       "zdertmpzervgjicuwsfz.supabase.co",
-      "*.razorpay.com",
-      "checkout.razorpay.com",
-      "api.razorpay.com",
       "mystoreos.in",
       "www.mystoreos.in",
       "wa.me",
       "api.whatsapp.com",
-      "*.cloudinary.com",
-      "api.anthropic.com"
+      "*.cloudinary.com"
     ]
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
-      "launchAutoHide": false,
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
       "backgroundColor": "#030712",
       "androidSplashResourceName": "splash",
       "androidScaleType": "CENTER_CROP",
-      "showSpinnerOnFullScreen": false,
       "splashFullScreen": true,
       "splashImmersive": true
     },
@@ -34,37 +29,13 @@
       "backgroundColor": "#0f172a",
       "overlaysWebView": false
     },
-    "PushNotifications": {
-      "presentationOptions": [
-        "badge",
-        "sound",
-        "alert"
-      ]
-    },
     "Keyboard": {
       "resize": "body",
       "style": "DARK",
       "resizeOnFullScreen": true
     },
-    "Camera": {
-      "saveToGallery": false
-    },
     "CapacitorUpdater": {
-      "autoUpdate": false,
-      "resetWhenUpdate": true,
-      "updateUrl": "https://api.capgo.app/auto_update",
-      "statsUrl": "https://api.capgo.app/stats",
-      "privateKey": "CAPGO_PRIVATE_KEY_PLACEHOLDER",
-      "version": "",
-      "directUpdate": false,
-      "periodCheckDelay": 900,
-      "localS3": false,
-      "localHost": "",
-      "localWebHost": "",
-      "localSupa": "",
-      "localSupaAnon": "",
-      "allowModifyUrl": false,
-      "defaultChannel": "production"
+      "autoUpdate": false
     }
   },
   "android": {
@@ -73,27 +44,6 @@
     "captureInput": true,
     "webContentsDebuggingEnabled": true,
     "appendUserAgent": "MyStoreOS-Android/1.0",
-    "overrideUserAgent": null,
-    "buildOptions": {
-      "keystorePath": "mystore-release.keystore",
-      "keystoreAlias": "mystore-key",
-      "releaseType": "AAB"
-    },
-    "flavor": null,
-    "loggingBehavior": "none",
-    "minWebViewVersion": 60,
-    "mixedContentMode": "never"
-  },
-  "ios": {
-    "contentInset": "automatic",
-    "scrollEnabled": true,
-    "backgroundColor": "#030712",
-    "limitsNavigationsToAppBoundDomains": true,
-    "preferredContentMode": "mobile",
-    "appendUserAgent": "MyStoreOS-iOS/1.0",
-    "allowsLinkPreview": false,
-    "handleApplicationNotifications": true,
-    "overrideUserAgent": null,
-    "cordovaSwiftVersion": "5.0"
+    "minWebViewVersion": 60
   }
 }
