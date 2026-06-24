@@ -4,7 +4,6 @@
   "webDir": "dist",
   "server": {
     "androidScheme": "https",
-    "hostname": "app.mystoreos.in",
     "allowNavigation": [
       "*.supabase.co",
       "zdertmpzervgjicuwsfz.supabase.co",
@@ -36,7 +35,11 @@
       "overlaysWebView": false
     },
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     },
     "Keyboard": {
       "resize": "body",
@@ -47,7 +50,7 @@
       "saveToGallery": false
     },
     "CapacitorUpdater": {
-      "autoUpdate": true,
+      "autoUpdate": false,
       "resetWhenUpdate": true,
       "updateUrl": "https://api.capgo.app/auto_update",
       "statsUrl": "https://api.capgo.app/stats",
@@ -68,7 +71,7 @@
     "backgroundColor": "#030712",
     "allowMixedContent": false,
     "captureInput": true,
-    "webContentsDebuggingEnabled": false,
+    "webContentsDebuggingEnabled": true,
     "appendUserAgent": "MyStoreOS-Android/1.0",
     "overrideUserAgent": null,
     "buildOptions": {
