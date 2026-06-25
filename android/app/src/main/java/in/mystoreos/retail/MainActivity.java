@@ -3,8 +3,9 @@ package in.mystoreos.retail;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.graphics.Color;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -16,27 +17,36 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // CRITICAL: Prevent content from going under the status bar (camera notch area)
-        // setDecorFitsSystemWindows(true) means: respect status bar / nav bar insets
-        // Content will START BELOW the status bar, not behind it.
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        // ── ANDROID 15+ (API 35+) EDGE-TO-EDGE FIX ──────────────────────
+        // On API 35+, Android FORCES edge-to-edge and IGNORES
+        // setDecorFitsSystemWindows(true), fitsSystemWindows, and
+        // windowTranslucentStatus. The ONLY reliable fix is to read the
+        // real system-bar insets at runtime and apply them as padding to
+        // the content view, so the WebView sits below the status bar and
+        // above the navigation bar on every device and Android version.
 
-        // Force the status bar to have a SOLID background (not transparent)
-        // so it doesn't blend into the WebView content
+        // Keep solid bar backgrounds so they don't blend into content.
         getWindow().setStatusBarColor(Color.parseColor("#0F172A"));
         getWindow().setNavigationBarColor(Color.parseColor("#0F172A"));
 
-        // Clear any FLAG_LAYOUT_NO_LIMITS or translucent status bar flags that
-        // Capacitor or earlier code might have set
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-        // White icons on the dark status bar (Android M+)
+        // White icons on the dark bars.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+            WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
             controller.setAppearanceLightStatusBars(false);
             controller.setAppearanceLightNavigationBars(false);
         }
+
+        // Apply system-bar insets as padding on the root content view.
+        final View content = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+        // Trigger an initial inset pass.
+        ViewCompat.requestApplyInsets(content);
     }
 }
