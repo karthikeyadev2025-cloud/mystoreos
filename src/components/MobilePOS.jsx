@@ -51,7 +51,7 @@ export default function MobilePOS({
   const finalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', background: '#F8FAFC', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', background: '#F8FAFC', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', boxSizing: 'border-box' }}>
       <style>{`@keyframes mp-spin { to { transform: rotate(360deg); } }`}</style>
 
       {/* ─── 1. Sticky search bar + scan ─── */}

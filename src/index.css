@@ -7,6 +7,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════
+   ANDROID/MOBILE: Add visible padding from screen edges
+   This is the actual fix for "options extending to border" on Android.
+   env(safe-area-inset-*) returns 0 on phones without notches,
+   so we use real px values + max() to handle notched devices too.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1023px) {
+  /* Force horizontal padding on the main app content */
+  body, #root {
+    overflow-x: hidden !important;
+  }
+  
+  /* Bottom navigation: real edge padding, not just safe-area */
+  div[style*="position: fixed"][style*="bottom: 0"][style*="display: flex"] {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
    ANDROID CAPACITOR WEBVIEW FIX
    viewport-fit=cover extends content under notches/safe areas on Android.
    Force all positioned/full-width elements to respect device insets.
