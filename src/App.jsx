@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { isNativeApp } from './lib/capacitorInit';
 import { useState, lazy, Suspense } from 'react';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { useOfflineSync } from './hooks/useOfflineSync';
@@ -13,6 +14,7 @@ const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const AuthReset = lazy(() => import('./pages/AuthReset'));
 const Register = lazy(() => import('./pages/Register'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const NativeWelcome = lazy(() => import('./pages/NativeWelcome'));
 const ShopDashboard = lazy(() => import('./pages/ShopDashboard'));
 const ZohoStyleShell = lazy(() => import('./components/ZohoStyleShell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
@@ -153,7 +155,9 @@ function App() {
                 } />
                 <Route path="/" element={
                   <Suspense fallback={<PageLoader />}>
-                    <ErrorBoundary fullPage><LandingPage /></ErrorBoundary>
+                    <ErrorBoundary fullPage>
+                      {isNativeApp() ? <NativeWelcome /> : <LandingPage />}
+                    </ErrorBoundary>
                   </Suspense>
                 } />
 
