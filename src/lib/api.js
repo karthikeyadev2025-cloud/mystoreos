@@ -283,6 +283,7 @@ export const api = {
             headers: {
               'Content-Type': 'application/json',
               'apikey': ANON_KEY,
+              'Authorization': `Bearer ${ANON_KEY}`,
             },
             body: JSON.stringify({ phone, password: pass }),
             signal: controller.signal,
