@@ -324,7 +324,19 @@ export const api = {
         throw new Error(msg || 'Could not sign in. Please try again.');
       }
 
-      if (data?.session) await supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+      if (data?.session) {
+        await supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+        // CRITICAL: verify the session is actually persisted (Android WebView quirk)
+        // Without this verify-loop, queries fire before localStorage commits the JWT
+        // -> auth.uid() returns null -> RLS blocks all data -> "no data" on Android
+        let verifyAttempts = 0;
+        while (verifyAttempts < 5) {
+          const { data: { session: live } } = await supabase.auth.getSession();
+          if (live?.access_token) break;
+          await new Promise(r => setTimeout(r, 100));
+          verifyAttempts++;
+        }
+      }
       return data.profile;
     }
     const db = getDB();
