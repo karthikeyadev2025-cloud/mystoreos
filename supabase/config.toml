@@ -48,3 +48,12 @@ enabled = false
 [functions.expire-trials]
 # Triggered daily via Supabase Cron or external scheduler (GitHub Actions / Vercel Cron)
 verify_jwt = false
+
+[functions.auth-login]
+# Public login endpoint - users don't have a JWT yet when calling this
+# Setting verify_jwt=false lets users authenticate without a token
+verify_jwt = false
+
+[functions.auth-register]
+# Public signup endpoint
+verify_jwt = false
