@@ -25,6 +25,14 @@ export async function initNativeApp() {
   }
   
   console.log('[Native] Initializing for', Capacitor.getPlatform());
+
+  // Tag the document so CSS can apply native-only safe-area padding.
+  // env(safe-area-inset-*) returns 0 on most Android devices, so we use
+  // a body class + fixed pixel padding instead of relying on env().
+  document.body.classList.add('cap-native');
+  if (Capacitor.getPlatform() === 'android') {
+    document.body.classList.add('cap-android');
+  }
   
   try {
     // 1. STATUS BAR — push content below the camera notch/status bar

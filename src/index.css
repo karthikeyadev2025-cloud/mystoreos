@@ -51,6 +51,36 @@ html, body, #root {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   NATIVE ANDROID SAFE-AREA FIX (reliable, no env() dependency)
+   env(safe-area-inset-*) reports 0 on most Android devices, so we
+   apply fixed pixel insets only inside the installed app via the
+   .cap-android body class set in capacitorInit.js.
+   ═══════════════════════════════════════════════════════════════ */
+body.cap-android {
+  /* Bottom: clear the Android gesture/nav bar so nothing is hidden */
+  --cap-bottom-inset: 24px;
+}
+
+/* Bottom-fixed bars: lift above the Android nav bar */
+body.cap-android [style*="position: fixed"][style*="bottom: 0"],
+body.cap-android [style*="position:fixed"][style*="bottom:0"] {
+  padding-bottom: 24px !important;
+}
+
+/* Sticky top tab strips: small breathing room under the status bar */
+body.cap-android [style*="position: sticky"][style*="top: 0"] {
+  top: 0 !important;
+}
+
+/* Guarantee no page content runs to the extreme screen edges */
+@media (max-width: 1023px) {
+  body.cap-android #root > div {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 /* Force all root containers to use 100% not 100vw (avoids scrollbar issues) */
 .app-container,
 .enterprise-wrapper,
