@@ -6,6 +6,74 @@
    ═══════════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* ═══════════════════════════════════════════════════════════════
+   ANDROID CAPACITOR WEBVIEW FIX
+   viewport-fit=cover extends content under notches/safe areas on Android.
+   Force all positioned/full-width elements to respect device insets.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Force body/html to never overflow horizontally on Android */
+html, body, #root {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Capacitor adds .capacitor or platform classes. Treat all as mobile-safe */
+@supports (padding: max(0px)) {
+  /* Any position:fixed element must respect safe areas */
+  [style*="position: fixed"],
+  [style*="position:fixed"] {
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Force all root containers to use 100% not 100vw (avoids scrollbar issues) */
+.app-container,
+.enterprise-wrapper,
+.enterprise-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Mobile content area: ensure no element pokes past the screen edge */
+@media (max-width: 1023px) {
+  * {
+    max-width: 100vw;
+  }
+  
+  /* Anything explicitly fixed at top or bottom */
+  [style*="position: fixed"][style*="bottom: 0"],
+  [style*="position:fixed"][style*="bottom:0"] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Override any maxWidth:480px or centered layouts on mobile */
+  [style*="maxWidth: '480px'"],
+  [style*="maxWidth:'480px'"] {
+    max-width: 100% !important;
+  }
+}
+
+/* Prevent horizontal scroll caused by Lucide icons or wide content */
+img, svg, video, canvas, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tables - common overflow culprit */
+table {
+  max-width: 100%;
+  table-layout: auto;
+}
+
+
+
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html {
