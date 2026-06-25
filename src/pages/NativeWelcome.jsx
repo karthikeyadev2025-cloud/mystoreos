@@ -1,26 +1,19 @@
 /**
- * NativeWelcome — Android/iOS welcome screen
- * 
- * Shown ONLY when the app is opened inside the Capacitor native app (not web).
- * Replaces the marketing landing page with a clean "Welcome to MyStore OS"
- * screen that auto-routes to /login after a brief delay (or on tap).
- * 
- * Web users (desktop/mobile browser) still see the full LandingPage — this
- * component is only routed to when isNativeApp() === true.
+ * NativeWelcome — Android welcome screen
+ * Shows briefly on app open, then routes to /login.
+ * All text uses explicit hex colors with !important to prevent Android
+ * dark mode / WebView overrides from making text invisible.
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, ArrowRight } from 'lucide-react';
 
 export default function NativeWelcome() {
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
   
   useEffect(() => {
-    // Fade-in animation
     const t = setTimeout(() => setShow(true), 50);
-    // Auto-route to /login after 2.5 seconds (or user taps)
-    const auto = setTimeout(() => navigate('/login', { replace: true }), 2500);
+    const auto = setTimeout(() => navigate('/login', { replace: true }), 2200);
     return () => { clearTimeout(t); clearTimeout(auto); };
   }, [navigate]);
   
@@ -30,89 +23,125 @@ export default function NativeWelcome() {
     <div 
       onClick={goLogin}
       style={{
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(180deg, #0F172A 0%, #1E1B4B 100%)',
-        color: 'white',
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
+        background: '#0F172A',
+        backgroundImage: 'radial-gradient(circle at 50% 30%, #312E81 0%, #1E1B4B 40%, #0F172A 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
         cursor: 'pointer',
         opacity: show ? 1 : 0,
         transition: 'opacity 0.6s ease-out',
+        zIndex: 9999,
+        WebkitFontSmoothing: 'antialiased',
+        colorScheme: 'dark',
       }}
     >
-      {/* Logo M */}
-      <div style={{
-        width: 96,
-        height: 96,
-        background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
-        borderRadius: 24,
-        display: 'flex',
+      {/* Real app icon - using img tag so it's always the actual M icon */}
+      <img 
+        src="/icon-192x192.png" 
+        alt="MyStore OS"
+        style={{
+          width: 110,
+          height: 110,
+          borderRadius: 26,
+          marginBottom: 32,
+          boxShadow: '0 24px 60px rgba(79, 70, 229, 0.5), 0 0 0 1px rgba(255,255,255,0.1)',
+          transform: show ? 'scale(1)' : 'scale(0.7)',
+          transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          objectFit: 'cover',
+        }}
+        onError={(e) => {
+          // Fallback if PNG missing - show CSS M
+          e.target.style.display = 'none';
+          e.target.parentNode.querySelector('.fallback-logo').style.display = 'flex';
+        }}
+      />
+      
+      {/* Fallback M logo - hidden by default, shown only if PNG fails */}
+      <div className="fallback-logo" style={{
+        display: 'none',
+        width: 110,
+        height: 110,
+        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+        borderRadius: 26,
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 20px 60px rgba(79, 70, 229, 0.4)',
-        marginBottom: 28,
-        transform: show ? 'scale(1)' : 'scale(0.8)',
-        transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        marginBottom: 32,
+        boxShadow: '0 24px 60px rgba(79, 70, 229, 0.5)',
+        position: 'absolute',
       }}>
         <span style={{
-          fontSize: 54,
+          fontSize: 64,
           fontWeight: 900,
           color: '#FFFFFF',
-          letterSpacing: '-2px',
           lineHeight: 1,
         }}>M</span>
       </div>
       
-      {/* Welcome heading */}
+      {/* Welcome heading - EXPLICIT WHITE COLOR */}
       <h1 style={{
-        fontSize: 28,
+        fontSize: 30,
         fontWeight: 800,
         margin: 0,
         textAlign: 'center',
         lineHeight: 1.2,
-        marginBottom: 8,
+        marginBottom: 10,
+        color: '#FFFFFF',
+        letterSpacing: '-0.5px',
       }}>
-        Welcome to MyStore OS
+        Welcome to <span style={{ color: '#A5B4FC' }}>MyStore OS</span>
       </h1>
       
-      {/* Subtitle */}
+      {/* Subtitle - EXPLICIT LIGHT GRAY */}
       <p style={{
         fontSize: 15,
-        color: 'rgba(255,255,255,0.7)',
         margin: 0,
         textAlign: 'center',
-        marginBottom: 40,
-        maxWidth: 280,
+        marginBottom: 44,
+        maxWidth: 300,
         lineHeight: 1.5,
+        color: '#CBD5E1',
       }}>
-        India's most powerful retail operating system. Bill faster, track smarter.
+        Bill faster. Track smarter.<br/>
+        India's #1 retail operating system.
       </p>
       
-      {/* Tap to continue button */}
+      {/* CTA button */}
       <div style={{
-        background: 'rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.2)',
+        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
         borderRadius: 14,
-        padding: '14px 28px',
+        padding: '14px 32px',
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        fontSize: 14,
-        fontWeight: 600,
-        color: 'white',
+        fontSize: 15,
+        fontWeight: 700,
+        color: '#FFFFFF',
+        boxShadow: '0 10px 30px rgba(79, 70, 229, 0.4)',
       }}>
-        <ShieldCheck size={18} color="#4ade80" />
-        Tap to continue to Sign In
-        <ArrowRight size={16} />
+        <span style={{ color: '#FFFFFF' }}>Tap to Sign In</span>
+        <span style={{ color: '#FFFFFF', fontSize: 18 }}>→</span>
       </div>
       
-      {/* Bottom branding */}
+      {/* Loading dots */}
+      <div style={{
+        marginTop: 32,
+        display: 'flex',
+        gap: 6,
+      }}>
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out infinite' }} />
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out 0.2s infinite' }} />
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out 0.4s infinite' }} />
+      </div>
+      
+      {/* Bottom branding - EXPLICIT */}
       <div style={{
         position: 'absolute',
         bottom: 'calc(28px + env(safe-area-inset-bottom, 0px))',
@@ -120,10 +149,18 @@ export default function NativeWelcome() {
         right: 0,
         textAlign: 'center',
         fontSize: 11,
-        color: 'rgba(255,255,255,0.4)',
+        color: '#94A3B8',
+        letterSpacing: '0.5px',
       }}>
         by K2 Adexos Global Technologies
       </div>
+      
+      <style>{`
+        @keyframes pulse {
+          0%, 60%, 100% { opacity: 0.3; transform: scale(1); }
+          30% { opacity: 1; transform: scale(1.3); }
+        }
+      `}</style>
     </div>
   );
 }
