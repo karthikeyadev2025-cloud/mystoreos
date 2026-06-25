@@ -27,7 +27,7 @@ const PRESETS = [
 ];
 
 const S = {
-  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
   label: { color: '#475569', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
   row: { marginBottom: '16px' },
   saveBtn: (busy) => ({ background: busy ? '#94a3b8' : '#4f46e5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
@@ -37,13 +37,13 @@ const S = {
 
 function ColorRow({ label, value, onChange }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-      <label style={{ ...S.label, width: '160px', marginBottom: 0, flexShrink: 0 }}>{label}</label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+      <label style={{ ...S.label, minWidth: '120px', flex: '0 1 160px', marginBottom: 0 }}>{label}</label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 160px', minWidth: 0 }}>
         <input type="color" value={value.startsWith('#') ? value : '#000000'} onChange={e => onChange(e.target.value)}
-          style={{ width: '36px', height: '36px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'none', cursor: 'pointer', padding: '2px' }} />
+          style={{ width: '36px', height: '36px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'none', cursor: 'pointer', padding: '2px', flexShrink: 0 }} />
         <input type="text" value={value} onChange={e => onChange(e.target.value)}
-          style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', flex: 1 }} />
+          style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', flex: 1, minWidth: 0, width: '100%', boxSizing: 'border-box' }} />
       </div>
     </div>
   );
@@ -145,17 +145,17 @@ export default function TabDesign() {
         <div style={{ marginBottom: '16px', marginTop: '8px' }}>
           <label style={S.label}>Card Background (supports rgba)</label>
           <input value={theme.cardBg} onChange={e => setTheme(t => ({ ...t, cardBg: e.target.value }))}
-            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%' }} />
+            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
         </div>
         <div style={{ marginBottom: '16px' }}>
           <label style={S.label}>Card Border (supports rgba)</label>
           <input value={theme.cardBorder} onChange={e => setTheme(t => ({ ...t, cardBorder: e.target.value }))}
-            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%' }} />
+            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={S.label}>Border Radius</label>
           <input value={theme.borderRadius} onChange={e => setTheme(t => ({ ...t, borderRadius: e.target.value }))}
-            placeholder="12px" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '200px' }} />
+            placeholder="12px" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', maxWidth: '200px', boxSizing: 'border-box' }} />
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -173,7 +173,7 @@ export default function TabDesign() {
           value={customCSS}
           onChange={e => setCustomCSS(e.target.value)}
           placeholder={`/* Custom CSS injected globally */\n.glass { backdrop-filter: blur(20px); }\n.card { border-radius: 16px; }`}
-          style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '14px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', minHeight: '200px', resize: 'vertical', lineHeight: 1.6 }}
+          style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '14px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', minHeight: '200px', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
           <button onClick={saveCSS} disabled={busy.css} style={S.saveBtn(busy.css)}><Code size={14} />{busy.css ? 'Injecting...' : 'Inject CSS'}</button>
