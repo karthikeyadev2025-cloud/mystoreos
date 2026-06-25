@@ -3451,7 +3451,7 @@ const ShopDashboard = () => {
 
   const styles = {
     bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', width: '100%', maxWidth: '100%', overflowX: 'hidden', color: '#0F172A', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
-    header: { background: '#0F172A', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1E293B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
+    header: { background: '#0F172A', padding: '12px 16px', paddingRight: 'max(16px, env(safe-area-inset-right, 16px))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1E293B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
     statNum: { fontSize: '22px', fontWeight: '800', color: '#0F172A', fontFamily: "'JetBrains Mono', monospace", margin: 0 },
@@ -3468,7 +3468,7 @@ const ShopDashboard = () => {
     upiBtn: { backgroundColor: '#4F46E5', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
     prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #E2E8F0' },
     orderCard: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', margin: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    navBtn: { textAlign: 'center', cursor: 'pointer', minWidth: '52px', flexShrink: 0, padding: '2px 4px' }
+    navBtn: { textAlign: 'center', cursor: 'pointer', minWidth: '44px', maxWidth: '60px', flex: '1 1 0', flexShrink: 0, padding: '2px 2px' }
   };
 
   // Branch switcher — only shown when the owner has 2+ branches. Dropdown
@@ -4840,7 +4840,7 @@ const ShopDashboard = () => {
       </div>
 
       {isOwner && isViewingMain && isOnTrial && !trialBannerDismissed && (
-        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16A34A,#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#D97706,#B45309)' : 'linear-gradient(90deg,#DC2626,#B91C1C)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16A34A,#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#D97706,#B45309)' : 'linear-gradient(90deg,#DC2626,#B91C1C)', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
             ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
             {trialDaysLeft <= 3 && <span style={{ marginLeft: '8px', opacity: 0.9, fontWeight: 400, fontSize: '12px' }}>— Upgrade to keep your data & features</span>}
@@ -7001,56 +7001,56 @@ const ShopDashboard = () => {
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background: '#FFFFFF', padding: '6px 0 calc(6px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', background: '#FFFFFF', padding: '6px 0 calc(6px + env(safe-area-inset-bottom, 0px))', paddingLeft: 'env(safe-area-inset-left, 0px)', paddingRight: 'env(safe-area-inset-right, 0px)', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', overflow: 'hidden' }}>
         <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
-          <Home size={20} style={{ margin: '0 auto 4px auto' }} />
-          <p style={{ fontSize: '10px', margin: 0 }}>Home</p>
+          <Home size={18} style={{ margin: '0 auto 2px auto' }} />
+          <p style={{ fontSize: '9px', margin: 0 }}>Home</p>
         </div>
 
         {hasMultipleBranches && (
           <div style={{...styles.navBtn, color: activeTab === 'branches' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('branches')}>
-            <Building2 size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Branches</p>
+            <Building2 size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Branches</p>
           </div>
         )}
         
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
-            <Package size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Products</p>
+            <Package size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Products</p>
           </div>
         )}
         
         <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#4F46E5' : '#64748B', position: 'relative' }} onClick={() => setActiveTab('bills')}>
-          <Receipt size={20} style={{ margin: '0 auto 4px auto' }} />
-          <p style={{ fontSize: '10px', margin: 0 }}>Bills</p>
+          <Receipt size={18} style={{ margin: '0 auto 2px auto' }} />
+          <p style={{ fontSize: '9px', margin: 0 }}>Bills</p>
           {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#EF4444', width:10, height:10, borderRadius:'50%'}}></span>}
         </div>
 
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
-            <Wallet size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Credit</p>
+            <Wallet size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Credit</p>
           </div>
         )}
 
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
-            <Truck size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Restock</p>
+            <Truck size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Restock</p>
           </div>
         )}
         
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('reports')}>
-            <Book size={20} style={{ margin: '0 auto 4px auto' }} />
-            <p style={{ fontSize: '10px', margin: 0 }}>Reports</p>
+            <Book size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Reports</p>
           </div>
         )}
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('profile')}>
             <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
-            <p style={{ fontSize: '10px', margin: 0 }}>Settings</p>
+            <p style={{ fontSize: '9px', margin: 0 }}>Settings</p>
           </div>
         )}
       </div>
