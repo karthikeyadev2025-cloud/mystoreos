@@ -10,6 +10,11 @@ import '@fontsource/jetbrains-mono/400.css'
 import './styles/tokens.css'
 import './index.css'
 import App from './App.jsx'
+import { initNativeApp } from './lib/capacitorInit.js'
+
+// Initialize native Android/iOS features (status bar, splash, back button, etc.)
+// Runs synchronously - returns immediately on web, configures native on Capacitor.
+initNativeApp().catch(e => console.warn('Native init failed:', e))
 
 // Service worker: auto-update and reload immediately when a new version ships,
 // so users never get stuck on a stale cached build after a deploy.
