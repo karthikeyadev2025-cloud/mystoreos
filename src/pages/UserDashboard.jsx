@@ -2511,10 +2511,10 @@ return (
             <p style={{ margin: 0, fontSize: '15px', fontWeight: '600', letterSpacing: '0.5px' }}>Loading Store Profile...</p>
           </div>
         ) : (
-          <div style={{ paddingBottom: '90px' }}>
+          <div style={{ paddingBottom: '100px' }}>
             
             {/* Header & Hero Area */}
-            <div style={{ position: 'relative', overflow: 'hidden', padding: '24px 16px', background: 'linear-gradient(135deg, #F4F5F7, #EEF2FF)', borderBottom: '1px solid #E2E8F0' }}>
+            <div style={{ position: 'relative', overflow: 'clip', padding: '24px 16px', background: 'linear-gradient(135deg, #F4F5F7, #EEF2FF)', borderBottom: '1px solid #E2E8F0' }}>
               
               {/* Back to Marketplace Trigger */}
               <button 
@@ -2821,7 +2821,7 @@ return (
         // ========================================================
         // MODE B: GENERAL CONSUMER MARKETPLACE HOME                
         // ========================================================
-        <div style={{ paddingBottom: '90px' }}>
+        <div style={{ paddingBottom: '100px' }}>
 
           {/* Modern Visual Header banner */}
           <div style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #F4F5F7, #EEF2FF)', borderBottom: '1px solid #E2E8F0', position: 'relative' }}>
@@ -2888,9 +2888,9 @@ return (
           {/* Sub-tab selections */}
           <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', display: 'flex', position: 'sticky', top: 0, zIndex: 100 }}>
             {[
-              { id: 'explore', label: 'Explore Shops', icon: Compass },
-              { id: 'search', label: 'Global Item Search', icon: Search },
-              { id: 'scan', label: 'Scan QR Poster', icon: QrCode },
+              { id: 'explore', label: 'Explore', icon: Compass },
+              { id: 'search', label: 'Find Items', icon: Search },
+              { id: 'scan', label: 'Scan QR', icon: QrCode },
               { id: 'bills', label: 'My Bills', icon: Receipt },
             ].map(tab => {
               const Icon = tab.icon;
@@ -2902,12 +2902,12 @@ return (
                     setCameraScannerActive(false);
                   }}
                   style={{
-                    flex: 1, padding: '14px 4px', background: 'transparent', border: 'none', borderBottom: activeTab === tab.id ? '2px solid #4F46E5' : '2px solid transparent',
-                    color: activeTab === tab.id ? '#4F46E5' : '#64748b', fontSize: '11px', fontWeight: '700', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', transition: 'all 0.2s', borderRadius: 0
+                    flex: 1, padding: '12px 4px', background: 'transparent', border: 'none', borderBottom: activeTab === tab.id ? '2px solid #4F46E5' : '2px solid transparent',
+                    color: activeTab === tab.id ? '#4F46E5' : '#64748b', fontSize: '11px', fontWeight: '700', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', transition: 'all 0.2s', borderRadius: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}
                 >
                   <Icon size={18} />
-                  {tab.label}
+                  <span style={{ whiteSpace: 'nowrap' }}>{tab.label}</span>
                 </button>
               );
             })}
@@ -3267,30 +3267,34 @@ return (
           </div>
 
           {/* General Customer Dashboard Bottom Navigation Bar */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-around', padding: '12px 0', background: '#FFFFFF', borderTop: '1px solid #E2E8F0', boxShadow: '0 -4px 12px rgba(0,0,0,0.05)', zIndex: 100, maxWidth: '480px', margin: '0 auto' }}>
-            {[
-              { id: 'explore', label: 'Explore', icon: Compass },
-              { id: 'search', label: 'Global Find', icon: Search },
-              { id: 'scan', label: 'Scan Poster', icon: QrCode },
-              { id: 'bills', label: 'Invoices', icon: Receipt },
-            ].map(item => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setCameraScannerActive(false);
-                  }}
-                  style={{
-                    background: 'transparent', border: 'none', outline: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', color: activeTab === item.id ? '#4F46E5' : '#64748b', fontSize: '11px', fontWeight: '700', cursor: 'pointer', gap: '3px', width: 'auto'
-                  }}
-                >
-                  <Icon size={20} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+          {/* Outer shell: fixed, full-width, white background + border */}
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFFFFF', borderTop: '1px solid #E2E8F0', boxShadow: '0 -4px 12px rgba(0,0,0,0.05)', zIndex: 100 }}>
+            {/* Inner row: max-width centered, with paddingBottom for Android nav bar clearance */}
+            <div style={{ display: 'flex', justifyContent: 'space-around', padding: '10px 0 16px', maxWidth: '480px', margin: '0 auto' }}>
+              {[
+                { id: 'explore', label: 'Explore', icon: Compass },
+                { id: 'search', label: 'Find', icon: Search },
+                { id: 'scan', label: 'Scan QR', icon: QrCode },
+                { id: 'bills', label: 'Invoices', icon: Receipt },
+              ].map(item => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setCameraScannerActive(false);
+                    }}
+                    style={{
+                      background: 'transparent', border: 'none', outline: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', color: activeTab === item.id ? '#4F46E5' : '#64748b', fontSize: '11px', fontWeight: '700', cursor: 'pointer', gap: '3px', minWidth: '56px', padding: '0 8px'
+                    }}
+                  >
+                    <Icon size={20} />
+                    <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
         </div>

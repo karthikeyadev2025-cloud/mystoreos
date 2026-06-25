@@ -36,7 +36,7 @@ export async function initNativeApp() {
     await StatusBar.setBackgroundColor({ color: '#0F172A' });
     
     // White icons/text on the dark status bar
-    await StatusBar.setStyle({ style: Style.Dark });
+    await StatusBar.setStyle({ style: Style.Light });
     
     console.log('[Native] Status bar configured');
   } catch (e) {
