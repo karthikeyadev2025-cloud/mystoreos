@@ -35,17 +35,18 @@ export async function initNativeApp() {
   }
   
   try {
-    // 1. STATUS BAR — push content below the camera notch/status bar
-    // setOverlaysWebView(false) means: status bar takes its OWN space at the top
-    // and the WebView/content starts BELOW the status bar (not under the camera)
-    await StatusBar.setOverlaysWebView({ overlay: false });
-    
-    // Set status bar background to dark navy (matches our header color)
+    // 1. STATUS BAR — only set COLOR and ICON STYLE here.
+    // Do NOT call setOverlaysWebView — on Android it resets
+    // setDecorFitsSystemWindows and forces edge-to-edge layout (content
+    // under the camera/nav bar), then relies on env(safe-area-inset-*)
+    // which returns 0 on most Android devices. Instead, MainActivity.java
+    // owns the layout via setDecorFitsSystemWindows(true) so content
+    // always sits BELOW the status bar and ABOVE the nav bar.
     await StatusBar.setBackgroundColor({ color: '#0F172A' });
-    
+
     // White icons/text on the dark status bar
     await StatusBar.setStyle({ style: Style.Light });
-    
+
     console.log('[Native] Status bar configured');
   } catch (e) {
     console.warn('[Native] Status bar setup failed:', e.message);

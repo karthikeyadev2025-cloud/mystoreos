@@ -3269,8 +3269,8 @@ return (
           {/* General Customer Dashboard Bottom Navigation Bar */}
           {/* Outer shell: fixed, full-width, white background + border */}
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFFFFF', borderTop: '1px solid #E2E8F0', boxShadow: '0 -4px 12px rgba(0,0,0,0.05)', zIndex: 100 }}>
-            {/* Inner row: max-width centered, with paddingBottom for Android nav bar clearance */}
-            <div style={{ display: 'flex', justifyContent: 'space-around', padding: '10px 0 16px', maxWidth: '480px', margin: '0 auto' }}>
+            {/* Inner row: max-width centered */}
+            <div style={{ display: 'flex', justifyContent: 'space-around', padding: '10px 0', maxWidth: '480px', margin: '0 auto' }}>
               {[
                 { id: 'explore', label: 'Explore', icon: Compass },
                 { id: 'search', label: 'Find', icon: Search },
