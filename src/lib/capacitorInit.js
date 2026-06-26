@@ -102,9 +102,68 @@ export async function requestCameraPermission() {
 }
 
 /**
- * Check if we're running inside the Android/iOS native app (not web browser).
- * Used to show/hide platform-specific UI like "Download our app" banner.
+ * Share a PDF file natively on Android/iOS using @capacitor/share.
+ * On web, falls back to navigator.share or auto-download.
+ *
+ * Why: navigator.canShare({files}) returns false on Android WebView for blobs,
+ * so the PDF share banner never appears and doc.save() goes to an invisible
+ * location. The Capacitor Share plugin handles this correctly by converting
+ * the blob to base64 and invoking the native share sheet.
+ *
+ * @param {Blob} blob - PDF blob from jsPDF doc.output('blob')
+ * @param {string} fileName - e.g. "Invoice_001.pdf"
+ * @param {string} title - Share sheet title
+ * @returns {Promise<boolean>} true if shared, false if fell back to download
  */
-export const isNativeApp = () => Capacitor.isNativePlatform();
-export const isAndroid = () => Capacitor.getPlatform() === 'android';
-export const isIOS = () => Capacitor.getPlatform() === 'ios';
+export async function sharePdfNative(blob, fileName, title = 'Share Bill') {
+  // Native path: use Capacitor Share plugin
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const { Share } = await import('@capacitor/share');
+      // Convert blob to base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      await Share.share({
+        title,
+        text: title,
+        // Capacitor Share accepts base64 via files array on Android
+        files: [`data:application/pdf;base64,${base64}`],
+        dialogTitle: title,
+      });
+      return true;
+    } catch (e) {
+      if (e?.message?.includes('cancel') || e?.errorMessage?.includes('cancel')) {
+        return false; // user dismissed share sheet
+      }
+      console.warn('[sharePdfNative] Capacitor share failed, falling back:', e);
+      // Fall through to web fallback
+    }
+  }
+
+  // Web path: try navigator.share with File object
+  if (navigator.canShare) {
+    try {
+      const file = new File([blob], fileName, { type: 'application/pdf' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title });
+        return true;
+      }
+    } catch (e) {
+      if (e?.name === 'AbortError') return false;
+    }
+  }
+
+  // Final fallback: trigger browser download
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  return false;
+}

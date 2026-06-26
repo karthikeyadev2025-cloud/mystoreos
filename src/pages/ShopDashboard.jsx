@@ -12,6 +12,7 @@ import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Bo
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { sharePdfNative, isNativeApp } from '../lib/capacitorInit';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
@@ -1719,36 +1720,33 @@ const ShopDashboard = () => {
         // and at least send the PDF.
 
         if (customerPhone) {
-          // Primary path — auto-targets the customer's WhatsApp chat
-          doc.save(pdfFileName);                    // local PDF for the shop's own records
-          sendDirectText();                          // opens WhatsApp at the customer
-        } else if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          // Fallback: no phone on the bill → use share sheet so the cashier
-          // can manually pick a contact in their WhatsApp.
-          try {
-            await navigator.share({
-              files: [pdfFile],
-              title: billingMode === 'estimate' ? 'Estimate / Quotation' : (billingMode === 'challan' ? 'Delivery Challan' : 'Your Receipt'),
-              text: billingMode === 'estimate' ? `Here is your estimate from ${shop.name}` : (billingMode === 'challan' ? `Here is your delivery challan from ${shop.name}` : `Thank you for shopping at ${shop.name}! Here is your bill.`),
-            });
-            doc.save(pdfFileName);
-          } catch (shareErr) {
-            if (shareErr?.name === 'AbortError') {
-              doc.save(pdfFileName);
-            } else {
-              doc.save(pdfFileName);
-              sendDirectText();
-            }
-          }
-        } else {
-          // No file-share capability AND no phone — best we can do is save
-          // the PDF and let the cashier pick a contact in WhatsApp Web.
-          doc.save(pdfFileName);
+          // Primary path — auto-targets the customer's WhatsApp chat via wa.me.
+          // Also share the PDF natively (Capacitor Share on Android, Web Share
+          // on browser). On Android, navigator.canShare({files}) returns false
+          // for blobs — sharePdfNative uses @capacitor/share plugin instead.
           sendDirectText();
+          // Show PDF share after WhatsApp text opens (slight delay so share
+          // sheet doesn't fight with the WhatsApp deep link)
+          setTimeout(async () => {
+            await sharePdfNative(pdfBlob, pdfFileName, `Bill from ${shop.name}`);
+          }, 800);
+        } else {
+          // No customer phone — share PDF directly so cashier can pick a contact
+          const shared = await sharePdfNative(
+            pdfBlob,
+            pdfFileName,
+            billingMode === 'estimate' ? 'Estimate / Quotation'
+              : billingMode === 'challan' ? 'Delivery Challan'
+              : `Bill from ${shop.name}`
+          );
+          if (!shared) {
+            // User cancelled share sheet or web fallback — send WhatsApp text
+            sendDirectText();
+          }
         }
       } else {
         // Starter plan: save PDF locally only, no WhatsApp
-        doc.save(pdfFileName);
+        await sharePdfNative(pdfBlob, pdfFileName, `Bill from ${shop.name}`);
         toast.info('Bill saved as PDF. Upgrade to Pro to share via WhatsApp.');
       }
 

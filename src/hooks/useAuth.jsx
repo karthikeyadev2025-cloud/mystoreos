@@ -3,6 +3,12 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+// Module-level flag: true only when the user explicitly tapped Logout.
+// Prevents onAuthStateChange(SIGNED_OUT) — which fires on token expiry too —
+// from wiping the local session on Android when the app resumes after being
+// backgrounded (Capacitor WebView kill → Supabase refresh fails → SIGNED_OUT).
+let _explicitLogout = false;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
@@ -30,23 +36,33 @@ export const AuthProvider = ({ children }) => {
 
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
-        // Only clear session if there is NO locally stored fallback user
-        // Fallback logins (DB direct) store user in localStorage without Supabase session
         if (!session) {
           const localUser = localStorage.getItem("mystore_session");
           if (!localUser) {
             setUser(null);
           }
           // If localUser exists, keep them logged in (DB fallback login)
+          // and try a silent token refresh so Supabase session is restored
+          else {
+            // Attempt silent re-auth using stored Supabase refresh token
+            supabase.auth.refreshSession().catch(() => {/* ignore — keep local session */});
+          }
         }
         setAuthLoading(false);
       })
       .catch(() => setAuthLoading(false));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+      // IMPORTANT: Only clear the local session on EXPLICIT logout (user tapped
+      // Logout) — not on Supabase token expiry events. On Android/Capacitor the
+      // WebView gets killed when backgrounded; Supabase fires SIGNED_OUT when the
+      // refresh fails, which previously wiped mystore_session and forced re-login
+      // every time the app was reopened. The logout() function below sets a flag
+      // before calling supabase.signOut() so we can distinguish the two cases.
+      if ((event === "SIGNED_OUT" || event === "USER_DELETED") && _explicitLogout) {
         try { localStorage.removeItem("mystore_session"); } catch (_e) { /* ignore */ }
         setUser(null);
+        _explicitLogout = false;
       }
       setAuthLoading(false);
     });
@@ -116,6 +132,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    _explicitLogout = true;  // tell onAuthStateChange this is intentional
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
