@@ -167,3 +167,11 @@ export async function sharePdfNative(blob, fileName, title = 'Share Bill') {
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
   return false;
 }
+
+/**
+ * Check if we're running inside the Android/iOS native app (not web browser).
+ * Used to show/hide platform-specific UI like "Download our app" banner.
+ */
+export const isNativeApp = () => Capacitor.isNativePlatform();
+export const isAndroid = () => Capacitor.getPlatform() === 'android';
+export const isIOS = () => Capacitor.getPlatform() === 'ios';
