@@ -533,9 +533,19 @@ export const api = {
       const data = await res.json();
       if (!res.ok || data?.error) throw new Error(data?.error || 'Could not update password.');
 
-      // Also refresh the Supabase Auth session's password client-side so
-      // the CURRENT session (already signed in) doesn't get invalidated.
-      await supabase.auth.updateUser({ password: newPassword }).catch(() => {});
+      // NOTE: the edge function above already updates Supabase Auth's
+      // password server-side via admin.auth.admin.updateUserById() using
+      // the service role key — that's the reliable path with full admin
+      // privileges. An earlier version of this function ALSO called
+      // supabase.auth.updateUser() client-side as a redundant "just in
+      // case" — but that uses the CURRENT session's own (sometimes
+      // weaker-privileged or already-stale) auth context, which could
+      // 403 depending on account type/session state. It was wrapped in
+      // .catch(() => {}) so it never broke anything functionally, but
+      // failed network requests still show up in the browser console
+      // regardless of try/catch — alarming-looking noise for something
+      // that was already redundant. Removed; the edge function is
+      // sufficient and is the actual source of truth here.
       return true;
     }
     return true;
