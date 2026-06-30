@@ -2,21 +2,33 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
-const CORS = {
-  'Access-Control-Allow-Origin': 'https://mystoreos.in',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+  'https://mystoreos.in',
+  'https://localhost',
+  'capacitor://localhost',
+  'http://localhost',
+  'http://localhost:5173',
+];
+
+const getCORS = (req: Request) => {
+  const origin = req.headers.get('origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
 };
 
-const json = (data: object, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+const json = (data: object, status: number, req: Request) =>
+  new Response(JSON.stringify(data), { status, headers: { ...getCORS(req), 'Content-Type': 'application/json' } });
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: getCORS(req) });
 
   try {
     const { phone, newPassword, userId } = await req.json();
-    if ((!phone && !userId) || !newPassword) return json({ error: 'phone or userId, and newPassword required' }, 400);
-    if (newPassword.length < 4) return json({ error: 'Password too short' }, 400);
+    if ((!phone && !userId) || !newPassword) return json({ error: 'phone or userId, and newPassword required' }, 400, req);
+    if (newPassword.length < 4) return json({ error: 'Password too short' }, 400, req);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -30,17 +42,20 @@ serve(async (req) => {
 
     if (userId) {
       const { data } = await admin.from('users').select('id, phone').eq('id', userId).single();
-      if (!data) return json({ error: 'User not found' }, 404);
+      if (!data) return json({ error: 'User not found' }, 404, req);
       profileId = data.id;
       profilePhone = data.phone;
     } else {
       const { data } = await admin.from('users').select('id, phone').eq('phone', phone).single();
-      if (!data) return json({ error: 'Phone number not found. Please register first.' }, 404);
+      if (!data) return json({ error: 'Phone number not found. Please register first.' }, 404, req);
       profileId = data.id;
       profilePhone = data.phone;
     }
 
-    // Update bcrypt hash in public.users
+    // Update bcrypt hash in public.users — this is the field auth-login
+    // actually verifies against. (Previously the in-app "Change Password"
+    // only updated the unused pass_verify column + Supabase Auth password,
+    // never this column, so the new password never worked on next login.)
     await admin.from('users').update({ pass: await bcrypt.hash(newPassword, 10) }).eq('id', profileId);
 
     // Update auth.users password if user has been migrated
@@ -51,8 +66,8 @@ serve(async (req) => {
       await admin.auth.admin.updateUserById(authUser.id, { password: newPassword });
     }
 
-    return json({ success: true });
+    return json({ success: true }, 200, req);
   } catch (e) {
-    return json({ error: (e as Error).message }, 500);
+    return json({ error: (e as Error).message }, 500, req);
   }
 });

@@ -276,6 +276,7 @@ const ShopDashboard = () => {
   const [promoCode, setPromoCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [manualDiscountPct, setManualDiscountPct] = useState(0); // manual % discount entered in POS
+  const [roundOff, setRoundOff] = useState(0); // manual round-off amount, cashier types this in (+/- rupees)
   const [wholesaleCatalog, setWholesaleCatalog] = useState([]);
   const [restockCart, setRestockCart] = useState({}); // { wholesaleProdId: qty }
 
@@ -409,6 +410,12 @@ const ShopDashboard = () => {
   const trialDaysLeft = _trialStart ? Math.max(0, 15 - Math.floor((_now - new Date(_trialStart)) / 86400000)) : 15;
   const planExpiresAt = user.planExpiresAt ? new Date(user.planExpiresAt) : null;
   const paidDaysLeft = planExpiresAt ? Math.max(0, Math.ceil((planExpiresAt - _now) / 86400000)) : null;
+  // Every shop gets subscriptionTier='starter' by default at registration
+  // (even while on trial), so subscriptionTier alone can't distinguish
+  // "still on trial" from "admin upgraded". The `subscription` column is
+  // the single source of truth: 'trial' until either Razorpay self-upgrade
+  // or admin manual upgrade flips it to 'active' (both paths now do this
+  // correctly — see api.updateUserSubscription).
   const isOnTrial = user.subscription === 'trial';
   const { deviceLimitExceeded, activeSessions, forceRevokeOthers } = useSessionGuard();
 
@@ -1000,6 +1007,7 @@ const ShopDashboard = () => {
     setManualDiscountPct(0);
     setLoyaltyRedeem(0);
     setPaymentMethod('Cash');
+    setRoundOff(0);
   };
 
   const applyPromoCode = () => {
@@ -1019,7 +1027,7 @@ const ShopDashboard = () => {
   const sendWhatsAppBill = async () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
-    const total = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
+    const total = Math.max(0, Math.round(billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees + (Number(roundOff) || 0)));
 
     if (!isOwner && total > 5000) {
       setPendingAction(() => () => executeSendWhatsAppBill());
@@ -1032,7 +1040,13 @@ const ShopDashboard = () => {
 
   const executeSendWhatsAppBill = async () => {
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10); // 10 pts = ₹1
-    const total = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
+    const preRoundTotal = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
+    // roundOff is entered MANUALLY by the cashier in the POS (e.g. rounding
+    // ₹297 down to ₹295, or ₹298 up to ₹300) — not auto-calculated. This
+    // matches how Indian shopkeepers actually handle cash change in
+    // practice: they decide the round figure themselves per bill.
+    const roundOffAmt = Number(roundOff) || 0;
+    const total = Math.max(0, Math.round(preRoundTotal + roundOffAmt));
     
     try {
       let finalUserId = 'walk-in-customer';
@@ -1126,10 +1140,10 @@ const ShopDashboard = () => {
       // ── SHOP BRANDING ────────────────────────────────────────────────────────
       let hy = isThermal ? 13 : 20;
 
-      const hasLogo = printShowLogo && user.logo && user.logo.startsWith('data:image');
+      const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
       const logoW = isThermal ? 14 : 22, logoH = isThermal ? 14 : 22, logoX = marginL;
       if (hasLogo) {
-        try { doc.addImage(user.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch(e) {}
+        try { doc.addImage(shop.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch(e) {}
       }
       const textX = hasLogo ? (marginL + logoW + 3) : marginL;
 
@@ -1145,11 +1159,11 @@ const ShopDashboard = () => {
       doc.setFontSize(isThermal ? 7 : 9);
       doc.setTextColor(100, 116, 139);
       let contactLine = `Ph: ${shop.phone}`;
-      if (!isThermal && user.upiId) contactLine += `   |   UPI: ${user.upiId}`;
+      if (!isThermal && upiId) contactLine += `   |   UPI: ${upiId}`;
       doc.text(contactLine, isThermal ? pageW / 2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
-      if (isThermal && user.upiId) {
-        doc.text(`UPI: ${user.upiId}`, pageW / 2, hy, { align: 'center' });
+      if (isThermal && upiId) {
+        doc.text(`UPI: ${upiId}`, pageW / 2, hy, { align: 'center' });
         hy += 5;
       }
 
@@ -1438,6 +1452,13 @@ const ShopDashboard = () => {
         doc.setTextColor(71, 85, 105);
       }
 
+      if (roundOffAmt !== 0) {
+        doc.setTextColor(roundOffAmt > 0 ? 22 : 220, roundOffAmt > 0 ? 163 : 38, roundOffAmt > 0 ? 74 : 38);
+        doc.text(`Round Off: ${roundOffAmt > 0 ? '+' : ''}Rs. ${roundOffAmt.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
+        yOffset += 5;
+        doc.setTextColor(71, 85, 105);
+      }
+
       // Grand total
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
@@ -1635,6 +1656,7 @@ const ShopDashboard = () => {
         }
         if (discountAmount > 0 || manualDiscountAmt > 0) msg += `Bill Discount: -Rs.${discountAmount + manualDiscountAmt}\n`;
         if (loyaltyDiscountRupees > 0) msg += `Loyalty Redeemed: -Rs.${loyaltyDiscountRupees}\n`;
+        if (roundOffAmt !== 0) msg += `Round Off: ${roundOffAmt > 0 ? '+' : ''}Rs.${roundOffAmt.toFixed(2)}\n`;
         msg += `*TOTAL: Rs.${total}*\n`;
         const pmLabel = { Cash: '💵 Cash', UPI: '📱 UPI', Card: '💳 Card', Credit: '📒 Credit' };
         msg += `Payment: ${pmLabel[paymentMethod] || '💵 Cash'}\n`;
@@ -1763,6 +1785,7 @@ const ShopDashboard = () => {
       setManualDiscountPct(0);
       setPromoCode('');
       setLoyaltyRedeem(0);
+      setRoundOff(0);
       setCustomerLoyaltyPoints(0);
       setCustomerName('');
       setCustomerPhone('');
@@ -2379,7 +2402,11 @@ const ShopDashboard = () => {
     const refundAmount = itemsToReturn.reduce((sum, item) => sum + (item.price * item.returnQty), 0);
 
     try {
-      const result = await safe(() => api.processReturn(returnOrder.id, itemsToReturn, returnRefundMode));
+      // Use the real api call (not safe()) so a genuine failure — e.g. an
+      // RLS policy blocking the stock-restore UPDATE for a staff/branch
+      // login — surfaces as an error toast instead of silently showing
+      // "Return processed!" while stock was never actually restored.
+      const result = await api.processReturn(returnOrder.id, itemsToReturn, returnRefundMode);
       const isFullReturn = result?.isFullReturn !== false;
       toast.success(isFullReturn ? "Return processed — bill fully returned!" : `Partial return processed — ₹${refundAmount} refunded`);
 
@@ -2546,14 +2573,14 @@ const ShopDashboard = () => {
     //    rects at decreasing opacity) ─────────────────────────────────
     let y = 52;
 
-    const hasLogo = user.logo && user.logo.startsWith('data:image');
+    const hasLogo = shop.logo && shop.logo.startsWith('data:image');
     if (hasLogo) {
       try {
         // Circular-look logo frame
         doc.setDrawColor(...accent);
         doc.setLineWidth(0.8);
         doc.roundedRect(W / 2 - 19, y - 2, 38, 38, 6, 6, 'S');
-        doc.addImage(user.logo, 'JPEG', W / 2 - 17, y, 34, 34, undefined, 'FAST');
+        doc.addImage(shop.logo, 'JPEG', W / 2 - 17, y, 34, 34, undefined, 'FAST');
         y += 46;
       } catch { y += 6; }
     } else {
@@ -2934,9 +2961,9 @@ const ShopDashboard = () => {
       doc.rect(0, 0, pageW, isThermal ? 7 : 10, 'F');
 
       let hy = isThermal ? 13 : 20;
-      const hasLogo = printShowLogo && user.logo && user.logo.startsWith('data:image');
+      const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
       if (hasLogo) {
-        try { doc.addImage(user.logo, 'JPEG', marginL, hy - 6, isThermal ? 14 : 22, isThermal ? 14 : 22); } catch {}
+        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, isThermal ? 14 : 22, isThermal ? 14 : 22); } catch {}
       }
       const textX = hasLogo ? marginL + (isThermal ? 17 : 25) : marginL;
 
@@ -3845,6 +3872,8 @@ const ShopDashboard = () => {
               manualDiscountPct={manualDiscountPct}
               setManualDiscountPct={setManualDiscountPct}
               manualDiscountAmt={manualDiscountAmt}
+              roundOff={roundOff}
+              setRoundOff={setRoundOff}
               billTotal={billTotal}
               search={search}
               setSearch={setSearch}
@@ -4902,6 +4931,8 @@ const ShopDashboard = () => {
             setManualDiscountPct={setManualDiscountPct}
             discountAmount={discountAmount}
             manualDiscountAmt={manualDiscountAmt}
+            roundOff={roundOff}
+            setRoundOff={setRoundOff}
             billTotal={billTotal}
             onCheckout={sendWhatsAppBill}
             onClearCart={clearCart}

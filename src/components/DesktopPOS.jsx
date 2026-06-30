@@ -48,6 +48,8 @@ const DesktopPOS = ({
   manualDiscountPct = 0,
   setManualDiscountPct,
   manualDiscountAmt = 0,
+  roundOff = 0,
+  setRoundOff,
   sendWhatsAppBill,
   addToBill,
   setActiveTab,
@@ -89,7 +91,8 @@ const DesktopPOS = ({
   const motivation = targetPctInt >= 100 ? '🎉 Target Hit!' : targetPctInt >= 80 ? '💪 Almost There!' : targetPctInt >= 50 ? '📈 Keep Going!' : '🚀 Start Billing!';
   const lowStockProducts = products.filter(p => p.stock < (p.reorderLevel || 10));
 
-  const finalTotal = Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees);
+  const rawFinalTotal = Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees);
+  const finalTotal = Math.max(0, Math.round(rawFinalTotal + (Number(roundOff) || 0)));
 
   return (
     <div className="responsive-split-grid" style={{ alignItems: 'start' }}>
@@ -611,6 +614,17 @@ const DesktopPOS = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>Subtotal</span>
             <span style={{ fontSize: '13px', color: (discountAmount > 0 || manualDiscountAmt > 0 || loyaltyDiscountRupees > 0) ? '#94A3B8' : '#0F172A', textDecoration: (discountAmount > 0 || manualDiscountAmt > 0 || loyaltyDiscountRupees > 0) ? 'line-through' : 'none' }}>₹{billTotal}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>Round Off</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              placeholder="0"
+              value={roundOff || ''}
+              onChange={e => setRoundOff && setRoundOff(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+              style={{ width: '90px', padding: '6px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', color: '#0F172A', textAlign: 'right', outline: 'none' }}
+            />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px' }}>
             <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#D97706' }}>Final Payable</span>

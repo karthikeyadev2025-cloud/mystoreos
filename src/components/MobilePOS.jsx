@@ -34,6 +34,7 @@ export default function MobilePOS({
   paymentMethod, setPaymentMethod,
   manualDiscountPct, setManualDiscountPct,
   discountAmount, manualDiscountAmt,
+  roundOff = 0, setRoundOff,
   billTotal,
   onCheckout,
   onClearCart,
@@ -48,7 +49,8 @@ export default function MobilePOS({
   // the parent's sendWhatsAppBill is rendering the PDF + opening the share sheet.
   const [generating, setGenerating] = useState(false);
   const itemCount = billItems.reduce((s, i) => s + (i.qty || 1), 0);
-  const finalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
+  const rawFinalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
+  const finalTotal = Math.max(0, Math.round(rawFinalTotal + (Number(roundOff) || 0)));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', background: '#F8FAFC', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', boxSizing: 'border-box' }}>
@@ -310,6 +312,17 @@ export default function MobilePOS({
                       %
                     </span>
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>−₹{(discountAmount || 0) + (manualDiscountAmt || 0)}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, gap: 8 }}>
+                    <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>Round Off</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      placeholder="0"
+                      value={roundOff || ''}
+                      onChange={e => setRoundOff && setRoundOff(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+                      style={{ width: 70, padding: '4px 8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, color: '#0F172A', textAlign: 'right', outline: 'none' }}
+                    />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: 8 }}>
                     <span style={{ fontSize: 13, color: '#0F172A', fontWeight: 800 }}>TOTAL</span>

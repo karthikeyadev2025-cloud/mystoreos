@@ -503,22 +503,41 @@ export const api = {
     return true;
   },
 
-  // Change password from inside the app (user is already logged in)
+  // Change password from inside the app (user is already logged in).
+  //
+  // BUG FIX: auth-login verifies against the bcrypt `pass` column in
+  // public.users — but the old version of this function only updated
+  // Supabase Auth's password (supabase.auth.updateUser) and the unused
+  // `pass_verify` column. The bcrypt `pass` column was never touched, so
+  // after "changing" password, the next login via auth-login still
+  // required the OLD password. Now routes through the auth-reset-password
+  // edge function which correctly updates both the bcrypt `pass` column
+  // AND the Supabase Auth password in one atomic call.
   async changePassword(newPassword) {
     if (!newPassword || newPassword.length < 4) throw new Error('Password must be at least 4 characters.');
     if (isSupabaseConfigured) {
-      // Update Supabase Auth password (works for all roles)
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw new Error(error.message);
-      // Also update pass_verify in public.users so auth-login edge fn stays in sync
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('users').update({ pass_verify: newPassword }).eq('id', user.id);
-      }
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) throw new Error('Not logged in. Please sign in again.');
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-reset-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ userId: authUser.id, newPassword }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok || data?.error) throw new Error(data?.error || 'Could not update password.');
+
+      // Also refresh the Supabase Auth session's password client-side so
+      // the CURRENT session (already signed in) doesn't get invalidated.
+      await supabase.auth.updateUser({ password: newPassword }).catch(() => {});
       return true;
     }
-    const db = getDB();
-    const { data: { user: authUser } } = { data: { user: null } };
     return true;
   },
 
@@ -3486,15 +3505,25 @@ export const api = {
     return db.users.filter(u => u.name?.toLowerCase().includes(q) || u.phone?.includes(q));
   },
 
+  // Admin assigns/changes a shop's paid plan tier.
+  //
+  // BUG FIX: this only updated subscription_tier + plan_expires_at, never
+  // touching the `subscription` column. So after the admin "activated" a
+  // shop's plan (e.g. set tier='pro'), the shop's `subscription` field
+  // stayed literally 'trial' (its value from registration) — and the
+  // dashboard's trial badge/banner check `user.subscription === 'trial'`
+  // directly (not subscriptionTier), so it kept showing "Trial — Xd left"
+  // even though the admin had activated a paid plan.
+  // Now: assigning any real tier also flips subscription to 'active'.
   async updateUserSubscription(userId, tier, expiresAt) {
-    const updateObj = { subscription_tier: tier, plan_expires_at: expiresAt || null };
+    const updateObj = { subscription_tier: tier, plan_expires_at: expiresAt || null, subscription: 'active' };
     if (isSupabaseConfigured) {
       await supabase.from('users').update(updateObj).eq('id', userId);
       return;
     }
     const db = getDB();
     const u = db.users.find(x => x.id === userId);
-    if (u) { u.subscriptionTier = tier; u.planExpiresAt = expiresAt || null; saveDB(db); }
+    if (u) { u.subscriptionTier = tier; u.planExpiresAt = expiresAt || null; u.subscription = 'active'; saveDB(db); }
   },
 
   async updateDistributorSubscription(userId, tier, expiresAt) {
