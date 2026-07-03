@@ -8,7 +8,7 @@ import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useSubscription } from '../hooks/useSubscription';
 import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
-import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2 } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -36,6 +36,7 @@ import DesktopBills from '../components/DesktopBills';
 import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
 import DesktopReports from '../components/DesktopReports';
+import DesktopBookings from '../components/DesktopBookings';
 import DesktopSettings from '../components/DesktopSettings';
 import BranchesManager from '../components/BranchesManager';
 import DesktopCustomers from '../components/DesktopCustomers';
@@ -4291,6 +4292,10 @@ const ShopDashboard = () => {
             </>
           )}
 
+          {activeTab === 'bookings' && isOwner && (
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} />
+          )}
+
           {activeTab === 'profile' && isOwner && (
             <>
               {isMainOwner && isViewingMain && (
@@ -5816,6 +5821,13 @@ const ShopDashboard = () => {
         </div>
       )}
 
+      {/* BOOKINGS TAB */}
+      {isOwner && activeTab === 'bookings' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <DesktopBookings shopId={targetShopId} shopName={shop.name} />
+        </div>
+      )}
+
       {/* RESTOCKING SUPPLY TAB */}
       {isOwner && activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
@@ -7319,6 +7331,13 @@ const ShopDashboard = () => {
           <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Credit</p>
+          </div>
+        )}
+
+        {isOwner && (
+          <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
+            <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
           </div>
         )}
 

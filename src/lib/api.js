@@ -3877,4 +3877,114 @@ export const api = {
     if (error) throw new Error(error.message);
     return true;
   },
+
+  // ── SERVICE BOOKING MODULE ─────────────────────────────────────────────
+
+  // --- Services (shop's catalogue) ---
+
+  async getShopServices(shopId) {
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('shop_id', shopId)
+      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async saveService(shopId, service) {
+    if (!isSupabaseConfigured) return null;
+    const payload = {
+      shop_id: shopId,
+      name: service.name,
+      description: service.description || null,
+      category: service.category || 'general',
+      duration_minutes: Number(service.duration_minutes) || 30,
+      price: Number(service.price) || 0,
+      active: service.active !== false,
+      display_order: Number(service.display_order) || 0,
+      updated_at: new Date().toISOString(),
+    };
+    if (service.id) {
+      const { data, error } = await supabase.from('services').update(payload).eq('id', service.id).select().single();
+      if (error) throw new Error(error.message);
+      return data;
+    } else {
+      const { data, error } = await supabase.from('services').insert({ ...payload, created_at: new Date().toISOString() }).select().single();
+      if (error) throw new Error(error.message);
+      return data;
+    }
+  },
+
+  async deleteService(serviceId) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('services').delete().eq('id', serviceId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async toggleServiceActive(serviceId, active) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('services').update({ active, updated_at: new Date().toISOString() }).eq('id', serviceId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // --- Appointments ---
+
+  async getAppointments(shopId, { date, status } = {}) {
+    if (!isSupabaseConfigured) return [];
+    let q = supabase.from('appointments').select('*').eq('shop_id', shopId);
+    if (date) q = q.eq('appointment_date', date);
+    if (status) q = q.eq('status', status);
+    q = q.order('appointment_date', { ascending: true }).order('appointment_time', { ascending: true });
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async bookAppointment(shopId, appointment) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.from('appointments').insert({
+      shop_id: shopId,
+      service_id: appointment.service_id || null,
+      service_name: appointment.service_name,
+      service_price: Number(appointment.service_price) || 0,
+      duration_minutes: Number(appointment.duration_minutes) || 30,
+      customer_name: appointment.customer_name,
+      customer_phone: appointment.customer_phone,
+      appointment_date: appointment.appointment_date,
+      appointment_time: appointment.appointment_time,
+      notes: appointment.notes || null,
+      booked_via: appointment.booked_via || 'consumer_portal',
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async updateAppointmentStatus(appointmentId, status, staffNotes) {
+    if (!isSupabaseConfigured) return null;
+    const update = { status, updated_at: new Date().toISOString() };
+    if (staffNotes !== undefined) update.staff_notes = staffNotes;
+    const { data, error } = await supabase.from('appointments').update(update).eq('id', appointmentId).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async getCustomerAppointments(customerPhone) {
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase
+      .from('appointments')
+      .select('*')
+      .eq('customer_phone', customerPhone)
+      .order('appointment_date', { ascending: false })
+      .order('appointment_time', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
 };

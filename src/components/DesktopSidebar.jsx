@@ -1,4 +1,4 @@
-import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2 } from 'lucide-react';
+import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors } from 'lucide-react';
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
@@ -11,6 +11,7 @@ const TABS = [
   { id: 'customers', Icon: Users,     label: 'Customers' },
   { id: 'expenses',  Icon: Wallet,    label: 'Expenses',    ownerOnly: true },
   { id: 'credit',    Icon: Book,      label: 'Credit Book', ownerOnly: true },
+  { id: 'bookings',  Icon: Scissors,  label: 'Bookings',    ownerOnly: true },
   { id: 'restock',   Icon: Truck,     label: 'Restock',     ownerOnly: true },
   { id: 'reports',   Icon: BarChart2, label: 'Day Book',    ownerOnly: true },
   { id: 'profile',   Icon: Settings,  label: 'Settings',    ownerOnly: true },
