@@ -1024,6 +1024,241 @@ const ShopDashboard = () => {
     }
   };
 
+  // ── Print current bill without saving/sending ─────────────────────────────
+  // Renders the current cart to PDF and opens it in a new browser tab so
+  // the browser's native print dialog appears. Does NOT place an order
+  // or send WhatsApp — purely for thermal/A4 printer output at the counter.
+  const printCurrentBill = async () => {
+    if (billItems.length === 0) return toast.error('Bill is empty');
+    try {
+      const { jsPDF: JsPDF } = await import('jspdf');
+      const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
+      const preRoundTotal = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
+      const roundOffAmt = Number(roundOff) || 0;
+      const total = Math.max(0, Math.round(preRoundTotal + roundOffAmt));
+
+      // Use the shop's actual chosen print format (A4 / thermal80 / thermal58)
+      const fmt = printFormat || 'a4';
+      const isThermal  = fmt === 'thermal80' || fmt === 'thermal58';
+      const mmW        = fmt === 'thermal58' ? 58 : fmt === 'thermal80' ? 80 : 210;
+      const pageH      = isThermal ? 0 : 297; // 0 = auto-height for thermal
+      const marginL    = isThermal ? 3 : 15;
+      const contentW   = mmW - marginL * 2;
+      const baseFontSz = printFontSize === 'large' ? 12 : 10;
+
+      const doc = new JsPDF({
+        unit: 'mm',
+        format: isThermal ? [mmW, 400] : 'a4', // 400mm tall for thermal scroll
+        orientation: 'portrait',
+      });
+
+      // Shared header colour
+      let themeColor = '#10B981';
+      let modeTitle  = 'TAX INVOICE';
+      let modeShort  = 'INV';
+      if (billingMode === 'estimate') { themeColor = '#4F46E5'; modeTitle = 'PROFORMA ESTIMATE'; modeShort = 'EST'; }
+      if (billingMode === 'challan')  { themeColor = '#3B82F6'; modeTitle = 'DELIVERY CHALLAN';  modeShort = 'DC';  }
+      const hex2rgb = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+      const [tR,tG,tB] = hex2rgb(themeColor);
+
+      // ── Header stripe ────────────────────────────────────────────────────────
+      doc.setFillColor(tR,tG,tB);
+      doc.rect(0, 0, mmW, isThermal ? 7 : 10, 'F');
+
+      let hy = isThermal ? 13 : 20;
+
+      const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
+      const logoW = 20, logoH = 20;
+      if (hasLogo && !isThermal) {
+        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, logoW, logoH); } catch(e) {}
+      }
+
+      const textX = hasLogo && !isThermal ? marginL + logoW + 4 : marginL;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(isThermal ? 11 : 16);
+      doc.setTextColor(15, 23, 42);
+      doc.text(shop.name || 'Invoice', isThermal ? mmW/2 : textX, hy, isThermal ? {align:'center'} : {});
+      hy += isThermal ? 5 : 6;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(isThermal ? 7 : 9);
+      doc.setTextColor(100, 116, 139);
+      let contactLine = `Ph: ${shop.phone || ''}`;
+      if (!isThermal && upiId) contactLine += `   |   UPI: ${upiId}`;
+      doc.text(contactLine, isThermal ? mmW/2 : textX, hy, isThermal ? {align:'center'} : {});
+      hy += 5;
+      if (isThermal && upiId) { doc.text(`UPI: ${upiId}`, mmW/2, hy, {align:'center'}); hy += 5; }
+      if (gstin) {
+        const gLine = `GSTIN: ${gstin}${stateCode && !isThermal ? `   |   State: ${stateCode}` : ''}`;
+        doc.text(gLine, isThermal ? mmW/2 : textX, hy, isThermal ? {align:'center'} : {}); hy += 5;
+      }
+
+      // Doc type badge (A4 only)
+      if (!isThermal) {
+        doc.setFillColor(tR,tG,tB);
+        doc.roundedRect(140, 12, 55, 14, 3, 3, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(255,255,255);
+        doc.text(modeTitle.length > 14 ? modeShort + ' DOC' : modeTitle, 167.5, 20.5, {align:'center'});
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(71,85,105);
+        const dateStr = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+        doc.text(`Date: ${dateStr}`, 195, 30, {align:'right'});
+      }
+
+      // ── Items divider ────────────────────────────────────────────────────────
+      doc.setDrawColor(226, 232, 240); doc.setLineWidth(isThermal ? 0.2 : 0.4);
+      doc.line(marginL, hy, mmW - marginL, hy); hy += isThermal ? 5 : 8;
+
+      if (isThermal) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(tR,tG,tB);
+        doc.text(modeTitle, mmW/2, hy, {align:'center'}); hy += 5;
+        const dateStrT = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(71,85,105);
+        doc.text(`Date: ${dateStrT}`, mmW/2, hy, {align:'center'}); hy += 5;
+      }
+
+      // Customer block
+      if (customerName) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 7 : 8.5); doc.setTextColor(100,116,139);
+        doc.text(isThermal ? '--- BILL TO ---' : 'BILL TO:', isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5;
+        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 8 : 10); doc.setTextColor(15,23,42);
+        doc.text(customerName, isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5;
+        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 9); doc.setTextColor(71,85,105);
+        if (customerPhone) { doc.text(`Ph: ${customerPhone}`, isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5; }
+        doc.line(marginL, hy, mmW - marginL, hy); hy += 4;
+      }
+
+      // ── Table header ─────────────────────────────────────────────────────────
+      const colNo   = marginL;
+      const colItem = marginL + (isThermal ? 1 : 6);
+      const colQty  = isThermal ? marginL + Math.round(contentW * 0.55) : marginL + 100;
+      const colPr   = marginL + 126;
+      const colAmt  = mmW - marginL - 2;
+
+      if (!isThermal) {
+        doc.setFillColor(tR,tG,tB);
+        doc.rect(marginL, hy, contentW, 8, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
+        doc.text('#',        colNo,  hy + 5.5);
+        doc.text('Item',     colItem,hy + 5.5);
+        doc.text('Qty',      colQty, hy + 5.5);
+        doc.text('Price',    colPr,  hy + 5.5);
+        doc.text('Amount',   colAmt, hy + 5.5, {align:'right'});
+        hy += 10;
+      } else {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(71,85,105);
+        doc.text('Item', colItem, hy); doc.text('Qty', colQty, hy); doc.text('Amt', colAmt, hy, {align:'right'});
+        hy += 5;
+      }
+
+      // ── Items ────────────────────────────────────────────────────────────────
+      let rowN = 0;
+      billItems.forEach(item => {
+        rowN++;
+        const qty = item.qty || 1;
+        const iDisc = item.itemDiscount || 0;
+        const lineAmt = item.price * qty;
+        const discAmt = iDisc > 0 ? Math.round(lineAmt * iDisc / 100) : 0;
+        const finalAmt = lineAmt - discAmt;
+        const unitSuffix = UNIT_SUFFIX[resolveUnit(item, shopCategory)] || '';
+        const qtyTxt = unitSuffix ? `${qty} ${unitSuffix}` : `${qty}`;
+        const maxW = colQty - colItem - 3;
+
+        if (!isThermal && rowN % 2 === 0) {
+          doc.setFillColor(249,250,251); doc.rect(marginL, hy-5, contentW, 9, 'F');
+        }
+
+        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 8.5); doc.setTextColor(51,65,85);
+        if (!isThermal) doc.text(String(rowN), colNo, hy);
+        doc.text(item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : ''), colItem, hy, {maxWidth: maxW});
+        doc.text(qtyTxt, colQty, hy);
+        if (!isThermal) {
+          doc.setTextColor(iDisc > 0 ? 148 : 51, iDisc > 0 ? 163 : 65, iDisc > 0 ? 184 : 85);
+          doc.text(item.price.toFixed(2), colPr, hy);
+          doc.setTextColor(51,65,85);
+        }
+        doc.setFont('helvetica','bold');
+        const amtTxt = isThermal ? (iDisc > 0 ? `${finalAmt.toFixed(0)}(-${iDisc}%)` : finalAmt.toFixed(0)) : finalAmt.toFixed(2);
+        doc.text(amtTxt, colAmt, hy, {align:'right'});
+        doc.setFont('helvetica','normal'); doc.setTextColor(51,65,85);
+        hy += 8;
+      });
+
+      // ── Totals ───────────────────────────────────────────────────────────────
+      doc.setDrawColor(226,232,240); doc.setLineWidth(0.5); doc.line(marginL, hy-2, mmW-marginL, hy-2); hy += 4;
+
+      const tLabelX = isThermal ? marginL : marginL + 95;
+
+      const addRow = (lbl, val, opts = {}) => {
+        doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+        doc.setFontSize(opts.large ? 11 : 9);
+        doc.setTextColor(...(opts.color || [71,85,105]));
+        doc.text(lbl, tLabelX, hy);
+        doc.text(val, colAmt, hy, {align:'right'});
+        doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+        hy += opts.large ? 7 : 5;
+      };
+
+      const itemSavings = billItems.reduce((s,i) => {
+        const d = i.itemDiscount||0;
+        return d > 0 ? s + Math.round(i.price*(i.qty||1)*d/100) : s;
+      }, 0);
+
+      if (itemSavings > 0) {
+        addRow('Item Discounts', `-Rs. ${itemSavings.toFixed(2)}`, {color:[22,163,74]});
+      }
+      if (discountAmount > 0 || manualDiscountAmt > 0) {
+        addRow('Bill Discount', `-Rs. ${(discountAmount+manualDiscountAmt).toFixed(2)}`, {color:[22,163,74]});
+      }
+      if (loyaltyDiscountRupees > 0) {
+        addRow('Loyalty Redeemed', `-Rs. ${loyaltyDiscountRupees.toFixed(2)}`, {color:[139,92,246]});
+      }
+      if (roundOffAmt !== 0) {
+        addRow('Round Off', `${roundOffAmt > 0 ? '+' : ''}Rs. ${roundOffAmt.toFixed(2)}`, {color: roundOffAmt > 0 ? [22,163,74] : [220,38,38]});
+      }
+
+      hy += 2;
+      doc.setFillColor(tR,tG,tB);
+      doc.roundedRect(isThermal ? marginL : marginL+93, hy-5, isThermal ? contentW : contentW-93, 12, 3, 3, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+      doc.text(isThermal ? 'TOTAL' : 'GRAND TOTAL', isThermal ? marginL+2 : marginL+97, hy+3.5);
+      doc.text(`Rs. ${total.toFixed(2)}`, colAmt, hy+3.5, {align:'right'});
+      doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+      hy += 16;
+
+      // Footer
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(148,163,184);
+      doc.text(invoiceFooter || 'Thank you for your business!', isThermal ? mmW/2 : marginL, hy, isThermal ? {align:'center'} : {});
+      hy += 5;
+      doc.text('Powered by MyStore OS — mystoreos.in', isThermal ? mmW/2 : marginL, hy, isThermal ? {align:'center'} : {});
+
+      // ── Open in new tab for browser print dialog ────────────────────────────
+      const pdfBlob = doc.output('blob');
+      const safeName = (shop.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `${safeName}_Print.pdf`;
+
+      if (isNativeApp()) {
+        // On mobile native: use share sheet → user can pick a print/save app
+        await sharePdfNative(pdfBlob, fileName, `Print — ${shop.name}`);
+      } else {
+        // Desktop/web: open in new tab and trigger browser print dialog
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const win = window.open(blobUrl, '_blank');
+        if (win) {
+          win.onload = () => { win.focus(); win.print(); };
+        } else {
+          // pop-up blocked — fall back to download
+          doc.save(fileName);
+          toast.info('Pop-up blocked — PDF downloaded. Open it and print from there.');
+        }
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      }
+    } catch (err) {
+      console.error('Print failed:', err);
+      toast.error('Could not generate print PDF. Please try again.');
+    }
+  };
+
   const sendWhatsAppBill = async () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
@@ -1258,44 +1493,49 @@ const ShopDashboard = () => {
       const showGstColumns = !!gstin && billingMode === 'bill';
       
       // ── Column layout: A4 vs Thermal ────────────────────────────────────────
-      // For A4: item=18, qty=120, price=145, total=175
-      // For Thermal: item=marginL+1, qty=colQ, total=pageW-marginL-1 (right-align)
-      const colItem  = marginL + 1;
-      const colQty   = isThermal ? marginL + Math.round(contentW * 0.55) : (showGstColumns ? 85 : 120);
-      const colPrice = isThermal ? 0 : (showGstColumns ? 98 : 145);
-      const colTotal = isThermal ? (pageW - marginL - 1) : 175;
-      const colTotalAlign = isThermal ? 'right' : 'left';
+      // A4: Use proportional columns based on contentW (180mm usable)
+      // #  | Item Details          | Qty  | Unit Price | Total
+      //  5 | 90                   | 20   | 32         | 33  (proportional)
+      const colNo    = marginL;
+      const colItem  = marginL + (isThermal ? 1 : 6);
+      const colQty   = isThermal ? marginL + Math.round(contentW * 0.55) : (showGstColumns ? marginL + 90 : marginL + 100);
+      const colPrice = isThermal ? 0 : (showGstColumns ? marginL + 110 : marginL + 126);
+      const colTotal = isThermal ? (pageW - marginL - 1) : (pageW - marginL - 2);
+      const colTotalAlign = 'right';
 
       // Table Headers
       if (!isThermal) {
-        doc.setFillColor(248, 250, 252);
+        doc.setFillColor(tR, tG, tB);
         doc.rect(marginL, custY, contentW, 8, 'F');
       }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(isThermal ? 7 : 8);
-      doc.setTextColor(71, 85, 105);
+      doc.setTextColor(isThermal ? 71 : 255, isThermal ? 85 : 255, isThermal ? 105 : 255);
       
       if (isThermal) {
         doc.text("Item", colItem, custY + 5);
         doc.text("Qty", colQty, custY + 5);
         doc.text("Amt", colTotal, custY + 5, { align: 'right' });
       } else if (showGstColumns) {
+        doc.text("#", colNo, custY + 5.5);
         doc.text("Item Details (HSN)", colItem, custY + 5.5);
         doc.text("Qty", colQty, custY + 5.5);
         doc.text("Taxable", colPrice, custY + 5.5);
         if (isInterState) {
-          doc.text("IGST", 125, custY + 5.5);
+          doc.text("IGST", colPrice + 22, custY + 5.5);
         } else {
-          doc.text("CGST", 120, custY + 5.5);
-          doc.text("SGST", 145, custY + 5.5);
+          doc.text("CGST", colPrice + 18, custY + 5.5);
+          doc.text("SGST", colPrice + 36, custY + 5.5);
         }
-        doc.text("Total", colTotal, custY + 5.5);
+        doc.text("Amount", colTotal, custY + 5.5, { align: 'right' });
       } else {
+        doc.text("#", colNo, custY + 5.5);
         doc.text("Item Details", colItem, custY + 5.5);
         doc.text("Qty", colQty, custY + 5.5);
         doc.text("Unit Price", colPrice, custY + 5.5);
-        doc.text("Total", colTotal, custY + 5.5);
+        doc.text("Amount", colTotal, custY + 5.5, { align: 'right' });
       }
+      doc.setTextColor(71, 85, 105);
       
       doc.setLineWidth(isThermal ? 0.2 : 0.3);
       doc.setDrawColor(isThermal ? 0 : 200, isThermal ? 0 : 210, isThermal ? 0 : 220);
@@ -1309,8 +1549,10 @@ const ShopDashboard = () => {
       let totalCgst = 0;
       let totalSgst = 0;
       let totalIgst = 0;
+      let rowNum = 0;
 
       billItems.forEach((item) => {
+        rowNum++;
         const qty = item.qty || 1;
         const mrpLineAmt = item.price * qty;
         const iDisc = item.itemDiscount || 0;
@@ -1318,6 +1560,12 @@ const ShopDashboard = () => {
         const discountedLineAmt = mrpLineAmt - iDiscAmt;
         const unitSuffix = UNIT_SUFFIX[resolveUnit(item, shopCategory)] || '';
         const qtyText = unitSuffix ? `${qty} ${unitSuffix}` : `${qty}`;
+
+        // Alternating row background on A4
+        if (!isThermal && rowNum % 2 === 0) {
+          doc.setFillColor(249, 250, 251);
+          doc.rect(marginL, yOffset - 5, contentW, 9, 'F');
+        }
         
         if (showGstColumns) {
           const rate = parseInt(item.gstRate) || 0;
@@ -1325,70 +1573,76 @@ const ShopDashboard = () => {
           const taxAmt = discountedLineAmt - taxableVal;
           totalTaxable += taxableVal;
           
-          let hsnText = item.hsnCode ? ` [${item.hsnCode}]` : '';
-          let itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '') + hsnText;
-          if (iDisc > 0) itemFullName += ` [-${iDisc}%]`;
+          // Truncate long item names to prevent column overflow
+          const maxItemW = colQty - colItem - 3;
+          let itemBaseName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
+          if (item.hsnCode) itemBaseName += ` [${item.hsnCode}]`;
+          if (iDisc > 0) itemBaseName += ` -${iDisc}%`;
           
           doc.setFont("helvetica", "normal");
-          doc.text(itemFullName, colItem, yOffset);
-          doc.text(`${qtyText}`, isThermal ? colQty : 85, yOffset);
-          if (!isThermal) doc.text(`${taxableVal.toFixed(2)}`, 98, yOffset);
-          
-          if (isInterState) {
-            totalIgst += taxAmt;
-            if (!isThermal) doc.text(`${taxAmt.toFixed(2)} (${rate}%)`, 125, yOffset);
-          } else {
-            const halfTax = taxAmt / 2;
-            const halfRate = rate / 2;
-            totalCgst += halfTax;
-            totalSgst += halfTax;
-            if (!isThermal) { doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 120, yOffset); doc.text(`${halfTax.toFixed(2)} (${halfRate}%)`, 145, yOffset); }
+          doc.setFontSize(isThermal ? 7 : 8.5);
+          doc.setTextColor(51, 65, 85);
+          if (!isThermal) doc.text(String(rowNum), colNo, yOffset, {});
+          doc.text(itemBaseName, colItem, yOffset, { maxWidth: maxItemW });
+          doc.text(`${qtyText}`, colQty, yOffset);
+          if (!isThermal) {
+            doc.text(`${taxableVal.toFixed(2)}`, colPrice, yOffset);
+            if (isInterState) {
+              totalIgst += taxAmt;
+              doc.text(`${taxAmt.toFixed(2)}`, colPrice + 22, yOffset);
+            } else {
+              const halfTax = taxAmt / 2;
+              const halfRate = rate / 2;
+              totalCgst += halfTax;
+              totalSgst += halfTax;
+              doc.text(`${halfTax.toFixed(2)}`, colPrice + 18, yOffset);
+              doc.text(`${halfTax.toFixed(2)}`, colPrice + 36, yOffset);
+            }
           }
-          doc.text(`${discountedLineAmt.toFixed(2)}`, isThermal ? colTotal : 175, yOffset, isThermal ? {align:'right'} : {});
+          doc.setFont("helvetica", "bold");
+          doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
+          doc.setFont("helvetica", "normal");
           yOffset += 7;
-          // Show MRP strikethrough note if item has discount
-          if (iDisc > 0) {
-            doc.setFontSize(7);
-            doc.setTextColor(148, 163, 184);
-            if (!isThermal) doc.text(`MRP: Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)}  →  Saved Rs.${iDiscAmt.toFixed(2)}`, colItem + 4, yOffset);
-            doc.setFontSize(8);
-            doc.setTextColor(51, 65, 85);
-            yOffset += 5;
-          }
         } else {
+          const maxItemW = colQty - colItem - 3;
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
           doc.setFont("helvetica", "normal");
-          doc.text(itemFullName, colItem, yOffset);
+          doc.setFontSize(isThermal ? 7 : 8.5);
+          doc.setTextColor(51, 65, 85);
+          if (!isThermal) doc.text(String(rowNum), colNo, yOffset, {});
+          doc.text(itemFullName, colItem, yOffset, { maxWidth: maxItemW });
           doc.text(`${qtyText}`, colQty, yOffset);
           if (isThermal) {
-            // Thermal: just show total right-aligned, with discount flag if any
             const dispAmt = iDisc > 0 ? `${discountedLineAmt.toFixed(0)}(-${iDisc}%)` : discountedLineAmt.toFixed(0);
             doc.setFont("helvetica", iDisc > 0 ? "bold" : "normal");
             doc.text(dispAmt, colTotal, yOffset, { align: 'right' });
             doc.setFont("helvetica", "normal");
           } else if (iDisc > 0) {
-            doc.setFontSize(7);
+            doc.setFontSize(8);
             doc.setTextColor(148, 163, 184);
             doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
-            doc.setFontSize(8);
+            doc.setFontSize(7.5);
             doc.setTextColor(239, 68, 68);
-            doc.text(`-${iDisc}%`, colPrice + 13, yOffset);
+            doc.text(`-${iDisc}%`, colPrice + 14, yOffset);
             doc.setFont("helvetica", "bold");
+            doc.setFontSize(8.5);
             doc.setTextColor(22, 163, 74);
-            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset);
+            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
             doc.setFont("helvetica", "normal");
             doc.setTextColor(51, 65, 85);
           } else {
             doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
-            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset);
+            doc.setFont("helvetica", "bold");
+            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
+            doc.setFont("helvetica", "normal");
           }
           yOffset += 7;
           // Show per-item saving note
-          if (iDisc > 0) {
+          if (iDisc > 0 && !isThermal) {
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            if (!isThermal) doc.text(`MRP Rs.${item.price.toFixed(2)} x${qty} = Rs.${mrpLineAmt.toFixed(2)} | You save Rs.${iDiscAmt.toFixed(2)} (${iDisc}% off)`, colItem + 4, yOffset);
-            doc.setFontSize(8);
+            doc.text(`MRP ₹${item.price.toFixed(2)} × ${qty} = ₹${mrpLineAmt.toFixed(2)}  →  You save ₹${iDiscAmt.toFixed(2)} (${iDisc}% off)`, colItem + 4, yOffset);
+            doc.setFontSize(8.5);
             doc.setTextColor(51, 65, 85);
             yOffset += 5;
           }
@@ -1396,75 +1650,78 @@ const ShopDashboard = () => {
         yOffset += 1;
       });
       
+      // ── Totals separator line ─────────────────────────────────────────────
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.5);
       doc.line(marginL, yOffset - 2, pageW - marginL, yOffset - 2);
-      yOffset += 4;
-      
+      yOffset += 5;
+
+      // Helper: render a totals row (label left, amount right-aligned)
+      const totalsLabelX  = isThermal ? marginL : marginL + 95;
+      const totalsAmtX    = pageW - marginL - 2;
+
+      const addTotalsRow = (label, value, opts = {}) => {
+        doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+        doc.setFontSize(opts.large ? 11 : 9);
+        doc.setTextColor(...(opts.color || [71, 85, 105]));
+        doc.text(label, totalsLabelX, yOffset);
+        doc.text(value, totalsAmtX, yOffset, { align: 'right' });
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(71, 85, 105);
+        yOffset += opts.large ? 7 : 5;
+      };
+
       // Totals section
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(71, 85, 105);
 
       if (showGstColumns) {
-         doc.text(`Total Taxable Value: Rs. ${totalTaxable.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-         yOffset += 5;
+         addTotalsRow(`Total Taxable Value`, `Rs. ${totalTaxable.toFixed(2)}`);
          if (isInterState) {
-           doc.text(`Total IGST: Rs. ${totalIgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-           yOffset += 5;
+           addTotalsRow(`Total IGST`, `Rs. ${totalIgst.toFixed(2)}`);
          } else {
-           doc.text(`Total CGST: Rs. ${totalCgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-           yOffset += 5;
-           doc.text(`Total SGST: Rs. ${totalSgst.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-           yOffset += 5;
+           addTotalsRow(`Total CGST`, `Rs. ${totalCgst.toFixed(2)}`);
+           addTotalsRow(`Total SGST`, `Rs. ${totalSgst.toFixed(2)}`);
          }
       }
 
       // Item-level savings row
       if (itemLevelSavings > 0) {
-        doc.setFontSize(9);
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Subtotal (MRP): Rs. ${billItemsOriginalTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
-        doc.setTextColor(22, 163, 74);
-        doc.text(`Item Discounts: -Rs. ${itemLevelSavings.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Subtotal (After item disc.): Rs. ${billTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
+        addTotalsRow(`Subtotal (MRP)`, `Rs. ${billItemsOriginalTotal.toFixed(2)}`);
+        addTotalsRow(`Item Discounts`, `-Rs. ${itemLevelSavings.toFixed(2)}`, { color: [22, 163, 74] });
+        addTotalsRow(`Subtotal (After item disc.)`, `Rs. ${billTotal.toFixed(2)}`);
       }
 
       if (discountAmount > 0 || manualDiscountAmt > 0) {
         if (itemLevelSavings === 0) {
-          doc.setFontSize(9);
-          doc.setTextColor(71, 85, 105);
-          doc.text(`Subtotal: Rs. ${billTotal.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-          yOffset += 5;
+          addTotalsRow(`Subtotal`, `Rs. ${billTotal.toFixed(2)}`);
         }
-        doc.setTextColor(22, 163, 74);
-        doc.text(`Bill Discount: -Rs. ${(discountAmount + manualDiscountAmt).toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
-        doc.setTextColor(71, 85, 105);
+        addTotalsRow(`Bill Discount`, `-Rs. ${(discountAmount + manualDiscountAmt).toFixed(2)}`, { color: [22, 163, 74] });
       }
       
       if (loyaltyDiscountRupees > 0) {
-        doc.setTextColor(139, 92, 246);
-        doc.text(`Loyalty Points Redeemed: -Rs. ${loyaltyDiscountRupees.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
-        doc.setTextColor(71, 85, 105);
+        addTotalsRow(`Loyalty Points Redeemed`, `-Rs. ${loyaltyDiscountRupees.toFixed(2)}`, { color: [139, 92, 246] });
       }
 
       if (roundOffAmt !== 0) {
-        doc.setTextColor(roundOffAmt > 0 ? 22 : 220, roundOffAmt > 0 ? 163 : 38, roundOffAmt > 0 ? 74 : 38);
-        doc.text(`Round Off: ${roundOffAmt > 0 ? '+' : ''}Rs. ${roundOffAmt.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-        yOffset += 5;
-        doc.setTextColor(71, 85, 105);
+        addTotalsRow(`Round Off`, `${roundOffAmt > 0 ? '+' : ''}Rs. ${roundOffAmt.toFixed(2)}`, { color: roundOffAmt > 0 ? [22, 163, 74] : [220, 38, 38] });
       }
 
-      // Grand total
+      // Grand total box
+      yOffset += 2;
+      doc.setFillColor(tR, tG, tB);
+      doc.roundedRect(isThermal ? marginL : marginL + 93, yOffset - 5, isThermal ? contentW : contentW - 93, 12, 3, 3, 'F');
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(13);
-      doc.setTextColor(15, 23, 42);
-      doc.text(`GRAND TOTAL: Rs. ${total.toFixed(2)}`, isThermal ? marginL : 130, yOffset);
-      yOffset += 9;
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      const gtLabel = isThermal ? 'TOTAL' : 'GRAND TOTAL';
+      const gtLabelX = isThermal ? marginL + 2 : marginL + 97;
+      doc.text(gtLabel, gtLabelX, yOffset + 3.5);
+      doc.text(`Rs. ${total.toFixed(2)}`, totalsAmtX, yOffset + 3.5, { align: 'right' });
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(71, 85, 105);
+      yOffset += 16;
 
       // Payment method badge
       if (billingMode === 'bill') {
@@ -3888,6 +4145,7 @@ const ShopDashboard = () => {
               updateBillItemVariant={updateBillItemVariant}
               removeBillItem={removeBillItem}
               sendWhatsAppBill={sendWhatsAppBill}
+              onPrint={printCurrentBill}
               addToBill={addToBill}
               setActiveTab={setActiveTab}
               setShowAddProductModal={setShowAddProductModal}
@@ -4935,6 +5193,7 @@ const ShopDashboard = () => {
             setRoundOff={setRoundOff}
             billTotal={billTotal}
             onCheckout={sendWhatsAppBill}
+            onPrint={printCurrentBill}
             onClearCart={clearCart}
             onOpenDashboard={() => setShowMobileDashboard(true)}
             onShowUpiQr={handleShowUpiQr}

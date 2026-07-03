@@ -50,6 +50,7 @@ const DesktopPOS = ({
   manualDiscountAmt = 0,
   roundOff = 0,
   setRoundOff,
+  onPrint,
   sendWhatsAppBill,
   addToBill,
   setActiveTab,
@@ -647,8 +648,9 @@ const DesktopPOS = ({
           </div>
         </div>
 
-        {/* Confirm Bill Button */}
+        {/* Bill Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* Primary: Generate & Share Bill */}
           <button onClick={sendWhatsAppBill} disabled={billItems.length === 0}
             style={{ background: billingMode === 'estimate' ? 'linear-gradient(135deg,#D97706,#B45309)' : billingMode === 'challan' ? 'linear-gradient(135deg,#4F46E5,#4338CA)' : 'linear-gradient(135deg,#22C55E,#16A34A)', color: '#fff', opacity: billItems.length ? 1 : 0.5, width: '100%', padding: '13px', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: billItems.length ? 'pointer' : 'not-allowed', boxShadow: billItems.length ? '0 4px 15px rgba(34,197,94,0.25)' : 'none', transition: 'all 0.2s' }}>
             <Share2 size={16} />
@@ -656,9 +658,17 @@ const DesktopPOS = ({
               : billingMode === 'challan' ? (canShare ? '✓ Generate & Share Challan' : '✓ Download Challan PDF')
               : '✓ Confirm & Generate Bill'}
           </button>
-          <button onClick={handleShowUpiQr} style={{ width: '100%', background: 'rgba(217,119,6,0.08)', color: '#D97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <QrCode size={14} /> 📲 Show UPI QR to Customer
-          </button>
+          {/* Secondary row: Print + UPI QR */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={onPrint} disabled={billItems.length === 0}
+              style={{ flex: 1, background: billItems.length ? '#F8FAFC' : '#F1F5F9', color: billItems.length ? '#0F172A' : '#94A3B8', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '10px', fontWeight: '700', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', cursor: billItems.length ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+              🖨️ Print Bill
+            </button>
+            <button onClick={handleShowUpiQr}
+              style={{ flex: 1, background: 'rgba(217,119,6,0.08)', color: '#D97706', border: '1px solid rgba(217,119,6,0.25)', padding: '10px', borderRadius: '10px', fontWeight: '600', fontSize: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+              <QrCode size={14} /> UPI QR
+            </button>
+          </div>
         </div>
         </div>
       </div>

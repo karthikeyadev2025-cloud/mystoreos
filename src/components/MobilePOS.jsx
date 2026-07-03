@@ -37,6 +37,7 @@ export default function MobilePOS({
   roundOff = 0, setRoundOff,
   billTotal,
   onCheckout,
+  onPrint,
   onClearCart,
   onOpenDashboard,
   onShowUpiQr,
@@ -337,8 +338,6 @@ export default function MobilePOS({
                     setGenerating(true);
                     try { await onCheckout(); }
                     finally {
-                      // Brief delay so the share sheet has time to open before
-                      // we re-enable the button; prevents accidental double-tap.
                       setTimeout(() => setGenerating(false), 1200);
                     }
                   }}
@@ -368,6 +367,15 @@ export default function MobilePOS({
                     <>✓ Generate Bill · ₹{finalTotal}</>
                   )}
                 </button>
+                {/* Print button */}
+                {onPrint && (
+                  <button
+                    onClick={onPrint}
+                    style={{ width: '100%', background: '#F8FAFC', color: '#0F172A', border: '1px solid #E2E8F0', padding: '11px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6 }}
+                  >
+                    🖨️ Print Bill
+                  </button>
+                )}
               </div>
             )}
           </>
