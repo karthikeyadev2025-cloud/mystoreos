@@ -1063,11 +1063,51 @@ const ShopDashboard = () => {
   const printCurrentBill = async () => {
     if (billItems.length === 0) return toast.error('Bill is empty');
     try {
-      const { jsPDF: JsPDF } = await import('jspdf');
       const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
       const preRoundTotal = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
       const roundOffAmt = Number(roundOff) || 0;
       const total = Math.max(0, Math.round(preRoundTotal + roundOffAmt));
+
+      // ── Create the actual order first ───────────────────────────────────
+      // BUG FIX: this function used to ONLY render a preview PDF and open
+      // the print dialog — it never called placeOrder, so clicking "Print
+      // Bill" in the POS never actually saved the transaction. A cashier
+      // printing a receipt expects that to mean "this sale happened," not
+      // "here's a preview." Confirmed with the shop owner: Print should
+      // behave exactly like Confirm & Generate Bill (save the order) AND
+      // then open the print dialog, in one click — same order-creation
+      // logic as executeSendWhatsAppBill, just skipping the WhatsApp/PDF
+      // download path in favour of the print dialog.
+      let finalUserId = 'walk-in-customer';
+      const staffSuffix = (user.role === 'staff' && user.id) ? `:staff:${user.id}:${user.name || ''}` : '';
+      if (billingMode === 'estimate') {
+        finalUserId = `estimate:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
+      } else if (billingMode === 'challan') {
+        finalUserId = `challan:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
+      } else {
+        finalUserId = `walk-in:${customerName || 'Guest'}:${customerPhone || ''}${staffSuffix}`;
+      }
+
+      const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
+
+      await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
+        id: b.id,
+        name: b.name,
+        price: b.price,
+        qty: b.qty || 1,
+        selectedVariant: b.selectedVariant || '',
+        itemDiscount: b.itemDiscount || 0
+      })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode, phone: customerPhone },
+      billingMode === 'bill' ? 'Accepted' : 'Pending',
+      paymentMethod || 'Cash',
+      invoiceNo?.int || null));
+
+      if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
+        if (loyaltyRedeem > 0) await safe(() => api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem));
+        await safe(() => api.awardLoyaltyPoints(targetShopId, customerPhone, total));
+      }
+
+      const { jsPDF: JsPDF } = await import('jspdf');
 
       // Use the shop's actual chosen print format (A4 / thermal80 / thermal58)
       const fmt = printFormat || 'a4';
@@ -1318,6 +1358,24 @@ const ShopDashboard = () => {
         }
         setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
       }
+
+      // Reset the cart the same way executeSendWhatsAppBill does after a
+      // successful bill — the order is now genuinely saved, so the POS
+      // screen should clear for the next customer just like it would
+      // after "Confirm & Generate Bill."
+      setBillItems([]);
+      setDiscountAmount(0);
+      setManualDiscountPct(0);
+      setPromoCode('');
+      setLoyaltyRedeem(0);
+      setRoundOff(0);
+      setCustomerLoyaltyPoints(0);
+      setCustomerName('');
+      setCustomerPhone('');
+      setCustomerGstin('');
+      setCustomerAddress('');
+      setCustomerStateCode('');
+      loadData();
     } catch (err) {
       console.error('Print failed:', err);
       toast.error('Could not generate print PDF. Please try again.');
@@ -3508,9 +3566,26 @@ const ShopDashboard = () => {
       }
 
       // Desktop / fallback: open in new tab so the browser's native print dialog can be used
+      //
+      // BUG FIX: this used to just window.open() the PDF and stop — no
+      // .print() call anywhere, not even an unreliable onload attempt like
+      // printCurrentBill had. The button says "Print / Share" but it never
+      // actually triggered a print dialog; it just showed the PDF in a new
+      // tab and left the shop owner to manually find Ctrl+P themselves.
       const blobUrl = URL.createObjectURL(pdfBlob);
       const win = window.open(blobUrl, '_blank');
-      if (!win) {
+      if (win) {
+        let printTriggered = false;
+        const triggerPrint = () => {
+          if (printTriggered) return;
+          printTriggered = true;
+          try { win.focus(); win.print(); } catch (_e) { /* tab may have been closed by user */ }
+        };
+        win.onload = triggerPrint;
+        // onload is unreliable for blob PDF tabs in Chrome/Edge/Safari —
+        // always fall back to a fixed delay too.
+        setTimeout(triggerPrint, 900);
+      } else {
         // Pop-up blocked — fall back to direct download
         doc.save(fileName);
         toast.info('Pop-up blocked — PDF downloaded instead. Open it to print.');
