@@ -73,6 +73,7 @@ const COMPARE = [
   { label: 'CA portal access', starter: false, pro: false, enterprise: true },
   { label: 'Multi-device sync', starter: false, pro: false, enterprise: true },
   { label: 'Custom invoice branding', starter: false, pro: false, enterprise: true },
+  { label: '📅 Service Bookings & Appointments', starter: '₹249/mo add-on', pro: true, enterprise: true },
   { label: 'Zoho CRM export', starter: false, pro: false, enterprise: true },
   { label: 'Priority 24/7 support', starter: false, pro: false, enterprise: true },
 ];
@@ -335,6 +336,50 @@ export default function Pricing() {
             <PlanCard key={plan.id} plan={plan} idx={i} cycle={cycle} pricing={pricing} isShop={mode === 'shops'} popular={plan.popular || (mode === 'shops' ? plan.id === 'pro' : plan.id === 'pro_distributor')} />
           ))}
         </div>
+
+        {/* Bookings Add-on — shops only. Free during trial, included in
+            Pro/Enterprise, ₹249/mo standalone add-on for Starter plan. */}
+        {mode === 'shops' && (
+          <div style={{
+            marginTop: 40, maxWidth: 760, marginLeft: 'auto', marginRight: 'auto',
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.14), rgba(236,72,153,0.09))',
+            border: '1px solid rgba(139,92,246,0.35)', borderRadius: 20, padding: '28px 32px',
+            display: 'flex', flexDirection: 'column', gap: 16,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ fontSize: 38 }}>📅</div>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
+                  ADD-ON FOR SALONS, SPAS, CLINICS & GYMS
+                </div>
+                <h3 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.5px' }}>Service Bookings Module</h3>
+                <p style={{ margin: '6px 0 0', fontSize: 14, color: '#94a3b8' }}>
+                  Let customers book appointments online — you manage them from one dashboard.
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-1px' }}>
+                  ₹249<span style={{ fontSize: 14, fontWeight: 500, color: '#94a3b8' }}>/mo</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 700 }}>FREE with Pro / Enterprise</div>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px,1fr))', gap: 10, paddingTop: 4, borderTop: '1px solid rgba(139,92,246,0.2)' }}>
+              {[
+                'Customer online booking page',
+                'Service catalogue & pricing',
+                'Slot-based appointment calendar',
+                'One-tap Confirm / Complete / Cancel',
+                'Customer visit history',
+                'WhatsApp notification on new booking',
+              ].map(f => (
+                <div key={f} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 13, color: '#cbd5e1' }}>
+                  <span style={{ color: '#a78bfa', fontWeight: 800, flexShrink: 0 }}>✓</span> {f}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Feature Comparison Table (shops only) */}
@@ -392,8 +437,18 @@ export default function Pricing() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '24px', textAlign: 'center', color: '#475569', fontSize: '12px' }}>
-        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Hyderabad, Telangana, India
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '32px 24px 24px', textAlign: 'center', color: '#475569', fontSize: '12px' }}>
+        <div style={{ marginBottom: 12 }}>
+          <span style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>An innovation by</span>
+          <div style={{
+            fontSize: 16, fontWeight: 800, marginTop: 4,
+            background: 'linear-gradient(90deg,#818CF8,#F0ABFC)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          }}>
+            Nikki Tech Labs
+          </div>
+        </div>
+        © 2026 MyStore OS · Hyderabad, Telangana, India
       </footer>
     </div>
   );
