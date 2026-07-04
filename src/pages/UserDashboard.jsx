@@ -2616,6 +2616,28 @@ return (
                 </span>
               </div>
 
+              {/* Book Appointment CTA (mobile) — mirrors the desktop
+                  sidebar button. Without this, mobile web customers (the
+                  majority of traffic) had NO way to reach the booking
+                  modal even though the modal itself works fine once
+                  opened — the desktop version lived entirely inside an
+                  `if (!isMobile)` early return, unreachable here. */}
+              {shopHasServices && (
+                <button
+                  onClick={() => setShowBookingModal(true)}
+                  style={{
+                    marginTop: 14, width: '100%', maxWidth: 320, padding: '12px 16px',
+                    borderRadius: 12, border: 'none', color: '#fff',
+                    background: 'linear-gradient(135deg,#8B5CF6,#4F46E5)',
+                    fontWeight: 800, fontSize: 14, cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(139,92,246,0.35)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  }}
+                >
+                  📅 Book an Appointment
+                </button>
+              )}
+
               {/* Other Locations (multi-branch brands) — sits right under
                   the badges so customers see at a glance that this brand
                   has more locations they might prefer. */}
