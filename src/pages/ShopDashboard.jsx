@@ -1507,13 +1507,23 @@ const ShopDashboard = () => {
       const showGstColumns = !!gstin && billingMode === 'bill';
       
       // ── Column layout: A4 vs Thermal ────────────────────────────────────────
-      // A4: Use proportional columns based on contentW (180mm usable)
-      // #  | Item Details          | Qty  | Unit Price | Total
-      //  5 | 90                   | 20   | 32         | 33  (proportional)
+      // A4 (contentW = 180mm usable):
+      //   Non-GST bill: #(5) | Item(85) | Qty(15) | Price(30) | Amount(45)
+      //   GST bill:     #(5) | Item(60) | Qty(12) | Taxable(20) | GST(53) | Amount(30)
+      //     - GST subcol widths: CGST~16, SGST~16 (or IGST~24 for inter-state)
+      //     - Right-align every numeric column so long values never collide
       const colNo    = marginL;
       const colItem  = marginL + (isThermal ? 1 : 6);
-      const colQty   = isThermal ? marginL + Math.round(contentW * 0.55) : (showGstColumns ? marginL + 90 : marginL + 100);
-      const colPrice = isThermal ? 0 : (showGstColumns ? marginL + 110 : marginL + 126);
+
+      // GST bill needs THREE numeric sub-columns before Amount; non-GST only ONE.
+      // Positions are LEFT edges except colTotal which is RIGHT edge.
+      const colQty   = isThermal ? marginL + Math.round(contentW * 0.55) : (showGstColumns ? marginL + 68  : marginL + 100);
+      const colPrice = isThermal ? 0 : (showGstColumns ? marginL + 88  : marginL + 130);
+      // GST sub-columns (only used when showGstColumns): each ~15-18mm wide,
+      // all right-aligned. Amount stays at the far right, right-aligned.
+      const colCgst  = marginL + 108;   // CGST amount right-edge
+      const colSgst  = marginL + 128;   // SGST amount right-edge
+      const colIgst  = marginL + 128;   // IGST amount right-edge (same slot as SGST)
       const colTotal = isThermal ? (pageW - marginL - 1) : (pageW - marginL - 2);
       const colTotalAlign = 'right';
 
@@ -1532,21 +1542,21 @@ const ShopDashboard = () => {
         doc.text("Amt", colTotal, custY + 5, { align: 'right' });
       } else if (showGstColumns) {
         doc.text("#", colNo, custY + 5.5);
-        doc.text("Item Details (HSN)", colItem, custY + 5.5);
-        doc.text("Qty", colQty, custY + 5.5);
-        doc.text("Taxable", colPrice, custY + 5.5);
+        doc.text("Item (HSN)", colItem, custY + 5.5);
+        doc.text("Qty", colQty, custY + 5.5, { align: 'right' });
+        doc.text("Taxable", colPrice, custY + 5.5, { align: 'right' });
         if (isInterState) {
-          doc.text("IGST", colPrice + 22, custY + 5.5);
+          doc.text("IGST", colIgst, custY + 5.5, { align: 'right' });
         } else {
-          doc.text("CGST", colPrice + 18, custY + 5.5);
-          doc.text("SGST", colPrice + 36, custY + 5.5);
+          doc.text("CGST", colCgst, custY + 5.5, { align: 'right' });
+          doc.text("SGST", colSgst, custY + 5.5, { align: 'right' });
         }
         doc.text("Amount", colTotal, custY + 5.5, { align: 'right' });
       } else {
         doc.text("#", colNo, custY + 5.5);
         doc.text("Item Details", colItem, custY + 5.5);
-        doc.text("Qty", colQty, custY + 5.5);
-        doc.text("Unit Price", colPrice, custY + 5.5);
+        doc.text("Qty", colQty, custY + 5.5, { align: 'right' });
+        doc.text("Unit Price", colPrice, custY + 5.5, { align: 'right' });
         doc.text("Amount", colTotal, custY + 5.5, { align: 'right' });
       }
       doc.setTextColor(71, 85, 105);
@@ -1575,11 +1585,29 @@ const ShopDashboard = () => {
         const unitSuffix = UNIT_SUFFIX[resolveUnit(item, shopCategory)] || '';
         const qtyText = unitSuffix ? `${qty} ${unitSuffix}` : `${qty}`;
 
-        // Alternating row background on A4
+        // Alternating row background on A4 (fixed 9mm height matches row step)
         if (!isThermal && rowNum % 2 === 0) {
           doc.setFillColor(249, 250, 251);
           doc.rect(marginL, yOffset - 5, contentW, 9, 'F');
         }
+
+        // Helper: HARD-truncate a string to fit within maxWidthMm at the
+        // current font size, appending an ellipsis. jsPDF's maxWidth wraps
+        // to multiple lines, which breaks alternating-row shading and
+        // causes rows to overlap — we don't want wrapping in an invoice.
+        const fitText = (s, maxWidthMm) => {
+          if (!s) return '';
+          const w = doc.getTextWidth(s);
+          if (w <= maxWidthMm) return s;
+          let lo = 0, hi = s.length, best = 0;
+          while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            const candidate = s.slice(0, mid) + '…';
+            if (doc.getTextWidth(candidate) <= maxWidthMm) { best = mid; lo = mid + 1; }
+            else hi = mid - 1;
+          }
+          return s.slice(0, best) + '…';
+        };
         
         if (showGstColumns) {
           const rate = parseInt(item.gstRate) || 0;
@@ -1587,75 +1615,79 @@ const ShopDashboard = () => {
           const taxAmt = discountedLineAmt - taxableVal;
           totalTaxable += taxableVal;
           
-          // Truncate long item names to prevent column overflow
-          const maxItemW = colQty - colItem - 3;
           let itemBaseName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
           if (item.hsnCode) itemBaseName += ` [${item.hsnCode}]`;
-          if (iDisc > 0) itemBaseName += ` -${iDisc}%`;
+          if (iDisc > 0)   itemBaseName += ` -${iDisc}%`;
           
           doc.setFont("helvetica", "normal");
           doc.setFontSize(isThermal ? 7 : 8.5);
           doc.setTextColor(51, 65, 85);
+
+          // Item column width in the GST case: from colItem to colQty minus a small gap
+          const maxItemW = (colQty - colItem) - 8;   // 8mm gap to Qty column
+          const truncatedItem = isThermal ? itemBaseName : fitText(itemBaseName, maxItemW);
+          
           if (!isThermal) doc.text(String(rowNum), colNo, yOffset, {});
-          doc.text(itemBaseName, colItem, yOffset, { maxWidth: maxItemW });
-          doc.text(`${qtyText}`, colQty, yOffset);
+          doc.text(truncatedItem, colItem, yOffset);
+          doc.text(qtyText, colQty, yOffset, { align: 'right' });
           if (!isThermal) {
-            doc.text(`${taxableVal.toFixed(2)}`, colPrice, yOffset);
+            doc.text(taxableVal.toFixed(2), colPrice, yOffset, { align: 'right' });
             if (isInterState) {
               totalIgst += taxAmt;
-              doc.text(`${taxAmt.toFixed(2)}`, colPrice + 22, yOffset);
+              doc.text(taxAmt.toFixed(2), colIgst, yOffset, { align: 'right' });
             } else {
               const halfTax = taxAmt / 2;
-              const halfRate = rate / 2;
               totalCgst += halfTax;
               totalSgst += halfTax;
-              doc.text(`${halfTax.toFixed(2)}`, colPrice + 18, yOffset);
-              doc.text(`${halfTax.toFixed(2)}`, colPrice + 36, yOffset);
+              doc.text(halfTax.toFixed(2), colCgst, yOffset, { align: 'right' });
+              doc.text(halfTax.toFixed(2), colSgst, yOffset, { align: 'right' });
             }
           }
           doc.setFont("helvetica", "bold");
-          doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
+          doc.text(discountedLineAmt.toFixed(2), colTotal, yOffset, { align: 'right' });
           doc.setFont("helvetica", "normal");
-          yOffset += 7;
+          yOffset += 8;   // matches 9mm row background exactly
         } else {
-          const maxItemW = colQty - colItem - 3;
           const itemFullName = item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : '');
           doc.setFont("helvetica", "normal");
           doc.setFontSize(isThermal ? 7 : 8.5);
           doc.setTextColor(51, 65, 85);
+
+          const maxItemW = (colQty - colItem) - 8;
+          const truncatedItem = isThermal ? itemFullName : fitText(itemFullName, maxItemW);
+
           if (!isThermal) doc.text(String(rowNum), colNo, yOffset, {});
-          doc.text(itemFullName, colItem, yOffset, { maxWidth: maxItemW });
-          doc.text(`${qtyText}`, colQty, yOffset);
+          doc.text(truncatedItem, colItem, yOffset);
+          doc.text(qtyText, colQty, yOffset, { align: 'right' });
           if (isThermal) {
             const dispAmt = iDisc > 0 ? `${discountedLineAmt.toFixed(0)}(-${iDisc}%)` : discountedLineAmt.toFixed(0);
             doc.setFont("helvetica", iDisc > 0 ? "bold" : "normal");
             doc.text(dispAmt, colTotal, yOffset, { align: 'right' });
             doc.setFont("helvetica", "normal");
           } else if (iDisc > 0) {
+            // MRP struck-through style with discount badge
             doc.setFontSize(8);
             doc.setTextColor(148, 163, 184);
-            doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
-            doc.setFontSize(7.5);
-            doc.setTextColor(239, 68, 68);
-            doc.text(`-${iDisc}%`, colPrice + 14, yOffset);
+            doc.text(item.price.toFixed(2), colPrice, yOffset, { align: 'right' });
             doc.setFont("helvetica", "bold");
             doc.setFontSize(8.5);
             doc.setTextColor(22, 163, 74);
-            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
+            doc.text(discountedLineAmt.toFixed(2), colTotal, yOffset, { align: 'right' });
             doc.setFont("helvetica", "normal");
             doc.setTextColor(51, 65, 85);
           } else {
-            doc.text(`${item.price.toFixed(2)}`, colPrice, yOffset);
+            doc.text(item.price.toFixed(2), colPrice, yOffset, { align: 'right' });
             doc.setFont("helvetica", "bold");
-            doc.text(`${discountedLineAmt.toFixed(2)}`, colTotal, yOffset, { align: 'right' });
+            doc.text(discountedLineAmt.toFixed(2), colTotal, yOffset, { align: 'right' });
             doc.setFont("helvetica", "normal");
           }
-          yOffset += 7;
-          // Show per-item saving note
+          yOffset += 8;   // matches 9mm row background exactly
+          // Per-item saving note (indented, doesn't overlap other columns)
           if (iDisc > 0 && !isThermal) {
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            doc.text(`MRP ₹${item.price.toFixed(2)} × ${qty} = ₹${mrpLineAmt.toFixed(2)}  →  You save ₹${iDiscAmt.toFixed(2)} (${iDisc}% off)`, colItem + 4, yOffset);
+            const note = `MRP ₹${item.price.toFixed(2)} × ${qty} = ₹${mrpLineAmt.toFixed(2)}  →  You save ₹${iDiscAmt.toFixed(2)} (${iDisc}% off)`;
+            doc.text(fitText(note, contentW - 10), colItem + 4, yOffset);
             doc.setFontSize(8.5);
             doc.setTextColor(51, 65, 85);
             yOffset += 5;
