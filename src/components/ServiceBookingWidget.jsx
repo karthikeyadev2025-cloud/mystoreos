@@ -43,7 +43,7 @@ const getNext7Days = () => {
   return days;
 };
 
-export default function ServiceBookingWidget({ shopId, shopName, customerPhone, customerName }) {
+export default function ServiceBookingWidget({ shopId, shopName, shopPhone, customerPhone, customerName }) {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1); // 1=pick service, 2=pick date/time, 3=confirm, 4=done
@@ -87,6 +87,42 @@ export default function ServiceBookingWidget({ shopId, shopName, customerPhone, 
       setConfirmedAppt(appt);
       setStep(4);
       toast.success('Appointment booked!');
+
+      // Notify the shop owner via WhatsApp — opens a wa.me link pre-filled
+      // with the booking details. The shop owner still has to tap Send in
+      // WhatsApp; this is the honest, no-server-required version. If they
+      // set up the WhatsApp Cloud API later, we can switch to silent push.
+      if (shopPhone) {
+        try {
+          const cleanShopPhone = String(shopPhone).replace(/\D/g, '').slice(-10);
+          if (cleanShopPhone.length === 10) {
+            const dateNice = new Date(selectedDate + 'T00:00:00')
+              .toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
+            const timeNice = fmt12(selectedTime);
+            const msg = [
+              `🔔 *New Booking at ${shopName || 'your shop'}*`,
+              ``,
+              `👤 ${form.name}`,
+              `📞 ${form.phone}`,
+              ``,
+              `✂️ ${selectedService.name}`,
+              `📅 ${dateNice} · ${timeNice}`,
+              `⏱️ ${selectedService.duration_minutes} min`,
+              `💰 ₹${Number(selectedService.price).toLocaleString('en-IN')}`,
+              form.notes ? `📝 ${form.notes}` : null,
+              ``,
+              `Open your MyStoreOS Bookings tab to confirm.`,
+            ].filter(Boolean).join('\n');
+            // Use +91 prefix (Indian numbers). wa.me strips the + but requires digits.
+            const waUrl = `https://wa.me/91${cleanShopPhone}?text=${encodeURIComponent(msg)}`;
+            // Open in a new tab so it doesn't blow away the customer's
+            // confirmation screen. On mobile, WhatsApp intercepts wa.me.
+            window.open(waUrl, '_blank', 'noopener');
+          }
+        } catch (_e) {
+          // Non-fatal — the booking itself already succeeded.
+        }
+      }
     } catch (e) {
       toast.error(e.message || 'Booking failed. Please try again.');
     }

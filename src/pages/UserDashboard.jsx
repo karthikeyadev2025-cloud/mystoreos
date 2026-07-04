@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import StorefrontProductCard from '../components/StorefrontProductCard';
 import StorefrontProductDetail from '../components/StorefrontProductDetail';
 import MarketplaceShopCard from '../components/MarketplaceShopCard';
+import ServiceBookingWidget from '../components/ServiceBookingWidget';
 import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -215,6 +216,8 @@ const UserDashboard = () => {
 
   // Shop Catalogue Mode states
   const [shopInfo, setShopInfo] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [shopHasServices, setShopHasServices] = useState(false);
   // Other branches of the same brand. Populated for branded shops that
   // run multiple locations (e.g. RK Mens & Jeans — Main + branches);
   // empty for standalone shops. Shown to customers as an "Also visit
@@ -371,6 +374,14 @@ const UserDashboard = () => {
       const sInfo = await api.getShopById(ACTIVE_SHOP_ID);
       if (sInfo) {
         setShopInfo(sInfo);
+        // Quietly check whether this shop has any active services listed.
+        // If yes, show a 'Book Appointment' CTA on the storefront alongside
+        // the products. This works for both service-first shops (salon,
+        // clinic) and hybrid shops (retail + a couple of services).
+        try {
+          const svcs = await api.getShopServices(ACTIVE_SHOP_ID);
+          setShopHasServices(Array.isArray(svcs) && svcs.some(s => s.active));
+        } catch { setShopHasServices(false); }
       } else {
         // Fallback demo info
         setShopInfo({
@@ -1435,6 +1446,22 @@ const UserDashboard = () => {
                     )}
                   </span>
                 </div>
+                {/* Book Appointment CTA — appears when the shop has active services */}
+                {shopHasServices && (
+                  <button
+                    onClick={() => setShowBookingModal(true)}
+                    style={{
+                      marginTop: 12, width: '100%', padding: '10px 12px', borderRadius: 10,
+                      border: 'none', color: '#fff',
+                      background: 'linear-gradient(135deg,#8B5CF6,#4F46E5)',
+                      fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                      boxShadow: '0 3px 10px rgba(139,92,246,0.35)',
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    }}
+                  >
+                    📅 Book an Appointment
+                  </button>
+                )}
               </div>
 
               {/* Other Locations card on desktop sidebar — fits below the
@@ -3805,6 +3832,48 @@ return (
         </div>
       )}
 
+      {/* Service Booking Modal — appears from Book Appointment CTA on
+          service-business storefronts. Uses ServiceBookingWidget which
+          also opens WhatsApp to the shop owner after a successful booking. */}
+      {showBookingModal && shopInfo && (
+        <div
+          onClick={e => { if (e.target === e.currentTarget) setShowBookingModal(false); }}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(2, 6, 23, 0.72)',
+            zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 16,
+          }}
+        >
+          <div style={{
+            background: '#fff', borderRadius: 20, maxWidth: 460, width: '100%',
+            maxHeight: '92vh', overflow: 'auto', position: 'relative',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '16px 20px', borderBottom: '1px solid #E2E8F0',
+              position: 'sticky', top: 0, background: '#fff', zIndex: 1,
+            }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>
+                Book at {shopInfo.name}
+              </div>
+              <button
+                onClick={() => setShowBookingModal(false)}
+                style={{ background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <X size={16} color="#475569" />
+              </button>
+            </div>
+            <ServiceBookingWidget
+              shopId={ACTIVE_SHOP_ID}
+              shopName={shopInfo.name}
+              shopPhone={shopInfo.phone}
+              customerName={user?.name}
+              customerPhone={user?.phone}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
