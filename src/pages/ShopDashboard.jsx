@@ -364,10 +364,28 @@ const ShopDashboard = () => {
   // real owner record and every bill/PDF/notification picks it up.
   const shop = (user.role === 'staff' && shopProfile) ? shopProfile : user;
   const isOwner = user.role === 'shop' || user.role === 'admin';
-  // Owner of the MAIN shop (not a branch logged in directly). Used to gate
-  // the "Manage Branches" UI — branch users don't create sub-branches of
-  // sub-branches. Branches see all their own data and run normally; they
-  // just can't manage the branch list.
+
+  // Staff logins don't carry business_kind on their own user row — only
+  // the OWNER's row has it. On mount, `shop` briefly equals `user` (the
+  // staff member) until shopProfile finishes loading, so the very first
+  // render's isServiceBusiness check (line ~104) can't see the owner's
+  // real business_kind for staff sessions and defaults to 'home'/POS.
+  // Once shopProfile loads with the owner's actual businessKind, correct
+  // the tab — but only if the user hasn't already navigated away from
+  // the default landing tabs, so we don't yank someone back to Bookings
+  // after they've deliberately clicked into Products in that split second.
+  const didAutoCorrectTab = useRef(false);
+  useEffect(() => {
+    if (user.role !== 'staff' || didAutoCorrectTab.current || !shopProfile) return;
+    const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+    const ownerIsService = shopProfile.businessKind === 'service' ||
+      (!shopProfile.businessKind && svcCats.includes(shopProfile.shopCategory));
+    if (ownerIsService && (activeTab === 'home' || activeTab === 'bookings')) {
+      setActiveTab('bookings');
+    }
+    didAutoCorrectTab.current = true;
+  }, [shopProfile, user.role, activeTab]);
+
   const isMainOwner = user.role === 'shop' && !user.parentShopId;
   // True when the dashboard is showing the main shop's data/settings.
   // False in two cases:
@@ -4420,7 +4438,7 @@ const ShopDashboard = () => {
             </>
           )}
 
-          {activeTab === 'bookings' && isOwner && (
+          {activeTab === 'bookings' && (
             <DesktopBookings shopId={targetShopId} shopName={shop.name} />
           )}
 
@@ -5958,7 +5976,7 @@ const ShopDashboard = () => {
       )}
 
       {/* BOOKINGS TAB */}
-      {isOwner && activeTab === 'bookings' && (
+      {activeTab === 'bookings' && (
         <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
           <DesktopBookings shopId={targetShopId} shopName={shop.name} />
         </div>
@@ -7484,12 +7502,10 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
-            <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
-            <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
-          </div>
-        )}
+        <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
+          <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
+          <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
+        </div>
 
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
