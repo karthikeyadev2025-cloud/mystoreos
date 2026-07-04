@@ -1971,11 +1971,30 @@ const ShopDashboard = () => {
           const shopForUpi = { upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name };
           upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
           if (upiUri) {
+            // ── Pay Now block ────────────────────────────────────────────
+            // Structure survives WhatsApp's link-rendering quirks (some
+            // Android versions hide the upi:// preview; some show the naked
+            // URI as monospace). Customer always gets: headline, tap link,
+            // manual fallback (UPI ID + amount to type).
+            const displayUpi = (canTapToPay(shopForUpi) && shop.merchantUpiId) ? shop.merchantUpiId : upiId;
+
+            msg += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `💰 *PAY ₹${total} NOW*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
             if (canTapToPay(shopForUpi)) {
-              msg += `\n💳 *Tap to Pay ₹${total}:* ${upiUri}\n`;
+              // Merchant VPA — amount prefills, customer just approves.
+              msg += `👉 *Tap to Pay:*\n${upiUri}\n\n`;
+              msg += `_Opens your UPI app (GPay/PhonePe/Paytm).\n₹${total} is pre-filled — just tap Pay._\n\n`;
             } else {
-              msg += `\n📱 *Pay via UPI:* ${upiUri}\n_(Please enter ₹${total} when prompted — UPI apps don't allow amount-prefill for personal UPI IDs)_\n`;
+              // Personal VPA — NPCI blocks amount-prefill on tap; customer
+              // must enter the amount manually in their UPI app. The
+              // attached PDF also carries a UPI QR they can scan.
+              msg += `👉 *Tap to Pay:*\n${upiUri}\n\n`;
+              msg += `_Opens your UPI app. Enter *₹${total}* when prompted.\nOr scan the UPI QR in the attached bill PDF._\n\n`;
             }
+
+            msg += `Or send to UPI ID: *${displayUpi}*\nAmount: *₹${total}*\n`;
           }
         }
 
