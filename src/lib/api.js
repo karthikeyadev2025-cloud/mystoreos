@@ -2624,7 +2624,16 @@ export const api = {
 
   async saveSiteConfig(key, value) {
     if (isSupabaseConfigured) {
-      await supabase.from('site_config').upsert({ key, value, updated_at: new Date().toISOString() });
+      // BUG FIX: this used to do `await supabase.from(...).upsert(...)` and
+      // discard the ENTIRE { data, error } response without checking it.
+      // Even a hard RLS/permission error from Supabase would leave this
+      // function returning normally (undefined), no exception thrown —
+      // making it structurally impossible for any caller to know the save
+      // failed, no matter how carefully the caller's own try/catch was
+      // written. This was silently masking the real error underneath the
+      // print-settings-never-saves bug this whole time.
+      const { error } = await supabase.from('site_config').upsert({ key, value, updated_at: new Date().toISOString() });
+      if (error) throw new Error(error.message || 'Failed to save setting.');
       return;
     }
     const db = getDB();
