@@ -188,7 +188,15 @@ const Register = () => {
       if (businessType === 'shop' && newUser?.id) {
         try {
           const trimmedCategory = (shopCategory || '').trim() || (businessKind === 'service' ? 'General Services' : 'General Retail');
-          await api.updateUserProfile(newUser.id, {
+          // BUG FIX: this called api.updateUserProfile(), which does not
+          // exist anywhere in api.js — only api.updateProfile() (singular
+          // "Profile") does. Every call here threw a TypeError that was
+          // silently caught by the catch block below, meaning business_kind
+          // and shop_category were NEVER actually saved for ANY new shop
+          // registration since this code was written. Every new "Service"
+          // business signup silently fell back to the POS-first retail
+          // dashboard because business_kind stayed NULL in the database.
+          await api.updateProfile(newUser.id, {
             businessKind,
             shopCategory: trimmedCategory,
           });
