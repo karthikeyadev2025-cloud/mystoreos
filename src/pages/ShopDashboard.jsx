@@ -92,7 +92,12 @@ const ShopDashboard = () => {
   const { user, setUser, logout } = useAuth();
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('home');
+  // Bookings-first landing for service businesses (salon, spa, clinic,
+  // fitness, repair) — everyone else lands on POS. Uses shop_category
+  // set at registration (Register.jsx) or updated in Settings.
+  const SERVICE_CATEGORIES = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+  const isServiceBusiness = user && SERVICE_CATEGORIES.includes(user.shopCategory);
+  const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'bookings' : 'home');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
@@ -4098,6 +4103,7 @@ const ShopDashboard = () => {
           publicCode={shop.publicCode}
           branchSwitcherEl={branchSwitcherEl}
           hasMultipleBranches={hasMultipleBranches}
+          shopCategory={shop.shopCategory}
           syncStatus={{ isOnline, pendingCount }}
         />
 

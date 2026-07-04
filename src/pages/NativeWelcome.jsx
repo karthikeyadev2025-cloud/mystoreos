@@ -152,7 +152,7 @@ export default function NativeWelcome() {
         color: '#94A3B8',
         letterSpacing: '0.5px',
       }}>
-        by K2 Adexos Global Technologies
+        An innovation by Nikki Tech Labs
       </div>
       
       <style>{`

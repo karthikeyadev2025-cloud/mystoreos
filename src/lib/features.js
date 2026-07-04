@@ -51,6 +51,7 @@ export const PLAN_CAPS = {
     staffAccounts: false, caPortal: false, tallyExport: false,
     multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
     promoCode: false, advancedReports: false, aiForecasting: false, barcodeManager: false,
+    bookings: true,       // free during 15-day trial so users can evaluate
   },
   starter: {
     maxProducts: 200, maxDevices: 1,
@@ -58,6 +59,7 @@ export const PLAN_CAPS = {
     staffAccounts: false, caPortal: false, tallyExport: false,
     multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
     promoCode: true, advancedReports: false, aiForecasting: false, barcodeManager: false,
+    bookings: false,      // Bookings add-on ₹249/month (see subscription.bookings_addon)
   },
   pro: {
     maxProducts: -1, maxDevices: 2,
@@ -65,6 +67,7 @@ export const PLAN_CAPS = {
     staffAccounts: true, caPortal: false, tallyExport: false,
     multiDevice: false, customInvoiceFooter: true, loyaltyPoints: true, flashSales: true,
     promoCode: true, advancedReports: true, aiForecasting: true, barcodeManager: true,
+    bookings: true,       // included in Pro
   },
   enterprise: {
     maxProducts: -1, maxDevices: 5,
@@ -72,6 +75,7 @@ export const PLAN_CAPS = {
     staffAccounts: true, caPortal: true, tallyExport: true,
     multiDevice: true, customInvoiceFooter: true, loyaltyPoints: true, flashSales: true,
     promoCode: true, advancedReports: true, aiForecasting: true, barcodeManager: true,
+    bookings: true,       // included in Enterprise
   },
 };
 

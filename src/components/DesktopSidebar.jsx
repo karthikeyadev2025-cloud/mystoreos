@@ -17,8 +17,24 @@ const TABS = [
   { id: 'profile',   Icon: Settings,  label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false }) {
-  const visible = TABS.filter(t => {
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail' }) {
+  const SERVICE_CATS = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+  const isServiceBiz = SERVICE_CATS.includes(shopCategory);
+
+  // For service businesses: Bookings goes right after Home (POS still
+  // available for product sales / retail items), and label the POS as
+  // "Sales" instead of "POS / Home" to fit service-shop mental model.
+  // For product businesses: keep original order (Bookings appears further
+  // down as an optional add-on).
+  const tabs = isServiceBiz
+    ? TABS.map(t => t.id === 'home' ? { ...t, label: 'Sales / POS' } : t)
+        .sort((a, b) => {
+          const orderService = ['home','bookings','customers','bills','products','branches','expenses','credit','restock','reports','profile'];
+          return orderService.indexOf(a.id) - orderService.indexOf(b.id);
+        })
+    : TABS;
+
+  const visible = tabs.filter(t => {
     if (t.ownerOnly && !isOwner) return false;
     if (t.multiBranchOnly && !hasMultipleBranches) return false;
     return true;

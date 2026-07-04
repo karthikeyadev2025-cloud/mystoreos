@@ -102,9 +102,25 @@ const CSS = `
 `;
 
 const TYPES = [
-  { value: 'shop', icon: '🏪', label: 'Retail Shop' },
+  { value: 'shop', icon: '🏪', label: 'Business' },
   { value: 'distributor', icon: '🚚', label: 'Distributor' },
   { value: 'customer', icon: '🛒', label: 'Customer' },
+];
+
+// Sub-categories only shown when TYPES value === 'shop'.
+// Service-type businesses (salon, spa, clinic, fitness, repair) will get a
+// Bookings-first dashboard; retail/pharma/restaurant get the classic
+// POS-first dashboard. See shop_category column on public.users.
+const SHOP_CATEGORIES = [
+  { value: 'retail',     icon: '🛍️', label: 'Retail / Kirana',    kind: 'product' },
+  { value: 'salon',      icon: '💇', label: 'Salon / Beauty',      kind: 'service' },
+  { value: 'spa',        icon: '🧖', label: 'Spa / Wellness',      kind: 'service' },
+  { value: 'clinic',     icon: '🩺', label: 'Clinic / Doctor',     kind: 'service' },
+  { value: 'restaurant', icon: '🍴', label: 'Restaurant / Cafe',   kind: 'product' },
+  { value: 'fitness',    icon: '🏋️', label: 'Gym / Fitness',       kind: 'service' },
+  { value: 'repair',     icon: '🔧', label: 'Repair / Workshop',   kind: 'service' },
+  { value: 'pharma',     icon: '💊', label: 'Medical / Pharmacy',  kind: 'product' },
+  { value: 'general',    icon: '🏬', label: 'Other',               kind: 'product' },
 ];
 
 const Register = () => {
@@ -128,6 +144,7 @@ const Register = () => {
   const [businessType, setBusinessType] = useState(
     claimMode ? 'customer' : (searchParams.get('type') || 'shop')
   );
+  const [shopCategory, setShopCategory] = useState('retail');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -139,6 +156,17 @@ const Register = () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
+      // For shop accounts, persist the chosen shop_category so the
+      // dashboard can adapt (Bookings-first for service categories,
+      // POS-first for retail).
+      if (businessType === 'shop' && newUser?.id) {
+        try {
+          await api.updateUserProfile(newUser.id, { shopCategory });
+          newUser.shopCategory = shopCategory;
+        } catch (_e) {
+          // Non-fatal — user can change it later in Settings.
+        }
+      }
       login(newUser);
       if (businessType === 'customer') {
         navigate('/dashboard');
@@ -228,6 +256,31 @@ const Register = () => {
                     >
                       <span style={{ fontSize: 20 }}>{icon}</span>
                       <span style={{ fontSize: 11 }}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Shop sub-category picker (Salon / Retail / Clinic / etc.) —
+                only shown for 'shop' accounts. Determines the dashboard
+                layout: Bookings-first for service categories, POS-first
+                for retail categories. Persisted as users.shop_category. */}
+            {!claimMode && businessType === 'shop' && (
+              <div style={{ marginBottom: 20 }}>
+                <label className="reg-label">BUSINESS CATEGORY</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {SHOP_CATEGORIES.map(({ value, icon, label, kind }) => (
+                    <button key={value} type="button"
+                      onClick={() => setShopCategory(value)}
+                      className={`reg-type-btn${shopCategory === value ? ' active' : ''}`}
+                      style={{ padding: '10px 6px', minHeight: 68 }}
+                    >
+                      <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, lineHeight: 1.15 }}>{label}</span>
+                      {kind === 'service' && shopCategory === value && (
+                        <span style={{ fontSize: 8.5, marginTop: 2, opacity: 0.85 }}>📅 Bookings-ready</span>
+                      )}
                     </button>
                   ))}
                 </div>

@@ -128,10 +128,29 @@ export default function LandingFooter({ config = {} }) {
           ))}
         </div>
 
+        {/* An innovation by — Nikki Tech Labs */}
         <div style={{
-          borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24,
+          borderTop: '1px solid rgba(255,255,255,0.07)',
+          paddingTop: 24, marginTop: 48,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+        }}>
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, letterSpacing: '2px', fontWeight: 600, textTransform: 'uppercase' }}>
+            An innovation by
+          </span>
+          <a href="https://mystoreos.in" style={{
+            fontSize: 20, fontWeight: 800,
+            background: 'linear-gradient(90deg,#818CF8,#F0ABFC)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text', textDecoration: 'none', letterSpacing: '-0.5px',
+          }}>
+            Nikki Tech Labs
+          </a>
+        </div>
+
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20,
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
-          marginTop: 48,
+          marginTop: 20,
         }}>
           <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12.5 }}>
             © 2026 MyStore OS. All rights reserved. Made with ❤️ in India.
