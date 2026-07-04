@@ -129,6 +129,7 @@ const toUser = (row) => row ? ({
   distributorTrialStartedAt: row.distributor_trial_started_at || null,
   hideFromSearch: row.hide_from_search || false,
   shopCategory: row.shop_category || 'general',
+  businessKind: row.business_kind || null,   // 'retail' | 'service' — routes shop to POS-first or Bookings-first dashboard
   openingHour: row.opening_hour ?? 8,
   closingHour: row.closing_hour ?? 21,
   weeklyHolidays: row.weekly_holidays || [],
@@ -2512,6 +2513,7 @@ export const api = {
       if (data.distributorPlanExpiresAt !== undefined) updateObj.distributor_plan_expires_at = data.distributorPlanExpiresAt;
       if (data.hideFromSearch !== undefined) updateObj.hide_from_search = data.hideFromSearch;
       if (data.shopCategory !== undefined) updateObj.shop_category = data.shopCategory;
+      if (data.businessKind !== undefined) updateObj.business_kind = data.businessKind;
       if (data.onboardingCompleted !== undefined) updateObj.onboarding_completed = data.onboardingCompleted;
       if (data.openingHour !== undefined) updateObj.opening_hour = data.openingHour;
       if (data.closingHour !== undefined) updateObj.closing_hour = data.closingHour;

@@ -94,11 +94,17 @@ const ShopDashboard = () => {
   const { user, setUser, logout } = useAuth();
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
-  // Bookings-first landing for service businesses (salon, spa, clinic,
-  // fitness, repair) — everyone else lands on POS. Uses shop_category
-  // set at registration (Register.jsx) or updated in Settings.
-  const SERVICE_CATEGORIES = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
-  const isServiceBusiness = user && SERVICE_CATEGORIES.includes(user.shopCategory);
+  // Bookings-first landing when business_kind='service'. This is the
+  // hard/authoritative field set at signup (Register.jsx) — much more
+  // reliable than the old "check if shop_category name matches a list"
+  // approach, which broke as soon as we allowed free-text categories.
+  // Legacy accounts (registered before business_kind existed) fall back
+  // to the old category-name check for backwards compatibility.
+  const LEGACY_SERVICE_CATEGORIES = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+  const isServiceBusiness = user && (
+    user.businessKind === 'service' ||
+    (!user.businessKind && LEGACY_SERVICE_CATEGORIES.includes(user.shopCategory))
+  );
   const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'bookings' : 'home');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -4106,6 +4112,7 @@ const ShopDashboard = () => {
           branchSwitcherEl={branchSwitcherEl}
           hasMultipleBranches={hasMultipleBranches}
           shopCategory={shop.shopCategory}
+          businessKind={shop.businessKind}
           syncStatus={{ isOnline, pendingCount }}
         />
 

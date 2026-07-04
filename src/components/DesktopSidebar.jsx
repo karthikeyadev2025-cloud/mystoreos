@@ -19,9 +19,12 @@ const TABS = [
   { id: 'profile',    Icon: Settings,   label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail' }) {
-  const SERVICE_CATS = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
-  const isServiceBiz = SERVICE_CATS.includes(shopCategory);
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null }) {
+  // Prefer the explicit business_kind field (set at signup, LOCKED). Fall
+  // back to category-name matching for legacy accounts that predate the
+  // business_kind column.
+  const LEGACY_SERVICE_CATS = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+  const isServiceBiz = businessKind === 'service' || (!businessKind && LEGACY_SERVICE_CATS.includes(shopCategory));
 
   // For service businesses: Bookings goes right after Home (POS still
   // available for product sales / retail items), and label the POS as

@@ -102,26 +102,47 @@ const CSS = `
 `;
 
 const TYPES = [
-  { value: 'shop', icon: '🏪', label: 'Business' },
+  { value: 'shop',        icon: '🏪', label: 'Business' },
   { value: 'distributor', icon: '🚚', label: 'Distributor' },
-  { value: 'customer', icon: '🛒', label: 'Customer' },
+  { value: 'customer',    icon: '🛒', label: 'Customer' },
 ];
 
-// Sub-categories only shown when TYPES value === 'shop'.
-// Service-type businesses (salon, spa, clinic, fitness, repair) will get a
-// Bookings-first dashboard; retail/pharma/restaurant get the classic
-// POS-first dashboard. See shop_category column on public.users.
-const SHOP_CATEGORIES = [
-  { value: 'retail',     icon: '🛍️', label: 'Retail / Kirana',    kind: 'product' },
-  { value: 'salon',      icon: '💇', label: 'Salon / Beauty',      kind: 'service' },
-  { value: 'spa',        icon: '🧖', label: 'Spa / Wellness',      kind: 'service' },
-  { value: 'clinic',     icon: '🩺', label: 'Clinic / Doctor',     kind: 'service' },
-  { value: 'restaurant', icon: '🍴', label: 'Restaurant / Cafe',   kind: 'product' },
-  { value: 'fitness',    icon: '🏋️', label: 'Gym / Fitness',       kind: 'service' },
-  { value: 'repair',     icon: '🔧', label: 'Repair / Workshop',   kind: 'service' },
-  { value: 'pharma',     icon: '💊', label: 'Medical / Pharmacy',  kind: 'product' },
-  { value: 'general',    icon: '🏬', label: 'Other',               kind: 'product' },
+// Top-level business model chosen at signup — LOCKED after registration.
+// Retail → POS-first ShopDashboard. Service → Bookings-first ShopDashboard.
+// (Distributors get DistributorDashboard entirely, separate top-level.)
+const BUSINESS_KINDS = [
+  {
+    value: 'retail',
+    icon: '🛍️',
+    label: 'Retailer',
+    tagline: 'I sell products (walk-in customers, POS-first)',
+    color: '#10B981',
+  },
+  {
+    value: 'service',
+    icon: '📅',
+    label: 'Service Business',
+    tagline: 'I sell time or appointments (Bookings-first)',
+    color: '#8B5CF6',
+  },
 ];
+
+// Suggestions shown when the free-text category field is focused. Users
+// can pick one OR type their own — it's a free-text field, these are just
+// autocomplete hints for the most common cases in each business kind.
+const CATEGORY_SUGGESTIONS = {
+  retail: [
+    'Kirana / Grocery', 'Electronics', 'Mobile & Accessories', 'Textiles / Clothing',
+    'Sweets & Bakery', 'Hardware', 'Stationery & Books', 'Pharmacy',
+    'Jewellery', 'Restaurant / Cafe', 'Auto Parts', 'Footwear',
+    'Cosmetics', 'Home Furnishing', 'Toys',
+  ],
+  service: [
+    'Salon & Beauty', 'Spa & Wellness', 'Clinic / Doctor', 'Dental',
+    'Gym & Fitness', 'Yoga Studio', 'Car / Bike Service', 'Home Repair',
+    'Photography Studio', 'Tuition / Coaching', 'Legal / CA Office', 'Pet Grooming',
+  ],
+};
 
 const Register = () => {
   const navigate = useNavigate();
@@ -144,7 +165,9 @@ const Register = () => {
   const [businessType, setBusinessType] = useState(
     claimMode ? 'customer' : (searchParams.get('type') || 'shop')
   );
-  const [shopCategory, setShopCategory] = useState('retail');
+  const [businessKind, setBusinessKind] = useState('retail');   // 'retail' | 'service'
+  const [shopCategory, setShopCategory] = useState('');         // free-text
+  const [showCatSuggestions, setShowCatSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -156,15 +179,23 @@ const Register = () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
-      // For shop accounts, persist the chosen shop_category so the
-      // dashboard can adapt (Bookings-first for service categories,
-      // POS-first for retail).
+      // For shop accounts, persist:
+      //   business_kind → hard split between POS-first (retail) and
+      //                   Bookings-first (service) dashboard
+      //   shop_category → free-text industry label (Electronics, Salon, etc)
+      // business_kind is LOCKED after registration — user can't change it
+      // in Settings; super admin has to update the row if they need to switch.
       if (businessType === 'shop' && newUser?.id) {
         try {
-          await api.updateUserProfile(newUser.id, { shopCategory });
-          newUser.shopCategory = shopCategory;
+          const trimmedCategory = (shopCategory || '').trim() || (businessKind === 'service' ? 'General Services' : 'General Retail');
+          await api.updateUserProfile(newUser.id, {
+            businessKind,
+            shopCategory: trimmedCategory,
+          });
+          newUser.businessKind = businessKind;
+          newUser.shopCategory = trimmedCategory;
         } catch (_e) {
-          // Non-fatal — user can change it later in Settings.
+          // Non-fatal — user can still complete signup, admin can fix later.
         }
       }
       login(newUser);
@@ -262,28 +293,74 @@ const Register = () => {
               </div>
             )}
 
-            {/* Shop sub-category picker (Salon / Retail / Clinic / etc.) —
-                only shown for 'shop' accounts. Determines the dashboard
-                layout: Bookings-first for service categories, POS-first
-                for retail categories. Persisted as users.shop_category. */}
+            {/* Business Model — Retailer vs Service. Only for 'shop' accounts.
+                LOCKED after registration; decides which dashboard the shop
+                sees (POS-first vs Bookings-first). */}
             {!claimMode && businessType === 'shop' && (
               <div style={{ marginBottom: 20 }}>
-                <label className="reg-label">BUSINESS CATEGORY</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                  {SHOP_CATEGORIES.map(({ value, icon, label, kind }) => (
+                <label className="reg-label">BUSINESS MODEL</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {BUSINESS_KINDS.map(({ value, icon, label, tagline, color }) => (
                     <button key={value} type="button"
-                      onClick={() => setShopCategory(value)}
-                      className={`reg-type-btn${shopCategory === value ? ' active' : ''}`}
-                      style={{ padding: '10px 6px', minHeight: 68 }}
+                      onClick={() => { setBusinessKind(value); setShopCategory(''); }}
+                      className={`reg-type-btn${businessKind === value ? ' active' : ''}`}
+                      style={{
+                        padding: '14px 12px', minHeight: 92, textAlign: 'left', alignItems: 'flex-start',
+                        borderColor: businessKind === value ? color : undefined,
+                        background: businessKind === value ? `${color}18` : undefined,
+                      }}
                     >
-                      <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
-                      <span style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, lineHeight: 1.15 }}>{label}</span>
-                      {kind === 'service' && shopCategory === value && (
-                        <span style={{ fontSize: 8.5, marginTop: 2, opacity: 0.85 }}>📅 Bookings-ready</span>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: businessKind === value ? color : undefined }}>{label}</span>
+                      </div>
+                      <span style={{ fontSize: 10.5, opacity: 0.75, lineHeight: 1.3 }}>{tagline}</span>
                     </button>
                   ))}
                 </div>
+                <p style={{ margin: '8px 2px 0', fontSize: 10.5, color: '#94a3b8', lineHeight: 1.4 }}>
+                  ⚠️ You can't change this later without contacting support.
+                </p>
+              </div>
+            )}
+
+            {/* Business Category — FREE TEXT with suggestions. Industry label
+                only (Electronics, Sweet Shop, Salon, whatever). Doesn't affect
+                the dashboard; used for display, search, and reports. */}
+            {!claimMode && businessType === 'shop' && (
+              <div style={{ marginBottom: 20, position: 'relative' }}>
+                <label className="reg-label">BUSINESS CATEGORY</label>
+                <input
+                  type="text"
+                  value={shopCategory}
+                  onChange={e => setShopCategory(e.target.value)}
+                  onFocus={() => setShowCatSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowCatSuggestions(false), 200)}
+                  placeholder={businessKind === 'service' ? 'e.g. Salon, Clinic, Gym…' : 'e.g. Electronics, Grocery, Sweets…'}
+                  className="reg-input"
+                  autoComplete="off"
+                />
+                {showCatSuggestions && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                    {CATEGORY_SUGGESTIONS[businessKind]
+                      .filter(s => !shopCategory.trim() || s.toLowerCase().includes(shopCategory.trim().toLowerCase()))
+                      .slice(0, 8)
+                      .map(s => (
+                        <button
+                          key={s}
+                          type="button"
+                          onMouseDown={e => { e.preventDefault(); setShopCategory(s); setShowCatSuggestions(false); }}
+                          style={{
+                            padding: '5px 11px', borderRadius: 999, border: '1px solid rgba(139,92,246,0.4)',
+                            background: 'rgba(139,92,246,0.12)', color: '#a78bfa', fontSize: 11, fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                  </div>
+                )}
               </div>
             )}
 
