@@ -129,6 +129,54 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           })}
         </div>
 
+        {/* Bookings Add-on card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          style={{
+            marginTop: 32, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto',
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(236,72,153,0.10))',
+            border: '1px solid rgba(139,92,246,0.35)', borderRadius: 20, padding: '28px 32px',
+            display: 'flex', flexDirection: 'column', gap: 14,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 36 }}>📅</div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
+                POPULAR ADD-ON
+              </div>
+              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#f8fafc', letterSpacing: '-0.5px' }}>
+                Bookings Module
+              </h3>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94a3b8' }}>
+                For salons, spas, clinics, gyms, and workshops
+              </p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 30, fontWeight: 900, color: '#f8fafc', letterSpacing: '-1px' }}>
+                ₹249<span style={{ fontSize: 14, fontWeight: 500, color: '#94a3b8' }}>/mo</span>
+              </div>
+              <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 600 }}>
+                or FREE with Pro / Enterprise
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 10 }}>
+            {[
+              'Customer online booking',
+              'Service catalogue & pricing',
+              'Slot-based appointments',
+              'One-tap confirm & complete',
+              'Visit history per customer',
+              'WhatsApp booking updates',
+            ].map(f => (
+              <div key={f} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: '#cbd5e1' }}>
+                <span style={{ color: '#a78bfa', fontWeight: 800 }}>✓</span> {f}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginTop: 36, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/pricing')}

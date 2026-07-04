@@ -3987,4 +3987,145 @@ export const api = {
     if (error) throw new Error(error.message);
     return data || [];
   },
+
+  // ── MEMBERSHIP PLANS ────────────────────────────────────────────────────
+
+  async getMembershipPlans(shopId) {
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase.from('membership_plans')
+      .select('*').eq('shop_id', shopId)
+      .order('display_order', { ascending: true }).order('created_at', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async saveMembershipPlan(shopId, plan) {
+    if (!isSupabaseConfigured) return null;
+    const payload = {
+      shop_id: shopId,
+      name: plan.name,
+      description: plan.description || null,
+      duration_days: Number(plan.duration_days) || 30,
+      price: Number(plan.price) || 0,
+      discount_percent: Number(plan.discount_percent) || 0,
+      free_services: Number(plan.free_services) || 0,
+      color: plan.color || '#8B5CF6',
+      active: plan.active !== false,
+      display_order: Number(plan.display_order) || 0,
+      updated_at: new Date().toISOString(),
+    };
+    if (plan.id) {
+      const { data, error } = await supabase.from('membership_plans').update(payload).eq('id', plan.id).select().single();
+      if (error) throw new Error(error.message);
+      return data;
+    }
+    const { data, error } = await supabase.from('membership_plans')
+      .insert({ ...payload, created_at: new Date().toISOString() }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async deleteMembershipPlan(planId) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('membership_plans').delete().eq('id', planId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // ── MEMBERSHIPS ─────────────────────────────────────────────────────────
+
+  async getMemberships(shopId, { status, customerPhone } = {}) {
+    if (!isSupabaseConfigured) return [];
+    let q = supabase.from('memberships').select('*').eq('shop_id', shopId);
+    if (status) q = q.eq('status', status);
+    if (customerPhone) q = q.eq('customer_phone', customerPhone);
+    q = q.order('expires_on', { ascending: false });
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async issueMembership(shopId, { plan, customerName, customerPhone, notes }) {
+    if (!isSupabaseConfigured) return null;
+    const now = new Date();
+    const expiry = new Date(now);
+    expiry.setDate(expiry.getDate() + (Number(plan.duration_days) || 30));
+    const { data, error } = await supabase.from('memberships').insert({
+      shop_id: shopId,
+      plan_id: plan.id,
+      plan_name: plan.name,
+      plan_price: Number(plan.price) || 0,
+      plan_discount_percent: Number(plan.discount_percent) || 0,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      starts_on: now.toISOString().slice(0, 10),
+      expires_on: expiry.toISOString().slice(0, 10),
+      status: 'active',
+      notes: notes || null,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async updateMembershipStatus(id, status) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('memberships')
+      .update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // Lookup active membership for a phone (used at POS to auto-apply
+  // membership discount to a bill)
+  async findActiveMembership(shopId, customerPhone) {
+    if (!isSupabaseConfigured || !customerPhone) return null;
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase.from('memberships')
+      .select('*').eq('shop_id', shopId).eq('customer_phone', customerPhone)
+      .eq('status', 'active').gte('expires_on', today)
+      .order('expires_on', { ascending: false }).limit(1).maybeSingle();
+    if (error) return null;
+    return data;
+  },
+
+  // ── FEEDBACK ────────────────────────────────────────────────────────────
+
+  async getFeedback(shopId, { minRating, maxRating } = {}) {
+    if (!isSupabaseConfigured) return [];
+    let q = supabase.from('feedback').select('*').eq('shop_id', shopId);
+    if (minRating) q = q.gte('rating', minRating);
+    if (maxRating) q = q.lte('rating', maxRating);
+    q = q.order('created_at', { ascending: false });
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async submitFeedback(shopId, { customerName, customerPhone, rating, comment, orderId, appointmentId }) {
+    if (!isSupabaseConfigured) return null;
+    if (!rating || rating < 1 || rating > 5) throw new Error('Rating must be 1..5');
+    const { data, error } = await supabase.from('feedback').insert({
+      shop_id: shopId,
+      customer_name: customerName || null,
+      customer_phone: customerPhone || null,
+      rating: Number(rating),
+      comment: comment || null,
+      order_id: orderId || null,
+      appointment_id: appointmentId || null,
+      created_at: new Date().toISOString(),
+    }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async respondToFeedback(feedbackId, responseText) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('feedback').update({
+      responded: true, response_text: responseText, responded_at: new Date().toISOString(),
+    }).eq('id', feedbackId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
 };

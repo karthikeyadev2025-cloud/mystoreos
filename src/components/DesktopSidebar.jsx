@@ -1,20 +1,22 @@
-import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors } from 'lucide-react';
+import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors, CreditCard, Star } from 'lucide-react';
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 // Real tabs (ids match ShopDashboard's activeTab exactly)
 const TABS = [
-  { id: 'home',      Icon: Home,      label: 'POS / Home' },
-  { id: 'branches',  Icon: Building2, label: 'Branches',    ownerOnly: true, multiBranchOnly: true },
-  { id: 'products',  Icon: Package,   label: 'Products',    ownerOnly: true },
-  { id: 'bills',     Icon: Receipt,   label: 'All Bills',   badge: true },
-  { id: 'customers', Icon: Users,     label: 'Customers' },
-  { id: 'expenses',  Icon: Wallet,    label: 'Expenses',    ownerOnly: true },
-  { id: 'credit',    Icon: Book,      label: 'Credit Book', ownerOnly: true },
-  { id: 'bookings',  Icon: Scissors,  label: 'Bookings',    ownerOnly: true },
-  { id: 'restock',   Icon: Truck,     label: 'Restock',     ownerOnly: true },
-  { id: 'reports',   Icon: BarChart2, label: 'Day Book',    ownerOnly: true },
-  { id: 'profile',   Icon: Settings,  label: 'Settings',    ownerOnly: true },
+  { id: 'home',       Icon: Home,       label: 'POS / Home' },
+  { id: 'branches',   Icon: Building2,  label: 'Branches',    ownerOnly: true, multiBranchOnly: true },
+  { id: 'products',   Icon: Package,    label: 'Products',    ownerOnly: true },
+  { id: 'bills',      Icon: Receipt,    label: 'All Bills',   badge: true },
+  { id: 'customers',  Icon: Users,      label: 'Customers' },
+  { id: 'expenses',   Icon: Wallet,     label: 'Expenses',    ownerOnly: true },
+  { id: 'credit',     Icon: Book,       label: 'Credit Book', ownerOnly: true },
+  { id: 'bookings',   Icon: Scissors,   label: 'Bookings',    ownerOnly: true },
+  { id: 'membership', Icon: CreditCard, label: 'Membership',  ownerOnly: true },
+  { id: 'feedback',   Icon: Star,       label: 'Feedback',    ownerOnly: true },
+  { id: 'restock',    Icon: Truck,      label: 'Restock',     ownerOnly: true },
+  { id: 'reports',    Icon: BarChart2,  label: 'Day Book',    ownerOnly: true },
+  { id: 'profile',    Icon: Settings,   label: 'Settings',    ownerOnly: true },
 ];
 
 export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail' }) {
@@ -29,7 +31,7 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
   const tabs = isServiceBiz
     ? TABS.map(t => t.id === 'home' ? { ...t, label: 'Sales / POS' } : t)
         .sort((a, b) => {
-          const orderService = ['home','bookings','customers','bills','products','branches','expenses','credit','restock','reports','profile'];
+          const orderService = ['home','bookings','membership','customers','feedback','bills','products','branches','expenses','credit','restock','reports','profile'];
           return orderService.indexOf(a.id) - orderService.indexOf(b.id);
         })
     : TABS;

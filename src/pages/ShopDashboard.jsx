@@ -37,6 +37,8 @@ import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
 import DesktopReports from '../components/DesktopReports';
 import DesktopBookings from '../components/DesktopBookings';
+import DesktopMembership from '../components/DesktopMembership';
+import DesktopFeedback from '../components/DesktopFeedback';
 import DesktopSettings from '../components/DesktopSettings';
 import BranchesManager from '../components/BranchesManager';
 import DesktopCustomers from '../components/DesktopCustomers';
@@ -4302,6 +4304,14 @@ const ShopDashboard = () => {
             <DesktopBookings shopId={targetShopId} shopName={shop.name} />
           )}
 
+          {activeTab === 'membership' && isOwner && (
+            <DesktopMembership shopId={targetShopId} />
+          )}
+
+          {activeTab === 'feedback' && isOwner && (
+            <DesktopFeedback shopId={targetShopId} />
+          )}
+
           {activeTab === 'profile' && isOwner && (
             <>
               {isMainOwner && isViewingMain && (
@@ -5831,6 +5841,20 @@ const ShopDashboard = () => {
       {isOwner && activeTab === 'bookings' && (
         <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
           <DesktopBookings shopId={targetShopId} shopName={shop.name} />
+        </div>
+      )}
+
+      {/* MEMBERSHIP TAB */}
+      {isOwner && activeTab === 'membership' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <DesktopMembership shopId={targetShopId} />
+        </div>
+      )}
+
+      {/* FEEDBACK TAB */}
+      {isOwner && activeTab === 'feedback' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <DesktopFeedback shopId={targetShopId} />
         </div>
       )}
 
