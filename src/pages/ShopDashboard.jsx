@@ -3706,19 +3706,22 @@ const ShopDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        // Direct call, not wrapped in safe() — safe() swallows any thrown
-        // error and returns null, which would have made an oversized/
-        // invalid file upload silently "succeed" with paymentQr set to
-        // null and a false "Payment QR saved!" toast instead of surfacing
-        // the actual rejection reason.
         const url = await api.uploadAsset(file, user.id, 'payment_qrs');
         setPaymentQr(url);
-        // Persist immediately so it survives re-login without a separate Save tap.
-        await safe(() => api.updateProfile(user.id, { paymentQr: url }));
+        // Persist immediately so it survives re-login without a separate
+        // Save tap.
+        //
+        // BUG FIX: this used to be wrapped in safe(), which — same as the
+        // print settings bug — silently swallows any RLS/network failure
+        // and shows "Payment QR saved!" regardless. The upload to storage
+        // succeeds, React state updates so the QR LOOKS saved in the
+        // current session, but if the users-table write fails, it's gone
+        // on next login. That's exactly "already added but not showing."
+        await api.updateProfile(user.id, { paymentQr: url });
         try {
           const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
           localStorage.setItem('mystore_session', JSON.stringify({ ...sess, paymentQr: url }));
-        } catch (_e) { /* ignore */ }
+        } catch (_e) { /* ignore — localStorage cache is a convenience, not source of truth */ }
         toast.success("Payment QR saved!");
       } catch (err) {
         toast.error(err?.message || "Failed to upload Payment QR");
@@ -4477,6 +4480,9 @@ const ShopDashboard = () => {
               setMerchantUpiId={setMerchantUpiId}
               merchantCode={merchantCode}
               setMerchantCode={setMerchantCode}
+              paymentQr={paymentQr}
+              setPaymentQr={setPaymentQr}
+              handlePaymentQrUpload={handlePaymentQrUpload}
               logo={logo}
               onLogoChange={handleLogoChange}
               onLogoRemove={handleLogoRemove}

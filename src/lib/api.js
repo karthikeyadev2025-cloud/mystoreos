@@ -2521,14 +2521,30 @@ export const api = {
       if (data.shopBanner !== undefined) updateObj.shop_banner = data.shopBanner;
       // If any optional column does not yet exist in the DB, drop it and retry.
       // Makes the feature work whether or not the latest ALTER TABLE has been applied.
+      //
+      // BUG FIX: previously, any error that WASN'T a "missing column" error
+      // (including RLS policy violations, permission denials, network
+      // failures) fell into console.warn(...) + break — the loop just gave
+      // up silently. The function then did a fresh SELECT and returned
+      // whatever was ALREADY in the database (unchanged, since the UPDATE
+      // never took effect), with no thrown error and no way for the caller
+      // to know the save failed. This is exactly what caused Payment QR
+      // (and, via a similar pattern in saveSiteConfig, Print Settings) to
+      // silently not persist while still showing a false success toast.
+      // Now: a real permission/RLS error throws, so callers can catch it
+      // and show the person an honest error instead of a lie.
       let __attempt = { ...updateObj };
+      let __lastRealError = null;
       for (let __tries = 0; __tries < 10; __tries++) {
         const { error: __upErr } = await supabase.from('users').update(__attempt).eq('id', userId);
-        if (!__upErr) break;
+        if (!__upErr) { __lastRealError = null; break; }
         const __miss = (__upErr.message || '').match(/column (?:users\.)?["']?(\w+)["']? does not exist/i);
-        if (!__miss) { console.warn('[updateProfile]', __upErr.message); break; }
+        if (!__miss) { __lastRealError = __upErr; break; }
         delete __attempt[__miss[1]];
         if (Object.keys(__attempt).length === 0) break;
+      }
+      if (__lastRealError) {
+        throw new Error(__lastRealError.message || 'Failed to save — you may not have permission to update this.');
       }
       const { data: updated } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       return toUser(updated);
