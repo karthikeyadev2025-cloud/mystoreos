@@ -1066,6 +1066,17 @@ const ShopDashboard = () => {
         orientation: 'portrait',
       });
 
+      // Thermal printers render mid-gray tones as faint/washed-out — force
+      // near-black on thermal, leave A4 grays untouched. Same fix as
+      // printReceiptPDF (the re-print function) — see comment there.
+      const setTextColor = (r, g, b) => {
+        if (isThermal) {
+          const isGrayish = Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && Math.abs(r - b) < 20;
+          if (isGrayish && r > 40) { doc.setTextColor(20, 20, 20); return; }
+        }
+        doc.setTextColor(r, g, b);
+      };
+
       // Shared header colour
       let themeColor = '#10B981';
       let modeTitle  = 'TAX INVOICE';
@@ -1091,13 +1102,13 @@ const ShopDashboard = () => {
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(isThermal ? 11 : 16);
-      doc.setTextColor(15, 23, 42);
+      setTextColor(15, 23, 42);
       doc.text(shop.name || 'Invoice', isThermal ? mmW/2 : textX, hy, isThermal ? {align:'center'} : {});
       hy += isThermal ? 5 : 6;
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(isThermal ? 7 : 9);
-      doc.setTextColor(100, 116, 139);
+      setTextColor(100, 116, 139);
       let contactLine = `Ph: ${shop.phone || ''}`;
       if (!isThermal && upiId) contactLine += `   |   UPI: ${upiId}`;
       doc.text(contactLine, isThermal ? mmW/2 : textX, hy, isThermal ? {align:'center'} : {});
@@ -1112,9 +1123,9 @@ const ShopDashboard = () => {
       if (!isThermal) {
         doc.setFillColor(tR,tG,tB);
         doc.roundedRect(140, 12, 55, 14, 3, 3, 'F');
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(255,255,255);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); setTextColor(255,255,255);
         doc.text(modeTitle.length > 14 ? modeShort + ' DOC' : modeTitle, 167.5, 20.5, {align:'center'});
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(71,85,105);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); setTextColor(71,85,105);
         const dateStr = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
         doc.text(`Date: ${dateStr}`, 195, 30, {align:'right'});
       }
@@ -1124,20 +1135,20 @@ const ShopDashboard = () => {
       doc.line(marginL, hy, mmW - marginL, hy); hy += isThermal ? 5 : 8;
 
       if (isThermal) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(tR,tG,tB);
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextColor(tR,tG,tB);
         doc.text(modeTitle, mmW/2, hy, {align:'center'}); hy += 5;
         const dateStrT = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(71,85,105);
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); setTextColor(71,85,105);
         doc.text(`Date: ${dateStrT}`, mmW/2, hy, {align:'center'}); hy += 5;
       }
 
       // Customer block
       if (customerName) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 7 : 8.5); doc.setTextColor(100,116,139);
+        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 7 : 8.5); setTextColor(100,116,139);
         doc.text(isThermal ? '--- BILL TO ---' : 'BILL TO:', isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5;
-        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 8 : 10); doc.setTextColor(15,23,42);
+        doc.setFont('helvetica','bold'); doc.setFontSize(isThermal ? 8 : 10); setTextColor(15,23,42);
         doc.text(customerName, isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5;
-        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 9); doc.setTextColor(71,85,105);
+        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 9); setTextColor(71,85,105);
         if (customerPhone) { doc.text(`Ph: ${customerPhone}`, isThermal ? mmW/2 : marginL+3, hy, isThermal ? {align:'center'} : {}); hy += 5; }
         doc.line(marginL, hy, mmW - marginL, hy); hy += 4;
       }
@@ -1152,7 +1163,7 @@ const ShopDashboard = () => {
       if (!isThermal) {
         doc.setFillColor(tR,tG,tB);
         doc.rect(marginL, hy, contentW, 8, 'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,255,255);
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); setTextColor(255,255,255);
         doc.text('#',        colNo,  hy + 5.5);
         doc.text('Item',     colItem,hy + 5.5);
         doc.text('Qty',      colQty, hy + 5.5);
@@ -1160,7 +1171,7 @@ const ShopDashboard = () => {
         doc.text('Amount',   colAmt, hy + 5.5, {align:'right'});
         hy += 10;
       } else {
-        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(71,85,105);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); setTextColor(71,85,105);
         doc.text('Item', colItem, hy); doc.text('Qty', colQty, hy); doc.text('Amt', colAmt, hy, {align:'right'});
         hy += 5;
       }
@@ -1182,19 +1193,19 @@ const ShopDashboard = () => {
           doc.setFillColor(249,250,251); doc.rect(marginL, hy-5, contentW, 9, 'F');
         }
 
-        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 8.5); doc.setTextColor(51,65,85);
+        doc.setFont('helvetica','normal'); doc.setFontSize(isThermal ? 7 : 8.5); setTextColor(51,65,85);
         if (!isThermal) doc.text(String(rowN), colNo, hy);
         doc.text(item.name + (item.selectedVariant ? ` (${item.selectedVariant})` : ''), colItem, hy, {maxWidth: maxW});
         doc.text(qtyTxt, colQty, hy);
         if (!isThermal) {
-          doc.setTextColor(iDisc > 0 ? 148 : 51, iDisc > 0 ? 163 : 65, iDisc > 0 ? 184 : 85);
+          setTextColor(iDisc > 0 ? 148 : 51, iDisc > 0 ? 163 : 65, iDisc > 0 ? 184 : 85);
           doc.text(item.price.toFixed(2), colPr, hy);
-          doc.setTextColor(51,65,85);
+          setTextColor(51,65,85);
         }
         doc.setFont('helvetica','bold');
         const amtTxt = isThermal ? (iDisc > 0 ? `${finalAmt.toFixed(0)}(-${iDisc}%)` : finalAmt.toFixed(0)) : finalAmt.toFixed(2);
         doc.text(amtTxt, colAmt, hy, {align:'right'});
-        doc.setFont('helvetica','normal'); doc.setTextColor(51,65,85);
+        doc.setFont('helvetica','normal'); setTextColor(51,65,85);
         hy += 8;
       });
 
@@ -1206,10 +1217,10 @@ const ShopDashboard = () => {
       const addRow = (lbl, val, opts = {}) => {
         doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
         doc.setFontSize(opts.large ? 11 : 9);
-        doc.setTextColor(...(opts.color || [71,85,105]));
+        setTextColor(...(opts.color || [71,85,105]));
         doc.text(lbl, tLabelX, hy);
         doc.text(val, colAmt, hy, {align:'right'});
-        doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+        doc.setFont('helvetica','normal'); setTextColor(71,85,105);
         hy += opts.large ? 7 : 5;
       };
 
@@ -1234,14 +1245,14 @@ const ShopDashboard = () => {
       hy += 2;
       doc.setFillColor(tR,tG,tB);
       doc.roundedRect(isThermal ? marginL : marginL+93, hy-5, isThermal ? contentW : contentW-93, 12, 3, 3, 'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(255,255,255);
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextColor(255,255,255);
       doc.text(isThermal ? 'TOTAL' : 'GRAND TOTAL', isThermal ? marginL+2 : marginL+97, hy+3.5);
       doc.text(`Rs. ${total.toFixed(2)}`, colAmt, hy+3.5, {align:'right'});
-      doc.setFont('helvetica','normal'); doc.setTextColor(71,85,105);
+      doc.setFont('helvetica','normal'); setTextColor(71,85,105);
       hy += 16;
 
       // Footer
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(148,163,184);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); setTextColor(148,163,184);
       doc.text(invoiceFooter || 'Thank you for your business!', isThermal ? mmW/2 : marginL, hy, isThermal ? {align:'center'} : {});
       hy += 5;
       doc.text('Powered by MyStore OS — mystoreos.in', isThermal ? mmW/2 : marginL, hy, isThermal ? {align:'center'} : {});
@@ -1255,11 +1266,33 @@ const ShopDashboard = () => {
         // On mobile native: use share sheet → user can pick a print/save app
         await sharePdfNative(pdfBlob, fileName, `Print — ${shop.name}`);
       } else {
-        // Desktop/web: open in new tab and trigger browser print dialog
+        // Desktop/web: open in new tab and trigger the browser print dialog.
+        //
+        // BUG FIX: win.onload frequently never fires when the tab navigates
+        // straight to a blob: PDF URL — Chrome (and most browsers) render
+        // PDFs in a native viewer plugin, not as a normal DOM page, so the
+        // 'load' event that fires for HTML pages often doesn't fire the
+        // same way for PDF documents. Result: the tab just shows the PDF
+        // with no print dialog ever appearing — "clicking print shows the
+        // PDF instead of printing" is exactly this bug.
+        // Fix: use a short delay instead of relying on onload. This is the
+        // standard workaround used across the industry for print-a-blob-PDF
+        // since there's no universally reliable "PDF finished rendering"
+        // event across browsers.
         const blobUrl = URL.createObjectURL(pdfBlob);
         const win = window.open(blobUrl, '_blank');
         if (win) {
-          win.onload = () => { win.focus(); win.print(); };
+          let printTriggered = false;
+          const triggerPrint = () => {
+            if (printTriggered) return;
+            printTriggered = true;
+            try { win.focus(); win.print(); } catch (_e) { /* tab may have been closed by user */ }
+          };
+          // Attempt via onload (works in Firefox and some Chrome versions)…
+          win.onload = triggerPrint;
+          // …but always fall back to a fixed delay, since onload is
+          // unreliable for blob PDF tabs in Chrome/Edge/Safari.
+          setTimeout(triggerPrint, 900);
         } else {
           // pop-up blocked — fall back to download
           doc.save(fileName);
@@ -3219,11 +3252,23 @@ const ShopDashboard = () => {
 
   const handleSavePrintSettings = async () => {
     try {
-      await safe(() => api.saveSiteConfig('printSettings_' + targetShopId, {
+      // Don't use safe() here — it swallows the RLS failure that caused
+      // print settings to silently never save. If this throws, the user
+      // needs to see it, not a false "saved!" toast.
+      await api.saveSiteConfig('printSettings_' + targetShopId, {
         format: printFormat, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies
-      }));
+      });
+      // Verify the write actually landed by reading it back — Supabase
+      // upsert() doesn't throw on an RLS-blocked 0-row write, it just
+      // silently affects nothing. This confirms the save is real.
+      const confirmSaved = await api.getSiteConfig('printSettings_' + targetShopId, null);
+      if (!confirmSaved || confirmSaved.format !== printFormat) {
+        throw new Error('Save did not persist — please try again or contact support.');
+      }
       toast.success('Print settings saved!');
-    } catch { toast.error('Failed to save print settings'); }
+    } catch (e) {
+      toast.error(e.message || 'Failed to save print settings');
+    }
   };
 
   // ── Reset Test Data (Danger Zone) ───────────────────────────────────────
@@ -3279,6 +3324,23 @@ const ShopDashboard = () => {
         ? new JsPDF({ unit: 'mm', format: [pageW, 297], orientation: 'portrait' })
         : new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
+      // Thermal printers render mid-gray tones (slate-500/600, used for
+      // secondary text on-screen) as faint, washed-out, or "dull" — thermal
+      // print heads are calibrated for near-black, not grayscale. On A4
+      // (regular inkjet/laser), grays print fine and preserve visual
+      // hierarchy. So: darken every gray to near-black ONLY on thermal;
+      // leave A4 colours untouched.
+      const setTextColor = (r, g, b) => {
+        if (isThermal) {
+          // Anything lighter than ~mid-gray gets forced to near-black.
+          // Pure brand colours (used for headers/accents) stay as-is —
+          // only true grays get the ink-safe treatment.
+          const isGrayish = Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && Math.abs(r - b) < 20;
+          if (isGrayish && r > 40) { doc.setTextColor(20, 20, 20); return; }
+        }
+        doc.setTextColor(r, g, b);
+      };
+
       doc.setFillColor(tR,tG,tB);
       doc.rect(0, 0, pageW, isThermal ? 7 : 10, 'F');
 
@@ -3291,13 +3353,13 @@ const ShopDashboard = () => {
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(printFontSize === 'large' ? (isThermal ? 13 : 20) : (isThermal ? 11 : 18));
-      doc.setTextColor(15,23,42);
+      setTextColor(15,23,42);
       doc.text(shop.name, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += isThermal ? 6 : 7;
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(isThermal ? 7 : 9);
-      doc.setTextColor(100,116,139);
+      setTextColor(100,116,139);
       doc.text(`Ph: ${shop.phone}`, isThermal ? pageW/2 : textX, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
 
@@ -3309,24 +3371,24 @@ const ShopDashboard = () => {
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(isThermal ? 9 : 12);
-      doc.setTextColor(tR,tG,tB);
+      setTextColor(tR,tG,tB);
       doc.text(`${modeTitle}  #${(order.id||'').slice(0,8).toUpperCase()}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
       hy += 5;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(isThermal ? 7 : 9);
-      doc.setTextColor(100,116,139);
+      setTextColor(100,116,139);
       doc.text(new Date(order.date).toLocaleString('en-IN'), isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
       hy += 7;
 
       if (custName || custPhone) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(isThermal ? 7 : 9);
-        doc.setTextColor(15,23,42);
+        setTextColor(15,23,42);
         doc.text(`Customer: ${custName || 'Walk-in'}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
         hy += 4.5;
         if (custPhone) {
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(100,116,139);
+          setTextColor(100,116,139);
           doc.text(`Phone: ${custPhone}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
           hy += 4.5;
         }
@@ -3339,7 +3401,7 @@ const ShopDashboard = () => {
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(isThermal ? 7 : 8);
-      doc.setTextColor(71,85,105);
+      setTextColor(71,85,105);
       doc.text("ITEM", marginL, hy);
       doc.text("AMT", pageW - marginL, hy, { align: 'right' });
       hy += 4;
@@ -3349,7 +3411,7 @@ const ShopDashboard = () => {
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(printFontSize === 'large' ? (isThermal ? 8 : 10) : (isThermal ? 7 : 9));
-      doc.setTextColor(15,23,42);
+      setTextColor(15,23,42);
       (order.items || []).forEach(item => {
         const qty = item.qty || 1;
         const lineAmt = (item.price||0) * qty;
@@ -3368,7 +3430,7 @@ const ShopDashboard = () => {
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(isThermal ? 11 : 14);
-      doc.setTextColor(15,23,42);
+      setTextColor(15,23,42);
       doc.text("TOTAL", marginL, hy);
       doc.text(`Rs.${order.total}`, pageW - marginL, hy, { align: 'right' });
       hy += 8;
@@ -3378,7 +3440,7 @@ const ShopDashboard = () => {
         const [pR,pG,pB] = pmColors[order.paymentMethod] || pmColors.Cash;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(isThermal ? 8 : 9);
-        doc.setTextColor(pR,pG,pB);
+        setTextColor(pR,pG,pB);
         doc.text(`Payment: ${order.paymentMethod}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
         hy += 6;
       }
@@ -3386,14 +3448,14 @@ const ShopDashboard = () => {
       if (exchangePolicy) {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(isThermal ? 6.5 : 7.5);
-        doc.setTextColor(100,116,139);
+        setTextColor(100,116,139);
         doc.text(`Exchange: ${exchangePolicy}`, isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center', maxWidth: contentW } : { maxWidth: 180 });
         hy += isThermal ? 8 : 6;
       }
 
       doc.setFont("helvetica", "italic");
       doc.setFontSize(isThermal ? 7 : 8);
-      doc.setTextColor(148,163,184);
+      setTextColor(148,163,184);
       doc.text("Thank you for your business!", isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
       hy += 4;
       doc.text("Powered by MyStore OS", isThermal ? pageW/2 : marginL, hy, isThermal ? { align: 'center' } : {});
@@ -3404,11 +3466,11 @@ const ShopDashboard = () => {
         doc.addPage(isThermal ? [pageW, 297] : 'a4');
         doc.setFont("helvetica", "bold");
         doc.setFontSize(isThermal ? 9 : 14);
-        doc.setTextColor(tR,tG,tB);
+        setTextColor(tR,tG,tB);
         doc.text(`COPY ${c+1} — ${shop.name}`, isThermal ? pageW/2 : 105, isThermal ? 10 : 20, { align: 'center' });
         doc.setFont("helvetica", "normal");
         doc.setFontSize(isThermal ? 7 : 9);
-        doc.setTextColor(100,116,139);
+        setTextColor(100,116,139);
         doc.text(`${modeTitle} | Total: Rs.${order.total}`, isThermal ? pageW/2 : 105, isThermal ? 17 : 30, { align: 'center' });
       }
 
