@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { isNativeApp } from './lib/capacitorInit';
+import { isSupabaseConfigured } from './lib/supabase';
 import { useState, lazy, Suspense } from 'react';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { useOfflineSync } from './hooks/useOfflineSync';
@@ -136,6 +137,28 @@ function MaintenanceModeOverlay() {
   );
 }
 
+// Persistent, high-visibility warning shown at the top of EVERY screen
+// when the build has no real Supabase URL. In that state the app runs on
+// local IndexedDB mock data — the super admin panel shows fake numbers,
+// bills don't sync, no data is real. This banner ensures the mistake is
+// caught within seconds of opening the app, instead of silently rolling
+// out to production users. The banner never appears on healthy builds.
+function MockDataWarningBanner() {
+  if (isSupabaseConfigured) return null;
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100000,
+      background: 'linear-gradient(90deg, #dc2626, #b91c1c)',
+      color: '#fff', padding: '10px 16px', textAlign: 'center',
+      fontSize: 13, fontWeight: 700, letterSpacing: 0.3,
+      boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)',
+    }}>
+      ⚠️ This build has no database connection — showing DEMO DATA.
+      &nbsp;Set VITE_SUPABASE_URL and rebuild.
+    </div>
+  );
+}
+
 function App() {
   useOfflineSync();
 
@@ -145,6 +168,7 @@ function App() {
         <SiteConfigProvider>
           <AuthProvider>
           <BrowserRouter>
+              <MockDataWarningBanner />
               <AnnouncementBanner />
               <MaintenanceModeOverlay />
               <Routes>
