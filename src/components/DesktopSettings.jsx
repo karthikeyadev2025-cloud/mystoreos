@@ -87,6 +87,7 @@ const DesktopSettings = ({
   printCopies = 1,
   setPrintCopies,
   handleSavePrintSettings,
+  handleTestPrint,
   hideFromSearch: _hideFromSearch = false,
   onToggleHideFromSearch: _onToggleHideFromSearch,
   onLogoChange,
@@ -568,10 +569,20 @@ const DesktopSettings = ({
             </div>
           </div>
 
-          <button onClick={handleSavePrintSettings}
-            style={{ width: '100%', background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <Printer size={14} /> Save Print Settings
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={handleTestPrint}
+              title="Prints a sample TEST PRINT slip using the settings selected above (even before saving) — verify your printer and paper size live."
+              style={{ flex: 1, background: '#FFFFFF', color: '#4F46E5', border: '2px solid #4F46E5', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              🧪 Print Test Receipt
+            </button>
+            <button onClick={handleSavePrintSettings}
+              style={{ flex: 1, background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <Printer size={14} /> Save Print Settings
+            </button>
+          </div>
+          <p style={{ fontSize: '11px', color: '#94A3B8', margin: '10px 0 0 0', textAlign: 'center' }}>
+            Test print uses the options selected above (even before saving) — check both edge marks are visible on the slip to confirm the paper size matches your printer.
+          </p>
         </div>
 
         {/* SaaS Subscription — main shop only */}

@@ -3415,7 +3415,10 @@ const ShopDashboard = () => {
   // Unlike executeSendWhatsAppBill, this does NOT place a new order — it only
   // renders an already-saved order to PDF, honouring the shop's Print Settings
   // (A4 / 80mm thermal / 58mm thermal, font size, logo, copies).
-  const printReceiptPDF = async (order) => {
+  // opts.testMode = true renders a clearly-marked TEST PRINT (used by the
+  // "Print Test Receipt" button in Print Settings) so shops can verify their
+  // physical printer + paper size live, without creating a real bill.
+  const printReceiptPDF = async (order, opts = {}) => {
     if (!order) return;
     try {
       const { jsPDF: JsPDF } = await import('jspdf');
@@ -3426,8 +3429,8 @@ const ShopDashboard = () => {
       const marginL     = isThermal ? 3 : 15;
       const contentW    = pageW - marginL * 2;
 
-      const themeColor = type === 'estimate' ? '#4F46E5' : type === 'challan' ? '#3B82F6' : '#10B981';
-      const modeTitle  = type === 'estimate' ? 'PROFORMA ESTIMATE' : type === 'challan' ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
+      const themeColor = opts.testMode ? '#4F46E5' : type === 'estimate' ? '#4F46E5' : type === 'challan' ? '#3B82F6' : '#10B981';
+      const modeTitle  = opts.testMode ? 'TEST PRINT' : type === 'estimate' ? 'PROFORMA ESTIMATE' : type === 'challan' ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
       const hex2rgb = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
       const [tR,tG,tB] = hex2rgb(themeColor);
 
@@ -3564,6 +3567,41 @@ const ShopDashboard = () => {
         hy += isThermal ? 8 : 6;
       }
 
+      if (opts.testMode) {
+        // Loud, unmissable banner so a test slip can never be handed to a
+        // customer as a real bill by mistake.
+        doc.setFillColor(79,70,229);
+        doc.rect(marginL, hy - 4, contentW, isThermal ? 7 : 9, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(isThermal ? 8 : 11);
+        doc.setTextColor(255,255,255);
+        doc.text("*** TEST PRINT — NOT A BILL ***", pageW/2, hy + (isThermal ? 1 : 2), { align: 'center' });
+        hy += isThermal ? 8 : 11;
+
+        // Settings summary — lets the shop confirm on paper exactly which
+        // configuration produced this slip.
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(isThermal ? 6.5 : 8);
+        setTextColor(100,116,139);
+        const fmtLabel = printFormat === 'a4' ? 'A4 (210mm)' : printFormat === 'thermal80' ? '80mm Thermal' : '58mm Thermal';
+        doc.text(`Paper: ${fmtLabel} | Font: ${printFontSize} | Logo: ${printShowLogo ? 'On' : 'Off'} | Copies: ${printCopies || 1}`, pageW/2, hy, { align: 'center', maxWidth: contentW });
+        hy += 4.5;
+        doc.text(`Printed: ${new Date().toLocaleString('en-IN')}`, pageW/2, hy, { align: 'center' });
+        hy += 5;
+
+        // Edge-alignment ruler: full-width line with end ticks. If either
+        // tick is cut off on the physical slip, the paper size selected in
+        // Print Settings doesn't match the roll loaded in the printer.
+        doc.setDrawColor(79,70,229);
+        doc.setLineWidth(0.4);
+        doc.line(marginL, hy, pageW - marginL, hy);
+        doc.line(marginL, hy - 2, marginL, hy + 2);
+        doc.line(pageW - marginL, hy - 2, pageW - marginL, hy + 2);
+        doc.setFontSize(isThermal ? 5.5 : 7);
+        doc.text(`|<-- printable width ${Math.round(contentW)}mm -->|  (both end marks should be visible)`, pageW/2, hy + 4.5, { align: 'center', maxWidth: contentW });
+        hy += 9;
+      }
+
       doc.setFont("helvetica", "italic");
       doc.setFontSize(isThermal ? 7 : 8);
       setTextColor(148,163,184);
@@ -3630,6 +3668,33 @@ const ShopDashboard = () => {
       console.error('Print receipt failed:', err);
       toast.error('Could not generate the receipt PDF. Please try again.');
     }
+  };
+
+  // ── Print Test Receipt (live printer check) ────────────────────────────────
+  // Renders a sample TEST PRINT slip through the exact same pipeline real
+  // bills use (printReceiptPDF), honouring whatever paper size / font /
+  // logo / copies are CURRENTLY selected in Print Settings — even if not
+  // saved yet — so a shop can try 80mm vs 58mm live and only save what fits.
+  const handleTestPrint = () => {
+    const sampleItems = [
+      { name: 'Sample Item A',            price: 120, qty: 2 },
+      { name: 'Sample Item B',            price: 250, qty: 1, itemDiscount: 10 },
+      { name: 'Sample Item C (variant)',  price: 55,  qty: 3, selectedVariant: 'Large' },
+    ];
+    const total = sampleItems.reduce((s, it) => {
+      const line = it.price * (it.qty || 1);
+      return s + (it.itemDiscount ? Math.round(line * (1 - it.itemDiscount / 100)) : line);
+    }, 0);
+    const fmtLabel = printFormat === 'a4' ? 'A4' : printFormat === 'thermal80' ? '80mm thermal' : '58mm thermal';
+    toast.info(`🖨️ Generating test receipt — ${fmtLabel}, ${printFontSize} font, ${printCopies || 1} cop${(printCopies || 1) === 1 ? 'y' : 'ies'}`);
+    printReceiptPDF({
+      id: 'TESTPRNT',
+      date: new Date().toISOString(),
+      userId: 'walk-in:Test Customer:9876543210',
+      paymentMethod: 'Cash',
+      items: sampleItems,
+      total,
+    }, { testMode: true });
   };
 
   const handleSaveInvoiceSettings = async () => {
@@ -4665,6 +4730,7 @@ const ShopDashboard = () => {
               printCopies={printCopies}
               setPrintCopies={setPrintCopies}
               handleSavePrintSettings={handleSavePrintSettings}
+              handleTestPrint={handleTestPrint}
               hideFromSearch={hideFromSearch}
               onToggleHideFromSearch={handleToggleHideFromSearch}
               openingHour={openingHour}
@@ -7029,10 +7095,17 @@ const ShopDashboard = () => {
                 </p>
               </div>
 
+              <button onClick={handleTestPrint}
+                style={{ width: '100%', background: 'transparent', color: '#818CF8', border: '2px solid #4F46E5', padding: '11px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', marginBottom: '8px' }}>
+                🧪 Print Test Receipt
+              </button>
               <button onClick={handleSavePrintSettings}
                 style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                 🖨️ Save Print Settings
               </button>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '8px 0 0 0', textAlign: 'center' }}>
+                Test print uses the options above (even unsaved) — if either edge mark is cut off, pick a different paper size.
+              </p>
             </div>
 
             {/* STAFF MANAGEMENT CARD inside Settings */}
