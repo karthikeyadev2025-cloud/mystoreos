@@ -167,6 +167,147 @@ function ServiceForm({ service, shopId, onSave, onCancel }) {
   );
 }
 
+const TIME_SLOTS = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00',
+];
+
+const fmt12 = (t) => {
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
+// Lets a shop owner/staff manually add a walk-in or phone booking —
+// previously the ONLY way an appointment could exist was through the
+// customer-facing widget, which doesn't reflect how real service
+// businesses actually operate (phone calls, walk-ins are extremely
+// common, not just online self-service). Reuses the exact same
+// conflict-checking (api.bookAppointment / api.getBookedSlots) as the
+// consumer widget, so a walk-in can never double-book a slot either.
+function NewWalkInBookingModal({ shopId, services, onClose, onSaved }) {
+  const [serviceId, setServiceId] = useState(services[0]?.id || '');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState('');
+  const [bookedRanges, setBookedRanges] = useState([]);
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const selectedService = services.find(s => s.id === serviceId);
+
+  useEffect(() => {
+    api.getBookedSlots(shopId, date).then(setBookedRanges).catch(() => setBookedRanges([]));
+  }, [shopId, date]);
+
+  const isSlotTaken = (t) => {
+    if (!selectedService) return false;
+    const [h, m] = t.split(':').map(Number);
+    const start = h * 60 + m;
+    const end = start + (Number(selectedService.duration_minutes) || 30);
+    return bookedRanges.some(r => start < r.end && end > r.start);
+  };
+
+  const save = async () => {
+    if (!selectedService) return toast.error('Select a service');
+    if (!customerName.trim()) return toast.error('Enter customer name');
+    if (!/^\d{10}$/.test(customerPhone)) return toast.error('Enter a valid 10-digit phone number');
+    if (!time) return toast.error('Select a time');
+    setSaving(true);
+    try {
+      await api.bookAppointment(shopId, {
+        service_id: selectedService.id,
+        service_name: selectedService.name,
+        service_price: selectedService.price,
+        duration_minutes: selectedService.duration_minutes,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        appointment_date: date,
+        appointment_time: time + ':00',
+        notes: notes || null,
+        booked_via: 'walk_in',
+        status: 'confirmed', // owner already knows this is happening — skip the pending review step
+      });
+      toast.success('Booking added!');
+      onSaved();
+    } catch (e) {
+      toast.error(e.message || 'Failed to add booking');
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 16, maxWidth: 420, width: '100%', maxHeight: '90vh', overflow: 'auto', padding: 24 }}>
+        <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 18 }}>+ New Walk-in / Phone Booking</div>
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Service *</label>
+        <select value={serviceId} onChange={e => setServiceId(e.target.value)}
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none', marginBottom: 14 }}>
+          {services.length === 0 && <option value="">No services yet — add one first</option>}
+          {services.map(s => (
+            <option key={s.id} value={s.id}>{s.name} — ₹{Number(s.price).toLocaleString('en-IN')} ({s.duration_minutes} min)</option>
+          ))}
+        </select>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Customer Name *</label>
+            <input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full name"
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Mobile *</label>
+            <input value={customerPhone} maxLength={10} onChange={e => setCustomerPhone(e.target.value.replace(/\D/g, ''))} placeholder="10-digit"
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+        </div>
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Date *</label>
+        <input type="date" value={date} min={new Date().toISOString().slice(0, 10)} onChange={e => setDate(e.target.value)}
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 14 }} />
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Time *</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 14, maxHeight: 160, overflow: 'auto' }}>
+          {TIME_SLOTS.map(t => {
+            const taken = isSlotTaken(t);
+            return (
+              <button key={t} type="button" disabled={taken} onClick={() => !taken && setTime(t)}
+                style={{
+                  padding: '7px 4px', borderRadius: 6, border: '1px solid', fontSize: 11.5, fontWeight: 600,
+                  cursor: taken ? 'not-allowed' : 'pointer',
+                  borderColor: taken ? '#F1F5F9' : (time === t ? '#4F46E5' : '#E2E8F0'),
+                  background: taken ? '#F8FAFC' : (time === t ? '#4F46E5' : '#fff'),
+                  color: taken ? '#CBD5E1' : (time === t ? '#fff' : '#475569'),
+                  textDecoration: taken ? 'line-through' : 'none',
+                }}>
+                {fmt12(t)}
+              </button>
+            );
+          })}
+        </div>
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Notes (optional)</label>
+        <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special requests…"
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 20 }} />
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={onClose} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+          <button onClick={save} disabled={saving || services.length === 0}
+            style={{ flex: 1, padding: 10, borderRadius: 8, border: 'none', background: saving ? '#94A3B8' : '#4F46E5', color: '#fff', fontSize: 13, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
+            {saving ? 'Saving…' : '+ Add Booking'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DesktopBookings({ shopId, shopName }) {
   const [tab, setTab] = useState('appointments'); // 'appointments' | 'services'
   const [services, setServices] = useState([]);
@@ -178,6 +319,7 @@ export default function DesktopBookings({ shopId, shopName }) {
   const [filterStatus, setFilterStatus] = useState('');
   const [viewMode, setViewMode] = useState('today'); // 'today' | 'upcoming' | 'all'
   const [completingAppointment, setCompletingAppointment] = useState(null);
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -289,6 +431,10 @@ export default function DesktopBookings({ shopId, shopName }) {
               <option value="">All Status</option>
               {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
+            <button onClick={() => setShowWalkInModal(true)}
+              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              <Plus size={14} /> New Booking
+            </button>
           </div>
 
           {loading ? (
@@ -360,6 +506,15 @@ export default function DesktopBookings({ shopId, shopName }) {
           shopId={shopId}
           onClose={() => setCompletingAppointment(null)}
           onDone={() => { setCompletingAppointment(null); loadData(); }}
+        />
+      )}
+
+      {showWalkInModal && (
+        <NewWalkInBookingModal
+          shopId={shopId}
+          services={services.filter(s => s.active)}
+          onClose={() => setShowWalkInModal(false)}
+          onSaved={() => { setShowWalkInModal(false); loadData(); }}
         />
       )}
     </div>

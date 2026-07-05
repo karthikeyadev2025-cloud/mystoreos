@@ -4061,7 +4061,11 @@ export const api = {
       appointment_time: appointment.appointment_time,
       notes: appointment.notes || null,
       booked_via: appointment.booked_via || 'consumer_portal',
-      status: 'pending',
+      // Consumer self-bookings default to 'pending' (owner reviews and
+      // confirms). Owner-created walk-in/phone bookings should default
+      // to 'confirmed' — the shop already knows it's happening, there's
+      // no one else to confirm it with.
+      status: appointment.status || 'pending',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }).select().single();
