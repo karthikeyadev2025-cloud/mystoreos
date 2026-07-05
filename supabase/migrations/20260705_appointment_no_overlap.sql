@@ -30,7 +30,9 @@ ALTER TABLE public.appointments
   GENERATED ALWAYS AS (
     tsrange(
       (appointment_date + appointment_time)::timestamp,
-      (appointment_date + appointment_time)::timestamp + (duration_minutes || ' minutes')::interval
+      -- make_interval() is IMMUTABLE; the old (text || ' minutes')::interval
+      -- cast is only STABLE, which Postgres rejects in generated columns
+      (appointment_date + appointment_time)::timestamp + make_interval(mins => duration_minutes)
     )
   ) STORED;
 
