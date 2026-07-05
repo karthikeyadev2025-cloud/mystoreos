@@ -48,6 +48,8 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1); // 1=pick service, 2=pick date/time, 3=confirm, 4=done
   const [selectedService, setSelectedService] = useState(null);
+  const [bookedRanges, setBookedRanges] = useState([]); // [{start, end}] in minutes, for the selected date
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getNext7Days()[0].iso);
   const [selectedTime, setSelectedTime] = useState('');
   const [form, setForm] = useState({ name: customerName || '', phone: customerPhone || '', notes: '' });
@@ -61,6 +63,25 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [shopId]);
+
+  // Refetch booked slots whenever the selected date changes, so the time
+  // grid can grey out unavailable slots BEFORE the customer tries to
+  // book one — catching the conflict here is much better UX than
+  // discovering it only after tapping Confirm.
+  useEffect(() => {
+    setLoadingSlots(true);
+    api.getBookedSlots(shopId, selectedDate)
+      .then(setBookedRanges)
+      .finally(() => setLoadingSlots(false));
+  }, [shopId, selectedDate]);
+
+  const isSlotTaken = (timeStr) => {
+    if (!selectedService) return false;
+    const [h, m] = timeStr.split(':').map(Number);
+    const slotStart = h * 60 + m;
+    const slotEnd = slotStart + (Number(selectedService.duration_minutes) || 30);
+    return bookedRanges.some(r => slotStart < r.end && slotEnd > r.start);
+  };
 
   const days = getNext7Days();
   const usedCategories = [...new Set(services.map(s => s.category))];
@@ -253,14 +274,26 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
           {/* Time slots */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Select Time</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>
+              Select Time {loadingSlots && <span style={{ color: '#94A3B8', fontWeight: 400 }}>(checking availability…)</span>}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              {TIME_SLOTS.map(t => (
-                <button key={t} onClick={() => setSelectedTime(t)}
-                  style={{ padding: '9px 4px', borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .1s', borderColor: selectedTime === t ? '#4F46E5' : '#E2E8F0', background: selectedTime === t ? '#4F46E5' : '#fff', color: selectedTime === t ? '#fff' : '#475569' }}>
-                  {fmt12(t)}
-                </button>
-              ))}
+              {TIME_SLOTS.map(t => {
+                const taken = isSlotTaken(t);
+                return (
+                  <button key={t} disabled={taken} onClick={() => !taken && setSelectedTime(t)}
+                    style={{
+                      padding: '9px 4px', borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 600,
+                      cursor: taken ? 'not-allowed' : 'pointer', transition: 'all .1s',
+                      borderColor: taken ? '#F1F5F9' : (selectedTime === t ? '#4F46E5' : '#E2E8F0'),
+                      background: taken ? '#F8FAFC' : (selectedTime === t ? '#4F46E5' : '#fff'),
+                      color: taken ? '#CBD5E1' : (selectedTime === t ? '#fff' : '#475569'),
+                      textDecoration: taken ? 'line-through' : 'none',
+                    }}>
+                    {fmt12(t)}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -3972,8 +3972,83 @@ export const api = {
     return data || [];
   },
 
+  // Converts 'HH:MM' or 'HH:MM:SS' into minutes-since-midnight for range math.
+  _timeToMinutes(t) {
+    if (!t) return 0;
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  },
+
+  // Double-booking prevention — the single most universally-cited
+  // must-have feature across every appointment scheduling product
+  // (Fresha, Square Appointments, Setmore, Acuity, Microsoft Bookings,
+  // Vagaro). Without this, two different customers can book overlapping
+  // time slots at the same shop with zero warning until both show up.
+  //
+  // Scoped PER SHOP for now (not per staff member) — MyStoreOS doesn't
+  // yet have staff-to-appointment assignment, so this assumes a
+  // single-resource business (one chair/room/practitioner), which is
+  // the correct default for the majority of solo salon/spa/clinic
+  // owners this feature targets. Once staff assignment ships, this
+  // check should be scoped to the specific staff member instead of the
+  // whole shop, so two DIFFERENT staff can legitimately serve two
+  // customers at the same time.
+  // Public, PII-free: returns just the taken time ranges for a given
+  // shop+date so the customer booking widget can grey out unavailable
+  // slots BEFORE they attempt to book — better UX than only finding out
+  // after submitting. Same column restriction as checkAppointmentConflict.
+  async getBookedSlots(shopId, date) {
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase.from('appointments')
+      .select('appointment_time, duration_minutes')
+      .eq('shop_id', shopId)
+      .eq('appointment_date', date)
+      .not('status', 'in', '("cancelled")');
+    if (error) return [];
+    return (data || []).map(a => ({
+      start: this._timeToMinutes(a.appointment_time),
+      end: this._timeToMinutes(a.appointment_time) + (Number(a.duration_minutes) || 30),
+    }));
+  },
+
+  async checkAppointmentConflict(shopId, date, time, durationMinutes, excludeAppointmentId = null) {
+    if (!isSupabaseConfigured) return null;
+    // Only select non-identifying columns — this runs for anonymous
+    // customers browsing the booking widget too, who must never see
+    // another customer's name, phone, or even which service they booked.
+    // See migration 20260705_appointments_privacy_fix.sql for the
+    // matching column-level GRANT that makes this the only thing anon
+    // can read from this table.
+    const { data, error } = await supabase.from('appointments')
+      .select('id, appointment_time, duration_minutes')
+      .eq('shop_id', shopId)
+      .eq('appointment_date', date)
+      .not('status', 'in', '("cancelled")');
+    if (error) return null; // fail open — don't block booking on a read error
+    const newStart = this._timeToMinutes(time);
+    const newEnd = newStart + (Number(durationMinutes) || 30);
+    for (const existing of (data || [])) {
+      if (excludeAppointmentId && existing.id === excludeAppointmentId) continue;
+      const exStart = this._timeToMinutes(existing.appointment_time);
+      const exEnd = exStart + (Number(existing.duration_minutes) || 30);
+      // Standard interval-overlap test: two ranges overlap unless one
+      // ends at/before the other starts.
+      if (newStart < exEnd && newEnd > exStart) {
+        return existing; // return the conflicting appointment for a clear error message
+      }
+    }
+    return null;
+  },
+
   async bookAppointment(shopId, appointment) {
     if (!isSupabaseConfigured) return null;
+    const conflict = await this.checkAppointmentConflict(
+      shopId, appointment.appointment_date, appointment.appointment_time, appointment.duration_minutes
+    );
+    if (conflict) {
+      const t = conflict.appointment_time?.slice(0, 5) || '';
+      throw new Error(`That time slot (${t}) is already booked. Please pick a different time.`);
+    }
     const { data, error } = await supabase.from('appointments').insert({
       shop_id: shopId,
       service_id: appointment.service_id || null,
@@ -3990,7 +4065,19 @@ export const api = {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }).select().single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      // 23P01 = exclusion_violation — the rare race-condition case where
+      // two bookings for the same shop+time landed within milliseconds of
+      // each other and both passed the app-level checkAppointmentConflict
+      // read before either insert committed. The DB-level exclusion
+      // constraint (see migration 20260705_appointment_no_overlap.sql) is
+      // what actually caught it here — give the same friendly message
+      // instead of surfacing Postgres's raw constraint-violation text.
+      if (error.code === '23P01') {
+        throw new Error('That time slot was just booked by someone else. Please pick a different time.');
+      }
+      throw new Error(error.message);
+    }
     return data;
   },
 
