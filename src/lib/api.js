@@ -3993,17 +3993,130 @@ export const api = {
   // check should be scoped to the specific staff member instead of the
   // whole shop, so two DIFFERENT staff can legitimately serve two
   // customers at the same time.
-  // Public, PII-free: returns just the taken time ranges for a given
-  // shop+date so the customer booking widget can grey out unavailable
-  // slots BEFORE they attempt to book — better UX than only finding out
-  // after submitting. Same column restriction as checkAppointmentConflict.
-  async getBookedSlots(shopId, date) {
+  // ── STAFF ASSIGNMENT (PROVIDERS) ────────────────────────────────────────
+  //
+  // Deliberately separate from login-based staff accounts (users where
+  // role='staff', which require phone+password+PIN) — most small salons
+  // want to list a stylist as bookable without issuing her a POS login.
+  // See migration 20260705_providers_staff_assignment.sql for the full
+  // design rationale.
+
+  async getProviders(shopId) {
     if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase.from('appointments')
+    const { data, error } = await supabase.from('providers')
+      .select('*').eq('shop_id', shopId)
+      .order('display_order', { ascending: true }).order('created_at', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async saveProvider(shopId, provider) {
+    if (!isSupabaseConfigured) return null;
+    const payload = {
+      shop_id: shopId,
+      name: provider.name,
+      title: provider.title || null,
+      photo_url: provider.photo_url || null,
+      phone: provider.phone || null,
+      working_hours: provider.working_hours || undefined, // let DB default apply if not given
+      active: provider.active !== false,
+      display_order: Number(provider.display_order) || 0,
+      updated_at: new Date().toISOString(),
+    };
+    if (provider.id) {
+      const { data, error } = await supabase.from('providers').update(payload).eq('id', provider.id).select().single();
+      if (error) throw new Error(error.message);
+      return data;
+    }
+    const { data, error } = await supabase.from('providers')
+      .insert({ ...payload, created_at: new Date().toISOString() }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async deleteProvider(id) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('providers').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async toggleProviderActive(id, active) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('providers').update({ active, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async getProviderTimeOff(providerId) {
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase.from('provider_time_off')
+      .select('*').eq('provider_id', providerId).order('start_date', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async addProviderTimeOff(providerId, startDate, endDate, reason) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.from('provider_time_off')
+      .insert({ provider_id: providerId, start_date: startDate, end_date: endDate, reason: reason || null })
+      .select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  async deleteProviderTimeOff(id) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('provider_time_off').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // Combines a provider's weekly working_hours + any time-off block
+  // covering the given date + already-booked ranges, so the booking
+  // widget can generate a slot grid that's actually accurate — not just
+  // a fixed 9am-8pm grid with bookings greyed out, but genuinely
+  // reflecting when this specific person works.
+  async getProviderAvailability(providerId, date) {
+    if (!isSupabaseConfigured) return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [] };
+    const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const dayKey = DAY_KEYS[new Date(date + 'T00:00:00').getDay()];
+
+    const { data: provider, error: provErr } = await supabase.from('providers')
+      .select('working_hours').eq('id', providerId).maybeSingle();
+    if (provErr || !provider) return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [] };
+
+    const dayHours = provider.working_hours?.[dayKey];
+    if (!dayHours) return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [] };
+
+    // Check time-off — any range covering this date blocks the whole day.
+    const { data: timeOff } = await supabase.from('provider_time_off')
+      .select('start_date, end_date').eq('provider_id', providerId)
+      .lte('start_date', date).gte('end_date', date);
+    if (timeOff && timeOff.length > 0) {
+      return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [], onTimeOff: true };
+    }
+
+    const bookedRanges = await this.getBookedSlots(null, date, providerId);
+    return { isOpen: true, workingStart: dayHours.start, workingEnd: dayHours.end, bookedRanges };
+  },
+
+
+  // better UX than only finding out after submitting. Same column
+  // restriction as checkAppointmentConflict.
+  //
+  // If providerId is given, scopes to that provider only (two different
+  // providers can serve two customers at the same time). If omitted,
+  // falls back to shop-wide scoping — same as before providers existed,
+  // for shops that haven't set any up.
+  async getBookedSlots(shopId, date, providerId = null) {
+    if (!isSupabaseConfigured) return [];
+    let q = supabase.from('appointments')
       .select('appointment_time, duration_minutes')
-      .eq('shop_id', shopId)
       .eq('appointment_date', date)
       .not('status', 'in', '("cancelled")');
+    q = providerId ? q.eq('provider_id', providerId) : q.eq('shop_id', shopId).is('provider_id', null);
+    const { data, error } = await q;
     if (error) return [];
     return (data || []).map(a => ({
       start: this._timeToMinutes(a.appointment_time),
@@ -4011,7 +4124,7 @@ export const api = {
     }));
   },
 
-  async checkAppointmentConflict(shopId, date, time, durationMinutes, excludeAppointmentId = null) {
+  async checkAppointmentConflict(shopId, date, time, durationMinutes, excludeAppointmentId = null, providerId = null) {
     if (!isSupabaseConfigured) return null;
     // Only select non-identifying columns — this runs for anonymous
     // customers browsing the booking widget too, who must never see
@@ -4019,11 +4132,12 @@ export const api = {
     // See migration 20260705_appointments_privacy_fix.sql for the
     // matching column-level GRANT that makes this the only thing anon
     // can read from this table.
-    const { data, error } = await supabase.from('appointments')
+    let q = supabase.from('appointments')
       .select('id, appointment_time, duration_minutes')
-      .eq('shop_id', shopId)
       .eq('appointment_date', date)
       .not('status', 'in', '("cancelled")');
+    q = providerId ? q.eq('provider_id', providerId) : q.eq('shop_id', shopId).is('provider_id', null);
+    const { data, error } = await q;
     if (error) return null; // fail open — don't block booking on a read error
     const newStart = this._timeToMinutes(time);
     const newEnd = newStart + (Number(durationMinutes) || 30);
@@ -4043,7 +4157,8 @@ export const api = {
   async bookAppointment(shopId, appointment) {
     if (!isSupabaseConfigured) return null;
     const conflict = await this.checkAppointmentConflict(
-      shopId, appointment.appointment_date, appointment.appointment_time, appointment.duration_minutes
+      shopId, appointment.appointment_date, appointment.appointment_time, appointment.duration_minutes,
+      null, appointment.provider_id || null
     );
     if (conflict) {
       const t = conflict.appointment_time?.slice(0, 5) || '';
@@ -4061,6 +4176,7 @@ export const api = {
       appointment_time: appointment.appointment_time,
       notes: appointment.notes || null,
       booked_via: appointment.booked_via || 'consumer_portal',
+      provider_id: appointment.provider_id || null,
       // Consumer self-bookings default to 'pending' (owner reviews and
       // confirms). Owner-created walk-in/phone bookings should default
       // to 'confirmed' — the shop already knows it's happening, there's
@@ -4074,9 +4190,10 @@ export const api = {
       // two bookings for the same shop+time landed within milliseconds of
       // each other and both passed the app-level checkAppointmentConflict
       // read before either insert committed. The DB-level exclusion
-      // constraint (see migration 20260705_appointment_no_overlap.sql) is
-      // what actually caught it here — give the same friendly message
-      // instead of surfacing Postgres's raw constraint-violation text.
+      // constraint (see migrations 20260705_appointment_no_overlap.sql
+      // and 20260705_providers_staff_assignment.sql) is what actually
+      // caught it here — give the same friendly message instead of
+      // surfacing Postgres's raw constraint-violation text.
       if (error.code === '23P01') {
         throw new Error('That time slot was just booked by someone else. Please pick a different time.');
       }

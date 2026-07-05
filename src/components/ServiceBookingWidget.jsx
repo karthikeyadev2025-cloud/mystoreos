@@ -45,11 +45,16 @@ const getNext7Days = () => {
 
 export default function ServiceBookingWidget({ shopId, shopName, shopPhone, customerPhone, customerName }) {
   const [services, setServices] = useState([]);
+  const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState(1); // 1=pick service, 2=pick date/time, 3=confirm, 4=done
+  // Steps: 1=service, 2=provider (skipped if shop has no active staff),
+  // 3=date/time, 4=confirm, 5=done
+  const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(null);
   const [bookedRanges, setBookedRanges] = useState([]); // [{start, end}] in minutes, for the selected date
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [dayAvailability, setDayAvailability] = useState({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
   const [selectedDate, setSelectedDate] = useState(getNext7Days()[0].iso);
   const [selectedTime, setSelectedTime] = useState('');
   const [form, setForm] = useState({ name: customerName || '', phone: customerPhone || '', notes: '' });
@@ -57,29 +62,58 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   const [confirmedAppt, setConfirmedAppt] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
 
+  const hasProviders = providers.length > 0;
+
   useEffect(() => {
-    api.getShopServices(shopId).then(svcs => {
+    Promise.all([
+      api.getShopServices(shopId),
+      api.getProviders(shopId).catch(() => []), // non-fatal — shop may not have set up staff
+    ]).then(([svcs, provs]) => {
       setServices(svcs.filter(s => s.active));
+      setProviders((provs || []).filter(p => p.active));
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [shopId]);
 
-  // Refetch booked slots whenever the selected date changes, so the time
-  // grid can grey out unavailable slots BEFORE the customer tries to
-  // book one — catching the conflict here is much better UX than
-  // discovering it only after tapping Confirm.
+  // Refetch availability whenever the selected date OR provider changes.
+  // If a provider is selected, this respects THEIR specific working
+  // hours and time off (via getProviderAvailability) — not just a fixed
+  // 9am-8pm grid with bookings greyed out. If no provider is selected
+  // (shop has no staff set up), falls back to the original shop-wide
+  // fixed-grid behaviour.
   useEffect(() => {
     setLoadingSlots(true);
-    api.getBookedSlots(shopId, selectedDate)
-      .then(setBookedRanges)
-      .finally(() => setLoadingSlots(false));
-  }, [shopId, selectedDate]);
+    if (selectedProvider) {
+      api.getProviderAvailability(selectedProvider.id, selectedDate)
+        .then(avail => {
+          setDayAvailability(avail);
+          setBookedRanges(avail.bookedRanges || []);
+        })
+        .finally(() => setLoadingSlots(false));
+    } else {
+      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
+      api.getBookedSlots(shopId, selectedDate)
+        .then(setBookedRanges)
+        .finally(() => setLoadingSlots(false));
+    }
+  }, [shopId, selectedDate, selectedProvider]);
 
   const isSlotTaken = (timeStr) => {
     if (!selectedService) return false;
     const [h, m] = timeStr.split(':').map(Number);
     const slotStart = h * 60 + m;
     const slotEnd = slotStart + (Number(selectedService.duration_minutes) || 30);
+    // If a provider is selected, slots outside their working hours for
+    // this day are also "taken" (from the customer's perspective — they
+    // simply can't book it), in addition to already-booked ranges.
+    if (selectedProvider) {
+      if (!dayAvailability.isOpen) return true;
+      const [wsH, wsM] = (dayAvailability.workingStart || '00:00').split(':').map(Number);
+      const [weH, weM] = (dayAvailability.workingEnd || '23:59').split(':').map(Number);
+      const workStart = wsH * 60 + wsM;
+      const workEnd = weH * 60 + weM;
+      if (slotStart < workStart || slotEnd > workEnd) return true;
+    }
     return bookedRanges.some(r => slotStart < r.end && slotEnd > r.start);
   };
 
@@ -104,9 +138,10 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         appointment_time: selectedTime + ':00',
         notes: form.notes,
         booked_via: 'consumer_portal',
+        provider_id: selectedProvider?.id || null,
       });
       setConfirmedAppt(appt);
-      setStep(4);
+      setStep(5);
       toast.success('Appointment booked!');
 
       // Notify the shop owner via WhatsApp — opens a wa.me link pre-filled
@@ -127,6 +162,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               `📞 ${form.phone}`,
               ``,
               `✂️ ${selectedService.name}`,
+              selectedProvider ? `💇 With: ${selectedProvider.name}` : null,
               `📅 ${dateNice} · ${timeNice}`,
               `⏱️ ${selectedService.duration_minutes} min`,
               `💰 ₹${Number(selectedService.price).toLocaleString('en-IN')}`,
@@ -159,8 +195,8 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
   if (services.length === 0) return null; // No services — don't show the widget
 
-  // ── STEP 4: Confirmed ─────────────────────────────────────────────────
-  if (step === 4) {
+  // ── STEP 5: Confirmed ─────────────────────────────────────────────────
+  if (step === 5) {
     const dateDisplay = confirmedAppt?.appointment_date
       ? new Date(confirmedAppt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
       : selectedDate;
@@ -174,13 +210,14 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'left', marginBottom: 20, border: '1px solid #E2E8F0' }}>
           <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', marginBottom: 10 }}>{selectedService?.name}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: '#475569' }}>
+            {selectedProvider && <div>💇 With {selectedProvider.name}</div>}
             <div>📅 {dateDisplay}</div>
             <div>⏰ {fmt12(selectedTime)}</div>
             <div>⏱️ {selectedService?.duration_minutes} min</div>
             <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
           </div>
         </div>
-        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedTime(''); setConfirmedAppt(null); }}
+        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); }}
           style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
           Book Another Appointment
         </button>
@@ -188,20 +225,32 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
     );
   }
 
+  // Dynamic step labels depending on whether this shop has staff set up
+  const stepLabels = hasProviders ? ['Service', 'Staff', 'Date & Time', 'Confirm'] : ['Service', 'Date & Time', 'Confirm'];
+  // Maps the internal step number (1,2,3,4,5) to a 0-indexed position in
+  // stepLabels, skipping the 'Staff' step entirely when hasProviders is false.
+  const stepPosition = (s) => {
+    if (!hasProviders) return s === 1 ? 0 : s === 3 ? 1 : s === 4 ? 2 : 0;
+    return s - 1;
+  };
+
   return (
     <div>
       {/* Progress indicator */}
       <div style={{ display: 'flex', gap: 6, padding: '16px 16px 0', marginBottom: 16 }}>
-        {['Service', 'Date & Time', 'Confirm'].map((label, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, cursor: i < step - 1 ? 'pointer' : 'default' }}
-            onClick={() => { if (i < step - 1) setStep(i + 1); }}>
-            <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > i + 1 ? '#10B981' : step === i + 1 ? '#4F46E5' : '#E2E8F0', color: step >= i + 1 ? '#fff' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
-              {step > i + 1 ? '✓' : i + 1}
+        {stepLabels.map((label, i) => {
+          const currentPos = stepPosition(step);
+          return (
+            <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, cursor: i < currentPos ? 'pointer' : 'default' }}
+              onClick={() => { if (i < currentPos) setStep(hasProviders ? i + 1 : (i === 0 ? 1 : i === 1 ? 3 : 4)); }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: currentPos > i ? '#10B981' : currentPos === i ? '#4F46E5' : '#E2E8F0', color: currentPos >= i ? '#fff' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
+                {currentPos > i ? '✓' : i + 1}
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 600, color: currentPos === i ? '#4F46E5' : '#94A3B8', whiteSpace: 'nowrap' }}>{label}</span>
+              {i < stepLabels.length - 1 && <div style={{ flex: 1, height: 1, background: currentPos > i ? '#10B981' : '#E2E8F0' }} />}
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, color: step === i + 1 ? '#4F46E5' : '#94A3B8', whiteSpace: 'nowrap' }}>{label}</span>
-            {i < 2 && <div style={{ flex: 1, height: 1, background: step > i + 1 ? '#10B981' : '#E2E8F0' }} />}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* ── STEP 1: Pick Service ─────────────────────────────────────────── */}
@@ -225,7 +274,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {filteredServices.map(svc => (
-              <button key={svc.id} onClick={() => { setSelectedService(svc); setStep(2); }}
+              <button key={svc.id} onClick={() => { setSelectedService(svc); setStep(hasProviders ? 2 : 3); }}
                 style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
                   {(SERVICE_CATEGORIES.find(c => c.id === svc.category) || SERVICE_CATEGORIES[7]).label.split(' ')[0]}
@@ -245,10 +294,9 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         </div>
       )}
 
-      {/* ── STEP 2: Date & Time ──────────────────────────────────────────── */}
-      {step === 2 && (
+      {/* ── STEP 2: Choose Staff (only shown if the shop has staff set up) ── */}
+      {step === 2 && hasProviders && (
         <div style={{ padding: '0 16px 16px' }}>
-          {/* Selected service summary */}
           <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#4F46E5' }}>{selectedService?.name}</div>
@@ -257,12 +305,46 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
             <button onClick={() => setStep(1)} style={{ fontSize: 11, color: '#4F46E5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
           </div>
 
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Who would you like to book with?</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {providers.map(p => (
+              <button key={p.id} onClick={() => { setSelectedProvider(p); setSelectedTime(''); setStep(3); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#4F46E5', fontWeight: 800, fontSize: 15 }}>
+                  {p.name.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{p.name}</div>
+                  {p.title && <div style={{ fontSize: 12, color: '#64748B' }}>{p.title}</div>}
+                </div>
+                <ChevronRight size={16} color="#94A3B8" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: Date & Time ──────────────────────────────────────────── */}
+      {step === 3 && (
+        <div style={{ padding: '0 16px 16px' }}>
+          {/* Selected service summary */}
+          <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 13, color: '#4F46E5' }}>{selectedService?.name}</div>
+              <div style={{ fontSize: 12, color: '#6366F1' }}>
+                ₹{Number(selectedService?.price).toLocaleString('en-IN')} · {selectedService?.duration_minutes} min
+                {selectedProvider && ` · with ${selectedProvider.name}`}
+              </div>
+            </div>
+            <button onClick={() => setStep(hasProviders ? 2 : 1)} style={{ fontSize: 11, color: '#4F46E5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
+          </div>
+
           {/* Date picker */}
           <div style={{ marginBottom: 18 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Select Date</div>
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
               {days.map(d => (
-                <button key={d.iso} onClick={() => setSelectedDate(d.iso)}
+                <button key={d.iso} onClick={() => { setSelectedDate(d.iso); setSelectedTime(''); }}
                   style={{ flexShrink: 0, width: 52, padding: '8px 4px', borderRadius: 10, border: '1px solid', cursor: 'pointer', textAlign: 'center', transition: 'all .15s', borderColor: selectedDate === d.iso ? '#4F46E5' : '#E2E8F0', background: selectedDate === d.iso ? '#4F46E5' : '#fff', color: selectedDate === d.iso ? '#fff' : '#475569' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.8 }}>{d.day}</div>
                   <div style={{ fontSize: 18, fontWeight: 900, lineHeight: 1.2 }}>{d.date}</div>
@@ -277,40 +359,60 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
             <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>
               Select Time {loadingSlots && <span style={{ color: '#94A3B8', fontWeight: 400 }}>(checking availability…)</span>}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              {TIME_SLOTS.map(t => {
-                const taken = isSlotTaken(t);
-                return (
-                  <button key={t} disabled={taken} onClick={() => !taken && setSelectedTime(t)}
-                    style={{
-                      padding: '9px 4px', borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 600,
-                      cursor: taken ? 'not-allowed' : 'pointer', transition: 'all .1s',
-                      borderColor: taken ? '#F1F5F9' : (selectedTime === t ? '#4F46E5' : '#E2E8F0'),
-                      background: taken ? '#F8FAFC' : (selectedTime === t ? '#4F46E5' : '#fff'),
-                      color: taken ? '#CBD5E1' : (selectedTime === t ? '#fff' : '#475569'),
-                      textDecoration: taken ? 'line-through' : 'none',
-                    }}>
-                    {fmt12(t)}
-                  </button>
-                );
-              })}
-            </div>
+            {selectedProvider && dayAvailability.onTimeOff ? (
+              <div style={{ textAlign: 'center', padding: 24, background: '#FFF7ED', borderRadius: 10, border: '1px dashed #FDBA74' }}>
+                <div style={{ fontSize: 13, color: '#C2410C', fontWeight: 600 }}>{selectedProvider.name} is on leave this day</div>
+                <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4 }}>Please pick a different date</div>
+              </div>
+            ) : selectedProvider && !dayAvailability.isOpen ? (
+              <div style={{ textAlign: 'center', padding: 24, background: '#F8FAFC', borderRadius: 10, border: '1px dashed #E2E8F0' }}>
+                <div style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{selectedProvider.name} doesn't work this day</div>
+                <div style={{ fontSize: 12, color: '#CBD5E1', marginTop: 4 }}>Please pick a different date</div>
+              </div>
+            ) : (
+              <>
+                {selectedProvider && dayAvailability.isOpen && (
+                  <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 8 }}>
+                    {selectedProvider.name} works {fmt12(dayAvailability.workingStart)} – {fmt12(dayAvailability.workingEnd)} this day
+                  </div>
+                )}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {TIME_SLOTS.map(t => {
+                    const taken = isSlotTaken(t);
+                    return (
+                      <button key={t} disabled={taken} onClick={() => !taken && setSelectedTime(t)}
+                        style={{
+                          padding: '9px 4px', borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 600,
+                          cursor: taken ? 'not-allowed' : 'pointer', transition: 'all .1s',
+                          borderColor: taken ? '#F1F5F9' : (selectedTime === t ? '#4F46E5' : '#E2E8F0'),
+                          background: taken ? '#F8FAFC' : (selectedTime === t ? '#4F46E5' : '#fff'),
+                          color: taken ? '#CBD5E1' : (selectedTime === t ? '#fff' : '#475569'),
+                          textDecoration: taken ? 'line-through' : 'none',
+                        }}>
+                        {fmt12(t)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
-          <button onClick={() => { if (!selectedTime) return toast.error('Please select a time'); setStep(3); }}
+          <button onClick={() => { if (!selectedTime) return toast.error('Please select a time'); setStep(4); }}
             style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
             Continue →
           </button>
         </div>
       )}
 
-      {/* ── STEP 3: Confirm & Book ───────────────────────────────────────── */}
-      {step === 3 && (
+      {/* ── STEP 4: Confirm & Book ───────────────────────────────────────── */}
+      {step === 4 && (
         <div style={{ padding: '0 16px 16px' }}>
           {/* Summary */}
           <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, marginBottom: 16, border: '1px solid #E2E8F0' }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: '#0F172A', marginBottom: 10 }}>{selectedService?.name}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13, color: '#475569' }}>
+              {selectedProvider && <div>💇 With {selectedProvider.name}</div>}
               <div>📅 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
               <div>⏰ {fmt12(selectedTime)}</div>
               <div>⏱️ {selectedService?.duration_minutes} min</div>
@@ -339,7 +441,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setStep(2)} style={{ padding: '12px 18px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: '#475569' }}>← Back</button>
+            <button onClick={() => setStep(3)} style={{ padding: '12px 18px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: '#475569' }}>← Back</button>
             <button onClick={handleBook} disabled={booking}
               style={{ flex: 1, padding: 13, borderRadius: 10, border: 'none', background: booking ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#6366F1)', color: '#fff', fontWeight: 800, fontSize: 14, cursor: booking ? 'wait' : 'pointer' }}>
               {booking ? 'Booking…' : '✓ Confirm Appointment'}

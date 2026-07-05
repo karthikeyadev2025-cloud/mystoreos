@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, Check, X, Clock, Calendar, Phone, User, ChevronLeft, ChevronRight, Scissors } from 'lucide-react';
 import CompleteBillModal from './CompleteBillModal';
+import StaffManagement from './StaffManagement';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
@@ -61,10 +62,11 @@ function ServiceCard({ service, onEdit, onDelete, onToggle }) {
   );
 }
 
-function AppointmentRow({ appt, onStatusChange, onCompleteWithBill }) {
+function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBill }) {
   const st = STATUS_CONFIG[appt.status] || STATUS_CONFIG.pending;
   const timeStr = appt.appointment_time ? appt.appointment_time.slice(0, 5) : '';
   const dateStr = appt.appointment_date ? new Date(appt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
+  const provider = appt.provider_id ? providers.find(p => p.id === appt.provider_id) : null;
   return (
     <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'center' }}>
       {/* Time */}
@@ -74,7 +76,14 @@ function AppointmentRow({ appt, onStatusChange, onCompleteWithBill }) {
       </div>
       {/* Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>{appt.service_name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{appt.service_name}</span>
+          {provider && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '1px 8px', borderRadius: 999 }}>
+              💇 {provider.name}
+            </span>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><User size={11} />{appt.customer_name}</span>
           <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} />{appt.customer_phone}</span>
@@ -188,27 +197,43 @@ const fmt12 = (t) => {
 // common, not just online self-service). Reuses the exact same
 // conflict-checking (api.bookAppointment / api.getBookedSlots) as the
 // consumer widget, so a walk-in can never double-book a slot either.
-function NewWalkInBookingModal({ shopId, services, onClose, onSaved }) {
+function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }) {
   const [serviceId, setServiceId] = useState(services[0]?.id || '');
+  const [providerId, setProviderId] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [time, setTime] = useState('');
   const [bookedRanges, setBookedRanges] = useState([]);
+  const [dayAvailability, setDayAvailability] = useState({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
   const selectedService = services.find(s => s.id === serviceId);
+  const selectedProvider = providers.find(p => p.id === providerId);
 
   useEffect(() => {
-    api.getBookedSlots(shopId, date).then(setBookedRanges).catch(() => setBookedRanges([]));
-  }, [shopId, date]);
+    if (providerId) {
+      api.getProviderAvailability(providerId, date)
+        .then(avail => { setDayAvailability(avail); setBookedRanges(avail.bookedRanges || []); })
+        .catch(() => setBookedRanges([]));
+    } else {
+      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
+      api.getBookedSlots(shopId, date).then(setBookedRanges).catch(() => setBookedRanges([]));
+    }
+  }, [shopId, date, providerId]);
 
   const isSlotTaken = (t) => {
     if (!selectedService) return false;
     const [h, m] = t.split(':').map(Number);
     const start = h * 60 + m;
     const end = start + (Number(selectedService.duration_minutes) || 30);
+    if (providerId) {
+      if (!dayAvailability.isOpen) return true;
+      const [wsH, wsM] = (dayAvailability.workingStart || '00:00').split(':').map(Number);
+      const [weH, weM] = (dayAvailability.workingEnd || '23:59').split(':').map(Number);
+      if (start < wsH * 60 + wsM || end > weH * 60 + weM) return true;
+    }
     return bookedRanges.some(r => start < r.end && end > r.start);
   };
 
@@ -230,6 +255,7 @@ function NewWalkInBookingModal({ shopId, services, onClose, onSaved }) {
         appointment_time: time + ':00',
         notes: notes || null,
         booked_via: 'walk_in',
+        provider_id: providerId || null,
         status: 'confirmed', // owner already knows this is happening — skip the pending review step
       });
       toast.success('Booking added!');
@@ -254,6 +280,19 @@ function NewWalkInBookingModal({ shopId, services, onClose, onSaved }) {
             <option key={s.id} value={s.id}>{s.name} — ₹{Number(s.price).toLocaleString('en-IN')} ({s.duration_minutes} min)</option>
           ))}
         </select>
+
+        {providers.length > 0 && (
+          <>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Staff Member</label>
+            <select value={providerId} onChange={e => { setProviderId(e.target.value); setTime(''); }}
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none', marginBottom: 14 }}>
+              <option value="">No preference / single resource</option>
+              {providers.map(p => (
+                <option key={p.id} value={p.id}>{p.name}{p.title ? ` — ${p.title}` : ''}</option>
+              ))}
+            </select>
+          </>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
           <div>
@@ -320,16 +359,19 @@ export default function DesktopBookings({ shopId, shopName }) {
   const [viewMode, setViewMode] = useState('today'); // 'today' | 'upcoming' | 'all'
   const [completingAppointment, setCompletingAppointment] = useState(null);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [providers, setProviders] = useState([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [svcs, appts] = await Promise.all([
+      const [svcs, appts, provs] = await Promise.all([
         api.getShopServices(shopId),
         api.getAppointments(shopId),
+        api.getProviders(shopId).catch(() => []),
       ]);
       setServices(svcs);
       setAppointments(appts);
+      setProviders(provs || []);
     } catch (e) { toast.error('Failed to load bookings'); }
     finally { setLoading(false); }
   }, [shopId]);
@@ -403,6 +445,7 @@ export default function DesktopBookings({ shopId, shopName }) {
         {[
           { id: 'appointments', label: '📅 Appointments' },
           { id: 'services', label: '🛎️ Services' },
+          { id: 'staff', label: '👤 Staff' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', background: tab === t.id ? '#fff' : 'transparent', color: tab === t.id ? '#4F46E5' : '#64748B', boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all .15s' }}>
@@ -448,7 +491,7 @@ export default function DesktopBookings({ shopId, shopName }) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {filteredAppts.map(a => (
-                <AppointmentRow key={a.id} appt={a} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} />
+                <AppointmentRow key={a.id} appt={a} providers={providers} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} />
               ))}
             </div>
           )}
@@ -500,6 +543,10 @@ export default function DesktopBookings({ shopId, shopName }) {
         </div>
       )}
 
+      {tab === 'staff' && (
+        <StaffManagement shopId={shopId} />
+      )}
+
       {completingAppointment && (
         <CompleteBillModal
           appointment={completingAppointment}
@@ -513,6 +560,7 @@ export default function DesktopBookings({ shopId, shopName }) {
         <NewWalkInBookingModal
           shopId={shopId}
           services={services.filter(s => s.active)}
+          providers={providers.filter(p => p.active)}
           onClose={() => setShowWalkInModal(false)}
           onSaved={() => { setShowWalkInModal(false); loadData(); }}
         />
