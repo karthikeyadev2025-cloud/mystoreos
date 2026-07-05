@@ -220,6 +220,12 @@ const UserDashboard = () => {
   const [shopInfo, setShopInfo] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [shopHasServices, setShopHasServices] = useState(false);
+  // True for a shop that offers services but has no physical products at
+  // all — a pure salon/spa/clinic. Showing an empty "no products" grid
+  // and an always-empty checkout cart on their storefront looked broken,
+  // not intentional. For these shops, the storefront should be entirely
+  // about booking, not a half-empty product page.
+  const isPureServiceShop = shopHasServices && products.length === 0;
   // Other branches of the same brand. Populated for branded shops that
   // run multiple locations (e.g. RK Mens & Jeans — Main + branches);
   // empty for standalone shops. Shown to customers as an "Also visit
@@ -1472,8 +1478,11 @@ const UserDashboard = () => {
                     )}
                   </span>
                 </div>
-                {/* Book Appointment CTA — appears when the shop has active services */}
-                {shopHasServices && (
+                {/* Book Appointment CTA — for MIXED shops (services + products).
+                    Pure-service shops (isPureServiceShop) show the booking
+                    widget inline on the main page instead, so this button
+                    would be redundant there. */}
+                {shopHasServices && !isPureServiceShop && (
                   <button
                     onClick={() => setShowBookingModal(true)}
                     style={{
@@ -1563,6 +1572,20 @@ const UserDashboard = () => {
                 </div>
               )}
 
+              {isPureServiceShop ? (
+                /* Pure-service shop (spa/salon/clinic, zero products) —
+                   the storefront is entirely about booking, not a
+                   half-empty product page + always-empty cart. */
+                <div style={{ maxWidth: 480, margin: '0 auto', background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+                  <ServiceBookingWidget
+                    shopId={ACTIVE_SHOP_ID}
+                    shopName={shopInfo?.name}
+                    shopPhone={shopInfo?.phone}
+                    customerName={user?.name}
+                    customerPhone={user?.phone}
+                  />
+                </div>
+              ) : (
               <div className="responsive-split-grid" style={{ width: '100%' }}>
                 {/* Center Column: Catalog directory grid */}
                 <div>
@@ -1870,6 +1893,7 @@ const UserDashboard = () => {
                   </div>
                 </div>
               </div>
+              )}
             </div>
           </>
         ) : (
@@ -2692,7 +2716,7 @@ return (
                   modal even though the modal itself works fine once
                   opened — the desktop version lived entirely inside an
                   `if (!isMobile)` early return, unreachable here. */}
-              {shopHasServices && (
+              {shopHasServices && !isPureServiceShop && (
                 <button
                   onClick={() => setShowBookingModal(true)}
                   style={{
@@ -2827,6 +2851,22 @@ return (
             );
           })()}
 
+          {isPureServiceShop ? (
+            /* Pure-service shop (spa/salon/clinic, zero products) — the
+               storefront is entirely about booking on mobile too. */
+            <div style={{ padding: 16 }}>
+              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+                <ServiceBookingWidget
+                  shopId={ACTIVE_SHOP_ID}
+                  shopName={shopInfo?.name}
+                  shopPhone={shopInfo?.phone}
+                  customerName={user?.name}
+                  customerPhone={user?.phone}
+                />
+              </div>
+            </div>
+          ) : (
+          <>
           {/* Catalog Search & Category Filters */}
           <div style={{ padding: '16px', background: 'rgba(11, 15, 25, 0.85)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -2917,6 +2957,8 @@ return (
               </div>
             )}
           </div>
+          </>
+          )}
 
           {/* Shopping Cart Bar Sticky Bottom */}
           {getCartTotals().count > 0 && (
