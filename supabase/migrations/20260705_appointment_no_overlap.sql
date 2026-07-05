@@ -18,6 +18,10 @@
 -- ─────────────────────────────────────────────────────────────────────────
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
+-- On Supabase, extensions install into the `extensions` schema — without
+-- this, the gist operator classes aren't findable and the constraint
+-- fails with: 'data type uuid has no default operator class for gist'.
+SET search_path TO public, extensions;
 
 -- A generated column expressing each appointment as a time range, so
 -- Postgres can use its native range-overlap operators.
