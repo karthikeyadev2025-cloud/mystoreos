@@ -37,6 +37,7 @@ import DesktopCredit from '../components/DesktopCredit';
 import DesktopRestock from '../components/DesktopRestock';
 import DesktopReports from '../components/DesktopReports';
 import DesktopBookings from '../components/DesktopBookings';
+import ServiceBusinessHome from '../components/ServiceBusinessHome';
 import DesktopMembership from '../components/DesktopMembership';
 import DesktopFeedback from '../components/DesktopFeedback';
 import DesktopSettings from '../components/DesktopSettings';
@@ -105,7 +106,7 @@ const ShopDashboard = () => {
     user.businessKind === 'service' ||
     (!user.businessKind && LEGACY_SERVICE_CATEGORIES.includes(user.shopCategory))
   );
-  const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'bookings' : 'home');
+  const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'dashboard' : 'home');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
@@ -365,26 +366,60 @@ const ShopDashboard = () => {
   const shop = (user.role === 'staff' && shopProfile) ? shopProfile : user;
   const isOwner = user.role === 'shop' || user.role === 'admin';
 
-  // Staff logins don't carry business_kind on their own user row — only
-  // the OWNER's row has it. On mount, `shop` briefly equals `user` (the
-  // staff member) until shopProfile finishes loading, so the very first
-  // render's isServiceBusiness check (line ~104) can't see the owner's
-  // real business_kind for staff sessions and defaults to 'home'/POS.
-  // Once shopProfile loads with the owner's actual businessKind, correct
-  // the tab — but only if the user hasn't already navigated away from
-  // the default landing tabs, so we don't yank someone back to Bookings
-  // after they've deliberately clicked into Products in that split second.
+  // Two separate async-arrival races can leave a service business stuck on
+  // the wrong landing tab, both fixed the same way — correct the tab once
+  // the real businessKind is known, but only if the person hasn't already
+  // navigated away from the default landing tabs in the meantime:
+  //
+  // 1. STAFF LOGINS: business_kind only ever lives on the OWNER's row, not
+  //    the staff member's own row. `shop` (which holds the owner's data for
+  //    staff sessions) starts as `user` until shopProfile finishes loading
+  //    asynchronously, so the initial isServiceBusiness check can't see it.
+  //
+  // 2. SHOP OWNERS THEMSELVES: useAuth.jsx restores the cached session from
+  //    localStorage synchronously on mount, then fetches the fresh DB row
+  //    and merges it in via a SEPARATE async useEffect. If the cached
+  //    session predates business_kind being set (e.g. right after
+  //    registration redirects, or after completing onboarding, or simply
+  //    an old cached session from before this feature existed),
+  //    `user.businessKind` is briefly wrong/missing on the very first
+  //    render — but `useState(isServiceBusiness ? 'bookings' : 'home')`
+  //    only evaluates ONCE, at that first render. By the time the async
+  //    merge corrects `user.businessKind` moments later, activeTab has
+  //    already locked onto the wrong default and never revisits it. This
+  //    is exactly what caused a freshly-registered Service (spa) account
+  //    to land on Sales/POS instead of Bookings.
   const didAutoCorrectTab = useRef(false);
   useEffect(() => {
-    if (user.role !== 'staff' || didAutoCorrectTab.current || !shopProfile) return;
-    const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
-    const ownerIsService = shopProfile.businessKind === 'service' ||
-      (!shopProfile.businessKind && svcCats.includes(shopProfile.shopCategory));
-    if (ownerIsService && (activeTab === 'home' || activeTab === 'bookings')) {
-      setActiveTab('bookings');
+    if (didAutoCorrectTab.current) return;
+
+    if (user.role === 'staff') {
+      if (!shopProfile) return; // wait for the owner's data to load
+      const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+      const ownerIsService = shopProfile.businessKind === 'service' ||
+        (!shopProfile.businessKind && svcCats.includes(shopProfile.shopCategory));
+      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+        setActiveTab('dashboard');
+      }
+      didAutoCorrectTab.current = true;
+    } else if (isOwner) {
+      // For shop owners, `user` itself becomes authoritative once
+      // useAuth's background merge (getUserById → toUser) completes. We
+      // can't easily tell "has the merge happened yet" from inside this
+      // component, so this check simply re-evaluates on every change to
+      // user.businessKind — if it flips to 'service' after mount while
+      // the person is still sitting on the default landing tabs, correct
+      // it once. Guards against ever double-firing via the ref.
+      const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
+      const ownerIsService = user.businessKind === 'service' ||
+        (!user.businessKind && svcCats.includes(user.shopCategory));
+      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+        setActiveTab('dashboard');
+        didAutoCorrectTab.current = true;
+      }
     }
-    didAutoCorrectTab.current = true;
-  }, [shopProfile, user.role, activeTab]);
+  }, [shopProfile, user.role, user.businessKind, user.shopCategory, activeTab, isOwner]);
+
 
   const isMainOwner = user.role === 'shop' && !user.parentShopId;
   // True when the dashboard is showing the main shop's data/settings.
@@ -4328,6 +4363,15 @@ const ShopDashboard = () => {
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px', position: 'relative' }}>
 
+          {activeTab === 'dashboard' && (
+            <ServiceBusinessHome
+              shopId={targetShopId}
+              shopName={shop.name}
+              orders={orders}
+              setActiveTab={setActiveTab}
+            />
+          )}
+
           {activeTab === 'home' && (
             <DesktopPOS 
               footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
@@ -5376,6 +5420,17 @@ const ShopDashboard = () => {
             </button>
             <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>×</button>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'dashboard' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <ServiceBusinessHome
+            shopId={targetShopId}
+            shopName={shop.name}
+            orders={orders}
+            setActiveTab={setActiveTab}
+          />
         </div>
       )}
 
@@ -7551,10 +7606,17 @@ const ShopDashboard = () => {
 
       {/* Bottom Nav */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', background: '#FFFFFF', padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', overflow: 'hidden' }}>
-        <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
+        <div style={{...styles.navBtn, color: (activeTab === 'home' || activeTab === 'dashboard') ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab(isServiceBusiness ? 'dashboard' : 'home')}>
           <Home size={18} style={{ margin: '0 auto 2px auto' }} />
-          <p style={{ fontSize: '9px', margin: 0 }}>Home</p>
+          <p style={{ fontSize: '9px', margin: 0 }}>{isServiceBusiness ? 'Dashboard' : 'Home'}</p>
         </div>
+
+        {isServiceBusiness && (
+          <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
+            <IndianRupee size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Sales</p>
+          </div>
+        )}
 
         {hasMultipleBranches && (
           <div style={{...styles.navBtn, color: activeTab === 'branches' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('branches')}>

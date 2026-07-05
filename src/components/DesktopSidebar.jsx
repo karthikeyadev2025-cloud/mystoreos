@@ -4,6 +4,7 @@ const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 // Real tabs (ids match ShopDashboard's activeTab exactly)
 const TABS = [
+  { id: 'dashboard',  Icon: BarChart2,  label: 'Dashboard',   serviceOnly: true },
   { id: 'home',       Icon: Home,       label: 'POS / Home' },
   { id: 'branches',   Icon: Building2,  label: 'Branches',    ownerOnly: true, multiBranchOnly: true },
   { id: 'products',   Icon: Package,    label: 'Products',    ownerOnly: true },
@@ -26,20 +27,22 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
   const LEGACY_SERVICE_CATS = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
   const isServiceBiz = businessKind === 'service' || (!businessKind && LEGACY_SERVICE_CATS.includes(shopCategory));
 
-  // For service businesses: Bookings goes right after Home (POS still
-  // available for product sales / retail items), and label the POS as
-  // "Sales" instead of "POS / Home" to fit service-shop mental model.
-  // For product businesses: keep original order (Bookings appears further
-  // down as an optional add-on).
+  // For service businesses: a dedicated Dashboard (appointments/revenue
+  // summary) leads, then Sales/POS (still needed for billing retail
+  // add-ons like shampoo, retail products alongside services), then
+  // Bookings for managing the appointment calendar and service catalogue.
+  // For product businesses: keep original order, no Dashboard tab at all
+  // (their 'home'/POS screen already serves that purpose).
   const tabs = isServiceBiz
     ? TABS.map(t => t.id === 'home' ? { ...t, label: 'Sales / POS' } : t)
         .sort((a, b) => {
-          const orderService = ['home','bookings','membership','customers','feedback','bills','products','branches','expenses','credit','restock','reports','profile'];
+          const orderService = ['dashboard','home','bookings','membership','customers','feedback','bills','products','branches','expenses','credit','restock','reports','profile'];
           return orderService.indexOf(a.id) - orderService.indexOf(b.id);
         })
     : TABS;
 
   const visible = tabs.filter(t => {
+    if (t.serviceOnly && !isServiceBiz) return false;
     if (t.ownerOnly && !isOwner) return false;
     if (t.multiBranchOnly && !hasMultipleBranches) return false;
     return true;
