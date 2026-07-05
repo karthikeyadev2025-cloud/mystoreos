@@ -70,9 +70,13 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Refresh the cached user's profile from the DB once on load, so stale
-  // sessions (e.g. created before public_code backfill or a tier change) pick
-  // up the latest fields like publicCode, subscription, plan tier, etc.
+  // Refresh the cached user's profile from the DB once on load AND after
+  // every in-SPA login (deps: user id), so stale sessions or a partial
+  // login payload (e.g. the auth-login edge function forgetting a field
+  // like business_kind) get corrected within moments — without this,
+  // service businesses stayed on the retail POS layout until a manual
+  // reload. Loop-safe: the merge preserves the same id, so setUser(merged)
+  // does not re-trigger this effect, and an unchanged merge skips setUser.
   useEffect(() => {
     if (!isSupabaseConfigured) return;
     let cancelled = false;
@@ -101,7 +105,8 @@ export const AuthProvider = ({ children }) => {
       } catch (_e) { /* keep cached session on any error */ }
     })();
     return () => { cancelled = true; };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
     if (isSupabaseConfigured) return;

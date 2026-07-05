@@ -43,6 +43,12 @@ function rowToProfile(row: Record<string, unknown>) {
     merchantCode: row.merchant_code || null,
     hideFromSearch: row.hide_from_search || false,
     shopCategory: row.shop_category || null,
+    // business_kind routes the shop to the Bookings-first service dashboard
+    // vs POS-first retail. Omitting it here made EVERY service business land
+    // on the retail POS at login (correct dashboard only appeared after a
+    // manual page reload, when useAuth's DB refresh re-fetched the field).
+    businessKind: row.business_kind || null,
+    onboardingCompleted: row.onboarding_completed ?? null,
     distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
     distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
     distributorTrialStartedAt: row.distributor_trial_started_at || null,
