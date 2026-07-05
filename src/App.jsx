@@ -19,6 +19,7 @@ const NativeWelcome = lazy(() => import('./pages/NativeWelcome'));
 const ShopDashboard = lazy(() => import('./pages/ShopDashboard'));
 const ZohoStyleShell = lazy(() => import('./components/ZohoStyleShell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
+const ManageBooking = lazy(() => import('./pages/ManageBooking'));
 const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
@@ -263,6 +264,12 @@ function App() {
                 <Route path="/s/:shopId" element={
                   <Suspense fallback={<DashboardSkeleton />}>
                     <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                  </Suspense>
+                } />
+
+                <Route path="/manage-booking/:token" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><ManageBooking /></ErrorBoundary>
                   </Suspense>
                 } />
 

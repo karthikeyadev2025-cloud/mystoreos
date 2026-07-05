@@ -4205,7 +4205,19 @@ export const api = {
       status: appointment.status || 'pending',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }).select().single();
+    })
+      // Explicit column list, not bare .select() (which requests every
+      // column via RETURNING *). Postgres requires SELECT privilege on
+      // every column named in a RETURNING clause — since anon only has
+      // column-level SELECT on 6 non-identifying columns (see
+      // 20260705_appointments_privacy_fix.sql / customer_self_service.sql),
+      // a bare .select() here could fail privilege checks or silently
+      // return incomplete data for a GUEST booking. Only request back
+      // what the caller actually uses: the date (for the confirmation
+      // screen) and the manage_token (for the self-service reschedule/
+      // cancel link) — both are in anon's allowed column list.
+      .select('id, appointment_date, appointment_time, status, manage_token')
+      .single();
     if (error) {
       // 23P01 = exclusion_violation — the rare race-condition case where
       // two bookings for the same shop+time landed within milliseconds of
@@ -4271,6 +4283,15 @@ export const api = {
     return { appointment: data, order };
   },
 
+  // Returns the LOGGED-IN customer's own appointment history. Safe
+  // despite accepting customerPhone as a plain parameter: the
+  // appointments_customer_own_read RLS policy (see
+  // 20260705_customer_self_service.sql) independently verifies, on the
+  // database side, that each returned row's customer_phone matches the
+  // CALLER's own authenticated profile phone — looked up server-side
+  // from auth.uid(), never trusting whatever phone the client claims. A
+  // malicious call with someone else's phone number simply gets zero
+  // rows back; it can never leak another customer's bookings.
   async getCustomerAppointments(customerPhone) {
     if (!isSupabaseConfigured) return [];
     const { data, error } = await supabase
@@ -4281,6 +4302,38 @@ export const api = {
       .order('appointment_time', { ascending: false });
     if (error) throw new Error(error.message);
     return data || [];
+  },
+
+  // ── GUEST SELF-SERVICE RESCHEDULE/CANCEL (capability token) ─────────────
+  //
+  // For guest bookings (no account). The customer receives a manage_token
+  // once, on their booking confirmation screen — possessing it is the
+  // only proof of ownership needed (same trust model as "anyone with the
+  // link" sharing). All three calls go through SECURITY DEFINER Postgres
+  // functions, which bypass RLS narrowly and only for the one row whose
+  // token the caller already knows.
+
+  async getAppointmentByToken(token) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.rpc('get_appointment_by_token', { p_token: token });
+    if (error) throw new Error(error.message);
+    return (data && data[0]) || null;
+  },
+
+  async cancelAppointmentByToken(token) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.rpc('cancel_appointment_by_token', { p_token: token });
+    if (error) throw new Error(error.message || 'Could not cancel this booking.');
+    return data;
+  },
+
+  async rescheduleAppointmentByToken(token, newDate, newTime) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.rpc('reschedule_appointment_by_token', {
+      p_token: token, p_new_date: newDate, p_new_time: newTime,
+    });
+    if (error) throw new Error(error.message || 'Could not reschedule this booking.');
+    return data;
   },
 
   // ── MEMBERSHIP PLANS ────────────────────────────────────────────────────

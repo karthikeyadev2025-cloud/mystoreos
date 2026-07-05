@@ -11,7 +11,7 @@ import {
   Search, MapPin, QrCode, Receipt, ShoppingCart, ArrowLeft, 
   Compass, ChevronRight, X, Sparkles, 
   Printer, Info, Clock, User, Navigation, 
-  AlertTriangle, CreditCard, Mic, Gift, Copy
+  AlertTriangle, CreditCard, Mic, Gift, Copy, Calendar
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 // html5-qrcode loaded on demand (see initScanner)
@@ -192,7 +192,7 @@ const UserDashboard = () => {
   const [coords, setCoords] = useState({ latitude: 17.3850, longitude: 78.4867 }); // default Hyderabad
   const [locationStatus, setLocationStatus] = useState('India');
   const [shops, setShops] = useState([]);
-  const [activeTab, setActiveTab] = useState('explore'); // explore, search, scan, bills
+  const [activeTab, setActiveTab] = useState('explore'); // explore, search, scan, bills, bookings
   const [avatar, setAvatar] = useState(user?.avatar || '');
 
   // Marketplace search
@@ -212,6 +212,8 @@ const UserDashboard = () => {
   // Digital Ledger
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [myBookings, setMyBookings] = useState([]);
+  const [myBookingsLoaded, setMyBookingsLoaded] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   // Shop Catalogue Mode states
@@ -367,6 +369,30 @@ const UserDashboard = () => {
       console.error('Failed to load orders', err);
     }
   }, [user]);
+
+  // Lazily loaded — only fetched the first time the customer opens the
+  // 'My Bookings' tab, not on every dashboard mount. Safe: RLS
+  // (appointments_customer_own_read) independently verifies server-side
+  // that returned rows match the CALLER's own authenticated phone —
+  // never trusting user.phone as anything more than a query filter.
+  const loadMyBookings = useCallback(async () => {
+    if (!user || !user.phone) return;
+    try {
+      const data = await api.getCustomerAppointments(user.phone);
+      setMyBookings(data || []);
+    } catch (err) {
+      console.error('Failed to load bookings', err);
+    } finally {
+      setMyBookingsLoaded(true);
+    }
+  }, [user]);
+
+  // Lazy-load bookings the first time the customer opens that tab.
+  useEffect(() => {
+    if (activeTab === 'bookings' && !myBookingsLoaded) {
+      loadMyBookings();
+    }
+  }, [activeTab, myBookingsLoaded, loadMyBookings]);
 
   const loadCatalogue = useCallback(async () => {
     setIsLocatingCatalog(true);
@@ -1877,6 +1903,7 @@ const UserDashboard = () => {
                   { id: 'search', label: 'Global Item Search', icon: Search },
                   { id: 'scan', label: 'Scan QR Poster', icon: QrCode },
                   { id: 'bills', label: 'My Bills Ledger', icon: Receipt },
+                  { id: 'bookings', label: 'My Bookings', icon: Calendar },
                 ].map(tab => {
                   const Icon = tab.icon;
                   return (
@@ -2264,6 +2291,49 @@ const UserDashboard = () => {
                       <div className="glass" style={{ padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', color: '#64748b', border: '1px dashed rgba(255,255,255,0.1)' }}>
                         <Receipt size={40} style={{ color: '#1e293b', marginBottom: '12px' }} />
                         <p style={{ margin: 0, fontSize: '14px', textAlign: 'center' }}>Select an invoice voucher from the ledger to preview receipt slip</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'bookings' && (
+                <div>
+                  <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#475569', marginBottom: '12px' }}>
+                    📅 My Bookings
+                  </h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: 560 }}>
+                    {myBookings.map(b => {
+                      const stColors = {
+                        pending: { color: '#F59E0B', bg: '#FEF3C7', label: 'Pending' },
+                        confirmed: { color: '#3B82F6', bg: '#DBEAFE', label: 'Confirmed' },
+                        completed: { color: '#10B981', bg: '#D1FAE5', label: 'Completed' },
+                        cancelled: { color: '#EF4444', bg: '#FEE2E2', label: 'Cancelled' },
+                      };
+                      const st = stColors[b.status] || stColors.pending;
+                      return (
+                        <div key={b.id} className="glass" style={{ padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>{b.service_name}</h4>
+                            <p style={{ fontSize: '11px', color: '#475569', margin: '4px 0 0 0' }}>
+                              {new Date(b.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {b.appointment_time?.slice(0, 5)}
+                            </p>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: st.color, background: st.bg, padding: '3px 9px', borderRadius: 999 }}>{st.label}</span>
+                            {b.status !== 'completed' && b.status !== 'cancelled' && b.manage_token && (
+                              <a href={`/manage-booking/${b.manage_token}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5', textDecoration: 'none' }}>
+                                Manage →
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {myBookingsLoaded && myBookings.length === 0 && (
+                      <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
+                        <Calendar size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
+                        You have no bookings yet.
                       </div>
                     )}
                   </div>
@@ -2941,6 +3011,7 @@ return (
               { id: 'search', label: 'Find Items', icon: Search },
               { id: 'scan', label: 'Scan QR', icon: QrCode },
               { id: 'bills', label: 'My Bills', icon: Receipt },
+              { id: 'bookings', label: 'My Bookings', icon: Calendar },
             ].map(tab => {
               const Icon = tab.icon;
               return (
@@ -3310,6 +3381,57 @@ return (
                   </div>
                 )}
 
+              </div>
+            )}
+
+            {activeTab === 'bookings' && (
+              <div>
+                <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#64748B', marginBottom: '14px' }}>
+                  📅 Your Bookings
+                </h2>
+                {!user ? (
+                  <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
+                    <Info size={32} style={{ color: '#64748b', margin: '0 auto 12px' }} />
+                    <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '16px' }}>Sign in to view your bookings.</p>
+                    <button onClick={() => isStoreMode ? openAuthModal() : navigate('/login')} style={{ width: 'auto', background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold' }}>{isStoreMode ? 'Create Account' : 'Sign In Now'}</button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {myBookings.map(b => {
+                      const stColors = {
+                        pending: { color: '#F59E0B', bg: '#FEF3C7', label: 'Pending' },
+                        confirmed: { color: '#3B82F6', bg: '#DBEAFE', label: 'Confirmed' },
+                        completed: { color: '#10B981', bg: '#D1FAE5', label: 'Completed' },
+                        cancelled: { color: '#EF4444', bg: '#FEE2E2', label: 'Cancelled' },
+                      };
+                      const st = stColors[b.status] || stColors.pending;
+                      return (
+                        <div key={b.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', borderRadius: '14px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '0 0 3px 0', color: '#0F172A' }}>{b.service_name}</h3>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {new Date(b.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {b.appointment_time?.slice(0, 5)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: st.color, background: st.bg, padding: '3px 9px', borderRadius: 999 }}>{st.label}</span>
+                            {b.status !== 'completed' && b.status !== 'cancelled' && b.manage_token && (
+                              <a href={`/manage-booking/${b.manage_token}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5', textDecoration: 'none' }}>
+                                Manage →
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {myBookingsLoaded && myBookings.length === 0 && (
+                      <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
+                        <Calendar size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
+                        You have no bookings yet.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

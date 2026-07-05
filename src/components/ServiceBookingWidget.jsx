@@ -218,9 +218,20 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           </div>
         </div>
         <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); }}
-          style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+          style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 10 }}>
           Book Another Appointment
         </button>
+        {confirmedAppt?.manage_token && (
+          <a href={`/manage-booking/${confirmedAppt.manage_token}`} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'block', textAlign: 'center', width: '100%', padding: 12, borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontWeight: 700, fontSize: 13, textDecoration: 'none', boxSizing: 'border-box' }}>
+            📋 Manage This Booking
+          </a>
+        )}
+        {confirmedAppt?.manage_token && (
+          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>
+            Save this link to reschedule or cancel later — we can't recover it if lost.
+          </p>
+        )}
       </div>
     );
   }
