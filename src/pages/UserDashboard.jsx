@@ -220,12 +220,6 @@ const UserDashboard = () => {
   const [shopInfo, setShopInfo] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [shopHasServices, setShopHasServices] = useState(false);
-  // True for a shop that offers services but has no physical products at
-  // all — a pure salon/spa/clinic. Showing an empty "no products" grid
-  // and an always-empty checkout cart on their storefront looked broken,
-  // not intentional. For these shops, the storefront should be entirely
-  // about booking, not a half-empty product page.
-  const isPureServiceShop = shopHasServices && products.length === 0;
   // Other branches of the same brand. Populated for branded shops that
   // run multiple locations (e.g. RK Mens & Jeans — Main + branches);
   // empty for standalone shops. Shown to customers as an "Also visit
@@ -233,6 +227,18 @@ const UserDashboard = () => {
   // same brand without losing trust.
   const [relatedBranches, setRelatedBranches] = useState([]);
   const [products, setProducts] = useState([]);
+  // True for a shop that offers services but has no physical products at
+  // all — a pure salon/spa/clinic. Showing an empty "no products" grid
+  // and an always-empty checkout cart on their storefront looked broken,
+  // not intentional. For these shops, the storefront should be entirely
+  // about booking, not a half-empty product page.
+  // MUST be declared AFTER the `products` useState above — it was
+  // previously above it, and `shopHasServices && products.length` hit the
+  // temporal dead zone ("Cannot access before initialization"), crashing
+  // the ENTIRE public storefront for every shop that has services.
+  // Retail shops survived only because shopHasServices=false
+  // short-circuited before touching `products`.
+  const isPureServiceShop = shopHasServices && products.length === 0;
   const [localSearch, setLocalSearch] = useState(initialSearch);
   const [detailProduct, setDetailProduct] = useState(null);
   const [filter, setFilter] = useState('all');
