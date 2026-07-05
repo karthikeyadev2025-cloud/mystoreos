@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, Check, X, Clock, Calendar, Phone, User, ChevronLeft, ChevronRight, Scissors } from 'lucide-react';
+import CompleteBillModal from './CompleteBillModal';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
@@ -60,7 +61,7 @@ function ServiceCard({ service, onEdit, onDelete, onToggle }) {
   );
 }
 
-function AppointmentRow({ appt, onStatusChange }) {
+function AppointmentRow({ appt, onStatusChange, onCompleteWithBill }) {
   const st = STATUS_CONFIG[appt.status] || STATUS_CONFIG.pending;
   const timeStr = appt.appointment_time ? appt.appointment_time.slice(0, 5) : '';
   const dateStr = appt.appointment_date ? new Date(appt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
@@ -96,7 +97,7 @@ function AppointmentRow({ appt, onStatusChange }) {
           )}
           {appt.status === 'confirmed' && (
             <>
-              <button onClick={() => onStatusChange(appt.id, 'completed')}
+              <button onClick={() => onCompleteWithBill(appt)}
                 style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#10B981', color: '#fff', cursor: 'pointer' }}>✓ Done</button>
               <button onClick={() => onStatusChange(appt.id, 'cancelled')}
                 style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid #FCA5A5', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer' }}>✕</button>
@@ -176,6 +177,7 @@ export default function DesktopBookings({ shopId, shopName }) {
   const [filterDate, setFilterDate] = useState(new Date().toISOString().slice(0, 10));
   const [filterStatus, setFilterStatus] = useState('');
   const [viewMode, setViewMode] = useState('today'); // 'today' | 'upcoming' | 'all'
+  const [completingAppointment, setCompletingAppointment] = useState(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -300,7 +302,7 @@ export default function DesktopBookings({ shopId, shopName }) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {filteredAppts.map(a => (
-                <AppointmentRow key={a.id} appt={a} onStatusChange={handleStatusChange} />
+                <AppointmentRow key={a.id} appt={a} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} />
               ))}
             </div>
           )}
@@ -350,6 +352,15 @@ export default function DesktopBookings({ shopId, shopName }) {
             </div>
           )}
         </div>
+      )}
+
+      {completingAppointment && (
+        <CompleteBillModal
+          appointment={completingAppointment}
+          shopId={shopId}
+          onClose={() => setCompletingAppointment(null)}
+          onDone={() => { setCompletingAppointment(null); loadData(); }}
+        />
       )}
     </div>
   );

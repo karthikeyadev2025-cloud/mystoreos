@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../lib/api';
 import { Calendar, Clock, TrendingUp, Users, Plus, ChevronRight, Scissors, Phone } from 'lucide-react';
+import CompleteBillModal from './CompleteBillModal';
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: '#F59E0B', bg: '#FEF3C7' },
@@ -17,7 +18,7 @@ const fmt12 = (t) => {
   return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
 };
 
-function AppointmentMiniRow({ appt, onStatusChange }) {
+function AppointmentMiniRow({ appt, onStatusChange, onCompleteWithBill }) {
   const st = STATUS_CONFIG[appt.status] || STATUS_CONFIG.pending;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fff', borderRadius: 10, border: '1px solid #E2E8F0' }}>
@@ -40,7 +41,7 @@ function AppointmentMiniRow({ appt, onStatusChange }) {
         </button>
       )}
       {appt.status === 'confirmed' && (
-        <button onClick={() => onStatusChange(appt.id, 'completed')}
+        <button onClick={() => onCompleteWithBill(appt)}
           style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, padding: '5px 10px', borderRadius: 6, border: 'none', background: '#10B981', color: '#fff', cursor: 'pointer' }}>
           ✓ Done
         </button>
@@ -49,9 +50,10 @@ function AppointmentMiniRow({ appt, onStatusChange }) {
   );
 }
 
-export default function ServiceBusinessHome({ shopId, shopName, orders = [], setActiveTab }) {
+export default function ServiceBusinessHome({ shopId, shopName, orders = [], setActiveTab, onOrderCreated }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [completingAppointment, setCompletingAppointment] = useState(null);
 
   const loadAppointments = useCallback(async () => {
     try {
@@ -164,7 +166,7 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {todaysAppointments.map(a => <AppointmentMiniRow key={a.id} appt={a} onStatusChange={handleStatusChange} />)}
+            {todaysAppointments.map(a => <AppointmentMiniRow key={a.id} appt={a} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} />)}
           </div>
         )}
       </div>
@@ -190,6 +192,18 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
             ))}
           </div>
         </div>
+      )}
+
+      {completingAppointment && (
+        <CompleteBillModal
+          appointment={completingAppointment}
+          onClose={() => setCompletingAppointment(null)}
+          onDone={() => {
+            setCompletingAppointment(null);
+            loadAppointments();
+            if (onOrderCreated) onOrderCreated(); // refresh parent's `orders` so Today's Revenue updates immediately
+          }}
+        />
       )}
     </div>
   );

@@ -4003,6 +4003,45 @@ export const api = {
     return data;
   },
 
+  // Closes the loop between "the appointment happened" and "money was
+  // actually collected and recorded." Previously, marking an appointment
+  // 'completed' only flipped its status column — no order was ever
+  // created, no revenue was recorded anywhere, and the appointments
+  // table's order_id column (added specifically for this) was never
+  // populated. A completed haircut with no linked bill is invisible to
+  // Day Book, Reports, GST filing, and the customer's own bill history.
+  //
+  // This creates a REAL order (via the same placeOrder used by the POS,
+  // so it behaves identically — invoice number, stock/loyalty hooks,
+  // shows up in All Bills) using a single line item built from the
+  // appointment's service, then links appointments.order_id to it and
+  // sets status='completed' in one call.
+  async completeAppointmentWithBill(appointment, { finalAmount, paymentMethod = 'Cash' } = {}) {
+    if (!isSupabaseConfigured) return null;
+    const amount = Number(finalAmount) || Number(appointment.service_price) || 0;
+    const invoiceNo = await this.getNextInvoiceNumber(appointment.shop_id).catch(() => null);
+    const order = await this.placeOrder(
+      `walk-in:${appointment.customer_name || 'Guest'}:${appointment.customer_phone || ''}`,
+      appointment.shop_id,
+      [{
+        id: appointment.service_id || `service-${appointment.id}`,
+        name: appointment.service_name,
+        price: amount,
+        qty: 1,
+      }],
+      amount,
+      { phone: appointment.customer_phone },
+      'Accepted',
+      paymentMethod,
+      invoiceNo?.int || null
+    );
+    const { data, error } = await supabase.from('appointments')
+      .update({ status: 'completed', order_id: order.id, updated_at: new Date().toISOString() })
+      .eq('id', appointment.id).select().single();
+    if (error) throw new Error(error.message);
+    return { appointment: data, order };
+  },
+
   async getCustomerAppointments(customerPhone) {
     if (!isSupabaseConfigured) return [];
     const { data, error } = await supabase

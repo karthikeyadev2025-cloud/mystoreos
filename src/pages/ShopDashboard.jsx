@@ -4369,6 +4369,7 @@ const ShopDashboard = () => {
               shopName={shop.name}
               orders={orders}
               setActiveTab={setActiveTab}
+              onOrderCreated={loadData}
             />
           )}
 
@@ -5430,6 +5431,7 @@ const ShopDashboard = () => {
             shopName={shop.name}
             orders={orders}
             setActiveTab={setActiveTab}
+            onOrderCreated={loadData}
           />
         </div>
       )}
