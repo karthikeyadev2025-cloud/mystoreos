@@ -358,6 +358,13 @@ const ShopDashboard = () => {
   const targetShopId = user.role === 'staff'
     ? user.staff_of
     : (activeBranchId && branches.some(b => b.id === activeBranchId) ? activeBranchId : user.id);
+  // Tracks which shop's editable settings (print settings, invoice footer,
+  // T&C, prefix, daily target) have been hydrated into form state — lets
+  // loadData skip re-hydrating them on background polls so user edits and
+  // fresh saves are never clobbered by stale in-flight reads. Keyed by
+  // targetShopId so switching main ↔ branch re-hydrates correctly (the id
+  // can also flip after mount when the branches list arrives).
+  const settingsHydratedRef = useRef(null);
   // `shop` is the record to read SHOP-level fields from (name, GST, logo,
   // address, UPI, etc.). For owners this is just `user`. For staff, before
   // shopProfile loads, fall back to `user` so the page doesn't crash —
@@ -680,18 +687,29 @@ const ShopDashboard = () => {
       setPlans(await safe(() => api.getSubscriptionPlans()));
       setPricing(await safe(() => api.getPricing()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
-      setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
-      setExchangePolicy(await safe(() => api.getSiteConfig('exchangePolicy_' + targetShopId, '')));
-      setTermsConditions(await safe(() => api.getSiteConfig('termsConditions_' + targetShopId, '')));
-      const ps = await safe(() => api.getSiteConfig('printSettings_' + targetShopId, null));
-      if (ps) {
-        if (ps.format)    setPrintFormat(ps.format);
-        if (ps.fontSize)  setPrintFontSize(ps.fontSize);
-        if (ps.showLogo !== undefined) setPrintShowLogo(ps.showLogo);
-        if (ps.copies)    setPrintCopies(ps.copies);
+      // ── Editable settings: hydrate ONCE per shop, not on every poll ──────
+      // loadData runs on a background interval. These fields are bound to
+      // form inputs in the Settings tab — re-setting them every cycle
+      // clobbered in-progress edits (Terms & Conditions wiped mid-typing)
+      // and raced just-saved print settings back to stale DB values (an
+      // in-flight poll started before Save resolved after it, flipping
+      // 80mm Thermal back to A4). Hydrate on first load for a given
+      // targetShopId only; explicit saves already keep state = DB.
+      if (settingsHydratedRef.current !== targetShopId) {
+        settingsHydratedRef.current = targetShopId;
+        setInvoiceFooter(await safe(() => api.getSiteConfig('invoiceFooter_' + targetShopId, '')));
+        setExchangePolicy(await safe(() => api.getSiteConfig('exchangePolicy_' + targetShopId, '')));
+        setTermsConditions(await safe(() => api.getSiteConfig('termsConditions_' + targetShopId, '')));
+        const ps = await safe(() => api.getSiteConfig('printSettings_' + targetShopId, null));
+        if (ps) {
+          if (ps.format)    setPrintFormat(ps.format);
+          if (ps.fontSize)  setPrintFontSize(ps.fontSize);
+          if (ps.showLogo !== undefined) setPrintShowLogo(ps.showLogo);
+          if (ps.copies)    setPrintCopies(ps.copies);
+        }
+        setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
+        setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       }
-      setInvoicePrefix(await safe(() => api.getSiteConfig('invPrefix_' + targetShopId, 'INV')));
-      setDailyTarget(parseInt(await safe(() => api.getSiteConfig('dailyTarget_' + targetShopId, 0))) || 0);
       setFlashSales(await safe(() => api.getFlashSales(targetShopId)));
     }
   }, [targetShopId, isOwner, isCombinedScope, branches]);
@@ -3362,18 +3380,19 @@ const ShopDashboard = () => {
   };
 
   const handleSavePrintSettings = async () => {
+    // Snapshot values at click time — belt-and-braces against any state
+    // mutation while the awaits below are in flight.
+    const payload = { format: printFormat, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies };
     try {
       // Don't use safe() here — it swallows the RLS failure that caused
       // print settings to silently never save. If this throws, the user
       // needs to see it, not a false "saved!" toast.
-      await api.saveSiteConfig('printSettings_' + targetShopId, {
-        format: printFormat, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies
-      });
+      await api.saveSiteConfig('printSettings_' + targetShopId, payload);
       // Verify the write actually landed by reading it back — Supabase
       // upsert() doesn't throw on an RLS-blocked 0-row write, it just
       // silently affects nothing. This confirms the save is real.
       const confirmSaved = await api.getSiteConfig('printSettings_' + targetShopId, null);
-      if (!confirmSaved || confirmSaved.format !== printFormat) {
+      if (!confirmSaved || confirmSaved.format !== payload.format) {
         throw new Error('Save did not persist — please try again or contact support.');
       }
       toast.success('Print settings saved!');
