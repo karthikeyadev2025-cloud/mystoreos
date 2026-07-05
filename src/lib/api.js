@@ -4019,6 +4019,7 @@ export const api = {
       photo_url: provider.photo_url || null,
       phone: provider.phone || null,
       working_hours: provider.working_hours || undefined, // let DB default apply if not given
+      buffer_minutes: Number(provider.buffer_minutes) || 0,
       active: provider.active !== false,
       display_order: Number(provider.display_order) || 0,
       updated_at: new Date().toISOString(),
@@ -4083,7 +4084,7 @@ export const api = {
     const dayKey = DAY_KEYS[new Date(date + 'T00:00:00').getDay()];
 
     const { data: provider, error: provErr } = await supabase.from('providers')
-      .select('working_hours').eq('id', providerId).maybeSingle();
+      .select('working_hours, buffer_minutes').eq('id', providerId).maybeSingle();
     if (provErr || !provider) return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [] };
 
     const dayHours = provider.working_hours?.[dayKey];
@@ -4097,7 +4098,17 @@ export const api = {
       return { isOpen: false, workingStart: null, workingEnd: null, bookedRanges: [], onTimeOff: true };
     }
 
-    const bookedRanges = await this.getBookedSlots(null, date, providerId);
+    const rawBookedRanges = await this.getBookedSlots(null, date, providerId);
+    // Buffer time: extend each booked range's END by buffer_minutes, so
+    // the next slot can't start immediately after — gives the provider
+    // prep/cleanup time. Applied here (not baked into getBookedSlots
+    // itself) so shop-wide/no-provider bookings are unaffected, and the
+    // owner's walk-in modal gets the same buffer-aware ranges for free.
+    const buffer = Number(provider.buffer_minutes) || 0;
+    const bookedRanges = buffer > 0
+      ? rawBookedRanges.map(r => ({ start: r.start, end: r.end + buffer }))
+      : rawBookedRanges;
+
     return { isOpen: true, workingStart: dayHours.start, workingEnd: dayHours.end, bookedRanges };
   },
 
@@ -4139,12 +4150,22 @@ export const api = {
     q = providerId ? q.eq('provider_id', providerId) : q.eq('shop_id', shopId).is('provider_id', null);
     const { data, error } = await q;
     if (error) return null; // fail open — don't block booking on a read error
+
+    // Fetch the provider's buffer_minutes (if scoped to one) so this
+    // check — the one that actually runs right before the real insert,
+    // not just the widget's visual slot picker — also respects it.
+    let buffer = 0;
+    if (providerId) {
+      const { data: prov } = await supabase.from('providers').select('buffer_minutes').eq('id', providerId).maybeSingle();
+      buffer = Number(prov?.buffer_minutes) || 0;
+    }
+
     const newStart = this._timeToMinutes(time);
     const newEnd = newStart + (Number(durationMinutes) || 30);
     for (const existing of (data || [])) {
       if (excludeAppointmentId && existing.id === excludeAppointmentId) continue;
       const exStart = this._timeToMinutes(existing.appointment_time);
-      const exEnd = exStart + (Number(existing.duration_minutes) || 30);
+      const exEnd = exStart + (Number(existing.duration_minutes) || 30) + buffer;
       // Standard interval-overlap test: two ranges overlap unless one
       // ends at/before the other starts.
       if (newStart < exEnd && newEnd > exStart) {

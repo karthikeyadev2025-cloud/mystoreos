@@ -16,7 +16,7 @@ const DEFAULT_HOURS = {
   sun: null,
 };
 
-const EMPTY_PROVIDER = { name: '', title: '', phone: '', active: true, working_hours: DEFAULT_HOURS };
+const EMPTY_PROVIDER = { name: '', title: '', phone: '', active: true, working_hours: DEFAULT_HOURS, buffer_minutes: 0 };
 
 function WorkingHoursEditor({ hours, onChange }) {
   const toggleDay = (key) => {
@@ -164,6 +164,20 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
       </div>
 
       <div>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Buffer Time Between Appointments</label>
+        <select value={form.buffer_minutes || 0} onChange={e => setForm(p => ({ ...p, buffer_minutes: Number(e.target.value) }))}
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none' }}>
+          <option value={0}>No buffer — back-to-back bookings allowed</option>
+          <option value={5}>5 minutes</option>
+          <option value={10}>10 minutes</option>
+          <option value={15}>15 minutes</option>
+          <option value={20}>20 minutes</option>
+          <option value={30}>30 minutes</option>
+        </select>
+        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Extra time reserved after each appointment for cleanup/prep before the next one can be booked.</p>
+      </div>
+
+      <div>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Weekly Working Hours</label>
         <WorkingHoursEditor hours={form.working_hours} onChange={wh => setForm(p => ({ ...p, working_hours: wh }))} />
       </div>
@@ -195,6 +209,7 @@ function ProviderCard({ provider, onEdit, onDelete, onToggle }) {
         </div>
         <div style={{ fontSize: 12, color: '#64748B' }}>
           {provider.title || 'Staff Member'} · Works {workingDays} day{workingDays !== 1 ? 's' : ''}/week
+          {provider.buffer_minutes > 0 && ` · ${provider.buffer_minutes} min buffer`}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
