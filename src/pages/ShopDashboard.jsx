@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
+import { isServiceCategory } from '../lib/businessKind';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -101,10 +102,9 @@ const ShopDashboard = () => {
   // approach, which broke as soon as we allowed free-text categories.
   // Legacy accounts (registered before business_kind existed) fall back
   // to the old category-name check for backwards compatibility.
-  const LEGACY_SERVICE_CATEGORIES = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
   const isServiceBusiness = user && (
     user.businessKind === 'service' ||
-    (!user.businessKind && LEGACY_SERVICE_CATEGORIES.includes(user.shopCategory))
+    (!user.businessKind && isServiceCategory(user.shopCategory))
   );
   const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'dashboard' : 'home');
   const [products, setProducts] = useState([]);
@@ -402,9 +402,8 @@ const ShopDashboard = () => {
 
     if (user.role === 'staff') {
       if (!shopProfile) return; // wait for the owner's data to load
-      const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
       const ownerIsService = shopProfile.businessKind === 'service' ||
-        (!shopProfile.businessKind && svcCats.includes(shopProfile.shopCategory));
+        (!shopProfile.businessKind && isServiceCategory(shopProfile.shopCategory));
       if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
         setActiveTab('dashboard');
       }
@@ -417,9 +416,8 @@ const ShopDashboard = () => {
       // user.businessKind — if it flips to 'service' after mount while
       // the person is still sitting on the default landing tabs, correct
       // it once. Guards against ever double-firing via the ref.
-      const svcCats = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
       const ownerIsService = user.businessKind === 'service' ||
-        (!user.businessKind && svcCats.includes(user.shopCategory));
+        (!user.businessKind && isServiceCategory(user.shopCategory));
       if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
         setActiveTab('dashboard');
         didAutoCorrectTab.current = true;

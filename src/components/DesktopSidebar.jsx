@@ -1,4 +1,5 @@
 import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors, CreditCard, Star } from 'lucide-react';
+import { isServiceBusinessKind } from '../lib/businessKind';
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
@@ -22,10 +23,10 @@ const TABS = [
 
 export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null }) {
   // Prefer the explicit business_kind field (set at signup, LOCKED). Fall
-  // back to category-name matching for legacy accounts that predate the
-  // business_kind column.
-  const LEGACY_SERVICE_CATS = ['salon', 'spa', 'clinic', 'fitness', 'repair'];
-  const isServiceBiz = businessKind === 'service' || (!businessKind && LEGACY_SERVICE_CATS.includes(shopCategory));
+  // back to category-name matching (isServiceCategory, shared with
+  // ShopDashboard.jsx) for legacy accounts that predate the business_kind
+  // column.
+  const isServiceBiz = isServiceBusinessKind(businessKind, shopCategory);
 
   // For service businesses: a dedicated Dashboard (appointments/revenue
   // summary) leads, then Sales/POS (still needed for billing retail
