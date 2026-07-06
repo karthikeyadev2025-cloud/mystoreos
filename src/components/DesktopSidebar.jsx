@@ -1,4 +1,4 @@
-import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors, CreditCard, Star } from 'lucide-react';
+import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors, CreditCard, Star, Sparkles } from 'lucide-react';
 import { isServiceBusinessKind } from '../lib/businessKind';
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
@@ -19,6 +19,13 @@ const TABS = [
   { id: 'expenses',   Icon: Wallet,     label: 'Expenses',    ownerOnly: true },
   { id: 'credit',     Icon: Book,       label: 'Credit Book', ownerOnly: true, retailOnly: true },
   { id: 'bookings',   Icon: Scissors,   label: 'Bookings',    ownerOnly: false, serviceOnly: true },
+  // For service businesses, the Services catalogue and Staff manager
+  // are important enough workflows to warrant dedicated sidebar entries
+  // rather than being buried as sub-tabs behind Bookings. They still
+  // route through DesktopBookings under the hood (same component, just
+  // opened on a different sub-tab via the initialTab prop).
+  { id: 'services',   Icon: Sparkles,   label: 'Services',    ownerOnly: true, serviceOnly: true },
+  { id: 'staff',      Icon: Users,      label: 'Staff',       ownerOnly: true, serviceOnly: true },
   { id: 'membership', Icon: CreditCard, label: 'Membership',  ownerOnly: true },
   { id: 'feedback',   Icon: Star,       label: 'Feedback',    ownerOnly: true },
   { id: 'restock',    Icon: Truck,      label: 'Restock',     ownerOnly: true, retailOnly: true },
@@ -42,7 +49,7 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
   const tabs = isServiceBiz
     ? TABS.map(t => t.id === 'home' ? { ...t, label: 'Sales / POS' } : t)
         .sort((a, b) => {
-          const orderService = ['dashboard','home','bookings','membership','customers','feedback','bills','products','branches','expenses','credit','restock','reports','profile'];
+          const orderService = ['dashboard','home','bookings','services','staff','customers','membership','feedback','bills','products','branches','expenses','credit','restock','reports','profile'];
           return orderService.indexOf(a.id) - orderService.indexOf(b.id);
         })
     : TABS;

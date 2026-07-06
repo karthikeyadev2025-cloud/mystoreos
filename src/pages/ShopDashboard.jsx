@@ -4654,7 +4654,15 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'bookings' && (
-            <DesktopBookings shopId={targetShopId} shopName={shop.name} />
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="appointments" />
+          )}
+
+          {activeTab === 'services' && isOwner && (
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="services" />
+          )}
+
+          {activeTab === 'staff' && isOwner && (
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="staff" />
           )}
 
           {activeTab === 'membership' && isOwner && (

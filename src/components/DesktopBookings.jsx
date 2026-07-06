@@ -347,8 +347,13 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   );
 }
 
-export default function DesktopBookings({ shopId, shopName }) {
-  const [tab, setTab] = useState('appointments'); // 'appointments' | 'services'
+export default function DesktopBookings({ shopId, shopName, initialTab = 'appointments' }) {
+  const [tab, setTab] = useState(initialTab); // 'appointments' | 'services' | 'staff'
+  // If the parent switches the top-level sidebar entry (e.g. Services →
+  // Staff), keep the internal sub-tab in sync. useState only reads the
+  // initial value once, so without this, clicking a different sidebar
+  // entry would land back on whatever sub-tab was last selected.
+  useEffect(() => { setTab(initialTab); }, [initialTab]);
   const [services, setServices] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
