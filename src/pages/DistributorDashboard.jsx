@@ -262,7 +262,7 @@ const DistributorDashboard = () => {
             planId: payPlanId,
             userId: user.id,
           }));
-          await safe(() => api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' }));
+          await mustSucceed(() => api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' }), 'Upgrade plan');
           toast.success(`Upgraded to ${plan.name}!`);
           setShowUpgradePlanModal(false);
           loadData();

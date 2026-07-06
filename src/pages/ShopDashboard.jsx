@@ -920,7 +920,7 @@ const ShopDashboard = () => {
   const executeDeleteProduct = async (prodId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await safe(() => api.deleteProduct(prodId));
+        await mustSucceed(() => api.deleteProduct(prodId), 'Delete product');
         toast.success("Product deleted successfully!");
         loadData();
       } catch (e) {
@@ -2836,7 +2836,7 @@ const ShopDashboard = () => {
   const handleSettleCustomerCredit = async (creditId) => {
     if (window.confirm("Mark this customer debt as fully settled?")) {
       try {
-        await safe(() => api.markCreditPaid(creditId));
+        await mustSucceed(() => api.markCreditPaid(creditId), 'Mark debt settled');
         toast.success("Debt marked as settled!");
         
         const creditData = customerCredits.find(c => c.id === creditId);
@@ -2934,7 +2934,7 @@ const ShopDashboard = () => {
   const handleSettleSupplierCredit = async (creditId) => {
     if (window.confirm("Mark this supplier invoice as fully paid?")) {
       try {
-        await safe(() => api.markCreditPaid(creditId));
+        await mustSucceed(() => api.markCreditPaid(creditId), 'Mark payment settled');
         toast.success("Payment marked as settled!");
         
         const creditData = credits.find(c => c.id === creditId);
@@ -3355,7 +3355,7 @@ const ShopDashboard = () => {
     let success = 0, failed = 0;
     for (const row of rows) {
       try {
-        await safe(() => api.addProduct(targetShopId, {
+        await mustSucceed(() => api.addProduct(targetShopId, {
           name: row.name,
           price: parseFloat(row.price) || 0,
           stock: parseInt(row.stock) || 0,
@@ -3365,7 +3365,7 @@ const ShopDashboard = () => {
           batchNumber: row.batchNumber || '',
           expiryDate: row.expiryDate || '',
           variants: row.variants || '',
-        }));
+        }), 'Import row');
         success++;
       } catch (_e) {
         failed++;
@@ -3834,7 +3834,7 @@ const ShopDashboard = () => {
     if (added.length) {
       const next = [...shopPhotos, ...added];
       setShopPhotos(next);
-      await safe(() => api.updateProfile(user.id, { shopPhotos: next }));
+      await mustSucceed(() => api.updateProfile(user.id, { shopPhotos: next }), 'Save shop photos');
       try {
         const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
         localStorage.setItem('mystore_session', JSON.stringify({ ...sess, shopPhotos: next }));
@@ -3846,7 +3846,7 @@ const ShopDashboard = () => {
   const removeShopPhoto = async (index) => {
     const next = shopPhotos.filter((_, i) => i !== index);
     setShopPhotos(next);
-    await safe(() => api.updateProfile(user.id, { shopPhotos: next }));
+    await mustSucceed(() => api.updateProfile(user.id, { shopPhotos: next }), 'Remove shop photo');
     try {
       const sess = JSON.parse(localStorage.getItem('mystore_session') || '{}');
       localStorage.setItem('mystore_session', JSON.stringify({ ...sess, shopPhotos: next }));

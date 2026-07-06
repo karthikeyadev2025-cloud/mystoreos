@@ -53,3 +53,8 @@ supabase/.temp/
 
 # Belt-and-suspenders: never ignore the real API layer
 !src/lib/api.js
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
