@@ -4467,6 +4467,7 @@ const ShopDashboard = () => {
           {activeTab === 'home' && (
             <DesktopPOS 
               footerSlot={isOwner && isViewingMain ? <ReferAndEarnCard userId={user?.id} userName={user?.name} /> : null}
+              businessKind={isServiceBusiness ? 'service' : (user?.businessKind || null)}
               products={products}
               filteredProducts={filteredProducts}
               billItems={billItems}

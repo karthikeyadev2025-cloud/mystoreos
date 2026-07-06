@@ -4,19 +4,24 @@ import { isServiceBusinessKind } from '../lib/businessKind';
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 // Real tabs (ids match ShopDashboard's activeTab exactly)
+// retailOnly = irrelevant for pure service shops (spas, salons, clinics,
+// gyms — no physical stock to manage). Kept visible on retail and mixed
+// shops. Owner can still bill add-on retail products from Sales/POS
+// even on a service shop; the retail-only tabs just remove the cognitive
+// noise from the sidebar when they'd never be used.
 const TABS = [
   { id: 'dashboard',  Icon: BarChart2,  label: 'Dashboard',   serviceOnly: true },
   { id: 'home',       Icon: Home,       label: 'POS / Home' },
   { id: 'branches',   Icon: Building2,  label: 'Branches',    ownerOnly: true, multiBranchOnly: true },
-  { id: 'products',   Icon: Package,    label: 'Products',    ownerOnly: true },
+  { id: 'products',   Icon: Package,    label: 'Products',    ownerOnly: true, retailOnly: true },
   { id: 'bills',      Icon: Receipt,    label: 'All Bills',   badge: true },
   { id: 'customers',  Icon: Users,      label: 'Customers' },
   { id: 'expenses',   Icon: Wallet,     label: 'Expenses',    ownerOnly: true },
-  { id: 'credit',     Icon: Book,       label: 'Credit Book', ownerOnly: true },
+  { id: 'credit',     Icon: Book,       label: 'Credit Book', ownerOnly: true, retailOnly: true },
   { id: 'bookings',   Icon: Scissors,   label: 'Bookings',    ownerOnly: false, serviceOnly: true },
   { id: 'membership', Icon: CreditCard, label: 'Membership',  ownerOnly: true },
   { id: 'feedback',   Icon: Star,       label: 'Feedback',    ownerOnly: true },
-  { id: 'restock',    Icon: Truck,      label: 'Restock',     ownerOnly: true },
+  { id: 'restock',    Icon: Truck,      label: 'Restock',     ownerOnly: true, retailOnly: true },
   { id: 'reports',    Icon: BarChart2,  label: 'Day Book',    ownerOnly: true },
   { id: 'profile',    Icon: Settings,   label: 'Settings',    ownerOnly: true },
 ];
@@ -44,6 +49,7 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
 
   const visible = tabs.filter(t => {
     if (t.serviceOnly && !isServiceBiz) return false;
+    if (t.retailOnly && isServiceBiz) return false;
     if (t.ownerOnly && !isOwner) return false;
     if (t.multiBranchOnly && !hasMultipleBranches) return false;
     return true;

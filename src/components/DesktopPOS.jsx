@@ -63,6 +63,13 @@ const DesktopPOS = ({
   handleSetDailyTarget,
   flashSales = {},
   shopCategory = 'general',
+  // 'service' = spa/salon/clinic/gym — hide retail-only widgets
+  // (Quick Shelf Explorer empty state, Total Products/Supplier Credit
+  // stat tiles, Daily Sales Target which reads as inventory-based). The
+  // shop still needs POS for add-on retail sales (shampoo, membership
+  // upsell), but the noisy retail scaffolding around it is cognitive
+  // load with no payoff for a service business.
+  businessKind = null,
   // NEW: payment method + clear cart + item discount
   paymentMethod,
   setPaymentMethod,
@@ -159,7 +166,15 @@ const DesktopPOS = ({
           </div>
         </div>
 
-        {/* Product Grid — smart search results or full grid */}
+        {/* Product Grid — smart search results or full grid.
+            For pure-service shops (spa, salon, clinic — no products in
+            catalogue), the empty "No products found · add your first
+            product" state is just noise. Hide the entire card unless
+            they're actively searching (in which case they typed
+            something and want a result). Add-on retail products are
+            fine on a service shop; if such a shop has stock, the grid
+            still shows. */}
+        {(businessKind !== 'service' || products.length > 0 || search) && (
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Package size={18} color="#D97706" />
@@ -298,6 +313,7 @@ const DesktopPOS = ({
           </div>
           )} {/* end grid ternary */}
         </div>
+        )} {/* end product-grid card gate — hidden for pure-service shops with no products */}
 
         {/* AI Inventory Warning — moved below Search/Product Grid so the
             cashier's actual billing workflow (search → results → cart) is
@@ -327,14 +343,20 @@ const DesktopPOS = ({
               <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{sales}</p>
             </div>
           )}
-          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('products')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Total Products</p>
-            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{products.length}</p>
+          <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab(businessKind === 'service' ? 'bookings' : 'products')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{businessKind === 'service' ? 'Manage Bookings' : 'Total Products'}</p>
+            <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>{businessKind === 'service' ? '→' : products.length}</p>
           </div>
-          {isOwner && (
+          {isOwner && businessKind !== 'service' && (
             <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('credit')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
               <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Supplier Credit</p>
               <p style={{ fontSize: '26px', fontWeight: '800', color: payable > 0 ? '#EF4444' : '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>₹{payable}</p>
+            </div>
+          )}
+          {isOwner && businessKind === 'service' && (
+            <div className="premium-glass ds-card-interactive" onClick={() => setActiveTab('membership')} style={{ padding: '18px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', cursor: 'pointer' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Members</p>
+              <p style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', margin: '8px 0 0 0', letterSpacing: '-0.02em' }}>→</p>
             </div>
           )}
         </div>
@@ -362,7 +384,7 @@ const DesktopPOS = ({
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '28px' }}>🎯</span>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>Set a Daily Sales Target</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>Set a Daily {businessKind === 'service' ? 'Revenue' : 'Sales'} Target</div>
                   <div style={{ fontSize: '11px', color: '#64748B' }}>Track your progress toward a daily revenue goal</div>
                 </div>
               </div>
