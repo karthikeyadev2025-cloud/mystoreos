@@ -1,0 +1,38 @@
+name: Playwright smoke tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Also run daily against prod to catch silent regressions in deployed
+  # code (e.g. a DB change, a Supabase edge function redeploy, or a
+  # third-party dep breaking).
+  schedule:
+    - cron: '0 4 * * *'  # 04:00 UTC daily
+
+jobs:
+  smoke:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run smoke tests against production
+        run: npx playwright test
+        env:
+          # Defaults to https://mystoreos.in — override here if you want
+          # PRs to hit a preview deployment instead. Vercel typically
+          # exposes this as VERCEL_URL or similar on PR builds.
+          PLAYWRIGHT_BASE_URL: ${{ vars.PLAYWRIGHT_BASE_URL || 'https://mystoreos.in' }}
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
