@@ -7746,10 +7746,12 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
-          <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
-          <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
-        </div>
+        {isServiceBusiness && (
+          <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
+            <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
+          </div>
+        )}
 
         {isOwner && (
           <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>

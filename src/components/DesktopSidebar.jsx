@@ -13,7 +13,7 @@ const TABS = [
   { id: 'customers',  Icon: Users,      label: 'Customers' },
   { id: 'expenses',   Icon: Wallet,     label: 'Expenses',    ownerOnly: true },
   { id: 'credit',     Icon: Book,       label: 'Credit Book', ownerOnly: true },
-  { id: 'bookings',   Icon: Scissors,   label: 'Bookings',    ownerOnly: false },
+  { id: 'bookings',   Icon: Scissors,   label: 'Bookings',    ownerOnly: false, serviceOnly: true },
   { id: 'membership', Icon: CreditCard, label: 'Membership',  ownerOnly: true },
   { id: 'feedback',   Icon: Star,       label: 'Feedback',    ownerOnly: true },
   { id: 'restock',    Icon: Truck,      label: 'Restock',     ownerOnly: true },
