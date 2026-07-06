@@ -115,9 +115,17 @@ export default function TabComms() {
   };
 
   return (
-    <div style={{ maxWidth: '760px' }}>
+    <div className="admin-tab-content" style={{ maxWidth: '760px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Communications</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#06B6D415", border: "1px solid #06B6D430", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <MessageSquare size={22} color="#06B6D4" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Communications</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Broadcast SMS, WhatsApp, push notifications, and platform-wide announcements</p>
+          </div>
+        </div>
         <p style={{ color: '#64748B', fontSize: '13px', marginTop: '4px' }}>Broadcast announcements and manage platform-wide messaging</p>
       </div>
 

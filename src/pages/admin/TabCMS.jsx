@@ -115,10 +115,17 @@ export default function TabCMS() {
   const updatePlan = (idx, field, value) => setPlans(ps => ps.map((p, i) => i === idx ? { ...p, [field]: field === 'price' ? Number(value) : value } : p));
 
   return (
-    <div style={{ maxWidth: '760px' }}>
+    <div className="admin-tab-content" style={{ maxWidth: '760px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Website & CMS</h2>
-        <p style={{ color: '#64748B', fontSize: '13px', marginTop: '4px' }}>Manage landing page content, branding, and announcements</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#4F46E515", border: "1px solid #4F46E530", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Globe size={22} color="#4F46E5" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Website & CMS</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Landing page content, SEO, announcements, and public site branding</p>
+          </div>
+        </div>
       </div>
 
       <div style={S.card}>

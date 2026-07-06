@@ -101,9 +101,17 @@ export default function TabExports() {
   });
 
   return (
-    <div style={{ maxWidth: '720px' }}>
+    <div className="admin-tab-content" style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Data Exports</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#10B98115", border: "1px solid #10B98130", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Download size={22} color="#10B981" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Data Exports</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Download CSV snapshots of shops, users, orders, credits, and distributors</p>
+          </div>
+        </div>
         <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Download platform data as UTF-8 CSV (Telugu name safe)</p>
       </div>
 

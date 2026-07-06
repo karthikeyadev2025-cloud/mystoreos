@@ -108,9 +108,17 @@ export default function TabDesign() {
   };
 
   return (
-    <div style={{ maxWidth: '760px' }}>
+    <div className="admin-tab-content" style={{ maxWidth: '760px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Design & CSS</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#7C3AED15", border: "1px solid #7C3AED30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Palette size={22} color="#7C3AED" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Design & CSS</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Global design tokens, brand colors, and custom stylesheets</p>
+          </div>
+        </div>
         <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Customize platform colors, typography, and inject custom CSS</p>
       </div>
 

@@ -184,8 +184,15 @@ export default function TabSupport() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>Support &amp; Audit</h2>
-          <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Admin action audit trail — every mutation is logged</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#3B82F615", border: "1px solid #3B82F630", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Shield size={22} color="#3B82F6" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Support & Audit</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Merchant tickets, admin audit trail, and platform-side observability</p>
+          </div>
+        </div>
         </div>
         <button onClick={load} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
           <RefreshCw size={13} />Refresh

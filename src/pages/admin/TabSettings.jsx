@@ -130,9 +130,17 @@ export default function TabSettings() {
   if (loading) return <div style={{ textAlign: 'center', color: '#64748b', padding: '60px' }}>Loading settings...</div>;
 
   return (
-    <div style={{ maxWidth: '720px' }}>
+    <div className="admin-tab-content" style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: '#0f172a', fontSize: '20px', fontWeight: 700 }}>System Settings</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#F59E0B15", border: "1px solid #F59E0B30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Shield size={22} color="#F59E0B" />
+          </div>
+          <div>
+            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>System Settings</h2>
+            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Platform configuration, admin credentials, and integration keys</p>
+          </div>
+        </div>
         <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Platform configuration and security settings</p>
       </div>
 
