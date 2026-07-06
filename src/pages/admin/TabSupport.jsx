@@ -133,7 +133,7 @@ export default function TabSupport() {
   }, [log]);
 
   return (
-    <div>
+    <div className="admin-tab-content">
       {/* ── Support Tickets Inbox ── */}
       <div style={S.card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>

@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { ToastContainer } from 'react-toastify';
+import { ADMIN_GLOBAL_CSS } from './admin/_ui';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   LayoutDashboard, Store, Truck, Users, CreditCard, Globe, Palette,
@@ -160,6 +161,7 @@ export default function AdminDashboard() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F4F5F7', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
+        ${ADMIN_GLOBAL_CSS}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1023px){
           .admin-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000}

@@ -169,7 +169,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
           {tab === 'overview' && (
             <div>
               {/* Info grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 20 }}>
                 {[
                   { icon: '📱', label: 'Phone', value: shop.phone },
                   { icon: '📍', label: 'Address', value: shop.businessAddress || '—' },
@@ -211,7 +211,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 10, marginBottom: 12 }}>
                     {photos.map((src, i) => (
                       <div key={i} onClick={() => setLightbox(i)} style={{ cursor: 'zoom-in', position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #E2E8F0', aspectRatio: '4/3' }}>
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -401,10 +401,10 @@ export default function TabShops() {
   );
 
   return (
-    <div style={{ ...font }}>
+    <div className="admin-tab-content" style={{ ...font }}>
 
       {/* ── KPI Row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 24 }}>
         {[
           { icon: <Store size={18} color="#4F46E5" />,    label: 'Total Shops',    value: stats.total,    bg: '#EEF2FF', color: '#4F46E5' },
           { icon: <CheckCircle size={18} color="#10B981"/>,label: 'Active',         value: stats.active,   bg: '#ECFDF5', color: '#10B981' },

@@ -133,7 +133,7 @@ export default function TabDistributors() {
   const totalMRR = distributors.reduce((s, d) => s + (TIER_PRICES[d.distributorPlanTier] || 0), 0);
 
   return (
-    <div>
+    <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Distributor Network</h2>

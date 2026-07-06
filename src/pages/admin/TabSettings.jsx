@@ -279,7 +279,7 @@ export default function TabSettings() {
             </div>
 
             {/* Promo discount per cycle */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '16px' }}>
               <div>
                 <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Quarterly discount %</label>
                 <input type="number" min="0" max="100" value={pricing.discounts?.quarterly ?? 0}
@@ -301,7 +301,7 @@ export default function TabSettings() {
                   onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, enabled: e.target.checked } }))} />
                 <span style={{ color: '#92400E', fontSize: '13px', fontWeight: 700 }}>Enable launch offer (extra discount for first N users)</span>
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
                 <div>
                   <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Extra discount %</label>
                   <input type="number" min="0" max="100" value={pricing.offer?.percent ?? 0}

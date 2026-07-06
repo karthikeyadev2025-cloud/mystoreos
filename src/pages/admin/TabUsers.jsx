@@ -123,7 +123,7 @@ export default function TabUsers() {
   if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading users...</div>;
 
   return (
-    <div>
+    <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>User Directory</h2>

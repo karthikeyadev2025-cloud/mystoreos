@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 const S = {
   card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '20px' },
   sectionTitle: { color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '16px' },
   th: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '8px 12px', textAlign: 'left' },
   td: { color: '#0F172A', fontSize: '13px', padding: '10px 12px', borderBottom: '1px solid #F3F4F6' },
@@ -59,7 +59,7 @@ export default function TabAnalytics() {
   if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading analytics...</div>;
 
   return (
-    <div>
+    <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Analytics</h2>

@@ -87,7 +87,7 @@ export default function TabRevenue() {
   const totalMRR = (stats?.shopMRR || 0) + (stats?.distMRR || 0);
 
   return (
-    <div>
+    <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Revenue & Billing</h2>
