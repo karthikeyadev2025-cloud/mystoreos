@@ -244,11 +244,6 @@ const ShopDashboard = () => {
   const [shopProfile, setShopProfile] = useState(user?.role === 'staff' ? null : user);
   const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
   const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
-  // Stable UPI transaction reference for the in-app QR modal — must not
-  // change on every render (or the QR image re-encodes constantly and
-  // ESLint react-hooks/purity flags Date.now() called in render).
-  // Regenerates when the bill total changes (a new bill = new txn).
-  const upiTxnRef = useMemo(() => 'BILL' + Date.now().toString().slice(-8), [billTotal]);
   const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
   const [latitude, setLatitude] = useState(user?.latitude || '');
   const [longitude, setLongitude] = useState(user?.longitude || '');
@@ -2381,6 +2376,14 @@ const ShopDashboard = () => {
   const billItemsOriginalTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
   const itemLevelSavings = billItemsOriginalTotal - billTotal;
   const manualDiscountAmt = Math.round(billTotal * (manualDiscountPct / 100));
+  // Stable UPI transaction reference for the in-app QR modal — must not
+  // change on every render (or the QR image re-encodes constantly, and
+  // ESLint react-hooks/purity flags Date.now() called in render). Placed
+  // here right after billTotal on purpose: an earlier attempt put this
+  // useMemo up near the useStates, which caused a TDZ crash ('Cannot
+  // access billTotal before initialization') that took down the whole
+  // dashboard for every logged-in shop.
+  const upiTxnRef = useMemo(() => 'BILL' + Date.now().toString().slice(-8), [billTotal]);
   const filteredProducts = useMemo(() => {
     const q = (search || '').trim().toLowerCase();
     if (!q) return products;
