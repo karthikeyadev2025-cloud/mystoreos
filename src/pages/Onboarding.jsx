@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { validateImageFile } from '../lib/fileValidation';
@@ -33,7 +34,7 @@ function resizeImage(file, maxSize, quality) {
   });
 }
 
-const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -116,29 +117,29 @@ export default function Onboarding() {
     try {
       if (step === 0) {
         const resolvedCategory = bizType === 'other' ? (customBizType.trim() || 'general') : bizType;
-        await safe(() => api.updateProfile(user.id, {
+        await mustSucceed(() => api.updateProfile(user.id, {
           ...(logo && { logo }),
           shopCategory: resolvedCategory,
           businessAddress: city ? `${city}\n${address}` : address,
-        }));
+        }), 'Save business profile');
         // Attribute referral code if provided
         if (refCode.trim()) {
           try { await api.attributeReferral(refCode.trim(), user.id); } catch (_) {}
         }
         setStep(1);
       } else if (step === 1) {
-        await safe(() => api.updateProfile(user.id, {
+        await mustSucceed(() => api.updateProfile(user.id, {
           ...(gst && { gstin: gst }),
           ...(upi && { upiId: upi }),
-        }));
+        }), 'Save GST/UPI');
         setStep(2);
       } else if (step === 2) {
         if (prodName && prodPrice) {
-          await safe(() => api.addProduct(
+          await mustSucceed(() => api.addProduct(
             user.id, prodName, prodPrice, '',
             parseInt(prodStock) || 100, '', '', '', 10,
             { image: prodImage }
-          ));
+          ), 'Add first product');
         }
         // Mark onboarding complete on the server, then refresh the in-memory
         // user so the next route guard (RoleRouter / WaitingApproval) sees

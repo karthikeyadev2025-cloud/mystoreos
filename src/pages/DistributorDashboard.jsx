@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
+import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -22,7 +23,6 @@ import {
   Settings
 } from 'lucide-react';
 
-const safe = async (fn) => { try { return await fn(); } catch { return null; } };
 
 const DistributorDashboard = () => {
   const { user, logout } = useAuth();
@@ -193,7 +193,7 @@ const DistributorDashboard = () => {
 
   const handleGiveCredit = async () => {
     if(!selectedShop || !amount) return toast.error("Select shop and amount");
-    await safe(() => api.addCredit(user.id, selectedShop, desc || 'FMCG Stock Supply', amount));
+    await mustSucceed(() => api.addCredit(user.id, selectedShop, desc || 'FMCG Stock Supply', amount), 'Add credit');
     toast.success("Credit added to shop successfully!");
     setShowModal(false);
     setSelectedShop('');
@@ -203,20 +203,20 @@ const DistributorDashboard = () => {
   };
 
   const markPaid = async (creditId) => {
-    await safe(() => api.markCreditPaid(creditId));
+    await mustSucceed(() => api.markCreditPaid(creditId), 'Mark credit paid');
     toast.success("Payment Received & Cleared!");
     loadData();
   };
 
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
-    await safe(() => api.addDistributorProduct({
+    await mustSucceed(() => api.addDistributorProduct({
       distributorId: user.id,
       name: newProdName,
       price: newProdPrice,
       stock: newProdStock,
       category: newProdCategory
-    }));
+    }), 'Publish product');
     toast.success("Product published to wholesale catalog!");
     setNewProdName('');
     setNewProdPrice('');
@@ -226,7 +226,7 @@ const DistributorDashboard = () => {
   };
 
   const handleUpdateStockOrder = async (orderId, status) => {
-    await safe(() => api.updateStockOrderStatus(orderId, status, user.id));
+    await mustSucceed(() => api.updateStockOrderStatus(orderId, status, user.id), 'Update order status');
     toast.success(`Restock order marked as ${status}!`);
     loadData();
   };

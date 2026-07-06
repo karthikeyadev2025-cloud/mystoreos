@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
 import { isServiceCategory } from '../lib/businessKind';
+import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -48,28 +49,7 @@ import DesktopExpenses from '../components/DesktopExpenses';
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
-// safe() intentionally swallows errors and returns null. This is only
-// appropriate for READS where a missing row / RLS block / network glitch
-// should not crash the render. It is CATASTROPHIC around writes — if
-// api.addProduct throws (plan limit, RLS, offline, duplicate barcode),
-// safe() eats the error and the caller merrily continues to
-// toast.success("Product Saved to Inventory!") while nothing was saved.
-// This produced the exact bug where the shop saw "Product Saved!" toast
-// with 0 SKUs in inventory. Same silent-write bug plagued bills, staff
-// add, credit logging, restock orders, shop hours, banner, logo, invoice
-// settings, flash sales, and more.
-//
-// Use mustSucceed() to WRAP any mutation whose failure would leave the
-// UI lying to the user. It re-throws with a clean message the caller can
-// surface via toast.error, so the success toast is never reached.
-const safe = async (fn) => { try { return await fn(); } catch { return null; } };
-const mustSucceed = async (fn, label = 'operation') => {
-  try { return await fn(); }
-  catch (e) {
-    const msg = e?.message || e?.error_description || e?.error || String(e);
-    throw new Error(`${label} failed: ${msg}`);
-  }
-};
+
 
 // ── Refer & Earn card — inline sub-component ──────────────────────────────
 function ReferAndEarnCard({ userId, userName }) {
@@ -264,6 +244,11 @@ const ShopDashboard = () => {
   const [shopProfile, setShopProfile] = useState(user?.role === 'staff' ? null : user);
   const [shopPhotos, setShopPhotos] = useState(user?.shopPhotos || []);
   const [paymentQr, setPaymentQr] = useState(user?.paymentQr || '');
+  // Stable UPI transaction reference for the in-app QR modal — must not
+  // change on every render (or the QR image re-encodes constantly and
+  // ESLint react-hooks/purity flags Date.now() called in render).
+  // Regenerates when the bill total changes (a new bill = new txn).
+  const upiTxnRef = useMemo(() => 'BILL' + Date.now().toString().slice(-8), [billTotal]);
   const [showPaymentQrModal, setShowPaymentQrModal] = useState(false);
   const [latitude, setLatitude] = useState(user?.latitude || '');
   const [longitude, setLongitude] = useState(user?.longitude || '');
@@ -3742,7 +3727,7 @@ const ShopDashboard = () => {
       await mustSucceed(() => api.saveSiteConfig('exchangePolicy_' + targetShopId, exchangePolicy), 'Save exchange policy');
       await mustSucceed(() => api.saveSiteConfig('termsConditions_' + targetShopId, termsConditions), 'Save terms & conditions');
       toast.success("Invoice settings saved!");
-    } catch (_e) {
+    } catch (e) {
       toast.error(e?.message || "Failed to save invoice settings");
     }
   };
@@ -4805,7 +4790,7 @@ const ShopDashboard = () => {
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
                   <QRCodeSVG
-                    value={buildUpiUri({ upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
+                    value={buildUpiUri({ upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name }, { amount: billTotal || 0, txnRef: upiTxnRef, note: 'Bill Payment' })}
                     size={240}
                   />
                 )}
@@ -7245,7 +7230,7 @@ const ShopDashboard = () => {
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
             ) : (
               <QRCodeSVG 
-                value={buildUpiUri({ upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name }, { amount: billTotal || 0, txnRef: 'BILL' + Date.now().toString().slice(-8), note: 'Bill Payment' })}
+                value={buildUpiUri({ upiId, merchantUpiId: user.merchantUpiId, merchantCode: user.merchantCode, name: user.name }, { amount: billTotal || 0, txnRef: upiTxnRef, note: 'Bill Payment' })}
                 size={260}
               />
             )}
