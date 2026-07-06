@@ -788,8 +788,8 @@ export const api = {
       && !!u.distributor_plan_tier && DIST_PRICES[u.distributor_plan_tier] != null
       && u.distributor_plan_expires_at && new Date(u.distributor_plan_expires_at) > new Date();
     if (isSupabaseConfigured) {
-      const { data: users } = await supabase.from('users').select('role, subscription, subscription_tier, plan_expires_at, distributor_plan_tier, distributor_plan_expires_at');
-      const { data: orders } = await supabase.from('orders').select('total');
+      const { data: users } = await supabase.from('users').select('role, subscription, subscription_tier, plan_expires_at, distributor_plan_tier, distributor_plan_expires_at, created_at, status');
+      const { data: orders } = await supabase.from('orders').select('total, created_at');
       const { data: credits } = await supabase.from('credits').select('amount, paid');
       const allUsers = users || [];
       const shops = allUsers.filter(u => u.role === 'shop');
@@ -799,6 +799,26 @@ export const api = {
       const distributors = allUsers.filter(u => u.role === 'distributor');
       const distMRR = distributors.reduce((sum, d) => sum + (isPaidDist(d) ? (DIST_PRICES[d.distributor_plan_tier] || 0) : 0), 0);
       const activeCredit = (credits || []).filter(c => !c.paid).reduce((a, b) => a + Number(b.amount), 0);
+
+      // Deltas — compare last 30 days vs the 30 days before that. Enterprise
+      // dashboards live on trend signals, not just current totals. Feeds
+      // the % chips on each KPI card and the "System Health" widget.
+      const now = Date.now();
+      const D30 = now - 30 * 24 * 3600 * 1000;
+      const D60 = now - 60 * 24 * 3600 * 1000;
+      const shopsLast30    = shops.filter(u => u.created_at && new Date(u.created_at).getTime() >= D30).length;
+      const shopsPrev30    = shops.filter(u => u.created_at && new Date(u.created_at).getTime() < D30 && new Date(u.created_at).getTime() >= D60).length;
+      const custLast30     = allUsers.filter(u => u.role === 'customer' && u.created_at && new Date(u.created_at).getTime() >= D30).length;
+      const custPrev30     = allUsers.filter(u => u.role === 'customer' && u.created_at && new Date(u.created_at).getTime() < D30 && new Date(u.created_at).getTime() >= D60).length;
+      const ordersLast30   = (orders || []).filter(o => o.created_at && new Date(o.created_at).getTime() >= D30).length;
+      const ordersPrev30   = (orders || []).filter(o => o.created_at && new Date(o.created_at).getTime() < D30 && new Date(o.created_at).getTime() >= D60).length;
+      const gmvLast30      = (orders || []).filter(o => o.created_at && new Date(o.created_at).getTime() >= D30).reduce((a, b) => a + Number(b.total || 0), 0);
+      const gmvPrev30      = (orders || []).filter(o => o.created_at && new Date(o.created_at).getTime() < D30 && new Date(o.created_at).getTime() >= D60).reduce((a, b) => a + Number(b.total || 0), 0);
+      // Percentage change helper: prev=0 becomes "new" (Infinity) so UI
+      // can render "NEW" instead of NaN. Guarded so no runtime errors.
+      const pct = (curr, prev) => prev === 0 ? (curr > 0 ? Infinity : 0) : Math.round(((curr - prev) / prev) * 100);
+      const pendingApprovals = allUsers.filter(u => u.status === 'pending' && (u.role === 'shop' || u.role === 'distributor')).length;
+
       return {
         totalUsers: allUsers.filter(u => u.role === 'customer').length,
         totalShops: shops.length,
@@ -808,7 +828,13 @@ export const api = {
         paidShops,
         shopMRR,
         distMRR,
-        revenue: `₹${shopMRR + distMRR}`
+        revenue: `₹${shopMRR + distMRR}`,
+        // trend signals
+        shopsLast30, shopsPrev30, shopsDeltaPct: pct(shopsLast30, shopsPrev30),
+        custLast30, custPrev30, custDeltaPct: pct(custLast30, custPrev30),
+        ordersLast30, ordersPrev30, ordersDeltaPct: pct(ordersLast30, ordersPrev30),
+        gmvLast30, gmvPrev30, gmvDeltaPct: pct(gmvLast30, gmvPrev30),
+        pendingApprovals,
       };
     }
     const db = getDB();

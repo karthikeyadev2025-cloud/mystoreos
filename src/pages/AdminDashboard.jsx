@@ -98,25 +98,25 @@ export default function AdminDashboard() {
       width: '260px', minWidth: '260px', background: '#FFFFFF', borderRight: '1px solid #E5E7EB',
       display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
-      <div style={{ padding: '20px 16px', borderBottom: '1px solid #E5E7EB' }}>
+      <div style={{ padding: '20px 16px', borderBottom: '1px solid #E5E7EB', background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ color: '#0F172A', fontWeight: 800, fontSize: '16px' }}>MyStore OS</div>
-            <div style={{ color: '#64748b', fontSize: '11px' }}>Admin Panel</div>
+            <div style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '15px', letterSpacing: '-0.01em' }}>MyStore OS</div>
+            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 2 }}>Enterprise · Admin</div>
           </div>
           {isMobile && (
-            <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer' }}>
-              <X size={18} />
+            <button onClick={() => setSidebarOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', cursor: 'pointer', borderRadius: 6, padding: 4, width: 'auto' }}>
+              <X size={16} />
             </button>
           )}
         </div>
-        <div style={{ marginTop: '12px', background: '#F1F5F9', borderRadius: '8px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+        <div style={{ marginTop: '12px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#FBBF24,#F59E0B)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ color: '#0F172A', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
-            <div style={{ color: '#64748b', fontSize: '10px' }}>Super Admin</div>
+            <div style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
+            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '10px' }}>Super Admin · Full Access</div>
           </div>
         </div>
       </div>
@@ -175,12 +175,13 @@ export default function AdminDashboard() {
       )}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', display: 'flex', width: 'auto', padding: '4px' }}>
-            <Menu size={20} />
+        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '14px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 0 rgba(15,23,42,0.03)' }}>
+          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', cursor: 'pointer', display: 'flex', width: 'auto', padding: '6px', borderRadius: 6 }}>
+            <Menu size={16} />
           </button>
-          <div>
-            <div style={{ color: '#0F172A', fontSize: '15px', fontWeight: 600 }}>{activeTabDef.label}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: '#94A3B8', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Admin · {activeTabDef.id === 'overview' ? 'Home' : 'Section'}</div>
+            <div style={{ color: '#0F172A', fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em' }}>{activeTabDef.label}</div>
           </div>
         </div>
 
