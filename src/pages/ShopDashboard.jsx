@@ -48,7 +48,28 @@ import DesktopExpenses from '../components/DesktopExpenses';
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 
+// safe() intentionally swallows errors and returns null. This is only
+// appropriate for READS where a missing row / RLS block / network glitch
+// should not crash the render. It is CATASTROPHIC around writes — if
+// api.addProduct throws (plan limit, RLS, offline, duplicate barcode),
+// safe() eats the error and the caller merrily continues to
+// toast.success("Product Saved to Inventory!") while nothing was saved.
+// This produced the exact bug where the shop saw "Product Saved!" toast
+// with 0 SKUs in inventory. Same silent-write bug plagued bills, staff
+// add, credit logging, restock orders, shop hours, banner, logo, invoice
+// settings, flash sales, and more.
+//
+// Use mustSucceed() to WRAP any mutation whose failure would leave the
+// UI lying to the user. It re-throws with a clean message the caller can
+// surface via toast.error, so the success toast is never reached.
 const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+const mustSucceed = async (fn, label = 'operation') => {
+  try { return await fn(); }
+  catch (e) {
+    const msg = e?.message || e?.error_description || e?.error || String(e);
+    throw new Error(`${label} failed: ${msg}`);
+  }
+};
 
 // ── Refer & Earn card — inline sub-component ──────────────────────────────
 function ReferAndEarnCard({ userId, userName }) {
@@ -903,7 +924,7 @@ const ShopDashboard = () => {
       loadData();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to update product");
+      toast.error(e?.message || "Failed to update product");
     }
   };
 
@@ -933,7 +954,7 @@ const ShopDashboard = () => {
     if (!custCreditName || !custCreditAmount) return toast.error("Name and amount required");
     try {
       const descStr = `customer:${custCreditName}:${custCreditPhone || ''}:${custCreditDesc || 'Credit Purchase'}`;
-      await safe(() => api.addCredit(targetShopId, targetShopId, descStr, custCreditAmount));
+      await mustSucceed(() => api.addCredit(targetShopId, targetShopId, descStr, custCreditAmount), 'Log customer credit');
       toast.success("Customer credit logged successfully!");
       setCustCreditName('');
       setCustCreditPhone('');
@@ -942,7 +963,7 @@ const ShopDashboard = () => {
       loadData();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to save credit");
+      toast.error(e?.message || "Failed to save credit");
     }
   };
 
@@ -1141,7 +1162,7 @@ const ShopDashboard = () => {
 
       const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
 
-      await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
+      await mustSucceed(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
         id: b.id,
         name: b.name,
         price: b.price,
@@ -1151,7 +1172,7 @@ const ShopDashboard = () => {
       })), total, { gstin: customerGstin, address: customerAddress, stateCode: customerStateCode, phone: customerPhone },
       billingMode === 'bill' ? 'Accepted' : 'Pending',
       paymentMethod || 'Cash',
-      invoiceNo?.int || null));
+      invoiceNo?.int || null), 'Place order');
 
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
         if (loyaltyRedeem > 0) await safe(() => api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem));
@@ -1477,7 +1498,7 @@ const ShopDashboard = () => {
       // Future fix: rollback RPC or allocate after PDF render succeeds.
       const invoiceNo = billingMode === 'bill' ? await safe(() => api.getNextInvoiceNumber(targetShopId)) : null;
 
-      await safe(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
+      await mustSucceed(() => api.placeOrder(finalUserId, targetShopId, billItems.map(b => ({
         id: b.id,
         name: b.name,
         price: b.price,
@@ -2713,7 +2734,7 @@ const ShopDashboard = () => {
     const distributorId = firstProd?.distributorId || null;
 
     try {
-      await safe(() => api.placeStockOrder(targetShopId, shop.name, items, total, distributorId));
+      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name, items, total, distributorId), 'Submit restock order');
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
       loadData();
@@ -2765,7 +2786,7 @@ const ShopDashboard = () => {
     const total = wholesaleProd.price * qty;
 
     try {
-      await safe(() => api.placeStockOrder(targetShopId, shop.name, items, total, wholesaleProd.distributorId || null));
+      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name, items, total, wholesaleProd.distributorId || null), '1-Click Restock');
       toast.success(`⚡ 1-Click Restock: Sent bulk order of "${wholesaleProd.name}" to Distributor!`);
       loadData();
     } catch {
@@ -2779,7 +2800,7 @@ const ShopDashboard = () => {
       return toast.error(`Starter plan limit: ${capabilities.maxProducts} products. Upgrade to Pro for unlimited.`);
     }
     try {
-      await safe(() => api.addProduct(
+      await mustSucceed(() => api.addProduct(
         targetShopId,
         newProdName,
         newProdPrice,
@@ -2820,7 +2841,7 @@ const ShopDashboard = () => {
       loadData();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to add product");
+      toast.error(e?.message || "Failed to add product");
     }
   };
 
@@ -2961,7 +2982,7 @@ const ShopDashboard = () => {
     const pin = newStaffPin.trim();
     if (!pin || !/^\d{4}$/.test(pin)) return toast.error("Set a 4-digit PIN for this staff member");
     try {
-      await safe(() => api.addStaff(targetShopId, cleanStaffPhone, pin, newStaffName));
+      await mustSucceed(() => api.addStaff(targetShopId, cleanStaffPhone, pin, newStaffName), 'Add staff member');
       toast.success(`✅ ${newStaffName} added! Their login PIN is ${pin}`);
       setNewStaffName('');
       setNewStaffPhone('');
@@ -3195,7 +3216,7 @@ const ShopDashboard = () => {
   };
 
   const handleSaveProfile = async () => {
-    await safe(() => api.updateProfile(user.id, {
+    await mustSucceed(() => api.updateProfile(user.id, {
       upiId, merchantUpiId, merchantCode, logo, shopPhotos, paymentQr,
       latitude: parseFloat(latitude) || null,
       longitude: parseFloat(longitude) || null,
@@ -3224,7 +3245,7 @@ const ShopDashboard = () => {
         updates.phone = cleanPhone;
       }
       if (Object.keys(updates).length === 0) { toast('Nothing changed'); return; }
-      const updated = await safe(() => api.updateProfile(user.id, updates));
+      const updated = await mustSucceed(() => api.updateProfile(user.id, updates), 'Update account details');
       // Refresh session
       const refreshed = { ...user, ...updates };
       try { localStorage.setItem('mystore_session', JSON.stringify(refreshed)); } catch {}
@@ -3249,12 +3270,12 @@ const ShopDashboard = () => {
   };
 
   const handleSaveShopHours = async () => {
-    await safe(() => api.updateProfile(user.id, { openingHour, closingHour, weeklyHolidays }));
+    await mustSucceed(() => api.updateProfile(user.id, { openingHour, closingHour, weeklyHolidays }), 'Save shop hours');
     toast.success('Shop hours saved!');
   };
 
   const handleSaveShopBanner = async () => {
-    await safe(() => api.updateProfile(user.id, { shopBanner }));
+    await mustSucceed(() => api.updateProfile(user.id, { shopBanner }), 'Save banner');
     toast.success(shopBanner?.active ? '🏷️ Banner is live!' : 'Banner saved (inactive)');
   };
 
@@ -3318,12 +3339,12 @@ const ShopDashboard = () => {
 
   const handleSetDailyTarget = async (targetAmount) => {    const val = parseInt(targetAmount) || 0;
     setDailyTarget(val);
-    await safe(() => api.saveSiteConfig('dailyTarget_' + targetShopId, val));
+    await mustSucceed(() => api.saveSiteConfig('dailyTarget_' + targetShopId, val), 'Save daily target');
   };
 
   const handleSetFlashSale = async (productId, discountPct, durationHours) => {
     try {
-      await safe(() => api.setFlashSale(targetShopId, productId, discountPct, durationHours));
+      await mustSucceed(() => api.setFlashSale(targetShopId, productId, discountPct, durationHours), 'Set flash sale');
       const updated = await safe(() => api.getFlashSales(targetShopId));
       setFlashSales(updated);
       toast.success(`🔥 Flash sale set — ${discountPct}% off for ${durationHours}h!`);
@@ -3716,13 +3737,13 @@ const ShopDashboard = () => {
 
   const handleSaveInvoiceSettings = async () => {
     try {
-      await safe(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter));
-      await safe(() => api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix));
-      await safe(() => api.saveSiteConfig('exchangePolicy_' + targetShopId, exchangePolicy));
-      await safe(() => api.saveSiteConfig('termsConditions_' + targetShopId, termsConditions));
+      await mustSucceed(() => api.saveSiteConfig('invoiceFooter_' + targetShopId, invoiceFooter), 'Save invoice footer');
+      await mustSucceed(() => api.saveSiteConfig('invPrefix_' + targetShopId, invoicePrefix), 'Save invoice prefix');
+      await mustSucceed(() => api.saveSiteConfig('exchangePolicy_' + targetShopId, exchangePolicy), 'Save exchange policy');
+      await mustSucceed(() => api.saveSiteConfig('termsConditions_' + targetShopId, termsConditions), 'Save terms & conditions');
       toast.success("Invoice settings saved!");
     } catch (_e) {
-      toast.error("Failed to save invoice settings");
+      toast.error(e?.message || "Failed to save invoice settings");
     }
   };
 
@@ -3766,13 +3787,13 @@ const ShopDashboard = () => {
     // silently saved the logo to an irrelevant row and made it look like
     // the upload "did nothing" / kept showing the old logo to everyone
     // else (owner, storefront, bills) who only ever reads the owner's row.
-    await safe(() => api.updateProfile(targetShopId, { logo: base64 }));
+    await mustSucceed(() => api.updateProfile(targetShopId, { logo: base64 }), 'Update logo');
     toast.success('Logo updated!');
   };
 
   const handleLogoRemove = async () => {
     setLogo('');
-    await safe(() => api.updateProfile(targetShopId, { logo: '' }));
+    await mustSucceed(() => api.updateProfile(targetShopId, { logo: '' }), 'Remove logo');
     toast.success('Logo removed');
   };
 

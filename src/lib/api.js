@@ -2345,10 +2345,17 @@ export const api = {
   // branches are excluded server-side via the partial index check.
   async getMarketplaceShops() {
     if (isSupabaseConfigured) {
+      // Filter defensively:
+      //   hide_from_search=false  → owner has opted the shop into discovery
+      //   status='active'         → NOT pending-approval or suspended;
+      //     without this filter, if a shop ever ended up hide_from_search=false
+      //     while status='pending' (e.g. re-import, admin edit, migration),
+      //     customers could see a shop that isn't allowed to transact yet
       const { data } = await supabase.from('users')
         .select('*')
         .in('role', ['shop', 'distributor'])
-        .eq('hide_from_search', false);
+        .eq('hide_from_search', false)
+        .eq('status', 'active');
       const all = (data || []).filter(r => !r.branch_deleted_at).map(toUser);
       // Build branch counts per brand root. Each shop with a
       // parentShopId contributes to its parent's count; standalone main
