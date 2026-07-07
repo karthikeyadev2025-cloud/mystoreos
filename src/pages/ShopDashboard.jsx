@@ -3,6 +3,7 @@ import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
 import { isServiceCategory } from '../lib/businessKind';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
+import { printPdfWithFormat } from '../lib/printPdf';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -1367,7 +1368,7 @@ const ShopDashboard = () => {
       hy += 5;
       doc.text('Powered by MyStore OS — mystoreos.in', isThermal ? mmW/2 : marginL, hy, isThermal ? {align:'center'} : {});
 
-      // ── Open in new tab for browser print dialog ────────────────────────────
+      // ── Print via browser dialog, respecting the shop's paper size ─────
       const pdfBlob = doc.output('blob');
       const safeName = (shop.name || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
       const fileName = `${safeName}_Print.pdf`;
@@ -1376,39 +1377,19 @@ const ShopDashboard = () => {
         // On mobile native: use share sheet → user can pick a print/save app
         await sharePdfNative(pdfBlob, fileName, `Print — ${shop.name}`);
       } else {
-        // Desktop/web: open in new tab and trigger the browser print dialog.
-        //
-        // BUG FIX: win.onload frequently never fires when the tab navigates
-        // straight to a blob: PDF URL — Chrome (and most browsers) render
-        // PDFs in a native viewer plugin, not as a normal DOM page, so the
-        // 'load' event that fires for HTML pages often doesn't fire the
-        // same way for PDF documents. Result: the tab just shows the PDF
-        // with no print dialog ever appearing — "clicking print shows the
-        // PDF instead of printing" is exactly this bug.
-        // Fix: use a short delay instead of relying on onload. This is the
-        // standard workaround used across the industry for print-a-blob-PDF
-        // since there's no universally reliable "PDF finished rendering"
-        // event across browsers.
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const win = window.open(blobUrl, '_blank');
-        if (win) {
-          let printTriggered = false;
-          const triggerPrint = () => {
-            if (printTriggered) return;
-            printTriggered = true;
-            try { win.focus(); win.print(); } catch (_e) { /* tab may have been closed by user */ }
-          };
-          // Attempt via onload (works in Firefox and some Chrome versions)…
-          win.onload = triggerPrint;
-          // …but always fall back to a fixed delay, since onload is
-          // unreliable for blob PDF tabs in Chrome/Edge/Safari.
-          setTimeout(triggerPrint, 900);
-        } else {
-          // pop-up blocked — fall back to download
-          doc.save(fileName);
+        // Desktop/web: hand off to the shared thermal-safe helper. It:
+        //   1) calls doc.autoPrint() so the embedded PDF viewer fires
+        //      its print dialog with the PDF's true page size
+        //   2) opens the PDF inside a tiny HTML shell that declares an
+        //      @page rule matching the shop's chosen format (58mm /
+        //      80mm / A4), so the print dialog defaults to that paper
+        //      size instead of Chrome's default A4 — which was the
+        //      root cause of thermal bills coming out squeezed or blown
+        //      up onto A4 paper.
+        const { fallback } = await printPdfWithFormat(doc, { fileName, format: printFormat || 'a4' });
+        if (fallback === 'download') {
           toast.info('Pop-up blocked — PDF downloaded. Open it and print from there.');
         }
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
       }
 
       // Reset the cart the same way executeSendWhatsAppBill does after a
@@ -3664,32 +3645,13 @@ const ShopDashboard = () => {
         }
       }
 
-      // Desktop / fallback: open in new tab so the browser's native print dialog can be used
-      //
-      // BUG FIX: this used to just window.open() the PDF and stop — no
-      // .print() call anywhere, not even an unreliable onload attempt like
-      // printCurrentBill had. The button says "Print / Share" but it never
-      // actually triggered a print dialog; it just showed the PDF in a new
-      // tab and left the shop owner to manually find Ctrl+P themselves.
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      const win = window.open(blobUrl, '_blank');
-      if (win) {
-        let printTriggered = false;
-        const triggerPrint = () => {
-          if (printTriggered) return;
-          printTriggered = true;
-          try { win.focus(); win.print(); } catch (_e) { /* tab may have been closed by user */ }
-        };
-        win.onload = triggerPrint;
-        // onload is unreliable for blob PDF tabs in Chrome/Edge/Safari —
-        // always fall back to a fixed delay too.
-        setTimeout(triggerPrint, 900);
-      } else {
-        // Pop-up blocked — fall back to direct download
-        doc.save(fileName);
+      // Desktop / fallback: use the thermal-safe print helper so the
+      // browser's print dialog defaults to the shop's chosen paper size
+      // (58mm / 80mm / A4) instead of always A4 — see printPdf.js.
+      const { fallback } = await printPdfWithFormat(doc, { fileName, format: printFormat || 'a4' });
+      if (fallback === 'download') {
         toast.info('Pop-up blocked — PDF downloaded instead. Open it to print.');
       }
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
     } catch (err) {
       console.error('Print receipt failed:', err);
       toast.error('Could not generate the receipt PDF. Please try again.');
