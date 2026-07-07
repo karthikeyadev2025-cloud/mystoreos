@@ -35,6 +35,14 @@ const KNOWN_MUTATIONS = [
   'bookAppointment',
   'updateAppointment',
   'deleteAppointment',
+  // Notification / push mutations added in 20260707. Same rule:
+  // wrapping any of these in safe() eats the failure and leaves the
+  // UI lying about what got persisted.
+  'markNotificationRead',
+  'markAllNotificationsRead',
+  'deleteNotification',
+  'savePushSubscription',
+  'deletePushSubscription',
 ];
 
 function walkJs(dir, out = []) {

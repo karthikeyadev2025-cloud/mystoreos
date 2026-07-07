@@ -7,6 +7,7 @@ import { useOfflineSync } from './hooks/useOfflineSync';
 import { I18nProvider } from './lib/i18n';
 import { SiteConfigProvider, useSiteConfig } from './lib/siteConfig';
 import ErrorBoundary from './components/ErrorBoundary';
+import PushNavigationBridge from './components/PushNavigationBridge';
 import { DashboardSkeleton } from './components/Skeleton';
 
 // Route-level code splitting — each page loads only when navigated to
@@ -169,6 +170,7 @@ function App() {
         <SiteConfigProvider>
           <AuthProvider>
           <BrowserRouter>
+              <PushNavigationBridge />
               <MockDataWarningBanner />
               <AnnouncementBanner />
               <MaintenanceModeOverlay />

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User, Trash2, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'react-toastify';
+import PushToggle from './PushToggle';
 import { PlanGate, LockedFeature } from './PlanGate';
 import { validateImageFile } from '../lib/fileValidation';
 
@@ -584,6 +585,16 @@ const DesktopSettings = ({
             Test print uses the options selected above (even before saving) — check both edge marks are visible on the slip to confirm the paper size matches your printer.
           </p>
         </div>
+
+        {/* Push notifications — enable browser-level alerts even when
+            the tab is closed. Only shown if a user id is present
+            (i.e. logged in). Renders a permission-aware toggle: prompts
+            on click, shows "Blocked" chip if the user previously denied. */}
+        {user?.id && (
+          <div style={{ marginTop: 4 }}>
+            <PushToggle userId={user.id} />
+          </div>
+        )}
 
         {/* SaaS Subscription — main shop only */}
         {isViewingMain && (
