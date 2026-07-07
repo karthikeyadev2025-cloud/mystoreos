@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
+import NotificationCenter from '../components/NotificationCenter';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -1129,6 +1130,12 @@ const DistributorDashboard = () => {
           <div style={{ fontSize: '12px', color: '#93c5fd' }}>{user.name} • Offline Sync Ready</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8 }}>
+            <NotificationCenter
+              userId={user?.id}
+              onToast={(row) => toast.info(row.title, { autoClose: 5000 })}
+            />
+          </div>
           <button 
             onClick={() => setShowNotifications(!showNotifications)} 
             style={{ 

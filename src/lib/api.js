@@ -3476,6 +3476,83 @@ export const api = {
     return remaining;
   },
 
+  // ─── NOTIFICATIONS ─────────────────────────────────────────────────
+  // In-app notification center. Rows are created by Postgres triggers on
+  // real events (orders / appointments / credits / signups) so the app
+  // never has to fire them from the client — one source of truth.
+  async getNotifications(userId, { limit = 30 } = {}) {
+    if (!isSupabaseConfigured || !userId) return [];
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('id, category, title, body, action_url, data, read, read_at, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+
+  async getUnreadNotificationCount(userId) {
+    if (!isSupabaseConfigured || !userId) return 0;
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('read', false);
+    if (error) return 0;
+    return count || 0;
+  },
+
+  async markNotificationRead(id) {
+    if (!isSupabaseConfigured || !id) return null;
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true, read_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async markAllNotificationsRead(userId) {
+    if (!isSupabaseConfigured || !userId) return null;
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true, read_at: new Date().toISOString() })
+      .eq('user_id', userId)
+      .eq('read', false);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async deleteNotification(id) {
+    if (!isSupabaseConfigured || !id) return null;
+    const { error } = await supabase.from('notifications').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // ─── WEB PUSH SUBSCRIPTIONS ────────────────────────────────────────
+  async savePushSubscription(userId, sub) {
+    if (!isSupabaseConfigured || !userId || !sub?.endpoint) return null;
+    const { error } = await supabase.from('push_subscriptions').upsert({
+      user_id: userId,
+      endpoint: sub.endpoint,
+      keys_p256dh: sub.keys?.p256dh || '',
+      keys_auth:   sub.keys?.auth   || '',
+      user_agent:  navigator.userAgent,
+      last_used_at: new Date().toISOString(),
+    }, { onConflict: 'endpoint' });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async deletePushSubscription(endpoint) {
+    if (!isSupabaseConfigured || !endpoint) return null;
+    const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async getFlashSales(shopId) {
     const raw = await this.getSiteConfig(`flashSales_${shopId}`, {});
     const map = typeof raw === 'string' ? JSON.parse(raw || '{}') : (raw || {});

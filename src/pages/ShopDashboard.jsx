@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { isServiceCategory } from '../lib/businessKind';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { printPdfWithFormat } from '../lib/printPdf';
+import NotificationCenter from '../components/NotificationCenter';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -4416,6 +4417,16 @@ const ShopDashboard = () => {
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px', position: 'relative' }}>
 
+          {/* Floating notification bell — top-right corner of main content.
+              Same component is also mounted on the mobile POS header via
+              MobilePOS's header slot so mobile users get the badge without
+              hunting for it. */}
+          <div style={{ position: 'absolute', top: 12, right: 20, zIndex: 900 }}>
+            <NotificationCenter
+              userId={user?.id}
+              onToast={(row) => toast.info(row.title, { autoClose: 5000, position: 'top-right' })}
+            />
+          </div>
           {activeTab === 'dashboard' && (
             <ServiceBusinessHome
               shopId={targetShopId}

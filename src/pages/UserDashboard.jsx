@@ -17,6 +17,7 @@ import { QRCodeSVG } from 'qrcode.react';
 // html5-qrcode loaded on demand (see initScanner)
 // jsPDF is dynamically imported on demand in downloadReceiptPDF
 import { ToastContainer, toast } from 'react-toastify';
+import NotificationCenter from '../components/NotificationCenter';
 import 'react-toastify/dist/ReactToastify.css';
 import './UserDashboard.css'; // Premium CSS file containing animations, keyframes, scrollbars and thermal styles
 import { buildUpiUri, canTapToPay } from '../lib/upi';
@@ -1420,6 +1421,17 @@ const UserDashboard = () => {
     return (
       <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: '#0F172A', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
+        {/* Floating notification bell — only for logged-in customers.
+            Absolute top-right so it doesn't disrupt the storefront's
+            existing layout. Fires a toast on new items. */}
+        {user?.id && (
+          <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 1200, background: '#fff', borderRadius: 999, boxShadow: '0 4px 12px rgba(15,23,42,0.12)' }}>
+            <NotificationCenter
+              userId={user.id}
+              onToast={(row) => toast.info(row.title, { autoClose: 5000, position: 'top-center' })}
+            />
+          </div>
+        )}
         {detailProduct && (
           <StorefrontProductDetail product={detailProduct} cart={cart} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
         )}

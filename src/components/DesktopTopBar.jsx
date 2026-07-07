@@ -1,5 +1,7 @@
-import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users, LogOut, Bell, TrendingUp, Coins, IndianRupee } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users, LogOut, TrendingUp, Coins, IndianRupee } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
+import NotificationCenter from './NotificationCenter';
+import { toast } from 'react-toastify';
 
 const INK  = '#0F172A'; // obsidian — exact demo token
 const GOLD = '#4F46E5'; // indigo — exact demo token (was gold)
@@ -23,6 +25,7 @@ const DesktopTopBar = ({
   pendingOrders, handleLogout,
   userName, publicCode, syncStatus,
   branchSwitcherEl,
+  userId,
 }) => {
   return (
     <div style={{ position:'sticky', top:0, zIndex:999, fontFamily:FONT }}>
@@ -56,9 +59,14 @@ const DesktopTopBar = ({
             </div>
           )}
           <div style={{ width:1, height:24, background:'rgba(255,255,255,0.12)' }} />
-          {/* Notification */}
-          <div style={{ width:32, height:32, borderRadius:7, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
-            <Bell size={15} color="rgba(255,255,255,0.55)" />
+          {/* Notifications — real bell wired to Supabase Realtime.
+              Fires a toast for every fresh in-app notification, drops
+              the badge count as the user reads them. */}
+          <div style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:7, display:'flex' }}>
+            <NotificationCenter
+              userId={userId}
+              onToast={(row) => toast.info(row.title, { autoClose: 5000 })}
+            />
           </div>
           {/* Branch switcher — only shown when owner has 2+ branches */}
           {branchSwitcherEl && (

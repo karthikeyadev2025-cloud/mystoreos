@@ -2,8 +2,9 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { ADMIN_GLOBAL_CSS } from './admin/_ui';
+import NotificationCenter from '../components/NotificationCenter';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   LayoutDashboard, Store, Truck, Users, CreditCard, Globe, Palette,
@@ -185,6 +186,10 @@ export default function AdminDashboard() {
             <div style={{ color: '#94A3B8', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Admin · {activeTabDef.id === 'overview' ? 'Home' : 'Section'}</div>
             <div style={{ color: '#0F172A', fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em' }}>{activeTabDef.label}</div>
           </div>
+          <NotificationCenter
+            userId={user?.id}
+            onToast={(row) => toast.info(row.title, { autoClose: 5000, position: 'top-right' })}
+          />
         </div>
 
         <main style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px 12px' : '28px 32px', maxWidth: '1400px', width: '100%', margin: '0 auto', background: '#F4F5F7' }}>
