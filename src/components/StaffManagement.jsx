@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, User } from 'lucide-react';
+import { useServiceFeatures } from '../hooks/useServiceFeatures';
+import { UpgradeChip } from './FeatureUpgradePrompt';
 
 const DAYS = [
   { key: 'mon', label: 'Mon' }, { key: 'tue', label: 'Tue' }, { key: 'wed', label: 'Wed' },
@@ -128,6 +130,7 @@ function TimeOffManager({ providerId }) {
 }
 
 function ProviderForm({ provider, shopId, onSave, onCancel }) {
+  const features = useServiceFeatures();
   const [form, setForm] = useState({ ...EMPTY_PROVIDER, ...provider, working_hours: provider?.working_hours || DEFAULT_HOURS });
   const [saving, setSaving] = useState(false);
 
@@ -164,9 +167,15 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Buffer Time Between Appointments</label>
-        <select value={form.buffer_minutes || 0} onChange={e => setForm(p => ({ ...p, buffer_minutes: Number(e.target.value) }))}
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+          Buffer Time Between Appointments
+          {!features.canConfigureBufferTime && <UpgradeChip requiredPlan="Pro" />}
+        </label>
+        <select
+          value={form.buffer_minutes || 0}
+          onChange={e => setForm(p => ({ ...p, buffer_minutes: Number(e.target.value) }))}
+          disabled={!features.canConfigureBufferTime}
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: features.canConfigureBufferTime ? '#fff' : '#F8FAFC', outline: 'none', cursor: features.canConfigureBufferTime ? 'pointer' : 'not-allowed', opacity: features.canConfigureBufferTime ? 1 : 0.65 }}>
           <option value={0}>No buffer — back-to-back bookings allowed</option>
           <option value={5}>5 minutes</option>
           <option value={10}>10 minutes</option>
@@ -174,12 +183,25 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
           <option value={20}>20 minutes</option>
           <option value={30}>30 minutes</option>
         </select>
-        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Extra time reserved after each appointment for cleanup/prep before the next one can be booked.</p>
+        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>
+          {features.canConfigureBufferTime
+            ? 'Extra time reserved after each appointment for cleanup/prep before the next one can be booked.'
+            : `Upgrade to ${features.labelFor('serviceBufferTime')} to configure buffer time between bookings.`}
+        </p>
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Weekly Working Hours</label>
-        <WorkingHoursEditor hours={form.working_hours} onChange={wh => setForm(p => ({ ...p, working_hours: wh }))} />
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>
+          Weekly Working Hours
+          {!features.canConfigureProviderHours && <UpgradeChip requiredPlan="Pro" />}
+        </label>
+        {features.canConfigureProviderHours ? (
+          <WorkingHoursEditor hours={form.working_hours} onChange={wh => setForm(p => ({ ...p, working_hours: wh }))} />
+        ) : (
+          <div style={{ padding: 12, background: '#F8FAFC', border: '1px dashed #CBD5E1', borderRadius: 8, fontSize: 12, color: '#64748B' }}>
+            Per-staff working hours are on {features.labelFor('serviceProviderHours')}. All staff share the shop's default hours on your current plan.
+          </div>
+        )}
       </div>
 
       {provider?.id && <TimeOffManager providerId={provider.id} />}
