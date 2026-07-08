@@ -100,7 +100,11 @@ const DesktopPOS = ({
   const lowStockProducts = products.filter(p => p.stock < (p.reorderLevel || 10));
 
   const rawFinalTotal = Math.max(0, billTotal - (discountAmount + manualDiscountAmt) - loyaltyDiscountRupees);
-  const finalTotal = Math.max(0, Math.round(rawFinalTotal + (Number(roundOff) || 0)));
+  // Auto round-off remainder so the displayed total matches the printed
+  // receipt (line items can be fractional). Manual round-off entry wins.
+  const autoRem = Math.round((Math.round(rawFinalTotal) - rawFinalTotal) * 100) / 100;
+  const effRoundOff = (Number(roundOff) || 0) !== 0 ? (Number(roundOff) || 0) : autoRem;
+  const finalTotal = Math.max(0, Math.round(rawFinalTotal + effRoundOff));
 
   // Auto round-off: snap the pre-round total to the nearest whole rupee.
   // Positive when we round UP (customer pays a few paise more), negative

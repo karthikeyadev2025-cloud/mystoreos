@@ -117,8 +117,10 @@ export function buildThermalReceiptHtml(data, widthMm) {
   @page { size: ${W}mm auto; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  html { width: ${W}mm; }
   body {
     width: ${W}mm;
+    max-width: ${W}mm;
     font-family: 'Courier New', ui-monospace, monospace;
     font-size: ${fontPx}px;
     line-height: 1.35;
@@ -139,7 +141,10 @@ export function buildThermalReceiptHtml(data, widthMm) {
   .trow { display: flex; justify-content: space-between; }
   .trow.strong { font-weight: 800; font-size: ${fontPx + 2}px; }
   @media print {
-    body { width: ${W}mm; }
+    html, body { width: ${W}mm !important; max-width: ${W}mm !important; }
+    /* Some thermal drivers honour an explicit @page inside the print
+       media block better than the top-level one. Belt and suspenders. */
+    @page { size: ${W}mm auto; margin: 0; }
   }
 </style>
 </head>

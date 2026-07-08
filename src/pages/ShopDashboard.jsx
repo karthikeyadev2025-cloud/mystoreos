@@ -1119,7 +1119,12 @@ const ShopDashboard = () => {
     try {
       const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
       const preRoundTotal = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
-      const roundOffAmt = Number(roundOff) || 0;
+      // Manual round-off wins; otherwise auto-snap the fractional
+      // remainder so the receipt balances (see effectiveRoundOff near
+      // billTotal). Computed locally here because this function is
+      // defined above billTotal in the file.
+      const autoRem = Math.round((Math.round(preRoundTotal) - preRoundTotal) * 100) / 100;
+      const roundOffAmt = (Number(roundOff) || 0) !== 0 ? (Number(roundOff) || 0) : autoRem;
       const total = Math.max(0, Math.round(preRoundTotal + roundOffAmt));
 
       // ── Create the actual order first ───────────────────────────────────
@@ -1479,7 +1484,10 @@ const ShopDashboard = () => {
   const sendWhatsAppBill = async () => {
     if (billItems.length === 0) return toast.error("Bill is empty");
     const loyaltyDiscountRupees = Math.floor(loyaltyRedeem / 10);
-    const total = Math.max(0, Math.round(billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees + (Number(roundOff) || 0)));
+    const preRound = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupees);
+    const autoRem = Math.round((Math.round(preRound) - preRound) * 100) / 100;
+    const roAmt = (Number(roundOff) || 0) !== 0 ? (Number(roundOff) || 0) : autoRem;
+    const total = Math.max(0, Math.round(preRound + roAmt));
 
     if (!isOwner && total > 5000) {
       setPendingAction(() => () => executeSendWhatsAppBill());
@@ -1497,7 +1505,11 @@ const ShopDashboard = () => {
     // ₹297 down to ₹295, or ₹298 up to ₹300) — not auto-calculated. This
     // matches how Indian shopkeepers actually handle cash change in
     // practice: they decide the round figure themselves per bill.
-    const roundOffAmt = Number(roundOff) || 0;
+    // BUT: when the cashier hasn't entered one and the natural total has
+    // paise (fractional prices / percentage discounts), we auto-snap to
+    // the nearest rupee so line-items + round-off == total on the receipt.
+    const autoRem = Math.round((Math.round(preRoundTotal) - preRoundTotal) * 100) / 100;
+    const roundOffAmt = (Number(roundOff) || 0) !== 0 ? (Number(roundOff) || 0) : autoRem;
     const total = Math.max(0, Math.round(preRoundTotal + roundOffAmt));
     
     try {
@@ -2418,6 +2430,25 @@ const ShopDashboard = () => {
   const billItemsOriginalTotal = billItems.reduce((a, b) => a + (b.price * (b.qty || 1)), 0);
   const itemLevelSavings = billItemsOriginalTotal - billTotal;
   const manualDiscountAmt = Math.round(billTotal * (manualDiscountPct / 100));
+
+  // Auto round-off remainder. Line-item prices can be fractional
+  // (e.g. ₹499.50, or 5% off ₹333.33 = ₹316.66), so the natural
+  // pre-round total often lands on paise. We snap the FINAL total to
+  // the nearest whole rupee and expose the difference as a round-off
+  // line, so the printed receipt always balances (line items + round
+  // off = total) even when the cashier didn't manually enter one.
+  //
+  // If the cashier HAS entered a manual roundOff, that takes precedence
+  // (they're deliberately rounding ₹297 → ₹295 for cash convenience).
+  // Otherwise we use the auto remainder. Rounded to 2dp to kill
+  // floating-point noise like -0.29999999999998.
+  const loyaltyDiscountRupeesLive = Math.floor(loyaltyRedeem / 10);
+  const naturalPreRound = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupeesLive);
+  const autoRoundRemainder = Math.round((Math.round(naturalPreRound) - naturalPreRound) * 100) / 100;
+  // effectiveRoundOff: manual entry wins; else the auto remainder.
+  const effectiveRoundOff = (Number(roundOff) || 0) !== 0
+    ? (Number(roundOff) || 0)
+    : autoRoundRemainder;
   // Stable UPI transaction reference for the in-app QR modal — must not
   // change on every render (or the QR image re-encodes constantly, and
   // ESLint react-hooks/purity flags Date.now() called in render). Placed
