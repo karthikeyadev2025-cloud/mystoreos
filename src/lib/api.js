@@ -4019,6 +4019,27 @@ export const api = {
 
   // --- Services (shop's catalogue) ---
 
+  // Cheap check used by the customer-facing booking widget to decide
+  // whether to render the 'Manage This Booking' link on the
+  // confirmation screen. Returns true if the shop is on a plan tier
+  // that includes customer self-service (Pro / Enterprise / trial).
+  // Kept in sync with features.js serviceCustomerSelfService.
+  //
+  // Uses only the public shop-lookup allowlist columns — no RLS risk.
+  async shopHasSelfService(shopId) {
+    if (!isSupabaseConfigured || !shopId) return false;
+    const { data } = await supabase
+      .from('users')
+      .select('subscription, subscription_tier')
+      .eq('id', shopId)
+      .maybeSingle();
+    if (!data) return false;
+    const tier = data.subscription_tier || '';
+    if (tier === 'pro' || tier === 'enterprise') return true;
+    if (data.subscription === 'trial' && !tier) return true;
+    return false;
+  },
+
   async getShopServices(shopId) {
     if (!isSupabaseConfigured) return [];
     const { data, error } = await supabase
