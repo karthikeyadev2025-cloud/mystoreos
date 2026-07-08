@@ -51,7 +51,13 @@ export default function MobilePOS({
   const [generating, setGenerating] = useState(false);
   const itemCount = billItems.reduce((s, i) => s + (i.qty || 1), 0);
   const rawFinalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
-  const finalTotal = Math.max(0, Math.round(rawFinalTotal + (Number(roundOff) || 0)));
+  // Auto round-off remainder so the on-screen total matches the printed
+  // receipt (line-item prices can be fractional). Manual entry wins: if
+  // the cashier has typed a +/- round-off, we use exactly that; otherwise
+  // we snap the fractional remainder to the nearest rupee.
+  const autoRem = Math.round((Math.round(rawFinalTotal) - rawFinalTotal) * 100) / 100;
+  const effRoundOff = (Number(roundOff) || 0) !== 0 ? (Number(roundOff) || 0) : autoRem;
+  const finalTotal = Math.max(0, Math.round(rawFinalTotal + effRoundOff));
 
   // Auto round-off: snap to nearest whole rupee. See DesktopPOS for the
   // rationale — shopkeepers shouldn't have to type this every bill.
