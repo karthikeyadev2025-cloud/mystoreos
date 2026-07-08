@@ -1166,6 +1166,66 @@ const ShopDashboard = () => {
       // Use the shop's actual chosen print format (A4 / thermal80 / thermal58)
       const fmt = printFormat || 'a4';
       const isThermal  = fmt === 'thermal80' || fmt === 'thermal58';
+
+      // ── THERMAL PATH: render as native HTML, not jsPDF ──────────────────
+      // jsPDF thermal blobs don't print reliably — the browser's PDF
+      // plugin ignores the wrapper @page size and lands the receipt on
+      // A4. Native HTML print honours `@page { size: 80mm auto }`
+      // exactly, so thermal receipts actually come out at roll width.
+      // A4 keeps the richer jsPDF layout below.
+      if (isThermal) {
+        const widthMm = fmt === 'thermal58' ? 58 : 80;
+        const itemSavingsT = billItems.reduce((s, i) => {
+          const d = i.itemDiscount || 0;
+          return d > 0 ? s + Math.round(i.price * (i.qty || 1) * d / 100) : s;
+        }, 0);
+        let modeTitleT = 'TAX INVOICE';
+        if (billingMode === 'estimate') modeTitleT = 'PROFORMA ESTIMATE';
+        if (billingMode === 'challan')  modeTitleT = 'DELIVERY CHALLAN';
+
+        const receiptData = {
+          shopName: shop.name || 'Shop',
+          shopPhone: shop.phone || '',
+          shopAddress: businessAddress || shop.address || '',
+          gstin: customerGstin ? (gstin || '') : (gstin || ''),
+          modeTitle: modeTitleT,
+          billNo: `${Date.now().toString().slice(-6)}`,
+          dateStr: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          customerName: customerName || '',
+          customerPhone: customerPhone || '',
+          items: billItems.map(i => ({ name: i.name, qty: i.qty || 1, price: i.price, discountPct: i.itemDiscount || 0 })),
+          subtotal: billTotal,
+          itemSavings: itemSavingsT,
+          billDiscount: (discountAmount + manualDiscountAmt),
+          loyaltyRedeemed: loyaltyDiscountRupees,
+          roundOff: roundOffAmt,
+          total,
+          paymentMode: paymentMethod || '',
+          footerNote: invoiceFooter || 'Thank you! Visit again.',
+        };
+
+        const { printThermalReceipt } = await import('../lib/thermalReceipt');
+        const { fallback } = printThermalReceipt(receiptData, widthMm);
+        if (fallback === 'popup') {
+          toast.info('Allow pop-ups for this site to print receipts.');
+        }
+
+        // Clear the cart — the order was already placed above.
+        setBillItems([]);
+        setDiscountAmount(0);
+        setManualDiscountPct(0);
+        setPromoCode('');
+        setLoyaltyRedeem(0);
+        setRoundOff(0);
+        setCustomerLoyaltyPoints(0);
+        setCustomerName('');
+        setCustomerPhone('');
+        setCustomerGstin('');
+        setCustomerAddress('');
+        setBillingMode('invoice');
+        return;
+      }
+
       const mmW        = fmt === 'thermal58' ? 58 : fmt === 'thermal80' ? 80 : 210;
       const pageH      = isThermal ? 0 : 297; // 0 = auto-height for thermal
       const marginL    = isThermal ? 3 : 15;
@@ -3434,6 +3494,44 @@ const ShopDashboard = () => {
 
       const isThermal  = printFormat === 'thermal80' || printFormat === 'thermal58';
       const pageW       = printFormat === 'thermal58' ? 58 : printFormat === 'thermal80' ? 80 : 210;
+
+      // ── THERMAL PATH: native HTML print (see printCurrentBill for why
+      //    jsPDF thermal blobs don't print at roll width). Re-print +
+      //    Test Print both funnel through here. ─────────────────────────
+      if (isThermal) {
+        const widthMm = printFormat === 'thermal58' ? 58 : 80;
+        const { type: rType, name: rName, phone: rPhone } = decodeOrderUserId(order.userId);
+        const rModeTitle = opts.testMode ? 'TEST PRINT'
+          : rType === 'estimate' ? 'PROFORMA ESTIMATE'
+          : rType === 'challan'  ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
+        const receiptData = {
+          shopName: shop.name || 'Shop',
+          shopPhone: shop.phone || '',
+          shopAddress: businessAddress || shop.address || '',
+          gstin: gstin || '',
+          modeTitle: rModeTitle,
+          billNo: (order.id || '').slice(0, 8).toUpperCase(),
+          dateStr: order.date ? new Date(order.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '',
+          customerName: rName || '',
+          customerPhone: rPhone || '',
+          items: (order.items || []).map(it => ({
+            name: it.name, qty: it.qty || 1, price: it.price, discountPct: it.itemDiscount || it.discount || 0,
+          })),
+          subtotal: order.subtotal != null ? order.subtotal : (order.items || []).reduce((s, i) => s + (Number(i.price) || 0) * (i.qty || 1), 0),
+          itemSavings: 0,
+          billDiscount: order.discount || 0,
+          loyaltyRedeemed: order.loyaltyRedeemed || 0,
+          roundOff: order.roundOff || 0,
+          total: order.total,
+          paymentMode: order.paymentMethod || '',
+          footerNote: invoiceFooter || 'Thank you! Visit again.',
+        };
+        const { printThermalReceipt } = await import('../lib/thermalReceipt');
+        const { fallback } = printThermalReceipt(receiptData, widthMm);
+        if (fallback === 'popup') toast.info('Allow pop-ups for this site to print receipts.');
+        return;
+      }
+
       const marginL     = isThermal ? 3 : 15;
       const contentW    = pageW - marginL * 2;
 

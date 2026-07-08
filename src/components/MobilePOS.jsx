@@ -53,6 +53,14 @@ export default function MobilePOS({
   const rawFinalTotal = Math.max(0, (billTotal || 0) - ((discountAmount || 0) + (manualDiscountAmt || 0)));
   const finalTotal = Math.max(0, Math.round(rawFinalTotal + (Number(roundOff) || 0)));
 
+  // Auto round-off: snap to nearest whole rupee. See DesktopPOS for the
+  // rationale — shopkeepers shouldn't have to type this every bill.
+  const autoRoundOff = () => {
+    const nearest = Math.round(rawFinalTotal);
+    const delta = nearest - rawFinalTotal;
+    setRoundOff && setRoundOff(Math.round(delta * 100) / 100);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', background: '#F8FAFC', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', boxSizing: 'border-box' }}>
       <style>{`@keyframes mp-spin { to { transform: rotate(360deg); } }`}</style>
@@ -316,14 +324,22 @@ export default function MobilePOS({
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, gap: 8 }}>
                     <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>Round Off</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="0"
-                      value={roundOff || ''}
-                      onChange={e => setRoundOff && setRoundOff(e.target.value === '' ? 0 : parseFloat(e.target.value))}
-                      style={{ width: 70, padding: '4px 8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, color: '#0F172A', textAlign: 'right', outline: 'none' }}
-                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <button
+                        type="button"
+                        onClick={autoRoundOff}
+                        style={{ padding: '4px 8px', background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>
+                        Auto
+                      </button>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        placeholder="0"
+                        value={roundOff || ''}
+                        onChange={e => setRoundOff && setRoundOff(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+                        style={{ width: 62, padding: '4px 8px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, color: '#0F172A', textAlign: 'right', outline: 'none' }}
+                      />
+                    </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed #E2E8F0', paddingTop: 8 }}>
                     <span style={{ fontSize: 13, color: '#0F172A', fontWeight: 800 }}>TOTAL</span>
