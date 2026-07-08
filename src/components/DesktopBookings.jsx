@@ -213,6 +213,12 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   const [dayAvailability, setDayAvailability] = useState({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  // Recurring booking state — only exposed when features.canScheduleRecurring
+  // is true (Enterprise). All other tiers get one-off bookings only.
+  const [isRecurring, setIsRecurring]     = useState(false);
+  const [recFrequency, setRecFrequency]   = useState('weekly'); // 'daily' | 'weekly' | 'monthly'
+  const [recInterval, setRecInterval]     = useState(1);
+  const [recCount, setRecCount]           = useState(4);
 
   const selectedService = services.find(s => s.id === serviceId);
   const selectedProvider = providers.find(p => p.id === providerId);
@@ -249,22 +255,53 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
     if (!time) return toast.error('Select a time');
     setSaving(true);
     try {
-      await api.bookAppointment(shopId, {
-        service_id: selectedService.id,
-        service_name: selectedService.name,
-        service_price: selectedService.price,
-        duration_minutes: selectedService.duration_minutes,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        appointment_date: date,
-        appointment_time: time + ':00',
-        notes: notes || null,
-        booked_via: 'walk_in',
-        provider_id: providerId || null,
-        status: 'confirmed', // owner already knows this is happening — skip the pending review step
-      });
-      toast.success('Booking added!');
-      onSaved();
+      if (isRecurring && features.canScheduleRecurring) {
+        // Recurring path: server materializes each occurrence and
+        // skips (does not fail) any that conflicts with an existing
+        // booking. Report both counts to the user so they know
+        // exactly what got booked.
+        const res = await api.createRecurringAppointment(shopId, {
+          service_id: selectedService.id,
+          service_name: selectedService.name,
+          service_price: selectedService.price,
+          duration_minutes: selectedService.duration_minutes,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          time_of_day: time + ':00',
+          starts_on: date,
+          frequency: recFrequency,
+          interval_count: Number(recInterval) || 1,
+          max_occurrences: Number(recCount) || 4,
+          provider_id: providerId || null,
+          status: 'confirmed',
+        });
+        const matched = res?.materialized || 0;
+        const skipped = res?.skipped || 0;
+        if (skipped > 0) {
+          toast.info(`Booked ${matched} of ${matched + skipped} slots — ${skipped} skipped (already booked).`);
+        } else {
+          toast.success(`Recurring booking created — ${matched} slots reserved.`);
+        }
+        onSaved();
+      } else {
+        // One-off path (existing behavior, unchanged).
+        await api.bookAppointment(shopId, {
+          service_id: selectedService.id,
+          service_name: selectedService.name,
+          service_price: selectedService.price,
+          duration_minutes: selectedService.duration_minutes,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          appointment_date: date,
+          appointment_time: time + ':00',
+          notes: notes || null,
+          booked_via: 'walk_in',
+          provider_id: providerId || null,
+          status: 'confirmed', // owner already knows this is happening — skip the pending review step
+        });
+        toast.success('Booking added!');
+        onSaved();
+      }
     } catch (e) {
       toast.error(e.message || 'Failed to add booking');
     }
@@ -339,6 +376,53 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Notes (optional)</label>
         <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special requests…"
           style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 20 }} />
+
+        {/* Recurring booking (Enterprise Plan only) — reserves multiple
+            future slots for the same customer + service + time. Each
+            occurrence lives as a normal appointment row so everything
+            downstream (conflict check, reminders, RLS, per-instance
+            reschedule) works unchanged. */}
+        {features.canScheduleRecurring && (
+          <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 14, marginBottom: 20, background: '#F8FAFC' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: isRecurring ? 12 : 0 }}>
+              <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} style={{ width: 16, height: 16 }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Make this a recurring booking</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '2px 8px', borderRadius: 999, marginLeft: 'auto' }}>Enterprise</span>
+            </label>
+            {isRecurring && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Repeats</label>
+                  <select value={recFrequency} onChange={e => setRecFrequency(e.target.value)}
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Every</label>
+                  <select value={recInterval} onChange={e => setRecInterval(Number(e.target.value))}
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    {[1,2,3,4].map(n => <option key={n} value={n}>{n} {recFrequency === 'daily' ? 'day' : recFrequency === 'weekly' ? 'week' : 'month'}{n > 1 ? 's' : ''}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Occurrences</label>
+                  <select value={recCount} onChange={e => setRecCount(Number(e.target.value))}
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    {[2,4,6,8,10,12,16,20,26,52].map(n => <option key={n} value={n}>{n} slots</option>)}
+                  </select>
+                </div>
+              </div>
+            )}
+            {isRecurring && (
+              <p style={{ margin: '10px 0 0', fontSize: 11, color: '#64748B' }}>
+                Any occurrence that conflicts with an existing booking will be skipped — we'll tell you how many were reserved and how many were skipped.
+              </p>
+            )}
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onClose} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>

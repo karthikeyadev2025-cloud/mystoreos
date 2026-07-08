@@ -4285,6 +4285,38 @@ export const api = {
     return null;
   },
 
+  // Create a recurring booking series via RPC. Server enforces:
+  //   * Enterprise-tier gate
+  //   * Ownership check
+  //   * Materializes each occurrence and skips (does not fail) any
+  //     that would conflict with an existing appointment.
+  //
+  // Returns { series_id, materialized, skipped }. Caller should show
+  // both counts to the user — e.g. "Booked 10 of 12 slots (2 skipped —
+  // already booked)".
+  async createRecurringAppointment(shopId, series) {
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase.rpc('create_recurring_appointment', {
+      p_shop_id:         shopId,
+      p_service_id:      series.service_id || null,
+      p_service_name:    series.service_name,
+      p_service_price:   Number(series.service_price) || 0,
+      p_duration_min:    Number(series.duration_minutes) || 30,
+      p_customer_name:   series.customer_name,
+      p_customer_phone:  series.customer_phone,
+      p_time_of_day:     series.time_of_day,          // "HH:MM"
+      p_starts_on:       series.starts_on,            // "YYYY-MM-DD"
+      p_frequency:       series.frequency,            // 'daily' | 'weekly' | 'monthly'
+      p_interval:        Number(series.interval_count) || 1,
+      p_max_occurrences: Number(series.max_occurrences) || 12,
+      p_ends_on:         series.ends_on || null,
+      p_provider_id:     series.provider_id || null,
+      p_status:          series.status || 'confirmed',
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
   async bookAppointment(shopId, appointment) {
     if (!isSupabaseConfigured) return null;
     const conflict = await this.checkAppointmentConflict(
