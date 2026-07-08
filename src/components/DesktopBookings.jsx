@@ -3,6 +3,8 @@ import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, Check, X, Clock, Calendar, Phone, User, ChevronLeft, ChevronRight, Scissors } from 'lucide-react';
 import CompleteBillModal from './CompleteBillModal';
+import { useServiceFeatures } from '../hooks/useServiceFeatures';
+import FeatureUpgradePrompt, { UpgradeChip } from './FeatureUpgradePrompt';
 import StaffManagement from './StaffManagement';
 
 const SERVICE_CATEGORIES = [
@@ -198,6 +200,9 @@ const fmt12 = (t) => {
 // conflict-checking (api.bookAppointment / api.getBookedSlots) as the
 // consumer widget, so a walk-in can never double-book a slot either.
 function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }) {
+  // The parent already calls this hook, but sub-components mount their
+  // own tree so we call it again here — cheap useMemo, no extra fetches.
+  const features = useServiceFeatures();
   const [serviceId, setServiceId] = useState(services[0]?.id || '');
   const [providerId, setProviderId] = useState('');
   const [customerName, setCustomerName] = useState('');
@@ -281,7 +286,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
           ))}
         </select>
 
-        {providers.length > 0 && (
+        {providers.length > 0 && features.canAssignStaffPerService && (
           <>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Staff Member</label>
             <select value={providerId} onChange={e => { setProviderId(e.target.value); setTime(''); }}
@@ -348,6 +353,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
 }
 
 export default function DesktopBookings({ shopId, shopName, initialTab = 'appointments' }) {
+  const features = useServiceFeatures();
   const [tab, setTab] = useState(initialTab); // 'appointments' | 'services' | 'staff'
   // If the parent switches the top-level sidebar entry (e.g. Services →
   // Staff), keep the internal sub-tab in sync. useState only reads the
@@ -506,9 +512,42 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
       {/* ── SERVICES TAB ── */}
       {tab === 'services' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-            <button onClick={() => { setEditingService(null); setShowServiceForm(true); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          {/* Plan-cap enforcement: Starter shops get 3 services max.
+              Rather than surprise them by silently failing at insert,
+              we tell them upfront and offer the upgrade path. Pro
+              and above return -1 (unlimited) → banner never renders. */}
+          {!features.canAddMoreServices(services.length) && (
+            <div style={{ marginBottom: 16 }}>
+              <FeatureUpgradePrompt
+                title={`Service limit reached (${features.maxServices} on your current plan)`}
+                body="Upgrade to Pro for unlimited services, per-staff assignment, buffer time, and customer self-service links."
+                requiredPlan={features.labelFor('bookings')}
+                hint={`You have ${services.length} services — add more by upgrading.`}
+              />
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, alignItems: 'center', gap: 8 }}>
+            {features.maxServices > 0 && features.maxServices !== -1 && (
+              <span style={{ fontSize: 11, color: '#64748B' }}>
+                {services.length} / {features.maxServices} services
+              </span>
+            )}
+            <button
+              onClick={() => {
+                if (!features.canAddMoreServices(services.length)) {
+                  toast.info('Service limit reached — upgrade to add more.');
+                  return;
+                }
+                setEditingService(null); setShowServiceForm(true);
+              }}
+              disabled={!features.canAddMoreServices(services.length)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none',
+                background: features.canAddMoreServices(services.length) ? '#4F46E5' : '#94A3B8',
+                color: '#fff', fontWeight: 700, fontSize: 13,
+                cursor: features.canAddMoreServices(services.length) ? 'pointer' : 'not-allowed',
+                opacity: features.canAddMoreServices(services.length) ? 1 : 0.7,
+              }}>
               <Plus size={15} /> Add Service
             </button>
           </div>
@@ -549,7 +588,14 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
       )}
 
       {tab === 'staff' && (
-        <StaffManagement shopId={shopId} />
+        features.canAssignStaffPerService
+          ? <StaffManagement shopId={shopId} />
+          : <FeatureUpgradePrompt
+              title="Multi-staff scheduling"
+              body="Assign services to individual staff members, track per-staff working hours, and let customers pick their preferred provider when they book."
+              requiredPlan={features.labelFor('serviceStaffAssignment')}
+              hint="Great for salons with multiple stylists, clinics with multiple doctors, or gyms with several trainers."
+            />
       )}
 
       {completingAppointment && (

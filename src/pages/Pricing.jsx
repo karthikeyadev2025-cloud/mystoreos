@@ -194,6 +194,20 @@ function buildFeaturesFromPlan(plan) {
   if (plan.features && Array.isArray(plan.features) && typeof plan.features[0] === 'string') {
     const caps = plan.capabilities || {};
     const base = plan.features.map(f => ({ label: f, on: true }));
+    // Service-business capabilities — highlighted so a salon/spa/clinic
+    // prospect immediately sees the value of upgrading.
+    const serviceOn = [
+      // Show the services cap for anyone: unlimited on Pro+, small
+      // starter cap otherwise. Never shown as "off" — shown as label.
+      caps.maxServices === -1 && { label: 'Unlimited services & bookings', on: true },
+      caps.maxServices > 0 && caps.maxServices !== -1 && { label: `Up to ${caps.maxServices} services`, on: true },
+      caps.serviceStaffAssignment    && { label: 'Multi-staff scheduling', on: true },
+      caps.serviceBufferTime         && { label: 'Buffer time between bookings', on: true },
+      caps.serviceCustomerSelfService&& { label: 'Customer self-service reschedule', on: true },
+      caps.serviceReminders          && { label: 'Automated booking reminders', on: true },
+      caps.serviceProviderHours      && { label: 'Per-staff working hours', on: true },
+      caps.serviceRecurring          && { label: 'Recurring / weekly bookings', on: true },
+    ].filter(Boolean);
     const locked = [
       !caps.staffAccounts && { label: 'Staff accounts', on: false },
       !caps.batchExpiry && { label: 'Batch/expiry tracking', on: false },
@@ -201,8 +215,11 @@ function buildFeaturesFromPlan(plan) {
       !caps.tallyExport && { label: 'Tally export', on: false },
       !caps.caPortal && { label: 'CA portal', on: false },
       !caps.multiDevice && { label: 'Multi-device sync', on: false },
+      !caps.serviceStaffAssignment && caps.maxServices !== -1 && { label: 'Multi-staff scheduling', on: false },
+      !caps.serviceCustomerSelfService && caps.maxServices !== -1 && { label: 'Customer self-service links', on: false },
+      !caps.serviceRecurring && { label: 'Recurring bookings', on: false },
     ].filter(Boolean);
-    return [...base, ...locked];
+    return [...base, ...serviceOn, ...locked];
   }
   return plan.features || [];
 }

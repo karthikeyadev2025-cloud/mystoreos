@@ -44,6 +44,12 @@ export function hasDistCap(user, feature) {
 // starter = ₹499/mo — digital billing, 200 products, WhatsApp share
 // pro     = ₹999/mo — unlimited products, staff, loyalty, flash sales, batch/expiry
 // enterprise = ₹2499/mo — GST invoicing, Tally XML, CA portal, multi-device, custom footer
+//
+// Service-business specific caps live under the *Service* keys below.
+// The gating pattern (see useServiceFeatures) uses these to decide
+// whether a shop with businessKind='service' can see / use each
+// advanced feature. Retail-only shops never touch these, so setting
+// them to false on lower tiers costs retailers nothing.
 export const PLAN_CAPS = {
   trial: {
     maxProducts: 50, maxDevices: 1,
@@ -52,6 +58,10 @@ export const PLAN_CAPS = {
     multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
     promoCode: false, advancedReports: false, aiForecasting: false, barcodeManager: false,
     bookings: true,       // free during 15-day trial so users can evaluate
+    // Service caps: everything unlocked during trial so users can evaluate.
+    maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+    serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: true,
+    serviceProviderHours: true,
   },
   starter: {
     maxProducts: 200, maxDevices: 1,
@@ -60,6 +70,11 @@ export const PLAN_CAPS = {
     multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
     promoCode: true, advancedReports: false, aiForecasting: false, barcodeManager: false,
     bookings: false,      // Bookings add-on ₹249/month (see subscription.bookings_addon)
+    // Service caps — free-tier service business gets a small catalogue
+    // and single-staff bookings, but no advanced scheduling primitives.
+    maxServices: 3, serviceStaffAssignment: false, serviceBufferTime: false,
+    serviceCustomerSelfService: false, serviceReminders: false, serviceRecurring: false,
+    serviceProviderHours: false,
   },
   pro: {
     maxProducts: -1, maxDevices: 2,
@@ -68,6 +83,13 @@ export const PLAN_CAPS = {
     multiDevice: false, customInvoiceFooter: true, loyaltyPoints: true, flashSales: true,
     promoCode: true, advancedReports: true, aiForecasting: true, barcodeManager: true,
     bookings: true,       // included in Pro
+    // Service caps — Pro is the natural home for a serious salon/spa/clinic.
+    // Unlimited services, multi-staff assignment, buffer time between
+    // bookings, customer self-service links, automated reminders,
+    // per-staff working hours. Recurring bookings stay Enterprise-only.
+    maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+    serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: false,
+    serviceProviderHours: true,
   },
   enterprise: {
     maxProducts: -1, maxDevices: 5,
@@ -76,6 +98,10 @@ export const PLAN_CAPS = {
     multiDevice: true, customInvoiceFooter: true, loyaltyPoints: true, flashSales: true,
     promoCode: true, advancedReports: true, aiForecasting: true, barcodeManager: true,
     bookings: true,       // included in Enterprise
+    // Enterprise unlocks everything, including recurring bookings.
+    maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+    serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: true,
+    serviceProviderHours: true,
   },
 };
 
@@ -95,6 +121,14 @@ export const FEATURE_PLAN_LABEL = {
   caPortal: 'Enterprise Plan',
   tallyExport: 'Enterprise Plan',
   multiDevice: 'Enterprise Plan',
+  // Service-side unlock labels
+  bookings: 'Pro Plan',
+  serviceStaffAssignment: 'Pro Plan',
+  serviceBufferTime: 'Pro Plan',
+  serviceCustomerSelfService: 'Pro Plan',
+  serviceReminders: 'Pro Plan',
+  serviceProviderHours: 'Pro Plan',
+  serviceRecurring: 'Enterprise Plan',
 };
 
 export function getCaps(user) {
