@@ -4700,12 +4700,15 @@ const ShopDashboard = () => {
         <div className="enterprise-main" style={{ marginTop: announceConfig.active && announceConfig.text ? '40px' : '0px', position: 'relative' }}>
 
           {/* Floating notification bell — top-right corner of main content.
-              Same component is also mounted on the mobile POS header via
-              MobilePOS's header slot so mobile users get the badge without
-              hunting for it. */}
+              userId is targetShopId (not user?.id): notifications are
+              always addressed to shop_id on the order, which for staff
+              logins is user.staff_of and for a branch view is the
+              branch id — neither equals the logged-in individual's own
+              user.id. Using user?.id here meant staff and branch views
+              never received their notifications at all. */}
           <div style={{ position: 'absolute', top: 12, right: 20, zIndex: 900 }}>
             <NotificationCenter
-              userId={user?.id}
+              userId={targetShopId}
               onToast={(row) => toast.info(row.title, { autoClose: 5000, position: 'top-right' })}
             />
           </div>
@@ -5762,9 +5765,29 @@ const ShopDashboard = () => {
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
         </div>
-        <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
-          <LogOut size={14} /> Logout
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {/* Notification bell — was ENTIRELY missing on mobile before
+              this fix (only ever mounted in the desktop-only render
+              branch above). Given most shop owners use this app on
+              their phone, that meant the majority of shops never saw
+              an in-app alert for a new order or booking at all — the
+              exact bug being reported. userId is targetShopId (not
+              user?.id) so it resolves correctly for staff logins
+              (targetShopId = their staff_of shop) and when viewing a
+              branch (targetShopId = the branch id) — notifications are
+              always addressed to shop_id on the order, which is
+              targetShopId in every one of those cases, not the
+              logged-in individual's own id. */}
+          <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px' }}>
+            <NotificationCenter
+              userId={targetShopId}
+              onToast={(row) => toast.info(row.title, { autoClose: 5000, position: 'top-center' })}
+            />
+          </div>
+          <button onClick={handleLogout} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+            <LogOut size={14} /> Logout
+          </button>
+        </div>
       </div>
 
       {isOwner && isViewingMain && isOnTrial && !trialBannerDismissed && (
