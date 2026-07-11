@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSiteConfig } from '../lib/siteConfig';
 import { api } from '../lib/api';
+import { T, LANDING_CSS } from '../components/landing/_tokens';
 import LandingNav from '../components/landing/LandingNav';
 import LandingPromoBar, { DEFAULT_PROMO } from '../components/landing/LandingPromoBar';
 import LandingHero from '../components/landing/LandingHero';
@@ -20,9 +21,9 @@ import LandingFooter from '../components/landing/LandingFooter';
 const safe = async (fn, def = null) => { try { return await fn(); } catch { return def; } };
 
 const DEFAULT_HERO = {
-  headline: 'Billing and Bookings.\nOne Platform.',
+  headline: 'One book.\nTwo kinds of business.',
   telugu: 'మీ వ్యాపారాన్ని డిజిటల్ చేయండి',
-  subheadline: 'Sell products across a counter or book appointments by the hour — MyStore OS runs both. Billing, inventory, credit, scheduling, and analytics in one login.',
+  subheadline: 'Sell products over a counter, or book appointments by the hour. MyStore OS keeps both — billing, stock, credit, scheduling, and the books — under one login.',
 };
 const DEFAULT_STATS = { shops: 500, orders: 50000, cities: 200, uptime: 99.9 };
 // Mix of retail AND service voices — a salon owner scrolling past twelve
@@ -45,18 +46,18 @@ const DEFAULT_TESTIMONIALS = [
   { name: 'Pavan Kumar', city: 'Rajahmundry', stars: 5, quote: 'Multi-outlet sync is the best feature. Great app!' },
 ];
 const DEFAULT_FAQ = [
-  { q: 'Is there a free trial?', a: 'Yes — every new account gets a 15-day free PRO trial with every feature unlocked, including bookings and staff scheduling. No credit card required.' },
-  { q: 'I run a salon, not a shop. Does this work for me?', a: 'Yes. Pick "Service" when you sign up and your dashboard becomes a booking system: service catalogue, online appointments, staff scheduling, and automated reminders — instead of a product POS.' },
-  { q: 'Can customers book appointments online themselves?', a: 'Yes. You get a public booking page customers can use directly. Double-booking is blocked automatically, and they can reschedule or cancel via a secure link without calling you.' },
-  { q: 'Do you send appointment reminders?', a: 'Automatically — WhatsApp and SMS reminders go out 24 hours and 1 hour before each appointment. Available on Pro and Enterprise plans.' },
-  { q: 'Does it work with thermal printers?', a: 'Yes. Native support for 58mm and 80mm thermal receipt printers, plus standard A4 invoices. Pick your paper size once in Settings.' },
-  { q: 'Will I know when a new order or booking comes in?', a: 'Yes. You get an instant push notification on your phone or desktop — even when the app is closed or minimised.' },
-  { q: 'Does it work offline?', a: 'Fully offline capable. Keep billing without internet; everything syncs automatically the moment you reconnect.' },
-  { q: 'Can I use it on my phone?', a: "It's a mobile-first PWA. Install on Android or iPhone straight from your browser — no app store needed." },
-  { q: 'Is GST filing supported?', a: 'Yes. Generate GSTR-1 XML/CSV, push to Tally, or give your CA direct portal access. Available on the Enterprise plan.' },
-  { q: 'Can multiple staff use it?', a: 'Yes. Pro and Enterprise plans support staff accounts with PIN locks and role-based permissions. Service businesses can also assign specific staff to specific services.' },
-  { q: 'Can I run more than one outlet?', a: 'Yes. Multi-branch support lets you run several outlets from one login and switch between them instantly — each keeps its own books.' },
-  { q: 'What languages are supported?', a: 'Hindi, Telugu, Tamil, Kannada, Marathi, and Bengali — in addition to English.' },
+  { q: 'Is there a free trial?', a: 'Fifteen days, every feature unlocked, no card. That includes bookings, staff scheduling and reminders — the things normally on paid tiers — so you can judge the whole thing before you decide.' },
+  { q: 'I run a clinic, not a shop. Does this work for me?', a: 'Yes. Choose Services when you sign up and the dashboard rearranges itself: a service list, a booking diary, staff scheduling and reminders, instead of a product POS. Salons, spas, clinics, gyms, dental practices and workshops all run on this side.' },
+  { q: 'Can customers book their own appointments?', a: 'Yes. You get a public page they can book from. Clashes are refused automatically, and they can move or cancel a booking through a private link without ringing you.' },
+  { q: 'Do reminders go out automatically?', a: 'WhatsApp and SMS, 24 hours and 1 hour before each appointment. Included from the Pro plan.' },
+  { q: 'Does it work with a thermal printer?', a: 'Yes — 58mm and 80mm rolls, alongside standard A4. Set your paper size once and every receipt comes out right.' },
+  { q: 'Will I know when an order or booking arrives?', a: 'Your phone or desktop is notified the moment it lands, even if the app is closed.' },
+  { q: 'What happens when the internet goes down?', a: 'You keep billing. Everything queues locally and syncs the moment you reconnect. No lost sales.' },
+  { q: 'Can I use it on my phone?', a: 'It installs from the browser on Android and iPhone — no app store needed.' },
+  { q: 'Is GST filing supported?', a: 'GSTR-1 XML and CSV, Tally export, and a portal you can give your accountant direct access to. Included from the Enterprise plan.' },
+  { q: 'Can my staff have their own logins?', a: 'Yes, from the Pro plan — with PIN locks and role-based permissions. Service businesses can also tie particular services to particular staff.' },
+  { q: 'Can I run more than one outlet?', a: 'Yes, on Enterprise. One login, several outlets, each keeping its own books, switched between instantly.' },
+  { q: 'Which languages does it speak?', a: 'Hindi, Telugu, Tamil, Kannada, Marathi and Bengali, alongside English.' },
 ];
 const DSP_FB = [
   { id: 'free', name: 'Free', price: 0, popular: false, features: ['Up to 50 products', 'Basic billing', '100 bills/month', 'Single device', 'Free forever'] },
@@ -71,12 +72,7 @@ const DDP_FB = [
   { id: 'enterprise_dist', name: 'Enterprise', price: 4999, popular: false, features: ['Unlimited shops', 'Multi-branch', 'API access', 'Staff accounts'] },
 ];
 
-const GCSS = `
-html{scroll-behavior:smooth}*,*::before,*::after{box-sizing:border-box}
-@keyframes ml{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes mr{from{transform:translateX(-50%)}to{transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
-`;
+const GCSS = LANDING_CSS;
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -122,19 +118,36 @@ export default function LandingPage() {
   }, [config]);
 
   return (
-    <div style={{ background: '#030712', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif', overflowX: 'hidden', minWidth: 375 }}>
+    <div style={{ background: T.paper, color: T.ink, fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden', minWidth: 320 }}>
       <style>{GCSS}</style>
       <LandingPromoBar promo={promo} navigate={navigate} />
       <LandingNav config={config} navigate={navigate} />
+
+      {/* The argument, in order:
+          1. Here's the thesis, as an object you can read.       (Hero)
+          2. Here's the line we draw — stock or time.            (WhoFor)
+          3. Here's what you get on each side of it.             (Features)
+          4. Here's what a day actually looks like.              (DayInLife)
+          5. Here's what it costs.                               (Pricing)
+          6. Here's how you get started.                         (HowItWorks)
+          7. Here's why you can trust us with the books.         (Trust)
+          8. Here's what other people say.                       (Testimonials)
+          9. Here's the scale.                                   (Stats)
+         10. Here's what you might still be wondering.           (FAQ)
+         11. Close.                                              (FinalCTA)
+
+          Stats moved late — a claim about how many shops use it means
+          nothing until the reader knows what it does. It was sitting
+          third, before the reader had any reason to care. */}
       <LandingHero hero={hero} navigate={navigate} config={config} />
       <LandingWhoFor />
-      <LandingStats stats={stats} />
       <LandingFeatures />
       <LandingDayInLife />
       <LandingPricingPreview plans={plans} distPlans={distPlans} pricing={pricing} navigate={navigate} />
+      <LandingHowItWorks navigate={navigate} />
       <LandingTrust />
       <LandingTestimonials testimonials={testimonials} />
-      <LandingHowItWorks navigate={navigate} />
+      <LandingStats stats={stats} />
       <LandingFAQ faq={faq} />
       <LandingFinalCTA navigate={navigate} />
       <LandingFooter config={config} navigate={navigate} />

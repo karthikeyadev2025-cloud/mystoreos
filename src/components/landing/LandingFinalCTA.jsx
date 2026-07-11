@@ -1,77 +1,74 @@
 import { useNavigate } from 'react-router-dom';
-import { Zap, Star } from 'lucide-react';
+import { T, F } from './_tokens';
 
-export default function LandingFinalCTA() {
-  const navigate = useNavigate();
+// The closing entry. Ink ground — the one place the page goes dark, so it
+// reads as the bottom line of the book rather than another section.
+
+export default function LandingFinalCTA({ navigate: nav }) {
+  const routerNavigate = useNavigate();
+  const navigate = nav || routerNavigate;
+
   return (
     <section style={{
-      background: '#0D1117',
-      padding: 'clamp(48px,7vw,80px) clamp(16px,5vw,40px)',
-      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+      background: T.inkDeep,
+      padding: 'clamp(72px,9vw,112px) clamp(20px,5vw,48px)',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
+      {/* The margin rule again, carried through to the last page */}
       <div style={{
-        maxWidth: 860, margin: '0 auto',
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.09)',
-        borderRadius: 20, padding: 'clamp(36px,6vw,64px) clamp(20px,5vw,48px)',
-        textAlign: 'center', position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%,-50%)',
-          width: 600, height: 400,
-          background: 'radial-gradient(ellipse,rgba(79,70,229,0.1),transparent 65%)',
-          pointerEvents: 'none',
-        }}/>
-        <div style={{ position: 'relative' }}>
-          <div style={{
-            display: 'inline-flex', gap: 6, alignItems: 'center',
-            background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)',
-            borderRadius: 20, padding: '5px 16px', marginBottom: 20,
-          }}>
-            <Star size={12} color="#F59E0B" fill="#F59E0B"/>
-            <span style={{ color: '#FCD34D', fontSize: 12, fontWeight: 600 }}>
-              Trusted by 12,847+ Merchant Outlets
-            </span>
-          </div>
-          <h2 style={{
-            color: '#fff', fontSize: 'clamp(22px,4vw,34px)', fontWeight: 800, margin: '0 0 14px',
-            letterSpacing: '-.025em', lineHeight: 1.18,
-          }}>
-            Ready to Modernise Your Business?
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 'clamp(14px,2vw,16px)', marginBottom: 36, lineHeight: 1.65 }}>
-            Join thousands of Indian retailers scaling confidently with MyStore OS.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/register')} style={{
-              background: '#4F46E5', color: '#fff', border: 'none',
-              padding: 'clamp(11px,2vw,13px) clamp(20px,4vw,32px)',
-              borderRadius: 10, fontSize: 'clamp(13px,2vw,15px)', fontWeight: 700,
-              cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
-              display: 'flex', alignItems: 'center', gap: 8,
-              boxShadow: '0 0 36px rgba(79,70,229,0.5)', transition: 'filter .15s',
+        position: 'absolute', top: 0, bottom: 0, left: 'clamp(20px,5vw,48px)',
+        width: 1, background: T.marginRed, opacity: 0.5, pointerEvents: 'none',
+      }} />
+
+      <div style={{ maxWidth: 780, margin: '0 auto', position: 'relative' }}>
+        <span className="lx-eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          Closing balance
+        </span>
+
+        <h2 style={{
+          fontFamily: F.display, fontWeight: 800,
+          fontSize: 'clamp(30px,4.6vw,50px)', letterSpacing: '-0.03em',
+          color: '#fff', lineHeight: 1.08, margin: '14px 0 0', maxWidth: '17ch',
+        }}>
+          Stop keeping the books by hand.
+        </h2>
+
+        <p style={{
+          fontFamily: F.body, fontSize: 'clamp(15px,1.8vw,17px)',
+          color: 'rgba(255,255,255,0.62)', lineHeight: 1.7,
+          margin: '18px 0 32px', maxWidth: 480,
+        }}>
+          Fifteen days, every feature unlocked, no card. If it doesn&apos;t save you
+          an hour a day, walk away — and take your data with you.
+        </p>
+
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+          <button
+            className="lx-btn"
+            onClick={() => navigate('/register')}
+            style={{ background: '#fff', color: T.inkDeep, fontWeight: 700 }}
+          >
+            Start free for 15 days
+          </button>
+          <button
+            className="lx-btn"
+            onClick={() => navigate('/login')}
+            style={{
+              background: 'transparent', color: 'rgba(255,255,255,0.8)',
+              borderColor: 'rgba(255,255,255,0.24)',
             }}
-              onMouseEnter={e => e.currentTarget.style.filter='brightness(1.12)'}
-              onMouseLeave={e => e.currentTarget.style.filter='brightness(1)'}
-            >
-              <Zap size={16} strokeWidth={2.5}/>Start Free 15-Day Trial
-            </button>
-            <button onClick={() => navigate('/contact')} style={{
-              background: 'transparent', color: 'rgba(255,255,255,0.65)',
-              border: '1.5px solid rgba(255,255,255,0.18)',
-              padding: 'clamp(11px,2vw,13px) clamp(20px,4vw,32px)',
-              borderRadius: 10, fontSize: 'clamp(13px,2vw,15px)', fontWeight: 600,
-              cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
-              transition: 'all .15s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,0.4)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.65)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.18)'; }}
-            >Talk to Sales</button>
-          </div>
-          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12, marginTop: 20 }}>
-            No credit card required · Cancel anytime · GST invoice provided
-          </p>
+          >
+            Sign in
+          </button>
         </div>
+
+        <p style={{
+          fontFamily: F.mono, fontSize: 11, color: 'rgba(255,255,255,0.38)',
+          letterSpacing: '0.03em', margin: 0,
+        }}>
+          Works offline · Export everything, any time · Cancel whenever
+        </p>
       </div>
     </section>
   );

@@ -64,7 +64,7 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
     <div
       style={{
         position: 'sticky', top: 0, zIndex: 60,
-        background: 'linear-gradient(90deg, #4F46E5, #7C3AED, #4F46E5)',
+        background: '#1A2230',
         backgroundSize: '200% 100%',
         animation: 'mso-promo-shimmer 6s ease-in-out infinite',
         color: '#fff',
@@ -96,7 +96,7 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
         <button
           onClick={handleCta}
           style={{
-            background: '#fff', color: '#4F46E5', border: 'none', borderRadius: 7,
+            background: '#fff', color: '#1A2230', border: 'none', borderRadius: 6,
             padding: '5px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap',
           }}

@@ -1,215 +1,250 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MLogo from '../MLogo';
+import { T, F } from './_tokens';
 
-// Trust pills span BOTH audiences — a kirana owner and a salon owner
-// should each see something that speaks directly to them. Retail-only
-// signals (Tally, GST) sat here alone before the Bookings vertical
-// shipped, which made the page read as retail-exclusive.
-const TRUST = [
-  'GST Compliant',
-  'Appointment Booking',
-  'WhatsApp Billing',
-  'Thermal Printing',
-  'Staff Scheduling',
-  'Works Offline',
+// ─────────────────────────────────────────────────────────────────────
+// THE SIGNATURE: a ledger spread.
+//
+// Two facing pages of one account book. Left page is a retail day —
+// items, quantities, rates. Right page is a services day — times,
+// services, staff. Both post into a single Day Total across the gutter.
+//
+// The artwork IS the argument: one book, two kinds of business. It
+// replaces the usual hero template (big number, gradient glow, animated
+// counter) with the actual object the product replaces.
+//
+// Rows post in on load, staggered, like someone writing up the day.
+// prefers-reduced-motion kills it (handled in _tokens CSS).
+// ─────────────────────────────────────────────────────────────────────
+
+const RETAIL_ENTRIES = [
+  { a: 'Toor dal 1kg',     b: '2', c: '68.00',  d: '136.00' },
+  { a: 'Sunflower oil 1L', b: '1', c: '142.00', d: '142.00' },
+  { a: 'Parle-G 200g',     b: '5', c: '30.00',  d: '150.00' },
+  { a: 'Detergent 500g',   b: '1', c: '95.00',  d: '95.00'  },
 ];
 
-function Counter({ target, duration = 1800 }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let start = null;
-    const step = ts => {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / duration, 1);
-      const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-      setVal(Math.round(target * ease));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration]);
-  return val;
+const SERVICE_ENTRIES = [
+  { a: 'Haircut',     b: '10:00', c: 'Ravi',  d: '300.00'  },
+  { a: 'Hair colour', b: '11:30', c: 'Divya', d: '1800.00' },
+  { a: 'Beard trim',  b: '13:00', c: 'Ravi',  d: '150.00'  },
+  { a: 'Facial',      b: '16:00', c: 'Anita', d: '900.00'  },
+];
+
+const RETAIL_TOTAL  = '523.00';
+const SERVICE_TOTAL = '3,150.00';
+const DAY_TOTAL     = '3,673.00';
+
+const GRID = '1fr 42px 60px 74px';
+
+function LedgerPage({ heading, dot, cols, entries, total, totalLabel, side, startDelay }) {
+  return (
+    <div
+      className={side === 'left' ? 'lx-page lx-page-left' : 'lx-page'}
+      style={{
+        padding: 'clamp(18px,2.4vw,26px)',
+        borderRight: side === 'left' ? `1px solid ${T.rule}` : 'none',
+        minWidth: 0,
+      }}
+    >
+      {/* Which kind of business this page keeps */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot }} />
+        <span className="lx-eyebrow" style={{ color: T.ink, letterSpacing: '0.16em' }}>{heading}</span>
+      </div>
+
+      {/* Column headers */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: GRID, gap: 8,
+        paddingBottom: 8, borderBottom: `1px solid ${T.ruleStrong}`,
+      }}>
+        {cols.map((c, i) => (
+          <span key={c} className="lx-eyebrow" style={{
+            fontSize: 9.5, letterSpacing: '0.12em',
+            textAlign: i === 0 ? 'left' : i === cols.length - 1 ? 'right' : 'center',
+          }}>{c}</span>
+        ))}
+      </div>
+
+      {/* Entries — posted in one by one */}
+      {entries.map((e, i) => (
+        <div
+          key={e.a}
+          className="lx-post"
+          style={{
+            display: 'grid', gridTemplateColumns: GRID, gap: 8, alignItems: 'center',
+            padding: '9px 0', borderBottom: `1px solid ${T.rule}`,
+            animationDelay: `${startDelay + i * 90}ms`,
+          }}
+        >
+          <span style={{
+            fontFamily: F.body, fontSize: 13, color: T.ink,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>{e.a}</span>
+          <span className="lx-fig" style={{ fontSize: 11.5, color: T.inkSoft, textAlign: 'center' }}>{e.b}</span>
+          <span className="lx-fig" style={{ fontSize: 11.5, color: T.inkSoft, textAlign: 'center' }}>{e.c}</span>
+          <span className="lx-fig" style={{ fontSize: 12.5, color: T.ink, textAlign: 'right', fontWeight: 500 }}>{e.d}</span>
+        </div>
+      ))}
+
+      {/* Page subtotal */}
+      <div
+        className="lx-post"
+        style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+          paddingTop: 11,
+          animationDelay: `${startDelay + entries.length * 90 + 60}ms`,
+        }}
+      >
+        <span className="lx-eyebrow" style={{ fontSize: 9.5 }}>{totalLabel}</span>
+        <span className="lx-fig" style={{ fontSize: 15, fontWeight: 700, color: T.inkDeep }}>₹{total}</span>
+      </div>
+    </div>
+  );
 }
 
-export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
+export default function LandingHero({ hero = {}, navigate: nav }) {
   const routerNavigate = useNavigate();
   const navigate = nav || routerNavigate;
-  const headline = (hero.headline || 'The Operating System\nfor Modern Business').split('\n');
 
-  const METRICS = [
-    { label: 'Active Outlets',   val: 12847,  suffix: '+',   prefix: '' },
-    { label: 'Daily Invoices',   val: 2400,   suffix: 'k+',  prefix: '' },
-    { label: 'GMV Processed',    val: 842,    suffix: 'Cr+', prefix: '₹' },
-    { label: 'States Covered',   val: 28,     suffix: '+',   prefix: '' },
-  ];
+  const headline = hero.headline || 'One book.\nTwo kinds of business.';
+  const lines = headline.split('\n');
 
   return (
     <section id="hero" style={{
-      minHeight: '100vh', background: '#0D1117', color: '#fff',
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', textAlign: 'center',
-      padding: 'clamp(80px,10vw,120px) clamp(16px,5vw,40px) clamp(48px,7vw,80px)',
-      position: 'relative', overflow: 'hidden',
-      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+      background: T.paper,
+      padding: 'clamp(72px,9vw,116px) clamp(20px,5vw,48px) clamp(56px,7vw,88px)',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      {/* Background grid */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
-        backgroundSize: '44px 44px',
-      }}/>
-      {/* Blue radial glow */}
-      <div style={{
-        position: 'absolute', top: '38%', left: '50%',
-        transform: 'translate(-50%,-50%)',
-        width: 'min(700px,100vw)', height: 'min(700px,100vw)',
-        background: 'radial-gradient(ellipse,rgba(79,70,229,0.13),transparent 65%)',
-        pointerEvents: 'none',
-      }}/>
+      {/* The margin rule — red vertical line of an account book, running
+          the height of the section at a fixed inset. */}
+      <div className="lx-margin-rule" style={{
+        position: 'absolute', top: 0, bottom: 0, left: 'clamp(20px,5vw,48px)',
+        width: 1, background: T.marginRed, opacity: 0.28, pointerEvents: 'none',
+      }} />
 
-      {/* Logo */}
-      <div style={{ marginBottom: 20, animation: 'fadeSlide .3s ease both', position: 'relative' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <MLogo size={56} radius={15} />
+      <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative' }}>
+
+        {/* Eyebrow — reads like the header of a ledger page */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
+          <span className="lx-eyebrow" style={{ color: T.ink, fontWeight: 700 }}>MyStore&nbsp;OS</span>
+          <span style={{ width: 22, height: 1, background: T.ruleStrong }} />
+          <span className="lx-eyebrow">Billing &amp; Bookings</span>
         </div>
-      </div>
 
-      {/* Trust badge */}
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 7,
-        background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.35)',
-        borderRadius: 20, padding: '5px 16px', marginBottom: 28,
-        animation: 'fadeSlide .4s ease both', position: 'relative',
-      }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-        <span style={{ color: '#93C5FD', fontSize: 12, fontWeight: 600 }}>Billing + Bookings — one platform for shops & service businesses</span>
-      </div>
-
-      {/* Headline */}
-      <h1 style={{
-        fontSize: 'clamp(30px,5.5vw,58px)', fontWeight: 800,
-        lineHeight: 1.1, letterSpacing: '-.03em',
-        margin: '0 0 18px', maxWidth: 780,
-        animation: 'fadeSlide .4s .06s ease both', position: 'relative',
-      }}>
-        {headline.map((line, i) => (
-          <span key={i} style={{ display: 'block',
-            ...(i === headline.length - 1 ? {
-              background: 'linear-gradient(135deg,#2563EB,#60A5FA,#93C5FD)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            } : { color: '#fff' }),
-          }}>{line}</span>
-        ))}
-      </h1>
-
-      {/* Subheadline */}
-      <p style={{
-        color: 'rgba(255,255,255,0.52)', fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.72,
-        maxWidth: 560, margin: '0 0 38px', animation: 'fadeSlide .4s .12s ease both', position: 'relative',
-      }}>
-        {hero.subheadline || 'Complete billing, inventory, credit, and analytics — built for Indian shopkeepers and FMCG distributors.'}
-      </p>
-
-      {/* CTAs */}
-      <div style={{
-        display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center',
-        marginBottom: 36, animation: 'fadeSlide .4s .18s ease both', position: 'relative',
-        width: '100%',
-      }}>
-        <button onClick={() => navigate('/register')} style={{
-          background: '#4F46E5', color: '#fff', border: 'none',
-          padding: 'clamp(11px,2vw,13px) clamp(20px,4vw,28px)',
-          borderRadius: 10, fontSize: 'clamp(13px,2vw,15px)', fontWeight: 700,
-          cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
-          boxShadow: '0 0 36px rgba(79,70,229,0.55)',
-          display: 'flex', alignItems: 'center', gap: 8,
-          transition: 'filter .15s', whiteSpace: 'nowrap',
-        }}
-          onMouseEnter={e => e.currentTarget.style.filter='brightness(1.12)'}
-          onMouseLeave={e => e.currentTarget.style.filter='brightness(1)'}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          Start Free 15-Day Trial
-        </button>
-        <button onClick={() => navigate('/login')} style={{
-          background: 'transparent', color: 'rgba(255,255,255,0.75)',
-          border: '1.5px solid rgba(255,255,255,0.22)',
-          padding: 'clamp(11px,2vw,13px) clamp(20px,4vw,28px)',
-          borderRadius: 10, fontSize: 'clamp(13px,2vw,15px)', fontWeight: 600,
-          cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
-          display: 'flex', alignItems: 'center', gap: 8,
-          transition: 'border-color .15s, color .15s', whiteSpace: 'nowrap',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.5)'; e.currentTarget.style.color='#fff'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.22)'; e.currentTarget.style.color='rgba(255,255,255,0.75)'; }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
-          </svg>
-          View Live Demo
-        </button>
-      </div>
-
-      {/* Trust pills */}
-      <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center',
-        marginBottom: 52, animation: 'fadeSlide .4s .24s ease both', position: 'relative',
-        padding: '0 16px',
-      }}>
-        {TRUST.map(t => (
-          <span key={t} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 20, padding: '5px 13px', color: 'rgba(255,255,255,0.58)', fontSize: 12,
-          }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            {t}
-          </span>
-        ))}
-      </div>
-
-      {/* Metrics strip — responsive 2×2 on mobile, 4-col on desktop */}
-      <div style={{
-        maxWidth: 860, width: '100%',
-        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 16, overflow: 'hidden', animation: 'fadeSlide .4s .3s ease both',
-        position: 'relative',
-      }}>
-        <div className="hero-metrics-grid">
-          {METRICS.map(({ label, val, suffix, prefix }, i) => (
-            <div key={i} className={`hero-metric-cell hero-metric-cell-${i}`} style={{
-              padding: 'clamp(16px,3vw,24px) clamp(12px,2vw,20px)', textAlign: 'center',
-            }}>
-              <div style={{ fontFamily: "'JetBrains Mono','Courier New',monospace", fontSize: 'clamp(20px,3.5vw,28px)', fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                {prefix}<Counter target={val} duration={1600 + i * 200}/>{suffix}
-              </div>
-              <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11.5, fontWeight: 500, marginTop: 7 }}>{label}</div>
-            </div>
+        {/* Headline */}
+        <h1 className="lx-title" style={{
+          fontSize: 'clamp(34px,6vw,66px)',
+          maxWidth: '15ch',
+          margin: '0 0 20px',
+        }}>
+          {lines.map((line, i) => (
+            <span key={i} style={{
+              display: 'block',
+              color: i === lines.length - 1 ? T.inkSoft : T.inkDeep,
+              fontWeight: i === lines.length - 1 ? 500 : 800,
+            }}>{line}</span>
           ))}
+        </h1>
+
+        {/* Lede */}
+        <p className="lx-lede" style={{ maxWidth: 520, margin: '0 0 32px', fontSize: 'clamp(15px,1.8vw,18px)' }}>
+          {hero.subheadline || 'Sell products over a counter, or book appointments by the hour. MyStore OS keeps both — billing, stock, credit, scheduling, and the books — under one login.'}
+        </p>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+          <button className="lx-btn lx-btn-primary" onClick={() => navigate('/register')}>
+            Start free for 15 days
+          </button>
+          <button className="lx-btn lx-btn-ghost" onClick={() => navigate('/pricing')}>
+            See pricing
+          </button>
         </div>
+        <p style={{
+          margin: '0 0 44px', fontFamily: F.mono, fontSize: 11,
+          color: T.inkFaint, letterSpacing: '0.03em',
+        }}>
+          No card needed · Every feature unlocked during the trial
+        </p>
+
+        {/* ── THE SPREAD ── */}
+        <div style={{
+          background: '#fff',
+          border: `1px solid ${T.ruleStrong}`,
+          borderRadius: 6,
+          boxShadow: '0 1px 2px rgba(26,34,48,0.05), 0 12px 40px -18px rgba(26,34,48,0.18)',
+          overflow: 'hidden',
+        }}>
+          {/* Date line across the top of the spread */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '12px clamp(18px,2.4vw,26px)',
+            borderBottom: `1px solid ${T.ruleStrong}`,
+            background: T.paperDeep,
+          }}>
+            <span className="lx-eyebrow" style={{ fontSize: 10 }}>Day book</span>
+            <span className="lx-eyebrow lx-fig" style={{ fontSize: 10 }}>Today</span>
+          </div>
+
+          <div className="lx-spread">
+            <LedgerPage
+              side="left"
+              heading="Retail"
+              dot={T.marginRed}
+              cols={['Item', 'Qty', 'Rate', 'Amount']}
+              entries={RETAIL_ENTRIES}
+              total={RETAIL_TOTAL}
+              totalLabel="Counter sales"
+              startDelay={220}
+            />
+            <LedgerPage
+              side="right"
+              heading="Services"
+              dot={T.credit}
+              cols={['Service', 'Time', 'Staff', 'Amount']}
+              entries={SERVICE_ENTRIES}
+              total={SERVICE_TOTAL}
+              totalLabel="Appointments"
+              startDelay={400}
+            />
+          </div>
+
+          {/* Day total — spans the gutter. The point of the image: both
+              kinds of business post into one set of books. */}
+          <div
+            className="lx-post"
+            style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+              padding: '15px clamp(18px,2.4vw,26px)',
+              borderTop: `2px solid ${T.inkDeep}`,
+              background: T.paperDeep,
+              animationDelay: '1020ms',
+            }}
+          >
+            <span className="lx-eyebrow" style={{ color: T.inkDeep, fontWeight: 700 }}>Day total</span>
+            <span className="lx-fig" style={{
+              fontSize: 'clamp(19px,2.6vw,24px)', fontWeight: 700,
+              color: T.inkDeep, letterSpacing: '-0.01em',
+            }}>₹{DAY_TOTAL}</span>
+          </div>
+        </div>
+
+        {/* Caption — names what you just looked at */}
+        <p style={{
+          marginTop: 14, fontFamily: F.body, fontSize: 12.5,
+          color: T.inkFaint, lineHeight: 1.6,
+        }}>
+          A single day, kept both ways. Retail on the left, services on the right, one total at the bottom.
+        </p>
       </div>
 
       <style>{`
-        @keyframes fadeSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
-        .hero-metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(4,1fr);
-        }
-        .hero-metric-cell { border-right: 1px solid rgba(255,255,255,0.08); }
-        .hero-metric-cell:last-child { border-right: none; }
-        @media(max-width:640px) {
-          .hero-metrics-grid {
-            grid-template-columns: repeat(2,1fr) !important;
-          }
-          .hero-metric-cell { border-right: 1px solid rgba(255,255,255,0.08) !important; border-bottom: 1px solid rgba(255,255,255,0.08); }
-          .hero-metric-cell-1, .hero-metric-cell-3 { border-right: none !important; }
-          .hero-metric-cell-2, .hero-metric-cell-3 { border-bottom: none !important; }
+        .lx-spread { display: grid; grid-template-columns: 1fr 1fr; }
+        @media (max-width: 720px) {
+          .lx-spread { grid-template-columns: 1fr; }
+          .lx-page-left { border-right: 0 !important; border-bottom: 1px solid ${T.ruleStrong}; }
+          .lx-margin-rule { display: none; }
         }
       `}</style>
     </section>

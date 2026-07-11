@@ -1,209 +1,166 @@
 import { useState } from 'react';
-import {
-  IndianRupee, Truck, BookOpen, FileText, Package, BarChart2,
-  CalendarCheck, Users, Bell, Repeat, Clock, Link2,
-  Printer, Store, Bell as BellIcon, Gift, Zap, Building2,
-} from 'lucide-react';
+import { T, F } from './_tokens';
 
-// Features are grouped by vertical so a kirana owner and a salon owner
-// each see a coherent story instead of a mixed bag. The 'Shared' tab
-// carries everything both audiences get — which is most of the
-// platform, and is the actual pitch: one system, two business models.
+// Naming matches the product's own vocabulary — a shop is `businessKind:
+// 'retail'`, a clinic is `businessKind: 'service'`. No cute personas, no
+// emoji. "Services" covers salon, spa, clinic, gym, dental, workshop —
+// every business that sells time rather than stock.
 //
-// Every entry below maps to something genuinely shipped. If a feature
-// is plan-gated, that's noted in the description rather than hidden —
-// overpromising on a landing page is how you get churn in week two.
+// Presented as ledger entries, not cards: a numbered index, the feature,
+// and the plan it's included from. The plan column is the honest bit —
+// hiding gating until after signup is how you earn a week-two refund.
+
+const EVERY = [
+  ['Storefront & marketplace',   'Your own public page. Customers find you, order, or book.',              'All plans'],
+  ['Thermal & A4 printing',       '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans'],
+  ['Instant alerts',              'New order or booking pings your phone — even with the app closed.',     'All plans'],
+  ['Live analytics',              'Revenue, top lines, staff performance. One dashboard, always current.', 'All plans'],
+  ['Works offline',               'Keep billing without internet. Syncs the moment you reconnect.',        'All plans'],
+  ['Multi-branch',                'Several outlets, one login. Each keeps its own books.',                 'Enterprise'],
+];
 
 const RETAIL = [
-  {
-    icon: IndianRupee, color: '#4F46E5', bg: 'rgba(79,70,229,0.12)', border: 'rgba(79,70,229,0.25)',
-    title: 'GST-Ready Smart Invoicing',
-    desc: 'GSTIN-compliant bills in seconds. Auto-share on WhatsApp. GSTR-1 & GSTR-3B export built in.',
-  },
-  {
-    icon: Package, color: '#EF4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)',
-    title: 'Inventory, Batches & Expiry Alerts',
-    desc: 'Stock levels, reorder points, batch numbers, and expiry warnings before you eat the loss.',
-  },
-  {
-    icon: BookOpen, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)',
-    title: 'Udhaar Ledger & Credit Tracking',
-    desc: 'Track customer balances live. Automated WhatsApp reminders. Supplier credit book included.',
-  },
-  {
-    icon: Truck, color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)',
-    title: 'Distributor & Supply Chain',
-    desc: 'Connect with FMCG distributors, place stock orders, and track deliveries — all in-app.',
-  },
-  {
-    icon: Gift, color: '#EC4899', bg: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.25)',
-    title: 'Loyalty Points & Flash Sales',
-    desc: 'Reward repeat customers automatically. Run time-boxed flash sales on your storefront.',
-  },
-  {
-    icon: FileText, color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.25)',
-    title: 'CA Portal & Tally ERP Export',
-    desc: 'Give your accountant direct access. One-click Tally export. Tax filing prep, automated.',
-  },
+  ['GST invoicing',        'GSTIN-compliant bills in seconds. GSTR-1 and GSTR-3B export built in.',  'Enterprise'],
+  ['Stock & expiry',       'Reorder points, batch numbers, and expiry warnings before you eat a loss.', 'Pro'],
+  ['Udhaar ledger',        'Customer balances live. Automatic WhatsApp reminders. Supplier book too.',  'All plans'],
+  ['Distributor orders',   'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans'],
+  ['Loyalty & flash sales','Reward regulars automatically. Run time-boxed offers on your storefront.',   'Pro'],
+  ['CA portal & Tally',    'Give your accountant direct access. One-click Tally export.',               'Enterprise'],
 ];
 
-const SERVICE = [
-  {
-    icon: CalendarCheck, color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)',
-    title: 'Online Appointment Booking',
-    desc: 'Customers book from your public page. Walk-ins logged in one tap. Double-booking blocked automatically.',
-  },
-  {
-    icon: Users, color: '#4F46E5', bg: 'rgba(79,70,229,0.12)', border: 'rgba(79,70,229,0.25)',
-    title: 'Multi-Staff Scheduling',
-    desc: 'Assign services to specific stylists, doctors, or trainers. Per-staff working hours and time-off.',
-  },
-  {
-    icon: Bell, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)',
-    title: 'Automated Booking Reminders',
-    desc: 'WhatsApp and SMS reminders 24 hours and 1 hour before every appointment. Cuts no-shows sharply.',
-  },
-  {
-    icon: Link2, color: '#06B6D4', bg: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.25)',
-    title: 'Customer Self-Service',
-    desc: 'Customers reschedule or cancel via a secure link — no phone calls, no back-and-forth.',
-  },
-  {
-    icon: Repeat, color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.25)',
-    title: 'Recurring Bookings',
-    desc: 'Reserve the same slot weekly or monthly for regulars. Conflicts skipped automatically.',
-  },
-  {
-    icon: Clock, color: '#EF4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)',
-    title: 'Buffer Time Between Slots',
-    desc: 'Reserve cleanup and prep time after each appointment so your day never runs over.',
-  },
-];
-
-const SHARED = [
-  {
-    icon: Store, color: '#4F46E5', bg: 'rgba(79,70,229,0.12)', border: 'rgba(79,70,229,0.25)',
-    title: 'Your Own Online Storefront',
-    desc: 'A public page customers can order or book from. Listed on the MyStore OS marketplace too.',
-  },
-  {
-    icon: Printer, color: '#10B981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)',
-    title: 'Thermal & A4 Printing',
-    desc: 'Native 58mm and 80mm thermal receipt support alongside standard A4 invoices.',
-  },
-  {
-    icon: BellIcon, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)',
-    title: 'Instant Push Notifications',
-    desc: 'New order or booking? Get alerted on your phone or desktop — even with the app closed.',
-  },
-  {
-    icon: BarChart2, color: '#06B6D4', bg: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.25)',
-    title: 'Real-Time Analytics',
-    desc: 'Revenue trends, top products or services, and customer insights on one live dashboard.',
-  },
-  {
-    icon: Building2, color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.25)',
-    title: 'Multi-Branch Support',
-    desc: 'Run several outlets from one login. Switch branches instantly; each keeps its own books.',
-  },
-  {
-    icon: Zap, color: '#EC4899', bg: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.25)',
-    title: 'Works Offline',
-    desc: 'Bill without internet. Everything syncs the moment you reconnect. No lost sales.',
-  },
+const SERVICES = [
+  ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro'],
+  ['Staff scheduling',     'Assign services to specific staff. Per-person hours and time off.',           'Pro'],
+  ['Automatic reminders',  'WhatsApp and SMS, 24 hours and 1 hour before. No-shows drop sharply.',        'Pro'],
+  ['Self-service changes', 'Customers reschedule or cancel by link. No phone calls.',                     'Pro'],
+  ['Buffer time',          'Reserve cleanup and prep time after each appointment.',                       'Pro'],
+  ['Recurring bookings',   'Hold the same slot weekly or monthly. Clashes skipped automatically.',        'Enterprise'],
 ];
 
 const TABS = [
-  { id: 'shared',  label: 'For Everyone',       items: SHARED,  blurb: 'Core platform — every business gets these, whatever you sell.' },
-  { id: 'retail',  label: 'Shops & Retail',     items: RETAIL,  blurb: 'Kirana, medical, electronics, apparel, hardware, and more.' },
-  { id: 'service', label: 'Salons & Services',  items: SERVICE, blurb: 'Salon, spa, clinic, gym, barber, dental — anything you book.' },
+  { id: 'every',    label: 'Every business', rows: EVERY,
+    note: 'The core platform. Everything below is included whatever you sell.' },
+  { id: 'retail',   label: 'Retail',         rows: RETAIL,
+    note: 'Kirana, medical, electronics, apparel, hardware — anything sold over a counter.' },
+  { id: 'services', label: 'Services',       rows: SERVICES,
+    note: 'Salon, spa, clinic, gym, dental, workshop — anything booked by the hour.' },
 ];
 
+const PLAN_TONE = {
+  'All plans':  { fg: T.credit,    bg: T.creditSoft },
+  'Pro':        { fg: T.brand,     bg: T.brandSoft },
+  'Enterprise': { fg: T.marginRed, bg: T.marginRedSoft },
+};
+
 export default function LandingFeatures() {
-  const [tab, setTab] = useState('shared');
+  const [tab, setTab] = useState('every');
   const active = TABS.find(t => t.id === tab) || TABS[0];
 
   return (
     <section id="features" style={{
-      background: '#0F172A', padding: 'clamp(56px,7vw,88px) clamp(16px,5vw,40px)',
-      fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+      background: '#fff',
+      borderTop: `1px solid ${T.rule}`,
+      padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <style>{`
-        @keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-        .feat-card{transition:all .2s ease;cursor:default;animation:fadeSlide .3s ease both}
-        .feat-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.3)!important}
-        .feat-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-          gap: 16px;
-        }
-        @media(max-width:540px){
-          .feat-grid { grid-template-columns: 1fr !important; }
-          .feat-tabs { flex-direction: column !important; width: 100%; }
-          .feat-tabs button { width: 100% !important; }
-        }
-      `}</style>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <span style={{ color: '#4F46E5', fontSize: 12, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase' }}>
-            Platform Features
-          </span>
-          <h2 style={{ color: '#fff', fontSize: 'clamp(24px,4vw,34px)', fontWeight: 800, margin: '10px 0 12px', letterSpacing: '-.025em' }}>
-            One Platform. Two Business Models.
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 16, maxWidth: 560, margin: '0 auto', lineHeight: 1.68 }}>
-            Whether you sell products across a counter or book appointments by the hour — it's the same login, the same dashboard.
-          </p>
-        </div>
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
-        {/* Vertical switcher */}
-        <div className="feat-tabs" style={{
-          display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 14, flexWrap: 'wrap',
+        <span className="lx-eyebrow">What you get</span>
+        <h2 className="lx-title" style={{ fontSize: 'clamp(27px,4vw,42px)', maxWidth: '18ch' }}>
+          One platform. Two kinds of business.
+        </h2>
+        <p className="lx-lede" style={{ maxWidth: 540, marginBottom: 40 }}>
+          Whether you sell stock or sell time, it&apos;s the same login and the same books.
+          Pick your side to see what&apos;s included.
+        </p>
+
+        {/* Tabs — ledger column tabs, not pills */}
+        <div style={{
+          display: 'flex', gap: 26, borderBottom: `1px solid ${T.rule}`, marginBottom: 4,
+          flexWrap: 'wrap',
         }}>
           {TABS.map(t => (
             <button
               key={t.id}
+              className="lx-tab"
+              data-active={tab === t.id}
               onClick={() => setTab(t.id)}
-              style={{
-                padding: '10px 20px', borderRadius: 10, cursor: 'pointer',
-                fontSize: 13.5, fontWeight: 700, width: 'auto',
-                fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
-                background: tab === t.id ? '#4F46E5' : 'rgba(255,255,255,0.05)',
-                color: tab === t.id ? '#fff' : 'rgba(255,255,255,0.6)',
-                border: `1px solid ${tab === t.id ? '#4F46E5' : 'rgba(255,255,255,0.1)'}`,
-                transition: 'all .15s',
-                boxShadow: tab === t.id ? '0 0 24px rgba(79,70,229,0.4)' : 'none',
-              }}
             >
               {t.label}
             </button>
           ))}
         </div>
+
         <p style={{
-          textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 13,
-          margin: '0 0 36px', minHeight: 20,
+          fontFamily: F.body, fontSize: 13, color: T.inkFaint,
+          margin: '16px 0 8px', minHeight: 20,
         }}>
-          {active.blurb}
+          {active.note}
         </p>
 
-        <div className="feat-grid">
-          {active.items.map(({ icon: Icon, color, bg, border, title, desc }) => (
-            <div key={title} className="feat-card" style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 14, padding: 'clamp(20px,3vw,28px)',
-            }}>
-              <div style={{
-                width: 50, height: 50, background: bg, border: `1px solid ${border}`,
-                borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
-              }}>
-                <Icon size={23} color={color} strokeWidth={1.8}/>
+        {/* The rows */}
+        <div>
+          {active.rows.map(([name, desc, plan], i) => {
+            const tone = PLAN_TONE[plan] || PLAN_TONE['All plans'];
+            return (
+              <div
+                key={name}
+                className="lx-post lx-feat-row"
+                style={{ animationDelay: `${i * 55}ms` }}
+              >
+                {/* Index — a ledger line number. Real sequence, so it earns
+                    its place; these are entries in a list, not decoration. */}
+                <span className="lx-fig" style={{
+                  fontSize: 11, color: T.inkFaint, paddingTop: 3,
+                }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+
+                <div style={{ minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: F.display, fontSize: 16, fontWeight: 700,
+                    color: T.inkDeep, letterSpacing: '-0.01em',
+                  }}>{name}</div>
+                  <div style={{
+                    fontFamily: F.body, fontSize: 13.5, color: T.inkSoft,
+                    lineHeight: 1.6, marginTop: 3,
+                  }}>{desc}</div>
+                </div>
+
+                {/* Plan column — right-aligned, like an amount */}
+                <span style={{
+                  fontFamily: F.mono, fontSize: 10, fontWeight: 500,
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
+                  color: tone.fg, background: tone.bg,
+                  padding: '4px 9px', borderRadius: 3,
+                  whiteSpace: 'nowrap', justifySelf: 'end', alignSelf: 'start',
+                  marginTop: 2,
+                }}>{plan}</span>
               </div>
-              <h3 style={{ color: '#fff', fontSize: 15.5, fontWeight: 700, marginBottom: 8, lineHeight: 1.35 }}>{title}</h3>
-              <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
+
+      <style>{`
+        .lx-feat-row {
+          display: grid;
+          grid-template-columns: 30px 1fr 96px;
+          gap: 14px;
+          align-items: start;
+          padding: 17px 0;
+          border-bottom: 1px solid ${T.rule};
+        }
+        @media (max-width: 600px) {
+          .lx-feat-row {
+            grid-template-columns: 24px 1fr;
+            grid-template-areas: 'num body' '.   plan';
+            row-gap: 8px;
+          }
+          .lx-feat-row > span:first-child { grid-area: num; }
+          .lx-feat-row > div              { grid-area: body; }
+          .lx-feat-row > span:last-child  { grid-area: plan; justify-self: start !important; }
+        }
+      `}</style>
     </section>
   );
 }
