@@ -1416,7 +1416,20 @@ export const api = {
         await enqueue({ table: 'orders', action: 'update', data: { status: 'Accepted', accepted_at: new Date().toISOString() }, match: { id: orderId } });
         const db = getDB(); const o = db.orders.find(x => x.id === orderId); if (o) { o.status = 'Accepted'; saveDB(db); } return;
       }
-      await supabase.from('orders').update({ status: 'Accepted', accepted_at: new Date().toISOString() }).eq('id', orderId);
+      // Was previously a fire-and-forget update with no error check and
+      // no verification a row actually changed — RLS silently blocking
+      // the write (e.g. the owns_shop() staff regression) meant the
+      // caller's success toast fired regardless of whether anything
+      // actually happened. .select() + explicit checks make a blocked
+      // write throw instead of lying.
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ status: 'Accepted', accepted_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .select('id')
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Order not found or you do not have permission to accept it.');
       return;
     }
     const db = getDB();
@@ -1427,11 +1440,13 @@ export const api = {
 
   async verifyOrderPayment(orderId, message = '') {
     if (isSupabaseConfigured) {
-      await supabase.from('orders').update({
+      const { data, error } = await supabase.from('orders').update({
         status: 'Completed',
         payment_verified: true,
         shop_message: message || 'Payment verified by shopkeeper. Thank you!'
-      }).eq('id', orderId);
+      }).eq('id', orderId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Order not found or you do not have permission to update it.');
       return;
     }
     const db = getDB();
@@ -1446,10 +1461,12 @@ export const api = {
   async cancelOrder(orderId, reason = '') {
     const message = reason ? `Order cancelled: ${reason}` : 'Order cancelled by shop.';
     if (isSupabaseConfigured) {
-      await supabase.from('orders').update({
+      const { data, error } = await supabase.from('orders').update({
         status: 'Cancelled',
         shop_message: message,
-      }).eq('id', orderId);
+      }).eq('id', orderId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Order not found or you do not have permission to cancel it.');
       return;
     }
     const db = getDB();

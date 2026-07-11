@@ -2448,7 +2448,12 @@ const ShopDashboard = () => {
 
   const acceptOrder = async (orderId) => {
     const o = orders.find(ord => ord.id === orderId);
-    await safe(() => api.acceptOrder(orderId));
+    try {
+      await mustSucceed(() => api.acceptOrder(orderId), 'Accept order');
+    } catch (e) {
+      toast.error(e.message || 'Failed to accept order');
+      return;
+    }
     toast.success("✅ Order Accepted!");
     
     // Notify customer via WhatsApp
@@ -2471,7 +2476,12 @@ const ShopDashboard = () => {
 
   const verifyOrderPayment = async (orderId) => {
     const o = orders.find(ord => ord.id === orderId);
-    await safe(() => api.verifyOrderPayment(orderId, `Payment verified by ${user.name}. Thank you for your order!`));
+    try {
+      await mustSucceed(() => api.verifyOrderPayment(orderId, `Payment verified by ${user.name}. Thank you for your order!`), 'Verify payment');
+    } catch (e) {
+      toast.error(e.message || 'Failed to verify payment');
+      return;
+    }
     toast.success("💰 Payment verified!");
     
     // Notify customer via WhatsApp
@@ -2506,7 +2516,7 @@ const ShopDashboard = () => {
     if (!cancelTargetOrder) return;
     const o = cancelTargetOrder;
     try {
-      await safe(() => api.cancelOrder(o.id, cancelReason.trim()));
+      await mustSucceed(() => api.cancelOrder(o.id, cancelReason.trim()), 'Cancel order');
       toast.success("Order cancelled.");
 
       // Notify customer via WhatsApp
@@ -4228,13 +4238,13 @@ const ShopDashboard = () => {
       image: logo || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=128&q=80",
       handler: async function (response) {
         try {
-          await safe(() => api.verifyRazorpayPayment({
+          await mustSucceed(() => api.verifyRazorpayPayment({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
             planId: payPlanId,
             userId: targetShopId,
-          }));
+          }), 'Verify payment');
           toast.success(`Payment successful! Upgrading to ${plan.name}...`);
           // The verify-payment edge function grants the tier server-side after
           // verifying the signature. Re-fetch the authoritative profile rather

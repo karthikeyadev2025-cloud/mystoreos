@@ -26,7 +26,7 @@ import {
 
 
 const DistributorDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, login } = useAuth();
   const navigate = useNavigate();
   const { isOnline, pendingCount } = useOfflineSync();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -256,14 +256,33 @@ const DistributorDashboard = () => {
       order_id: orderId,
       handler: async (response) => {
         try {
-          await safe(() => api.verifyRazorpayPayment({
+          // Was safe()-wrapped — swallowed any signature-verification
+          // failure, so the handler fell straight through to a success
+          // toast regardless of whether the payment actually verified.
+          await mustSucceed(() => api.verifyRazorpayPayment({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
             planId: payPlanId,
             userId: user.id,
-          }));
-          await mustSucceed(() => api.updateProfile(user.id, { distributor_plan_tier: plan.id, subscription: 'active' }), 'Upgrade plan');
+          }), 'Verify payment');
+          // Was calling api.updateProfile(user.id, { distributor_plan_tier,
+          // subscription }) here — but distributor_plan_tier is a
+          // protected billing column (see
+          // 20260609_protect_subscription_columns.sql): a DB trigger
+          // RAISES on any client attempt to change it directly, exactly
+          // to prevent a distributor granting themselves a plan without
+          // paying. That meant this line could NEVER succeed for a real
+          // distributor — every real payment hit 'Not allowed to change
+          // distributor plan' and fell into the catch below as "Upgrade
+          // failed. Contact support," even though the money was already
+          // charged and razorpay-verify-payment had already granted the
+          // tier correctly server-side (with service-role, which the
+          // trigger doesn't block). Fix: re-fetch the authoritative
+          // profile the same way ShopDashboard's upgrade flow already
+          // does, instead of trying to set the tier from the client.
+          const updated = await safe(() => api.getUserById(user.id));
+          if (updated) login(updated);
           toast.success(`Upgraded to ${plan.name}!`);
           setShowUpgradePlanModal(false);
           loadData();
