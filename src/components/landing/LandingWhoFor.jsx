@@ -1,13 +1,16 @@
 import { motion } from 'framer-motion';
 
+// Badge says LIVE, not "ready" — the bookings vertical is fully shipped
+// (staff scheduling, reminders, recurring, self-service), and "BOOKINGS-
+// READY" read like a coming-soon teaser to anyone scanning the page.
 const TYPES = [
-  { icon: '🏪', title: 'Retail & Kirana',      color: '#10b981', benefits: ['30-second smart billing', 'Credit khata tracking', 'WhatsApp receipts'] },
-  { icon: '💇', title: 'Salon & Beauty',        color: '#ec4899', benefits: ['Online appointment booking', 'Service catalogue & pricing', 'Customer visit history'], badge: 'BOOKINGS-READY' },
-  { icon: '🧖', title: 'Spa & Wellness',        color: '#8b5cf6', benefits: ['Slot-based bookings', 'Package & membership plans', 'Therapist scheduling'],           badge: 'BOOKINGS-READY' },
-  { icon: '🩺', title: 'Clinic & Doctor',       color: '#06b6d4', benefits: ['Patient appointment slots', 'Visit ledger & billing', 'Prescription-ready invoices'],   badge: 'BOOKINGS-READY' },
+  { icon: '🏪', title: 'Retail & Kirana',      color: '#10b981', benefits: ['30-second smart billing', 'Credit khata tracking', 'Thermal + WhatsApp receipts'] },
+  { icon: '💇', title: 'Salon & Beauty',        color: '#ec4899', benefits: ['Online appointment booking', 'Assign stylists per service', 'Auto WhatsApp reminders'], badge: 'BOOKINGS LIVE' },
+  { icon: '🧖', title: 'Spa & Wellness',        color: '#8b5cf6', benefits: ['Slot-based bookings', 'Buffer time between clients', 'Therapist scheduling'],           badge: 'BOOKINGS LIVE' },
+  { icon: '🩺', title: 'Clinic & Doctor',       color: '#06b6d4', benefits: ['Patient appointment slots', 'Recurring follow-up visits', 'Visit ledger & billing'],     badge: 'BOOKINGS LIVE' },
   { icon: '🍴', title: 'Restaurant & Café',     color: '#f97316', benefits: ['Fast counter billing', 'KOT & thermal printing', 'Menu categorisation'] },
-  { icon: '🏋️', title: 'Gym & Fitness',         color: '#eab308', benefits: ['Membership expiry alerts', 'Trainer session booking', 'Attendance tracking'],           badge: 'BOOKINGS-READY' },
-  { icon: '🔧', title: 'Repair & Workshop',     color: '#64748b', benefits: ['Job-card style bookings', 'Parts & labour billing', 'Service estimate + invoice'],     badge: 'BOOKINGS-READY' },
+  { icon: '🏋️', title: 'Gym & Fitness',         color: '#eab308', benefits: ['Trainer session booking', 'Recurring weekly slots', 'Membership expiry alerts'],         badge: 'BOOKINGS LIVE' },
+  { icon: '🔧', title: 'Repair & Workshop',     color: '#64748b', benefits: ['Job-card style bookings', 'Parts & labour billing', 'Service estimate + invoice'],       badge: 'BOOKINGS LIVE' },
   { icon: '💊', title: 'Medical & Pharmacy',    color: '#22c55e', benefits: ['HSN + GST compliant', 'Batch & expiry tracking', 'Fast repeat billing'] },
   { icon: '🚚', title: 'Wholesale Distributor', color: '#3b82f6', benefits: ['Route planning & delivery', 'Bulk order management', 'Credit settlements'] },
 ];

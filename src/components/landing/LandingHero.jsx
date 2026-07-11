@@ -2,7 +2,18 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MLogo from '../MLogo';
 
-const TRUST = ['GST Compliant', 'UPI Ready', 'WhatsApp Billing', 'Tally Export', 'Works Offline', 'Razorpay'];
+// Trust pills span BOTH audiences — a kirana owner and a salon owner
+// should each see something that speaks directly to them. Retail-only
+// signals (Tally, GST) sat here alone before the Bookings vertical
+// shipped, which made the page read as retail-exclusive.
+const TRUST = [
+  'GST Compliant',
+  'Appointment Booking',
+  'WhatsApp Billing',
+  'Thermal Printing',
+  'Staff Scheduling',
+  'Works Offline',
+];
 
 function Counter({ target, duration = 1800 }) {
   const [val, setVal] = useState(0);
@@ -71,7 +82,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         animation: 'fadeSlide .4s ease both', position: 'relative',
       }}>
         <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
-        <span style={{ color: '#93C5FD', fontSize: 12, fontWeight: 600 }}>India's #1 Enterprise Retail Operating System</span>
+        <span style={{ color: '#93C5FD', fontSize: 12, fontWeight: 600 }}>Billing + Bookings — one platform for shops & service businesses</span>
       </div>
 
       {/* Headline */}
