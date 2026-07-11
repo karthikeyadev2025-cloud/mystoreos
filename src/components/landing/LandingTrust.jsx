@@ -18,8 +18,8 @@ const POINTS = [
 export default function LandingTrust() {
   return (
     <section style={{
-      background: '#fff',
-      borderTop: `1px solid ${T.rule}`,
+      background: T.voidLift,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,96px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 880, margin: '0 auto' }}>
@@ -34,16 +34,16 @@ export default function LandingTrust() {
               key={title}
               className="lx-post"
               style={{
-                paddingTop: 18, borderTop: `1px solid ${T.ruleStrong}`,
+                paddingTop: 18, borderTop: `1px solid ${T.edgeLift}`,
                 animationDelay: `${i * 60}ms`,
               }}
             >
               <div style={{
                 fontFamily: F.display, fontSize: 16, fontWeight: 700,
-                color: T.inkDeep, letterSpacing: '-0.01em', marginBottom: 7,
+                color: T.text, letterSpacing: '-0.01em', marginBottom: 7,
               }}>{title}</div>
               <div style={{
-                fontFamily: F.body, fontSize: 13.5, color: T.inkSoft, lineHeight: 1.7,
+                fontFamily: F.body, fontSize: 13.5, color: T.textSoft, lineHeight: 1.7,
               }}>{body}</div>
             </div>
           ))}

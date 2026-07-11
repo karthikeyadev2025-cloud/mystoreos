@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import MLogo from '../MLogo';
 import { T, F } from './_tokens';
 
 // Same routing as before — the link map is unchanged. Only the skin and
@@ -36,8 +37,8 @@ export default function LandingFooter({ config = {} }) {
 
   return (
     <footer style={{
-      background: T.paper,
-      borderTop: `1px solid ${T.ruleStrong}`,
+      background: T.void,
+      borderTop: `1px solid ${T.edgeLift}`,
       padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px) 32px',
     }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
@@ -47,14 +48,14 @@ export default function LandingFooter({ config = {} }) {
           <div style={{ minWidth: 0 }}>
             <div style={{
               fontFamily: F.display, fontSize: 17, fontWeight: 800,
-              letterSpacing: '-0.02em', color: T.inkDeep,
-              display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12,
+              letterSpacing: '-0.02em', color: T.text,
+              display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
             }}>
-              <span style={{ width: 3, height: 15, background: T.marginRed, borderRadius: 1 }} />
+              <MLogo size={32} radius={9} />
               {config.siteName || 'MyStore OS'}
             </div>
             <p style={{
-              fontFamily: F.body, fontSize: 13.5, color: T.inkSoft,
+              fontFamily: F.body, fontSize: 13.5, color: T.textSoft,
               lineHeight: 1.7, margin: 0, maxWidth: 260,
             }}>
               Billing and bookings for Indian businesses. Sell stock or sell time —
@@ -76,11 +77,11 @@ export default function LandingFooter({ config = {} }) {
                     background: 'none', border: 0, padding: '5px 0',
                     cursor: action ? 'pointer' : 'default',
                     fontFamily: F.body, fontSize: 13.5,
-                    color: action ? T.inkSoft : T.inkFaint,
+                    color: action ? T.textSoft : T.textFaint,
                     transition: 'color .15s',
                   }}
-                  onMouseEnter={e => { if (action) e.currentTarget.style.color = T.inkDeep; }}
-                  onMouseLeave={e => { if (action) e.currentTarget.style.color = T.inkSoft; }}
+                  onMouseEnter={e => { if (action) e.currentTarget.style.color = T.text; }}
+                  onMouseLeave={e => { if (action) e.currentTarget.style.color = T.textSoft; }}
                 >
                   {label}
                 </button>
@@ -93,15 +94,15 @@ export default function LandingFooter({ config = {} }) {
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           gap: 16, flexWrap: 'wrap',
-          borderTop: `1px solid ${T.rule}`, marginTop: 44, paddingTop: 20,
+          borderTop: `1px solid ${T.edge}`, marginTop: 44, paddingTop: 20,
         }}>
-          <span style={{ fontFamily: F.body, fontSize: 12.5, color: T.inkFaint }}>
+          <span style={{ fontFamily: F.body, fontSize: 12.5, color: T.textFaint }}>
             © {new Date().getFullYear()} {config.siteName || 'MyStore OS'} · Made in India
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: T.credit }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
             <span style={{
-              fontFamily: F.mono, fontSize: 11, color: T.inkFaint, letterSpacing: '0.04em',
+              fontFamily: F.mono, fontSize: 11, color: T.textFaint, letterSpacing: '0.04em',
             }}>All systems operational</span>
           </span>
         </div>

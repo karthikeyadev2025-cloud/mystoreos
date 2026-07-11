@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Menu } from 'lucide-react';
+import MLogo from '../MLogo';
 import { T, F } from './_tokens';
 
 const NAV_LINKS = [
@@ -40,9 +41,9 @@ export default function LandingNav({ config = {} }) {
   return (
     <header style={{
       position: 'sticky', top: 0, zIndex: 100,
-      background: scrolled ? 'rgba(250,248,243,0.88)' : T.paper,
-      backdropFilter: scrolled ? 'saturate(180%) blur(12px)' : 'none',
-      borderBottom: `1px solid ${scrolled ? T.rule : 'transparent'}`,
+      background: scrolled ? 'rgba(8,11,20,0.82)' : 'transparent',
+      backdropFilter: scrolled ? 'saturate(180%) blur(16px)' : 'none',
+      borderBottom: `1px solid ${scrolled ? T.edge : 'transparent'}`,
       transition: 'background .2s, border-color .2s',
     }}>
       <div style={{
@@ -56,11 +57,11 @@ export default function LandingNav({ config = {} }) {
           style={{
             background: 'none', border: 0, cursor: 'pointer', padding: 0, width: 'auto',
             fontFamily: F.display, fontSize: 17, fontWeight: 800,
-            letterSpacing: '-0.02em', color: T.inkDeep,
-            display: 'flex', alignItems: 'center', gap: 7,
+            letterSpacing: '-0.02em', color: T.text,
+            display: 'flex', alignItems: 'center', gap: 9,
           }}
         >
-          <span style={{ width: 3, height: 15, background: T.marginRed, borderRadius: 1 }} />
+          <MLogo size={30} radius={8} />
           {config.siteName || 'MyStore OS'}
         </button>
 
@@ -72,11 +73,11 @@ export default function LandingNav({ config = {} }) {
               onClick={() => go(l)}
               style={{
                 background: 'none', border: 0, cursor: 'pointer', padding: '4px 0', width: 'auto',
-                fontFamily: F.body, fontSize: 14, fontWeight: 500, color: T.inkSoft,
+                fontFamily: F.body, fontSize: 14, fontWeight: 500, color: T.textSoft,
                 transition: 'color .15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = T.inkDeep; }}
-              onMouseLeave={e => { e.currentTarget.style.color = T.inkSoft; }}
+              onMouseEnter={e => { e.currentTarget.style.color = T.text; }}
+              onMouseLeave={e => { e.currentTarget.style.color = T.textSoft; }}
             >
               {l.label}
             </button>
@@ -88,7 +89,7 @@ export default function LandingNav({ config = {} }) {
             onClick={() => navigate('/login')}
             style={{
               background: 'none', border: 0, cursor: 'pointer', width: 'auto',
-              fontFamily: F.body, fontSize: 14, fontWeight: 500, color: T.inkSoft, padding: '8px 4px',
+              fontFamily: F.body, fontSize: 14, fontWeight: 500, color: T.textSoft, padding: '8px 4px',
             }}
           >
             Sign in
@@ -109,7 +110,7 @@ export default function LandingNav({ config = {} }) {
           aria-label={open ? 'Close menu' : 'Open menu'}
           style={{
             display: 'none', background: 'none', border: 0, cursor: 'pointer',
-            color: T.ink, padding: 6, width: 'auto',
+            color: T.text, padding: 6, width: 'auto',
           }}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
@@ -119,7 +120,7 @@ export default function LandingNav({ config = {} }) {
       {/* Mobile sheet */}
       {open && (
         <div style={{
-          borderTop: `1px solid ${T.rule}`, background: T.paper,
+          borderTop: `1px solid ${T.edge}`, background: T.voidLift,
           padding: '8px clamp(20px,5vw,48px) 20px',
         }}>
           {NAV_LINKS.map(l => (
@@ -128,9 +129,9 @@ export default function LandingNav({ config = {} }) {
               onClick={() => go(l)}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
-                background: 'none', border: 0, borderBottom: `1px solid ${T.rule}`,
+                background: 'none', border: 0, borderBottom: `1px solid ${T.edge}`,
                 padding: '14px 0', cursor: 'pointer',
-                fontFamily: F.body, fontSize: 15, color: T.ink,
+                fontFamily: F.body, fontSize: 15, color: T.text,
               }}
             >
               {l.label}

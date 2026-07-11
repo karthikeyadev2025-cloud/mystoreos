@@ -20,8 +20,8 @@ export default function LandingHowItWorks({ navigate: nav }) {
 
   return (
     <section style={{
-      background: T.paper,
-      borderTop: `1px solid ${T.rule}`,
+      background: T.void,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 780, margin: '0 auto' }}>
@@ -38,23 +38,23 @@ export default function LandingHowItWorks({ navigate: nav }) {
           >
             <span className="lx-fig" style={{
               fontSize: 'clamp(26px,3.4vw,34px)', fontWeight: 700,
-              color: T.rule, lineHeight: 1, letterSpacing: '-0.02em',
+              color: T.edge, lineHeight: 1, letterSpacing: '-0.02em',
             }}>
               {String(i + 1).padStart(2, '0')}
             </span>
             <div style={{ minWidth: 0 }}>
               <div style={{
                 fontFamily: F.display, fontSize: 18, fontWeight: 700,
-                color: T.inkDeep, letterSpacing: '-0.015em', marginBottom: 6,
+                color: T.text, letterSpacing: '-0.015em', marginBottom: 6,
               }}>{title}</div>
               <div style={{
-                fontFamily: F.body, fontSize: 14.5, color: T.inkSoft, lineHeight: 1.7,
+                fontFamily: F.body, fontSize: 14.5, color: T.textSoft, lineHeight: 1.7,
               }}>{body}</div>
             </div>
           </div>
         ))}
 
-        <div style={{ marginTop: 38, paddingTop: 26, borderTop: `1px solid ${T.rule}` }}>
+        <div style={{ marginTop: 38, paddingTop: 26, borderTop: `1px solid ${T.edge}` }}>
           <button className="lx-btn lx-btn-primary" onClick={() => navigate('/register')}>
             Start free for 15 days
           </button>
@@ -68,9 +68,9 @@ export default function LandingHowItWorks({ navigate: nav }) {
           gap: 18px;
           align-items: start;
           padding: 22px 0;
-          border-top: 1px solid ${T.rule};
+          border-top: 1px solid ${T.edge};
         }
-        .lx-step:first-of-type { border-top: 2px solid ${T.inkDeep}; }
+        .lx-step:first-of-type { border-top: 2px solid ${T.text}; }
         @media (max-width: 560px) {
           .lx-step { grid-template-columns: 46px 1fr; gap: 12px; }
         }

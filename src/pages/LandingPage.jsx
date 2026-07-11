@@ -118,7 +118,7 @@ export default function LandingPage() {
   }, [config]);
 
   return (
-    <div style={{ background: T.paper, color: T.ink, fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden', minWidth: 320 }}>
+    <div style={{ background: T.void, color: T.text, fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden', minWidth: 320 }}>
       <style>{GCSS}</style>
       <LandingPromoBar promo={promo} navigate={navigate} />
       <LandingNav config={config} navigate={navigate} />

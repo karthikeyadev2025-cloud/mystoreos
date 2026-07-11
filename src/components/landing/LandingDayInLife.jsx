@@ -29,8 +29,8 @@ const SERVICES_DAY = [
 ];
 
 const TRACKS = [
-  { id: 'retail',   label: 'Retail',   day: RETAIL_DAY,   accent: T.marginRed },
-  { id: 'services', label: 'Services', day: SERVICES_DAY, accent: T.credit },
+  { id: 'retail',   label: 'Retail',   day: RETAIL_DAY,   accent: T.rose },
+  { id: 'services', label: 'Services', day: SERVICES_DAY, accent: T.green },
 ];
 
 export default function LandingDayInLife() {
@@ -39,8 +39,8 @@ export default function LandingDayInLife() {
 
   return (
     <section style={{
-      background: T.paper,
-      borderTop: `1px solid ${T.rule}`,
+      background: T.voidLift,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -55,7 +55,7 @@ export default function LandingDayInLife() {
 
         {/* Track tabs */}
         <div style={{
-          display: 'flex', gap: 26, borderBottom: `1px solid ${T.rule}`, marginBottom: 30,
+          display: 'flex', gap: 26, borderBottom: `1px solid ${T.edge}`, marginBottom: 30,
         }}>
           {TRACKS.map(t => (
             <button
@@ -80,7 +80,7 @@ export default function LandingDayInLife() {
               {/* Time rail — the ledger's date column */}
               <div style={{ position: 'relative', paddingTop: 2 }}>
                 <span className="lx-fig" style={{
-                  fontSize: 12, fontWeight: 500, color: T.inkDeep,
+                  fontSize: 12, fontWeight: 500, color: T.text,
                 }}>{time}</span>
               </div>
 
@@ -93,17 +93,17 @@ export default function LandingDayInLife() {
                 }} />
                 <span style={{
                   position: 'absolute', left: 0, top: 16, bottom: -18,
-                  width: 1, background: T.rule,
+                  width: 1, background: T.edge,
                 }} className="lx-day-line" />
               </div>
 
               <div style={{ minWidth: 0, paddingBottom: 4 }}>
                 <div style={{
                   fontFamily: F.display, fontSize: 16, fontWeight: 700,
-                  color: T.inkDeep, letterSpacing: '-0.01em',
+                  color: T.text, letterSpacing: '-0.01em',
                 }}>{title}</div>
                 <div style={{
-                  fontFamily: F.body, fontSize: 14, color: T.inkSoft,
+                  fontFamily: F.body, fontSize: 14, color: T.textSoft,
                   lineHeight: 1.65, marginTop: 4,
                 }}>{body}</div>
               </div>

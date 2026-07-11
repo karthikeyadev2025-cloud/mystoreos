@@ -49,13 +49,13 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
   };
 
   return (
-    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: '#FAF8F3', borderTop: '1px solid #E4DDD0' }}>
+    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: '#0C1120', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Pricing</div>
-          <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#0C121B', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>
-          <p style={{ color: '#909AA6', fontSize: 16, marginTop: 10 }}>Start free. Upgrade when ready. Cancel anytime.</p>
-          <div style={{ display: 'inline-flex', background: '#F2EEE5', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
+          <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>
+          <p style={{ color: 'rgba(248,250,252,0.38)', fontSize: 16, marginTop: 10 }}>Start free. Upgrade when ready. Cancel anytime.</p>
+          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
             {['shop', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#0C121B' : '#909AA6', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
@@ -67,12 +67,12 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           {/* Billing cycle toggle (shop only, config-driven) */}
           {cycles.length > 1 && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ display: 'inline-flex', background: '#F2EEE5', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
+              <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
                 {cycles.map(c => {
                   const disc = c !== 'monthly' ? Number(pricing?.discounts?.[c]) || 0 : 0;
                   return (
                     <button key={c} onClick={() => setCycle(c)}
-                      style={{ background: cycle === c ? '#4F46E5' : 'transparent', border: 'none', color: cycle === c ? '#fff' : '#5A6472', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                      style={{ background: cycle === c ? 'linear-gradient(135deg,#818CF8,#4F46E5)' : 'transparent', border: 'none', color: cycle === c ? '#fff' : '#5A6472', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
                       {cycleLabel[c]}{disc > 0 && <span style={{ marginLeft: 6, fontSize: 10, color: cycle === c ? '#fff' : '#10b981', fontWeight: 800 }}>-{disc}%</span>}
                     </button>
                   );
@@ -94,34 +94,34 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
             return (
             <motion.div key={p.id || i}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-              style={{ background: '#FFFFFF', border: `1px solid ${p.popular ? '#4F46E5' : '#E4DDD0'}`, borderRadius: 8, padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
-              {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: '#4F46E5' }} />}
-              {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: '#4F46E5', color: '#fff', fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 3, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>POPULAR</div>}
+              style={{ background: 'linear-gradient(180deg,#161F35,#111827)', border: `1px solid ${p.popular ? '#818CF8' : 'rgba(255,255,255,0.08)'}`, borderRadius: 16, boxShadow: p.popular ? '0 0 44px -10px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.09)' : 'inset 0 1px 0 rgba(255,255,255,0.05)', padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
+              {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#818CF8,#F5B942)' }} />}
+              {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: 'linear-gradient(135deg,#818CF8,#4F46E5)', color: '#fff', fontSize: 9.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', boxShadow: '0 0 20px -4px rgba(99,102,241,0.6)' }}>POPULAR</div>}
               {isFree && <div style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)', color: '#10b981', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20 }}>FREE FOREVER</div>}
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#0C121B', marginBottom: 6 }}>{p.name}</div>
-              <div style={{ fontSize: 'clamp(24px,3.5vw,36px)', fontWeight: 900, color: '#0C121B', marginBottom: 4 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#F8FAFC', marginBottom: 6 }}>{p.name}</div>
+              <div style={{ fontSize: 'clamp(24px,3.5vw,36px)', fontWeight: 900, color: '#F8FAFC', marginBottom: 4 }}>
                 {isFree ? 'Free' : (
                   tp ? (
                     <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 18, color: '#909AA6', textDecoration: 'line-through', fontWeight: 600 }}>₹{tp.base.toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: 18, color: 'rgba(248,250,252,0.38)', textDecoration: 'line-through', fontWeight: 600 }}>₹{tp.base.toLocaleString('en-IN')}</span>
                       <span>₹{tp.final.toLocaleString('en-IN')}</span>
-                      <span style={{ fontSize: 14, fontWeight: 400, color: '#909AA6' }}>{cycleSuffix[cycle]}</span>
+                      <span style={{ fontSize: 14, fontWeight: 400, color: 'rgba(248,250,252,0.38)' }}>{cycleSuffix[cycle]}</span>
                     </span>
                   ) : (
-                    <span>₹{monthlyBase(p).toLocaleString('en-IN')}<span style={{ fontSize: 14, fontWeight: 400, color: '#909AA6' }}>/mo</span></span>
+                    <span>₹{monthlyBase(p).toLocaleString('en-IN')}<span style={{ fontSize: 14, fontWeight: 400, color: 'rgba(248,250,252,0.38)' }}>/mo</span></span>
                   )
                 )}
               </div>
               {tp && <div style={{ color: '#10b981', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Save {tp.totalPct}% vs monthly</div>}
-              {p.description && <p style={{ color: '#909AA6', fontSize: 13, margin: '8px 0 0' }}>{p.description}</p>}
+              {p.description && <p style={{ color: 'rgba(248,250,252,0.38)', fontSize: 13, margin: '8px 0 0' }}>{p.description}</p>}
               <ul style={{ margin: '16px 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {(p.features || []).map(f => (
-                  <li key={f} style={{ color: '#5A6472', fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  <li key={f} style={{ color: 'rgba(248,250,252,0.62)', fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                     <span style={{ color: '#10b981', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: p.popular ? '#4F46E5' : 'transparent', color: p.popular ? '#fff' : '#1A2230', fontWeight: 600, fontSize: 13.5, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", border: p.popular ? 'none' : '1px solid #CFC5B2' }}>
+              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: p.popular ? 'linear-gradient(135deg,#818CF8,#4F46E5)' : 'rgba(255,255,255,0.06)', color: '#fff', fontWeight: 600, fontSize: 13.5, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", border: p.popular ? 'none' : '1px solid rgba(255,255,255,0.16)' }}>
                 {isFree ? 'Get Started Free' : 'Start Free Trial →'}
               </button>
             </motion.div>
@@ -134,7 +134,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{
             marginTop: 32, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto',
-            background: '#FFFFFF', border: '1px solid #E4DDD0',
+            background: 'linear-gradient(180deg,#161F35,#111827)', border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 8, padding: '28px 32px',
             display: 'flex', flexDirection: 'column', gap: 14,
           }}
@@ -145,16 +145,16 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
               <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
                 POPULAR ADD-ON
               </div>
-              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#0C121B', letterSpacing: '-0.5px' }}>
+              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.5px' }}>
                 Bookings Module
               </h3>
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5A6472' }}>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(248,250,252,0.62)' }}>
                 For salons, spas, clinics, gyms, and workshops
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 30, fontWeight: 900, color: '#0C121B', letterSpacing: '-1px' }}>
-                ₹249<span style={{ fontSize: 14, fontWeight: 500, color: '#5A6472' }}>/mo</span>
+              <div style={{ fontSize: 30, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-1px' }}>
+                ₹249<span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(248,250,252,0.62)' }}>/mo</span>
               </div>
               <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 600 }}>
                 or FREE with Pro / Enterprise
@@ -170,7 +170,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
               'Visit history per customer',
               'WhatsApp booking updates',
             ].map(f => (
-              <div key={f} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: '#5A6472' }}>
+              <div key={f} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: 'rgba(248,250,252,0.62)' }}>
                 <span style={{ color: '#a78bfa', fontWeight: 800 }}>✓</span> {f}
               </div>
             ))}
@@ -180,11 +180,11 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginTop: 36, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/pricing')}
-            style={{ background: '#4F46E5', border: 'none', color: '#fff', padding: '13px 26px', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
+            style={{ background: 'linear-gradient(135deg,#818CF8,#4F46E5)', border: 'none', color: '#fff', padding: '14px 28px', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
             View Full Pricing →
           </button>
           <button onClick={() => navigate('/register')}
-            style={{ background: 'rgba(26,34,48,0.06)', border: '1px solid rgba(26,34,48,0.12)', color: '#0C121B', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
+            style={{ background: 'rgba(26,34,48,0.06)', border: '1px solid rgba(26,34,48,0.12)', color: '#F8FAFC', padding: '14px 24px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
             Start Free 15-Day Trial
           </button>
         </motion.div>

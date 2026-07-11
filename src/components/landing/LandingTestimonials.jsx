@@ -10,8 +10,8 @@ export default function LandingTestimonials({ testimonials = [] }) {
 
   return (
     <section style={{
-      background: T.paperDeep,
-      borderTop: `1px solid ${T.rule}`,
+      background: T.void,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 940, margin: '0 auto' }}>
@@ -27,14 +27,14 @@ export default function LandingTestimonials({ testimonials = [] }) {
               className="lx-post"
               style={{
                 margin: 0, paddingTop: 18,
-                borderTop: `1px solid ${T.ruleStrong}`,
+                borderTop: `1px solid ${T.edgeLift}`,
                 animationDelay: `${i * 55}ms`,
               }}
             >
               <blockquote style={{
                 margin: 0,
                 fontFamily: F.body, fontSize: 15, lineHeight: 1.7,
-                color: T.ink,
+                color: T.text,
               }}>
                 {t.quote}
               </blockquote>
@@ -43,10 +43,10 @@ export default function LandingTestimonials({ testimonials = [] }) {
                 gap: 8, flexWrap: 'wrap',
               }}>
                 <span style={{
-                  fontFamily: F.display, fontSize: 13.5, fontWeight: 700, color: T.inkDeep,
+                  fontFamily: F.display, fontSize: 13.5, fontWeight: 700, color: T.text,
                 }}>{t.name}</span>
                 <span style={{
-                  fontFamily: F.mono, fontSize: 10.5, color: T.inkFaint,
+                  fontFamily: F.mono, fontSize: 10.5, color: T.textFaint,
                   letterSpacing: '0.05em', textTransform: 'uppercase',
                 }}>{t.city}</span>
               </figcaption>

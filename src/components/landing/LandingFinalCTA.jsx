@@ -10,7 +10,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
 
   return (
     <section style={{
-      background: T.inkDeep,
+      background: T.voidLift,
       padding: 'clamp(72px,9vw,112px) clamp(20px,5vw,48px)',
       position: 'relative',
       overflow: 'hidden',
@@ -18,11 +18,11 @@ export default function LandingFinalCTA({ navigate: nav }) {
       {/* The margin rule again, carried through to the last page */}
       <div style={{
         position: 'absolute', top: 0, bottom: 0, left: 'clamp(20px,5vw,48px)',
-        width: 1, background: T.marginRed, opacity: 0.5, pointerEvents: 'none',
+        width: 1, background: 'transparent', pointerEvents: 'none',
       }} />
 
       <div style={{ maxWidth: 780, margin: '0 auto', position: 'relative' }}>
-        <span className="lx-eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <span className="lx-eyebrow" style={{ color: T.brandBright }}>
           Closing balance
         </span>
 
@@ -47,7 +47,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
           <button
             className="lx-btn"
             onClick={() => navigate('/register')}
-            style={{ background: '#fff', color: T.inkDeep, fontWeight: 700 }}
+            style={{ background: T.voidLift, color: T.text, fontWeight: 700 }}
           >
             Start free for 15 days
           </button>

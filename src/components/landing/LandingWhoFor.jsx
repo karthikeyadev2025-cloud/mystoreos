@@ -30,30 +30,30 @@ function Column({ title, note, rows, accent }) {
         <span style={{ width: 7, height: 7, borderRadius: '50%', background: accent }} />
         <h3 style={{
           fontFamily: F.display, fontSize: 19, fontWeight: 800,
-          color: T.inkDeep, letterSpacing: '-0.015em', margin: 0,
+          color: T.text, letterSpacing: '-0.015em', margin: 0,
         }}>{title}</h3>
       </div>
       <p style={{
-        fontFamily: F.body, fontSize: 13, color: T.inkFaint,
+        fontFamily: F.body, fontSize: 13, color: T.textFaint,
         margin: '0 0 18px', paddingLeft: 16,
       }}>{note}</p>
 
-      <div style={{ borderTop: `1px solid ${T.ruleStrong}` }}>
+      <div style={{ borderTop: `1px solid ${T.edgeLift}` }}>
         {rows.map(([trade, detail], i) => (
           <div
             key={trade}
             className="lx-post"
             style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-              gap: 14, padding: '13px 0', borderBottom: `1px solid ${T.rule}`,
+              gap: 14, padding: '13px 0', borderBottom: `1px solid ${T.edge}`,
               animationDelay: `${i * 50}ms`,
             }}
           >
             <span style={{
-              fontFamily: F.body, fontSize: 14.5, fontWeight: 600, color: T.ink,
+              fontFamily: F.body, fontSize: 14.5, fontWeight: 600, color: T.text,
             }}>{trade}</span>
             <span style={{
-              fontFamily: F.mono, fontSize: 10.5, color: T.inkFaint,
+              fontFamily: F.mono, fontSize: 10.5, color: T.textFaint,
               textAlign: 'right', letterSpacing: '0.02em',
             }}>{detail}</span>
           </div>
@@ -66,8 +66,8 @@ function Column({ title, note, rows, accent }) {
 export default function LandingWhoFor() {
   return (
     <section id="who" style={{
-      background: '#fff',
-      borderTop: `1px solid ${T.rule}`,
+      background: T.voidLift,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 940, margin: '0 auto' }}>
@@ -85,19 +85,19 @@ export default function LandingWhoFor() {
             title="Sell stock"
             note="Products across a counter"
             rows={SELL_STOCK}
-            accent={T.marginRed}
+            accent={T.rose}
           />
           <Column
             title="Sell time"
             note="Appointments by the hour"
             rows={SELL_TIME}
-            accent={T.credit}
+            accent={T.green}
           />
         </div>
 
         <p style={{
-          fontFamily: F.body, fontSize: 13.5, color: T.inkSoft,
-          marginTop: 34, paddingTop: 20, borderTop: `1px solid ${T.rule}`,
+          fontFamily: F.body, fontSize: 13.5, color: T.textSoft,
+          marginTop: 34, paddingTop: 20, borderTop: `1px solid ${T.edge}`,
           lineHeight: 1.7,
         }}>
           Doing both? A salon that also sells hair products, a workshop that sells parts —

@@ -1,185 +1,233 @@
 // ─────────────────────────────────────────────────────────────────────
-// LANDING DESIGN TOKENS — "The Ledger"
+// LANDING TOKENS — deep ground, lit surfaces.
 //
-// The artifact MyStore OS replaces is the bahi khata: the bound account
-// book that sits by the till in every Indian shop, and in the drawer of
-// every salon and clinic. Ruled rows, a red margin rule, blue column
-// rules, figures stacked in tabular columns.
+// The ledger stays as the structural idea (ruled rows, tabular figures,
+// the day book as the hero artifact) — but it's lit from within rather
+// than printed flat. Think a premium product shot of the book, not a
+// photocopy of it.
 //
-// The page is built from that object. Not skeuomorphically — no paper
-// textures, no drop-shadowed book spines — but structurally: hairline
-// rules instead of colour blocks, mono figures right-aligned like a real
-// column, a red margin rule running the length of the page.
+// Depth comes from three layers:
+//   1. the void      — the page ground, near-black with a blue cast
+//   2. the surface   — raised panels, lifted off the void by light
+//   3. the artifact  — the day book, glowing, the thing you look at
 //
-// Brand indigo is retained for ACTIONS ONLY (buttons, links). The app
-// itself is indigo, and a landing page in an unrelated palette makes
-// signup feel like you walked into a different building.
+// Brand indigo carries all the energy. The gold is the second voice —
+// used for money, totals, and the things that make a shopkeeper money.
 // ─────────────────────────────────────────────────────────────────────
 
 export const T = {
-  // Ground
-  paper:      '#FAF8F3',   // ledger stock — warm, but yellower than the usual cream
-  paperDeep:  '#F2EEE5',   // alternating band / raised surface
-  rule:       '#E4DDD0',   // hairline row rules
-  ruleStrong: '#CFC5B2',   // section divisions
+  // Ground — near-black, cooled with blue so it reads as depth, not soot
+  void:        '#080B14',
+  voidLift:    '#0C1120',
+  surface:     '#111827',
+  surfaceLift: '#161F35',
 
-  // Ink
-  ink:        '#1A2230',   // body — blue-black, like fountain pen
-  inkDeep:    '#0C121B',   // headings
-  inkSoft:    '#5A6472',   // secondary
-  inkFaint:   '#909AA6',   // captions, meta
+  // Hairlines and edges
+  edge:        'rgba(255,255,255,0.08)',
+  edgeLift:    'rgba(255,255,255,0.14)',
+  edgeGlow:    'rgba(129,140,248,0.35)',
 
-  // The one hot accent: the red margin rule of an account book.
-  // Used for the margin line, debits, and nothing else. Restraint is
-  // what keeps it meaningful.
-  marginRed:  '#C4362C',
-  marginRedSoft: 'rgba(196,54,44,0.08)',
+  // Text
+  text:        '#F8FAFC',
+  textSoft:    'rgba(248,250,252,0.62)',
+  textFaint:   'rgba(248,250,252,0.38)',
+  textGhost:   'rgba(248,250,252,0.22)',
 
-  // Accounting green — credits, confirmations, positive deltas.
-  credit:     '#1F6F4A',
-  creditSoft: 'rgba(31,111,74,0.08)',
+  // Brand — the energy of the page
+  brand:       '#6366F1',
+  brandBright: '#818CF8',
+  brandDeep:   '#4F46E5',
+  brandGlow:   'rgba(99,102,241,0.28)',
 
-  // Brand — actions only.
-  brand:      '#4F46E5',
-  brandDeep:  '#4338CA',
-  brandSoft:  'rgba(79,70,229,0.07)',
+  // Gold — money, totals, the bottom line. The second voice.
+  gold:        '#F5B942',
+  goldBright:  '#FCD34D',
+  goldGlow:    'rgba(245,185,66,0.22)',
+
+  // Semantics
+  green:       '#34D399',
+  greenGlow:   'rgba(52,211,153,0.18)',
+  rose:        '#FB7185',
+  roseGlow:    'rgba(251,113,133,0.18)',
 };
 
-// Type roles.
-//   display — Archivo. Sturdy, slightly industrial; the flavour of
-//             official forms and shop signage. Not a serif cliché.
-//   body    — Inter. Quiet. Lets Archivo carry the personality.
-//   mono    — JetBrains Mono. EVERY figure, eyebrow, and column label.
-//             This is the texture that sells the ledger.
 export const F = {
   display: "'Archivo', system-ui, sans-serif",
   body:    "'Inter', system-ui, sans-serif",
   mono:    "'JetBrains Mono', ui-monospace, 'Courier New', monospace",
 };
 
-// Shared CSS injected once by LandingPage. Contains the font imports,
-// the ruled-grid primitives, and motion that respects prefers-reduced.
 export const LANDING_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 html { scroll-behavior: smooth; }
 *, *::before, *::after { box-sizing: border-box; }
 
-/* ── Eyebrow: a ledger column header. Mono, tracked, small caps feel. */
+/* ── Ambient light. Two soft pools of colour bleeding through the void,
+      so the page has atmosphere rather than being a flat black rectangle. */
+.lx-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  z-index: 0;
+}
+
+/* ── Eyebrow — a ledger column header */
 .lx-eyebrow {
   font-family: ${F.mono};
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: ${T.inkFaint};
+  color: ${T.brandBright};
 }
 
-/* ── Section title */
 .lx-title {
   font-family: ${F.display};
   font-weight: 800;
-  letter-spacing: -0.025em;
-  color: ${T.inkDeep};
-  line-height: 1.08;
-  margin: 12px 0 0;
-}
-
-/* ── Standfirst under a title */
-.lx-lede {
-  font-family: ${F.body};
-  color: ${T.inkSoft};
-  font-size: 16px;
-  line-height: 1.7;
+  letter-spacing: -0.03em;
+  color: ${T.text};
+  line-height: 1.06;
   margin: 14px 0 0;
 }
 
-/* ── Figures. Always mono, always tabular, right-aligned in columns. */
+.lx-lede {
+  font-family: ${F.body};
+  color: ${T.textSoft};
+  font-size: 16.5px;
+  line-height: 1.75;
+  margin: 16px 0 0;
+}
+
+/* ── Figures. Tabular, always. */
 .lx-fig {
   font-family: ${F.mono};
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
 
-/* ── The rule. Hairline, warm, never grey. */
-.lx-rule { border: 0; border-top: 1px solid ${T.rule}; margin: 0; }
-
-/* ── Ledger row: the page's fundamental unit. */
-.lx-row {
-  display: grid;
-  align-items: center;
-  gap: 16px;
-  padding: 13px 0;
-  border-bottom: 1px solid ${T.rule};
+/* ── Surface. A raised panel, lifted off the void by a light edge on top
+      and a shadow beneath. This is what stops the page reading flat. */
+.lx-surface {
+  background: linear-gradient(180deg, ${T.surfaceLift} 0%, ${T.surface} 100%);
+  border: 1px solid ${T.edge};
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 1px 2px rgba(0,0,0,0.4),
+    0 12px 40px -12px rgba(0,0,0,0.6);
 }
-.lx-row:last-child { border-bottom: 0; }
+.lx-surface-hover { transition: transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s, border-color .2s; }
+.lx-surface-hover:hover {
+  transform: translateY(-3px);
+  border-color: ${T.edgeGlow};
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    0 1px 2px rgba(0,0,0,0.4),
+    0 20px 50px -14px rgba(0,0,0,0.7),
+    0 0 40px -12px ${T.brandGlow};
+}
 
-/* ── Buttons. The only place brand indigo appears at full strength. */
+/* ── Buttons */
 .lx-btn {
   font-family: ${F.body};
   font-weight: 600;
   font-size: 15px;
-  border-radius: 8px;
-  padding: 13px 24px;
+  border-radius: 10px;
+  padding: 14px 26px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
   display: inline-flex;
   align-items: center;
   gap: 9px;
   width: auto;
   text-decoration: none;
+  transition: transform .15s cubic-bezier(.2,.7,.3,1), box-shadow .15s, filter .15s;
+  position: relative;
 }
 .lx-btn-primary {
-  background: ${T.brand};
+  background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
   color: #fff;
-  box-shadow: 0 1px 2px rgba(26,34,48,0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 2px 8px rgba(0,0,0,0.4),
+    0 0 32px -6px ${T.brandGlow};
 }
-.lx-btn-primary:hover { background: ${T.brandDeep}; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,70,229,0.28); }
+.lx-btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 4px 14px rgba(0,0,0,0.5),
+    0 0 52px -6px ${T.brandGlow};
+}
 .lx-btn-ghost {
-  background: transparent;
-  color: ${T.ink};
-  border-color: ${T.ruleStrong};
+  background: rgba(255,255,255,0.04);
+  color: ${T.text};
+  border-color: ${T.edgeLift};
+  backdrop-filter: blur(8px);
 }
-.lx-btn-ghost:hover { background: ${T.paperDeep}; border-color: ${T.inkFaint}; }
+.lx-btn-ghost:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: ${T.edgeGlow};
+  transform: translateY(-2px);
+}
 
-/* ── Tabs. Read as ledger column tabs, not pill chips. */
+/* ── Tabs */
 .lx-tab {
   font-family: ${F.mono};
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: ${T.inkFaint};
-  padding: 10px 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid ${T.edge};
+  border-radius: 8px;
+  color: ${T.textFaint};
+  padding: 10px 18px;
   cursor: pointer;
   width: auto;
-  transition: color .15s, border-color .15s;
+  transition: all .18s;
 }
-.lx-tab:hover { color: ${T.ink}; }
+.lx-tab:hover { color: ${T.text}; border-color: ${T.edgeLift}; background: rgba(255,255,255,0.06); }
 .lx-tab[data-active='true'] {
-  color: ${T.inkDeep};
-  border-bottom-color: ${T.marginRed};
+  color: #fff;
+  background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
+  border-color: transparent;
+  box-shadow: 0 0 28px -6px ${T.brandGlow}, inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
-/* ── Focus: visible, always. Non-negotiable. */
-.lx-btn:focus-visible,
-.lx-tab:focus-visible,
-a:focus-visible {
-  outline: 2px solid ${T.brand};
+/* ── Pills / chips */
+.lx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ${F.mono};
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid ${T.edge};
+  background: rgba(255,255,255,0.04);
+  color: ${T.textSoft};
+}
+
+/* ── Focus */
+.lx-btn:focus-visible, .lx-tab:focus-visible, a:focus-visible, button:focus-visible {
+  outline: 2px solid ${T.brandBright};
   outline-offset: 3px;
 }
 
-/* ── Entry animation: rows write themselves in, like someone posting
-      the day's entries. Staggered by index via inline delay. */
-@keyframes lx-post {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-.lx-post { animation: lx-post .45s cubic-bezier(.2,.7,.3,1) both; }
+/* ── Motion */
+@keyframes lx-post { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes lx-pulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+@keyframes lx-drift { 0%,100% { transform: translate(0,0); } 50% { transform: translate(18px,-24px); } }
+.lx-post { animation: lx-post .5s cubic-bezier(.2,.7,.3,1) both; }
+.lx-pulse { animation: lx-pulse 2.4s ease-in-out infinite; }
+.lx-drift { animation: lx-drift 16s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -188,5 +236,6 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
   }
   .lx-post { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .lx-drift, .lx-pulse { animation: none !important; }
 }
 `;

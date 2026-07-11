@@ -13,8 +13,8 @@ export default function LandingStats({ stats = {} }) {
 
   return (
     <section style={{
-      background: T.paperDeep,
-      borderTop: `1px solid ${T.rule}`,
+      background: T.voidLift,
+      borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px)',
     }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -22,7 +22,7 @@ export default function LandingStats({ stats = {} }) {
           On the books
         </span>
 
-        <div style={{ borderTop: `2px solid ${T.inkDeep}` }}>
+        <div style={{ borderTop: `2px solid ${T.text}` }}>
           {ROWS.map(([label, figure], i) => (
             <div
               key={label}
@@ -30,13 +30,13 @@ export default function LandingStats({ stats = {} }) {
               style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
                 gap: 16, padding: '15px 0',
-                borderBottom: `1px solid ${T.rule}`,
+                borderBottom: `1px solid ${T.edge}`,
                 animationDelay: `${i * 60}ms`,
               }}
             >
-              <span style={{ fontFamily: F.body, fontSize: 14.5, color: T.ink }}>{label}</span>
+              <span style={{ fontFamily: F.body, fontSize: 14.5, color: T.text }}>{label}</span>
               <span className="lx-fig" style={{
-                fontSize: 'clamp(17px,2.2vw,21px)', fontWeight: 700, color: T.inkDeep,
+                fontSize: 'clamp(17px,2.2vw,21px)', fontWeight: 700, color: T.text,
                 letterSpacing: '-0.01em',
               }}>{figure}</span>
             </div>
