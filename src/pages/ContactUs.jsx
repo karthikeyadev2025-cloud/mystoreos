@@ -1,110 +1,124 @@
-
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MessageSquare, Mail, MapPin, ArrowRight } from 'lucide-react';
 import { useSiteConfig } from '../lib/siteConfig';
-
-const S = {
-  page: { minHeight: '100vh', background: '#030712', color: '#f1f5f9', fontFamily: 'Plus Jakarta Sans, sans-serif' },
-  nav: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, background: 'rgba(3,7,18,0.92)', backdropFilter: 'blur(12px)', zIndex: 100 },
-  logo: { fontSize: 18, fontWeight: 800, color: '#fff', cursor: 'pointer', letterSpacing: '-0.5px' },
-  backBtn: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 },
-  hero: { textAlign: 'center', padding: 'clamp(48px,6vw,80px) 24px 48px' },
-  badge: { display: 'inline-block', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399', padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, marginBottom: 16, letterSpacing: 1, textTransform: 'uppercase' },
-  h1: { fontSize: 'clamp(28px,4vw,52px)', fontWeight: 900, color: '#fff', margin: '0 0 12px', letterSpacing: '-1px' },
-  sub: { color: '#64748b', fontSize: 16, margin: 0 },
-  body: { maxWidth: 960, margin: '0 auto', padding: '0 24px 80px' },
-  cards: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 48 },
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px 24px', textAlign: 'center', transition: 'border-color 0.2s' },
-  cardIcon: { fontSize: 40, marginBottom: 16 },
-  cardTitle: { fontSize: 17, fontWeight: 800, color: '#fff', marginBottom: 8 },
-  cardDesc: { color: '#64748b', fontSize: 14, marginBottom: 20, lineHeight: 1.6 },
-  cardBtn: { display: 'inline-block', padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', border: 'none', textDecoration: 'none' },
-  formSection: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px', marginBottom: 40 },
-  formTitle: { fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 8 },
-  formSub: { color: '#64748b', fontSize: 14, marginBottom: 28 },
-  formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 },
-  input: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Plus Jakarta Sans, sans-serif', boxSizing: 'border-box', outline: 'none' },
-  textarea: { width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#f1f5f9', fontSize: 14, fontFamily: 'Plus Jakarta Sans, sans-serif', boxSizing: 'border-box', outline: 'none', resize: 'vertical', minHeight: 120 },
-  sendBtn: { background: '#25D366', color: '#fff', border: 'none', padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: 'pointer', marginTop: 8 },
-  faqSection: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px' },
-  faqTitle: { fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 20 },
-  faqItem: { borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '16px 0' },
-  faqQ: { color: '#e2e8f0', fontWeight: 700, fontSize: 15, marginBottom: 6 },
-  faqA: { color: '#64748b', fontSize: 14, lineHeight: 1.6 },
-  footer: { textAlign: 'center', padding: '24px', borderTop: '1px solid rgba(255,255,255,0.04)', color: '#334155', fontSize: 13 },
-};
+import LandingNav from '../components/landing/LandingNav';
+import LandingFooter from '../components/landing/LandingFooter';
+import { T, F, LANDING_CSS } from '../components/landing/_tokens';
 
 const FAQS = [
-  { q: 'How do I start a free trial?', a: 'Click "Start Free Trial" on the home page, register with your phone number, and get 15 days of PRO access instantly — no credit card needed.' },
-  { q: 'Can I import my existing products?', a: 'Yes. Go to Inventory → Import CSV and upload a spreadsheet with your product list. Supports up to 5,000 products per import.' },
-  { q: 'Does it work offline?', a: 'Yes. MyStore OS is a Progressive Web App. Billing and inventory work fully offline and sync automatically when you reconnect.' },
-  { q: 'How do I generate a GST invoice?', a: 'Enter your GSTIN in Settings. Every bill you generate will automatically include GST breakdown and QR code.' },
-  { q: 'How do I cancel my subscription?', a: 'Go to Settings → Subscription and click "Cancel Plan". Your data is retained permanently regardless of plan status.' },
+  { q: 'How do I start a free trial?', a: 'Register with your phone number from the home page and get 15 days of full access instantly — no card needed.' },
+  { q: 'Can I import my existing products?', a: 'Yes. Inventory → Import CSV, up to 5,000 products per upload.' },
+  { q: 'Does it work offline?', a: 'Yes. Billing and inventory both work fully offline and sync automatically once you\u2019re back online.' },
+  { q: 'How do I generate a GST invoice?', a: 'Add your GSTIN in Settings — every bill after that includes the GST breakdown and QR code automatically.' },
+  { q: 'How do I cancel my subscription?', a: 'Settings → Subscription → Cancel Plan. Your data stays yours regardless of plan status.' },
 ];
 
 export default function ContactUs() {
   const navigate = useNavigate();
   const { config } = useSiteConfig();
   const supportEmail = config?.supportEmail || 'adexosindia@gmail.com';
+  const [open, setOpen] = useState(null);
+
+  const ROUTES = [
+    { Icon: MessageSquare, accent: T.brandBright, title: 'In-app support', body: 'Chat with the assistant for instant answers, or raise a ticket the team replies to inside the app.', action: 'Open support', go: () => navigate('/support') },
+    { Icon: Mail, accent: T.gold, title: 'Email', body: `${supportEmail} — for billing, legal notices, or feature requests.`, action: 'Send email', go: () => window.location.href = `mailto:${supportEmail}` },
+    { Icon: MapPin, accent: T.green, title: 'Based in', body: 'Hyderabad, Telangana. Monday to Saturday, 9am to 7pm IST.', action: null },
+  ];
 
   return (
-    <div style={S.page}>
-      <nav style={S.nav}>
-        <span style={S.logo} onClick={() => navigate('/')}>MyStore OS</span>
-        <button style={S.backBtn} onClick={() => navigate('/')}>← Back to Home</button>
-      </nav>
+    <div style={{ background: T.void, color: T.text, fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh' }}>
+      <style>{LANDING_CSS}</style>
+      <LandingNav navigate={navigate} />
 
-      <div style={S.hero}>
-        <div style={S.badge}>Support</div>
-        <h1 style={S.h1}>We're Here to Help</h1>
-        <p style={S.sub}>Get instant answers from our AI assistant or raise a support ticket — our team responds fast.</p>
-      </div>
+      <header style={{
+        background: T.voidLift, borderBottom: `1px solid ${T.edge}`,
+        padding: 'clamp(56px,7vw,88px) clamp(20px,5vw,48px) clamp(44px,5vw,60px)',
+      }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <span className="lx-eyebrow">Contact</span>
+          <h1 className="lx-title" style={{ fontSize: 'clamp(30px,4.6vw,48px)', margin: '14px 0 12px', maxWidth: '12ch' }}>
+            Talk to a person, not a form.
+          </h1>
+          <p className="lx-lede" style={{ maxWidth: 480 }}>
+            Three ways to reach us. The in-app route gets the fastest reply.
+          </p>
+        </div>
+      </header>
 
-      <div style={S.body}>
-        <div style={S.cards}>
-          <div style={S.card}>
-            <div style={S.cardIcon}>💬</div>
-            <div style={S.cardTitle}>In-App Support</div>
-            <div style={S.cardDesc}>Chat with our AI assistant for instant answers, or raise a ticket and our team will reply right inside the app.</div>
-            <button onClick={() => navigate('/support')} style={{ ...S.cardBtn, background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', color: '#fff', border: 'none', cursor: 'pointer' }}>Open Support</button>
-          </div>
-
-          <div style={S.card}>
-            <div style={S.cardIcon}>✉️</div>
-            <div style={S.cardTitle}>Email</div>
-            <div style={S.cardDesc}>{supportEmail}<br />For billing queries, legal notices, or feature requests.</div>
-            <a href={`mailto:${supportEmail}`} style={{ ...S.cardBtn, background: 'rgba(255,255,255,0.08)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.12)' }}>Send Email</a>
-          </div>
-
-          <div style={S.card}>
-            <div style={S.cardIcon}>📍</div>
-            <div style={S.cardTitle}>Location</div>
-            <div style={S.cardDesc}>Hyderabad, Telangana, India<br />Mon–Sat · 9 AM – 7 PM IST</div>
-            <span style={{ ...S.cardBtn, background: 'rgba(255,255,255,0.08)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)', cursor: 'default' }}>India-Based Team</span>
+      <main style={{ padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px)' }}>
+        {/* Three routes — lit cards */}
+        <div style={{ maxWidth: 900, margin: '0 auto 64px' }}>
+          <div className="lx-contact-grid">
+            {ROUTES.map(({ Icon, accent, title, body, action, go }, i) => (
+              <div key={title} className="lx-post lx-surface lx-surface-hover" style={{ padding: 24, animationDelay: `${i * 70}ms` }}>
+                <div style={{
+                  width: 42, height: 42, borderRadius: 11,
+                  background: `linear-gradient(145deg, ${accent}26, ${accent}0D)`,
+                  border: `1px solid ${accent}40`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 18, boxShadow: `0 0 24px -6px ${accent}59`,
+                }}>
+                  <Icon size={19} color={accent} strokeWidth={1.9} />
+                </div>
+                <div style={{ fontFamily: F.display, fontSize: 16.5, fontWeight: 700, color: T.text, marginBottom: 8 }}>{title}</div>
+                <div style={{ fontFamily: F.body, fontSize: 13.5, color: T.textSoft, lineHeight: 1.65, marginBottom: action ? 18 : 0 }}>{body}</div>
+                {action && (
+                  <button onClick={go} style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: 'auto',
+                    fontFamily: F.body, fontSize: 13, fontWeight: 700, color: accent,
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                  }}>
+                    {action} <ArrowRight size={13} />
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
-        <div style={S.formSection}>
-          <div style={S.formTitle}>Send Us a Message</div>
-          <div style={S.formSub}>Raise a ticket inside the app — chat with our AI assistant or get a reply from our team, all tracked in one place.</div>
-          <button style={S.sendBtn} onClick={() => navigate('/support')}>
-            💬 Go to Support
-          </button>
-        </div>
+        {/* FAQ — same disclosure pattern as the landing FAQ */}
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <span className="lx-eyebrow">Common questions</span>
+          <h2 className="lx-title" style={{ fontSize: 'clamp(22px,3vw,30px)', marginBottom: 28 }}>Before you write in.</h2>
 
-        <div style={S.faqSection}>
-          <div style={S.faqTitle}>Frequently Asked Questions</div>
-          {FAQS.map((f, i) => (
-            <div key={i} style={S.faqItem}>
-              <div style={S.faqQ}>{f.q}</div>
-              <div style={S.faqA}>{f.a}</div>
-            </div>
-          ))}
+          <div style={{ borderTop: `2px solid ${T.text}` }}>
+            {FAQS.map((item, i) => {
+              const isOpen = open === i;
+              return (
+                <div key={item.q} style={{ borderBottom: `1px solid ${T.edge}` }}>
+                  <button
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    aria-expanded={isOpen}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'baseline',
+                      justifyContent: 'space-between', gap: 18,
+                      background: 'none', border: 0, cursor: 'pointer',
+                      padding: '17px 0', textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ fontFamily: F.display, fontSize: 15, fontWeight: 600, color: T.text, lineHeight: 1.4 }}>{item.q}</span>
+                    <span style={{ fontFamily: F.mono, fontSize: 15, color: T.textFaint, flexShrink: 0, width: 12, textAlign: 'center' }}>{isOpen ? '\u2013' : '+'}</span>
+                  </button>
+                  {isOpen && (
+                    <p className="lx-post" style={{ fontFamily: F.body, fontSize: 14, color: T.textSoft, lineHeight: 1.75, margin: '0 0 18px', maxWidth: '60ch' }}>{item.a}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </main>
 
-      <footer style={S.footer}>
-        © 2026 MyStore OS · K² ADEXOS GLOBAL TECHNOLOGIES · Hyderabad, Telangana, India
-      </footer>
+      <LandingFooter navigate={navigate} />
+
+      <style>{`
+        .lx-contact-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+        }
+      `}</style>
     </div>
   );
 }

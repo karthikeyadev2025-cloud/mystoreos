@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import LandingNav from '../components/landing/LandingNav';
+import LandingFooter from '../components/landing/LandingFooter';
+import { T, F, LANDING_CSS } from '../components/landing/_tokens';
+
+// All state, feature, and testimonial data below is preserved verbatim
+// from the previous version — 16 states, native-language taglines and
+// testimonials. Only the shell changed.
 
 const STATE_DATA = {
   'gujarat':        { name: 'Gujarat',        lang: 'Gujarati', city: 'Ahmedabad',  shops: '2,000+', icon: '🏛️', tagline: 'ગુજરાતની #૧ બિલિંગ એપ' },
@@ -54,8 +61,9 @@ const setMeta = (name, content) => {
   tag.setAttribute('content', content);
 };
 
-const StateLanding = () => {
+export default function StateLanding() {
   const { state } = useParams();
+  const navigate = useNavigate();
   const data = STATE_DATA[state];
 
   useEffect(() => {
@@ -74,70 +82,92 @@ const StateLanding = () => {
   const testimonial = TESTIMONIALS[state];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div style={{ background: T.void, color: T.text, fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh' }}>
+      <style>{LANDING_CSS}</style>
+      <LandingNav navigate={navigate} />
+
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(135deg,#1e1b4b 0%,#0f172a 60%,#0f172a 100%)', padding: '80px 24px 64px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ maxWidth: '880px', margin: '0 auto' }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px' }}>{data.icon}</div>
-          <h1 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.15 }}>
-            MyStore OS — #1 Billing App for {data.name} Businesses
+      <header style={{
+        background: T.voidLift, borderBottom: `1px solid ${T.edge}`,
+        padding: 'clamp(56px,7vw,88px) clamp(20px,5vw,48px) clamp(44px,5vw,60px)',
+        textAlign: 'center', position: 'relative', overflow: 'hidden',
+      }}>
+        <div className="lx-glow" style={{
+          width: 460, height: 460, top: -180, left: '50%', transform: 'translateX(-50%)',
+          background: `radial-gradient(circle, ${T.brandGlow}, transparent 65%)`,
+        }} />
+        <div style={{ maxWidth: 780, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: 52, marginBottom: 14 }}>{data.icon}</div>
+          <span className="lx-eyebrow">{data.name}</span>
+          <h1 className="lx-title" style={{ fontSize: 'clamp(28px,4.4vw,44px)', margin: '14px 0 12px', maxWidth: '16ch', marginLeft: 'auto', marginRight: 'auto' }}>
+            The billing app {data.name} shops actually use.
           </h1>
-          <p style={{ fontSize: '18px', color: '#cbd5e1', margin: '0 0 8px' }}>
+          <p style={{ fontFamily: F.body, fontSize: 16, color: T.textSoft, margin: '0 0 6px' }}>
             Trusted by {data.shops} businesses in {data.city} and across {data.name}
           </p>
-          <p style={{ fontSize: '15px', color: '#94a3b8', margin: '0 0 32px', fontStyle: 'italic' }}>{data.tagline}</p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '14px 28px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
-              Start Free Trial
-            </Link>
-            <Link to="/login" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#f8fafc', padding: '14px 28px', borderRadius: '10px', fontWeight: 600, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
-              Sign In
-            </Link>
+          <p style={{ fontFamily: F.body, fontSize: 14, color: T.textFaint, fontStyle: 'italic', margin: '0 0 30px' }}>{data.tagline}</p>
+
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 14 }}>
+            <Link to="/register" className="lx-btn lx-btn-primary">Start free trial</Link>
+            <Link to="/login" className="lx-btn lx-btn-ghost">Sign in</Link>
           </div>
-          <p style={{ marginTop: '16px', fontSize: '13px', color: '#64748b' }}>No credit card · Available in {data.lang}</p>
+          <p style={{ fontFamily: F.mono, fontSize: 11, color: T.textFaint }}>No credit card · Available in {data.lang}</p>
         </div>
-      </section>
+      </header>
 
-      {/* Features */}
-      <section style={{ padding: '64px 24px', maxWidth: '1080px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: 800, textAlign: 'center', margin: '0 0 40px' }}>
-          Everything {data.name} shopkeepers need
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
-          {FEATURES.map(f => (
-            <div key={f.title} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '24px' }}>
-              <div style={{ fontSize: '32px', marginBottom: '10px' }}>{f.icon}</div>
-              <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 700 }}>{f.title}</h3>
-              <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonial */}
-      {testimonial && (
-        <section style={{ padding: '0 24px 64px', maxWidth: '720px', margin: '0 auto' }}>
-          <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.08),rgba(129,140,248,0.06))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '16px', padding: '32px' }}>
-            <p style={{ fontSize: '17px', lineHeight: 1.6, margin: '0 0 16px', color: '#f8fafc' }}>"{testimonial.text}"</p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>
-              — {testimonial.name}, {testimonial.shop}
-            </p>
+      <main style={{ padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px)' }}>
+        {/* Features */}
+        <div style={{ maxWidth: 980, margin: '0 auto 60px' }}>
+          <h2 className="lx-title" style={{ fontSize: 'clamp(22px,3vw,30px)', textAlign: 'center', marginBottom: 30 }}>
+            Everything {data.name} shopkeepers need.
+          </h2>
+          <div className="lx-state-grid">
+            {FEATURES.map((f, i) => (
+              <div key={f.title} className="lx-post lx-surface lx-surface-hover" style={{ padding: 20, animationDelay: `${i * 60}ms` }}>
+                <div style={{ fontSize: 26, marginBottom: 10 }}>{f.icon}</div>
+                <div style={{ fontFamily: F.display, fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 5 }}>{f.title}</div>
+                <div style={{ fontFamily: F.body, fontSize: 12.5, color: T.textSoft, lineHeight: 1.55 }}>{f.desc}</div>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
 
-      {/* Footer CTA */}
-      <section style={{ padding: '48px 24px 72px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 16px' }}>Ready to go paperless?</h2>
-        <Link to="/register" style={{ background: '#4F46E5', color: 'white', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', display: 'inline-block' }}>
-          Start Free 15-Day Trial
-        </Link>
-        <p style={{ marginTop: '20px', fontSize: '12px', color: '#64748b' }}>
-          <Link to="/" style={{ color: '#94a3b8', textDecoration: 'none' }}>← Back to MyStore OS</Link>
-        </p>
-      </section>
+        {/* Testimonial — native-language marginalia */}
+        {testimonial && (
+          <div style={{ maxWidth: 640, margin: '0 auto 56px' }}>
+            <blockquote style={{
+              margin: 0, padding: '24px 28px',
+              background: `linear-gradient(180deg, ${T.brandGlow}, transparent)`,
+              borderLeft: `3px solid ${T.brandBright}`, borderRadius: '4px 12px 12px 4px',
+            }}>
+              <p style={{ fontFamily: F.display, fontSize: 16.5, fontStyle: 'italic', fontWeight: 500, color: T.text, lineHeight: 1.65, margin: '0 0 10px' }}>
+                &ldquo;{testimonial.text}&rdquo;
+              </p>
+              <p style={{ fontFamily: F.mono, fontSize: 11.5, color: T.textFaint, margin: 0 }}>
+                — {testimonial.name}, {testimonial.shop}
+              </p>
+            </blockquote>
+          </div>
+        )}
+
+        {/* Close */}
+        <div style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: F.display, fontSize: 20, fontWeight: 700, color: T.text, margin: '0 0 18px' }}>
+            Ready to go paperless?
+          </h2>
+          <Link to="/register" className="lx-btn lx-btn-primary">Start free for 15 days</Link>
+        </div>
+      </main>
+
+      <LandingFooter navigate={navigate} />
+
+      <style>{`
+        .lx-state-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 14px;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default StateLanding;
+}

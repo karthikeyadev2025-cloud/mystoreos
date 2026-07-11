@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Check, ArrowLeft, Star, Flame, Landmark } from 'lucide-react';
 import MLogo from '../components/MLogo';
+import LandingFooter from '../components/landing/LandingFooter';
+import { T, LANDING_CSS } from '../components/landing/_tokens';
 
 const COMPARISON_DATA = {
   tally: {
@@ -136,14 +138,15 @@ export default function AlternativeComparison() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#070a13',
-      color: '#f8fafc',
-      fontFamily: 'Plus Jakarta Sans, sans-serif',
-      padding: '24px 16px 80px',
-      backgroundImage: `radial-gradient(circle at top right, rgba(79, 70, 229, 0.15), transparent 45%),
-                        radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.1), transparent 45%)`,
+      backgroundColor: T.void,
+      color: T.text,
+      fontFamily: "'Inter', system-ui, sans-serif",
+      padding: '24px 16px 0',
+      backgroundImage: `radial-gradient(circle at top right, ${T.brandGlow}, transparent 45%),
+                        radial-gradient(circle at bottom left, ${T.goldGlow}, transparent 45%)`,
       backgroundAttachment: 'fixed'
     }}>
+      <style>{LANDING_CSS}</style>
       {/* Top sticky-ish back bar */}
       <div style={{
         maxWidth: '900px',
@@ -393,7 +396,7 @@ export default function AlternativeComparison() {
           <button
             onClick={() => navigate('/register')}
             style={{
-              background: 'linear-gradient(135deg, #4F46E5, #818CF8)',
+              background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
               color: 'white',
               border: 'none',
               padding: '14px 28px',
@@ -401,13 +404,17 @@ export default function AlternativeComparison() {
               fontWeight: 600,
               fontSize: '15px',
               width: 'auto',
-              boxShadow: '0 4px 20px rgba(79,70,229,0.3)',
+              boxShadow: '0 0 32px -6px rgba(99,102,241,0.5)',
               cursor: 'pointer'
             }}
           >
-            🚀 Start My Store For Free
+            Start free for 15 days
           </button>
         </div>
+      </div>
+
+      <div style={{ marginTop: 56, marginLeft: -16, marginRight: -16 }}>
+        <LandingFooter navigate={navigate} />
       </div>
     </div>
   );

@@ -1,26 +1,10 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
-const POSTS = [
-  {
-    slug: 'ravi-kirana-store-savings',
-    title: "How Ravi's Kirana Store Saved ₹8,000/month with MyStore OS",
-    summary: "From scribbled credit registers to a clean digital ledger — Ravi's switch to MyStore OS cut paper, errors, and missed collections in one go.",
-    accent: '#10b981',
-  },
-  {
-    slug: 'paper-ledger-to-digital',
-    title: 'From Paper Ledger to Digital: A Wholesale Distributor\'s Story',
-    summary: 'How a South Indian FMCG distributor moved 200+ shops onto a single dashboard — and recovered ₹3 lakh in stuck dues in the first month.',
-    accent: '#3b82f6',
-  },
-  {
-    slug: 'gst-filing-10-minutes',
-    title: 'GST Filing in 10 Minutes — How MyStore OS Helped 50 Shops',
-    summary: 'GSTR-1 export, HSN auto-fill, CA portal access — see how small retailers cut their monthly GST routine from a day to under an hour.',
-    accent: '#4F46E5',
-  },
-];
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import LandingNav from '../components/landing/LandingNav';
+import LandingFooter from '../components/landing/LandingFooter';
+import { T, F, LANDING_CSS } from '../components/landing/_tokens';
+import { POSTS } from './_blogPosts';
 
 const setMeta = (name, content) => {
   let tag = document.head.querySelector(`meta[name="${name}"]`);
@@ -28,42 +12,92 @@ const setMeta = (name, content) => {
   tag.setAttribute('content', content);
 };
 
-const BlogIndex = () => {
+export default function BlogIndex() {
+  const navigate = useNavigate();
+  const posts = Object.entries(POSTS);
+
   useEffect(() => {
     const prev = document.title;
-    document.title = 'MyStore OS Blog — Kirana, Billing & GST Case Studies';
-    setMeta('description', 'Real stories from kirana shops, distributors, and small retailers using MyStore OS for billing, inventory, GST, and credit management.');
+    document.title = 'MyStore OS Blog — Real Numbers From Real Businesses';
+    setMeta('description', 'Case studies from shops, distributors, and service businesses using MyStore OS for billing, bookings, GST, and credit management.');
     return () => { document.title = prev; };
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      <section style={{ padding: '72px 24px 32px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94a3b8', letterSpacing: '2px', textTransform: 'uppercase' }}>The Blog</p>
-          <h1 style={{ fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 900, margin: '0 0 16px' }}>Stories from real shopkeepers</h1>
-          <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0 }}>Case studies and playbooks from kirana stores, wholesale distributors, and provision shops across India.</p>
-        </div>
-      </section>
+    <div style={{ background: T.void, color: T.text, fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh' }}>
+      <style>{LANDING_CSS}</style>
+      <LandingNav navigate={navigate} />
 
-      <section style={{ padding: '48px 24px 72px', maxWidth: '960px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          {POSTS.map(p => (
-            <article key={p.slug} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ width: '40px', height: '4px', background: p.accent, borderRadius: '2px', marginBottom: '20px' }} />
-              <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>{p.title}</h2>
-              <p style={{ fontSize: '13px', color: '#cbd5e1', margin: '0 0 24px', lineHeight: 1.6, flex: 1 }}>{p.summary}</p>
-              <Link to={`/blog/${p.slug}`} style={{ color: p.accent, fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>Read more →</Link>
-            </article>
-          ))}
+      <header style={{
+        background: T.voidLift, borderBottom: `1px solid ${T.edge}`,
+        padding: 'clamp(56px,7vw,88px) clamp(20px,5vw,48px) clamp(44px,5vw,60px)',
+      }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <span className="lx-eyebrow">The blog</span>
+          <h1 className="lx-title" style={{ fontSize: 'clamp(30px,4.6vw,48px)', margin: '14px 0 12px', maxWidth: '14ch' }}>
+            What actually changed for them.
+          </h1>
+          <p className="lx-lede" style={{ maxWidth: 520 }}>
+            Case studies from shops, distributors, and service businesses — with the real numbers, not the marketing version.
+          </p>
         </div>
+      </header>
 
-        <div style={{ textAlign: 'center', marginTop: '48px' }}>
-          <Link to="/" style={{ color: '#94a3b8', fontSize: '13px', textDecoration: 'none' }}>← Back to MyStore OS</Link>
+      <main style={{ padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px)' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div className="lx-blog-grid">
+            {posts.map(([slug, p], i) => (
+              <Link
+                key={slug}
+                to={`/blog/${slug}`}
+                className="lx-post lx-surface lx-surface-hover"
+                style={{
+                  padding: 24, textDecoration: 'none', display: 'flex',
+                  flexDirection: 'column', animationDelay: `${i * 70}ms`,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: p.accent, boxShadow: `0 0 12px ${p.accent}` }} />
+                  <span style={{
+                    fontFamily: F.mono, fontSize: 10, letterSpacing: '0.1em',
+                    textTransform: 'uppercase', color: T.textFaint,
+                  }}>{p.shopType}</span>
+                </div>
+                <h2 style={{
+                  fontFamily: F.display, fontSize: 17, fontWeight: 700,
+                  color: T.text, lineHeight: 1.35, margin: '0 0 10px', letterSpacing: '-0.01em',
+                }}>{p.title}</h2>
+                <p style={{
+                  fontFamily: F.body, fontSize: 13.5, color: T.textSoft,
+                  lineHeight: 1.65, margin: '0 0 20px', flex: 1,
+                }}>{p.description}</p>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  paddingTop: 14, borderTop: `1px solid ${T.edge}`,
+                }}>
+                  <span className="lx-fig" style={{ fontSize: 12.5, fontWeight: 700, color: p.accent }}>{p.savingsHighlight}</span>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    fontFamily: F.body, fontSize: 12.5, fontWeight: 600, color: T.textFaint,
+                  }}>
+                    Read <ArrowRight size={12} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
-      </section>
+      </main>
+
+      <LandingFooter navigate={navigate} />
+
+      <style>{`
+        .lx-blog-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 18px;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default BlogIndex;
+}

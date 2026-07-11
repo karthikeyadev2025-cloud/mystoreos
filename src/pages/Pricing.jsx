@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import LandingNav from '../components/landing/LandingNav';
+import LandingFooter from '../components/landing/LandingFooter';
+import { T, F, LANDING_CSS } from '../components/landing/_tokens';
 
 const safe = async (fn, fallback = null) => { try { return await fn(); } catch { return fallback; } };
 
@@ -238,6 +241,7 @@ function FAQ({ q, a }) {
 }
 
 export default function Pricing() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState('shops');
   const [plans, setPlans] = useState([]);
   const [pricing, setPricing] = useState(null);
@@ -281,43 +285,41 @@ export default function Pricing() {
       ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#030712', color: '#f8fafc', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: T.void, color: T.text, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <style>{LANDING_CSS}</style>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
         @media(max-width:900px){.plan-grid{flex-direction:column!important} .plan-grid>*{transform:none!important}}
       `}</style>
 
-      {/* Nav */}
-      <nav style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', maxWidth: '1200px', margin: '0 auto' }}>
-        <Link to="/" style={{ color: '#4F46E5', fontWeight: 900, fontSize: '18px', textDecoration: 'none' }}>MyStore OS</Link>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Link to="/login" style={{ color: '#94a3b8', fontSize: '14px', textDecoration: 'none', padding: '8px 16px' }}>Sign In</Link>
-          <Link to="/register" style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', fontSize: '14px', fontWeight: 700, textDecoration: 'none', padding: '8px 18px', borderRadius: '8px' }}>Start Free</Link>
-        </div>
-      </nav>
+      <LandingNav navigate={navigate} />
 
-      {/* Hero */}
-      <section style={{ padding: '80px 24px 56px', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ display: 'inline-block', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '99px', padding: '4px 14px', fontSize: '12px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '24px' }}>
-          Pricing
-        </div>
-        <h1 style={{ fontSize: 'clamp(32px,6vw,56px)', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1 }}>
-          Simple, transparent pricing
-        </h1>
-        <p style={{ fontSize: '18px', color: '#94a3b8', margin: '0 0 36px' }}>
-          Start free. Upgrade when ready. Cancel anytime.
-        </p>
+      {/* Hero — same eyebrow/title pattern as every other rebuilt page */}
+      <section style={{
+        background: T.voidLift, borderBottom: `1px solid ${T.edge}`,
+        padding: 'clamp(56px,7vw,84px) 24px clamp(40px,5vw,52px)', textAlign: 'center',
+      }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <span className="lx-eyebrow">Pricing</span>
+          <h1 className="lx-title" style={{ fontSize: 'clamp(30px,4.6vw,48px)', margin: '14px 0 12px' }}>
+            Simple, transparent pricing
+          </h1>
+          <p className="lx-lede" style={{ margin: '0 auto 32px', maxWidth: 420, textAlign: 'center' }}>
+            Start free. Upgrade when ready. Cancel anytime.
+          </p>
 
-        {/* Toggle */}
-        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '4px', gap: '4px' }}>
-          {['shops', 'distributors'].map(m => (
-            <button key={m} onClick={() => setMode(m)}
-              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 700, fontFamily: 'Plus Jakarta Sans, sans-serif', transition: 'all 0.2s',
-                background: mode === m ? 'linear-gradient(135deg,#4F46E5,#818CF8)' : 'transparent',
-                color: mode === m ? '#fff' : '#94a3b8' }}>
-              {m === 'shops' ? '🏪 For Shops' : '🚚 For Distributors'}
-            </button>
-          ))}
+          {/* Toggle — logic untouched, only the visual language updated */}
+          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.edge}`, borderRadius: '12px', padding: '4px', gap: '4px' }}>
+            {['shops', 'distributors'].map(m => (
+              <button key={m} onClick={() => setMode(m)}
+                style={{ padding: '9px 20px', borderRadius: '9px', border: 'none', cursor: 'pointer', fontSize: '13.5px', fontWeight: 700, fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s',
+                  background: mode === m ? 'linear-gradient(135deg,#818CF8,#4F46E5)' : 'transparent',
+                  color: mode === m ? '#fff' : T.textFaint,
+                  boxShadow: mode === m ? '0 0 24px -6px rgba(99,102,241,0.5)' : 'none' }}>
+                {m === 'shops' ? 'For shops' : 'For distributors'}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -438,35 +440,23 @@ export default function Pricing() {
 
       {/* Trial CTA banner */}
       <section style={{ padding: '0 24px 96px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(129,140,248,0.08))', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '24px', padding: '48px 32px' }}>
-          <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎁</div>
-          <h2 style={{ fontSize: 'clamp(22px,4vw,34px)', fontWeight: 900, margin: '0 0 12px' }}>All plans start with 15 days FREE on PRO features</h2>
-          <p style={{ fontSize: '15px', color: '#94a3b8', margin: '0 0 32px' }}>
-            No credit card required &nbsp;•&nbsp; Cancel anytime &nbsp;•&nbsp; Instant setup
+        <div className="lx-surface" style={{ padding: 'clamp(36px,5vw,48px) 32px', background: `linear-gradient(180deg, ${T.brandGlow}, transparent)` }}>
+          <h2 style={{ fontFamily: F.display, fontSize: 'clamp(22px,4vw,32px)', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 12px', color: T.text }}>
+            All plans start with 15 days free on Pro features
+          </h2>
+          <p style={{ fontFamily: F.body, fontSize: '14.5px', color: T.textSoft, margin: '0 0 28px' }}>
+            No credit card required &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; Instant setup
           </p>
-          <Link to="/register"
-            style={{ display: 'inline-block', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', fontWeight: 800, fontSize: '16px', padding: '16px 40px', borderRadius: '12px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(79,70,229,0.3)' }}>
-            Start Your Free Trial →
+          <Link to="/register" className="lx-btn lx-btn-primary" style={{ fontSize: 15 }}>
+            Start your free trial
           </Link>
-          <p style={{ marginTop: '16px', fontSize: '12px', color: '#475569' }}>
-            Already have an account? <Link to="/login" style={{ color: '#94a3b8' }}>Sign in</Link>
+          <p style={{ marginTop: '16px', fontFamily: F.mono, fontSize: '11.5px', color: T.textFaint }}>
+            Already have an account? <Link to="/login" style={{ color: T.brandBright }}>Sign in</Link>
           </p>
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '32px 24px 24px', textAlign: 'center', color: '#475569', fontSize: '12px' }}>
-        <div style={{ marginBottom: 12 }}>
-          <span style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>An innovation by</span>
-          <div style={{
-            fontSize: 16, fontWeight: 800, marginTop: 4,
-            background: 'linear-gradient(90deg,#818CF8,#F0ABFC)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>
-            Nikki Tech Labs
-          </div>
-        </div>
-        © 2026 MyStore OS · Hyderabad, Telangana, India
-      </footer>
+      <LandingFooter navigate={navigate} />
     </div>
   );
 }
