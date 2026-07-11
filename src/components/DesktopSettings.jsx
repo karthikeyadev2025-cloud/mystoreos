@@ -3,6 +3,7 @@ import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, Fil
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'react-toastify';
 import PushToggle from './PushToggle';
+import { INVOICE_TEMPLATES } from '../lib/invoiceTemplates';
 import { PlanGate, LockedFeature } from './PlanGate';
 import { validateImageFile } from '../lib/fileValidation';
 
@@ -81,6 +82,8 @@ const DesktopSettings = ({
   // Print settings
   printFormat = 'a4',
   setPrintFormat,
+  printTemplate = 'classic',
+  setPrintTemplate,
   printFontSize = 'normal',
   setPrintFontSize,
   printShowLogo = true,
@@ -516,6 +519,37 @@ const DesktopSettings = ({
             </div>
           </div>
 
+          {/* Invoice Template — which layout every bill/estimate/challan
+              PDF and print uses. The rendering engine (src/lib/
+              invoiceTemplates.js) already supports all five; this is
+              just the picker to choose between them. 'Classic' keeps
+              the original hand-drawn jsPDF/thermal path unchanged for
+              zero-risk backward compatibility — everything else routes
+              through the newer HTML template engine. */}
+          <div style={{ marginBottom: '18px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invoice Template</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+              {INVOICE_TEMPLATES.map(t => {
+                const ICONS = { classic: '🧾', wholesale: '📋', gst_tax: '📑', minimal: '⚡', modern: '✨' };
+                const active = printTemplate === t.id;
+                return (
+                  <button key={t.id} onClick={() => setPrintTemplate && setPrintTemplate(t.id)}
+                    title={t.description}
+                    style={{ padding: '14px 12px', border: active ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: active ? '#EEF2FF' : '#F8FAFC', borderRadius: '12px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+                    <div style={{ fontSize: '20px', marginBottom: '6px' }}>{ICONS[t.id] || '🧾'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: '800', color: active ? '#4F46E5' : '#0F172A', marginBottom: '3px' }}>{t.name}</div>
+                    <div style={{ fontSize: '10px', color: '#64748B', lineHeight: '1.4' }}>{t.description}</div>
+                  </button>
+                );
+              })}
+            </div>
+            {printTemplate === 'wholesale' && (
+              <p style={{ fontSize: '11px', color: '#64748B', margin: '10px 0 0', lineHeight: 1.5 }}>
+                Shows each item's internal code (from the SKU field on the product) alongside the name — set a product's SKU in Inventory to have it appear here.
+              </p>
+            )}
+          </div>
+
           {/* Font Size */}
           <div style={{ marginBottom: '18px' }}>
             <label style={{ display: 'block', fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Font Size</label>
@@ -562,6 +596,7 @@ const DesktopSettings = ({
             <div>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#0F172A' }}>
                 { printFormat === 'a4' ? 'A4 full-page invoice' : printFormat === 'thermal80' ? '80mm thermal receipt' : '58mm thermal receipt' }
+                {' · '}{(INVOICE_TEMPLATES.find(t => t.id === printTemplate)?.name) || 'Classic'}
                 {' · '}{printFontSize === 'large' ? 'Large font' : 'Normal font'}
                 {' · '}{printShowLogo ? 'With logo' : 'No logo'}
                 {' · '}{printCopies} cop{printCopies === 1 ? 'y' : 'ies'}

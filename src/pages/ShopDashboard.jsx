@@ -258,6 +258,7 @@ const ShopDashboard = () => {
   const [termsConditions, setTermsConditions] = useState(''); // custom T&C
   // Print Settings
   const [printFormat,   setPrintFormat]   = useState('a4');       // 'a4' | 'thermal80' | 'thermal58'
+  const [printTemplate, setPrintTemplate] = useState('classic');  // 'classic' | 'wholesale' | 'gst_tax' | 'minimal' | 'modern'
   const [printFontSize, setPrintFontSize] = useState('normal');   // 'normal' | 'large'
   const [printShowLogo, setPrintShowLogo] = useState(true);
   const [printCopies,   setPrintCopies]   = useState(1);
@@ -704,6 +705,7 @@ const ShopDashboard = () => {
         const ps = await safe(() => api.getSiteConfig('printSettings_' + targetShopId, null));
         if (ps) {
           if (ps.format)    setPrintFormat(ps.format);
+          if (ps.template)  setPrintTemplate(ps.template);
           if (ps.fontSize)  setPrintFontSize(ps.fontSize);
           if (ps.showLogo !== undefined) setPrintShowLogo(ps.showLogo);
           if (ps.copies)    setPrintCopies(ps.copies);
@@ -1164,6 +1166,63 @@ const ShopDashboard = () => {
       if (loyaltyEnabled && customerPhone && billingMode === 'bill') {
         if (loyaltyRedeem > 0) await safe(() => api.redeemLoyaltyPoints(targetShopId, customerPhone, loyaltyRedeem));
         await safe(() => api.awardLoyaltyPoints(targetShopId, customerPhone, total));
+      }
+
+      // ── TEMPLATE ENGINE PATH ─────────────────────────────────────────
+      // When the shop has picked anything other than the built-in
+      // 'classic' layout (wholesale/GST/minimal/modern), route through
+      // the new HTML-based template renderer instead of the hand-drawn
+      // jsPDF/thermal paths below. Handles A4 and both thermal widths
+      // itself via the same @page technique already proven for
+      // thermal receipts, so paper size still comes from printFormat.
+      if (printTemplate && printTemplate !== 'classic') {
+        const { printInvoice } = await import('../lib/invoicePrint');
+        let modeTitleTpl = 'TAX INVOICE';
+        if (billingMode === 'estimate') modeTitleTpl = 'PROFORMA ESTIMATE';
+        if (billingMode === 'challan')  modeTitleTpl = 'DELIVERY CHALLAN';
+        printInvoice(printTemplate, {
+          shopName: shop.name || 'Shop',
+          shopPhone: shop.phone || '',
+          shopAddress: businessAddress || shop.address || '',
+          shopGSTIN: gstin || '',
+          billNo: invoiceNo?.formatted || `${Date.now().toString().slice(-6)}`,
+          dateStr: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          modeTitle: modeTitleTpl,
+          customerName: customerName || '',
+          customerPhone: customerPhone || '',
+          customerAddress: customerAddress || '',
+          items: billItems.map(i => ({
+            code: i.sku || '',
+            name: i.name + (i.selectedVariant ? ` (${i.selectedVariant})` : ''),
+            hsn: i.hsn || '',
+            qty: i.qty || 1,
+            rate: i.price,
+            gstPct: i.gstPct || 0,
+          })),
+          subtotal: billTotal,
+          discountAmount: discountAmount + manualDiscountAmt,
+          roundOff: roundOffAmt,
+          total,
+          paymentMode: paymentMethod || '',
+          footerNote: invoiceFooter || 'Thank you! Visit again.',
+          termsNote: termsConditions || '',
+        }, printFormat || 'a4');
+
+        // Clear the cart — the order was already placed above.
+        setBillItems([]);
+        setDiscountAmount(0);
+        setManualDiscountPct(0);
+        setPromoCode('');
+        setLoyaltyRedeem(0);
+        setRoundOff(0);
+        setCustomerLoyaltyPoints(0);
+        setCustomerName('');
+        setCustomerPhone('');
+        setCustomerGstin('');
+        setCustomerAddress('');
+        setCustomerStateCode('');
+        toast.success('Bill saved — opening print…');
+        return;
       }
 
       const { jsPDF: JsPDF } = await import('jspdf');
@@ -2126,6 +2185,56 @@ const ShopDashboard = () => {
       const pdfBlob = doc.output("blob");
       const pdfFile = new File([pdfBlob], pdfFileName, { type: "application/pdf" });
 
+      // ── TEMPLATE ENGINE OVERRIDE ─────────────────────────────────────
+      // The jsPDF document above is still built (cheap, and needed as a
+      // safe fallback) — but when the shop has picked a non-'classic'
+      // invoice template, replace its blob with one rendered by the new
+      // HTML template engine before it's shared. Always A4-width for
+      // this WhatsApp-share path regardless of the shop's till printer
+      // setting, matching the existing rule just above for the classic
+      // path (thermal-shaped PDFs look broken on a customer's phone).
+      let finalPdfBlob = pdfBlob;
+      let finalPdfFile = pdfFile;
+      if (printTemplate && printTemplate !== 'classic') {
+        try {
+          const { buildInvoicePdfBlob } = await import('../lib/invoicePrint');
+          const templateBlob = await buildInvoicePdfBlob(printTemplate, {
+            shopName: shop.name || 'Shop',
+            shopPhone: shop.phone || '',
+            shopAddress: businessAddress || shop.address || '',
+            shopGSTIN: gstin || '',
+            billNo: invoiceNo ? `${modeShort}-${invoiceNo}` : '',
+            dateStr: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            modeTitle,
+            customerName: customerName || '',
+            customerPhone: customerPhone || '',
+            customerAddress: customerAddress || '',
+            items: billItems.map(i => ({
+              code: i.sku || '',
+              name: i.name + (i.selectedVariant ? ` (${i.selectedVariant})` : ''),
+              hsn: i.hsn || '',
+              qty: i.qty || 1,
+              rate: i.price,
+              gstPct: i.gstPct || 0,
+            })),
+            subtotal: billTotal,
+            discountAmount: discountAmount + manualDiscountAmt,
+            roundOff: roundOffAmt,
+            total,
+            paymentMode: paymentMethod || '',
+            footerNote: invoiceFooter || 'Thank you! Visit again.',
+            termsNote: termsConditions || '',
+          }, 'a4');
+          finalPdfBlob = templateBlob;
+          finalPdfFile = new File([templateBlob], pdfFileName, { type: 'application/pdf' });
+        } catch (e) {
+          // Template render failed for any reason — fall back to the
+          // jsPDF document already built above rather than losing the
+          // share entirely.
+          console.error('Template PDF render failed, using classic fallback:', e);
+        }
+      }
+
       // ── WhatsApp delivery — heart feature, must work every single time ──
       // Hard, confirmed platform fact: WhatsApp's wa.me deep link can only
       // carry TEXT, never a file attachment. And navigator.share()'s file
@@ -2287,12 +2396,12 @@ const ShopDashboard = () => {
           // Show PDF share after WhatsApp text opens (slight delay so share
           // sheet doesn't fight with the WhatsApp deep link)
           setTimeout(async () => {
-            await sharePdfNative(pdfBlob, pdfFileName, `Bill from ${shop.name}`);
+            await sharePdfNative(finalPdfBlob, pdfFileName, `Bill from ${shop.name}`);
           }, 800);
         } else {
           // No customer phone — share PDF directly so cashier can pick a contact
           const shared = await sharePdfNative(
-            pdfBlob,
+            finalPdfBlob,
             pdfFileName,
             billingMode === 'estimate' ? 'Estimate / Quotation'
               : billingMode === 'challan' ? 'Delivery Challan'
@@ -2305,7 +2414,7 @@ const ShopDashboard = () => {
         }
       } else {
         // Starter plan: save PDF locally only, no WhatsApp
-        await sharePdfNative(pdfBlob, pdfFileName, `Bill from ${shop.name}`);
+        await sharePdfNative(finalPdfBlob, pdfFileName, `Bill from ${shop.name}`);
         toast.info('Bill saved as PDF. Upgrade to Pro to share via WhatsApp.');
       }
 
@@ -3462,7 +3571,7 @@ const ShopDashboard = () => {
   const handleSavePrintSettings = async () => {
     // Snapshot values at click time — belt-and-braces against any state
     // mutation while the awaits below are in flight.
-    const payload = { format: printFormat, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies };
+    const payload = { format: printFormat, template: printTemplate, fontSize: printFontSize, showLogo: printShowLogo, copies: printCopies };
     try {
       // Don't use safe() here — it swallows the RLS failure that caused
       // print settings to silently never save. If this throws, the user
@@ -3520,6 +3629,48 @@ const ShopDashboard = () => {
   const printReceiptPDF = async (order, opts = {}) => {
     if (!order) return;
     try {
+      // ── TEMPLATE ENGINE PATH ─────────────────────────────────────────
+      // Same branch as printCurrentBill: anything other than 'classic'
+      // routes through the HTML template renderer instead of the old
+      // jsPDF/thermal drawing code below. Without this, the "Print Test
+      // Receipt" button and re-printing a past order would silently
+      // ignore the shop's chosen template and always show Classic —
+      // which would make the picker in Settings misleading.
+      if (printTemplate && printTemplate !== 'classic') {
+        const { printInvoice } = await import('../lib/invoicePrint');
+        const { type: tType, name: tName, phone: tPhone } = decodeOrderUserId(order.userId);
+        let modeTitleTpl = opts.testMode ? 'TEST PRINT'
+          : tType === 'estimate' ? 'PROFORMA ESTIMATE'
+          : tType === 'challan'  ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
+        printInvoice(printTemplate, {
+          shopName: shop.name || 'Shop',
+          shopPhone: shop.phone || '',
+          shopAddress: businessAddress || shop.address || '',
+          shopGSTIN: gstin || '',
+          billNo: (order.id || '').slice(0, 8).toUpperCase(),
+          dateStr: order.date ? new Date(order.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '',
+          modeTitle: modeTitleTpl,
+          customerName: tName || '',
+          customerPhone: tPhone || '',
+          items: (order.items || []).map(it => ({
+            code: it.sku || '',
+            name: it.name + (it.selectedVariant ? ` (${it.selectedVariant})` : ''),
+            hsn: it.hsn || '',
+            qty: it.qty || 1,
+            rate: it.price,
+            discountPct: it.itemDiscount || it.discount || 0,
+            gstPct: it.gstPct || 0,
+          })),
+          subtotal: order.subtotal != null ? order.subtotal : (order.items || []).reduce((s, i) => s + (Number(i.price) || 0) * (i.qty || 1), 0),
+          roundOff: order.roundOff || 0,
+          total: order.total,
+          paymentMode: order.paymentMethod || '',
+          footerNote: invoiceFooter || 'Thank you! Visit again.',
+          termsNote: termsConditions || '',
+        }, printFormat || 'a4');
+        return;
+      }
+
       const { jsPDF: JsPDF } = await import('jspdf');
       const { type, name: custName, phone: custPhone } = decodeOrderUserId(order.userId);
 
@@ -3795,16 +3946,17 @@ const ShopDashboard = () => {
   // saved yet — so a shop can try 80mm vs 58mm live and only save what fits.
   const handleTestPrint = () => {
     const sampleItems = [
-      { name: 'Sample Item A',            price: 120, qty: 2 },
-      { name: 'Sample Item B',            price: 250, qty: 1, itemDiscount: 10 },
-      { name: 'Sample Item C (variant)',  price: 55,  qty: 3, selectedVariant: 'Large' },
+      { name: 'Sample Item A',            price: 120, qty: 2, sku: 'SKU-101' },
+      { name: 'Sample Item B',            price: 250, qty: 1, itemDiscount: 10, sku: 'SKU-102' },
+      { name: 'Sample Item C (variant)',  price: 55,  qty: 3, selectedVariant: 'Large', sku: 'SKU-103' },
     ];
     const total = sampleItems.reduce((s, it) => {
       const line = it.price * (it.qty || 1);
       return s + (it.itemDiscount ? Math.round(line * (1 - it.itemDiscount / 100)) : line);
     }, 0);
     const fmtLabel = printFormat === 'a4' ? 'A4' : printFormat === 'thermal80' ? '80mm thermal' : '58mm thermal';
-    toast.info(`🖨️ Generating test receipt — ${fmtLabel}, ${printFontSize} font, ${printCopies || 1} cop${(printCopies || 1) === 1 ? 'y' : 'ies'}`);
+    const tplLabel = printTemplate && printTemplate !== 'classic' ? ` — ${printTemplate.replace('_', ' ')} template` : '';
+    toast.info(`🖨️ Generating test receipt — ${fmtLabel}${tplLabel}, ${printFontSize} font, ${printCopies || 1} cop${(printCopies || 1) === 1 ? 'y' : 'ies'}`);
     printReceiptPDF({
       id: 'TESTPRNT',
       date: new Date().toISOString(),
@@ -4860,6 +5012,8 @@ const ShopDashboard = () => {
               setTermsConditions={setTermsConditions}
               printFormat={printFormat}
               setPrintFormat={setPrintFormat}
+              printTemplate={printTemplate}
+              setPrintTemplate={setPrintTemplate}
               printFontSize={printFontSize}
               setPrintFontSize={setPrintFontSize}
               printShowLogo={printShowLogo}
