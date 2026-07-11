@@ -5,6 +5,7 @@ import { isServiceCategory } from '../lib/businessKind';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { printPdfWithFormat } from '../lib/printPdf';
 import NotificationCenter from '../components/NotificationCenter';
+import { INVOICE_TEMPLATES } from '../lib/invoiceTemplates';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -7339,6 +7340,31 @@ const ShopDashboard = () => {
                 ))}
               </div>
 
+              {/* Invoice Template — same picker as desktop Settings,
+                  restyled for the mobile card's dark theme. Was
+                  missing here entirely: desktop got the picker but
+                  mobile shop owners (likely the majority of users)
+                  had no way to select anything but the default. */}
+              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>INVOICE TEMPLATE</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '8px', marginBottom: '14px' }}>
+                {INVOICE_TEMPLATES.map(t => {
+                  const ICONS = { classic: '🧾', wholesale: '📋', gst_tax: '📑', minimal: '⚡', modern: '✨' };
+                  const active = printTemplate === t.id;
+                  return (
+                    <button key={t.id} onClick={() => setPrintTemplate(t.id)}
+                      style={{ padding: '10px 8px', border: active ? '2px solid #4F46E5' : '1px solid #334155', background: active ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '10px', cursor: 'pointer', textAlign: 'left' }}>
+                      <div style={{ fontSize: '16px', marginBottom: '3px' }}>{ICONS[t.id] || '🧾'}</div>
+                      <div style={{ fontSize: '11px', fontWeight: '800', color: active ? '#818CF8' : '#fff' }}>{t.name}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              {printTemplate === 'wholesale' && (
+                <p style={{ fontSize: '10.5px', color: '#64748B', margin: '-8px 0 14px', lineHeight: 1.5 }}>
+                  Shows each item's internal code from the product's SKU field.
+                </p>
+              )}
+
               {/* Font size */}
               <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>FONT SIZE</label>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
@@ -7380,6 +7406,7 @@ const ShopDashboard = () => {
               <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
                 <p style={{ margin: 0, fontSize: '12px', color: '#818CF8', fontWeight: '600' }}>
                   {printFormat === 'a4' ? '📄 A4' : printFormat === 'thermal80' ? '🖨️ 80mm Thermal' : '🧾 58mm Thermal'}
+                  {' · '}{(INVOICE_TEMPLATES.find(t => t.id === printTemplate)?.name) || 'Classic'}
                   {' · '}{printFontSize === 'large' ? 'Large' : 'Normal'} font
                   {' · '}{printShowLogo ? 'With logo' : 'No logo'}
                   {' · '}{printCopies} cop{printCopies === 1 ? 'y' : 'ies'}
