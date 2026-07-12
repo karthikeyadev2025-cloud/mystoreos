@@ -109,6 +109,15 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
           </div>
         )}
         {appt.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>Note: {appt.notes}</div>}
+        {/* The actual "finish confirmation" — who marked this done and
+            when. Most valuable for a home visit, where this is the only
+            record anyone at the shop has that the work happened. */}
+        {appt.status === 'completed' && appt.completed_by_name && (
+          <div style={{ fontSize: 11, color: '#10B981', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            ✅ Confirmed done by {appt.completed_by_name}
+            {appt.completed_at && ` · ${new Date(appt.completed_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+          </div>
+        )}
       </div>
       {/* Status + Actions */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end', flexShrink: 0 }}>
@@ -251,6 +260,12 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   const [dayAvailability, setDayAvailability] = useState({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  // Home service — same as the customer-facing widget: only relevant
+  // when the selected service has home_service_enabled. Covers a shop
+  // logging a phone-in request for a home visit on the customer's
+  // behalf, same as a walk-in covers a phone-in for an in-shop slot.
+  const [serviceLocation, setServiceLocation] = useState('in_shop');
+  const [address, setAddress] = useState('');
   // Recurring booking state — only exposed when features.canScheduleRecurring
   // is true (Enterprise). All other tiers get one-off bookings only.
   const [isRecurring, setIsRecurring]     = useState(false);
@@ -291,6 +306,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
     if (!customerName.trim()) return toast.error('Enter customer name');
     if (!/^\d{10}$/.test(customerPhone)) return toast.error('Enter a valid 10-digit phone number');
     if (!time) return toast.error('Select a time');
+    if (serviceLocation === 'at_home' && !address.trim()) return toast.error("Enter the customer's address for the home visit");
     setSaving(true);
     try {
       if (isRecurring && features.canScheduleRecurring) {
@@ -312,6 +328,9 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
           max_occurrences: Number(recCount) || 4,
           provider_id: providerId || null,
           status: 'confirmed',
+          service_location: serviceLocation,
+          customer_address: serviceLocation === 'at_home' ? address.trim() : null,
+          home_service_fee: serviceLocation === 'at_home' ? (Number(selectedService.home_service_fee) || 0) : 0,
         });
         const matched = res?.materialized || 0;
         const skipped = res?.skipped || 0;
@@ -336,6 +355,9 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
           booked_via: 'walk_in',
           provider_id: providerId || null,
           status: 'confirmed', // owner already knows this is happening — skip the pending review step
+          service_location: serviceLocation,
+          customer_address: serviceLocation === 'at_home' ? address.trim() : null,
+          home_service_fee: serviceLocation === 'at_home' ? (Number(selectedService.home_service_fee) || 0) : 0,
         });
         toast.success('Booking added!');
         onSaved();
@@ -353,13 +375,33 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 18 }}>+ New Walk-in / Phone Booking</div>
 
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Service *</label>
-        <select value={serviceId} onChange={e => setServiceId(e.target.value)}
+        <select value={serviceId} onChange={e => { setServiceId(e.target.value); setServiceLocation('in_shop'); setAddress(''); }}
           style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none', marginBottom: 14 }}>
           {services.length === 0 && <option value="">No services yet — add one first</option>}
           {services.map(s => (
-            <option key={s.id} value={s.id}>{s.name} — ₹{Number(s.price).toLocaleString('en-IN')} ({s.duration_minutes} min)</option>
+            <option key={s.id} value={s.id}>{s.name} — ₹{Number(s.price).toLocaleString('en-IN')} ({s.duration_minutes} min){s.home_service_enabled ? ' 🏠' : ''}</option>
           ))}
         </select>
+
+        {selectedService?.home_service_enabled && (
+          <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, marginBottom: 14, background: '#F8FAFC' }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Where is this booking for?</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: serviceLocation === 'at_home' ? 10 : 0 }}>
+              <button type="button" onClick={() => setServiceLocation('in_shop')}
+                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'in_shop' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'in_shop' ? '#EEF2FF' : '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'in_shop' ? '#4F46E5' : '#0F172A' }}>
+                🏪 In-shop
+              </button>
+              <button type="button" onClick={() => setServiceLocation('at_home')}
+                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'at_home' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'at_home' ? '#EEF2FF' : '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'at_home' ? '#4F46E5' : '#0F172A' }}>
+                🏠 Home visit{Number(selectedService.home_service_fee) > 0 ? ` (+₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')})` : ''}
+              </button>
+            </div>
+            {serviceLocation === 'at_home' && (
+              <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Customer's address"
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            )}
+          </div>
+        )}
 
         {providers.length > 0 && features.canAssignStaffPerService && (
           <>

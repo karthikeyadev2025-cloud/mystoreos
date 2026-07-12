@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../hooks/useAuth';
 
 // Shared "Complete & Bill" confirmation modal. Closes the loop between
 // "the appointment happened" and "money was actually collected" — see
@@ -9,6 +10,7 @@ import { toast } from 'react-toastify';
 // (ServiceBusinessHome.jsx) so the workflow is identical everywhere a
 // shop owner can mark an appointment complete.
 export default function CompleteBillModal({ appointment, onClose, onDone }) {
+  const { user } = useAuth();
   // Was defaulting to service_price alone — for a home-visit booking,
   // that silently dropped the visit fee from the bill unless the shop
   // owner happened to notice and add it back manually. Every home
@@ -24,7 +26,11 @@ export default function CompleteBillModal({ appointment, onClose, onDone }) {
     if (!finalAmount || finalAmount < 0) return toast.error('Enter a valid amount');
     setSaving(true);
     try {
-      await api.completeAppointmentWithBill(appointment, { finalAmount, paymentMethod });
+      await api.completeAppointmentWithBill(appointment, {
+        finalAmount, paymentMethod,
+        completedBy: user?.id || null,
+        completedByName: user?.name || null,
+      });
       toast.success('Appointment completed & bill created!');
       onDone();
     } catch (e) {
@@ -63,6 +69,16 @@ export default function CompleteBillModal({ appointment, onClose, onDone }) {
             </button>
           ))}
         </div>
+
+        {/* Who's confirming — the actual "finish confirmation" for a home
+            visit, where nobody at the shop otherwise sees the work happen.
+            Recorded on the appointment (completed_by/completed_at) when
+            confirmed below. */}
+        {user?.name && (
+          <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 14px', textAlign: 'center' }}>
+            {isHomeVisit ? 'Confirming this home visit is done, as' : 'Confirming as'} <strong style={{ color: '#475569' }}>{user.name}</strong>
+          </p>
+        )}
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onClose} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>

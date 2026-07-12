@@ -4430,6 +4430,9 @@ export const api = {
       p_ends_on:         series.ends_on || null,
       p_provider_id:     series.provider_id || null,
       p_status:          series.status || 'confirmed',
+      p_service_location: series.service_location || 'in_shop',
+      p_customer_address: series.customer_address || null,
+      p_home_service_fee: Number(series.home_service_fee) || 0,
     });
     if (error) throw new Error(error.message);
     return data;
@@ -4528,7 +4531,7 @@ export const api = {
   // shows up in All Bills) using a single line item built from the
   // appointment's service, then links appointments.order_id to it and
   // sets status='completed' in one call.
-  async completeAppointmentWithBill(appointment, { finalAmount, paymentMethod = 'Cash' } = {}) {
+  async completeAppointmentWithBill(appointment, { finalAmount, paymentMethod = 'Cash', completedBy, completedByName } = {}) {
     if (!isSupabaseConfigured) return null;
     const amount = Number(finalAmount) || Number(appointment.service_price) || 0;
     const invoiceNo = await this.getNextInvoiceNumber(appointment.shop_id).catch(() => null);
@@ -4547,8 +4550,20 @@ export const api = {
       paymentMethod,
       invoiceNo?.int || null
     );
+    // Records WHO confirmed the work was done and WHEN — the real
+    // "finish confirmation" for a home visit, where nobody at the shop
+    // otherwise witnesses it happening. completed_at is its own column
+    // (not reused from updated_at) so a later, unrelated edit to this
+    // row can never be mistaken for a new completion time.
     const { data, error } = await supabase.from('appointments')
-      .update({ status: 'completed', order_id: order.id, updated_at: new Date().toISOString() })
+      .update({
+        status: 'completed',
+        order_id: order.id,
+        completed_by: completedBy || null,
+        completed_by_name: completedByName || null,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', appointment.id).select().single();
     if (error) throw new Error(error.message);
     return { appointment: data, order };
