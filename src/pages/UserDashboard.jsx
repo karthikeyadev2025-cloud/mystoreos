@@ -2242,7 +2242,20 @@ const UserDashboard = () => {
                     </h2>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '70vh', overflowY: 'auto' }} className="custom-scroll">
-                      {orders.map(order => (
+                      {orders.map(order => {
+                        // Was missing entirely on this (desktop) list —
+                        // mobile already had this exact logic. A customer
+                        // could not tell an accepted order from a
+                        // cancelled one just by looking at the list.
+                        const stColors = {
+                          Cancelled: { color: '#64748b', bg: 'rgba(100,116,139,0.15)', label: '❌ Cancelled' },
+                          Returned:  { color: '#7C3AED', bg: 'rgba(124,58,237,0.15)',  label: '↩️ Returned' },
+                          Accepted:  { color: '#4F46E5', bg: 'rgba(79,70,229,0.12)',   label: '✅ Accepted' },
+                        };
+                        const st = (order.status === 'Completed' || order.paymentVerified)
+                          ? { color: '#10b981', bg: 'rgba(16,185,129,0.15)', label: '💰 Paid & Done' }
+                          : (stColors[order.status] || { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', label: '⏳ Pending' });
+                        return (
                         <div 
                           key={order.id} 
                           className="glass" 
@@ -2256,12 +2269,14 @@ const UserDashboard = () => {
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <span style={{ fontSize: '16px', fontWeight: '800', color: '#10b981' }}>₹{order.total}</span>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: st.color, background: st.bg, padding: '2px 8px', borderRadius: 999, marginTop: 4, display: 'inline-block' }}>{st.label}</div>
                             <div style={{ display: 'block', fontSize: '9px', fontWeight: 'bold', color: '#64748B', marginTop: '3px' }}>
                               View Slip 🗒️
                             </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
 
                       {orders.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
@@ -2353,12 +2368,30 @@ const UserDashboard = () => {
                         cancelled: { color: '#EF4444', bg: '#FEE2E2', label: 'Cancelled' },
                       };
                       const st = stColors[b.status] || stColors.pending;
+                      // Was showing no price at all — a customer couldn't
+                      // see what a booking cost (or would cost) anywhere
+                      // in their history. Also surfaces the home-visit fee
+                      // and address when relevant, matching how the shop
+                      // owner's own booking list already shows it.
+                      const isHome = b.service_location === 'at_home';
+                      const totalRate = Number(b.service_price || 0) + (isHome ? Number(b.home_service_fee || 0) : 0);
                       return (
                         <div key={b.id} className="glass" style={{ padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>{b.service_name}</h4>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>{b.service_name}</h4>
+                              {isHome && (
+                                <span style={{ fontSize: 9, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
+                              )}
+                            </div>
                             <p style={{ fontSize: '11px', color: '#475569', margin: '4px 0 0 0' }}>
                               {new Date(b.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {b.appointment_time?.slice(0, 5)}
+                            </p>
+                            <p style={{ fontSize: '13px', fontWeight: 800, color: '#10B981', margin: '4px 0 0 0' }}>
+                              ₹{totalRate.toLocaleString('en-IN')}
+                              {isHome && Number(b.home_service_fee) > 0 && (
+                                <span style={{ fontSize: 10, fontWeight: 500, color: '#94A3B8' }}> (incl. ₹{Number(b.home_service_fee).toLocaleString('en-IN')} visit fee)</span>
+                              )}
                             </p>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
@@ -2386,9 +2419,44 @@ const UserDashboard = () => {
         )}
 
         {/* Modal Overlays for Desktop Mode */}
-        {showReceiptModal && selectedOrder && (
+        {showReceiptModal && selectedOrder && (() => {
+          // Was previously ZERO status info anywhere on this receipt — a
+          // cancelled order rendered pixel-identical to a real paid
+          // invoice ("*** MYSTORE INVOICE ***"), with no way to tell the
+          // difference. Also: item lines showed raw price × qty,
+          // ignoring itemDiscount entirely, so they never summed to the
+          // actual total — 'why doesn't my math add up' confusion.
+          const isCancelled = selectedOrder.status === 'Cancelled';
+          const isReturned = selectedOrder.status === 'Returned';
+          const isPaid = selectedOrder.status === 'Completed' || selectedOrder.paymentVerified;
+          const isAccepted = selectedOrder.status === 'Accepted';
+          const statusBanner = isCancelled
+            ? { label: '❌ ORDER CANCELLED', color: '#DC2626', bg: '#FEF2F2' }
+            : isReturned
+            ? { label: '↩️ RETURNED / REFUNDED', color: '#7C3AED', bg: '#F3E8FF' }
+            : isPaid
+            ? { label: '💰 PAID & COMPLETE', color: '#059669', bg: '#ECFDF5' }
+            : isAccepted
+            ? { label: '✅ ACCEPTED BY SHOP', color: '#4F46E5', bg: '#EEF2FF' }
+            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: '#D97706', bg: '#FFFBEB' };
+          // Correct each line for its own item-level discount, then
+          // reconcile any REMAINING gap (bill-level discount, round-off,
+          // loyalty redemption — none stored per-line) into one visible
+          // adjustment row, so the receipt always sums to what was
+          // actually charged instead of silently not adding up.
+          const correctedItems = (selectedOrder.items || []).map(item => {
+            const raw = (item.price || 0) * (item.qty || 1);
+            const disc = item.itemDiscount ? raw * (item.itemDiscount / 100) : 0;
+            return { ...item, lineTotal: raw - disc };
+          });
+          const correctedSum = correctedItems.reduce((s, i) => s + i.lineTotal, 0);
+          const adjustment = Math.round((Number(selectedOrder.total) - correctedSum) * 100) / 100;
+          return (
           <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
             <div style={{ width: '100%', maxWidth: '350px' }}>
+              <div style={{ background: statusBanner.bg, color: statusBanner.color, textAlign: 'center', padding: '8px', borderRadius: '10px 10px 0 0', fontSize: 12, fontWeight: 800, letterSpacing: '0.02em' }}>
+                {statusBanner.label}
+              </div>
               <div className="receipt-paper" style={{ padding: '24px 20px', borderRadius: '2px', color: '#000' }}>
                 <div style={{ textAlign: 'center', marginBottom: '14px' }}>
                   <h2 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 2px 0', letterSpacing: '0.5px' }}>*** MYSTORE INVOICE ***</h2>
@@ -2399,20 +2467,36 @@ const UserDashboard = () => {
                   <div><strong>DATE  :</strong> {new Date(selectedOrder.date).toLocaleString()}</div>
                   <div><strong>BILL# :</strong> {(selectedOrder.id || '').toUpperCase()}</div>
                 </div>
+                {selectedOrder.shopMessage && (
+                  <div style={{ fontSize: 11, marginBottom: 12, padding: 8, background: isCancelled ? '#FEF2F2' : '#F8FAFC', border: `1px dashed ${isCancelled ? '#FCA5A5' : '#CBD5E1'}`, borderRadius: 6 }}>
+                    <strong>Note from shop:</strong> {selectedOrder.shopMessage}
+                  </div>
+                )}
                 <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
                 <div style={{ fontSize: '11px', marginBottom: '10px' }}>
-                  {selectedOrder.items?.map((item, idx) => (
+                  {correctedItems.map((item, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                      <span>{item.name.substring(0, 18)} x{item.qty}</span>
-                      <span>₹{item.price * item.qty}</span>
+                      <span>{item.name.substring(0, 18)} x{item.qty}{item.itemDiscount ? ` (-${item.itemDiscount}%)` : ''}</span>
+                      <span>₹{item.lineTotal.toFixed(2)}</span>
                     </div>
                   ))}
+                  {Math.abs(adjustment) >= 0.5 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontStyle: 'italic' }}>
+                      <span>Discount / Round-off</span>
+                      <span>{adjustment > 0 ? '+' : ''}₹{adjustment.toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
                 <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '12px' }}>
-                  <span>TOTAL AMT:</span>
+                  <span>{isCancelled ? 'WOULD-HAVE BEEN:' : 'TOTAL AMT:'}</span>
                   <span>₹{selectedOrder.total}</span>
                 </div>
+                {isCancelled && (
+                  <div style={{ fontSize: 10, color: '#DC2626', fontWeight: 700, textAlign: 'center', marginBottom: 10 }}>
+                    No payment was taken for this order.
+                  </div>
+                )}
                 <div style={{ textAlign: 'center', fontSize: '9px', marginTop: '10px' }}>
                   <strong>* SCAN PAY PACK GO *</strong>
                   <div>Thank you for shopping local!</div>
@@ -2424,7 +2508,8 @@ const UserDashboard = () => {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {showGuestModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
@@ -3465,12 +3550,27 @@ return (
                         cancelled: { color: '#EF4444', bg: '#FEE2E2', label: 'Cancelled' },
                       };
                       const st = stColors[b.status] || stColors.pending;
+                      // Same fix as the desktop bookings list above — was
+                      // showing no price anywhere.
+                      const isHome = b.service_location === 'at_home';
+                      const totalRate = Number(b.service_price || 0) + (isHome ? Number(b.home_service_fee || 0) : 0);
                       return (
                         <div key={b.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', borderRadius: '14px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '0 0 3px 0', color: '#0F172A' }}>{b.service_name}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '0 0 3px 0', color: '#0F172A' }}>{b.service_name}</h3>
+                              {isHome && (
+                                <span style={{ fontSize: 9, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
+                              )}
+                            </div>
                             <div style={{ fontSize: '11px', color: '#64748b' }}>
                               {new Date(b.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {b.appointment_time?.slice(0, 5)}
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 800, color: '#10B981', marginTop: 4 }}>
+                              ₹{totalRate.toLocaleString('en-IN')}
+                              {isHome && Number(b.home_service_fee) > 0 && (
+                                <span style={{ fontSize: 10, fontWeight: 500, color: '#94A3B8' }}> (incl. ₹{Number(b.home_service_fee).toLocaleString('en-IN')} visit fee)</span>
+                              )}
                             </div>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
@@ -3536,10 +3636,37 @@ return (
       {/* ======================================================== */}
 
       {/* 1. REALISTIC THERMAL RECEIPT MODAL */}
-      {showReceiptModal && selectedOrder && (
+      {showReceiptModal && selectedOrder && (() => {
+          // Same fix as the desktop receipt above — see that block's
+          // comment for the full reasoning. Duplicated logic since the
+          // two modals aren't shared components; kept identical on
+          // purpose so desktop and mobile customers see the same thing.
+          const isCancelled = selectedOrder.status === 'Cancelled';
+          const isReturned = selectedOrder.status === 'Returned';
+          const isPaid = selectedOrder.status === 'Completed' || selectedOrder.paymentVerified;
+          const isAccepted = selectedOrder.status === 'Accepted';
+          const statusBanner = isCancelled
+            ? { label: '❌ ORDER CANCELLED', color: '#DC2626', bg: '#FEF2F2' }
+            : isReturned
+            ? { label: '↩️ RETURNED / REFUNDED', color: '#7C3AED', bg: '#F3E8FF' }
+            : isPaid
+            ? { label: '💰 PAID & COMPLETE', color: '#059669', bg: '#ECFDF5' }
+            : isAccepted
+            ? { label: '✅ ACCEPTED BY SHOP', color: '#4F46E5', bg: '#EEF2FF' }
+            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: '#D97706', bg: '#FFFBEB' };
+          const correctedItems = (selectedOrder.items || []).map(item => {
+            const raw = (item.price || 0) * (item.qty || 1);
+            const disc = item.itemDiscount ? raw * (item.itemDiscount / 100) : 0;
+            return { ...item, lineTotal: raw - disc };
+          });
+          const correctedSum = correctedItems.reduce((s, i) => s + i.lineTotal, 0);
+          const adjustment = Math.round((Number(selectedOrder.total) - correctedSum) * 100) / 100;
+          return (
         <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div style={{ width: '100%', maxWidth: '350px' }}>
-            
+            <div style={{ background: statusBanner.bg, color: statusBanner.color, textAlign: 'center', padding: '8px', borderRadius: '10px 10px 0 0', fontSize: 12, fontWeight: 800, letterSpacing: '0.02em' }}>
+              {statusBanner.label}
+            </div>
             {/* The Monospace POS Paper Sheet */}
             <div className="receipt-paper" style={{ padding: '24px 20px', borderRadius: '2px' }}>
               <div className="receipt-jagged-top"></div>
@@ -3556,6 +3683,11 @@ return (
                 <div><strong>DATE  :</strong> {new Date(selectedOrder.date).toLocaleString()}</div>
                 <div><strong>BILL# :</strong> {(selectedOrder.id || '').toUpperCase()}</div>
                 <div><strong>CLIENT :</strong> {user?.name || 'Walk-in'}</div>
+                {selectedOrder.shopMessage && (
+                  <div style={{ marginTop: 8, padding: 6, background: isCancelled ? '#FEF2F2' : '#F8FAFC', border: `1px dashed ${isCancelled ? '#FCA5A5' : '#CBD5E1'}`, borderRadius: 4, fontSize: 10, color: '#000' }}>
+                    <strong>Note from shop:</strong> {selectedOrder.shopMessage}
+                  </div>
+                )}
                 <div><strong>PHONE  :</strong> {user?.phone || 'Guest'}</div>
               </div>
 
@@ -3567,20 +3699,31 @@ return (
                   <span>ITEM DESC</span>
                   <span>SUB</span>
                 </div>
-                {selectedOrder.items?.map((item, idx) => (
+                {correctedItems.map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span>{item.name.substring(0, 18)} x{item.qty}</span>
-                    <span>₹{item.price * item.qty}</span>
+                    <span>{item.name.substring(0, 18)} x{item.qty}{item.itemDiscount ? ` (-${item.itemDiscount}%)` : ''}</span>
+                    <span>₹{item.lineTotal.toFixed(2)}</span>
                   </div>
                 ))}
+                {Math.abs(adjustment) >= 0.5 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontStyle: 'italic' }}>
+                    <span>Discount / Round-off</span>
+                    <span>{adjustment > 0 ? '+' : ''}₹{adjustment.toFixed(2)}</span>
+                  </div>
+                )}
               </div>
 
               <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '12px' }}>
-                <span>TOTAL AMT:</span>
+                <span>{isCancelled ? 'WOULD-HAVE BEEN:' : 'TOTAL AMT:'}</span>
                 <span>₹{selectedOrder.total}</span>
               </div>
+              {isCancelled && (
+                <div style={{ fontSize: 10, color: '#DC2626', fontWeight: 700, textAlign: 'center', marginBottom: 10 }}>
+                  No payment was taken for this order.
+                </div>
+              )}
 
               {/* Barcode Simulator SVG */}
               <div style={{ textAlign: 'center', margin: '20px 0 10px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -3657,7 +3800,8 @@ return (
 
           </div>
         </div>
-      )}
+          );
+      })()}
 
       {/* 2. GUEST ONBOARDING MODAL */}
       {/* 3. STORE CHECKOUT MODAL */}
