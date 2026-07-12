@@ -44,6 +44,17 @@ Deno.serve(async (req: Request) => {
       } catch (_e) { /* fall back to client amount */ }
     }
 
+    // Home Service add-on — standalone, hardcoded server-side price so a
+    // tampered client amount can never underpay for it. Unlike the tier
+    // plans above (which read a possibly-admin-adjusted price from
+    // site_config), this one is a fixed rupee figure. If the price ever
+    // needs to change, update it here — this is the one place it's
+    // actually enforced; the client-side display in Pricing/Settings is
+    // just a mirror of this number.
+    if (planId === 'home_service_addon') {
+      chargeAmount = 199; // ₹199/month
+    }
+
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');
     const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
     if (!keyId || !keySecret) {

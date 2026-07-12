@@ -7,6 +7,7 @@ import { useServiceFeatures } from '../hooks/useServiceFeatures';
 import FeatureUpgradePrompt, { UpgradeChip } from './FeatureUpgradePrompt';
 import StaffManagement from './StaffManagement';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
+import { useAuth } from '../hooks/useAuth';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
@@ -145,9 +146,12 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
   );
 }
 
-function ServiceForm({ service, shopId, onSave, onCancel }) {
+function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, onCancel }) {
+  const { user } = useAuth();
+  const features = useServiceFeatures();
   const [form, setForm] = useState({ ...EMPTY_SERVICE, ...service });
   const [saving, setSaving] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
 
   const save = async () => {
     if (!form.name.trim()) return toast.error('Service name is required');
@@ -159,6 +163,61 @@ function ServiceForm({ service, shopId, onSave, onCancel }) {
       onSave();
     } catch (e) { toast.error(e.message); }
     finally { setSaving(false); }
+  };
+
+  // Purchase the Home Service add-on via Razorpay — mirrors the exact
+  // pattern already used (and hardened) for the plan-upgrade flow
+  // elsewhere in this app: mustSucceed on verification (a swallowed
+  // failure here would show 'Enabled!' while nothing was actually
+  // charged or granted), then re-fetch the authoritative profile
+  // instead of trying to set the expiry client-side.
+  const purchaseAddon = () => {
+    if (!sysSettings?.razorpayKey) {
+      toast.error('Payments are not set up yet — please try again shortly or contact support.');
+      return;
+    }
+    setPurchasing(true);
+    api.createHomeServiceAddonOrder().then(orderRes => {
+      const orderId = orderRes?.orderId;
+      if (!orderId) {
+        setPurchasing(false);
+        return toast.error('Could not start payment securely right now. Please try again.');
+      }
+      const options = {
+        key: sysSettings.razorpayKey,
+        amount: '19900', // ₹199 in paise — server independently re-verifies this; see razorpay-create-order
+        currency: 'INR',
+        name: 'MyStore OS — Home Service Add-on',
+        description: 'Home Service Booking — 30 days',
+        order_id: orderId,
+        theme: { color: '#4F46E5' },
+        prefill: { name: user?.name, contact: user?.phone },
+        handler: async (response) => {
+          try {
+            await api.verifyHomeServiceAddonPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              userId: shopId,
+            });
+            toast.success('Home Service Booking enabled! Valid for 30 days.');
+            // Re-fetch the authoritative profile rather than guessing the
+            // new expiry client-side — same reasoning as the distributor
+            // and shop plan-upgrade flows already use.
+            onAddonPurchased?.();
+          } catch (_e) {
+            toast.error(`Payment verification failed. Contact support with ID: ${response.razorpay_payment_id}`);
+          }
+          setPurchasing(false);
+        },
+        modal: { ondismiss: () => setPurchasing(false) },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    }).catch(e => {
+      setPurchasing(false);
+      toast.error(e.message || 'Could not start payment');
+    });
   };
 
   const field = (label, key, type = 'text', extra = {}) => (
@@ -193,24 +252,43 @@ function ServiceForm({ service, shopId, onSave, onCancel }) {
       </div>
       {field('Price (₹) *', 'price', 'number', { placeholder: '0', min: '0', step: '1' })}
 
-      {/* Home service — offer this specific service at the customer's
-          address, with an optional extra fee for travel. Off by default;
-          a shop opts in per service (e.g. haircuts at home, but facials
-          stay in-shop only since they need equipment). */}
+      {/* Home service — a standalone paid add-on (₹199/mo), independent
+          of plan tier. Any shop, even Starter, can buy just this one
+          feature without upgrading their whole plan. Gated by a LIVE
+          date comparison (features.canOfferHomeService), not a cached
+          flag, so it can never show as active past its real expiry. */}
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: form.home_service_enabled ? 10 : 0 }}>
-          <input type="checkbox" checked={!!form.home_service_enabled}
-            onChange={e => setForm(p => ({ ...p, home_service_enabled: e.target.checked }))}
-            style={{ width: 16, height: 16 }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏠 Offer as a home visit</span>
-        </label>
-        {form.home_service_enabled && (
-          <div>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Extra fee for home visit (₹)</label>
-            <input type="number" value={form.home_service_fee || ''} onChange={e => setForm(p => ({ ...p, home_service_fee: e.target.value }))}
-              placeholder="0 (no extra charge)" min="0" step="1"
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Added on top of the service price when a customer books a home visit. Leave at 0 if you don't charge extra for travel.</p>
+        {features.canOfferHomeService ? (
+          <>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: form.home_service_enabled ? 10 : 0 }}>
+              <input type="checkbox" checked={!!form.home_service_enabled}
+                onChange={e => setForm(p => ({ ...p, home_service_enabled: e.target.checked }))}
+                style={{ width: 16, height: 16 }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏠 Offer as a home visit</span>
+            </label>
+            {form.home_service_enabled && (
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Extra fee for home visit (₹)</label>
+                <input type="number" value={form.home_service_fee || ''} onChange={e => setForm(p => ({ ...p, home_service_fee: e.target.value }))}
+                  placeholder="0 (no extra charge)" min="0" step="1"
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Added on top of the service price when a customer books a home visit. Leave at 0 if you don't charge extra for travel.</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(145deg,#4F46E526,#4F46E50D)', border: '1px solid #4F46E540', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 17 }}>🏠</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Home Service Booking</div>
+              <div style={{ fontSize: 11, color: '#64748B' }}>Let customers book this service at their address. ₹199/month, any plan.</div>
+            </div>
+            <button type="button" onClick={purchaseAddon} disabled={purchasing}
+              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: purchasing ? '#94A3B8' : '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 700, cursor: purchasing ? 'wait' : 'pointer', flexShrink: 0, width: 'auto' }}>
+              {purchasing ? 'Opening…' : 'Enable — ₹199/mo'}
+            </button>
           </div>
         )}
       </div>
@@ -516,7 +594,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   );
 }
 
-export default function DesktopBookings({ shopId, shopName, initialTab = 'appointments' }) {
+export default function DesktopBookings({ shopId, shopName, initialTab = 'appointments', sysSettings, onAddonPurchased }) {
   const features = useServiceFeatures();
   const [tab, setTab] = useState(initialTab); // 'appointments' | 'services' | 'staff'
   // If the parent switches the top-level sidebar entry (e.g. Services →
@@ -728,6 +806,8 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
               <ServiceForm
                 service={editingService}
                 shopId={shopId}
+                sysSettings={sysSettings}
+                onAddonPurchased={onAddonPurchased}
                 onSave={() => { setShowServiceForm(false); setEditingService(null); loadData(); }}
                 onCancel={() => { setShowServiceForm(false); setEditingService(null); }}
               />

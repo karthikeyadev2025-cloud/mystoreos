@@ -21,6 +21,12 @@ import { getCaps, hasCap, FEATURE_PLAN_LABEL } from '../lib/features';
 //   canSendReminders       — SMS/WhatsApp booking reminders
 //   canScheduleRecurring   — recurring / weekly repeat bookings
 //   canConfigureProviderHours — per-staff working hours
+//   canOfferHomeService    — standalone paid add-on (₹199/mo), NOT gated
+//                            by plan tier — any shop can buy it directly.
+//                            Computed as a live date comparison against
+//                            homeServiceAddonExpiresAt, not a cached
+//                            boolean, so there's never a dependency on a
+//                            background job to switch it off on expiry.
 //   labelFor(feature)      — human-readable plan required to unlock
 //
 // Every gate also carries a `.reason` field when denied — a hint the
@@ -30,6 +36,17 @@ export function useServiceFeatures() {
   const { user } = useAuth();
 
   const caps = useMemo(() => getCaps(user), [user]);
+  // NOT memoized on purpose: this depends on the passage of time, not
+  // just on `user` changing. Caching it in a useMemo keyed only on
+  // homeServiceAddonExpiresAt would let it silently read as "still
+  // active" past the real expiry moment until something else happens
+  // to trigger a re-render. It's a cheap comparison — recomputing it
+  // on every render is correct, not wasteful. (The database trigger is
+  // the actual enforcement boundary regardless; this only controls
+  // what the UI offers to click.)
+  const canOfferHomeService = user?.homeServiceAddonExpiresAt
+    ? new Date(user.homeServiceAddonExpiresAt).getTime() > Date.now()
+    : false;
 
   return useMemo(() => {
     const isServiceShop = user?.businessKind === 'service';
@@ -48,6 +65,7 @@ export function useServiceFeatures() {
         canSendReminders: true,
         canScheduleRecurring: true,
         canConfigureProviderHours: true,
+        canOfferHomeService: true,
         labelFor: () => 'Pro Plan',
       };
     }
@@ -65,10 +83,11 @@ export function useServiceFeatures() {
       canSendReminders:          !!caps.serviceReminders,
       canScheduleRecurring:      !!caps.serviceRecurring,
       canConfigureProviderHours: !!caps.serviceProviderHours,
-      labelFor: (feature) => FEATURE_PLAN_LABEL[feature] || 'Pro Plan',
+      canOfferHomeService,
+      labelFor: (feature) => feature === 'homeService' ? 'Home Service Add-on (₹199/mo)' : (FEATURE_PLAN_LABEL[feature] || 'Pro Plan'),
       // Also expose raw caps + hasCap-like helper for advanced callers
       _caps: caps,
       hasCap: (feature) => hasCap(user, feature),
     };
-  }, [user, caps]);
+  }, [user, caps, canOfferHomeService]);
 }

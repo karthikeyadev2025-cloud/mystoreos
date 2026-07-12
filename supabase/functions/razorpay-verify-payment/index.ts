@@ -65,6 +65,37 @@ serve(async (req) => {
       .maybeSingle();
 
     if (!existing) {
+      // Home Service add-on — handled as its own explicit branch, BEFORE
+      // falling into the generic tier-grant logic below. Without this,
+      // baseTier('home_service_addon') would pass through unchanged,
+      // PLAN_TIER['home_service_addon'] would be undefined, and the
+      // `?? 'pro'` fallback a few lines down would have silently
+      // upgraded the shop to full PRO TIER for a ₹199 addon payment —
+      // a serious billing bug, not a cosmetic one.
+      if (planId === 'home_service_addon') {
+        const addonExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        await supabase.from('users').update({
+          home_service_addon_expires_at: addonExpiresAt,
+        }).eq('id', userId);
+
+        await supabase.from('payment_history').insert({
+          user_id: userId,
+          razorpay_event_id: razorpay_payment_id,
+          razorpay_order_id: razorpay_order_id ?? null,
+          razorpay_payment_id,
+          event_type: 'payment.captured',
+          plan_id: planId,
+          amount: 199,
+          currency: 'INR',
+          status: 'success',
+          raw_payload: { razorpay_order_id, razorpay_payment_id, planId },
+        });
+
+        return new Response(JSON.stringify({ success: true, addon: 'home_service', expiresAt: addonExpiresAt }), {
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+        });
+      }
+
       const base = baseTier(planId);
       const cycle = cycleOf(planId);
       const days = cycle === 'yearly' ? 365 : cycle === 'quarterly' ? 90 : 30;

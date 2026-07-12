@@ -71,6 +71,13 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   // reject it, but hiding the link first is a better UX than a red
   // error toast after the customer tries to use it.
   const [selfServiceOn, setSelfServiceOn] = useState(false);
+  // Whether the shop's Home Service add-on is CURRENTLY active. Checked
+  // independently of each service's home_service_enabled flag — a shop
+  // could have that flag left on from before their add-on lapsed, and
+  // the booking widget must not offer a home visit the shop can no
+  // longer actually fulfil (or bill correctly) just because the RPC
+  // gate would also reject it — same reasoning as selfServiceOn above.
+  const [homeServiceOn, setHomeServiceOn] = useState(false);
 
   const hasProviders = providers.length > 0;
 
@@ -79,10 +86,12 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       api.getShopServices(shopId),
       api.getProviders(shopId).catch(() => []), // non-fatal — shop may not have set up staff
       api.shopHasSelfService(shopId).catch(() => false),
-    ]).then(([svcs, provs, selfSrv]) => {
+      api.shopHasHomeServiceAddon(shopId).catch(() => false),
+    ]).then(([svcs, provs, selfSrv, homeSrv]) => {
       setServices(svcs.filter(s => s.active));
       setProviders((provs || []).filter(p => p.active));
       setSelfServiceOn(!!selfSrv);
+      setHomeServiceOn(!!homeSrv);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [shopId]);
@@ -327,7 +336,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>₹{Number(svc.price).toLocaleString('en-IN')}</span>
                     <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {svc.duration_minutes} min</span>
-                    {svc.home_service_enabled && (
+                    {svc.home_service_enabled && homeServiceOn && (
                       <span style={{ fontSize: 10.5, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '2px 7px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         🏠 Home visit available
                       </span>
@@ -478,7 +487,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               enabled for home visits. Defaults to in-shop; the customer
               actively opts in to a home visit, since it's the exception,
               not the default, for most service businesses. */}
-          {selectedService?.home_service_enabled && (
+          {selectedService?.home_service_enabled && homeServiceOn && (
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Where should we come?</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: serviceLocation === 'at_home' ? 12 : 0 }}>

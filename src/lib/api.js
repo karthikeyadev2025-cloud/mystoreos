@@ -127,6 +127,7 @@ const toUser = (row) => row ? ({
   distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
   distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
   distributorTrialStartedAt: row.distributor_trial_started_at || null,
+  homeServiceAddonExpiresAt: row.home_service_addon_expires_at || null,
   hideFromSearch: row.hide_from_search || false,
   shopCategory: row.shop_category || 'general',
   businessKind: row.business_kind || null,   // 'retail' | 'service' — routes shop to POS-first or Bookings-first dashboard
@@ -4133,6 +4134,40 @@ export const api = {
     if (tier === 'pro' || tier === 'enterprise') return true;
     if (data.subscription === 'trial' && !tier) return true;
     return false;
+  },
+
+  // Home Service add-on — standalone paid unlock, independent of plan
+  // tier. Live date comparison (not a cached boolean) so there's no
+  // dependency on a background job to switch access off — see the
+  // migration comment for the full reasoning.
+  async shopHasHomeServiceAddon(shopId) {
+    if (!isSupabaseConfigured || !shopId) return false;
+    const { data } = await supabase
+      .from('users')
+      .select('home_service_addon_expires_at')
+      .eq('id', shopId)
+      .maybeSingle();
+    if (!data?.home_service_addon_expires_at) return false;
+    return new Date(data.home_service_addon_expires_at).getTime() > Date.now();
+  },
+
+  // Purchase (or renew) the Home Service add-on. Renewing always resets
+  // to now + 30 days rather than stacking onto remaining time — matches
+  // how the existing plan-tier purchase flow already behaves (see
+  // razorpay-verify-payment), not a new convention.
+  //
+  // Returns { orderId, amount, currency } for the caller to open the
+  // Razorpay checkout with — the actual grant happens in
+  // verifyHomeServiceAddonPayment after the customer completes payment.
+  async createHomeServiceAddonOrder() {
+    return this.createRazorpayOrder('home_service_addon', 199);
+  },
+
+  async verifyHomeServiceAddonPayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature, userId }) {
+    return this.verifyRazorpayPayment({
+      razorpay_order_id, razorpay_payment_id, razorpay_signature,
+      planId: 'home_service_addon', userId,
+    });
   },
 
   async getShopServices(shopId) {

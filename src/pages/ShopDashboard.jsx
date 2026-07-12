@@ -4928,15 +4928,15 @@ const ShopDashboard = () => {
           )}
 
           {activeTab === 'bookings' && (
-            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="appointments" />
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="appointments" sysSettings={sysSettings} onAddonPurchased={loadData} />
           )}
 
           {activeTab === 'services' && isOwner && (
-            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="services" />
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="services" sysSettings={sysSettings} onAddonPurchased={loadData} />
           )}
 
           {activeTab === 'staff' && isOwner && (
-            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="staff" />
+            <DesktopBookings shopId={targetShopId} shopName={shop.name} initialTab="staff" sysSettings={sysSettings} onAddonPurchased={loadData} />
           )}
 
           {activeTab === 'membership' && isOwner && (
@@ -6513,7 +6513,7 @@ const ShopDashboard = () => {
       {/* BOOKINGS TAB */}
       {activeTab === 'bookings' && (
         <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
-          <DesktopBookings shopId={targetShopId} shopName={shop.name} />
+          <DesktopBookings shopId={targetShopId} shopName={shop.name} sysSettings={sysSettings} onAddonPurchased={loadData} />
         </div>
       )}
 
