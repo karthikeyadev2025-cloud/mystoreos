@@ -4608,6 +4608,11 @@ export const api = {
       // half-save.
       service_location: appointment.service_location || 'in_shop',
       customer_address: appointment.customer_address || null,
+      // Precise GPS for the visit address — optional, customer opts in
+      // during booking. A typed address can be vague or wrong; a real
+      // coordinate means staff can navigate straight there.
+      customer_lat: appointment.customer_lat ?? null,
+      customer_lng: appointment.customer_lng ?? null,
       home_service_fee: Number(appointment.home_service_fee) || 0,
       // Consumer self-bookings default to 'pending' (owner reviews and
       // confirms). Owner-created walk-in/phone bookings should default
@@ -4670,6 +4675,55 @@ export const api = {
   // shows up in All Bills) using a single line item built from the
   // appointment's service, then links appointments.order_id to it and
   // sets status='completed' in one call.
+  // ── HOME SERVICE SAFETY ──────────────────────────────────────────
+  // Staff check-in: a timestamped location snapshot at the two moments
+  // that matter — leaving for the visit, and arriving. NOT continuous
+  // tracking. phase is 'enroute' or 'arrived'.
+  async checkInHomeVisit(appointmentId, phase, lat, lng) {
+    if (!isSupabaseConfigured) return null;
+    const col = phase === 'arrived' ? 'staff_arrived' : 'staff_enroute';
+    const payload = {
+      [`${col}_at`]: new Date().toISOString(),
+      [`${col}_lat`]: lat ?? null,
+      [`${col}_lng`]: lng ?? null,
+    };
+    const { data, error } = await supabase.from('appointments')
+      .update(payload).eq('id', appointmentId).select('id').maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error('Appointment not found or you do not have permission to update it.');
+    return { id: appointmentId, phase };
+  },
+
+  // The real safety feature. One tap, captures location, fires the
+  // highest-priority notification this app can send (see
+  // notify_sos_events() — push with requireInteraction, doesn't
+  // auto-dismiss). shop_id comes from the appointment row itself so
+  // this can't accidentally be misdirected.
+  async triggerSOS(appointmentId, lat, lng, triggeredByUserId) {
+    if (!isSupabaseConfigured) throw new Error('Not available offline — call for help directly if you can.');
+    const { data, error } = await supabase.from('appointments')
+      .update({
+        sos_triggered_at: new Date().toISOString(),
+        sos_lat: lat ?? null,
+        sos_lng: lng ?? null,
+        sos_triggered_by: triggeredByUserId || null,
+      })
+      .eq('id', appointmentId)
+      .select('id, shop_id')
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error('Could not send the alert — appointment not found.');
+    return data;
+  },
+
+  async acknowledgeSOS(appointmentId) {
+    if (!isSupabaseConfigured) return null;
+    const { error } = await supabase.from('appointments')
+      .update({ sos_acknowledged_at: new Date().toISOString() })
+      .eq('id', appointmentId);
+    if (error) throw new Error(error.message);
+  },
+
   async completeAppointmentWithBill(appointment, { finalAmount, paymentMethod = 'Cash', completedBy, completedByName } = {}) {
     if (!isSupabaseConfigured) return null;
     const amount = Number(finalAmount) || Number(appointment.service_price) || 0;

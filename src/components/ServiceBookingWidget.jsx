@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
-import { Clock, Calendar, ChevronRight, CheckCircle, Scissors } from 'lucide-react';
+import { Clock, Calendar, ChevronRight, CheckCircle, Scissors, MapPin } from 'lucide-react';
+import { getCurrentLocation, isGeolocationSupported } from '../lib/geolocation';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair' },
@@ -62,6 +63,11 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   // service has home_service_enabled; defaults to in_shop otherwise.
   const [serviceLocation, setServiceLocation] = useState('in_shop');
   const [address, setAddress] = useState('');
+  // Precise GPS for the visit address — optional, purely additive to
+  // the typed address above. Helps staff actually find the place and
+  // gives a verifiable record of where the visit was meant to happen.
+  const [preciseLocation, setPreciseLocation] = useState(null); // { lat, lng, accuracy } | null
+  const [locatingAddress, setLocatingAddress] = useState(false);
   const [booking, setBooking] = useState(false);
   const [confirmedAppt, setConfirmedAppt] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -163,6 +169,8 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         provider_id: selectedProvider?.id || null,
         service_location: serviceLocation,
         customer_address: serviceLocation === 'at_home' ? address.trim() : null,
+        customer_lat: serviceLocation === 'at_home' ? (preciseLocation?.lat ?? null) : null,
+        customer_lng: serviceLocation === 'at_home' ? (preciseLocation?.lng ?? null) : null,
         home_service_fee: serviceLocation === 'at_home' ? (Number(selectedService.home_service_fee) || 0) : 0,
       });
       setConfirmedAppt(appt);
@@ -252,7 +260,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
             )}
           </div>
         </div>
-        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); setServiceLocation('in_shop'); setAddress(''); }}
+        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); setServiceLocation('in_shop'); setAddress(''); setPreciseLocation(null); }}
           style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 10 }}>
           Book Another Appointment
         </button>
@@ -325,7 +333,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {filteredServices.map(svc => (
-              <button key={svc.id} onClick={() => { setSelectedService(svc); setServiceLocation('in_shop'); setAddress(''); setStep(hasProviders ? 2 : 3); }}
+              <button key={svc.id} onClick={() => { setSelectedService(svc); setServiceLocation('in_shop'); setAddress(''); setPreciseLocation(null); setStep(hasProviders ? 2 : 3); }}
                 style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
                   {(SERVICE_CATEGORIES.find(c => c.id === svc.category) || SERVICE_CATEGORIES[7]).label.split(' ')[0]}
@@ -509,6 +517,35 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Your Address *</label>
                   <textarea value={address} onChange={e => setAddress(e.target.value)} placeholder="House/flat no., street, area, landmark…" rows={2}
                     style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                  {/* Optional precise location — supplements the typed
+                      address, doesn't replace it. Helps staff actually
+                      find the place, and is a real safety measure: it's
+                      a verifiable record of exactly where the visit was
+                      meant to happen. */}
+                  {isGeolocationSupported() && (
+                    <div style={{ marginTop: 8 }}>
+                      {preciseLocation ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
+                          <CheckCircle size={13} /> Exact location added — helps our staff find you
+                        </div>
+                      ) : (
+                        <button type="button" onClick={async () => {
+                          setLocatingAddress(true);
+                          try {
+                            const loc = await getCurrentLocation({ highAccuracy: false });
+                            setPreciseLocation(loc);
+                            toast.success('Location added — thanks, this helps us find you');
+                          } catch (e) {
+                            toast.error(e.message || 'Could not get your location');
+                          }
+                          setLocatingAddress(false);
+                        }} disabled={locatingAddress}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', padding: 0, cursor: locatingAddress ? 'wait' : 'pointer', fontSize: 12, fontWeight: 700, color: '#4F46E5', width: 'auto' }}>
+                          <MapPin size={13} /> {locatingAddress ? 'Getting your location…' : 'Add my exact location (recommended)'}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

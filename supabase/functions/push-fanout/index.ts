@@ -78,7 +78,12 @@ Deno.serve(async (req) => {
     // Category-driven default; the SW falls back to the app icon.
     icon:       '/icon-192.png',
     badge:      '/icon-192.png',
-    requireInteraction: notif.category === 'order' || notif.category === 'booking',
+    // sos must never auto-dismiss — this is the one alert in the whole
+    // app that's allowed to sit in the OS tray until someone actually
+    // acts on it. Also true for tag='sos', so a second SOS from the
+    // same appointment (renotify: true in push-sw.js) doesn't get lost
+    // if the first is still unread.
+    requireInteraction: ['order', 'booking', 'sos', 'overdue_checkin'].includes(notif.category),
   })
 
   const results = await Promise.allSettled(subs.map(async (s) => {

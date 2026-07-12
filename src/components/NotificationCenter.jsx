@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, Check, X, ShoppingCart, Calendar, CreditCard, UserPlus, Info } from 'lucide-react';
+import { Bell, Check, X, ShoppingCart, Calendar, CreditCard, UserPlus, Info, AlertTriangle } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,11 @@ const CATEGORY = {
   credit:  { Icon: CreditCard,   color: '#F59E0B', bg: '#FEF3C7' },
   signup:  { Icon: UserPlus,     color: '#7C3AED', bg: '#F3E8FF' },
   info:    { Icon: Info,         color: '#64748B', bg: '#F1F5F9' },
+  // Was falling through to the generic grey 'info' style — completely
+  // inadequate for an emergency alert. Red, unmissable, distinct from
+  // every other category on purpose.
+  sos:            { Icon: AlertTriangle, color: '#FFFFFF', bg: '#DC2626' },
+  overdue_checkin:{ Icon: AlertTriangle, color: '#B45309', bg: '#FEF3C7' },
 };
 
 function relTime(iso) {

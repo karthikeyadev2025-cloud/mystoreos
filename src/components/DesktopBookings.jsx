@@ -8,6 +8,7 @@ import FeatureUpgradePrompt, { UpgradeChip } from './FeatureUpgradePrompt';
 import StaffManagement from './StaffManagement';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useAuth } from '../hooks/useAuth';
+import { getCurrentLocation, mapsUrl } from '../lib/geolocation';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
@@ -66,7 +67,99 @@ function ServiceCard({ service, onEdit, onDelete, onToggle }) {
   );
 }
 
-function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBill }) {
+// Home visit safety panel — check-in (on my way / arrived) and the SOS
+// emergency button. Only shown for a CONFIRMED, home-location
+// appointment — this is what's active during the window a staff member
+// is actually travelling to or at a customer's home, which is exactly
+// when these matter and exactly when they shouldn't.
+//
+// Own component (not inlined in AppointmentRow) specifically so the SOS
+// confirm-step gets its own local state — a two-tap "are you sure"
+// flow, not a single tap, since accidentally firing an emergency alert
+// to the shop owner is its own kind of harm.
+function HomeVisitSafetyPanel({ appt, onRefresh }) {
+  const { user } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [sosConfirming, setSosConfirming] = useState(false);
+
+  const doCheckIn = async (phase) => {
+    setBusy(true);
+    try {
+      let loc = null;
+      try { loc = await getCurrentLocation({ highAccuracy: true }); }
+      catch (_e) { /* proceed without location rather than block the check-in entirely */ }
+      await api.checkInHomeVisit(appt.id, phase, loc?.lat, loc?.lng);
+      toast.success(phase === 'arrived' ? '✅ Marked as arrived' : '🚗 Marked as on the way');
+      onRefresh?.();
+    } catch (e) {
+      toast.error(e.message || 'Could not check in');
+    }
+    setBusy(false);
+  };
+
+  const doSOS = async () => {
+    if (!sosConfirming) { setSosConfirming(true); return; }
+    setBusy(true);
+    try {
+      let loc = null;
+      try { loc = await getCurrentLocation({ highAccuracy: true, timeoutMs: 6000 }); }
+      catch (_e) { /* send the alert even if location fails — a late/missing location beats no alert at all */ }
+      await api.triggerSOS(appt.id, loc?.lat, loc?.lng, user?.id);
+      toast.success('🆘 Alert sent to the shop owner', { autoClose: 8000 });
+      onRefresh?.();
+    } catch (e) {
+      toast.error(e.message || 'Could not send the alert — call the shop owner directly.');
+    }
+    setSosConfirming(false);
+    setBusy(false);
+  };
+
+  if (appt.sos_triggered_at) {
+    return (
+      <div style={{ marginTop: 8, padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: '#B91C1C' }}>
+          🆘 Emergency alert sent {new Date(appt.sos_triggered_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+      <style>{'@keyframes sosPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }'}</style>
+      {appt.staff_arrived_at ? (
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>✅ Arrived {new Date(appt.staff_arrived_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+      ) : appt.staff_enroute_at ? (
+        <>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5' }}>🚗 On the way {new Date(appt.staff_enroute_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+          <button onClick={() => doCheckIn('arrived')} disabled={busy}
+            style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+            ✅ I've arrived
+          </button>
+        </>
+      ) : (
+        <button onClick={() => doCheckIn('enroute')} disabled={busy}
+          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid #C7D2FE', background: '#EEF2FF', color: '#4F46E5', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+          🚗 On my way
+        </button>
+      )}
+      {sosConfirming ? (
+        <button onClick={doSOS} disabled={busy}
+          style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#B91C1C', color: '#fff', cursor: busy ? 'wait' : 'pointer', width: 'auto', animation: 'sosPulse 1s infinite' }}
+          onBlur={() => setSosConfirming(false)}>
+          Tap again to confirm SOS
+        </button>
+      ) : (
+        <button onClick={doSOS} disabled={busy}
+          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid #FCA5A5', background: '#FFF5F5', color: '#B91C1C', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+          🆘 Emergency
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBill, onRefresh }) {
   const st = STATUS_CONFIG[appt.status] || STATUS_CONFIG.pending;
   const timeStr = appt.appointment_time ? appt.appointment_time.slice(0, 5) : '';
   const dateStr = appt.appointment_date ? new Date(appt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
@@ -107,7 +200,18 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
         {appt.service_location === 'at_home' && appt.customer_address && (
           <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
             📍 {appt.customer_address}
+            {appt.customer_lat != null && appt.customer_lng != null && (
+              <a href={mapsUrl(appt.customer_lat, appt.customer_lng)} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
+                (open map)
+              </a>
+            )}
           </div>
+        )}
+        {/* Safety panel — check-in and SOS. Only during an active home
+            visit: confirmed status, at-home location, not yet completed. */}
+        {appt.service_location === 'at_home' && appt.status === 'confirmed' && (
+          <HomeVisitSafetyPanel appt={appt} onRefresh={onRefresh} />
         )}
         {appt.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>Note: {appt.notes}</div>}
         {/* The actual "finish confirmation" — who marked this done and
@@ -763,7 +867,7 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {filteredAppts.map(a => (
-                <AppointmentRow key={a.id} appt={a} providers={providers} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} />
+                <AppointmentRow key={a.id} appt={a} providers={providers} onStatusChange={handleStatusChange} onCompleteWithBill={setCompletingAppointment} onRefresh={loadData} />
               ))}
             </div>
           )}
