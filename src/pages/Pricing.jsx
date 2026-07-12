@@ -76,7 +76,7 @@ const COMPARE = [
   { label: 'CA portal access', starter: false, pro: false, enterprise: true },
   { label: 'Multi-device sync', starter: false, pro: false, enterprise: true },
   { label: 'Custom invoice branding', starter: false, pro: false, enterprise: true },
-  { label: '📅 Service Bookings & Appointments', starter: '₹249/mo add-on', pro: true, enterprise: true },
+  { label: '📅 Service Bookings & Appointments', starter: false, pro: true, enterprise: true },
   { label: 'Zoho CRM export', starter: false, pro: false, enterprise: true },
   { label: 'Priority 24/7 support', starter: false, pro: false, enterprise: true },
 ];
@@ -356,8 +356,15 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Bookings Add-on — shops only. Free during trial, included in
-            Pro/Enterprise, ₹249/mo standalone add-on for Starter plan. */}
+        {/* Home Service Booking add-on — was advertising a "₹249/mo
+            Service Bookings" standalone add-on here that was never
+            actually built or purchasable anywhere in this app (traced
+            the whole codebase to confirm). Bookings itself is a
+            plan-tier feature (Pro+), not something Starter could ever
+            actually pay to unlock separately. Replaced with the one
+            add-on that's real: Home Service Booking, genuinely
+            purchasable from any plan, price read live from the same
+            admin-configurable value the actual purchase flow charges. */}
         {mode === 'shops' && (
           <div style={{
             marginTop: 40, maxWidth: 760, marginLeft: 'auto', marginRight: 'auto',
@@ -366,31 +373,31 @@ export default function Pricing() {
             display: 'flex', flexDirection: 'column', gap: 16,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ fontSize: 38 }}>📅</div>
+              <div style={{ fontSize: 38 }}>🏠</div>
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
-                  ADD-ON FOR SALONS, SPAS, CLINICS & GYMS
+                  ADD-ON — ANY PLAN, INCLUDING STARTER
                 </div>
-                <h3 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.5px' }}>Service Bookings Module</h3>
+                <h3 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.5px' }}>Home Service Booking</h3>
                 <p style={{ margin: '6px 0 0', fontSize: 14, color: '#94a3b8' }}>
-                  Let customers book appointments online — you manage them from one dashboard.
+                  Let customers book at their own address — salons, spas, beauty, repairs. Includes staff safety check-in and an emergency alert.
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-1px' }}>
-                  ₹249<span style={{ fontSize: 14, fontWeight: 500, color: '#94a3b8' }}>/mo</span>
+                  ₹{pricing?.addons?.homeService ?? 199}<span style={{ fontSize: 14, fontWeight: 500, color: '#94a3b8' }}>/mo</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 700 }}>FREE with Pro / Enterprise</div>
+                <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 700 }}>Works on every plan, including Starter</div>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px,1fr))', gap: 10, paddingTop: 4, borderTop: '1px solid rgba(139,92,246,0.2)' }}>
               {[
-                'Customer online booking page',
-                'Service catalogue & pricing',
-                'Slot-based appointment calendar',
-                'One-tap Confirm / Complete / Cancel',
-                'Customer visit history',
-                'WhatsApp notification on new booking',
+                'Exact GPS captured for every visit address',
+                'Staff check-in — on the way, arrived',
+                'One-tap emergency alert with live location',
+                'Optional per-visit travel fee',
+                'Auto-alert if a visit runs overdue',
+                'Same booking page customers already use',
               ].map(f => (
                 <div key={f} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 13, color: '#cbd5e1' }}>
                   <span style={{ color: '#a78bfa', fontWeight: 800, flexShrink: 0 }}>✓</span> {f}

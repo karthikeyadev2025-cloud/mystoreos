@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Store, Printer, Bell, BarChart3, Building2, WifiOff,
   ReceiptIndianRupee, PackageSearch, BookUser, Truck, Gift, FileSpreadsheet,
   CalendarCheck, UsersRound, MessageSquareDot, Link2, Timer, Repeat,
+  Home, Mic, ShieldCheck,
 } from 'lucide-react';
 import { T, F } from './_tokens';
+import { api } from '../../lib/api';
 
 // Naming matches the product's own vocabulary — a shop is `businessKind:
 // 'retail'`, a clinic is `businessKind: 'service'`. No cute personas, no
@@ -31,24 +33,18 @@ const RETAIL = [
   ['Distributor orders',    'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans',  Truck,              '#34D399'],
   ['Loyalty & flash sales', 'Reward regulars automatically. Run time-boxed offers on your storefront.',  'Pro',        Gift,               '#F472B6'],
   ['CA portal & Tally',     'Give your accountant direct access. One-click Tally export.',               'Enterprise', FileSpreadsheet,    '#22D3EE'],
+  ['Voice billing',         'Say "two Parle-G" and it\u2019s on the bill. No typing, both hands free at the counter.', 'All plans', Mic, '#A78BFA'],
 ];
 
-const SERVICES = [
+const SERVICES = (addonPrice) => [
   ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro',        CalendarCheck,     '#34D399'],
   ['Staff scheduling',     'Assign services to specific staff. Per-person hours and time off.',           'Pro',        UsersRound,        '#818CF8'],
   ['Automatic reminders',  'WhatsApp and SMS, 24 hours and 1 hour before. No-shows drop sharply.',        'Pro',        MessageSquareDot,  '#F5B942'],
   ['Self-service changes', 'Customers reschedule or cancel by link. No phone calls.',                     'Pro',        Link2,             '#22D3EE'],
   ['Buffer time',          'Reserve cleanup and prep time after each appointment.',                       'Pro',        Timer,             '#FB7185'],
   ['Recurring bookings',   'Hold the same slot weekly or monthly. Clashes skipped automatically.',        'Enterprise', Repeat,            '#A78BFA'],
-];
-
-const TABS = [
-  { id: 'every',    label: 'Every business', rows: EVERY,
-    note: 'The core platform. Everything below is included whatever you sell.' },
-  { id: 'retail',   label: 'Retail',         rows: RETAIL,
-    note: 'Kirana, medical, electronics, apparel, hardware — anything sold over a counter.' },
-  { id: 'services', label: 'Services',       rows: SERVICES,
-    note: 'Salon, spa, clinic, gym, dental, workshop — anything booked by the hour.' },
+  ['Home service visits',  'Customers book at their own address. Built for salons, spas, beauty, repairs.', `Add-on ₹${addonPrice}/mo`, Home, '#FB7185'],
+  ['Staff safety check-in','Exact visit location, on-the-way/arrived check-in, and a one-tap emergency alert for staff working alone at a home visit.', `Add-on ₹${addonPrice}/mo`, ShieldCheck, '#EF4444'],
 ];
 
 const PLAN_TONE = {
@@ -56,9 +52,35 @@ const PLAN_TONE = {
   'Pro':        { fg: '#818CF8', bg: 'rgba(129,140,248,0.14)' },
   'Enterprise': { fg: '#F5B942', bg: 'rgba(245,185,66,0.13)' },
 };
+// Add-on badges carry a live price ("Add-on ₹199/mo") rather than a
+// fixed tier name, so they can't be exact-matched against PLAN_TONE's
+// keys — detected by prefix instead. Distinct rose tone: not included
+// in any plan, purchased separately, worth standing out from the
+// green/indigo/gold tier colours.
+const toneFor = (plan) => plan.startsWith('Add-on') ? { fg: '#FB7185', bg: 'rgba(251,113,133,0.13)' } : (PLAN_TONE[plan] || PLAN_TONE['All plans']);
 
 export default function LandingFeatures() {
   const [tab, setTab] = useState('every');
+  // Live price for the two home-service add-on rows below — read from
+  // the same admin-configurable value (Admin > Settings > Pricing) the
+  // actual purchase flow charges, so this marketing copy can never
+  // silently drift from what a shop is really charged.
+  const [addonPrice, setAddonPrice] = useState(199);
+  useEffect(() => {
+    api.getPricing().then(p => {
+      const price = Number(p?.addons?.homeService);
+      if (price > 0) setAddonPrice(price);
+    }).catch(() => {}); // keep the 199 fallback if this fails
+  }, []);
+
+  const TABS = [
+    { id: 'every',    label: 'Every business', rows: EVERY,
+      note: 'The core platform. Everything below is included whatever you sell.' },
+    { id: 'retail',   label: 'Retail',         rows: RETAIL,
+      note: 'Kirana, medical, electronics, apparel, hardware — anything sold over a counter.' },
+    { id: 'services', label: 'Services',       rows: SERVICES(addonPrice),
+      note: 'Salon, spa, clinic, gym, dental, workshop — anything booked by the hour.' },
+  ];
   const active = TABS.find(t => t.id === tab) || TABS[0];
 
   return (
@@ -107,7 +129,7 @@ export default function LandingFeatures() {
             spreadsheet. */}
         <div className="lx-feat-grid">
           {active.rows.map(([name, desc, plan, Icon, accent], i) => {
-            const tone = PLAN_TONE[plan] || PLAN_TONE['All plans'];
+            const tone = toneFor(plan);
             return (
               <div
                 key={name}

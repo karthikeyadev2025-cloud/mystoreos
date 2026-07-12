@@ -129,7 +129,17 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           })}
         </div>
 
-        {/* Bookings Add-on card */}
+        {/* Home Service Booking add-on — was advertising a DIFFERENT
+            "Bookings add-on ₹249/mo" here that was never actually
+            built or purchasable anywhere in the app (confirmed by
+            tracing the whole codebase). Bookings itself is a plan-tier
+            feature (Pro+), not a standalone add-on — this card was
+            advertising something that didn't exist. Replaced with the
+            one add-on that's real: Home Service Booking, genuinely
+            purchasable from any plan, price read live from the same
+            admin-configurable value the actual purchase flow charges
+            (pricing.addons.homeService) — this card can never drift
+            out of sync with what a shop is actually charged. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{
@@ -140,35 +150,35 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 36 }}>📅</div>
+            <div style={{ fontSize: 36 }}>🏠</div>
             <div style={{ flex: 1, minWidth: 200 }}>
               <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
-                POPULAR ADD-ON
+                ADD-ON — ANY PLAN
               </div>
               <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.5px' }}>
-                Bookings Module
+                Home Service Booking
               </h3>
               <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(248,250,252,0.62)' }}>
-                For salons, spas, clinics, gyms, and workshops
+                Let customers book at their own address — salons, spas, beauty, repairs
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 30, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-1px' }}>
-                ₹249<span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(248,250,252,0.62)' }}>/mo</span>
+                ₹{pricing?.addons?.homeService ?? 199}<span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(248,250,252,0.62)' }}>/mo</span>
               </div>
               <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 600 }}>
-                or FREE with Pro / Enterprise
+                Works with Starter, Pro, or Enterprise
               </div>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 10 }}>
             {[
-              'Customer online booking',
-              'Service catalogue & pricing',
-              'Slot-based appointments',
-              'One-tap confirm & complete',
-              'Visit history per customer',
-              'WhatsApp booking updates',
+              'Exact GPS for every visit address',
+              'Staff check-in — on the way, arrived',
+              'One-tap emergency alert for staff',
+              'Optional per-visit travel fee',
+              'Auto-alert if a visit runs overdue',
+              'Same booking flow customers already use',
             ].map(f => (
               <div key={f} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: 'rgba(248,250,252,0.62)' }}>
                 <span style={{ color: '#a78bfa', fontWeight: 800 }}>✓</span> {f}
