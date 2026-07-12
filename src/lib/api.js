@@ -1343,6 +1343,24 @@ export const api = {
         } catch (_e) { /* function not available — leave null */ }
       }
 
+      // Look up whether this phone belongs to a real customer account —
+      // if so, tag the order with their UUID. Purely additive: user_id
+      // keeps its existing 'walk-in:Name:Phone' format unchanged (every
+      // WhatsApp message and decodeOrderUserId() call built on that
+      // format keeps working exactly as before). customer_id is what
+      // makes the order actually reach that customer's portal live via
+      // realtime, and readable at all via RLS — see
+      // 20260713_orders_customer_id.sql for why the phone-only fallback
+      // never actually worked without this.
+      let matchedCustomerId = null;
+      if (normalizedPhone) {
+        try {
+          const { data: custRow } = await supabase.from('users')
+            .select('id').eq('phone', normalizedPhone).eq('role', 'customer').maybeSingle();
+          if (custRow?.id) matchedCustomerId = custRow.id;
+        } catch (_e) { /* best-effort — a bill should never fail over this lookup */ }
+      }
+
       const insertObj = {
         user_id: userId,
         shop_id: resolvedId,
@@ -1353,6 +1371,7 @@ export const api = {
         customer_address: customerData.address || null,
         customer_state_code: customerData.stateCode || null,
         customer_phone: normalizedPhone,
+        customer_id: matchedCustomerId,
         payment_method: paymentMethod || 'Cash',
         invoice_no: invoiceNo,
       };

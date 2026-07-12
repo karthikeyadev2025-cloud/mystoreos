@@ -507,6 +507,26 @@ const UserDashboard = () => {
         }
         loadOrderHistory();
       })
+      // Was missing entirely: every POS-billed sale (walk-in, estimate,
+      // challan) stores user_id as a formatted string ('walk-in:Name:
+      // Phone'), never the customer's real UUID — even when the phone
+      // matches their account. The listener above, filtered on
+      // user_id=eq.${user.id}, could never match those rows, and only
+      // ever listened for UPDATE besides — never INSERT, so a brand
+      // new bill would never push live even by coincidence. This
+      // second listener watches customer_id instead (populated by
+      // placeOrder() when the phone matches — see
+      // 20260713_orders_customer_id.sql) and covers both INSERT and
+      // UPDATE, so a shop completing a POS sale for a known customer
+      // now actually reaches their portal live, not just eventually on
+      // a manual refresh.
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders', filter: `customer_id=eq.${user.id}` }, (payload) => {
+        toast.success(`🧾 New bill added — ₹${payload.new.total}`, { autoClose: 5000 });
+        loadOrderHistory();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `customer_id=eq.${user.id}` }, () => {
+        loadOrderHistory();
+      })
       .subscribe();
     return () => supabase.removeChannel(channel);
   }, [user?.id, loadOrderHistory]);
