@@ -671,7 +671,7 @@ const ShopDashboard = () => {
       }
       return normalizedOrders;
     });
-    setWholesaleCatalog((await safe(() => api.getDistributorProducts())) || []);
+    setWholesaleCatalog((await safe(() => api.getLinkedDistributorProducts(targetShopId))) || []);
 
     // Load Global Announcement
     const announce = await safe(() => api.getSiteConfig('announcement', DEFAULT_ANNOUNCE));
@@ -3603,15 +3603,18 @@ const ShopDashboard = () => {
   useEffect(() => {
     if (!user?.id) return;
     api.getMyCA(user.id).then(ca => setMyCA(ca)).catch(() => {});
-    api.getLinkedDistributors(user.id).then(d => setMyDistributors(d || [])).catch(() => {});
-  }, [user?.id]);
+    // Was user.id — for a staff session that's their own account, never
+    // the shop's, so linked distributors would always show empty. Same
+    // fix already applied everywhere else this session.
+    api.getLinkedDistributors(targetShopId).then(d => setMyDistributors(d || [])).catch(() => {});
+  }, [user?.id, targetShopId]);
 
   const handleLinkDistributor = async () => {
     setDistLinkBusy(true);
     try {
-      const res = await api.linkByPublicCode(user.id, 'shop', distCodeInput);
+      const res = await api.linkByPublicCode(targetShopId, 'shop', distCodeInput);
       setDistCodeInput('');
-      setMyDistributors(await api.getLinkedDistributors(user.id));
+      setMyDistributors(await api.getLinkedDistributors(targetShopId));
       toast.success(`Linked with distributor ${res.name}`);
     } catch (ex) {
       toast.error(ex.message || 'Could not link.');
@@ -3622,8 +3625,8 @@ const ShopDashboard = () => {
 
   const handleUnlinkDistributor = async (distId) => {
     try {
-      await api.unlinkShopDistributor(user.id, distId);
-      setMyDistributors(await api.getLinkedDistributors(user.id));
+      await api.unlinkShopDistributor(targetShopId, distId);
+      setMyDistributors(await api.getLinkedDistributors(targetShopId));
       toast.success('Distributor unlinked');
     } catch (ex) {
       toast.error(ex.message || 'Could not unlink.');
@@ -6738,7 +6741,12 @@ const ShopDashboard = () => {
             {/* Wholesale Catalog List */}
             <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', marginBottom: '12px' }}>📦 FMCG Wholesale Catalog</h3>
             {wholesaleCatalog.length === 0 ? (
-              <p style={{ color: '#94A3B8', fontSize: '13px' }}>No wholesale suppliers found.</p>
+              <div style={{ textAlign: 'center', padding: '24px 8px' }}>
+                <p style={{ color: '#fff', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>No linked distributors yet</p>
+                <p style={{ color: '#94A3B8', fontSize: '12.5px', margin: 0, lineHeight: 1.5 }}>
+                  You'll only see products from distributors you've connected with — go to Settings and enter a distributor's code (starts with "DST-") to start ordering.
+                </p>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {wholesaleCatalog.map(p => (

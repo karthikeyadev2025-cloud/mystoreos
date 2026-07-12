@@ -3072,6 +3072,30 @@ export const api = {
     return db.distributorProducts;
   },
 
+  // What a shop's Restock catalog should actually call — was calling
+  // getDistributorProducts() with NO argument, which fetches EVERY
+  // distributor's products platform-wide, completely unrestricted by
+  // the mutual-consent linking system (linkByPublicCode /
+  // shop_distributor_links) that already exists and is already visible
+  // in the UI ("My Distributors" list, SHP-/DST- codes). A shop could
+  // browse and order from a distributor they'd never linked with —
+  // the linking feature was informational only, never actually gating
+  // anything. Fixed at the fetch source: only products from distributors
+  // this specific shop has linked with.
+  async getLinkedDistributorProducts(shopId) {
+    if (!isSupabaseConfigured || !shopId) return [];
+    const { data: links } = await supabase.from('shop_distributor_links')
+      .select('distributor_id').eq('shop_id', shopId);
+    const distributorIds = [...new Set((links || []).map(l => l.distributor_id))];
+    if (distributorIds.length === 0) return [];
+    const { data } = await supabase.from('distributor_products')
+      .select('*').in('distributor_id', distributorIds);
+    return (data || []).map(row => ({
+      id: row.id, distributorId: row.distributor_id, name: row.name,
+      price: row.price, stock: row.stock, category: row.category
+    }));
+  },
+
   async addDistributorProduct(productData) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('distributor_products').insert({

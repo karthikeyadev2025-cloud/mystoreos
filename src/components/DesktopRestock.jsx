@@ -45,9 +45,12 @@ const DesktopRestock = ({
         </div>
 
         {wholesaleCatalog.length === 0 ? (
-          <p style={{ color: '#64748B', fontSize: '13px', textAlign: 'center', padding: '36px 0' }}>
-            No active wholesale distributors available currently.
-          </p>
+          <div style={{ textAlign: 'center', padding: '36px 16px' }}>
+            <p style={{ color: '#0F172A', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>No linked distributors yet</p>
+            <p style={{ color: '#64748B', fontSize: '13px', margin: 0, maxWidth: 380, marginLeft: 'auto', marginRight: 'auto' }}>
+              You'll only see products from distributors you've connected with — go to <strong>Settings</strong> and enter a distributor's code (they'll share it with you, starts with "DST-") to start ordering.
+            </p>
+          </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
             {wholesaleCatalog.map(p => {
