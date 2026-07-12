@@ -9,7 +9,13 @@ import { toast } from 'react-toastify';
 // (ServiceBusinessHome.jsx) so the workflow is identical everywhere a
 // shop owner can mark an appointment complete.
 export default function CompleteBillModal({ appointment, onClose, onDone }) {
-  const [amount, setAmount] = useState(String(appointment.service_price));
+  // Was defaulting to service_price alone — for a home-visit booking,
+  // that silently dropped the visit fee from the bill unless the shop
+  // owner happened to notice and add it back manually. Every home
+  // booking would have quietly undercharged by the fee amount.
+  const isHomeVisit = appointment.service_location === 'at_home';
+  const defaultAmount = Number(appointment.service_price) + (isHomeVisit ? Number(appointment.home_service_fee || 0) : 0);
+  const [amount, setAmount] = useState(String(defaultAmount));
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [saving, setSaving] = useState(false);
 
@@ -32,13 +38,20 @@ export default function CompleteBillModal({ appointment, onClose, onDone }) {
       style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div style={{ background: '#fff', borderRadius: 16, maxWidth: 380, width: '100%', padding: 24 }}>
         <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 4 }}>Complete & Bill</div>
-        <div style={{ fontSize: 13, color: '#64748B', marginBottom: 18 }}>{appointment.service_name} for {appointment.customer_name}</div>
+        <div style={{ fontSize: 13, color: '#64748B', marginBottom: isHomeVisit ? 4 : 18 }}>{appointment.service_name} for {appointment.customer_name}</div>
+        {isHomeVisit && (
+          <div style={{ fontSize: 12, color: '#EA580C', fontWeight: 600, marginBottom: 18, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+            🏠 Home visit — {appointment.customer_address}
+          </div>
+        )}
 
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Final Amount (₹)</label>
         <input type="number" value={amount} onChange={e => setAmount(e.target.value)} min="0"
           style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 15, fontWeight: 700, outline: 'none', boxSizing: 'border-box', marginBottom: 14 }} />
         <div style={{ fontSize: 11, color: '#94A3B8', marginTop: -10, marginBottom: 14 }}>
-          Pre-filled from the service price — adjust for discounts or add-ons before billing.
+          {isHomeVisit
+            ? `Pre-filled from the service price (₹${Number(appointment.service_price).toLocaleString('en-IN')}) + home visit fee (₹${Number(appointment.home_service_fee || 0).toLocaleString('en-IN')}) — adjust for discounts or add-ons before billing.`
+            : 'Pre-filled from the service price — adjust for discounts or add-ons before billing.'}
         </div>
 
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Payment Method</label>

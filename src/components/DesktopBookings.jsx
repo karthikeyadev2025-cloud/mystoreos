@@ -26,7 +26,7 @@ const STATUS_CONFIG = {
   cancelled: { label: 'Cancelled', color: '#EF4444', bg: '#FEE2E2' },
 };
 
-const EMPTY_SERVICE = { name: '', description: '', category: 'general', duration_minutes: 30, price: '', active: true };
+const EMPTY_SERVICE = { name: '', description: '', category: 'general', duration_minutes: 30, price: '', active: true, home_service_enabled: false, home_service_fee: '' };
 
 function ServiceCard({ service, onEdit, onDelete, onToggle }) {
   const cat = SERVICE_CATEGORIES.find(c => c.id === service.category) || SERVICE_CATEGORIES[7];
@@ -86,13 +86,28 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
               💇 {provider.name}
             </span>
           )}
+          {appt.service_location === 'at_home' && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 8px', borderRadius: 999 }}>
+              🏠 Home visit
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><User size={11} />{appt.customer_name}</span>
           <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} />{appt.customer_phone}</span>
           <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} />{appt.duration_minutes} min</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>₹{Number(appt.service_price).toLocaleString('en-IN')}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>
+            ₹{Number(appt.service_price).toLocaleString('en-IN')}
+            {appt.service_location === 'at_home' && Number(appt.home_service_fee) > 0 && ` + ₹${Number(appt.home_service_fee).toLocaleString('en-IN')} visit fee`}
+          </span>
         </div>
+        {/* Address is operationally critical for a home visit — shown as
+            its own line, not tucked into notes, so staff can't miss it. */}
+        {appt.service_location === 'at_home' && appt.customer_address && (
+          <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+            📍 {appt.customer_address}
+          </div>
+        )}
         {appt.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>Note: {appt.notes}</div>}
       </div>
       {/* Status + Actions */}
@@ -168,6 +183,28 @@ function ServiceForm({ service, shopId, onSave, onCancel }) {
         </div>
       </div>
       {field('Price (₹) *', 'price', 'number', { placeholder: '0', min: '0', step: '1' })}
+
+      {/* Home service — offer this specific service at the customer's
+          address, with an optional extra fee for travel. Off by default;
+          a shop opts in per service (e.g. haircuts at home, but facials
+          stay in-shop only since they need equipment). */}
+      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: form.home_service_enabled ? 10 : 0 }}>
+          <input type="checkbox" checked={!!form.home_service_enabled}
+            onChange={e => setForm(p => ({ ...p, home_service_enabled: e.target.checked }))}
+            style={{ width: 16, height: 16 }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏠 Offer as a home visit</span>
+        </label>
+        {form.home_service_enabled && (
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Extra fee for home visit (₹)</label>
+            <input type="number" value={form.home_service_fee || ''} onChange={e => setForm(p => ({ ...p, home_service_fee: e.target.value }))}
+              placeholder="0 (no extra charge)" min="0" step="1"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Added on top of the service price when a customer books a home visit. Leave at 0 if you don't charge extra for travel.</p>
+          </div>
+        )}
+      </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
         <button onClick={onCancel} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
         <button onClick={save} disabled={saving}

@@ -4158,6 +4158,8 @@ export const api = {
       price: Number(service.price) || 0,
       active: service.active !== false,
       display_order: Number(service.display_order) || 0,
+      home_service_enabled: !!service.home_service_enabled,
+      home_service_fee: Number(service.home_service_fee) || 0,
       updated_at: new Date().toISOString(),
     };
     if (service.id) {
@@ -4456,6 +4458,15 @@ export const api = {
       notes: appointment.notes || null,
       booked_via: appointment.booked_via || 'consumer_portal',
       provider_id: appointment.provider_id || null,
+      // Home service — service_location defaults to 'in_shop' at the DB
+      // level if not passed. customer_address is required by a CHECK
+      // constraint whenever service_location is 'at_home' (see
+      // 20260712_home_service_bookings.sql) — Postgres itself rejects an
+      // at-home booking with no address, so there's no way for this to
+      // half-save.
+      service_location: appointment.service_location || 'in_shop',
+      customer_address: appointment.customer_address || null,
+      home_service_fee: Number(appointment.home_service_fee) || 0,
       // Consumer self-bookings default to 'pending' (owner reviews and
       // confirms). Owner-created walk-in/phone bookings should default
       // to 'confirmed' — the shop already knows it's happening, there's
@@ -4473,7 +4484,9 @@ export const api = {
       // return incomplete data for a GUEST booking. Only request back
       // what the caller actually uses: the date (for the confirmation
       // screen) and the manage_token (for the self-service reschedule/
-      // cancel link) — both are in anon's allowed column list.
+      // cancel link) — both are in anon's allowed column list. Do NOT
+      // add customer_address/service_location/home_service_fee here —
+      // anon has no SELECT grant on them and the insert would fail.
       .select('id, appointment_date, appointment_time, status, manage_token')
       .single();
     if (error) {

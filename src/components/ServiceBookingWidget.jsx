@@ -58,6 +58,10 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   const [selectedDate, setSelectedDate] = useState(getNext7Days()[0].iso);
   const [selectedTime, setSelectedTime] = useState('');
   const [form, setForm] = useState({ name: customerName || '', phone: customerPhone || '', notes: '' });
+  // Home service — 'in_shop' | 'at_home'. Only relevant when the selected
+  // service has home_service_enabled; defaults to in_shop otherwise.
+  const [serviceLocation, setServiceLocation] = useState('in_shop');
+  const [address, setAddress] = useState('');
   const [booking, setBooking] = useState(false);
   const [confirmedAppt, setConfirmedAppt] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -133,6 +137,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
     if (!form.name.trim()) return toast.error('Please enter your name');
     if (!form.phone.match(/^\d{10}$/)) return toast.error('Enter a valid 10-digit phone number');
     if (!selectedTime) return toast.error('Please select a time slot');
+    if (serviceLocation === 'at_home' && !address.trim()) return toast.error('Please enter your address for the home visit');
     setBooking(true);
     try {
       const appt = await api.bookAppointment(shopId, {
@@ -147,6 +152,9 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         notes: form.notes,
         booked_via: 'consumer_portal',
         provider_id: selectedProvider?.id || null,
+        service_location: serviceLocation,
+        customer_address: serviceLocation === 'at_home' ? address.trim() : null,
+        home_service_fee: serviceLocation === 'at_home' ? (Number(selectedService.home_service_fee) || 0) : 0,
       });
       setConfirmedAppt(appt);
       setStep(5);
@@ -173,7 +181,10 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               selectedProvider ? `💇 With: ${selectedProvider.name}` : null,
               `📅 ${dateNice} · ${timeNice}`,
               `⏱️ ${selectedService.duration_minutes} min`,
-              `💰 ₹${Number(selectedService.price).toLocaleString('en-IN')}`,
+              serviceLocation === 'at_home'
+                ? `🏠 *HOME VISIT* — ₹${Number(selectedService.price).toLocaleString('en-IN')} + ₹${Number(selectedService.home_service_fee || 0).toLocaleString('en-IN')} visit fee`
+                : `💰 ₹${Number(selectedService.price).toLocaleString('en-IN')}`,
+              serviceLocation === 'at_home' ? `📍 ${address.trim()}` : null,
               form.notes ? `📝 ${form.notes}` : null,
               ``,
               `Open your MyStoreOS Bookings tab to confirm.`,
@@ -222,10 +233,17 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
             <div>📅 {dateDisplay}</div>
             <div>⏰ {fmt12(selectedTime)}</div>
             <div>⏱️ {selectedService?.duration_minutes} min</div>
-            <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
+            {serviceLocation === 'at_home' ? (
+              <>
+                <div style={{ fontWeight: 700, color: '#4F46E5' }}>🏠 Home visit — {address}</div>
+                <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}{Number(selectedService?.home_service_fee) > 0 ? ` + ₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')} visit fee` : ''}</div>
+              </>
+            ) : (
+              <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
+            )}
           </div>
         </div>
-        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); }}
+        <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); setServiceLocation('in_shop'); setAddress(''); }}
           style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 10 }}>
           Book Another Appointment
         </button>
@@ -298,7 +316,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {filteredServices.map(svc => (
-              <button key={svc.id} onClick={() => { setSelectedService(svc); setStep(hasProviders ? 2 : 3); }}
+              <button key={svc.id} onClick={() => { setSelectedService(svc); setServiceLocation('in_shop'); setAddress(''); setStep(hasProviders ? 2 : 3); }}
                 style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
                   {(SERVICE_CATEGORIES.find(c => c.id === svc.category) || SERVICE_CATEGORIES[7]).label.split(' ')[0]}
@@ -306,9 +324,14 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', marginBottom: 2 }}>{svc.name}</div>
                   {svc.description && <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.description}</div>}
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>₹{Number(svc.price).toLocaleString('en-IN')}</span>
                     <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {svc.duration_minutes} min</span>
+                    {svc.home_service_enabled && (
+                      <span style={{ fontSize: 10.5, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '2px 7px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                        🏠 Home visit available
+                      </span>
+                    )}
                   </div>
                 </div>
                 <ChevronRight size={16} color="#94A3B8" />
@@ -432,7 +455,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       {/* ── STEP 4: Confirm & Book ───────────────────────────────────────── */}
       {step === 4 && (
         <div style={{ padding: '0 16px 16px' }}>
-          {/* Summary */}
+          {/* Summary — price includes the home visit fee when selected */}
           <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, marginBottom: 16, border: '1px solid #E2E8F0' }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: '#0F172A', marginBottom: 10 }}>{selectedService?.name}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13, color: '#475569' }}>
@@ -440,9 +463,47 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               <div>📅 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
               <div>⏰ {fmt12(selectedTime)}</div>
               <div>⏱️ {selectedService?.duration_minutes} min</div>
-              <div style={{ fontWeight: 700, color: '#10B981' }}>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
+              {serviceLocation === 'at_home' && Number(selectedService?.home_service_fee) > 0 ? (
+                <>
+                  <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')} + ₹{Number(selectedService?.home_service_fee).toLocaleString('en-IN')} home visit fee</div>
+                  <div style={{ fontWeight: 700, color: '#10B981' }}>Total: ₹{(Number(selectedService?.price) + Number(selectedService?.home_service_fee)).toLocaleString('en-IN')}</div>
+                </>
+              ) : (
+                <div style={{ fontWeight: 700, color: '#10B981' }}>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
+              )}
             </div>
           </div>
+
+          {/* Home visit toggle — only shown for services the shop has
+              enabled for home visits. Defaults to in-shop; the customer
+              actively opts in to a home visit, since it's the exception,
+              not the default, for most service businesses. */}
+          {selectedService?.home_service_enabled && (
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Where should we come?</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: serviceLocation === 'at_home' ? 12 : 0 }}>
+                <button onClick={() => setServiceLocation('in_shop')}
+                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'in_shop' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'in_shop' ? '#EEF2FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'in_shop' ? '#4F46E5' : '#0F172A' }}>🏪 Visit the shop</div>
+                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>No extra charge</div>
+                </button>
+                <button onClick={() => setServiceLocation('at_home')}
+                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'at_home' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'at_home' ? '#EEF2FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'at_home' ? '#4F46E5' : '#0F172A' }}>🏠 Home visit</div>
+                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                    {Number(selectedService.home_service_fee) > 0 ? `+₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')}` : 'No extra charge'}
+                  </div>
+                </button>
+              </div>
+              {serviceLocation === 'at_home' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Your Address *</label>
+                  <textarea value={address} onChange={e => setAddress(e.target.value)} placeholder="House/flat no., street, area, landmark…" rows={2}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Customer details */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
