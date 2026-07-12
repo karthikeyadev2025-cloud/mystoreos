@@ -733,6 +733,13 @@ const ShopDashboard = () => {
   // manually navigating away and back. Same instant-update treatment as
   // orders/products now applies to the money side of the dashboard too.
   useRealtimeTable({ table: 'credits', filter: `to_shop_id=eq.${targetShopId}`, onRefresh: loadData });
+  // Was missing: a distributor accepting/rejecting a shop's stock order
+  // never triggered a live refresh of the shop's own Stock Orders list —
+  // same instant-update treatment orders/appointments/credits already
+  // have. The notification trigger fires regardless, but without this
+  // the shop's list itself stays stale until a manual refresh or
+  // navigating away and back.
+  useRealtimeTable({ table: 'stock_orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
   // Live sync shop profile (logo, QR, UPI, name, phone) across all devices —
   // e.g. logo uploaded on mobile reflects instantly on desktop and vice versa.
   useRealtimeTable({ table: 'users', filter: `id=eq.${user.role === 'staff' ? user.staff_of : user.id}`, onRefresh: loadData, pollInterval: 15_000 });
