@@ -40,7 +40,14 @@ BEGIN
       PERFORM public.push_notification(
         NEW.shop_id, 'order',
         '✅ Stock order accepted',
-        'Your order of ₹' || COALESCE(NEW.total::text, '0') || ' was accepted by the distributor.',
+        'Your order of ₹' || COALESCE(NEW.total::text, '0') || ' was accepted by the distributor.'
+        -- Lets a distributor accept without implying same-day shipment —
+        -- see 20260713_stock_order_dispatch.sql. If they've given an
+        -- estimate, the shop should see it instead of assuming it ships
+        -- immediately.
+        || CASE WHEN NEW.expected_dispatch_date IS NOT NULL
+             THEN ' Expected dispatch: ' || to_char(NEW.expected_dispatch_date, 'DD Mon YYYY') || '.'
+             ELSE '' END,
         '/shop?tab=stock-orders&order=' || NEW.id::text,
         jsonb_build_object('stock_order_id', NEW.id, 'total', NEW.total)
       );
@@ -49,6 +56,18 @@ BEGIN
         NEW.shop_id, 'order',
         '❌ Stock order rejected',
         'Your order of ₹' || COALESCE(NEW.total::text, '0') || ' was rejected by the distributor.',
+        '/shop?tab=stock-orders&order=' || NEW.id::text,
+        jsonb_build_object('stock_order_id', NEW.id, 'total', NEW.total)
+      );
+    ELSIF NEW.status = 'dispatched' THEN
+      -- The actual "it's on a vehicle now" moment — distinct from
+      -- acceptance, which only means the distributor committed to
+      -- fulfil it. This is the notification a shop actually wants: not
+      -- "we agreed to send it" but "it's on its way."
+      PERFORM public.push_notification(
+        NEW.shop_id, 'order',
+        '📦 Stock order dispatched',
+        'Your order of ₹' || COALESCE(NEW.total::text, '0') || ' has been dispatched and is on its way.',
         '/shop?tab=stock-orders&order=' || NEW.id::text,
         jsonb_build_object('stock_order_id', NEW.id, 'total', NEW.total)
       );

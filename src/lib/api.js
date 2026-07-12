@@ -3103,7 +3103,9 @@ export const api = {
       return (data || []).map(row => ({
         id: row.id, shopId: row.shop_id, shopName: row.shop_name,
         items: row.items, total: row.total, status: row.status, date: row.created_at,
-        distributorId: row.distributor_id
+        distributorId: row.distributor_id,
+        expectedDispatchDate: row.expected_dispatch_date || null,
+        dispatchedAt: row.dispatched_at || null,
       }));
     }
     const db = getDB();
@@ -3117,7 +3119,9 @@ export const api = {
       const { data } = await supabase.from('stock_orders').select('*').eq('shop_id', shopId).order('created_at', { ascending: false });
       return (data || []).map(row => ({
         id: row.id, shopId: row.shop_id, shopName: row.shop_name,
-        items: row.items, total: row.total, status: row.status, date: row.created_at
+        items: row.items, total: row.total, status: row.status, date: row.created_at,
+        expectedDispatchDate: row.expected_dispatch_date || null,
+        dispatchedAt: row.dispatched_at || null,
       }));
     }
     const db = getDB();
@@ -3125,7 +3129,7 @@ export const api = {
     return db.stockOrders.filter(o => o.shopId === shopId);
   },
 
-  async updateStockOrderStatus(orderId, status, distributorId) {
+  async updateStockOrderStatus(orderId, status, distributorId, expectedDispatchDate = null) {
     if (isSupabaseConfigured) {
       // Was previously fire-and-forget with no error check and no
       // verification a row changed. The caller already wraps this in
@@ -3137,9 +3141,17 @@ export const api = {
       // INSERT itself was also never checked — a distributor accepting
       // an order could show 'Accepted!' with neither the status change
       // nor the money owed actually recorded.
+      const updatePayload = { status };
+      // expected_dispatch_date lets a distributor accept an order without
+      // implying it ships today — they can give an ETA for when their
+      // route to that area will actually go out, instead of every
+      // acceptance reading as an immediate same-day promise.
+      if (status === 'accepted' && expectedDispatchDate) {
+        updatePayload.expected_dispatch_date = expectedDispatchDate;
+      }
       const { data: updated, error: updErr } = await supabase
         .from('stock_orders')
-        .update({ status })
+        .update(updatePayload)
         .eq('id', orderId)
         .select('*')
         .maybeSingle();
@@ -3180,6 +3192,21 @@ export const api = {
       saveDB(db);
     }
     return order;
+  },
+
+  // Bulk-dispatch every currently-accepted order in one tap — the real
+  // "route is full, send it all" action. A distributor accepts orders as
+  // they come in (each optionally carrying an expected_dispatch_date),
+  // then once enough have piled up for one delivery route, selects them
+  // and dispatches the whole batch together instead of one truck trip
+  // per order. Server-side RPC enforces distributor ownership and only
+  // touches rows still in 'accepted' status — see
+  // 20260713_stock_order_dispatch.sql.
+  async dispatchStockOrders(orderIds) {
+    if (!isSupabaseConfigured || !orderIds?.length) return { dispatched: 0, requested: 0 };
+    const { data, error } = await supabase.rpc('dispatch_stock_orders', { p_order_ids: orderIds });
+    if (error) throw new Error(error.message);
+    return data;
   },
 
   // ---- LIVE PLATFORM BROADCASTS ANNOUNCEMENTS ----

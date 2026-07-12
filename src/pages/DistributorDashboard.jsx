@@ -25,6 +25,81 @@ import {
 } from 'lucide-react';
 
 
+// Mobile stock order card — its own component (rather than inline in a
+// .map()) specifically so each card gets its own independent
+// "expected dispatch date" input. Multiple pending orders can be on
+// screen at once; a single shared date field would leak one order's
+// chosen date into every other card.
+function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch }) {
+  const [dateInput, setDateInput] = useState('');
+  return (
+    <div style={{ background: '#FFFFFF', border: selected ? '1px solid #4F46E5' : '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+      <div style={{ display: 'flex', gap: 10 }}>
+        {o.status === 'accepted' && (
+          <input type="checkbox" checked={selected} onChange={onToggleSelect} style={{ width: 16, height: 16, marginTop: 3, flexShrink: 0 }} />
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{o.shopName}</h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
+              {o.status === 'accepted' && o.expectedDispatchDate && (
+                <div style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, marginTop: 3 }}>
+                  🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                </div>
+              )}
+              {o.status === 'dispatched' && o.dispatchedAt && (
+                <div style={{ fontSize: 11, color: '#1D4ED8', fontWeight: 700, marginTop: 3 }}>
+                  📦 Dispatched {new Date(o.dispatchedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                </div>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{
+                fontSize: '10px', background: badge.bg, color: badge.color,
+                padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', textTransform: 'capitalize'
+              }}>{badge.label}</span>
+              <h4 style={{ fontSize: '16px', margin: '4px 0 0 0', color: '#2563EB' }}>₹{o.total}</h4>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: '8px 0', margin: '8px 0' }}>
+            {o.items.map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569', margin: '4px 0' }}>
+                <span>{item.name}</span>
+                <span>x{item.qty} (₹{item.price * item.qty})</span>
+              </div>
+            ))}
+          </div>
+
+          {o.status === 'pending' && (
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Expected dispatch date (optional)</label>
+              <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)}
+                min={new Date().toISOString().slice(0, 10)}
+                style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }} />
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => onAccept(dateInput)} style={{ flex: 1, background: '#16A34A', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                  Accept & Credit
+                </button>
+                <button onClick={onReject} style={{ flex: 1, background: '#DC2626', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                  Reject
+                </button>
+              </div>
+            </div>
+          )}
+
+          {o.status === 'accepted' && (
+            <button onClick={onDispatch} style={{ width: '100%', marginTop: 10, background: '#4F46E5', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+              📦 Mark as Dispatched
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const DistributorDashboard = () => {
   const { user, logout, login } = useAuth();
   const navigate = useNavigate();
@@ -91,6 +166,12 @@ const DistributorDashboard = () => {
   // Responsive state & Widescreen helpers
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  // Dispatch scheduling — accept an order without implying same-day
+  // shipment, then batch multiple accepted orders into one dispatch
+  // once a delivery route is actually worth sending a vehicle for.
+  const [dispatchDateInput, setDispatchDateInput] = useState('');
+  const [selectedForDispatch, setSelectedForDispatch] = useState(new Set());
+  const [dispatching, setDispatching] = useState(false);
   const [visitedShops, setVisitedShops] = useState(() => {
     try { return JSON.parse(localStorage.getItem('dist_visited') || '{}'); } catch { return {}; }
   });
@@ -226,10 +307,54 @@ const DistributorDashboard = () => {
     loadData();
   };
 
-  const handleUpdateStockOrder = async (orderId, status) => {
-    await mustSucceed(() => api.updateStockOrderStatus(orderId, status, user.id), 'Update order status');
-    toast.success(`Restock order marked as ${status}!`);
+  const handleUpdateStockOrder = async (orderId, status, expectedDate) => {
+    await mustSucceed(() => api.updateStockOrderStatus(orderId, status, user.id, expectedDate || null), 'Update order status');
+    toast.success(
+      status === 'accepted' && expectedDate
+        ? `Accepted — expected dispatch ${new Date(expectedDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`
+        : `Restock order marked as ${status}!`
+    );
+    setDispatchDateInput('');
     loadData();
+  };
+
+  // Bulk-dispatch every accepted order the distributor has ticked — the
+  // real "route is full, send it all" action. One tap covers the whole
+  // batch instead of clicking Dispatch per order. Also usable for a
+  // single order (pass its id directly) from the detail panel's
+  // 'Mark as Dispatched' button, so there's one code path for both.
+  const handleDispatchSelected = async (singleOrderId) => {
+    const ids = singleOrderId ? [singleOrderId] : [...selectedForDispatch];
+    if (ids.length === 0) return;
+    setDispatching(true);
+    try {
+      const res = await api.dispatchStockOrders(ids);
+      const n = res?.dispatched || 0;
+      toast.success(n > 0 ? `${n} order${n === 1 ? '' : 's'} dispatched!` : 'Nothing to dispatch — selection may be stale.');
+      setSelectedForDispatch(new Set());
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Failed to dispatch selected orders');
+    }
+    setDispatching(false);
+  };
+
+  const toggleDispatchSelect = (orderId) => {
+    setSelectedForDispatch(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId); else next.add(orderId);
+      return next;
+    });
+  };
+
+  // Was a 3-way ternary (pending/accepted/else-red) that silently
+  // treated a 'dispatched' order the same as 'rejected' — wrong colour,
+  // wrong label. Proper lookup covering all four real states now.
+  const STOCK_ORDER_BADGE = {
+    pending:    { bg: '#FEF3C7', color: '#B45309', label: 'Pending' },
+    accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
+    dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
+    rejected:   { bg: '#FEE2E2', color: '#B91C1C', label: 'Rejected' },
   };
 
   const handleDistSubscribe = async (plan) => {
@@ -602,41 +727,72 @@ const DistributorDashboard = () => {
               ) : (
                 <div className="responsive-split-grid" style={{ width: '100%' }}>
                   {/* Left Column: Orders list */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', overflowY: 'auto' }} className="custom-scroll">
-                    {stockOrders.map(o => (
-                      <div 
-                        key={o.id} 
-                        onClick={() => setSelectedOrder(o)}
-                        className="premium-glass" 
-                        style={{ 
-                          padding: '16px', 
-                          cursor: 'pointer', 
-                          border: selectedOrder?.id === o.id ? '1px solid #4F46E5' : '1px solid #E2E8F0',
-                          background: selectedOrder?.id === o.id ? '#EEF2FF' : '#FFFFFF',
-                          transition: 'all 0.2s',
-                          boxShadow: '0 1px 2px rgba(15,23,42,0.06)'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{o.shopName}</h4>
-                            <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(o.date).toLocaleDateString()}</span>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <span style={{
-                              fontSize: '9px',
-                              background: o.status === 'pending' ? '#FEF3C7' : o.status === 'accepted' ? '#DCFCE7' : '#FEE2E2',
-                              color: o.status === 'pending' ? '#B45309' : o.status === 'accepted' ? '#15803D' : '#B91C1C',
-                              padding: '2px 6px',
-                              borderRadius: '6px',
-                              fontWeight: 'bold',
-                              textTransform: 'uppercase'
-                            }}>{o.status}</span>
-                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#2563EB', marginTop: '4px' }}>₹{o.total}</div>
+                  <div>
+                    {/* Bulk dispatch bar — appears once at least one
+                        accepted order is ticked. This is the actual
+                        "route is full, send it all" action. */}
+                    {selectedForDispatch.size > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#4338CA' }}>{selectedForDispatch.size} order{selectedForDispatch.size === 1 ? '' : 's'} selected</span>
+                        <button onClick={() => handleDispatchSelected()} disabled={dispatching}
+                          style={{ background: dispatching ? '#94A3B8' : '#4F46E5', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
+                          {dispatching ? 'Dispatching…' : `📦 Dispatch Selected (${selectedForDispatch.size})`}
+                        </button>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', overflowY: 'auto' }} className="custom-scroll">
+                      {stockOrders.map(o => {
+                        const badge = STOCK_ORDER_BADGE[o.status] || STOCK_ORDER_BADGE.pending;
+                        return (
+                        <div 
+                          key={o.id} 
+                          onClick={() => setSelectedOrder(o)}
+                          className="premium-glass" 
+                          style={{ 
+                            padding: '16px', 
+                            cursor: 'pointer', 
+                            border: selectedOrder?.id === o.id ? '1px solid #4F46E5' : '1px solid #E2E8F0',
+                            background: selectedOrder?.id === o.id ? '#EEF2FF' : '#FFFFFF',
+                            transition: 'all 0.2s',
+                            boxShadow: '0 1px 2px rgba(15,23,42,0.06)',
+                            display: 'flex', alignItems: 'flex-start', gap: 10,
+                          }}
+                        >
+                          {o.status === 'accepted' && (
+                            <input type="checkbox" checked={selectedForDispatch.has(o.id)}
+                              onClick={e => e.stopPropagation()}
+                              onChange={() => toggleDispatchSelect(o.id)}
+                              style={{ marginTop: 3, width: 15, height: 15, flexShrink: 0 }} />
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{o.shopName}</h4>
+                                <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(o.date).toLocaleDateString()}</span>
+                                {o.status === 'accepted' && o.expectedDispatchDate && (
+                                  <div style={{ fontSize: 10, color: '#4F46E5', fontWeight: 700, marginTop: 2 }}>
+                                    🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ textAlign: 'right' }}>
+                                <span style={{
+                                  fontSize: '9px',
+                                  background: badge.bg,
+                                  color: badge.color,
+                                  padding: '2px 6px',
+                                  borderRadius: '6px',
+                                  fontWeight: 'bold',
+                                  textTransform: 'uppercase'
+                                }}>{badge.label}</span>
+                                <div style={{ fontSize: '14px', fontWeight: '800', color: '#2563EB', marginTop: '4px' }}>₹{o.total}</div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Right Column: Order Details Split panel */}
@@ -679,19 +835,59 @@ const DistributorDashboard = () => {
                         </div>
 
                         {selectedOrder.status === 'pending' && (
-                          <div style={{ display: 'flex', gap: '12px' }}>
-                            <button 
-                              onClick={() => handleUpdateStockOrder(selectedOrder.id, 'accepted')}
-                              style={{ flex: 1, background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
+                          <div>
+                            {/* Optional expected dispatch date — accepting
+                                doesn't have to mean shipping today. Lets a
+                                distributor commit to fulfilling an order
+                                while being honest about when their route
+                                to that area will actually go out. */}
+                            <div style={{ marginBottom: 12 }}>
+                              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Expected dispatch date (optional)</label>
+                              <input type="date" value={dispatchDateInput} onChange={e => setDispatchDateInput(e.target.value)}
+                                min={new Date().toISOString().slice(0, 10)}
+                                style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                              <button 
+                                onClick={() => handleUpdateStockOrder(selectedOrder.id, 'accepted', dispatchDateInput)}
+                                style={{ flex: 1, background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
+                              >
+                                Accept & Ship Credit
+                              </button>
+                              <button 
+                                onClick={() => handleUpdateStockOrder(selectedOrder.id, 'rejected')}
+                                style={{ flex: 1, background: '#EF4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+                              >
+                                Reject Order
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedOrder.status === 'accepted' && (
+                          <div>
+                            {selectedOrder.expectedDispatchDate && (
+                              <p style={{ fontSize: 12, color: '#4F46E5', fontWeight: 700, marginBottom: 10 }}>
+                                🕓 Expected dispatch: {new Date(selectedOrder.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </p>
+                            )}
+                            <button
+                              onClick={() => handleDispatchSelected(selectedOrder.id)}
+                              style={{ width: '100%', background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(79,70,229,0.25)' }}
                             >
-                              Accept & Ship Credit
+                              📦 Mark as Dispatched
                             </button>
-                            <button 
-                              onClick={() => handleUpdateStockOrder(selectedOrder.id, 'rejected')}
-                              style={{ flex: 1, background: '#EF4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
-                            >
-                              Reject Order
-                            </button>
+                            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, textAlign: 'center' }}>
+                              Tip: tick multiple accepted orders in the list on the left to dispatch a whole route together.
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedOrder.status === 'dispatched' && selectedOrder.dispatchedAt && (
+                          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1D4ED8' }}>
+                              📦 Dispatched {new Date(selectedOrder.dispatchedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -1325,50 +1521,29 @@ const DistributorDashboard = () => {
       {activeTab === 'orders' && (
         <div style={{ padding: 20 }}>
           <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}>📥 Incoming Restock Orders</h2>
+          {selectedForDispatch.size > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#4338CA' }}>{selectedForDispatch.size} selected</span>
+              <button onClick={() => handleDispatchSelected()} disabled={dispatching}
+                style={{ background: dispatching ? '#94A3B8' : '#4F46E5', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
+                {dispatching ? 'Dispatching…' : `📦 Dispatch (${selectedForDispatch.size})`}
+              </button>
+            </div>
+          )}
           {stockOrders.length === 0 ? (
             <p style={{ color: '#64748B', textAlign: 'center' }}>No stock orders received.</p>
           ) : (
             stockOrders.map(o => (
-              <div key={o.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{o.shopName}</h4>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{
-                      fontSize: '10px',
-                      background: o.status === 'pending' ? '#FEF3C7' : o.status === 'accepted' ? '#DCFCE7' : '#FEE2E2',
-                      color: o.status === 'pending' ? '#B45309' : o.status === 'accepted' ? '#15803D' : '#B91C1C',
-                      padding: '2px 8px',
-                      borderRadius: '10px',
-                      fontWeight: 'bold',
-                      textTransform: 'capitalize'
-                    }}>{o.status}</span>
-                    <h4 style={{ fontSize: '16px', margin: '4px 0 0 0', color: '#2563EB' }}>₹{o.total}</h4>
-                  </div>
-                </div>
-                
-                <div style={{ borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: '8px 0', margin: '8px 0' }}>
-                  {o.items.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569', margin: '4px 0' }}>
-                      <span>{item.name}</span>
-                      <span>x{item.qty} (₹{item.price * item.qty})</span>
-                    </div>
-                  ))}
-                </div>
-
-                {o.status === 'pending' && (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                    <button onClick={() => handleUpdateStockOrder(o.id, 'accepted')} style={{ flex: 1, background: '#16A34A', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
-                      Accept & Credit
-                    </button>
-                    <button onClick={() => handleUpdateStockOrder(o.id, 'rejected')} style={{ flex: 1, background: '#DC2626', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
-                      Reject
-                    </button>
-                  </div>
-                )}
-              </div>
+              <StockOrderCard
+                key={o.id}
+                order={o}
+                badge={STOCK_ORDER_BADGE[o.status] || STOCK_ORDER_BADGE.pending}
+                selected={selectedForDispatch.has(o.id)}
+                onToggleSelect={() => toggleDispatchSelect(o.id)}
+                onAccept={(date) => handleUpdateStockOrder(o.id, 'accepted', date)}
+                onReject={() => handleUpdateStockOrder(o.id, 'rejected')}
+                onDispatch={() => handleDispatchSelected(o.id)}
+              />
             ))
           )}
         </div>
