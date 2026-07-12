@@ -78,6 +78,19 @@ serve(async (req) => {
           home_service_addon_expires_at: addonExpiresAt,
         }).eq('id', userId);
 
+        // Record the actual admin-configured price, not a hardcoded
+        // figure — matches what razorpay-create-order actually charged,
+        // read from the same pricing_v2 config. Falls back to 199 only
+        // if the config row is missing, same default as everywhere else
+        // this value is read.
+        let recordedAmount = 199;
+        try {
+          const { data: cfgRow } = await supabase
+            .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
+          const addonPrice = Number(cfgRow?.value?.addons?.homeService);
+          if (addonPrice > 0) recordedAmount = addonPrice;
+        } catch (_e) { /* keep the 199 fallback */ }
+
         await supabase.from('payment_history').insert({
           user_id: userId,
           razorpay_event_id: razorpay_payment_id,
@@ -85,7 +98,7 @@ serve(async (req) => {
           razorpay_payment_id,
           event_type: 'payment.captured',
           plan_id: planId,
-          amount: 199,
+          amount: recordedAmount,
           currency: 'INR',
           status: 'success',
           raw_payload: { razorpay_order_id, razorpay_payment_id, planId },

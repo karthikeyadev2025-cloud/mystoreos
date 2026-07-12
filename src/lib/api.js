@@ -2766,6 +2766,13 @@ export const api = {
       discounts: { quarterly: 10, yearly: 20 },
       offer: { enabled: false, percent: 50, cap: 1000, remaining: 1000 },
       enabledCycles: { monthly: true, quarterly: true, yearly: true },
+      // Standalone add-ons — priced separately from the plan tiers
+      // above, purchasable by any shop regardless of subscription.
+      // homeService is read by razorpay-create-order (server-side price
+      // enforcement) and razorpay-verify-payment (payment_history
+      // amount) — this is the one place that number is actually
+      // defined; everywhere else just displays it.
+      addons: { homeService: 199 },
     };
     const stored = await this.getSiteConfig('pricing_v2', null);
     if (!stored) return def;
@@ -2775,6 +2782,7 @@ export const api = {
       discounts: { ...def.discounts, ...(stored.discounts || {}) },
       offer: { ...def.offer, ...(stored.offer || {}) },
       enabledCycles: { ...def.enabledCycles, ...(stored.enabledCycles || {}) },
+      addons: { ...def.addons, ...(stored.addons || {}) },
     };
   },
 

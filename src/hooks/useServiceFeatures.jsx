@@ -84,7 +84,7 @@ export function useServiceFeatures() {
       canScheduleRecurring:      !!caps.serviceRecurring,
       canConfigureProviderHours: !!caps.serviceProviderHours,
       canOfferHomeService,
-      labelFor: (feature) => feature === 'homeService' ? 'Home Service Add-on (₹199/mo)' : (FEATURE_PLAN_LABEL[feature] || 'Pro Plan'),
+      labelFor: (feature) => feature === 'homeService' ? 'Home Service Add-on' : (FEATURE_PLAN_LABEL[feature] || 'Pro Plan'),
       // Also expose raw caps + hasCap-like helper for advanced callers
       _caps: caps,
       hasCap: (feature) => hasCap(user, feature),

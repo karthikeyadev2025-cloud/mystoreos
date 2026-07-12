@@ -44,15 +44,27 @@ Deno.serve(async (req: Request) => {
       } catch (_e) { /* fall back to client amount */ }
     }
 
-    // Home Service add-on — standalone, hardcoded server-side price so a
-    // tampered client amount can never underpay for it. Unlike the tier
-    // plans above (which read a possibly-admin-adjusted price from
-    // site_config), this one is a fixed rupee figure. If the price ever
-    // needs to change, update it here — this is the one place it's
-    // actually enforced; the client-side display in Pricing/Settings is
-    // just a mirror of this number.
+    // Home Service add-on — standalone price, server-verified so a
+    // tampered client amount can never underpay for it. Now reads from
+    // the SAME admin-configurable pricing_v2 config the tier plans
+    // above use (site_config key 'pricing_v2', addons.homeService) —
+    // an admin can change this from Admin > Settings > Pricing without
+    // any redeploy. Falls back to 199 only if the config row is
+    // missing or malformed, matching getPricing()'s own default on the
+    // client side so the two never silently disagree.
     if (planId === 'home_service_addon') {
-      chargeAmount = 199; // ₹199/month
+      try {
+        const sb = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+        );
+        const { data: cfgRow } = await sb
+          .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
+        const addonPrice = Number(cfgRow?.value?.addons?.homeService);
+        chargeAmount = addonPrice > 0 ? addonPrice : 199;
+      } catch (_e) {
+        chargeAmount = 199;
+      }
     }
 
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');

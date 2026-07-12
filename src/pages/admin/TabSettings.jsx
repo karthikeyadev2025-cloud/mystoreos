@@ -334,6 +334,26 @@ export default function TabSettings() {
               </p>
             </div>
 
+            {/* Standalone add-ons — purchasable by any shop regardless
+                of plan tier, independent of the tier pricing above.
+                homeServiceAddonPrice is read server-side by
+                razorpay-create-order (the actual charged amount — a
+                tampered client can never pay less than this) and by
+                razorpay-verify-payment for the payment_history record.
+                Change it here; no redeploy needed. */}
+            <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
+              <div style={{ fontWeight: 700, fontSize: '13px', color: '#3730A3', marginBottom: '10px' }}>🏠 Add-ons</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px', alignItems: 'end' }}>
+                <div>
+                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Home Service Booking — ₹/month</label>
+                  <p style={{ margin: '0 0 6px', fontSize: '11px', color: '#64748B' }}>Standalone unlock, any plan tier — shown as the price on the "Enable" button shopkeepers see.</p>
+                </div>
+                <input type="number" min="0" value={pricing.addons?.homeService ?? 199}
+                  onChange={e => setPricing(p => ({ ...p, addons: { ...p.addons, homeService: Number(e.target.value) || 0 } }))}
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+
             <button onClick={savePricing} disabled={busy.pricing} style={S.saveBtn(busy.pricing)}><Save size={14} />{busy.pricing ? 'Saving...' : 'Save Pricing'}</button>
           </>
         )}

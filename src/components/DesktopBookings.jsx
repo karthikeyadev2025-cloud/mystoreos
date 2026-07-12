@@ -152,6 +152,18 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
   const [form, setForm] = useState({ ...EMPTY_SERVICE, ...service });
   const [saving, setSaving] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  // Was hardcoded "₹199" in three places in this file — now fetched
+  // from the same admin-configurable pricing_v2 config the server
+  // actually enforces the charge from (Admin > Settings > Pricing),
+  // so the button always matches what will really be charged instead
+  // of silently drifting if an admin changes the price.
+  const [addonPrice, setAddonPrice] = useState(199);
+  useEffect(() => {
+    api.getPricing().then(p => {
+      const price = Number(p?.addons?.homeService);
+      if (price > 0) setAddonPrice(price);
+    }).catch(() => {}); // keep the 199 fallback if this fails
+  }, []);
 
   const save = async () => {
     if (!form.name.trim()) return toast.error('Service name is required');
@@ -185,7 +197,7 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
       }
       const options = {
         key: sysSettings.razorpayKey,
-        amount: '19900', // ₹199 in paise — server independently re-verifies this; see razorpay-create-order
+        amount: String(Math.round(addonPrice * 100)), // paise — cosmetic display only, server independently re-verifies the real charge; see razorpay-create-order
         currency: 'INR',
         name: 'MyStore OS — Home Service Add-on',
         description: 'Home Service Booking — 30 days',
@@ -283,11 +295,11 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Home Service Booking</div>
-              <div style={{ fontSize: 11, color: '#64748B' }}>Let customers book this service at their address. ₹199/month, any plan.</div>
+              <div style={{ fontSize: 11, color: '#64748B' }}>Let customers book this service at their address. ₹{addonPrice}/month, any plan.</div>
             </div>
             <button type="button" onClick={purchaseAddon} disabled={purchasing}
               style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: purchasing ? '#94A3B8' : '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 700, cursor: purchasing ? 'wait' : 'pointer', flexShrink: 0, width: 'auto' }}>
-              {purchasing ? 'Opening…' : 'Enable — ₹199/mo'}
+              {purchasing ? 'Opening…' : `Enable — ₹${addonPrice}/mo`}
             </button>
           </div>
         )}
