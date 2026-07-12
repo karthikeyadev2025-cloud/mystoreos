@@ -647,7 +647,16 @@ export const api = {
   // ---- ADMIN ----
   async approveUser(userId) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ status: 'active' }).eq('id', userId);
+      // Was fire-and-forget with no error check. This is the admin
+      // 'Approve' button for a brand-new shop/distributor signup — if
+      // the update silently failed (RLS, network), the admin's UI would
+      // still remove the row from Pending Approvals (see AdminDashboard
+      // approvePending/approveAll) as if it succeeded, while the account
+      // stayed status='pending' in the database and could never log in.
+      // No way for the admin to know without manually re-checking.
+      const { data, error } = await supabase.from('users').update({ status: 'active' }).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or could not be approved.');
       return;
     }
     const db = getDB();
@@ -1489,13 +1498,20 @@ export const api = {
       const priorRefund = Number(orderRow?.refund_amount) || 0;
       const isFullReturn = returnedQtyTotal >= originalQtyTotal;
 
-      await supabase.from('orders').update({
+      // Was fire-and-forget with no error check on the core return/refund
+      // write. The caller (ShopDashboard) already has a real try/catch
+      // specifically to surface a genuine failure as an error toast
+      // instead of a false 'Return processed!' — but nothing here ever
+      // threw, so that catch block could never actually fire.
+      const { data: updatedOrder, error: retErr } = await supabase.from('orders').update({
         status: isFullReturn ? 'Returned' : 'Accepted', // partial return keeps the bill active, just flags the refund
         returned_at: new Date().toISOString(),
         refund_amount: priorRefund + refundAmount,
         refund_mode: refundMode,
         returned_items: returnItems,
-      }).eq('id', orderId);
+      }).eq('id', orderId).select('id').maybeSingle();
+      if (retErr) throw new Error(retErr.message);
+      if (!updatedOrder) throw new Error('Order not found or you do not have permission to process this return.');
 
       for (const item of returnItems) {
         try {
@@ -1581,7 +1597,14 @@ export const api = {
         db.credits.push({ id: tempId, fromId, toShopId, desc, amount: parseFloat(amount), paid: false, date: new Date().toISOString() });
         saveDB(db); return;
       }
-      await supabase.from('credits').insert({ from_id: fromId, to_shop_id: toShopId, description: desc, amount: parseFloat(amount) });
+      // Was fire-and-forget with no error check. Both callers (shop
+      // logging a customer's khata debt, distributor logging a shop's
+      // stock-supply credit) already correctly wrap this in mustSucceed()
+      // expecting a throw on failure — this is the core daily-use credit
+      // feature for every retail shop, worth getting right.
+      const { data, error } = await supabase.from('credits').insert({ from_id: fromId, to_shop_id: toShopId, description: desc, amount: parseFloat(amount) }).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Failed to save credit entry.');
       return;
     }
     const db = getDB();
@@ -2646,7 +2669,8 @@ export const api = {
       if (newSettings.youtubeUrl     !== undefined) updateObj.youtube_url     = newSettings.youtubeUrl;
       if (newSettings.linkedinUrl    !== undefined) updateObj.linkedin_url    = newSettings.linkedinUrl;
       if (newSettings.whatsappUrl    !== undefined) updateObj.whatsapp_url    = newSettings.whatsappUrl;
-      await supabase.from('settings').update(updateObj).eq('id', 1);
+      const { error } = await supabase.from('settings').update(updateObj).eq('id', 1);
+      if (error) throw new Error(error.message);
       return newSettings;
     }
     const db = getDB();
@@ -3199,7 +3223,8 @@ export const api = {
 
   async clearAnnouncements() {
     if (isSupabaseConfigured) {
-      await supabase.from('announcements').update({ active: false }).eq('active', true);
+      const { error } = await supabase.from('announcements').update({ active: false }).eq('active', true);
+      if (error) throw new Error(error.message);
       return;
     }
     const db = getDB();
@@ -3708,7 +3733,14 @@ export const api = {
   async updateUserSubscription(userId, tier, expiresAt) {
     const updateObj = { subscription_tier: tier, plan_expires_at: expiresAt || null, subscription: 'active' };
     if (isSupabaseConfigured) {
-      await supabase.from('users').update(updateObj).eq('id', userId);
+      // These six admin functions (through bulkUpdateSubscription below)
+      // all had zero error checking — a genuinely risky gap for the
+      // exact tools an admin uses to grant/adjust a client's plan or
+      // resolve a locked-out account, with no visible sign anything
+      // went wrong if it didn't actually apply.
+      const { data, error } = await supabase.from('users').update(updateObj).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or update not permitted.');
       return;
     }
     const db = getDB();
@@ -3719,7 +3751,9 @@ export const api = {
   async updateDistributorSubscription(userId, tier, expiresAt) {
     const updateObj = { distributor_plan_tier: tier, distributor_plan_expires_at: expiresAt || null };
     if (isSupabaseConfigured) {
-      await supabase.from('users').update(updateObj).eq('id', userId);
+      const { data, error } = await supabase.from('users').update(updateObj).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Distributor not found or update not permitted.');
       return;
     }
     const db = getDB();
@@ -3729,7 +3763,9 @@ export const api = {
 
   async updateUserRole(userId, role) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ role }).eq('id', userId);
+      const { data, error } = await supabase.from('users').update({ role }).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or role change not permitted.');
       return;
     }
     const db = getDB();
@@ -3739,7 +3775,9 @@ export const api = {
 
   async suspendUser(userId) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ status: 'pending' }).eq('id', userId);
+      const { data, error } = await supabase.from('users').update({ status: 'pending' }).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or suspend not permitted.');
       return;
     }
     const db = getDB();
@@ -3749,7 +3787,9 @@ export const api = {
 
   async unsuspendUser(userId) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ status: 'active' }).eq('id', userId);
+      const { data, error } = await supabase.from('users').update({ status: 'active' }).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or unsuspend not permitted.');
       return;
     }
     const db = getDB();
@@ -3759,7 +3799,10 @@ export const api = {
 
   async bulkUpdateSubscription(userIds, tier) {
     if (isSupabaseConfigured) {
-      await supabase.from('users').update({ subscription_tier: tier }).in('id', userIds);
+      const { data, error } = await supabase.from('users').update({ subscription_tier: tier }).in('id', userIds).select('id');
+      if (error) throw new Error(error.message);
+      if (!data || data.length === 0) throw new Error('No matching users were updated.');
+      if (data.length < userIds.length) throw new Error(`Only ${data.length} of ${userIds.length} users were updated — check permissions for the rest.`);
       return;
     }
     const db = getDB();
@@ -4004,11 +4047,20 @@ export const api = {
     if (!codeRow) return null;
     // Don't self-attribute
     if (codeRow.owner_id === referredUserId) return null;
-    const { data: inserted } = await supabase.from('referral_attributions').insert({
+    // Was destructuring only { data }, silently discarding any insert
+    // error — an affiliate could refer a real signup and never get
+    // commission credit for it, with no sign anything went wrong.
+    const { data: inserted, error } = await supabase.from('referral_attributions').insert({
       code_id: codeRow.id, code: code.toUpperCase(),
       referrer_id: codeRow.owner_id, referred_id: referredUserId,
       commission_amount: 0, status: 'pending',
     }).select().maybeSingle();
+    if (error) {
+      console.error('attributeReferral failed:', error.message);
+      return null; // Referral attribution is best-effort at signup time —
+      // don't block registration over it, but at least log it so it's
+      // findable instead of silently vanishing.
+    }
     return inserted;
   },
 

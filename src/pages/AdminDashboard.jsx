@@ -73,15 +73,34 @@ export default function AdminDashboard() {
   }, []);
 
   const approvePending = async (u) => {
-    await api.approveUser(u.id);
-    setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
+    try {
+      await api.approveUser(u.id);
+      setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
+      toast.success(`${u.name || 'User'} approved`);
+    } catch (e) {
+      toast.error(e.message || 'Failed to approve — please try again');
+    }
   };
 
   const approveAll = async () => {
+    let failed = 0;
+    // Was removing everyone from the list unconditionally after the loop,
+    // regardless of whether any individual approveUser call actually
+    // succeeded — a silent failure partway through would still show an
+    // empty Pending Approvals list while some accounts stayed unapproved.
     for (const u of pendingApprovals) {
-      await api.approveUser(u.id);
+      try {
+        await api.approveUser(u.id);
+        setPendingApprovals(prev => prev.filter(p => p.id !== u.id));
+      } catch {
+        failed++;
+      }
     }
-    setPendingApprovals([]);
+    if (failed > 0) {
+      toast.error(`${failed} approval${failed === 1 ? '' : 's'} failed — they remain in the list, please retry`);
+    } else {
+      toast.success('All pending accounts approved');
+    }
   };
 
   const rejectPending = async (u) => {
