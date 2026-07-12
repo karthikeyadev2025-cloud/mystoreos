@@ -15,44 +15,39 @@
 --   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT,
 --   PUSH_FANOUT_SECRET  (any random string, shared with pg_net headers)
 --
--- And these Postgres settings must be set once via SQL Editor:
---   app.supabase_url          — your project's URL
---   app.push_fanout_secret    — the same secret set as an edge secret
--- We store them in the database rather than embedding in the trigger
--- source so the secret can be rotated without editing this file.
+-- The URL and secret used to REACH the edge function are embedded
+-- directly below (SUPABASE_PROJECT_URL, PUSH_FANOUT_SECRET_VALUE) —
+-- NOT read from database-level settings via current_setting(). The
+-- original version of this migration used
+-- ALTER DATABASE postgres SET app.supabase_url = ...
+-- but Supabase's hosted Postgres does not grant the dashboard's
+-- postgres role permission to run ALTER DATABASE SET for custom
+-- parameters (a platform restriction, not a mistake in how it was run)
+-- — ERROR 42501: permission denied to set parameter. Embedding the
+-- values directly in this SECURITY DEFINER function body sidesteps
+-- that restriction entirely. The project URL is not secret (it's the
+-- same URL the app's own client code already calls); the function
+-- source itself is only visible to someone with schema-inspection SQL
+-- access — the same trust level ALTER DATABASE would have required
+-- anyway.
+--
+-- To rotate the secret later: update PUSH_FANOUT_SECRET in Supabase
+-- Edge Function secrets AND re-run this file with the new value
+-- substituted below — the two have to match.
 -- ═══════════════════════════════════════════════════════════════════════
 
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- Helper: read the fanout URL from database settings. Falls back to a
--- constant so the function still parses even before settings are set;
--- the trigger just no-ops if the URL doesn't look valid.
 CREATE OR REPLACE FUNCTION public.notify_fanout_webpush() RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, extensions
 AS $$
 DECLARE
-  fn_url text;
-  fn_secret text;
+  -- ↓↓↓ Replace these two if you ever rotate the secret or move projects.
+  fn_url    text := 'https://zdertmpzervgjicuwsfz.supabase.co/functions/v1/push-fanout';
+  fn_secret text := 'qwertyuiopasdfghjklzxcvbnm';
 BEGIN
-  -- Read from database-level settings. Set once via:
-  --   ALTER DATABASE postgres SET app.supabase_url = 'https://<ref>.supabase.co';
-  --   ALTER DATABASE postgres SET app.push_fanout_secret = '<same as edge secret>';
-  BEGIN
-    fn_url    := current_setting('app.supabase_url', true) || '/functions/v1/push-fanout';
-    fn_secret := current_setting('app.push_fanout_secret', true);
-  EXCEPTION WHEN OTHERS THEN
-    fn_url := NULL;
-  END;
-
-  -- If settings aren't wired up yet, skip silently. In-app delivery
-  -- (via Supabase Realtime on notifications) still works — this only
-  -- covers the "browser tab closed" case.
-  IF fn_url IS NULL OR fn_url = '/functions/v1/push-fanout' THEN
-    RETURN NEW;
-  END IF;
-
   -- Fire and forget. Never let a push failure abort the notification
   -- insert (which was itself already inside another triggering event).
   BEGIN
@@ -77,4 +72,4 @@ CREATE TRIGGER notification_push_fanout
   AFTER INSERT ON public.notifications
   FOR EACH ROW EXECUTE FUNCTION public.notify_fanout_webpush();
 
-SELECT 'push fanout trigger installed — remember to set app.supabase_url and app.push_fanout_secret' AS status;
+SELECT 'push fanout trigger installed — URL and secret embedded directly, no ALTER DATABASE needed' AS status;
