@@ -265,7 +265,13 @@ const DistributorDashboard = () => {
     return () => clearTimeout(timer);
   }, [loadData]);
 
-  useRealtimeTable({ table: 'stock_orders', onRefresh: loadData });
+  // Was completely unfiltered — every distributor's dashboard refetched
+  // on ANY distributor's order changing anywhere on the platform, not
+  // just their own. Not a data leak (loadData already correctly scopes
+  // its own fetch to this distributor via getDistributorOrders), but
+  // genuinely not "one to one": wasteful refetches and UI flicker for
+  // events that have nothing to do with this session.
+  useRealtimeTable({ table: 'stock_orders', filter: `distributor_id=eq.${user.id}`, onRefresh: loadData });
   useRealtimeTable({ table: 'credits', filter: `from_id=eq.${user.id}`, onRefresh: loadData });
 
   const handleLogout = () => {
