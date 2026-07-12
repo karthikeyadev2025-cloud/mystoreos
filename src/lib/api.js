@@ -1595,7 +1595,16 @@ export const api = {
         await enqueue({ table: 'credits', action: 'update', data: { paid: true }, match: { id: creditId } });
         const db = getDB(); const c = db.credits.find(x => x.id === creditId); if (c) { c.paid = true; saveDB(db); } return;
       }
-      await supabase.from('credits').update({ paid: true }).eq('id', creditId);
+      // Was fire-and-forget with no error check. All three callers of
+      // this (shop settling a customer's khata debt, shop settling their
+      // own supplier credit, distributor marking a shop's payment
+      // received) already correctly wrap this in mustSucceed() expecting
+      // a throw on failure — but nothing here ever threw, so a blocked
+      // update (RLS, wrong id) would silently no-op while the UI showed
+      // 'Payment settled!'. Real money-tracking data, needs to be honest.
+      const { data, error } = await supabase.from('credits').update({ paid: true }).eq('id', creditId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Credit entry not found or you do not have permission to update it.');
       return;
     }
     const db = getDB();
@@ -3093,18 +3102,35 @@ export const api = {
 
   async updateStockOrderStatus(orderId, status, distributorId) {
     if (isSupabaseConfigured) {
-      await supabase.from('stock_orders').update({ status }).eq('id', orderId);
-      // If accepted, also create a credit entry
+      // Was previously fire-and-forget with no error check and no
+      // verification a row changed. The caller already wraps this in
+      // mustSucceed() expecting a throw on failure — but this function
+      // never threw, so a blocked update (RLS, wrong id, network) would
+      // silently no-op while the UI reported success. Worse: the credit
+      // ledger entry below was created from a stale re-read regardless
+      // of whether the status update actually landed, and the credit
+      // INSERT itself was also never checked — a distributor accepting
+      // an order could show 'Accepted!' with neither the status change
+      // nor the money owed actually recorded.
+      const { data: updated, error: updErr } = await supabase
+        .from('stock_orders')
+        .update({ status })
+        .eq('id', orderId)
+        .select('*')
+        .maybeSingle();
+      if (updErr) throw new Error(updErr.message);
+      if (!updated) throw new Error('Stock order not found or you do not have permission to update it.');
+
+      // If accepted, also create a credit entry — reuse the row we just
+      // confirmed was updated instead of a second, potentially-stale read.
       if (status === 'accepted') {
-        const { data: order } = await supabase.from('stock_orders').select('*').eq('id', orderId).maybeSingle();
-        if (order) {
-          await supabase.from('credits').insert({
-            from_id: distributorId || order.shop_id,
-            to_shop_id: order.shop_id,
-            description: `Inventory: ${(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}`,
-            amount: parseFloat(order.total)
-          });
-        }
+        const { error: credErr } = await supabase.from('credits').insert({
+          from_id: distributorId || updated.shop_id,
+          to_shop_id: updated.shop_id,
+          description: `Inventory: ${(updated.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}`,
+          amount: parseFloat(updated.total),
+        });
+        if (credErr) throw new Error(`Order accepted, but the credit entry failed to save: ${credErr.message}. The shop's balance may be out of sync — please check manually.`);
       }
       return { id: orderId, status };
     }

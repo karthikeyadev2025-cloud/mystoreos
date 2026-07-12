@@ -1,5 +1,6 @@
 // Supabase Edge Function: expire-trials
-// Runs daily — expires 7-day trials and paid plans past grace period.
+// Runs daily — expires trials (per plan_expires_at, set at signup) and
+// paid plans past grace period.
 //
 // Deploy:  supabase functions deploy expire-trials
 // Trigger: Supabase Cron — add in Dashboard > Database > Cron Jobs:
@@ -12,7 +13,6 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const TRIAL_DAYS = 7
 const GRACE_DAYS = 3  // paid plans get 3 days grace after plan_expires_at before lockout
 
 Deno.serve(async (req: Request) => {
@@ -34,16 +34,25 @@ Deno.serve(async (req: Request) => {
   )
 
   const now = new Date()
-  const trialCutoff = new Date(now.getTime() - TRIAL_DAYS * 24 * 60 * 60 * 1000)
   const graceCutoff = new Date(now.getTime() - GRACE_DAYS * 24 * 60 * 60 * 1000)
 
-  // 1. Expire free trials older than TRIAL_DAYS
+  // 1. Expire free trials past their actual plan_expires_at.
+  //
+  // BUG FIX: this used to recompute a cutoff from a hardcoded
+  // TRIAL_DAYS = 7 constant applied to trial_started_at — cutting every
+  // trial short at 7 days, even though auth-register grants a 15-day
+  // trial and writes the real expiry to plan_expires_at at signup time,
+  // and both the landing page and pricing page promise 15 days. Using
+  // plan_expires_at directly means there is exactly one place that
+  // decides how long a trial lasts (auth-register, at signup) instead
+  // of two that can silently drift out of sync with each other.
   const { data: expiredTrials, error: trialError } = await supabase
     .from('users')
     .update({ subscription: 'expired' })
     .eq('role', 'shop')
     .eq('subscription', 'trial')
-    .lt('trial_started_at', trialCutoff.toISOString())
+    .not('plan_expires_at', 'is', null)
+    .lt('plan_expires_at', now.toISOString())
     .select('id, name, phone')
 
   // 2. Expire paid plans that have passed plan_expires_at + grace period.

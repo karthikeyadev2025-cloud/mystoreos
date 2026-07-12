@@ -6,6 +6,7 @@ import CompleteBillModal from './CompleteBillModal';
 import { useServiceFeatures } from '../hooks/useServiceFeatures';
 import FeatureUpgradePrompt, { UpgradeChip } from './FeatureUpgradePrompt';
 import StaffManagement from './StaffManagement';
+import { useRealtimeTable } from '../hooks/useRealtimeTable';
 
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
@@ -472,6 +473,13 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
   }, [shopId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Was entirely missing: no realtime subscription and no polling meant
+  // a new booking from the public storefront (or a customer cancelling/
+  // rescheduling via their manage-link) never appeared on this screen
+  // until the shop owner manually navigated away and back. Orders
+  // already had this in ShopDashboard — appointments never did.
+  useRealtimeTable({ table: 'appointments', filter: `shop_id=eq.${shopId}`, onRefresh: loadData });
 
   const handleStatusChange = async (id, status) => {
     try {

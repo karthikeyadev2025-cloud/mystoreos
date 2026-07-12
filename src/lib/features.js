@@ -135,9 +135,21 @@ export function getCaps(user) {
   if (!user) return PLAN_CAPS.trial;
   if (user.role === 'admin') return PLAN_CAPS.enterprise;
   if (user.role === 'staff') return PLAN_CAPS.pro;
-  // For shop owners (main + branches): subscriptionTier is the explicit
-  // paid tier set by admin or inherited from parent via auth-login.
-  // Always trust it when present — it overrides the subscription field.
+  // An ACTIVE trial always grants full trial-tier access, regardless of
+  // what subscriptionTier is set to. auth-register pre-sets
+  // subscriptionTier to 'starter' at signup time — that's the tier the
+  // account falls back to once the trial ends, not a cap that should
+  // apply while subscription is still 'trial'. Checking subscriptionTier
+  // first (as this function used to, unconditionally) meant every new
+  // signup was capped at Starter limits — 3 services, no staff
+  // scheduling, no reminders, bookings disabled — from the very first
+  // second after registering, instead of the 15-day full-access trial
+  // promised on the landing page and pricing page.
+  if (user.subscription === 'trial') return PLAN_CAPS.trial;
+  // For shop owners (main + branches) NOT on an active trial:
+  // subscriptionTier is the explicit paid tier set by admin, chosen at
+  // checkout, or inherited from parent via auth-login. Always trust it
+  // when present — it overrides the subscription field.
   if (user.subscriptionTier && PLAN_CAPS[user.subscriptionTier]) {
     return PLAN_CAPS[user.subscriptionTier];
   }

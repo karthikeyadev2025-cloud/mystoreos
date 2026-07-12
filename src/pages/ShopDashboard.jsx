@@ -727,6 +727,12 @@ const ShopDashboard = () => {
 
   useRealtimeTable({ table: 'orders', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
   useRealtimeTable({ table: 'products', filter: `shop_id=eq.${targetShopId}`, onRefresh: loadData });
+  // Was missing entirely: a customer's credit/khata payment being marked
+  // paid (or a new credit entry landing from a stock-order acceptance)
+  // never triggered a live dashboard refresh — the shop only saw it after
+  // manually navigating away and back. Same instant-update treatment as
+  // orders/products now applies to the money side of the dashboard too.
+  useRealtimeTable({ table: 'credits', filter: `to_shop_id=eq.${targetShopId}`, onRefresh: loadData });
   // Live sync shop profile (logo, QR, UPI, name, phone) across all devices —
   // e.g. logo uploaded on mobile reflects instantly on desktop and vice versa.
   useRealtimeTable({ table: 'users', filter: `id=eq.${user.role === 'staff' ? user.staff_of : user.id}`, onRefresh: loadData, pollInterval: 15_000 });
