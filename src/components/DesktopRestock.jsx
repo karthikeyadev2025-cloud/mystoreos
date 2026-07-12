@@ -1,11 +1,25 @@
-import { Truck, ShoppingCart, ShieldAlert, Plus, Check } from 'lucide-react';
+import { Truck, ShoppingCart, ShieldAlert, Plus, Check, Package, Clock } from 'lucide-react';
+
+// Matches the same 4-state lookup built on the distributor side —
+// kept in sync manually since these are two different dashboards, not
+// a shared component, but the states and colours should read the same
+// to anyone who works with both sides of this relationship.
+const STOCK_ORDER_BADGE = {
+  pending:    { bg: '#FEF3C7', color: '#B45309', label: 'Pending' },
+  accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
+  dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
+  delivered:  { bg: '#D1FAE5', color: '#047857', label: '✅ Delivered' },
+  rejected:   { bg: '#FEE2E2', color: '#B91C1C', label: 'Rejected' },
+};
 
 const DesktopRestock = ({
   products = [],
   wholesaleCatalog,
   restockCart,
   handleRestockQtyChange,
-  handlePlaceRestockOrder
+  handlePlaceRestockOrder,
+  stockOrders = [],
+  onMarkDelivered,
 }) => {
   const lowStockList = products.filter(p => p.stock < (p.reorderLevel || 10));
   const cartItemCount = Object.keys(restockCart).length;
@@ -16,6 +30,7 @@ const DesktopRestock = ({
   }, 0);
 
   return (
+    <>
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: FMCG Wholesale Catalog */}
@@ -152,6 +167,75 @@ const DesktopRestock = ({
       </div>
       
     </div>
+
+    {/* My Stock Orders — was completely missing. stockOrders was being
+        loaded and even passed into this component already, but never
+        rendered anywhere: a shop could place an order here and then had
+        no way in the whole app to see whether it was accepted, when it
+        might ship, whether it had been dispatched, or to confirm they'd
+        received it. Every one of those events already fires a
+        notification, but a toast that appears once is not the same as
+        an actual order history. */}
+    <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginTop: '24px' }}>
+      <div style={{ marginBottom: '18px' }}>
+        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Package size={20} color="#4F46E5" /> My Stock Orders
+        </h2>
+        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>
+          Every order you've placed with a distributor, and where it stands.
+        </p>
+      </div>
+
+      {stockOrders.length === 0 ? (
+        <p style={{ color: '#64748B', fontSize: '13px', textAlign: 'center', padding: '28px 0' }}>
+          No stock orders placed yet — add items to the cart above to get started.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {stockOrders.map(o => {
+            const badge = STOCK_ORDER_BADGE[o.status] || STOCK_ORDER_BADGE.pending;
+            return (
+              <div key={o.id} style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Order #{(o.id || '').slice(0, 8).toUpperCase()}</span>
+                    <span style={{ fontSize: 10, background: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>{badge.label}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 3 }}>
+                    {new Date(o.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {(o.items || []).length} item{(o.items || []).length === 1 ? '' : 's'} · ₹{o.total}
+                  </div>
+                  {o.status === 'accepted' && o.expectedDispatchDate && (
+                    <div style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Clock size={11} /> Expected dispatch: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                    </div>
+                  )}
+                  {o.status === 'dispatched' && o.dispatchedAt && (
+                    <div style={{ fontSize: 11, color: '#1D4ED8', fontWeight: 700, marginTop: 3 }}>
+                      Dispatched {new Date(o.dispatchedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                    </div>
+                  )}
+                  {o.status === 'delivered' && o.deliveredAt && (
+                    <div style={{ fontSize: 11, color: '#047857', fontWeight: 700, marginTop: 3 }}>
+                      Confirmed received {new Date(o.deliveredAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                    </div>
+                  )}
+                </div>
+                {/* The closing action — shop confirms the goods actually
+                    arrived, notifying the distributor and completing
+                    the loop that started when this order was placed. */}
+                {o.status === 'dispatched' && (
+                  <button onClick={() => onMarkDelivered?.(o.id)}
+                    style={{ background: '#10B981', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+                    ✅ Confirm Received
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+    </>
   );
 };
 

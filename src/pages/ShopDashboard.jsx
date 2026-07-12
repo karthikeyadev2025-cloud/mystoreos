@@ -2937,6 +2937,18 @@ const ShopDashboard = () => {
     }
   };
 
+  // The closing confirmation on the shop's side of the stock-order
+  // loop — confirms goods actually arrived, notifies the distributor.
+  const handleMarkStockOrderDelivered = async (orderId) => {
+    try {
+      await mustSucceed(() => api.markStockOrderDelivered(orderId), 'Confirm delivery');
+      toast.success('Delivery confirmed!');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Failed to confirm delivery');
+    }
+  };
+
   const handleOneClickRestock = async (product) => {
     if (!wholesaleCatalog || wholesaleCatalog.length === 0) {
       return toast.error("Wholesale distributor catalog is empty or offline. Please add distributor items first!");
@@ -4897,6 +4909,7 @@ const ShopDashboard = () => {
               stockOrders={stockOrders}
               handleRestockQtyChange={handleRestockQtyChange}
               handlePlaceRestockOrder={handlePlaceRestockOrder}
+              onMarkDelivered={handleMarkStockOrderDelivered}
               user={user}
             />
           )}
@@ -6621,6 +6634,54 @@ const ShopDashboard = () => {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* My Stock Orders — same gap as desktop had: stockOrders was
+                loaded but never shown anywhere on mobile either. A shop
+                placing an order here had no way to check its status,
+                see a dispatch date, or confirm they'd received it. */}
+            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', margin: '24px 0 12px' }}>📋 My Stock Orders</h3>
+            {stockOrders.length === 0 ? (
+              <p style={{ color: '#94A3B8', fontSize: '13px' }}>No stock orders placed yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {stockOrders.map(o => {
+                  const MOBILE_BADGE = {
+                    pending:    { bg: 'rgba(245,158,11,0.15)', color: '#F59E0B', label: 'Pending' },
+                    accepted:   { bg: 'rgba(34,197,94,0.15)',  color: '#22C55E', label: 'Accepted' },
+                    dispatched: { bg: 'rgba(59,130,246,0.15)', color: '#3B82F6', label: '📦 Dispatched' },
+                    delivered:  { bg: 'rgba(16,185,129,0.15)', color: '#10B981', label: '✅ Delivered' },
+                    rejected:   { bg: 'rgba(239,68,68,0.15)',  color: '#EF4444', label: 'Rejected' },
+                  };
+                  const badge = MOBILE_BADGE[o.status] || MOBILE_BADGE.pending;
+                  return (
+                    <div key={o.id} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '14px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>#{(o.id || '').slice(0, 8).toUpperCase()}</span>
+                            <span style={{ fontSize: 10, background: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>{badge.label}</span>
+                          </div>
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>
+                            {new Date(o.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} · ₹{o.total}
+                          </div>
+                          {o.status === 'accepted' && o.expectedDispatchDate && (
+                            <div style={{ fontSize: 11, color: '#818CF8', fontWeight: 700, marginTop: 3 }}>
+                              🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                            </div>
+                          )}
+                        </div>
+                        {o.status === 'dispatched' && (
+                          <button onClick={() => handleMarkStockOrderDelivered(o.id)}
+                            style={{ background: '#10B981', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+                            ✅ Confirm
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

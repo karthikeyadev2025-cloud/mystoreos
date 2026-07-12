@@ -3095,6 +3095,30 @@ export const api = {
     return newOrder;
   },
 
+  // Shop confirms they received a dispatched order — the closing
+  // confirmation. Kept separate from updateStockOrderStatus (which is
+  // the DISTRIBUTOR's accept/reject/dispatch action and has its own
+  // credit-ledger side effect) since this is a different actor with no
+  // side effect beyond the status flip and notifying the distributor.
+  async markStockOrderDelivered(orderId) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('stock_orders')
+        .update({ status: 'delivered', delivered_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .eq('status', 'dispatched')
+        .select('id')
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Order not found, already delivered, or not yet dispatched.');
+      return { id: orderId, status: 'delivered' };
+    }
+    const db = getDB();
+    const order = (db.stockOrders || []).find(o => o.id === orderId);
+    if (order) { order.status = 'delivered'; order.deliveredAt = new Date().toISOString(); saveDB(db); }
+    return order;
+  },
+
   async getDistributorOrders(distributorId) {
     if (isSupabaseConfigured) {
       let query = supabase.from('stock_orders').select('*').order('created_at', { ascending: false });
@@ -3106,6 +3130,7 @@ export const api = {
         distributorId: row.distributor_id,
         expectedDispatchDate: row.expected_dispatch_date || null,
         dispatchedAt: row.dispatched_at || null,
+        deliveredAt: row.delivered_at || null,
       }));
     }
     const db = getDB();
@@ -3122,6 +3147,7 @@ export const api = {
         items: row.items, total: row.total, status: row.status, date: row.created_at,
         expectedDispatchDate: row.expected_dispatch_date || null,
         dispatchedAt: row.dispatched_at || null,
+        deliveredAt: row.delivered_at || null,
       }));
     }
     const db = getDB();
