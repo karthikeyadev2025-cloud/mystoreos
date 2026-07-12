@@ -12,7 +12,7 @@
  * No bottom sheets, no hidden states — the cashier always sees the bill.
  */
 import { useState } from 'react';
-import { Search, ScanLine, Plus, X, Trash2, ChevronUp, ChevronDown, Receipt, BarChart3 } from 'lucide-react';
+import { Search, ScanLine, Plus, X, Trash2, ChevronUp, ChevronDown, Receipt, BarChart3, Mic } from 'lucide-react';
 
 export default function MobilePOS({
   products,
@@ -20,6 +20,8 @@ export default function MobilePOS({
   billItems,
   search,
   setSearch,
+  onVoiceAddToBill,
+  isListeningPOS,
   addToBill,
   updateBillItemQty,
   removeBillItem,
@@ -92,6 +94,17 @@ export default function MobilePOS({
             }}
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '16px', padding: '12px 0', color: '#0F172A', minWidth: 0 }}
           />
+          {/* Voice-add — same feature as desktop, same reasoning: a busy
+              counter shouldn't need two hands free to add an item. */}
+          <button onClick={onVoiceAddToBill} aria-label="Voice add to bill"
+            style={{
+              background: isListeningPOS ? 'linear-gradient(135deg,#EF4444,#4F46E5)' : '#E2E8F0',
+              border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              boxShadow: isListeningPOS ? '0 0 10px #4F46E5' : 'none',
+            }}>
+            <Mic size={13} color={isListeningPOS ? '#fff' : '#475569'} />
+          </button>
           {search && (
             <button onClick={() => setSearch('')} aria-label="Clear search" style={{ background: '#E2E8F0', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
               <X size={12} />

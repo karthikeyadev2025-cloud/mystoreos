@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode, Trash2, Tag } from 'lucide-react';
+import { Search, ScanLine, Plus, IndianRupee, Book, Receipt, Share2, Package, X, QrCode, Trash2, Tag, Mic } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { resolveUnit, UNIT_SUFFIX } from '../lib/units';
 
@@ -35,6 +35,8 @@ const DesktopPOS = ({
   billTotal,
   search,
   setSearch,
+  onVoiceAddToBill,
+  isListeningPOS,
   pendingOrders,
   sales,
   payable,
@@ -145,6 +147,19 @@ const DesktopPOS = ({
                 if (e.key === 'Escape') setSearch('');
               }}
               style={{ background: 'transparent', border: 'none', margin: 0, color: '#0F172A', width: '100%', padding: '12px 0', outline: 'none', fontSize: '15px' }} />
+            {/* Voice-add — say a quantity and product ("two parle g") to
+                add it straight to the bill without touching the
+                keyboard. Same Web Speech API already proven on the
+                customer-facing storefront search. */}
+            <button onClick={onVoiceAddToBill} title="Say a product to add it to the bill"
+              style={{
+                background: isListeningPOS ? 'linear-gradient(135deg,#EF4444,#4F46E5)' : '#E2E8F0',
+                border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                boxShadow: isListeningPOS ? '0 0 12px #4F46E5' : 'none', transition: 'all .15s',
+              }}>
+              <Mic size={14} color={isListeningPOS ? '#fff' : '#475569'} />
+            </button>
             {search && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                 <span style={{ fontSize: 12, color: '#4F46E5', fontWeight: 700 }}>{filteredProducts.length} found</span>

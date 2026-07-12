@@ -2590,8 +2590,15 @@ const ShopDashboard = () => {
   // access billTotal before initialization') that took down the whole
   // dashboard for every logged-in shop.
   const upiTxnRef = useMemo(() => 'BILL' + Date.now().toString().slice(-8), [billTotal]);
-  const filteredProducts = useMemo(() => {
-    const q = (search || '').trim().toLowerCase();
+
+  // Extracted from filteredProducts below so voice-add-to-bill can call
+  // it directly and get a synchronous decision — going through
+  // setSearch() + waiting for filteredProducts to recompute on the next
+  // render would mean the voice handler can't know the result until
+  // after it's already returned. Same exact scoring, single source of
+  // truth — filteredProducts now just calls this.
+  const scoreProductMatches = useCallback((query) => {
+    const q = (query || '').trim().toLowerCase();
     if (!q) return products;
     const terms = q.split(/\s+/);
     return products
@@ -2600,7 +2607,6 @@ const ShopDashboard = () => {
         const barcode = (p.barcode || '').toLowerCase();
         const cat    = (p.category|| '').toLowerCase();
         const sku    = (p.sku     || '').toLowerCase();
-        // Score: exact prefix > exact barcode/SKU > contains all terms > contains any term
         let score = 0;
         if (name.startsWith(q))      score += 100;
         else if (barcode === q || sku === q) score += 90;
@@ -2614,7 +2620,114 @@ const ShopDashboard = () => {
       })
       .filter(p => p._score > 0)
       .sort((a, b) => b._score - a._score);
-  }, [products, search]);
+  }, [products]);
+
+  const filteredProducts = useMemo(() => scoreProductMatches(search), [scoreProductMatches, search]);
+
+  // ── VOICE-TO-BILL ──────────────────────────────────────────────────
+  // The shopkeeper's own version of the customer-facing voice search
+  // already working elsewhere in the app (UserDashboard) — same Web
+  // Speech API, same browser-support/permission handling, same 8s
+  // safety timeout. Different job: instead of searching a storefront,
+  // this parses a spoken quantity + product name and adds it straight
+  // to the current bill, e.g. "two parle g" or "add 3 amul milk".
+  //
+  // Placed here (not near addToBill above) specifically because it
+  // needs scoreProductMatches, which — per the comment on filteredProducts
+  // — was deliberately kept this far down the file after an earlier TDZ
+  // crash from a similar dependency being hoisted too early. Same
+  // caution applies here: don't move this above scoreProductMatches.
+  const [isListeningPOS, setIsListeningPOS] = useState(false);
+
+  // "two", "three", "2", "couple of" -> a number. Kept small and
+  // India-English-shaped (packets/pieces/units are common filler words
+  // a shopkeeper would actually say) rather than a generic NLP library.
+  const parseSpokenQuantity = (text) => {
+    const WORDS = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, a:1, an:1, couple:2, dozen:12 };
+    const words = text.trim().toLowerCase().split(/\s+/);
+    if (words.length === 0) return { qty: 1, rest: text };
+    const first = words[0].replace(/[^a-z0-9]/g, '');
+    if (/^\d+$/.test(first)) {
+      const n = parseInt(first, 10);
+      if (n > 0 && n <= 99) return { qty: n, rest: words.slice(1).join(' ') };
+    }
+    if (WORDS[first]) return { qty: WORDS[first], rest: words.slice(1).join(' ') };
+    return { qty: 1, rest: text };
+  };
+
+  const handleVoiceAddToBill = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error('🎤 Voice billing needs Chrome or Safari. Try typing instead.');
+      return;
+    }
+    if (isListeningPOS) { setIsListeningPOS(false); return; }
+
+    let rec;
+    try { rec = new SpeechRecognition(); }
+    catch { toast.error('Could not start voice recognition. Check microphone permission.'); return; }
+
+    rec.lang = 'en-IN';
+    rec.interimResults = false;
+    rec.maxAlternatives = 3;
+    rec.continuous = false;
+
+    setIsListeningPOS(true);
+    toast.info('🎤 Listening… say a quantity and product, e.g. "two parle g"', { autoClose: 3000, toastId: 'voice-pos' });
+
+    const safetyTimer = setTimeout(() => {
+      try { rec.stop(); } catch { /* already stopped */ }
+      setIsListeningPOS(false);
+    }, 8000);
+
+    rec.onresult = (event) => {
+      clearTimeout(safetyTimer);
+      setIsListeningPOS(false);
+      const transcript = event.results?.[0]?.[0]?.transcript || '';
+      if (!transcript.trim()) { toast.error('Didn\u2019t catch that — try again.'); return; }
+
+      // Strip common lead-in filler ("add", "please add") before
+      // parsing the quantity, so "add two parle g" and "two parle g"
+      // both parse the same way.
+      const cleaned = transcript.replace(/^(add|please add|billing|bill)\s+/i, '');
+      const { qty, rest } = parseSpokenQuantity(cleaned);
+      // Also strip trailing unit filler words a shopkeeper might say
+      // naturally ("two packets parle g", "three pieces of soap").
+      const productGuess = rest.replace(/^(packets?|pieces?|pcs|units?|bottles?|bags?)\s+(of\s+)?/i, '').trim();
+      if (!productGuess) { toast.error(`Heard "${transcript}" — couldn't tell what product. Try again.`); return; }
+
+      const matches = scoreProductMatches(productGuess);
+      const top = matches[0];
+      // Threshold of 40 matches the same bar filteredProducts already
+      // uses for "all search terms matched" — below that, the guess is
+      // too weak to add silently; better to ask the shopkeeper to
+      // confirm by typing instead of risking the wrong item on a bill.
+      if (!top || top._score < 40) {
+        toast.error(`No confident match for "${productGuess}" — try typing it instead.`);
+        return;
+      }
+
+      for (let i = 0; i < qty; i++) addToBill(top);
+      toast.success(`🎤 Added ${qty}× ${top.name}`, { autoClose: 2000 });
+    };
+
+    rec.onerror = () => {
+      clearTimeout(safetyTimer);
+      setIsListeningPOS(false);
+      toast.error('Voice recognition error — check microphone permission.');
+    };
+    rec.onend = () => {
+      clearTimeout(safetyTimer);
+      setIsListeningPOS(false);
+    };
+
+    try { rec.start(); } catch {
+      clearTimeout(safetyTimer);
+      setIsListeningPOS(false);
+      toast.error('Could not start listening.');
+    }
+  };
+
 
   // Predictive reorder: units sold per product in last 30 days
   const isOpenNow = useMemo(() => {
@@ -4789,6 +4902,8 @@ const ShopDashboard = () => {
               billTotal={billTotal}
               search={search}
               setSearch={setSearch}
+              onVoiceAddToBill={handleVoiceAddToBill}
+              isListeningPOS={isListeningPOS}
               pendingOrders={pendingOrders}
               sales={sales}
               payable={payable}
@@ -5885,6 +6000,8 @@ const ShopDashboard = () => {
             billItems={billItems}
             search={search}
             setSearch={setSearch}
+            onVoiceAddToBill={handleVoiceAddToBill}
+            isListeningPOS={isListeningPOS}
             addToBill={addToBill}
             updateBillItemQty={updateBillItemQty}
             removeBillItem={removeBillItem}
