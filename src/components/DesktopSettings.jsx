@@ -60,6 +60,7 @@ const DesktopSettings = ({
   handleAddStaff,
   handleDeleteStaff = () => {},
   user,
+  targetShopId,
   handleResetTestData = () => {},
   isViewingMain = true,
   myDistributors = [],
@@ -627,7 +628,15 @@ const DesktopSettings = ({
             on click, shows "Blocked" chip if the user previously denied. */}
         {user?.id && (
           <div style={{ marginTop: 4 }}>
-            <PushToggle userId={user.id} />
+            {/* userId is targetShopId, not user.id — push notifications
+                are addressed to the shop's identity (see
+                push_notification(shop_id, ...) in every notify_*
+                trigger), which for staff is staff_of, not their own
+                account id. Using user.id here meant a staff member
+                enabling push would register a subscription that could
+                never actually receive anything — same bug already
+                found and fixed for the in-app bell earlier. */}
+            <PushToggle userId={targetShopId} />
           </div>
         )}
 

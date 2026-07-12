@@ -5,6 +5,7 @@ import { isServiceCategory } from '../lib/businessKind';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import { printPdfWithFormat } from '../lib/printPdf';
 import NotificationCenter from '../components/NotificationCenter';
+import PushToggle from '../components/PushToggle';
 import { INVOICE_TEMPLATES } from '../lib/invoiceTemplates';
 import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
@@ -5097,6 +5098,7 @@ const ShopDashboard = () => {
               )}
               <DesktopSettings 
                 user={user}
+                targetShopId={targetShopId}
               gstin={gstin}
               setGstin={setGstin}
               stateCode={stateCode}
@@ -7012,6 +7014,16 @@ const ShopDashboard = () => {
             <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
+
+            {/* Real background push — works even when the app/tab is
+                closed, unlike the plain Notification API fallback this
+                file already had (requestNotificationPermission earlier
+                in this component only fires while the tab is open).
+                Was built weeks ago but never actually rendered anywhere
+                in the whole app — nobody had a way to turn it on. */}
+            <div style={{ marginBottom: '16px' }}>
+              <PushToggle userId={targetShopId} />
+            </div>
 
             {/* Branches manager — first card so it's easy to find.
                 Only main owners see this; branches logged in directly

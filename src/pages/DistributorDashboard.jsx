@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
+import PushToggle from '../components/PushToggle';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -1135,6 +1136,15 @@ const DistributorDashboard = () => {
                   <Settings size={20} color="#64748B" /> Business Profile & GST
                 </h2>
                 <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
+              </div>
+
+              {/* Real background push — the distributor dashboard had
+                  ZERO push infrastructure at all before this: no client
+                  import, no toggle, nothing. A distributor could miss a
+                  new stock order entirely unless they happened to have
+                  the tab open and looked at it. */}
+              <div style={{ marginBottom: '16px' }}>
+                <PushToggle userId={user.id} />
               </div>
 
               <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
