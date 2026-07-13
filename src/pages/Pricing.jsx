@@ -14,6 +14,34 @@ const setMeta = (name, content) => {
   t.setAttribute('content', content);
 };
 
+/* ─── Static service-business plans — separate pricing track from ────
+   retail (see PLAN_CAPS.service_starter/_pro/_enterprise in
+   features.js). service_starter genuinely includes bookings, unlike
+   retail's starter — a "starter" tier for a service business that
+   can't take a single booking isn't a usable starting point. ────── */
+const SERVICE_PLANS = [
+  { id: 'service_starter', name: 'Starter', price: 249, popular: false, features: [
+      { label: 'Online booking (up to 10 services)', on: true }, { label: 'Customer books from your page', on: true },
+      { label: 'Double-booking blocked automatically', on: true }, { label: 'WhatsApp booking confirmation', on: true },
+      { label: 'Single device', on: true }, { label: 'Standard bill templates', on: true },
+      { label: 'Staff scheduling (multi-staff)', on: false }, { label: 'Automated 24h/1h reminders', on: false },
+      { label: 'Self-service reschedule/cancel', on: false }, { label: 'Buffer time', on: false }, { label: 'Recurring bookings', on: false },
+    ] },
+  { id: 'service_pro', name: 'PRO', price: 699, popular: true, features: [
+      { label: 'Unlimited services', on: true }, { label: 'Everything in Starter', on: true },
+      { label: 'Staff scheduling — multiple staff, own hours', on: true }, { label: 'Automated WhatsApp + SMS reminders (24h & 1h)', on: true },
+      { label: 'Self-service reschedule/cancel by link', on: true }, { label: 'Buffer time between appointments', on: true },
+      { label: 'Custom invoice branding', on: true }, { label: 'Advanced reports', on: true },
+      { label: 'Recurring bookings', on: false }, { label: 'Multi-branch', on: false },
+    ] },
+  { id: 'service_enterprise', name: 'Enterprise', price: 1499, popular: false, features: [
+      { label: 'Everything in PRO', on: true }, { label: 'Recurring / weekly-repeat bookings', on: true },
+      { label: 'Multi-branch (multiple locations, one login)', on: true }, { label: 'Multi-device sync (5 devices)', on: true },
+      { label: 'Priority 24/7 support', on: true }, { label: 'AI demand forecasting', on: true },
+      { label: 'Barcode/product manager (for hybrid retail+service)', on: true },
+    ] },
+];
+
 /* ─── Static distributor plans ─────────────────────────────────────── */
 const DIST_PLANS = [
   { id: 'basic_distributor', name: 'Basic Distributor', price: 999, popular: false,
@@ -310,13 +338,13 @@ export default function Pricing() {
 
           {/* Toggle — logic untouched, only the visual language updated */}
           <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.edge}`, borderRadius: '12px', padding: '4px', gap: '4px' }}>
-            {['shops', 'distributors'].map(m => (
+            {['shops', 'services', 'distributors'].map(m => (
               <button key={m} onClick={() => setMode(m)}
                 style={{ padding: '9px 20px', borderRadius: '9px', border: 'none', cursor: 'pointer', fontSize: '13.5px', fontWeight: 700, fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s',
                   background: mode === m ? 'linear-gradient(135deg,#818CF8,#4F46E5)' : 'transparent',
                   color: mode === m ? '#fff' : T.textFaint,
                   boxShadow: mode === m ? '0 0 24px -6px rgba(99,102,241,0.5)' : 'none' }}>
-                {m === 'shops' ? 'For shops' : 'For distributors'}
+                {m === 'shops' ? 'For retail shops' : m === 'services' ? 'For service businesses' : 'For distributors'}
               </button>
             ))}
           </div>
@@ -351,8 +379,9 @@ export default function Pricing() {
           );
         })()}
         <div className="plan-grid" style={{ display: 'flex', gap: '24px', alignItems: 'stretch', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {(mode === 'shops' ? shopPlans : DIST_PLANS).map((plan, i) => (
-            <PlanCard key={plan.id} plan={plan} idx={i} cycle={cycle} pricing={pricing} isShop={mode === 'shops'} popular={plan.popular || (mode === 'shops' ? plan.id === 'pro' : plan.id === 'pro_distributor')} />
+          {(mode === 'shops' ? shopPlans : mode === 'services' ? SERVICE_PLANS : DIST_PLANS).map((plan, i) => (
+            <PlanCard key={plan.id} plan={plan} idx={i} cycle={cycle} pricing={pricing} isShop={mode === 'shops' || mode === 'services'}
+              popular={plan.popular || (mode === 'shops' ? plan.id === 'pro' : mode === 'services' ? plan.id === 'service_pro' : plan.id === 'pro_distributor')} />
           ))}
         </div>
 
@@ -365,7 +394,7 @@ export default function Pricing() {
             add-on that's real: Home Service Booking, genuinely
             purchasable from any plan, price read live from the same
             admin-configurable value the actual purchase flow charges. */}
-        {mode === 'shops' && (
+        {mode === 'services' && (
           <div style={{
             marginTop: 40, maxWidth: 760, marginLeft: 'auto', marginRight: 'auto',
             background: 'linear-gradient(135deg, rgba(139,92,246,0.14), rgba(236,72,153,0.09))',

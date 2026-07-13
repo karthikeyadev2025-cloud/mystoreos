@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function LandingPricingPreview({ plans, distPlans, pricing, navigate }) {
+export default function LandingPricingPreview({ plans, servicePlans, distPlans, pricing, navigate }) {
   const [tab, setTab] = useState('shop');
   const [cycle, setCycle] = useState('monthly');
-  const active = tab === 'shop' ? plans : distPlans;
+  const active = tab === 'shop' ? plans : tab === 'service' ? servicePlans : distPlans;
 
   useEffect(() => {
     const handleHash = () => {
@@ -56,10 +56,10 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
           <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>
           <p style={{ color: 'rgba(248,250,252,0.38)', fontSize: 16, marginTop: 10 }}>Start free. Upgrade when ready. Cancel anytime.</p>
           <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
-            {['shop', 'distributor'].map(t => (
+            {['shop', 'service', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#0C121B' : '#909AA6', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
-                {t === 'shop' ? '🏪 Shopkeeper' : '🚚 Distributor'}
+                {t === 'shop' ? '🏪 Shopkeeper' : t === 'service' ? '💇 Service business' : '🚚 Distributor'}
               </button>
             ))}
           </div>
@@ -133,13 +133,12 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
             "Bookings add-on ₹249/mo" here that was never actually
             built or purchasable anywhere in the app (confirmed by
             tracing the whole codebase). Bookings itself is a plan-tier
-            feature (Pro+), not a standalone add-on — this card was
-            advertising something that didn't exist. Replaced with the
-            one add-on that's real: Home Service Booking, genuinely
-            purchasable from any plan, price read live from the same
-            admin-configurable value the actual purchase flow charges
-            (pricing.addons.homeService) — this card can never drift
-            out of sync with what a shop is actually charged. */}
+            feature, not something anyone could actually buy separately.
+            Replaced with the real add-on, and moved to show only under
+            the Service tab specifically — it was previously showing
+            regardless of which tab was active, including Distributor,
+            which made no sense. */}
+        {tab === 'service' && (
         <motion.div
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{
@@ -186,6 +185,7 @@ export default function LandingPricingPreview({ plans, distPlans, pricing, navig
             ))}
           </div>
         </motion.div>
+        )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ textAlign: 'center', marginTop: 36, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>

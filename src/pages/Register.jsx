@@ -188,17 +188,20 @@ const Register = () => {
       if (businessType === 'shop' && newUser?.id) {
         try {
           const trimmedCategory = (shopCategory || '').trim() || (businessKind === 'service' ? 'General Services' : 'General Retail');
-          // BUG FIX: this called api.updateUserProfile(), which does not
-          // exist anywhere in api.js — only api.updateProfile() (singular
-          // "Profile") does. Every call here threw a TypeError that was
-          // silently caught by the catch block below, meaning business_kind
-          // and shop_category were NEVER actually saved for ANY new shop
-          // registration since this code was written. Every new "Service"
-          // business signup silently fell back to the POS-first retail
-          // dashboard because business_kind stayed NULL in the database.
+          // Same moment businessKind is first known is also the first
+          // moment we can set the RIGHT starting tier. auth-register
+          // hardcodes subscription_tier to the generic 'starter' at
+          // account creation, before businessKind exists at all — for a
+          // service business that's the wrong tier (retail Starter has
+          // no bookings; a service business needs service_starter,
+          // which does). This only matters once the 15-day trial ends
+          // (getCaps() grants full trial access regardless of this
+          // value while subscription === 'trial') — but setting it
+          // correctly now means there's nothing to fix later.
           await api.updateProfile(newUser.id, {
             businessKind,
             shopCategory: trimmedCategory,
+            subscriptionTier: businessKind === 'service' ? 'service_starter' : 'starter',
           });
           newUser.businessKind = businessKind;
           newUser.shopCategory = trimmedCategory;

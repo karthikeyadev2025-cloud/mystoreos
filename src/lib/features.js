@@ -103,6 +103,62 @@ export const PLAN_CAPS = {
     serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: true,
     serviceProviderHours: true,
   },
+  // ── SERVICE BUSINESS TIER TRACK — separately priced from Retail ──
+  // Added, not a replacement: retail's starter/pro/enterprise above are
+  // completely untouched, so every existing retail AND existing service
+  // business already on those tiers keeps exactly what they have today.
+  // These three are for the SEPARATE, cheaper pricing track service
+  // businesses get going forward (see pricing_v2.serviceTiers in api.js).
+  //
+  // The one real capability change from the retail equivalents: Service
+  // Starter grants bookings=true. Retail Starter correctly has no
+  // bookings (a pure retail shop doesn't need them) — but a "Starter"
+  // tier for a SERVICE business that can't take a single booking isn't
+  // a usable starting point, it's nothing. The literal 'Bookings add-on
+  // ₹249/month' comment on retail starter below was this exact idea,
+  // written down but never actually built — this is that, done properly
+  // as a real tier rather than a bolt-on toggle.
+  service_starter: {
+    maxProducts: 200, maxDevices: 1,
+    whatsappShare: true, batchExpiry: false, gst: false,
+    staffAccounts: false, caPortal: false, tallyExport: false,
+    multiDevice: false, customInvoiceFooter: false, loyaltyPoints: false, flashSales: false,
+    promoCode: true, advancedReports: false, aiForecasting: false, barcodeManager: false,
+    bookings: true,        // the whole point of this tier existing
+    maxServices: 10, serviceStaffAssignment: false, serviceBufferTime: false,
+    serviceCustomerSelfService: false, serviceReminders: false, serviceRecurring: false,
+    serviceProviderHours: false,
+  },
+  service_pro: {
+    maxProducts: -1, maxDevices: 2,
+    whatsappShare: true, batchExpiry: false, gst: false,
+    staffAccounts: true, caPortal: false, tallyExport: false,
+    multiDevice: false, customInvoiceFooter: true, loyaltyPoints: false, flashSales: false,
+    promoCode: true, advancedReports: true, aiForecasting: false, barcodeManager: false,
+    bookings: true,
+    // Same service capability level as retail 'pro' — multi-staff,
+    // buffer time, self-service links, automated reminders. Retail-only
+    // extras (stock/expiry batching, loyalty, flash sales) left off:
+    // a pure service business doesn't sell tracked stock.
+    maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+    serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: false,
+    serviceProviderHours: true,
+  },
+  service_enterprise: {
+    maxProducts: -1, maxDevices: 5,
+    whatsappShare: true, batchExpiry: false, gst: false,
+    staffAccounts: true, caPortal: false, tallyExport: false,
+    multiDevice: true, customInvoiceFooter: true, loyaltyPoints: false, flashSales: false,
+    promoCode: true, advancedReports: true, aiForecasting: true, barcodeManager: true,
+    bookings: true,
+    // Full service capability, including recurring bookings and
+    // multi-branch. GST/CA-portal/Tally left off deliberately — those
+    // are retail compliance features; a service business that also
+    // needs them would be on the retail track instead.
+    maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+    serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: true,
+    serviceProviderHours: true,
+  },
 };
 
 // Human-readable plan name required to unlock each feature
@@ -121,14 +177,15 @@ export const FEATURE_PLAN_LABEL = {
   caPortal: 'Enterprise Plan',
   tallyExport: 'Enterprise Plan',
   multiDevice: 'Enterprise Plan',
-  // Service-side unlock labels
-  bookings: 'Pro Plan',
-  serviceStaffAssignment: 'Pro Plan',
-  serviceBufferTime: 'Pro Plan',
-  serviceCustomerSelfService: 'Pro Plan',
-  serviceReminders: 'Pro Plan',
-  serviceProviderHours: 'Pro Plan',
-  serviceRecurring: 'Enterprise Plan',
+  // Service-side unlock labels — only ever shown to service businesses
+  // (retail returns 'everything available' before reaching these).
+  bookings: 'Service Starter Plan',
+  serviceStaffAssignment: 'Service Pro Plan',
+  serviceBufferTime: 'Service Pro Plan',
+  serviceCustomerSelfService: 'Service Pro Plan',
+  serviceReminders: 'Service Pro Plan',
+  serviceProviderHours: 'Service Pro Plan',
+  serviceRecurring: 'Service Enterprise Plan',
 };
 
 export function getCaps(user) {

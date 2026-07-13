@@ -65,6 +65,19 @@ const DSP_FB = [
   { id: 'pro', name: 'PRO', price: 999, popular: true, features: ['Unlimited products', 'WhatsApp sharing', 'Staff accounts', 'Batch & expiry tracking', 'UPI payment links'] },
   { id: 'enterprise', name: 'Enterprise', price: 2499, popular: false, features: ['Everything in PRO', 'GST compliance billing', 'CA Portal access', 'Tally ERP export', 'Multi-device sync'] },
 ];
+// Service business track — separate pricing from Retail above (see
+// PLAN_CAPS.service_starter/_pro/_enterprise in features.js). Static
+// fallback structure, same pattern as DSP_FB — but the actual PRICE
+// shown still comes live from pricing_v2.tiers.service_* via the same
+// monthlyBase()/tierPrice() lookups LandingPricingPreview already does
+// by plan.id, so an admin changing the price takes effect immediately
+// without needing a database-driven plan table like retail/distributor
+// have.
+const SSP_FB = [
+  { id: 'service_starter', name: 'Starter', price: 249, popular: false, features: ['Online booking (up to 10 services)', 'Double-booking blocked automatically', 'WhatsApp booking confirmation', 'Single device'] },
+  { id: 'service_pro', name: 'PRO', price: 699, popular: true, features: ['Unlimited services', 'Multi-staff scheduling', 'Automated WhatsApp + SMS reminders', 'Self-service reschedule/cancel', 'Buffer time'] },
+  { id: 'service_enterprise', name: 'Enterprise', price: 1499, popular: false, features: ['Everything in PRO', 'Recurring / weekly-repeat bookings', 'Multi-branch', 'Multi-device sync', 'Priority support'] },
+];
 const DDP_FB = [
   { id: 'free_dist', name: 'Free', price: 0, popular: false, features: ['Up to 3 shops', 'Basic order mgmt', 'Credit ledger', 'Free forever'] },
   { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
@@ -83,6 +96,7 @@ export default function LandingPage() {
   const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS);
   const [faq, setFaq] = useState(DEFAULT_FAQ);
   const [plans, setPlans] = useState(DSP_FB);
+  const [servicePlans] = useState(SSP_FB);
   const [distPlans, setDistPlans] = useState(DDP_FB);
   const [pricing, setPricing] = useState(null);
 
@@ -143,7 +157,7 @@ export default function LandingPage() {
       <LandingWhoFor />
       <LandingFeatures />
       <LandingDayInLife />
-      <LandingPricingPreview plans={plans} distPlans={distPlans} pricing={pricing} navigate={navigate} />
+      <LandingPricingPreview plans={plans} servicePlans={servicePlans} distPlans={distPlans} pricing={pricing} navigate={navigate} />
       <LandingHowItWorks navigate={navigate} />
       <LandingTrust />
       <LandingTestimonials testimonials={testimonials} />

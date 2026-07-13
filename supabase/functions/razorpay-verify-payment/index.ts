@@ -10,6 +10,14 @@ const PLAN_AMOUNTS: Record<string, number> = { starter: 499, pro: 999, enterpris
 const baseTier = (planId: string) => planId.replace(/_(quarterly|yearly)$/, '');
 const PLAN_TIER: Record<string, string> = {
   starter: 'starter', pro: 'pro', enterprise: 'enterprise',
+  // Service business tier track — separate pricing from Retail (see
+  // PLAN_CAPS.service_starter/_pro/_enterprise in features.js). Without
+  // these three entries, a customer paying for service_starter would
+  // fall through the `PLAN_TIER[base] ?? 'pro'` fallback below and be
+  // silently granted full Retail Pro — the same class of bug already
+  // caught and fixed for the home_service_addon plan ID earlier this
+  // session, now checked for here too before it could ship.
+  service_starter: 'service_starter', service_pro: 'service_pro', service_enterprise: 'service_enterprise',
 };
 const cycleOf = (planId: string) =>
   planId.endsWith('_yearly') ? 'yearly' : planId.endsWith('_quarterly') ? 'quarterly' : 'monthly';

@@ -2759,6 +2759,19 @@ export const api = {
         starter:    { monthly: 499,  quarterly: 1347, yearly: 4790 },
         pro:        { monthly: 999,  quarterly: 2697, yearly: 9590 },
         enterprise: { monthly: 2499, quarterly: 6747, yearly: 23990 },
+        // Service business track — separate pricing from Retail above,
+        // same tier names (starter/pro/enterprise) reused only as a
+        // naming CONCEPT, not the same stored keys: these are prefixed
+        // service_* so they never collide with the retail entries. A
+        // service business's Starter genuinely includes bookings
+        // (see PLAN_CAPS.service_starter in features.js) — a "starter"
+        // tier that can't take a single booking isn't a usable starting
+        // point for a service business the way it is for a retail one.
+        // Priced below Retail's equivalent tiers throughout, since a
+        // pure service business doesn't need GST/stock/Tally complexity.
+        service_starter:    { monthly: 249,  quarterly: 672,  yearly: 2390 },
+        service_pro:        { monthly: 699,  quarterly: 1887, yearly: 6710 },
+        service_enterprise: { monthly: 1499, quarterly: 4047, yearly: 14390 },
         basic_distributor:      { monthly: 999,  quarterly: 2697,  yearly: 9590 },
         pro_distributor:        { monthly: 2499, quarterly: 6747,  yearly: 23990 },
         enterprise_distributor: { monthly: 4999, quarterly: 13497, yearly: 47990 },
