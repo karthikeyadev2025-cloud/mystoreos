@@ -47,16 +47,17 @@ const DEFAULT_TESTIMONIALS = [
 ];
 const DEFAULT_FAQ = [
   { q: 'Is there a free trial?', a: 'Fifteen days, every feature unlocked, no card. That includes bookings, staff scheduling and reminders — the things normally on paid tiers — so you can judge the whole thing before you decide.' },
-  { q: 'I run a clinic, not a shop. Does this work for me?', a: 'Yes. Choose Services when you sign up and the dashboard rearranges itself: a service list, a booking diary, staff scheduling and reminders, instead of a product POS. Salons, spas, clinics, gyms, dental practices and workshops all run on this side.' },
+  { q: 'I run a clinic, not a shop. Does this work for me?', a: 'Yes. Choose Services when you sign up and the dashboard rearranges itself: a service list, a booking diary, staff scheduling and reminders, instead of a product POS. Salons, spas, clinics, gyms, dental practices and workshops all run on this side — and pricing is separate from Retail, starting lower since you don\u2019t need GST or stock tracking.' },
   { q: 'Can customers book their own appointments?', a: 'Yes. You get a public page they can book from. Clashes are refused automatically, and they can move or cancel a booking through a private link without ringing you.' },
-  { q: 'Do reminders go out automatically?', a: 'WhatsApp and SMS, 24 hours and 1 hour before each appointment. Included from the Pro plan.' },
+  { q: 'Do you send staff to a customer\u2019s home? Is that safe?', a: 'Home Service Booking is a standalone add-on for any Service plan. The customer can share their exact location at booking. Staff check in as \u2018on my way\u2019 and \u2018arrived\u2019, each capturing a real timestamped location. There\u2019s a one-tap emergency alert that goes straight to the shop owner and stays visible until acted on \u2014 and if a visit runs long with no check-in, the owner gets alerted automatically without anyone needing to notice.' },
+  { q: 'Do reminders go out automatically?', a: 'WhatsApp and SMS, 24 hours and 1 hour before each appointment. Included from the Service Pro plan.' },
   { q: 'Does it work with a thermal printer?', a: 'Yes — 58mm and 80mm rolls, alongside standard A4. Set your paper size once and every receipt comes out right.' },
   { q: 'Will I know when an order or booking arrives?', a: 'Your phone or desktop is notified the moment it lands, even if the app is closed.' },
   { q: 'What happens when the internet goes down?', a: 'You keep billing. Everything queues locally and syncs the moment you reconnect. No lost sales.' },
   { q: 'Can I use it on my phone?', a: 'It installs from the browser on Android and iPhone — no app store needed.' },
-  { q: 'Is GST filing supported?', a: 'GSTR-1 XML and CSV, Tally export, and a portal you can give your accountant direct access to. Included from the Enterprise plan.' },
-  { q: 'Can my staff have their own logins?', a: 'Yes, from the Pro plan — with PIN locks and role-based permissions. Service businesses can also tie particular services to particular staff.' },
-  { q: 'Can I run more than one outlet?', a: 'Yes, on Enterprise. One login, several outlets, each keeping its own books, switched between instantly.' },
+  { q: 'Is GST filing supported?', a: 'GSTR-1 XML and CSV, Tally export, and a portal you can give your accountant direct access to. Included from the Retail Enterprise plan.' },
+  { q: 'Can my staff have their own logins?', a: 'Yes, from the Pro plan on either track — with PIN locks and role-based permissions. Service businesses can also tie particular services to particular staff.' },
+  { q: 'Can I run more than one outlet?', a: 'Yes, on Enterprise \u2014 Retail or Service. One login, several outlets, each keeping its own books, switched between instantly.' },
   { q: 'Which languages does it speak?', a: 'Hindi, Telugu, Tamil, Kannada, Marathi and Bengali, alongside English.' },
 ];
 const DSP_FB = [
