@@ -2878,8 +2878,71 @@ export const api = {
     return data?.reply || "Sorry, I couldn't process that. Please raise a ticket and our team will help.";
   },
 
-  async getSubscriptionPlans() {
-    const defaultPlans = [
+  // businessKind: 'retail' (default, unchanged) | 'service'. Was called
+  // with no parameter everywhere, always returning Retail plans
+  // regardless of who was asking — including the in-app upgrade modal
+  // (ShopDashboard's "Change or Upgrade Plan"), which meant a SERVICE
+  // business trying to upgrade only ever saw Retail Starter/Pro/
+  // Enterprise at ₹499/₹999/₹2499, never the correct, cheaper Service
+  // tiers at ₹249/₹699/₹1499 built alongside pricing_v2.tiers.service_*
+  // earlier tonight. This is a SEPARATE storage key (site_config
+  // 'subscription_plans') from pricing_v2 — fixing pricing_v2 alone
+  // never touched this.
+  async getSubscriptionPlans(businessKind = 'retail') {
+    const defaultPlans = businessKind === 'service' ? [
+      {
+        id: 'service_starter',
+        name: 'Service Starter',
+        price: 249,
+        description: 'Genuinely includes bookings from day one — a starter tier that could not take a single appointment would not be a usable starting point.',
+        features: [
+          'Online booking (up to 10 services)',
+          'Double-booking blocked automatically',
+          'WhatsApp booking confirmation',
+          'Single device',
+          'Standard bill templates',
+        ],
+        capabilities: {
+          maxServices: 10, serviceStaffAssignment: false, serviceBufferTime: false,
+          serviceCustomerSelfService: false, serviceReminders: false, serviceRecurring: false,
+        },
+      },
+      {
+        id: 'service_pro',
+        name: 'Service PRO',
+        price: 699,
+        description: 'The natural home for a serious salon, spa, or clinic — multi-staff scheduling and automated reminders.',
+        features: [
+          'Unlimited services',
+          'Staff scheduling — multiple staff, own hours',
+          'Automated WhatsApp + SMS reminders (24h & 1h)',
+          'Self-service reschedule/cancel by link',
+          'Buffer time between appointments',
+          'Custom invoice branding',
+        ],
+        capabilities: {
+          maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+          serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: false,
+        },
+      },
+      {
+        id: 'service_enterprise',
+        name: 'Service Enterprise',
+        price: 1499,
+        description: 'Full service capability, including recurring bookings and multi-branch.',
+        features: [
+          'Everything in Service PRO',
+          'Recurring / weekly-repeat bookings',
+          'Multi-branch (multiple locations, one login)',
+          'Multi-device sync (5 devices)',
+          'Priority 24/7 support',
+        ],
+        capabilities: {
+          maxServices: -1, serviceStaffAssignment: true, serviceBufferTime: true,
+          serviceCustomerSelfService: true, serviceReminders: true, serviceRecurring: true,
+        },
+      },
+    ] : [
       {
         id: 'starter',
         name: 'Starter Plan',
@@ -2962,11 +3025,20 @@ export const api = {
         }
       }
     ];
-    return await this.getSiteConfig('subscription_plans', defaultPlans);
+    // Separate storage key per business kind — reusing the same
+    // 'subscription_plans' key for both would mean an already-saved
+    // retail config (which has existed since before tonight) silently
+    // overrides the new service defaultPlans above every time, since
+    // getSiteConfig only falls back to the default when NOTHING is
+    // stored yet, not when the stored value happens to be for a
+    // different business kind.
+    const configKey = businessKind === 'service' ? 'subscription_plans_service' : 'subscription_plans';
+    return await this.getSiteConfig(configKey, defaultPlans);
   },
 
-  async saveSubscriptionPlans(plans) {
-    await this.saveSiteConfig('subscription_plans', plans);
+  async saveSubscriptionPlans(plans, businessKind = 'retail') {
+    const configKey = businessKind === 'service' ? 'subscription_plans_service' : 'subscription_plans';
+    await this.saveSiteConfig(configKey, plans);
   },
 
   // Seeds default plan capabilities into site_config if not already present.

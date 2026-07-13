@@ -688,7 +688,7 @@ const ShopDashboard = () => {
       setStockOrders((await safe(() => api.getShopStockOrders(targetShopId))) || []);
       setSysSettings(await safe(() => api.getSettings()));
       setStaffList(await safe(() => api.getShopStaff(targetShopId)));
-      setPlans(await safe(() => api.getSubscriptionPlans()));
+      setPlans(await safe(() => api.getSubscriptionPlans(isServiceBusiness ? 'service' : 'retail')));
       setPricing(await safe(() => api.getPricing()));
       setPaymentHistory(await safe(() => api.getPaymentHistory(targetShopId)));
       // ── Editable settings: hydrate ONCE per shop, not on every poll ──────
@@ -5576,7 +5576,9 @@ const ShopDashboard = () => {
                 Select Your Business Growth Plan
               </h2>
               <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
-                Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
+                {isServiceBusiness
+                  ? 'Unlock staff scheduling, automated reminders, and recurring bookings as your service business grows.'
+                  : 'Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.'}
               </p>
             </div>
 
@@ -5591,7 +5593,7 @@ const ShopDashboard = () => {
             }}>
               {plans.map(plan => {
                 const isCurrent = user.subscriptionTier === plan.id && user.subscription === 'active';
-                const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+                const isPopular = plan.id === 'pro' || plan.id === 'service_pro' || plan.name.toLowerCase().includes('pro');
                 return (
                   <div 
                     key={plan.id}
@@ -8394,7 +8396,9 @@ const ShopDashboard = () => {
                 Select Your Business Growth Plan
               </h2>
               <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
-                Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.
+                {isServiceBusiness
+                  ? 'Unlock staff scheduling, automated reminders, and recurring bookings as your service business grows.'
+                  : 'Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.'}
               </p>
             </div>
 
@@ -8409,7 +8413,7 @@ const ShopDashboard = () => {
             }}>
               {plans.map(plan => {
                 const isCurrent = user.subscriptionTier === plan.id && user.subscription === 'active';
-                const isPopular = plan.id === 'pro' || plan.name.toLowerCase().includes('pro');
+                const isPopular = plan.id === 'pro' || plan.id === 'service_pro' || plan.name.toLowerCase().includes('pro');
                 return (
                   <div 
                     key={plan.id}
