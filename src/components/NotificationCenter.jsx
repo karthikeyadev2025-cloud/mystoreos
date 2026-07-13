@@ -31,6 +31,9 @@ const CATEGORY = {
   // render distinctly, would have fallen through to the same grey
   // 'info' style as a routine system message.
   welcome:        { Icon: UserPlus, color: '#059669', bg: '#D1FAE5' },
+  // New — payment confirmations (subscription upgrades, add-on
+  // purchases) had nowhere to render distinctly before tonight.
+  payment:        { Icon: CreditCard, color: '#0891B2', bg: '#CFFAFE' },
 };
 
 function relTime(iso) {

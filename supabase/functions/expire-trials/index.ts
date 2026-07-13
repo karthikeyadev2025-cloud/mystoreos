@@ -97,11 +97,44 @@ Deno.serve(async (req: Request) => {
     .lt('distributor_plan_expires_at', graceCutoff.toISOString())
     .select('id, name, phone')
 
+  // "Trial ending soon" warning — didn't exist in any form before.
+  // Every trial (shop or distributor) just silently expired with zero
+  // warning beforehand — no standard SaaS practice of giving someone a
+  // chance to convert before being cut off. Fires exactly once per
+  // account: checks for trials landing in the [2-day, 3-day) window
+  // from now, a narrow enough slice that a daily cron run only ever
+  // catches a given account on one single day, without needing a
+  // separate "already warned" tracking column.
+  const warnFrom = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000)
+  const warnTo = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+  const { data: trialsEndingSoon } = await supabase
+    .from('users')
+    .select('id, role')
+    .in('role', ['shop', 'distributor'])
+    .eq('subscription', 'trial')
+    .not('plan_expires_at', 'is', null)
+    .gte('plan_expires_at', warnFrom.toISOString())
+    .lt('plan_expires_at', warnTo.toISOString())
+
+  for (const u of trialsEndingSoon || []) {
+    try {
+      await supabase.rpc('push_notification', {
+        p_user_id: u.id,
+        p_category: 'info',
+        p_title: 'Your free trial ends in 3 days',
+        p_body: 'Choose a plan now to keep every feature active with no interruption.',
+        p_action_url: u.role === 'distributor' ? '/distributor?tab=settings' : '/shop?tab=profile',
+        p_data: {},
+      })
+    } catch (_e) { /* one account's notification failing should never block the rest */ }
+  }
+
   const result = {
     ran_at: now.toISOString(),
     expired_trials: expiredTrials?.length ?? 0,
     expired_paid_plans: expiredPaid?.length ?? 0,
     expired_paid_distributor_plans: expiredPaidDist?.length ?? 0,
+    trials_warned_ending_soon: trialsEndingSoon?.length ?? 0,
     errors: [
       trialError ? { stage: 'trials', message: trialError.message } : null,
       paidError ? { stage: 'paid', message: paidError.message } : null,

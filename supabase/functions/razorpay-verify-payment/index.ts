@@ -136,6 +136,19 @@ serve(async (req) => {
           raw_payload: { razorpay_order_id, razorpay_payment_id, planId },
         });
 
+        // Was completely missing — a shop could pay ₹199 for this
+        // add-on and get zero confirmation of any kind beyond the
+        // checkout popup closing. Real payment events deserve a real
+        // notification, same as every other event in the app.
+        await supabase.rpc('push_notification', {
+          p_user_id: userId,
+          p_category: 'payment',
+          p_title: 'Home Service Booking enabled ✅',
+          p_body: `₹${recordedAmount} charged. Active for 30 days — you can now offer home visits with the full safety feature set.`,
+          p_action_url: '/shop?tab=services',
+          p_data: {},
+        });
+
         return new Response(JSON.stringify({ success: true, addon: 'home_service', expiresAt: addonExpiresAt }), {
           headers: { ...CORS, 'Content-Type': 'application/json' },
         });
@@ -154,6 +167,17 @@ serve(async (req) => {
           distributor_plan_tier: base,
           distributor_plan_expires_at: planExpiresAt,
         }).eq('id', userId);
+
+        // Was missing — a distributor paying for a real plan upgrade
+        // got zero confirmation beyond the checkout popup closing.
+        await supabase.rpc('push_notification', {
+          p_user_id: userId,
+          p_category: 'payment',
+          p_title: `Plan upgraded to ${base.replace('_distributor', '').replace(/^\w/, (c: string) => c.toUpperCase())} ✅`,
+          p_body: `Payment successful. Your new plan is active until ${new Date(planExpiresAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}.`,
+          p_action_url: '/distributor?tab=settings',
+          p_data: {},
+        });
       } else {
         const tier = PLAN_TIER[base] ?? 'pro';
         await supabase.from('users').update({
@@ -161,6 +185,17 @@ serve(async (req) => {
           subscription_tier: tier,
           plan_expires_at: planExpiresAt,
         }).eq('id', userId);
+
+        // Same gap, shop side — a real payment succeeding deserves a
+        // real confirmation, not silence.
+        await supabase.rpc('push_notification', {
+          p_user_id: userId,
+          p_category: 'payment',
+          p_title: `Plan upgraded to ${tier.replace('service_', 'Service ').replace(/^\w/, (c: string) => c.toUpperCase())} ✅`,
+          p_body: `Payment successful. Your new plan is active until ${new Date(planExpiresAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}.`,
+          p_action_url: '/shop?tab=profile',
+          p_data: {},
+        });
       }
 
       // Decrement the launch-offer counter on any discounted (non-monthly) plan.
