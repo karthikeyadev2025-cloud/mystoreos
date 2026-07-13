@@ -1,5 +1,17 @@
 // ---- Distributor plan capabilities ----
 export const DIST_PLAN_CAPS = {
+  // Was completely missing — getDistCaps() had no trial branch at all,
+  // meaning every distributor's 15-day trial silently granted only
+  // basic_distributor limits (10 shops, no route planner, no bulk CSV,
+  // no Tally export, no advanced analytics) instead of the full-access
+  // trial promised on the landing page and training manual. Exactly
+  // the same bug class already found and fixed for shops (see
+  // PLAN_CAPS.trial below and its comment) — this is that fix, applied
+  // to the side of the app that never got it.
+  trial: {
+    maxShops: -1, routePlanner: true, bulkOrderCSV: true,
+    tallyExport: true, multiDevice: 3, advancedAnalytics: true,
+  },
   basic_distributor: {
     maxShops: 10, routePlanner: false, bulkOrderCSV: false,
     tallyExport: false, multiDevice: 1, advancedAnalytics: false,
@@ -28,6 +40,13 @@ export const DIST_FEATURE_PLAN_LABEL = {
 export function getDistCaps(user) {
   if (!user) return DIST_PLAN_CAPS.basic_distributor;
   if (user.role === 'admin') return DIST_PLAN_CAPS.enterprise_distributor;
+  // Same fix as getCaps() below: an ACTIVE trial always grants full
+  // access, regardless of whatever distributorPlanTier happens to be
+  // set to. auth-register/api.js set distributorPlanTier to its
+  // database default (basic_distributor) at signup — that's the tier
+  // the account falls back to once the trial ends, not a cap that
+  // should apply while subscription is still 'trial'.
+  if (user.subscription === 'trial') return DIST_PLAN_CAPS.trial;
   const tier = user.distributorPlanTier || 'basic_distributor';
   return DIST_PLAN_CAPS[tier] ?? DIST_PLAN_CAPS.basic_distributor;
 }

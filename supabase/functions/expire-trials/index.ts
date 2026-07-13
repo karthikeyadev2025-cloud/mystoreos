@@ -38,6 +38,19 @@ Deno.serve(async (req: Request) => {
 
   // 1. Expire free trials past their actual plan_expires_at.
   //
+  // Was .eq('role', 'shop') only — distributor trials use the exact
+  // same plan_expires_at column and subscription='trial' value (both
+  // set once at signup in auth-register, shared across roles), but
+  // this query never matched a distributor row at all. Combined with
+  // getDistCaps() previously having no trial branch (see
+  // src/lib/features.js — fixed in the same pass as this), a
+  // distributor's trial neither granted full access NOR ever actually
+  // ended: subscription would stay 'trial' indefinitely, forever
+  // eligible for whatever getDistCaps() decided a mid-trial distributor
+  // should get. Fixed together, not separately — fixing only the caps
+  // side would have left every distributor on permanent free full
+  // access with no expiry at all.
+  //
   // BUG FIX: this used to recompute a cutoff from a hardcoded
   // TRIAL_DAYS = 7 constant applied to trial_started_at — cutting every
   // trial short at 7 days, even though auth-register grants a 15-day
@@ -49,13 +62,13 @@ Deno.serve(async (req: Request) => {
   const { data: expiredTrials, error: trialError } = await supabase
     .from('users')
     .update({ subscription: 'expired' })
-    .eq('role', 'shop')
+    .in('role', ['shop', 'distributor'])
     .eq('subscription', 'trial')
     .not('plan_expires_at', 'is', null)
     .lt('plan_expires_at', now.toISOString())
     .select('id, name, phone')
 
-  // 2. Expire paid plans that have passed plan_expires_at + grace period.
+  // 2. Expire paid SHOP plans that have passed plan_expires_at + grace period.
   // Active premium subscriptions have subscription = 'active' and subscription_tier set to starter/pro/enterprise.
   const { data: expiredPaid, error: paidError } = await supabase
     .from('users')
@@ -66,13 +79,33 @@ Deno.serve(async (req: Request) => {
     .lt('plan_expires_at', graceCutoff.toISOString())
     .select('id, name, phone')
 
+  // 3. Expire paid DISTRIBUTOR plans — was missing entirely. A paid
+  // distributor's real expiry lives on a SEPARATE column
+  // (distributor_plan_expires_at), set by razorpay-verify-payment's
+  // distributor upgrade branch — that branch never touches
+  // plan_expires_at at all, so checking plan_expires_at here (like the
+  // shop query above) would have looked at a stale value frozen at
+  // whatever the original trial's end date was, not the real paid-plan
+  // expiry. Confirmed by reading the actual upgrade code before writing
+  // this rather than assuming the same column applied.
+  const { data: expiredPaidDist, error: paidDistError } = await supabase
+    .from('users')
+    .update({ subscription: 'expired' })
+    .eq('role', 'distributor')
+    .eq('subscription', 'active')
+    .not('distributor_plan_expires_at', 'is', null)
+    .lt('distributor_plan_expires_at', graceCutoff.toISOString())
+    .select('id, name, phone')
+
   const result = {
     ran_at: now.toISOString(),
     expired_trials: expiredTrials?.length ?? 0,
     expired_paid_plans: expiredPaid?.length ?? 0,
+    expired_paid_distributor_plans: expiredPaidDist?.length ?? 0,
     errors: [
       trialError ? { stage: 'trials', message: trialError.message } : null,
       paidError ? { stage: 'paid', message: paidError.message } : null,
+      paidDistError ? { stage: 'paid_distributor', message: paidDistError.message } : null,
     ].filter(Boolean),
   }
 
