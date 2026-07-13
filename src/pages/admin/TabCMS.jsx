@@ -43,6 +43,11 @@ export default function TabCMS() {
   const [social, setSocial] = useState({ instagramUrl: '', twitterUrl: '' });
   const [cfg, setCfg] = useState({ playStoreUrl: '', appStoreUrl: '', instagramUrl: '', facebookUrl: '', twitterUrl: '', youtubeUrl: '', linkedinUrl: '', whatsappUrl: '' });
   const [plans, setPlans] = useState([]);
+  // Was hardcoded to always edit Retail plan copy — an admin had no
+  // way to customize the Service tier feature descriptions at all
+  // (only the hardcoded defaults in api.js would ever show). Same
+  // businessKind split as getSubscriptionPlans() itself.
+  const [plansKind, setPlansKind] = useState('retail');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -64,8 +69,8 @@ export default function TabCMS() {
   }, []);
 
   useEffect(() => {
-    api.getSubscriptionPlans().then(setPlans).catch(() => {});
-  }, []);
+    api.getSubscriptionPlans(plansKind).then(setPlans).catch(() => {});
+  }, [plansKind]);
 
   const saveSection = async (key, fn) => {
     setBusy(b => ({ ...b, [key]: true }));
@@ -108,8 +113,8 @@ export default function TabCMS() {
   });
 
   const savePlans = () => saveSection('plans', async () => {
-    await api.saveSubscriptionPlans(plans);
-    await api.logAdminAction('update_plans', 'cms', null, null);
+    await api.saveSubscriptionPlans(plans, plansKind);
+    await api.logAdminAction('update_plans', 'cms', null, plansKind);
   });
 
   const updatePlan = (idx, field, value) => setPlans(ps => ps.map((p, i) => i === idx ? { ...p, [field]: field === 'price' ? Number(value) : value } : p));
@@ -235,6 +240,18 @@ export default function TabCMS() {
           <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#4F46E5', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
             Preview <ExternalLink size={12} />
           </a>
+        </div>
+        {/* Retail and Service plans are stored and edited completely
+            separately — same split as pricing_v2.tiers. Without this
+            toggle there was no way to edit Service tier copy at all,
+            only the hardcoded defaults in api.js would ever show. */}
+        <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 8, padding: 3, marginBottom: 14, gap: 3 }}>
+          {['retail', 'service'].map(k => (
+            <button key={k} onClick={() => setPlansKind(k)}
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: plansKind === k ? '#fff' : 'transparent', color: plansKind === k ? '#4F46E5' : '#64748B', boxShadow: plansKind === k ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+              {k === 'retail' ? '🏪 Retail plans' : '💇 Service plans'}
+            </button>
+          ))}
         </div>
         {plans.map((plan, idx) => (
           <div key={plan.id} style={{ background: '#F9FAFB', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
