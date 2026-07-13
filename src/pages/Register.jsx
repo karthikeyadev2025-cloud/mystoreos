@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff, ArrowLeft, Zap, ShieldCheck } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 import MLogo from '../components/MLogo';
+import { sendPhoneOTP, resetRecaptcha, signOutFirebasePhoneSession } from '../lib/firebasePhoneAuth';
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -170,12 +171,79 @@ const Register = () => {
   const [showCatSuggestions, setShowCatSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // Phone OTP verification — didn't exist at all before tonight.
+  // Registration used to create an account the instant the form was
+  // submitted, with zero proof the phone number actually belonged to
+  // whoever typed it in. otpStep gates handleRegister into two phases:
+  // 'idle' (nothing sent yet) -> send OTP -> 'sent' (waiting for the
+  // code) -> verify -> only then does the real account get created.
+  const [otpStep, setOtpStep] = useState('idle'); // 'idle' | 'sent'
+  const [otpCode, setOtpCode] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-  const handleRegister = async (e) => {
+  const sendOtp = async (e) => {
     e.preventDefault();
     if (registrationClosed) return toast.error('New registrations are temporarily closed. Please check back later.');
     if (!name || !phone || !pass) return toast.error('Please fill all fields');
     if (!/^\d{10}$/.test(phone)) return toast.error('Enter valid 10-digit mobile number (digits only)');
+    setSendingOtp(true);
+    try {
+      const result = await sendPhoneOTP(`+91${phone}`);
+      setConfirmationResult(result);
+      setOtpStep('sent');
+      toast.success(`OTP sent to +91 ${phone}`);
+    } catch (err) {
+      let msg = err?.message || 'Could not send OTP. Please try again.';
+      if (msg.includes('too-many-requests')) msg = 'Too many attempts. Please wait a few minutes and try again.';
+      else if (msg.includes('invalid-phone-number')) msg = 'That doesn\u2019t look like a valid phone number.';
+      toast.error(msg);
+      resetRecaptcha();
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const changePhoneNumber = () => {
+    setOtpStep('idle');
+    setOtpCode('');
+    setConfirmationResult(null);
+    resetRecaptcha();
+  };
+
+  const resendOtp = async () => {
+    resetRecaptcha();
+    setOtpStep('idle');
+    // Re-trigger the send on the next tick so the recaptcha reset above
+    // has actually taken effect before a fresh one is created.
+    setTimeout(() => sendOtp({ preventDefault: () => {} }), 50);
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!confirmationResult) return toast.error('Please verify your phone number first.');
+    if (!/^\d{6}$/.test(otpCode)) return toast.error('Enter the 6-digit code sent to your phone.');
+    setVerifyingOtp(true);
+    try {
+      await confirmationResult.confirm(otpCode);
+      // Phone ownership proven — immediately sign out of the Firebase
+      // side, we never wanted an ongoing Firebase session, only the
+      // verification itself. The real session is Supabase's, created
+      // by completeRegistration() right below.
+      await signOutFirebasePhoneSession();
+    } catch (err) {
+      setVerifyingOtp(false);
+      let msg = err?.message || 'Incorrect code.';
+      if (msg.includes('invalid-verification-code')) msg = 'That code doesn\u2019t match. Check and try again.';
+      else if (msg.includes('code-expired')) msg = 'This code has expired — request a new one.';
+      return toast.error(msg);
+    }
+    await completeRegistration();
+    setVerifyingOtp(false);
+  };
+
+  const completeRegistration = async () => {
     try {
       setLoading(true);
       const newUser = await api.register(name, phone, pass, businessType);
@@ -277,7 +345,8 @@ const Register = () => {
             </p>
           </div>
 
-          <form onSubmit={handleRegister}>
+          <form onSubmit={otpStep === 'idle' ? sendOtp : handleRegister}>
+            <div id="firebase-recaptcha-container"></div>
             {claimMode && (
               <div style={{ background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', borderRadius: 12, padding: '14px 16px', marginBottom: 18, boxShadow: '0 6px 16px rgba(79,70,229,.25)' }}>
                 <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 4 }}>📲 Claim your bills</div>
@@ -424,19 +493,47 @@ const Register = () => {
                 className="reg-input"
                 type="tel"
                 value={phone}
-                onChange={e => !claimMode && setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                onChange={e => !claimMode && otpStep === 'idle' && setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="10-digit mobile number"
                 maxLength={10}
                 inputMode="numeric"
-                readOnly={claimMode}
-                style={claimMode ? { background: '#F1F5F9', cursor: 'not-allowed' } : undefined}
+                readOnly={claimMode || otpStep === 'sent'}
+                style={(claimMode || otpStep === 'sent') ? { background: '#F1F5F9', cursor: 'not-allowed' } : undefined}
               />
               {claimMode && (
                 <div style={{ fontSize: 11, color: '#64748B', marginTop: 5 }}>
                   Locked — registering with the number your bill was sent to.
                 </div>
               )}
+              {otpStep === 'sent' && (
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5 }}>
+                  Code sent to this number. <button type="button" onClick={changePhoneNumber} style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Change number</button>
+                </div>
+              )}
             </div>
+
+            {/* OTP — didn't exist before tonight. A real 6-digit code
+                sent via Firebase Phone Auth, required before the
+                account underneath is actually created. */}
+            {otpStep === 'sent' && (
+              <div style={{ marginBottom: 16 }}>
+                <label className="reg-label">ENTER 6-DIGIT CODE</label>
+                <input
+                  className="reg-input"
+                  type="text"
+                  inputMode="numeric"
+                  value={otpCode}
+                  onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  maxLength={6}
+                  autoFocus
+                  style={{ letterSpacing: 4, fontSize: 18, textAlign: 'center' }}
+                />
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5, textAlign: 'center' }}>
+                  Didn't get it? <button type="button" onClick={resendOtp} style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Resend code</button>
+                </div>
+              </div>
+            )}
 
             {/* Password */}
             <div style={{ marginBottom: 24 }}>
@@ -446,9 +543,10 @@ const Register = () => {
                   className="reg-input"
                   type={showPassword ? 'text' : 'password'}
                   value={pass}
-                  onChange={e => setPass(e.target.value)}
+                  onChange={e => otpStep === 'idle' && setPass(e.target.value)}
                   placeholder="Min 4 characters"
-                  style={{ paddingRight: 44 }}
+                  readOnly={otpStep === 'sent'}
+                  style={{ paddingRight: 44, ...(otpStep === 'sent' ? { background: '#F1F5F9', cursor: 'not-allowed' } : {}) }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
                   position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
@@ -470,11 +568,15 @@ const Register = () => {
               </div>
             )}
 
-            <button className="reg-submit" type="submit" disabled={loading || registrationClosed}>
-              {loading ? 'Creating account…' : (
-                businessType === 'customer'
-                  ? <><ShieldCheck size={16}/>Create Account</>
-                  : <><Zap size={16}/>Start Free 15-Day Trial</>
+            <button className="reg-submit" type="submit" disabled={loading || sendingOtp || verifyingOtp || registrationClosed}>
+              {otpStep === 'idle' ? (
+                sendingOtp ? 'Sending code…' : <>Send Verification Code</>
+              ) : (
+                verifyingOtp || loading ? 'Verifying…' : (
+                  businessType === 'customer'
+                    ? <><ShieldCheck size={16}/>Verify &amp; Create Account</>
+                    : <><Zap size={16}/>Verify &amp; Start Free 15-Day Trial</>
+                )
               )}
             </button>
           </form>
