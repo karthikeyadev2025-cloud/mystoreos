@@ -782,8 +782,37 @@ export const api = {
   },
 
   async getAdminStats() {
-    const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999, dist_basic: 999, dist_pro: 2499, dist_enterprise: 4999 };
-    const SHOP_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
+    // Was hardcoded, stale, and — critically — SHOP_PRICES had no
+    // service_starter/service_pro/service_enterprise entries at all.
+    // isPaidShop() used SHOP_PRICES[tier] != null as its validity check,
+    // so a genuinely paying Service-tier business would silently fail
+    // that check and be excluded from "Paid Shops" and shopMRR entirely
+    // — not mispriced, just invisible, as if they'd never paid. Same
+    // staleness problem for distributor pricing: any price an admin
+    // changes in Settings > Pricing would never be reflected here,
+    // this function would keep computing MRR from whatever was
+    // hardcoded at the time this file was last edited.
+    const pricing = await this.getPricing();
+    const DIST_PRICES = {
+      basic_distributor: pricing.tiers.basic_distributor?.monthly ?? 999,
+      pro_distributor: pricing.tiers.pro_distributor?.monthly ?? 2499,
+      enterprise_distributor: pricing.tiers.enterprise_distributor?.monthly ?? 4999,
+      // Legacy aliases some existing rows may still carry (see
+      // 20260714_standardize_distributor_tier_naming.sql) — kept so a
+      // not-yet-backfilled row still counts correctly rather than
+      // silently vanishing from the total.
+      dist_basic: pricing.tiers.basic_distributor?.monthly ?? 999,
+      dist_pro: pricing.tiers.pro_distributor?.monthly ?? 2499,
+      dist_enterprise: pricing.tiers.enterprise_distributor?.monthly ?? 4999,
+    };
+    const SHOP_PRICES = {
+      starter: pricing.tiers.starter?.monthly ?? 499,
+      pro: pricing.tiers.pro?.monthly ?? 999,
+      enterprise: pricing.tiers.enterprise?.monthly ?? 2499,
+      service_starter: pricing.tiers.service_starter?.monthly ?? 249,
+      service_pro: pricing.tiers.service_pro?.monthly ?? 699,
+      service_enterprise: pricing.tiers.service_enterprise?.monthly ?? 1499,
+    };
     // A shop counts as PAID only if subscription === 'active' (a real payment)
     // AND it has a future plan expiry. Trials carry subscription='trial' with a
     // future plan_expires_at (the trial end) and a default tier, so checking the

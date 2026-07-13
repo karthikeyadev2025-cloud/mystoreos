@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 
 const TIER_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
 const TIER_LABELS = { basic_distributor: 'Basic', pro_distributor: 'Pro', enterprise_distributor: 'Enterprise' };
-const TIER_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
 const TIERS = ['basic_distributor', 'pro_distributor', 'enterprise_distributor'];
 
 const S = {
@@ -17,7 +16,7 @@ const S = {
   td: { color: '#0F172A', fontSize: '13px', padding: '12px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
 };
 
-function UpgradeModal({ dist, onClose, onDone }) {
+function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
   const [tier, setTier] = useState(dist.distributorPlanTier || 'basic_distributor');
   const [busy, setBusy] = useState(false);
   const save = async () => {
@@ -41,7 +40,7 @@ function UpgradeModal({ dist, onClose, onDone }) {
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: TIER_COLORS[t] }} />
               {TIER_LABELS[t]}
             </span>
-            <span style={{ fontSize: '11px', color: '#64748B' }}>₹{TIER_PRICES[t]}/mo</span>
+            <span style={{ fontSize: '11px', color: '#64748B' }}>₹{tierPrices[t]}/mo</span>
           </button>
         ))}
         <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
@@ -92,12 +91,21 @@ export default function TabDistributors() {
   const [upgradeModal, setUpgradeModal] = useState(null);
   const [resetModal, setResetModal] = useState(null);
   const [busy, setBusy] = useState({});
+  // Was a hardcoded TIER_PRICES constant, never reflecting whatever an
+  // admin actually configured in Settings > Pricing. Fetched live now,
+  // same source of truth as everywhere else this was fixed tonight.
+  const [tierPrices, setTierPrices] = useState({ basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 });
 
   const load = async () => {
     try {
-      const [all, top] = await Promise.all([api.getAllUsers(), api.getTopDistributorsByCredit(5)]);
+      const [all, top, pricing] = await Promise.all([api.getAllUsers(), api.getTopDistributorsByCredit(5), api.getPricing()]);
       setDistributors(all.filter(u => u.role === 'distributor'));
       setTopByCredit(top);
+      setTierPrices({
+        basic_distributor: Number(pricing?.tiers?.basic_distributor?.monthly) || 999,
+        pro_distributor: Number(pricing?.tiers?.pro_distributor?.monthly) || 2499,
+        enterprise_distributor: Number(pricing?.tiers?.enterprise_distributor?.monthly) || 4999,
+      });
     } catch { toast.error('Failed to load distributors'); }
     finally { setLoading(false); }
   };
@@ -130,7 +138,7 @@ export default function TabDistributors() {
 
   if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading distributors...</div>;
 
-  const totalMRR = distributors.reduce((s, d) => s + (TIER_PRICES[d.distributorPlanTier] || 0), 0);
+  const totalMRR = distributors.reduce((s, d) => s + (tierPrices[d.distributorPlanTier] || 0), 0);
 
   return (
     <div className="admin-tab-content">
@@ -208,7 +216,7 @@ export default function TabDistributors() {
                     <td style={{ ...S.td, color: '#475569' }}>{d.phone}</td>
                     <td style={S.td}><span style={S.badge(tier)}>{TIER_LABELS[tier]}</span></td>
                     <td style={S.td}><span style={{ color: d.status === 'active' ? '#10B981' : '#F59E0B', fontSize: '12px', fontWeight: 600 }}>{d.status === 'active' ? '● Active' : '● Pending'}</span></td>
-                    <td style={{ ...S.td, color: '#10B981', fontWeight: 600 }}>₹{TIER_PRICES[tier] || 0}</td>
+                    <td style={{ ...S.td, color: '#10B981', fontWeight: 600 }}>₹{tierPrices[tier] || 0}</td>
                     <td style={S.td}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {d.status === 'active'
@@ -228,7 +236,7 @@ export default function TabDistributors() {
         </div>
       </div>
 
-      {upgradeModal && <UpgradeModal dist={upgradeModal} onClose={() => setUpgradeModal(null)} onDone={() => { setUpgradeModal(null); load(); }} />}
+      {upgradeModal && <UpgradeModal dist={upgradeModal} onClose={() => setUpgradeModal(null)} onDone={() => { setUpgradeModal(null); load(); }} tierPrices={tierPrices} />}
       {resetModal && <ResetModal dist={resetModal} onClose={() => setResetModal(null)} onDone={() => { setResetModal(null); }} />}
     </div>
   );

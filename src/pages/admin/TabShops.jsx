@@ -14,6 +14,15 @@ const PLAN_CFG = {
   starter:    { color: '#f59e0b', bg: '#FEF3C7', label: 'Starter',    icon: '🌱' },
   pro:        { color: '#4F46E5', bg: '#EEF2FF', label: 'Pro',        icon: '⚡' },
   enterprise: { color: '#10b981', bg: '#ECFDF5', label: 'Enterprise', icon: '🏆' },
+  // Was missing entirely — every Service-tier shop (service_starter/
+  // _pro/_enterprise, added when Service pricing was split from Retail)
+  // fell through to PLAN_CFG[tier] || PLAN_CFG.trial, meaning a paying
+  // Service Pro customer's badge in the admin's own shop list showed
+  // "⏱ Trial" — visually indistinguishable from someone who hadn't
+  // paid at all.
+  service_starter:    { color: '#fb923c', bg: '#FFF7ED', label: 'Svc Starter',    icon: '🌱' },
+  service_pro:        { color: '#a78bfa', bg: '#F5F3FF', label: 'Svc Pro',        icon: '⚡' },
+  service_enterprise: { color: '#34d399', bg: '#ECFDF5', label: 'Svc Enterprise', icon: '🏆' },
 };
 const STATUS_CFG = {
   active:    { color: '#10B981', bg: '#ECFDF5', dot: '#10B981', label: 'Active' },
@@ -28,6 +37,9 @@ const FILTERS = [
   { key: 'starter',    label: '🌱 Starter' },
   { key: 'pro',        label: '⚡ Pro' },
   { key: 'enterprise', label: '🏆 Enterprise' },
+  { key: 'service_starter',    label: '🌱 Svc Starter' },
+  { key: 'service_pro',        label: '⚡ Svc Pro' },
+  { key: 'service_enterprise', label: '🏆 Svc Enterprise' },
 ];
 
 const font = { fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' };
@@ -368,7 +380,11 @@ export default function TabShops() {
     total:      shops.length,
     active:     shops.filter(s => s.status === 'active').length,
     pending:    pending.filter(u => u.role === 'shop').length,
-    pro:        shops.filter(s => s.subscriptionTier === 'pro' || s.subscriptionTier === 'enterprise').length,
+    // Was only counting Retail pro/enterprise — every paying Service
+    // Pro/Enterprise business was silently excluded from this count,
+    // same bug class as getAdminStats' MRR calculation fixed alongside
+    // this.
+    pro:        shops.filter(s => ['pro', 'enterprise', 'service_pro', 'service_enterprise'].includes(s.subscriptionTier)).length,
     trial:      shops.filter(s => s.subscription === 'trial').length,
     noPhotos:   shops.filter(s => !s.shopPhotos?.length).length,
   }), [shops, pending]);
@@ -381,6 +397,13 @@ export default function TabShops() {
     else if (filter === 'starter') list = list.filter(s => s.subscriptionTier === 'starter');
     else if (filter === 'pro')     list = list.filter(s => s.subscriptionTier === 'pro');
     else if (filter === 'enterprise') list = list.filter(s => s.subscriptionTier === 'enterprise');
+    // Was missing — the three new filter tabs above had no matching
+    // branch here at all, so selecting "Svc Starter"/"Svc Pro"/
+    // "Svc Enterprise" would silently fall through and show the
+    // unfiltered full shop list instead.
+    else if (filter === 'service_starter') list = list.filter(s => s.subscriptionTier === 'service_starter');
+    else if (filter === 'service_pro') list = list.filter(s => s.subscriptionTier === 'service_pro');
+    else if (filter === 'service_enterprise') list = list.filter(s => s.subscriptionTier === 'service_enterprise');
 
     if (search) {
       const q = search.toLowerCase();

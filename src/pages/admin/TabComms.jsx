@@ -218,7 +218,7 @@ export default function TabComms() {
             <div>
               <label style={S.label}>Filter by Tier</label>
               <select value={bulkTier} onChange={e => { setBulkTier(e.target.value); setBulkStats(null); }} style={{ ...S.input, cursor: 'pointer' }}>
-                {['all', 'trial', 'starter', 'pro', 'enterprise'].map(t => <option key={t} value={t}>{t}</option>)}
+                {['all', 'trial', 'starter', 'pro', 'enterprise', 'service_starter', 'service_pro', 'service_enterprise'].map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           )}

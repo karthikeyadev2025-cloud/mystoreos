@@ -4,9 +4,7 @@ import { RefreshCw, TrendingUp, IndianRupee, Store, Truck, CreditCard } from 'lu
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
-const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
-const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981' };
+const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', service_starter: '#fb923c', service_pro: '#a78bfa', service_enterprise: '#34d399' };
 const DIST_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
 
 const S = {
@@ -40,21 +38,24 @@ export default function TabRevenue() {
   const [revenueData, setRevenueData] = useState([]);
   const [shops, setShops] = useState([]);
   const [distributors, setDistributors] = useState([]);
+  const [pricing, setPricing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = async (quiet = false) => {
     if (!quiet) setLoading(true); else setRefreshing(true);
     try {
-      const [s, rev, all] = await Promise.all([
+      const [s, rev, all, pr] = await Promise.all([
         api.getAdminStats(),
         api.getRevenueByMonth(12),
         api.getAllUsers(),
+        api.getPricing(),
       ]);
       setStats(s);
       setRevenueData(rev);
       setShops(all.filter(u => u.role === 'shop'));
       setDistributors(all.filter(u => u.role === 'distributor'));
+      setPricing(pr);
     } catch { toast.error('Failed to load revenue data'); }
     finally { setLoading(false); setRefreshing(false); }
   };
@@ -63,25 +64,35 @@ export default function TabRevenue() {
 
   if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading revenue...</div>;
 
-  const shopTierBreakdown = ['starter', 'pro', 'enterprise'].map(t => ({
-    name: t.charAt(0).toUpperCase() + t.slice(1),
+  // Was ['starter', 'pro', 'enterprise'] only — every Service-tier
+  // business (service_starter/_pro/_enterprise, added when Service
+  // pricing was split from Retail) was completely invisible here: not
+  // counted, no MRR contribution, missing from the chart. Prices now
+  // read live from pricing.tiers instead of a hardcoded, stale map —
+  // an admin's price change now actually shows up here immediately.
+  const shopTierBreakdown = ['starter', 'pro', 'enterprise', 'service_starter', 'service_pro', 'service_enterprise'].map(t => ({
+    name: t.replace('service_', 'Svc ').replace(/^\w/, c => c.toUpperCase()),
     count: shops.filter(s => (s.subscriptionTier || 'starter') === t).length,
-    mrr: shops.filter(s => (s.subscriptionTier || 'starter') === t).length * TIER_PRICES[t],
+    mrr: shops.filter(s => (s.subscriptionTier || 'starter') === t).length * (Number(pricing?.tiers?.[t]?.monthly) || 0),
     color: TIER_COLORS[t],
   }));
 
   const distTierBreakdown = ['basic_distributor', 'pro_distributor', 'enterprise_distributor'].map(t => ({
     name: t.replace('_distributor', '').replace('_', ' '),
     count: distributors.filter(d => (d.distributorPlanTier || 'basic_distributor') === t).length,
-    mrr: distributors.filter(d => (d.distributorPlanTier || 'basic_distributor') === t).length * DIST_PRICES[t],
+    mrr: distributors.filter(d => (d.distributorPlanTier || 'basic_distributor') === t).length * (Number(pricing?.tiers?.[t]?.monthly) || 0),
     color: DIST_COLORS[t],
   }));
 
+  // Funnel's Pro+/Enterprise stages only ever checked the Retail tier
+  // names — a Service Pro or Service Enterprise business (a real,
+  // paying, upgraded customer) would never register as having
+  // progressed past "Active" in this funnel at all.
   const funnelData = [
     { name: 'Total Shops', value: shops.length, fill: '#4F46E5' },
     { name: 'Active (paid)', value: shops.filter(s => s.subscriptionTier !== 'trial' && s.subscription !== 'trial').length, fill: '#818CF8' },
-    { name: 'Pro+', value: shops.filter(s => ['pro', 'enterprise'].includes(s.subscriptionTier)).length, fill: '#10B981' },
-    { name: 'Enterprise', value: shops.filter(s => s.subscriptionTier === 'enterprise').length, fill: '#F59E0B' },
+    { name: 'Pro+', value: shops.filter(s => ['pro', 'enterprise', 'service_pro', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: '#10B981' },
+    { name: 'Enterprise', value: shops.filter(s => ['enterprise', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: '#F59E0B' },
   ];
 
   const totalMRR = (stats?.shopMRR || 0) + (stats?.distMRR || 0);
