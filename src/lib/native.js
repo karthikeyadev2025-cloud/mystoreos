@@ -132,7 +132,15 @@ export async function getAppInfo() {
 }
 
 // ── Push Notifications ────────────────────────────────────────────────────────
-export async function setupPushNotifications(onReceive, onAction) {
+// Was accepting (onReceive, onAction) but had no way to actually get the
+// FCM token back out — the 'registration' listener only ever
+// console.log'd it (`return token.value` inside an event listener
+// callback does nothing; that return value is discarded by the event
+// system, not received by anything). Added onToken so a caller can
+// actually persist the token to the backend — see
+// NativePushRegistration.jsx, which is what this was missing to be
+// useful for anything beyond a console log.
+export async function setupPushNotifications(onToken, onReceive, onAction) {
   if (!isNative()) return null;
   try {
     let perm = await PushNotifications.checkPermissions();
@@ -141,7 +149,10 @@ export async function setupPushNotifications(onReceive, onAction) {
     await PushNotifications.register();
     PushNotifications.addListener('registration', token => {
       console.log('[MyStore OS] FCM Token:', token.value);
-      return token.value;
+      if (onToken) onToken(token.value);
+    });
+    PushNotifications.addListener('registrationError', err => {
+      console.warn('[MyStore OS] FCM registration error:', err);
     });
     if (onReceive) PushNotifications.addListener('pushNotificationReceived', onReceive);
     if (onAction)  PushNotifications.addListener('pushNotificationActionPerformed', onAction);

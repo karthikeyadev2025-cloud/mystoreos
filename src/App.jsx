@@ -8,6 +8,7 @@ import { I18nProvider } from './lib/i18n';
 import { SiteConfigProvider, useSiteConfig } from './lib/siteConfig';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushNavigationBridge from './components/PushNavigationBridge';
+import NativePushRegistration from './components/NativePushRegistration';
 import { DashboardSkeleton } from './components/Skeleton';
 
 // Route-level code splitting — each page loads only when navigated to
@@ -171,6 +172,7 @@ function App() {
           <AuthProvider>
           <BrowserRouter>
               <PushNavigationBridge />
+              <NativePushRegistration />
               <MockDataWarningBanner />
               <AnnouncementBanner />
               <MaintenanceModeOverlay />

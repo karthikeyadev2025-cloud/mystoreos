@@ -3833,6 +3833,29 @@ export const api = {
     return true;
   },
 
+  // Native (Android/iOS) FCM push token — the client='native' path the
+  // push_subscriptions table already reserved a column for (see its
+  // original comment) but never had a corresponding save function.
+  // Deliberately its own function rather than overloading
+  // savePushSubscription: an FCM token has no p256dh/auth key pair at
+  // all (that's a Web Push VAPID concept), so reusing the same shape
+  // would mean passing meaningless empty strings for fields that
+  // genuinely don't apply here.
+  async saveFCMToken(userId, token) {
+    if (!isSupabaseConfigured || !userId || !token) return null;
+    const { error } = await supabase.from('push_subscriptions').upsert({
+      user_id: userId,
+      endpoint: token,
+      keys_p256dh: null,
+      keys_auth: null,
+      client: 'native',
+      user_agent: navigator.userAgent,
+      last_used_at: new Date().toISOString(),
+    }, { onConflict: 'endpoint' });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async deletePushSubscription(endpoint) {
     if (!isSupabaseConfigured || !endpoint) return null;
     const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
