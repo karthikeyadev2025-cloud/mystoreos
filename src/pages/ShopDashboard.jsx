@@ -8262,7 +8262,16 @@ const ShopDashboard = () => {
           </div>
         )}
         
-        {isOwner && (
+        {/* Products/Credit/Restock are retail concepts — a service
+            business (salon, spa, clinic) has no product catalogue to
+            manage stock-wise, no supplier credit book, and nothing to
+            restock from a distributor. Desktop's sidebar already
+            correctly hides these three for service businesses
+            (retailOnly: true in DesktopSidebar.jsx's TABS config) —
+            this mobile nav had no businessKind check on any of the
+            three at all, so a service business on mobile saw all
+            three regardless. Matching desktop's exact gating here. */}
+        {isOwner && !isServiceBusiness && (
           <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
             <Package size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Products</p>
@@ -8275,7 +8284,7 @@ const ShopDashboard = () => {
           {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#EF4444', width:10, height:10, borderRadius:'50%'}}></span>}
         </div>
 
-        {isOwner && (
+        {isOwner && !isServiceBusiness && (
           <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Credit</p>
@@ -8289,7 +8298,7 @@ const ShopDashboard = () => {
           </div>
         )}
 
-        {isOwner && (
+        {isOwner && !isServiceBusiness && (
           <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
             <Truck size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Restock</p>
