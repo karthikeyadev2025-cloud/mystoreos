@@ -6,7 +6,6 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const PLAN_AMOUNTS: Record<string, number> = { starter: 499, pro: 999, enterprise: 2499 };
 const baseTier = (planId: string) => planId.replace(/_(quarterly|yearly)$/, '');
 const PLAN_TIER: Record<string, string> = {
   starter: 'starter', pro: 'pro', enterprise: 'enterprise',
@@ -59,6 +58,31 @@ serve(async (req) => {
         status: 401, headers: { ...CORS, 'Content-Type': 'application/json' },
       });
     }
+
+    // Fetch the REAL amount actually charged, straight from Razorpay's
+    // own order record — was previously PLAN_AMOUNTS[planId] ?? 999, a
+    // hardcoded map with only starter/pro/enterprise entries. ANY
+    // Service tier or distributor plan (service_pro, basic_distributor,
+    // any _quarterly/_yearly variant, all of them) fell through to the
+    // ?? 999 fallback and got permanently recorded in payment_history
+    // as ₹999 regardless of what was actually paid — not a display bug,
+    // the SOURCE DATA ITSELF was wrong the moment it was written.
+    // Fetching the order back from Razorpay directly means this can
+    // never drift from reality — it's not a second computation that
+    // could disagree with the first, it's the same charge Razorpay
+    // itself already processed.
+    let actualAmountPaid = 999;
+    try {
+      const rzKeyId = Deno.env.get('RAZORPAY_KEY_ID');
+      const rzAuth = btoa(`${rzKeyId}:${keySecret}`);
+      const orderRes = await fetch(`https://api.razorpay.com/v1/orders/${razorpay_order_id}`, {
+        headers: { 'Authorization': `Basic ${rzAuth}` },
+      });
+      if (orderRes.ok) {
+        const orderData = await orderRes.json();
+        if (orderData?.amount) actualAmountPaid = orderData.amount / 100;
+      }
+    } catch (_e) { /* keep the 999 fallback if the fetch itself fails */ }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -158,7 +182,7 @@ serve(async (req) => {
         razorpay_payment_id,
         event_type: 'payment.captured',
         plan_id: planId,
-        amount: PLAN_AMOUNTS[planId] ?? 999,
+        amount: actualAmountPaid,
         currency: 'INR',
         status: 'success',
         raw_payload: { razorpay_order_id, razorpay_payment_id, planId },

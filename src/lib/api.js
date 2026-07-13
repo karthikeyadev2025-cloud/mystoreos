@@ -4034,18 +4034,46 @@ export const api = {
 
   // ---- ADMIN: ANALYTICS ----
   async getRevenueByMonth(months = 6) {
-    const PLAN_PRICES = { starter: 499, pro: 999, enterprise: 2499 };
-    const DIST_PRICES = { basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 };
+    // Was computing the SAME number for every single month in the
+    // "trend" — activeShops/activeDists were derived from CURRENT
+    // users regardless of which month iteration i represented, so the
+    // chart showed today's snapshot repeated identically 12 times, not
+    // real history. Also used the same hardcoded, Service-tier-blind
+    // PLAN_PRICES/DIST_PRICES map already found and fixed in
+    // getAdminStats() and every admin tab that touched pricing tonight.
+    //
+    // Fixed properly: payment_history has a real amount (now correctly
+    // recorded at the source — see razorpay-verify-payment, which used
+    // to write a hardcoded ₹999 for every Service or distributor plan
+    // regardless of what was actually charged) and a real processed_at
+    // timestamp for every actual transaction. Grouping real payments by
+    // real month gives real revenue history — this is actual cash
+    // collected per month, not a recomputed subscription snapshot that
+    // could disagree with what really happened.
     if (isSupabaseConfigured) {
-      const { data: users } = await supabase.from('users').select('role, subscription_tier, distributor_plan_tier, created_at, plan_expires_at');
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - (months - 1));
+      cutoff.setDate(1);
+      const { data: payments } = await supabase
+        .from('payment_history')
+        .select('amount, plan_id, processed_at')
+        .eq('status', 'success')
+        .gte('processed_at', cutoff.toISOString());
+      const rows = payments || [];
       const result = [];
       for (let i = months - 1; i >= 0; i--) {
         const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
         const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-        const activeShops = (users || []).filter(u => u.role === 'shop' && u.subscription_tier && u.subscription_tier !== 'trial');
-        const shopRev = activeShops.reduce((s, u) => s + (PLAN_PRICES[u.subscription_tier] || 0), 0);
-        const activeDists = (users || []).filter(u => u.role === 'distributor');
-        const distRev = activeDists.reduce((s, u) => s + (DIST_PRICES[u.distributor_plan_tier] || 0), 0);
+        const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+        const monthRows = rows.filter(r => {
+          if (!r.processed_at) return false;
+          const rd = new Date(r.processed_at);
+          return `${rd.getFullYear()}-${rd.getMonth()}` === monthKey;
+        });
+        const shopRev = monthRows.filter(r => !String(r.plan_id).includes('distributor') && r.plan_id !== 'home_service_addon')
+          .reduce((s, r) => s + Number(r.amount || 0), 0);
+        const distRev = monthRows.filter(r => String(r.plan_id).includes('distributor'))
+          .reduce((s, r) => s + Number(r.amount || 0), 0);
         result.push({ month: label, shops: shopRev, distributors: distRev, total: shopRev + distRev });
       }
       return result;
