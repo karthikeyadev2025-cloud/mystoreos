@@ -6,7 +6,7 @@ import { isTrialExpired } from '../lib/api';
 // Returns the current user's subscription state and feature capabilities.
 //
 // isExpired  — trial ran out OR subscription = 'expired' OR plan_expires_at is in the past
-// isOnTrial  — currently within the 7-day free trial
+// isOnTrial  — currently within the 15-day free trial
 // planLabel  — human-readable plan name for display
 // capabilities — raw caps object (maxProducts, maxDevices, etc.)
 // hasFeature(key) — boolean gate check for a named capability
@@ -24,7 +24,15 @@ export function useSubscription() {
   }, [user]);
 
   const isOnTrial = useMemo(
-    () => !!(user && user.subscription === 'trial' && !isTrialExpired(user) && user.subscription !== 'active' && !user.subscriptionTier),
+    // Was `... && !user.subscriptionTier` — but subscriptionTier is
+    // ALWAYS populated at signup (starter, service_starter, or
+    // basic_distributor), so that guard could never actually be true
+    // for any real shop. Every trial-period shop saw their own plan
+    // mislabeled below as "Starter Plan" instead of "Free Trial" — not
+    // a capability bug (getCaps()/hasCap() already correctly check
+    // subscription === 'trial' directly, unaffected by this), purely a
+    // confusing display label.
+    () => !!(user && user.subscription === 'trial' && !isTrialExpired(user) && user.subscription !== 'active'),
     [user]
   );
 

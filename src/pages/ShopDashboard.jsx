@@ -2148,8 +2148,16 @@ const ShopDashboard = () => {
     doc.setTextColor(200, 210, 220);
     if (!isThermal) doc.text("MyStore OS © " + new Date().getFullYear(), marginL, yOffset);
 
-      // Watermark on trial bills
-      const isTrialBill = !user.subscriptionTier && (user.subscription === 'trial' || user.subscription === 'expired');
+      // Watermark on trial bills — was `!user.subscriptionTier && (...)`,
+      // but subscriptionTier is ALWAYS populated at signup (starter,
+      // service_starter, or basic_distributor — auth-register sets it
+      // unconditionally), so this condition could never actually be
+      // true for any real shop. The "Upgrade at mystoreos.in for
+      // professional invoices" watermark — clearly meant as a
+      // conversion nudge — has never once actually appeared on any
+      // trial shop's printed bill. Fixed to check subscription status
+      // directly, the same correct pattern already used elsewhere.
+      const isTrialBill = user.subscription === 'trial' || user.subscription === 'expired';
       if (isTrialBill) {
         doc.setGState(new doc.GState({ opacity: 0.08 }));
         doc.setTextColor(220, 38, 38);

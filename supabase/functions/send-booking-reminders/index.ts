@@ -47,13 +47,27 @@ const SMS_SENDER         = Deno.env.get('MSG91_SENDER_ID') || 'MYSTR'
 
 // Which plan tiers get reminders. Kept in sync with features.js
 // serviceReminders — trial, pro, enterprise are true; starter is false.
-const REMINDER_ELIGIBLE_TIERS = new Set(['pro', 'enterprise'])
+// Was missing service_pro/service_enterprise entirely (added when
+// Service pricing was split from Retail) — every Service Pro or
+// Enterprise business, correctly entitled to this exact feature per
+// PLAN_CAPS, had their customers' reminders silently skipped by this
+// cron job. Not a reporting bug like the others found tonight — an
+// actual feature failure for a paying customer.
+const REMINDER_ELIGIBLE_TIERS = new Set(['pro', 'enterprise', 'service_pro', 'service_enterprise'])
 // Trial: cover both possible shapes (subscription='trial' with no tier)
 const isEligibleForReminders = (shop: any) => {
   if (!shop) return false
   if (shop.subscription_tier && REMINDER_ELIGIBLE_TIERS.has(shop.subscription_tier)) return true
-  // Trial = subscription='trial' AND no explicit tier
-  if (shop.subscription === 'trial' && !shop.subscription_tier) return true
+  // Was `shop.subscription === 'trial' && !shop.subscription_tier` — but
+  // auth-register ALWAYS sets subscription_tier at signup (starter,
+  // service_starter, or basic_distributor), so subscription_tier is
+  // never actually null for a real account. This branch could never
+  // fire for any genuine trial shop — every trial-period business was
+  // silently getting zero reminders sent, contradicting the "every
+  // feature unlocked during your 15-day trial" promise (PLAN_CAPS.trial
+  // has serviceReminders: true). Fixed to check the trial status
+  // itself, not an impossible precondition on top of it.
+  if (shop.subscription === 'trial') return true
   return false
 }
 
