@@ -6,7 +6,15 @@ import { Zap, X } from 'lucide-react';
 // the admin panel without a code deploy. Defaults to a generic "free trial,
 // no card needed" launch offer when nothing's been configured yet.
 const DEFAULT_PROMO = {
-  active: true,
+  // Was true — this exact "First 500 shops" launch offer had been
+  // showing to every visitor with no way to turn it off, since the
+  // admin control the code comment above referenced was never
+  // actually built (checked: same true of landingHero/landingStats/
+  // landingTestimonials — none of them have a real admin UI despite
+  // the same claim). Defaulting to off now; a real admin toggle is
+  // being added so this can be turned back on for a genuine future
+  // promotion without needing a code change.
+  active: false,
   emoji: '🚀',
   text: 'Launch Offer — First 500 shops get PRO free for 30 days',
   ctaLabel: 'Claim Now',

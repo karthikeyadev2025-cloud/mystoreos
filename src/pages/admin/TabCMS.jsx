@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, FileText, Megaphone, X, CreditCard, ExternalLink } from 'lucide-react';
+import { Save, Globe, FileText, Megaphone, X, CreditCard, ExternalLink, Zap } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useSiteConfig } from '../../lib/siteConfig';
 import { toast } from 'react-toastify';
@@ -49,6 +49,15 @@ export default function TabCMS() {
   // businessKind split as getSubscriptionPlans() itself.
   const [plansKind, setPlansKind] = useState('retail');
   const [saving, setSaving] = useState(false);
+  // Promo bar — was claimed as "admin-editable" in a code comment on
+  // LandingPromoBar.jsx, but no admin UI for it ever actually existed
+  // (confirmed: same true of the hero/stats/testimonials sections this
+  // component's comment said it followed the same pattern as). Uses
+  // api.getSiteConfig/saveSiteConfig directly with the exact
+  // 'landingPromo' key LandingPage.jsx actually reads — NOT
+  // updateConfigs() above, which writes to a different, generic config
+  // bucket that has no connection to this key at all.
+  const [promo, setPromo] = useState({ active: false, emoji: '🚀', text: '', ctaLabel: 'Claim Now', ctaHref: '/register', endsAt: '' });
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -72,6 +81,15 @@ export default function TabCMS() {
     api.getSubscriptionPlans(plansKind).then(setPlans).catch(() => {});
   }, [plansKind]);
 
+  useEffect(() => {
+    const t = setTimeout(() => {
+      api.getSiteConfig('landingPromo', null).then(p => {
+        if (p) setPromo({ active: !!p.active, emoji: p.emoji || '🚀', text: p.text || '', ctaLabel: p.ctaLabel || 'Claim Now', ctaHref: p.ctaHref || '/register', endsAt: p.endsAt || '' });
+      }).catch(() => {});
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+
   const saveSection = async (key, fn) => {
     setBusy(b => ({ ...b, [key]: true }));
     try { await fn(); toast.success('Saved'); }
@@ -89,6 +107,11 @@ export default function TabCMS() {
   const saveLanding = () => saveSection('landing', async () => {
     await updateConfigs(landing);
     await api.logAdminAction('update_landing', 'cms', null, null);
+  });
+
+  const savePromo = () => saveSection('promo', async () => {
+    await api.saveSiteConfig('landingPromo', promo);
+    await api.logAdminAction('update_promo', 'cms', null, promo.active ? 'on' : 'off');
   });
 
   const saveSEO = () => saveSection('seo', async () => {
@@ -209,6 +232,37 @@ export default function TabCMS() {
           </div>
         </div>
         <button onClick={saveLanding} disabled={busy.landing} style={S.saveBtn(busy.landing)}><Save size={14} />{busy.landing ? 'Saving...' : 'Save Landing Page'}</button>
+      </div>
+
+      <div style={S.card}>
+        <SectionHeader icon={Zap} title="Promo Banner" sub="The sticky bar at the very top of the landing page — the one this control was missing until now." color="#F59E0B" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '10px 14px', background: promo.active ? '#FEF3C7' : '#F1F5F9', borderRadius: 8 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13, color: promo.active ? '#92400E' : '#475569' }}>
+            <input type="checkbox" checked={promo.active} onChange={e => setPromo(p => ({ ...p, active: e.target.checked }))} style={{ width: 16, height: 16, cursor: 'pointer' }} />
+            {promo.active ? '🟢 Banner is LIVE on the site right now' : '⚪ Banner is OFF — nothing shows'}
+          </label>
+        </div>
+        <div style={S.row}>
+          <label style={S.label}>Banner Text</label>
+          <input value={promo.text} onChange={e => setPromo(p => ({ ...p, text: e.target.value }))} placeholder="Launch Offer — First 500 shops get PRO free for 30 days" style={S.input} />
+        </div>
+        <div style={S.row}>
+          <label style={S.label}>Emoji</label>
+          <input value={promo.emoji} onChange={e => setPromo(p => ({ ...p, emoji: e.target.value }))} placeholder="🚀" style={{ ...S.input, maxWidth: 80 }} />
+        </div>
+        <div style={S.row}>
+          <label style={S.label}>Button Text</label>
+          <input value={promo.ctaLabel} onChange={e => setPromo(p => ({ ...p, ctaLabel: e.target.value }))} placeholder="Claim Now" style={S.input} />
+        </div>
+        <div style={S.row}>
+          <label style={S.label}>Button Link</label>
+          <input value={promo.ctaHref} onChange={e => setPromo(p => ({ ...p, ctaHref: e.target.value }))} placeholder="/register" style={S.input} />
+        </div>
+        <div style={S.row}>
+          <label style={S.label}>Countdown Ends At (optional)</label>
+          <input type="datetime-local" value={promo.endsAt ? promo.endsAt.slice(0, 16) : ''} onChange={e => setPromo(p => ({ ...p, endsAt: e.target.value ? new Date(e.target.value).toISOString() : '' }))} style={S.input} />
+        </div>
+        <button onClick={savePromo} disabled={busy.promo} style={S.saveBtn(busy.promo)}><Save size={14} />{busy.promo ? 'Saving...' : 'Save Promo Banner'}</button>
       </div>
 
       <div style={S.card}>
