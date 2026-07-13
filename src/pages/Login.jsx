@@ -7,6 +7,7 @@ import { Eye, EyeOff, ShieldCheck, CheckCircle } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MLogo from '../components/MLogo';
+import { sendPhoneOTP, resetRecaptcha, signOutFirebasePhoneSession } from '../lib/firebasePhoneAuth';
 
 const FEATURES = [
   'GST-Ready invoicing in under 2 seconds',
@@ -100,8 +101,27 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPw,  setShowPw]  = useState(false);
   const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent,  setForgotSent]  = useState(false);
+  // Forgot password — was email-based (requestPasswordReset), which
+  // never worked for the overwhelming majority of users: they
+  // registered with a phone number and have no real email on file at
+  // all (their Supabase Auth "email" is a synthetic
+  // {phone}@mystore.internal address they've never seen). Replaced
+  // with real phone OTP verification.
+  const [forgotPhone, setForgotPhone] = useState('');
+  const [forgotOtpStep, setForgotOtpStep] = useState('idle'); // 'idle' | 'sent' | 'verified'
+  const [forgotOtpCode, setForgotOtpCode] = useState('');
+  const [forgotConfirmation, setForgotConfirmation] = useState(null);
+  const [forgotFirebaseToken, setForgotFirebaseToken] = useState(null);
+  const [forgotNewPass, setForgotNewPass] = useState('');
+  const [forgotBusy, setForgotBusy] = useState(false);
+
+  // Login with OTP — a passwordless alternative alongside the existing
+  // phone+password login, not a replacement for it.
+  const [loginMode, setLoginMode] = useState('password'); // 'password' | 'otp'
+  const [otpLoginStep, setOtpLoginStep] = useState('idle'); // 'idle' | 'sent'
+  const [otpLoginCode, setOtpLoginCode] = useState('');
+  const [otpLoginConfirmation, setOtpLoginConfirmation] = useState(null);
+  const [otpLoginBusy, setOtpLoginBusy] = useState(false);
 
   const { login } = useAuth();
   const { config } = useSiteConfig();
@@ -139,15 +159,106 @@ export default function Login() {
     }
   };
 
-  const handleForgot = async e => {
+  // ── Forgot password — phone OTP ──────────────────────────────────
+  const sendForgotOtp = async e => {
     e.preventDefault();
+    if (!/^\d{10}$/.test(forgotPhone)) return setErr('Enter a valid 10-digit mobile number');
+    setForgotBusy(true); setErr('');
     try {
-      setLoading(true); setErr('');
-      await api.requestPasswordReset(forgotEmail);
-      setForgotSent(true);
+      const result = await sendPhoneOTP(`+91${forgotPhone}`);
+      setForgotConfirmation(result);
+      setForgotOtpStep('sent');
+      toast.success(`OTP sent to +91 ${forgotPhone}`);
     } catch (ex) {
-      setErr(ex.message || 'Could not send reset link. Try again.');
-    } finally { setLoading(false); }
+      let msg = ex?.message || 'Could not send OTP. Please try again.';
+      if (msg.includes('too-many-requests')) msg = 'Too many attempts. Please wait a few minutes.';
+      setErr(msg);
+      resetRecaptcha();
+    } finally { setForgotBusy(false); }
+  };
+
+  const verifyForgotOtp = async e => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(forgotOtpCode)) return setErr('Enter the 6-digit code sent to your phone.');
+    setForgotBusy(true); setErr('');
+    try {
+      const cred = await forgotConfirmation.confirm(forgotOtpCode);
+      const idToken = await cred.user.getIdToken();
+      setForgotFirebaseToken(idToken);
+      await signOutFirebasePhoneSession();
+      setForgotOtpStep('verified');
+    } catch (ex) {
+      let msg = ex?.message || 'Incorrect code.';
+      if (msg.includes('invalid-verification-code')) msg = 'That code doesn\u2019t match. Check and try again.';
+      else if (msg.includes('code-expired')) msg = 'This code has expired — request a new one.';
+      setErr(msg);
+    } finally { setForgotBusy(false); }
+  };
+
+  const submitNewPassword = async e => {
+    e.preventDefault();
+    if (!forgotNewPass || forgotNewPass.length < 4) return setErr('Password must be at least 4 characters.');
+    setForgotBusy(true); setErr('');
+    try {
+      await api.resetPasswordWithOTP(forgotPhone, forgotNewPass, forgotFirebaseToken);
+      toast.success('Password updated — you can log in now.');
+      setShowForgot(false);
+      setForgotOtpStep('idle'); setForgotPhone(''); setForgotOtpCode(''); setForgotNewPass('');
+      setForgotConfirmation(null); setForgotFirebaseToken(null);
+    } catch (ex) {
+      setErr(ex.message || 'Could not reset password. Try again.');
+    } finally { setForgotBusy(false); }
+  };
+
+  const closeForgot = () => {
+    setShowForgot(false); setErr('');
+    setForgotOtpStep('idle'); setForgotPhone(''); setForgotOtpCode(''); setForgotNewPass('');
+    setForgotConfirmation(null); setForgotFirebaseToken(null);
+    resetRecaptcha();
+  };
+
+  // ── Login with OTP (passwordless) ────────────────────────────────
+  const sendLoginOtp = async e => {
+    e.preventDefault();
+    if (!/^\d{10}$/.test(phone)) return setErr('Enter a valid 10-digit mobile number');
+    setOtpLoginBusy(true); setErr('');
+    try {
+      const result = await sendPhoneOTP(`+91${phone}`);
+      setOtpLoginConfirmation(result);
+      setOtpLoginStep('sent');
+      toast.success(`OTP sent to +91 ${phone}`);
+    } catch (ex) {
+      let msg = ex?.message || 'Could not send OTP. Please try again.';
+      if (msg.includes('too-many-requests')) msg = 'Too many attempts. Please wait a few minutes.';
+      setErr(msg);
+      resetRecaptcha();
+    } finally { setOtpLoginBusy(false); }
+  };
+
+  const verifyLoginOtpAndSignIn = async e => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(otpLoginCode)) return setErr('Enter the 6-digit code sent to your phone.');
+    setOtpLoginBusy(true); setErr('');
+    try {
+      const cred = await otpLoginConfirmation.confirm(otpLoginCode);
+      const idToken = await cred.user.getIdToken();
+      await signOutFirebasePhoneSession();
+      const user = await api.loginWithPhoneOTP(phone, idToken);
+      login(user);
+      if (user.role === 'staff') toast.success(`Welcome, ${user.name}! 👋`);
+      navigate('/dashboard');
+    } catch (ex) {
+      let msg = ex?.message || 'Incorrect code.';
+      if (msg.includes('invalid-verification-code')) msg = 'That code doesn\u2019t match. Check and try again.';
+      else if (msg.includes('code-expired')) msg = 'This code has expired — request a new one.';
+      setErr(msg);
+    } finally { setOtpLoginBusy(false); }
+  };
+
+  const switchLoginMode = (mode) => {
+    setLoginMode(mode); setErr('');
+    setOtpLoginStep('idle'); setOtpLoginCode(''); setOtpLoginConfirmation(null);
+    resetRecaptcha();
   };
 
   return (
@@ -222,6 +333,22 @@ export default function Login() {
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Sign in to your merchant account</p>
               </div>
 
+              {/* Login with OTP — a passwordless alternative alongside
+                  the existing phone+password login. Didn't exist
+                  before tonight; the only way in was remembering a
+                  password. */}
+              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: 3, marginBottom: 20, gap: 3 }}>
+                {['password', 'otp'].map(m => (
+                  <button key={m} type="button" onClick={() => switchLoginMode(m)}
+                    style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                      background: loginMode === m ? '#4F46E5' : 'transparent',
+                      color: loginMode === m ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
+                    {m === 'password' ? 'Password' : 'Login with OTP'}
+                  </button>
+                ))}
+              </div>
+
+              {loginMode === 'password' ? (
               <form onSubmit={handleLogin}>
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6, letterSpacing: '.02em' }}>MOBILE NUMBER</label>
@@ -269,6 +396,50 @@ export default function Login() {
                   {loading ? 'Signing in…' : <><ShieldCheck size={16}/>Sign In Securely</>}
                 </button>
               </form>
+              ) : (
+                <>
+                  {otpLoginStep === 'idle' ? (
+                    <form onSubmit={sendLoginOtp}>
+                      <div style={{ marginBottom: 14 }}>
+                        <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>MOBILE NUMBER</label>
+                        <input className="lp-input" type="tel" inputMode="numeric" maxLength={10}
+                          placeholder="10-digit mobile number" value={phone}
+                          onChange={e => { setPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setErr(''); }} />
+                      </div>
+                      {err && (
+                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
+                          {err}
+                        </div>
+                      )}
+                      <button className="lp-btn" type="submit" disabled={otpLoginBusy}>
+                        {otpLoginBusy ? 'Sending…' : 'Send OTP'}
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={verifyLoginOtpAndSignIn}>
+                      <div style={{ marginBottom: 14 }}>
+                        <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>ENTER 6-DIGIT CODE</label>
+                        <input className="lp-input" type="text" inputMode="numeric" maxLength={6} autoFocus
+                          placeholder="123456" style={{ letterSpacing: 4, fontSize: 18, textAlign: 'center' }}
+                          value={otpLoginCode} onChange={e => setOtpLoginCode(e.target.value.replace(/\D/g, '').slice(0, 6))} />
+                        <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>
+                          Sent to +91 {phone}. <button type="button" onClick={() => { setOtpLoginStep('idle'); resetRecaptcha(); }}
+                            style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11.5 }}>Change / Resend</button>
+                        </div>
+                      </div>
+                      {err && (
+                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
+                          {err}
+                        </div>
+                      )}
+                      <button className="lp-btn" type="submit" disabled={otpLoginBusy}>
+                        {otpLoginBusy ? 'Verifying…' : 'Verify & Sign In'}
+                      </button>
+                    </form>
+                  )}
+                  <div id="firebase-recaptcha-container"></div>
+                </>
+              )}
 
               {googleEnabled && (
                 <>
@@ -312,46 +483,67 @@ export default function Login() {
               <div style={{ marginBottom: 28, textAlign: 'center' }}>
                 <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Reset Password</h2>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
-                  {forgotSent ? 'Check your inbox' : 'Enter your registered email address'}
+                  {forgotOtpStep === 'idle' && 'Enter your registered mobile number'}
+                  {forgotOtpStep === 'sent' && `Code sent to +91 ${forgotPhone}`}
+                  {forgotOtpStep === 'verified' && 'Choose a new password'}
                 </p>
               </div>
 
-              {forgotSent ? (
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 10, padding: '16px 18px', marginBottom: 18, color: '#6EE7B7', fontSize: 13.5, lineHeight: 1.6 }}>
-                    If an account with that email exists, we've sent a password-reset link. Open it to choose a new password.
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginBottom: 18 }}>
-                    No email? Accounts created with a phone number only can be reset by contacting support.
-                  </p>
-                  <button onClick={() => { setShowForgot(false); setForgotSent(false); setErr(''); }}
-                    style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                    ← Back to login
-                  </button>
+              {err && (
+                <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
+                  {err}
                 </div>
-              ) : (
-                <>
-                  <form onSubmit={handleForgot}>
-                    <div style={{ marginBottom: 14 }}>
-                      <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>EMAIL ADDRESS</label>
-                      <input className="lp-input" type="email" placeholder="you@example.com"
-                        value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
-                    </div>
-                    {err && (
-                      <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
-                        {err}
-                      </div>
-                    )}
-                    <button className="lp-btn" type="submit" disabled={loading}>
-                      {loading ? 'Sending…' : 'Send reset link'}
-                    </button>
-                  </form>
-                  <div style={{ textAlign: 'center', marginTop: 16 }}>
-                    <button onClick={() => { setShowForgot(false); setErr(''); }}
-                      style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
-                  </div>
-                </>
               )}
+
+              {forgotOtpStep === 'idle' && (
+                <form onSubmit={sendForgotOtp}>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>MOBILE NUMBER</label>
+                    <input className="lp-input" type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile number"
+                      value={forgotPhone} onChange={e => setForgotPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} />
+                  </div>
+                  <button className="lp-btn" type="submit" disabled={forgotBusy}>
+                    {forgotBusy ? 'Sending…' : 'Send Verification Code'}
+                  </button>
+                </form>
+              )}
+
+              {forgotOtpStep === 'sent' && (
+                <form onSubmit={verifyForgotOtp}>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>ENTER 6-DIGIT CODE</label>
+                    <input className="lp-input" type="text" inputMode="numeric" maxLength={6} autoFocus
+                      placeholder="123456" style={{ letterSpacing: 4, fontSize: 18, textAlign: 'center' }}
+                      value={forgotOtpCode} onChange={e => setForgotOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} />
+                  </div>
+                  <button className="lp-btn" type="submit" disabled={forgotBusy}>
+                    {forgotBusy ? 'Verifying…' : 'Verify Code'}
+                  </button>
+                  <div style={{ textAlign: 'center', marginTop: 12 }}>
+                    <button type="button" onClick={() => { setForgotOtpStep('idle'); resetRecaptcha(); }}
+                      style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>Change number / Resend</button>
+                  </div>
+                </form>
+              )}
+
+              {forgotOtpStep === 'verified' && (
+                <form onSubmit={submitNewPassword}>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>NEW PASSWORD</label>
+                    <input className="lp-input" type="password" placeholder="Min 4 characters" autoFocus
+                      value={forgotNewPass} onChange={e => setForgotNewPass(e.target.value)} />
+                  </div>
+                  <button className="lp-btn" type="submit" disabled={forgotBusy}>
+                    {forgotBusy ? 'Updating…' : 'Update Password'}
+                  </button>
+                </form>
+              )}
+
+              <div id="firebase-recaptcha-container"></div>
+              <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <button onClick={closeForgot}
+                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
+              </div>
             </>
           )}
         </div>

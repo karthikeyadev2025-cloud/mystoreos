@@ -481,6 +481,62 @@ export const api = {
   // Only works for accounts that have a real email on file. Sends a reset
   // link to that inbox; the link lands on /auth/reset where the user sets a
   // new password. Replaces the old insecure phone-only reset.
+  // Real, phone-based password reset — replaces the email-based
+  // requestPasswordReset above for the overwhelming majority of users,
+  // who registered with a phone number and have no real email on file
+  // at all (their Supabase Auth "email" is a synthetic
+  // {phone}@mystore.internal address they've never seen and can't
+  // receive mail at — the old flow was genuinely non-functional for
+  // them). firebaseIdToken comes from a completed Firebase Phone Auth
+  // OTP verification (see src/lib/firebasePhoneAuth.js) — the server
+  // verifies it independently rather than trusting the client's claim.
+  async resetPasswordWithOTP(phone, newPassword, firebaseIdToken) {
+    if (!isSupabaseConfigured) throw new Error('Password reset is not available right now.');
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-reset-password`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ phone, newPassword, firebaseIdToken }),
+      }
+    );
+    const data = await res.json();
+    if (!res.ok || data?.error) throw new Error(data?.error || 'Could not reset password.');
+    return true;
+  },
+
+  // Passwordless login — an alternative to phone+password for existing
+  // users, not a replacement. Exchanges a server-verified Firebase OTP
+  // for a real Supabase session via the standard generateLink +
+  // verifyOtp handoff pattern, then returns the same shape login()
+  // elsewhere in the app expects.
+  async loginWithPhoneOTP(phone, firebaseIdToken) {
+    if (!isSupabaseConfigured) throw new Error('OTP login is not available right now.');
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-otp-login`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ phone, firebaseIdToken }),
+      }
+    );
+    const data = await res.json();
+    if (!res.ok || data?.error) throw new Error(data?.error || 'Could not log in.');
+
+    const { data: verifyData, error: verifyErr } = await supabase.auth.verifyOtp({
+      token_hash: data.token_hash,
+      type: 'magiclink',
+    });
+    if (verifyErr || !verifyData?.session) throw new Error(verifyErr?.message || 'Could not establish session.');
+
+    // Now that a real Supabase session exists, fetch the actual profile
+    // row the rest of the app expects (same shape as a normal login).
+    const authedUserId = verifyData.session.user.id;
+    const { data: profile, error: profErr } = await supabase.from('users').select('*').eq('id', authedUserId).maybeSingle();
+    if (profErr || !profile) throw new Error('Logged in, but could not load your profile.');
+    return this.getUserById ? (await this.getUserById(profile.id)) : profile;
+  },
+
   async requestPasswordReset(email) {
     if (!isSupabaseConfigured) throw new Error('Password reset is not available right now.');
     const clean = (email || '').trim().toLowerCase();
@@ -518,8 +574,8 @@ export const api = {
   async changePassword(newPassword) {
     if (!newPassword || newPassword.length < 4) throw new Error('Password must be at least 4 characters.');
     if (isSupabaseConfigured) {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) throw new Error('Not logged in. Please sign in again.');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user || !session?.access_token) throw new Error('Not logged in. Please sign in again.');
 
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-reset-password`,
@@ -529,7 +585,13 @@ export const api = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
-          body: JSON.stringify({ userId: authUser.id, newPassword }),
+          // accessToken is the caller's REAL session token — the edge
+          // function now verifies server-side that this token actually
+          // belongs to userId before allowing anything. Sending just
+          // the anon key here (as this used to) would now correctly be
+          // rejected, since the anon key proves nothing about who's
+          // asking.
+          body: JSON.stringify({ userId: session.user.id, newPassword, accessToken: session.access_token }),
         }
       );
       const data = await res.json();
