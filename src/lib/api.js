@@ -452,7 +452,7 @@ export const api = {
       auth_provider: 'google', email_verified: true,
       pass: 'oauth_no_password',
       subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
-      subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+      subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'basic_distributor' : null,
       hide_from_search: role === 'shop' ? true : false,
       trial_started_at: new Date().toISOString(),
       onboarding_completed: !needsApproval,   // false for shop/distributor → must finish onboarding form
@@ -619,7 +619,7 @@ export const api = {
         phone, pass, pass_verify: pass, role, name,
         status: requiresApproval ? 'pending' : 'active',
         subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
-        subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+        subscription_tier: role === 'shop' ? 'starter' : role === 'distributor' ? 'basic_distributor' : null,
         hide_from_search: role === 'shop' ? true : false,
         trial_started_at: requiresApproval ? new Date().toISOString() : null,
         plan_expires_at: requiresApproval ? trialEnd : null,
@@ -636,7 +636,7 @@ export const api = {
       id: 'u_' + generateId(), phone, pass, role, name,
       status: requiresApproval ? 'pending' : 'active',
       subscription: role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active',
-      subscriptionTier: role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null,
+      subscriptionTier: role === 'shop' ? 'starter' : role === 'distributor' ? 'basic_distributor' : null,
       trialStartedAt: requiresApproval ? new Date().toISOString() : null,
       planExpiresAt: requiresApproval ? trialEnd : null,
     };

@@ -71,7 +71,18 @@ serve(async (req) => {
     const requiresApproval = role === 'shop' || role === 'distributor';
     const trialEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
     const subscription = role === 'shop' ? 'trial' : role === 'distributor' ? 'dist_trial' : 'active';
-    const subscription_tier = role === 'shop' ? 'starter' : role === 'distributor' ? 'dist_basic' : null;
+    // Was 'dist_basic' — a legacy naming inconsistency traced fully
+    // before changing: distributor_plan_tier (the column that actually
+    // determines capabilities and revenue calculations, via
+    // getDistCaps()/isPaidDist() in api.js) is a SEPARATE column with
+    // its own database DEFAULT of 'basic_distributor' and its own CHECK
+    // constraint permitting only basic_distributor/pro_distributor/
+    // enterprise_distributor — subscription_tier's value was never
+    // actually read by anything capability- or revenue-related for a
+    // distributor account, confirmed by tracing every consumer of both
+    // columns. Standardizing to the same canonical naming purely for
+    // consistency; functionally this was dead weight, not a live bug.
+    const subscription_tier = role === 'shop' ? 'starter' : role === 'distributor' ? 'basic_distributor' : null;
     const trial_started_at = requiresApproval ? new Date().toISOString() : null;
     const plan_expires_at = requiresApproval ? trialEnd : null;
 
