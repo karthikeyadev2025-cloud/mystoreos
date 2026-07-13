@@ -27,6 +27,10 @@ const CATEGORY = {
   // every other category on purpose.
   sos:            { Icon: AlertTriangle, color: '#FFFFFF', bg: '#DC2626' },
   overdue_checkin:{ Icon: AlertTriangle, color: '#B45309', bg: '#FEF3C7' },
+  // New — the welcome notification sent at signup had nowhere to
+  // render distinctly, would have fallen through to the same grey
+  // 'info' style as a routine system message.
+  welcome:        { Icon: UserPlus, color: '#059669', bg: '#D1FAE5' },
 };
 
 function relTime(iso) {

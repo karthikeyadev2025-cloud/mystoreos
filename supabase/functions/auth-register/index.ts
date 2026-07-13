@@ -114,6 +114,40 @@ serve(async (req) => {
       return json({ error: insertErr.message }, 500, req);
     }
 
+    // Welcome notification — didn't exist at all before. Fires through
+    // the same push_notification() → notifications table → push-fanout
+    // pipeline every other notification in the app already uses, so it
+    // reaches the new user in-app immediately and via background push
+    // once they've enabled it, same as any other alert.
+    try {
+      const welcomeCopy: Record<string, { title: string; body: string }> = {
+        shop: {
+          title: `Welcome to MyStore OS, ${name || 'there'}! 👋`,
+          body: 'Your 15-day trial is live with every feature unlocked. Add your first products or services to get started.',
+        },
+        distributor: {
+          title: `Welcome to MyStore OS, ${name || 'there'}! 👋`,
+          body: 'Your 15-day trial is live with every feature unlocked. Share your distributor code with shops to start receiving stock orders.',
+        },
+        customer: {
+          title: `Welcome, ${name || 'there'}! 👋`,
+          body: 'Browse shops near you, place orders, and book services — all in one place.',
+        },
+      };
+      const copy = welcomeCopy[role] || welcomeCopy.customer;
+      await admin.rpc('push_notification', {
+        p_user_id: profileRow.id,
+        p_category: 'welcome',
+        p_title: copy.title,
+        p_body: copy.body,
+        p_action_url: null,
+        p_data: {},
+      });
+    } catch (_e) {
+      // A welcome message failing to send should never block a real
+      // registration — this is best-effort, not a critical step.
+    }
+
     const { data: signIn, error: signInErr } = await anonClient.auth.signInWithPassword({ email, password });
     if (signInErr || !signIn?.session) return json({ error: 'Registration succeeded but login failed. Please sign in manually.' }, 500, req);
 
