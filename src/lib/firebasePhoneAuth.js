@@ -37,11 +37,26 @@ function getFirebaseAuth() {
 let recaptchaVerifier = null;
 function getRecaptchaVerifier(containerId = 'firebase-recaptcha-container') {
   const authInstance = getFirebaseAuth();
-  if (!recaptchaVerifier) {
-    recaptchaVerifier = new RecaptchaVerifier(authInstance, containerId, {
-      size: 'invisible',
-    });
+  // Always tear down and rebuild fresh, rather than conditionally
+  // reusing an existing instance. Was: `if (!recaptchaVerifier)
+  // create one` — but grecaptcha tracks widget state against the DOM
+  // element itself, independent of our own JS reference to it. A
+  // React re-render replacing the container div, a retry after a
+  // failed send, or simply calling this twice in the same session
+  // could all leave grecaptcha believing a widget is already rendered
+  // in that element even though our recaptchaVerifier variable looked
+  // fine — producing "reCAPTCHA has already been rendered in this
+  // element." Clearing both the JS reference and the actual DOM
+  // contents every single time removes the ambiguity entirely.
+  if (recaptchaVerifier) {
+    try { recaptchaVerifier.clear(); } catch (_e) { /* already gone, fine */ }
+    recaptchaVerifier = null;
   }
+  const container = document.getElementById(containerId);
+  if (container) container.innerHTML = '';
+  recaptchaVerifier = new RecaptchaVerifier(authInstance, containerId, {
+    size: 'invisible',
+  });
   return recaptchaVerifier;
 }
 
