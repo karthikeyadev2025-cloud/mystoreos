@@ -36,7 +36,23 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // SKIP_PWA=1 uses vite-plugin-pwa's own `disable` option to skip
+    // just the service-worker-writing step, not the whole plugin —
+    // main.jsx imports the 'virtual:pwa-register' module directly,
+    // which only this plugin provides; removing it outright breaks
+    // that import at build time. `disable: true` keeps the virtual
+    // module resolving as a no-op while skipping generateSW, which is
+    // where a workbox-build/Node/Windows-specific bug threw "Unable to
+    // write the service worker file... No number after minus sign in
+    // JSON" on one machine — a known class of environment bug in
+    // workbox-build itself (seen on other unrelated projects too),
+    // not a problem with this project's own config. The Android app
+    // (via Capacitor) never uses this service worker at all — it's a
+    // browser-only PWA feature — so disabling it for an Android
+    // release build costs nothing. Leave SKIP_PWA unset for normal web
+    // builds so Vercel deploys keep the real offline service worker.
     VitePWA({
+      disable: process.env.SKIP_PWA === '1',
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
