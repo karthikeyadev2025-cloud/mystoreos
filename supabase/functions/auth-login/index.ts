@@ -132,9 +132,26 @@ serve(async (req) => {
     });
 
     if (createErr) {
-      // User already registered but with different password — find and update
-      const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000, page: 1 });
-      const existing = users?.find((u) => u.email === email);
+      // User already registered but with different password — find and
+      // update. Was fetching up to 1000 users (listUsers) just to find
+      // ONE by email — a real, unnecessary slowdown that got worse as
+      // the user base grew, and one of several sequential round-trips
+      // in this fallback path that compound badly on a slower mobile
+      // connection specifically. createUser was called with
+      // id: profile.id explicitly (to keep auth.uid() === public.
+      // users.id in sync) — if a user with that email already exists,
+      // it's essentially always at this exact id, so a single direct
+      // lookup replaces the full-list scan.
+      const { data: byId } = await admin.auth.admin.getUserById(profile.id);
+      let existing = byId?.user && byId.user.email === email ? byId.user : null;
+      if (!existing) {
+        // Fallback for the rare case the existing auth user has a
+        // different id than the profile row (pre-dates the id-sync
+        // convention) — still only reached if the direct lookup above
+        // didn't resolve it, not on every login.
+        const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000, page: 1 });
+        existing = users?.find((u) => u.email === email) || null;
+      }
       if (!existing) return json({ error: 'Auth setup failed. Please contact support.' }, 500);
       await admin.auth.admin.updateUserById(existing.id, { password });
     }

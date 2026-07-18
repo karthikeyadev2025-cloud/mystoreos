@@ -302,7 +302,14 @@ export const api = {
 
       let data, error, timedOut = false;
       try {
-        ({ data, error } = await callOnce(9000));      // first try: allow for cold start
+        // Was 9000 — too tight for the combination this was actually
+        // failing on: a genuine cold start plus normal mobile network
+        // latency, which together can exceed 9s even when nothing is
+        // actually wrong. Aborting at 9s just forces a full second
+        // round-trip (a brand new request, its own connection setup),
+        // which is often slower overall than simply waiting a few more
+        // seconds for the first one to land.
+        ({ data, error } = await callOnce(14000));    // first try: allow for cold start
       } catch (_e) {
         timedOut = true;
       }
