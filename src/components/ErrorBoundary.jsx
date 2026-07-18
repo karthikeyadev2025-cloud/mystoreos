@@ -2,6 +2,32 @@ import { Component } from 'react';
 
 // Glassmorphic error fallback UI that matches the MyStore OS dark theme.
 // Shows a friendly error message with a retry button.
+
+// "Failed to fetch dynamically imported module" (and its close cousins
+// below) isn't a real application bug — it happens when a browser tab
+// stays open across a new deploy. Vite gives every lazy-loaded chunk a
+// content hash in its filename; after a deploy, the OLD hash the
+// already-open tab is still trying to fetch no longer exists on the
+// server. A manual refresh always fixes it instantly, because it pulls
+// the current index.html with the correct current filenames — which is
+// exactly why "press refresh, it works" was the experience reported.
+// Given how many deploys happen in a single session, this was showing
+// real users a scary full-page error for something a silent, automatic
+// reload solves cleanly. Auto-reloads at most once per browser tab
+// session (sessionStorage guard) — if it happens again after that
+// reload, it's very unlikely to be the stale-chunk case and falls
+// through to the normal error screen instead of reloading forever.
+const STALE_CHUNK_PATTERNS = [
+  'Failed to fetch dynamically imported module',
+  'error loading dynamically imported module',
+  'Importing a module script failed',
+  'Unable to preload CSS',
+];
+function isStaleChunkError(error) {
+  const msg = String(error?.message || error || '');
+  return STALE_CHUNK_PATTERNS.some(p => msg.includes(p));
+}
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -13,6 +39,16 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    if (isStaleChunkError(error)) {
+      const key = 'mso_stale_chunk_reloaded';
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        window.location.reload();
+        return; // don't bother reporting or rendering the error UI — reloading
+      }
+      // Already tried once this session and it's still happening —
+      // fall through to the normal error screen rather than loop.
+    }
     // Report to Sentry if available
     if (typeof window !== 'undefined' && window.Sentry) {
       window.Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } });
