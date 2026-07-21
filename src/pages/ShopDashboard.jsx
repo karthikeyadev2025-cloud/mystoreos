@@ -8253,23 +8253,23 @@ const ShopDashboard = () => {
 
       {/* Bottom Nav */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', background: '#FFFFFF', padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', overflow: 'hidden' }}>
-        <div style={{...styles.navBtn, color: (activeTab === 'home' || activeTab === 'dashboard') ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab(isServiceBusiness ? 'dashboard' : 'home')}>
+        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: (activeTab === 'home' || activeTab === 'dashboard') ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab(isServiceBusiness ? 'dashboard' : 'home')}>
           <Home size={18} style={{ margin: '0 auto 2px auto' }} />
           <p style={{ fontSize: '9px', margin: 0 }}>{isServiceBusiness ? 'Dashboard' : 'Home'}</p>
-        </div>
+        </button>
 
         {isServiceBusiness && (
-          <div style={{...styles.navBtn, color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
             <IndianRupee size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Sales</p>
-          </div>
+          </button>
         )}
 
         {hasMultipleBranches && (
-          <div style={{...styles.navBtn, color: activeTab === 'branches' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('branches')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'branches' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('branches')}>
             <Building2 size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Branches</p>
-          </div>
+          </button>
         )}
         
         {/* Products/Credit/Restock are retail concepts — a service
@@ -8282,50 +8282,50 @@ const ShopDashboard = () => {
             three at all, so a service business on mobile saw all
             three regardless. Matching desktop's exact gating here. */}
         {isOwner && !isServiceBusiness && (
-          <div style={{...styles.navBtn, color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
             <Package size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Products</p>
-          </div>
+          </button>
         )}
         
-        <div style={{...styles.navBtn, color: activeTab === 'bills' ? '#4F46E5' : '#64748B', position: 'relative' }} onClick={() => setActiveTab('bills')}>
+        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bills' ? '#4F46E5' : '#64748B', position: 'relative' }} onClick={() => setActiveTab('bills')}>
           <Receipt size={18} style={{ margin: '0 auto 2px auto' }} />
           <p style={{ fontSize: '9px', margin: 0 }}>Bills</p>
           {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#EF4444', width:10, height:10, borderRadius:'50%'}}></span>}
-        </div>
+        </button>
 
         {isOwner && !isServiceBusiness && (
-          <div style={{...styles.navBtn, color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Credit</p>
-          </div>
+          </button>
         )}
 
         {isServiceBusiness && (
-          <div style={{...styles.navBtn, color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
             <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
-          </div>
+          </button>
         )}
 
         {isOwner && !isServiceBusiness && (
-          <div style={{...styles.navBtn, color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
             <Truck size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Restock</p>
-          </div>
+          </button>
         )}
         
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'reports' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('reports')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'reports' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('reports')}>
             <Book size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Reports</p>
-          </div>
+          </button>
         )}
         {isOwner && (
-          <div style={{...styles.navBtn, color: activeTab === 'profile' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('profile')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'profile' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('profile')}>
             <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
             <p style={{ fontSize: '9px', margin: 0 }}>Settings</p>
-          </div>
+          </button>
         )}
       </div>
 
