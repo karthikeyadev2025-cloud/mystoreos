@@ -33,7 +33,7 @@ const TABS = [
   { id: 'profile',    Icon: Settings,   label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null }) {
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null, canBookings = true }) {
   // Prefer the explicit business_kind field (set at signup, LOCKED). Fall
   // back to category-name matching (isServiceCategory, shared with
   // ShopDashboard.jsx) for legacy accounts that predate the business_kind
@@ -59,6 +59,15 @@ export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendi
     if (t.retailOnly && isServiceBiz) return false;
     if (t.ownerOnly && !isOwner) return false;
     if (t.multiBranchOnly && !hasMultipleBranches) return false;
+    // Was missing entirely — serviceOnly alone only checked whether
+    // this IS a service business, never whether their actual plan
+    // tier grants bookings access at all. A Starter-tier service
+    // account (bookings: false in PLAN_CAPS.starter) could see and
+    // open the full Bookings/Services/Staff surface regardless —
+    // exactly the "a spec change silently opens a Pro feature to
+    // Starter tier" revenue leak the test suite (tests/plan-gates.spec.js)
+    // was specifically written to catch.
+    if (['bookings', 'services', 'staff'].includes(t.id) && !canBookings) return false;
     return true;
   });
   return (

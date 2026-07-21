@@ -14,7 +14,8 @@ import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useSubscription } from '../hooks/useSubscription';
 import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
-import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors } from 'lucide-react';
+import { hasCap } from '../lib/features';
+import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors, MoreHorizontal, Users, Star, CreditCard } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -315,6 +316,15 @@ const ShopDashboard = () => {
   // SaaS Subscription States
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
+  // Mobile bottom nav has no room for every tab desktop's sidebar shows.
+  // Customers, Expenses, Membership, and Feedback had NO way to be
+  // reached on mobile at all — not in the bottom nav, not via any
+  // other button anywhere in this file (confirmed by direct search).
+  // Four entire features were completely invisible to every mobile
+  // user. This "More" sheet is the fix — same standard pattern most
+  // mobile apps use once there are more destinations than fit in a
+  // bottom bar.
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [pricing, setPricing] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
@@ -377,6 +387,13 @@ const ShopDashboard = () => {
   // but once loadData runs (first thing on mount), shopProfile holds the
   // real owner record and every bill/PDF/notification picks it up.
   const shop = (user.role === 'staff' && shopProfile) ? shopProfile : user;
+  // Real plan-tier check, not just "is this a service business" —
+  // reused for both the desktop sidebar and the mobile bottom nav so
+  // both platforms enforce the same Starter-tier bookings gate
+  // consistently (see the sidebar prop below and the mobile Bookings
+  // button further down, both of which used to only check
+  // isServiceBusiness and never the actual plan tier at all).
+  const canBookings = hasCap(shop, 'bookings');
   const isOwner = user.role === 'shop' || user.role === 'admin';
 
   // Two separate async-arrival races can leave a service business stuck on
@@ -4854,6 +4871,17 @@ const ShopDashboard = () => {
           shopCategory={shop.shopCategory}
           businessKind={shop.businessKind}
           syncStatus={{ isOnline, pendingCount }}
+          // Was missing entirely — the sidebar only checked
+          // businessKind (is this a service business) to decide
+          // whether to show Bookings/Services/Staff, never whether
+          // the account's actual plan tier grants bookings access at
+          // all. A Starter-tier service account (bookings: false in
+          // PLAN_CAPS.starter) could see and open the full Bookings
+          // surface anyway — exactly the "spec change silently opens
+          // a Pro feature to Starter tier" revenue leak the test suite
+          // was specifically written to catch, and had been failing
+          // on since before tonight's changes.
+          canBookings={canBookings}
         />
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
@@ -6683,6 +6711,27 @@ const ShopDashboard = () => {
         </div>
       )}
 
+      {/* CUSTOMERS TAB — was reachable from nowhere on mobile at all
+          (no bottom nav icon, no other button anywhere) until the new
+          More menu; had no mobile content block either, so even
+          reaching it would have shown a blank screen. Reuses the same
+          shared component desktop uses — despite the name, these
+          "Desktop*" components are already responsive and reused on
+          mobile elsewhere in this same file (Membership, Feedback,
+          Bookings all do the same). */}
+      {isOwner && activeTab === 'customers' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <DesktopCustomers orders={orders} targetShopId={targetShopId} />
+        </div>
+      )}
+
+      {/* EXPENSES TAB — same gap as Customers above, same fix. */}
+      {isOwner && activeTab === 'expenses' && (
+        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+          <DesktopExpenses targetShopId={targetShopId} orders={orders} />
+        </div>
+      )}
+
       {/* RESTOCKING SUPPLY TAB */}
       {isOwner && activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
@@ -8301,7 +8350,7 @@ const ShopDashboard = () => {
           </button>
         )}
 
-        {isServiceBusiness && (
+        {isServiceBusiness && canBookings && (
           <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
             <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
@@ -8327,8 +8376,38 @@ const ShopDashboard = () => {
             <p style={{ fontSize: '9px', margin: 0 }}>Settings</p>
           </button>
         )}
+        {isOwner && (
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: ['customers', 'expenses', 'membership', 'feedback'].includes(activeTab) ? '#4F46E5' : '#64748B' }} onClick={() => setShowMoreMenu(true)}>
+            <MoreHorizontal size={18} style={{ margin: '0 auto 2px auto' }} />
+            <p style={{ fontSize: '9px', margin: 0 }}>More</p>
+          </button>
+        )}
       </div>
 
+      {/* "More" overflow sheet — Customers, Expenses, Membership,
+          Feedback had no way to be reached on mobile at all before
+          this. Kept intentionally simple (a plain list, not a full
+          redesign of the nav) since the goal is making these features
+          reachable, not restyling the whole bottom nav tonight. */}
+      {showMoreMenu && (
+        <div onClick={() => setShowMoreMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
+            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 2, margin: '4px auto 12px auto' }} />
+            {[
+              { id: 'customers', Icon: Users, label: 'Customers' },
+              { id: 'expenses', Icon: Wallet, label: 'Expenses' },
+              { id: 'membership', Icon: CreditCard, label: 'Membership' },
+              { id: 'feedback', Icon: Star, label: 'Feedback' },
+            ].map(({ id, Icon, label }) => (
+              <button key={id} type="button" onClick={() => { setActiveTab(id); setShowMoreMenu(false); }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? '#4F46E5' : '#1E293B', cursor: 'pointer' }}>
+                <Icon size={20} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Dynamic Plan Selector Modal */}
       {showPlanSelectorModal && (
         <div style={{

@@ -32,17 +32,28 @@ function serviceSession(tier) {
 }
 
 test.describe('Service-feature plan gates', () => {
-  test('Starter service shop: sidebar shows Services tab, and a service-limit hint would fire', async ({ page }) => {
+  test('Starter service shop: sidebar shows Services tab, and a service-limit hint would fire', async ({ page }, testInfo) => {
     const errors = watchForErrors(page);
     await setSession(page, serviceSession('starter'));
     await page.goto('/shop');
 
-    // Wait for sidebar render. Bookings is Pro-only on the Starter tier
-    // (bookings: false in features.js), so on Starter the tab should
-    // NOT appear in the sidebar. This gate is critical — otherwise
-    // Starter shops see the whole Bookings surface and never upgrade.
-    await expect(page.locator('aside')).toBeVisible({ timeout: 10_000 });
-    const sidebar = await page.locator('aside').innerText();
+    // Desktop renders a real <aside> sidebar; mobile has no <aside> at
+    // all by design (confirmed by reading DesktopSidebar.jsx directly —
+    // it's only ever mounted when !isMobile) and uses a bottom nav
+    // instead. Every mobile-pixel failure in this file traced back to
+    // this same DOM mismatch — the test assumed <aside> existed on
+    // both platforms, which was never true. Checking the whole body
+    // works correctly on both, since these assertions are about
+    // whether given text is reachable anywhere in the current view.
+    const isMobile = testInfo.project.name === 'mobile-pixel';
+    const scope = isMobile ? page.locator('body') : page.locator('aside');
+
+    // Wait for sidebar/nav render. Bookings is Pro-only on the Starter
+    // tier (bookings: false in features.js), so on Starter the tab
+    // should NOT appear. This gate is critical — otherwise Starter
+    // shops see the whole Bookings surface and never upgrade.
+    await expect(scope).toBeVisible({ timeout: 10_000 });
+    const sidebar = await scope.innerText();
     expect(sidebar).not.toMatch(/^Bookings$/m);
     expect(sidebar).not.toMatch(/^Services$/m);
     expect(sidebar).not.toMatch(/^Staff$/m);
@@ -54,16 +65,26 @@ test.describe('Service-feature plan gates', () => {
     }
   });
 
-  test('Pro service shop: full Bookings/Services/Staff sidebar unlocked', async ({ page }) => {
+  test('Pro service shop: full Bookings/Services/Staff sidebar unlocked', async ({ page }, testInfo) => {
     const errors = watchForErrors(page);
     await setSession(page, serviceSession('pro'));
     await page.goto('/shop');
 
-    await expect(page.locator('aside').getByRole('button', { name: /^bookings$/i })).toBeVisible({ timeout: 10_000 });
-    const sidebar = await page.locator('aside').innerText();
+    const isMobile = testInfo.project.name === 'mobile-pixel';
+    const scope = isMobile ? page.locator('body') : page.locator('aside');
+
+    await expect(page.getByRole('button', { name: /^bookings$/i }).first()).toBeVisible({ timeout: 10_000 });
+    const sidebar = await scope.innerText();
     expect(sidebar).toMatch(/Bookings/);
-    expect(sidebar).toMatch(/Services/);
-    expect(sidebar).toMatch(/Staff/);
+    // Services/Staff live inside the Bookings screen's own internal
+    // tab switcher on mobile (no separate bottom-nav icon for them —
+    // confirmed working navigation, not a gap, earlier this session),
+    // so they're correctly absent from the mobile bottom nav itself.
+    // Only check for them as separate sidebar entries on desktop.
+    if (!isMobile) {
+      expect(sidebar).toMatch(/Services/);
+      expect(sidebar).toMatch(/Staff/);
+    }
 
     for (const e of errors) {
       if (/Cannot access|is not defined|is not a function/.test(e)) {
@@ -82,7 +103,10 @@ test.describe('Service-feature plan gates', () => {
     await setSession(page, s);
     await page.goto('/shop');
 
-    await expect(page.locator('aside').getByRole('button', { name: /^bookings$/i })).toBeVisible({ timeout: 10_000 });
+    // Works identically on both platforms — Bookings is a real
+    // <button> on both the desktop sidebar and the mobile bottom nav,
+    // so no aside-specific scoping is needed for this one at all.
+    await expect(page.getByRole('button', { name: /^bookings$/i }).first()).toBeVisible({ timeout: 10_000 });
 
     for (const e of errors) {
       if (/Cannot access|is not defined|is not a function/.test(e)) {
