@@ -34,6 +34,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
+    // Hard safety net: nothing below GUARANTEES setAuthLoading(false)
+    // fires within any bounded time — both getSession() and the first
+    // onAuthStateChange event are expected to resolve quickly, but
+    // there was no fallback if the underlying network call ever hangs
+    // (a real risk on a flaky mobile connection specifically, which is
+    // where this class of issue would show up most). Without this, a
+    // hang here means authLoading never becomes false, and BOTH gates
+    // in App.jsx block the entire app behind a permanent loading
+    // screen with no way to recover short of the user manually
+    // reloading. This forces resolution no matter what.
+    const safetyTimeout = setTimeout(() => setAuthLoading(false), 8000);
+
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         if (!session) {
@@ -48,9 +60,10 @@ export const AuthProvider = ({ children }) => {
             supabase.auth.refreshSession().catch(() => {/* ignore — keep local session */});
           }
         }
+        clearTimeout(safetyTimeout);
         setAuthLoading(false);
       })
-      .catch(() => setAuthLoading(false));
+      .catch(() => { clearTimeout(safetyTimeout); setAuthLoading(false); });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       // IMPORTANT: Only clear the local session on EXPLICIT logout (user tapped
@@ -64,10 +77,11 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         _explicitLogout = false;
       }
+      clearTimeout(safetyTimeout);
       setAuthLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => { subscription.unsubscribe(); clearTimeout(safetyTimeout); };
   }, []);
 
   // Refresh the cached user's profile from the DB once on load AND after
