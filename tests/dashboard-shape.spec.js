@@ -74,7 +74,7 @@ test.describe('Retail shop dashboard shape', () => {
     expectNoErrors(errors);
   });
 
-  test('retail POS home has Quick Shelf Explorer + retail KPIs', async ({ page }) => {
+  test('retail POS home has Quick Shelf Explorer + retail KPIs', async ({ page }, testInfo) => {
     const errors = watchForErrors(page);
     await setSession(page, {
       id: '70db371c-61f5-4340-9dbe-7cdd48172daa',
@@ -87,16 +87,28 @@ test.describe('Retail shop dashboard shape', () => {
     });
     await page.goto('/shop');
 
-    // Original assertions checked for 'New Orders' / 'Total Products' /
-    // 'Supplier Credit' — none of these three strings exist anywhere
-    // in the current codebase (confirmed by direct search), meaning
-    // the retail home screen's copy has legitimately changed since
-    // this test was written, not that the feature regressed. Updated
-    // to check the actual current retail POS home content instead —
-    // confirmed present via a real local run against this exact build.
-    await expect(page.locator('body')).toContainText('POS TERMINAL', { timeout: 10_000 });
-    await expect(page.locator('body')).toContainText('Products');
-    // Service-only tiles must NOT appear:
+    // Desktop and mobile genuinely show different retail home screens
+    // — confirmed via real runs against both, not assumed. Desktop has
+    // a full KPI tile section (New Orders / Today's Sales / Total
+    // Products / Supplier Credit) plus "Quick Shelf Explorer" above
+    // the POS terminal; mobile shows a simpler, KPI-free POS-first
+    // screen. Original assertions checked 'New Orders' / 'Total
+    // Products' / 'Supplier Credit' with no platform branching at
+    // all — correct for desktop, but those exact tiles don't exist on
+    // mobile's version of this screen, which is why this always
+    // failed there. Also note the exact casing genuinely differs:
+    // desktop shows "POS Terminal", mobile shows "POS TERMINAL".
+    const isMobile = testInfo.project.name === 'mobile-pixel';
+    if (isMobile) {
+      await expect(page.locator('body')).toContainText('POS TERMINAL', { timeout: 10_000 });
+      await expect(page.locator('body')).toContainText('Products');
+    } else {
+      await expect(page.locator('body')).toContainText('New Orders', { timeout: 10_000 });
+      await expect(page.locator('body')).toContainText('Total Products');
+      await expect(page.locator('body')).toContainText('Supplier Credit');
+      await expect(page.locator('body')).toContainText('Quick Shelf Explorer');
+    }
+    // Service-only tiles must NOT appear on either platform:
     await expect(page.locator('body')).not.toContainText('Manage Bookings');
 
     expectNoErrors(errors);

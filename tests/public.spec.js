@@ -33,15 +33,27 @@ test.describe('Public pages render without JS errors', () => {
   test('register page shows role and (for shops) retailer/service split', async ({ page }) => {
     const errors = watchForErrors(page);
     await page.goto('/register');
-    await expect(page.getByRole('button', { name: /business/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /distributor/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /customer/i })).toBeVisible();
+    // Was matching /business/i and /customer/i loosely. /business/i
+    // also matched the nested "📅 Service Business I sell..." option
+    // that appears once "Business" is selected. /customer/i ALSO
+    // ambiguously matched the "🛍️ Retailer" option — its own tagline
+    // literally reads "I sell products (walk-in customers, POS-first)",
+    // so the word "customer" genuinely appears in its full accessible
+    // name too. None of this is an app bug — every one of these
+    // buttons is legitimately meant to be there; the loose regexes
+    // just weren't precise enough once the page had more than one
+    // button whose text happened to contain the search word. Using
+    // exact accessible names (confirmed directly against real runs)
+    // removes the ambiguity for all three.
+    await expect(page.getByRole('button', { name: '🏪 Business', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '🚚 Distributor', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '🛒 Customer', exact: true })).toBeVisible();
 
     // Click "Business" and confirm retailer/service picker is present —
     // this is the split that lets us route service shops to the right
     // dashboard. If it goes missing, business_kind never gets set at
     // signup and every new shop lands on retail POS.
-    await page.getByRole('button', { name: /business/i }).click();
+    await page.getByRole('button', { name: '🏪 Business', exact: true }).click();
     await expect(page.getByText(/retailer/i)).toBeVisible();
     await expect(page.getByText(/service business/i)).toBeVisible();
     expectNoErrors(errors);
