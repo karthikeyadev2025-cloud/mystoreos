@@ -82,6 +82,20 @@ html, body, #root {
     right: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    /* Was missing — this rule forces full-width, edge-to-edge
+       positioning (left:0, right:0), which is correct for things
+       like the bottom nav bar. But several modals/overlays use a
+       DIFFERENT positioning strategy — centering via
+       `left: 50%; transform: translateX(-50%)` — and this override
+       only reset `left`, not `transform`. The leftover
+       translateX(-50%) then applied on TOP of the forced left:0,
+       shifting the element an extra 50% of its own width further
+       left than intended (reproduced and measured precisely: a
+       412px-wide element ended up 206px off-screen to the left).
+       Resetting transform here too means any element using that
+       centering pattern correctly falls back to simple edge-to-edge
+       positioning instead of drifting off-screen. */
+    transform: none !important;
   }
   
   /* Override any maxWidth:480px or centered layouts on mobile */
