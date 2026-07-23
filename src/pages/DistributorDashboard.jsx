@@ -22,7 +22,8 @@ import {
   Lock,
   TrendingUp,
   Map,
-  Settings
+  Settings,
+  MoreHorizontal
 } from 'lucide-react';
 
 
@@ -106,6 +107,13 @@ const DistributorDashboard = () => {
   const navigate = useNavigate();
   const { isOnline, pendingCount } = useOfflineSync();
   const [activeTab, setActiveTab] = useState('dashboard');
+  // Mobile bottom nav only had 5 of desktop's 8 tabs — Route Planner,
+  // Advanced Analytics, and critically Settings had no way to be
+  // reached on mobile at all (confirmed: zero other buttons anywhere
+  // in the file reference these three tab ids). Same gap, same fix
+  // already applied to the shop dashboard's mobile nav earlier
+  // tonight — a "More" overflow sheet.
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
   const [shopCodeInput, setShopCodeInput] = useState('');
@@ -1685,29 +1693,267 @@ const DistributorDashboard = () => {
         </div>
       )}
 
-      {/* Bottom Nav */}
+      {/* Route Planner, Advanced Analytics, and Settings tab
+          content — was completely missing from mobile (navigation
+          was just fixed above, but tapping any of these three would
+          have shown a blank screen with nothing rendered at all).
+          Reusing the exact same content desktop already shows —
+          these blocks are self-contained, not tied to any
+          desktop-only layout wrapper. */}
+          {activeTab === 'routeplanner' && (
+            <div>
+              {!hasDistCap(user, 'routePlanner') ? (
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '20px' }}>
+                  <Lock size={40} style={{ color: '#D97706', marginBottom: '16px' }} />
+                  <h3 style={{ color: '#B45309', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
+                  <p style={{ color: '#B45309', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                    Upgrade to Pro Distributor
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#0F172A' }}>🗺️ Route Planner</h2>
+                  {(() => {
+                    const today = new Date();
+                    const sevenAgo = new Date(today); sevenAgo.setDate(today.getDate() - 7);
+                    const routeShops = [...shops].sort((a, b) => {
+                      const aOwed = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const bOwed = credits.filter(c => c.toShopId === b.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const aPending = stockOrders.filter(o => o.shopId === a.id && o.status === 'pending').length;
+                      const bPending = stockOrders.filter(o => o.shopId === b.id && o.status === 'pending').length;
+                      const aLastVisit = visitedShops[a.id] ? new Date(visitedShops[a.id]) : null;
+                      const bLastVisit = visitedShops[b.id] ? new Date(visitedShops[b.id]) : null;
+                      const aNotVisited = !aLastVisit || aLastVisit < sevenAgo ? 1 : 0;
+                      const bNotVisited = !bLastVisit || bLastVisit < sevenAgo ? 1 : 0;
+                      return (bOwed + bPending * 100 + bNotVisited * 50) - (aOwed + aPending * 100 + aNotVisited * 50);
+                    });
+                    const totalToCollect = routeShops.reduce((s, sh) => s + credits.filter(c => c.toShopId === sh.id && !c.paid).reduce((a, c) => a + c.amount, 0), 0);
+                    const markVisited = (shopId) => {
+                      const updated = { ...visitedShops, [shopId]: new Date().toISOString() };
+                      setVisitedShops(updated);
+                      try { localStorage.setItem('dist_visited', JSON.stringify(updated)); } catch (_e) { /* ignore */ }
+                    };
+                    return (
+                      <>
+                        <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                          <span style={{ color: '#4F46E5', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
+                          <span style={{ color: '#B91C1C', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {routeShops.map((shop, idx) => {
+                            const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                            const pendingOrders = stockOrders.filter(o => o.shopId === shop.id && o.status === 'pending').length;
+                            const lastVisit = visitedShops[shop.id] ? new Date(visitedShops[shop.id]) : null;
+                            const notVisited7 = !lastVisit || lastVisit < sevenAgo;
+                            return (
+                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                                <div style={{ flex: 1, minWidth: '140px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                                    <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
+                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#FEF3C7', color: '#B45309', fontWeight: 'bold' }}>Not visited 7d+</span>}
+                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
+                                  </div>
+                                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{shop.name}</div>
+                                  <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                    {shop.phone || 'No phone'} · Last: {lastVisit ? lastVisit.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Never'}
+                                  </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                  <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '10px', color: '#64748B' }}>outstanding</div>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
+                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
+                                    <button onClick={() => markVisited(shop.id)} style={{ background: '#DCFCE7', color: '#15803D', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= ANALYTICS TAB ================= */}
+          {activeTab === 'analytics' && (
+            <div>
+              {!hasDistCap(user, 'advancedAnalytics') ? (
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
+                  <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
+                  <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
+                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                    Upgrade to Pro Distributor
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Advanced Analytics</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                    {[
+                      { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
+                      { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
+                      { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
+                      { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
+                    ].map((stat, i) => (
+                      <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
+                        <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {shops.sort((a, b) => {
+                      const aO = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const bO = credits.filter(c => c.toShopId === b.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      return bO - aO;
+                    }).slice(0, 5).map(shop => {
+                      const owed = credits.filter(c => c.toShopId === shop.id && !c.paid).reduce((s, c) => s + c.amount, 0);
+                      const total = credits.filter(c => c.toShopId === shop.id).reduce((s, c) => s + c.amount, 0);
+                      const pct = total > 0 ? Math.round((owed / total) * 100) : 0;
+                      return (
+                        <div key={shop.id} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                          <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#EF4444' : '#F59E0B', borderRadius: '3px' }} />
+                            </div>
+                            <span style={{ color: owed > 0 ? '#DC2626' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= HISTORY TAB ================= */}
+          {activeTab === 'settings' && (
+            <div style={{ maxWidth: '720px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Settings size={20} color="#64748B" /> Business Profile & GST
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
+              </div>
+
+              {/* Real background push — the distributor dashboard had
+                  ZERO push infrastructure at all before this: no client
+                  import, no toggle, nothing. A distributor could miss a
+                  new stock order entirely unless they happened to have
+                  the tab open and looked at it. */}
+              <div style={{ marginBottom: '16px' }}>
+                <PushToggle userId={user.id} />
+              </div>
+
+              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Name</label>
+                  <input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. FMCG Supply Co."
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>GSTIN</label>
+                    <input value={profileForm.gstin} onChange={e => setProfileForm(p => ({ ...p, gstin: e.target.value.toUpperCase() }))} placeholder="e.g. 29ABCDE1234F2Z5" maxLength={15}
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>State Code</label>
+                    <input value={profileForm.stateCode} onChange={e => setProfileForm(p => ({ ...p, stateCode: e.target.value }))} placeholder="e.g. 29"
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
+                  <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>UPI ID for Collections</label>
+                  <input value={profileForm.upiId} onChange={e => setProfileForm(p => ({ ...p, upiId: e.target.value }))} placeholder="e.g. yourname@okhdfcbank"
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Shops paying down their credit can send to this UPI.</p>
+                </div>
+
+                <button onClick={saveDistributorProfile} disabled={profileSaving}
+                  style={{ background: profileSaving ? '#A5B4FC' : '#4F46E5', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  {profileSaving ? 'Saving…' : 'Save Business Profile'}
+                </button>
+              </div>
+            </div>
+          )}
+
+      {/* Bottom Nav — divs converted to real <button> elements (same
+          fix already applied to the shop dashboard's mobile nav
+          tonight — clickable divs are a known cause of unreliable
+          touch handling on mobile browsers). */}
       <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: '#FFFFFF', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 100, boxShadow: '0 -4px 16px rgba(0,0,0,0.04)' }}>
-        <div style={{ textAlign: 'center', color: activeTab === 'dashboard' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'dashboard' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
           <div style={{ fontSize: '20px' }}>📊</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Dashboard</span>
-        </div>
-        <div style={{ textAlign: 'center', color: activeTab === 'shops' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('shops')}>
+        </button>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'shops' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('shops')}>
           <div style={{ fontSize: '20px' }}>🏪</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Shops</span>
-        </div>
-        <div style={{ textAlign: 'center', color: activeTab === 'orders' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('orders')}>
+        </button>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'orders' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('orders')}>
           <div style={{ fontSize: '20px' }}>📥</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Orders</span>
-        </div>
-        <div style={{ textAlign: 'center', color: activeTab === 'catalog' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('catalog')}>
+        </button>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'catalog' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('catalog')}>
           <div style={{ fontSize: '20px' }}>📦</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Catalog</span>
-        </div>
-        <div style={{ textAlign: 'center', color: activeTab === 'history' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('history')}>
+        </button>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'history' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('history')}>
           <div style={{ fontSize: '20px' }}>✅</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>History</span>
-        </div>
+        </button>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: ['routeplanner', 'analytics', 'settings'].includes(activeTab) ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setShowMoreMenu(true)}>
+          <MoreHorizontal size={20} style={{ margin: '0 auto' }} />
+          <span style={{ fontSize: '10px', fontWeight: 'bold', display: 'block' }}>More</span>
+        </button>
       </div>
+
+      {/* "More" overflow sheet — Route Planner, Advanced Analytics, and
+          Settings had no way to be reached on mobile at all before
+          this (confirmed: zero other buttons anywhere in this file
+          reference these three tab ids). Settings specifically means
+          a distributor on mobile had no way to reach subscription
+          management or any other account setting. */}
+      {showMoreMenu && (
+        <div onClick={() => setShowMoreMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
+            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 2, margin: '4px auto 12px auto' }} />
+            {[
+              { id: 'routeplanner', Icon: Map, label: 'Route Planner', locked: !hasDistCap(user, 'routePlanner') },
+              { id: 'analytics', Icon: TrendingUp, label: 'Advanced Analytics', locked: !hasDistCap(user, 'advancedAnalytics') },
+              { id: 'settings', Icon: Settings, label: 'Settings', locked: false },
+            ].map(({ id, Icon, label, locked }) => (
+              <button key={id} type="button" onClick={() => { setActiveTab(id); setShowMoreMenu(false); }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? '#4F46E5' : '#1E293B', cursor: 'pointer', opacity: locked ? 0.6 : 1 }}>
+                <Icon size={20} />
+                {label}
+                {locked && <Lock size={14} style={{ marginLeft: 'auto' }} />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   );
