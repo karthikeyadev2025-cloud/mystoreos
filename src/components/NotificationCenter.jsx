@@ -159,10 +159,21 @@ export default function NotificationCenter({ userId, onToast }) {
           .notif-drawer {
             position: fixed !important;
             top: auto !important;
-            left: 0 !important; right: 0 !important; bottom: 0 !important;
+            /* Was bottom: 0 — this component is used on pages that
+               ALSO have their own fixed bottom nav (ShopDashboard,
+               DistributorDashboard), both also pinned to bottom: 0.
+               The two fixed elements directly overlapped each other,
+               with the page's own nav bar rendering on top and
+               visually cutting off the last notification(s) in this
+               drawer. Raised above a typical mobile bottom nav's
+               height (roughly 64px) plus a safe-area allowance for
+               notched/gesture-nav phones, so the drawer sits cleanly
+               above the nav instead of behind it. */
+            left: 0 !important; right: 0 !important;
+            bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
             width: 100% !important; max-width: 100% !important;
-            max-height: 80vh !important;
-            border-radius: 20px 20px 0 0 !important;
+            max-height: 70vh !important;
+            border-radius: 20px !important;
             box-shadow: 0 -8px 30px rgba(15,23,42,0.15) !important;
           }
         }
