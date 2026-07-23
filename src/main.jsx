@@ -11,10 +11,20 @@ import './styles/tokens.css'
 import './index.css'
 import App from './App.jsx'
 import { initNativeApp } from './lib/capacitorInit.js'
+import { initOtaUpdates } from './lib/native.js'
 
 // Initialize native Android/iOS features (status bar, splash, back button, etc.)
 // Runs synchronously - returns immediately on web, configures native on Capacitor.
 initNativeApp().catch(e => console.warn('Native init failed:', e))
+
+// OTA live updates (Capgo) for the native Android/iOS app — was fully
+// written in src/lib/native.js (notifyAppReady, update-available
+// listener, calling CapacitorUpdater.set() to stage the new bundle for
+// next launch) but that file was never imported by anything in the
+// whole app, so none of it ever actually ran. No-ops safely on web
+// (isNative() check inside the function itself) — this only does
+// anything inside the real Android/iOS app.
+initOtaUpdates().catch(e => console.warn('OTA update init failed:', e))
 
 // Service worker: auto-update and reload immediately when a new version ships,
 // so users never get stuck on a stale cached build after a deploy.
