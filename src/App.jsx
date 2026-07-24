@@ -26,6 +26,7 @@ const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
 // Field distribution — separate chunk so reps don't download the full
 // distributor dashboard they mostly don't need.
 const FieldSetup = lazy(() => import('./pages/field/FieldSetup'));
+const FieldLoadOut = lazy(() => import('./pages/field/FieldLoadOut'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
@@ -324,6 +325,13 @@ function App() {
                   <PrivateRoute role="distributor">
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><FieldSetup /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                <Route path="/field/loadout" element={
+                  <PrivateRoute role="distributor">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><FieldLoadOut /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />

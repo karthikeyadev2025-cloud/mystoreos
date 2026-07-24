@@ -130,6 +130,93 @@ export const fieldApi = {
       docType: r.doc_type, prefix: r.prefix, lastSyncedNo: r.last_synced_no,
     }));
   },
+
+  // ─── STOCK TRANSFERS ──────────────────────────────────────────────
+  // Created as 'pending', applied on confirmation. That two-step is
+  // deliberate, not an artefact: the depot builds the load, the driver
+  // confirms what physically went on the van. Neither side can silently
+  // change the other's number.
+  async createTransfer(distributorId, { fromWarehouseId, toWarehouseId, kind = 'load_out', lines, note = '' }) {
+    requireOnline();
+    if (!fromWarehouseId || !toWarehouseId) throw new Error('Pick both a source and a destination');
+    if (fromWarehouseId === toWarehouseId) throw new Error('Source and destination must be different');
+    if (!lines?.length) throw new Error('Add at least one product');
+
+    const { data: transfer, error: tErr } = await supabase.from('stock_transfers').insert({
+      distributor_id: distributorId,
+      from_warehouse_id: fromWarehouseId,
+      to_warehouse_id: toWarehouseId,
+      kind,
+      note: note?.trim() || null,
+    }).select('id').maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+
+    const { error: lErr } = await supabase.from('stock_transfer_lines').insert(
+      lines.map(l => ({
+        transfer_id: transfer.id,
+        product_id: l.productId,
+        batch_id: l.batchId || null,
+        qty_base: l.qtyBase,
+        condition: l.condition || 'sellable',
+      }))
+    );
+    if (lErr) {
+      // Don't leave a headerless transfer behind.
+      await supabase.from('stock_transfers').delete().eq('id', transfer.id);
+      throw new Error(lErr.message);
+    }
+    return transfer.id;
+  },
+
+  // Runs apply_stock_transfer() — decrements source, increments
+  // destination, atomically. Rejects if the source doesn't actually
+  // hold the stock, which is what stops goods vanishing between the
+  // depot gate and the shop.
+  async confirmTransfer(transferId) {
+    requireOnline();
+    const { error } = await supabase.rpc('apply_stock_transfer', { p_transfer_id: transferId });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async getTransfers(distributorId, { status = null, limit = 50 } = {}) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    let q = supabase.from('stock_transfers')
+      .select('*, from:warehouses!stock_transfers_from_warehouse_id_fkey(name), to:warehouses!stock_transfers_to_warehouse_id_fkey(name), stock_transfer_lines(id, qty_base, product_id, distributor_products(name))')
+      .eq('distributor_id', distributorId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (status) q = q.eq('status', status);
+    const { data } = await q;
+    return (data || []).map(r => ({
+      id: r.id,
+      kind: r.kind,
+      status: r.status,
+      fromName: r.from?.name || '—',
+      toName: r.to?.name || '—',
+      note: r.note,
+      createdAt: r.created_at,
+      confirmedAt: r.confirmed_at,
+      lines: (r.stock_transfer_lines || []).map(l => ({
+        id: l.id,
+        productId: l.product_id,
+        productName: l.distributor_products?.name || 'Unknown',
+        qtyBase: Number(l.qty_base),
+      })),
+    }));
+  },
+
+  // Products for the load-out picker. Uses distributor_products.unit /
+  // pack_size (already populated) rather than the product_uoms ladder,
+  // which has no data until the UoM management screen exists.
+  async getTransferableProducts(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('distributor_products')
+      .select('id, name, unit, pack_size, sku').eq('distributor_id', distributorId).order('name');
+    return (data || []).map(r => ({
+      id: r.id, name: r.name, unit: r.unit, packSize: r.pack_size, sku: r.sku,
+    }));
+  },
 };
 
 export default fieldApi;

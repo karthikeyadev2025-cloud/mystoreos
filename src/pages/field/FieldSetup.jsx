@@ -124,6 +124,13 @@ export default function FieldSetup() {
         Depots hold your main stock. Each van is its own moving sub-warehouse with an independent stock ledger and invoice series.
       </p>
 
+      {vehicles.length > 0 && (
+        <button onClick={() => navigate('/field/loadout')}
+          style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Truck size={15} /> Go to Van Load-Out
+        </button>
+      )}
+
       {/* ─── DEPOTS ─────────────────────────────────────────────── */}
       <div style={{ ...S.card, marginBottom: 20 }}>
         <h2 style={S.h2}><Warehouse size={18} color="#4F46E5" /> Depots &amp; Bays</h2>
