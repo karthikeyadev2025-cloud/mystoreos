@@ -1060,7 +1060,38 @@ const DistributorDashboard = () => {
           {/* ================= ORDERS TAB ================= */}
           {activeTab === 'orders' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>📥 Incoming Restock Orders ({stockOrders.length})</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: 12 }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>📥 Incoming Restock Orders ({stockOrders.length})</h2>
+                {/* Bulk Order CSV Export — explicitly promised on the
+                    pricing page's Pro tier as its own distinct line
+                    item ("Bulk order CSV export"), separate from the
+                    catalog CSV import already built — confirmed
+                    genuinely missing, not just overlooked. */}
+                {stockOrders.length > 0 && (
+                  hasDistCap(user, 'bulkOrderCSV') ? (
+                    <button onClick={() => {
+                      const rows = [['Date', 'Shop', 'Items', 'Total', 'Status'], ...stockOrders.map(o => [
+                        new Date(o.date).toLocaleDateString('en-IN'),
+                        o.shopName || '',
+                        (o.items || []).map(i => `${i.name} x${i.qty}`).join('; '),
+                        o.total,
+                        o.status,
+                      ])];
+                      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+                      const a = document.createElement('a');
+                      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+                      a.download = `stock_orders_${new Date().toISOString().slice(0, 10)}.csv`;
+                      a.click();
+                    }} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                      Export Orders CSV
+                    </button>
+                  ) : (
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Lock size={11} /> Export Orders (Pro+)
+                    </button>
+                  )
+                )}
+              </div>
               
               {stockOrders.length === 0 ? (
                 <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
