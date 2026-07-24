@@ -380,20 +380,59 @@ const DistributorDashboard = () => {
     }
   };
 
+  // Was add-only — a distributor had no way to correct a price/stock
+  // mistake or update it as prices actually change, ever, after first
+  // publishing a product. editingProductId is null when adding a new
+  // product, or the product's id when the same modal is reused to
+  // edit an existing one.
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const openEditProduct = (p) => {
+    setEditingProductId(p.id);
+    setNewProdName(p.name);
+    setNewProdPrice(String(p.price));
+    setNewProdStock(String(p.stock));
+    setNewProdCategory(p.category || '');
+    setShowCatalogModal(true);
+  };
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
-    await mustSucceed(() => api.addDistributorProduct({
-      distributorId: user.id,
-      name: newProdName,
-      price: newProdPrice,
-      stock: newProdStock,
-      category: newProdCategory
-    }), 'Publish product');
-    toast.success("Product published to wholesale catalog!");
+    if (editingProductId) {
+      await mustSucceed(() => api.updateDistributorProduct(editingProductId, {
+        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory
+      }), 'Update product');
+      toast.success("Product updated!");
+    } else {
+      await mustSucceed(() => api.addDistributorProduct({
+        distributorId: user.id,
+        name: newProdName,
+        price: newProdPrice,
+        stock: newProdStock,
+        category: newProdCategory
+      }), 'Publish product');
+      toast.success("Product published to wholesale catalog!");
+    }
     setNewProdName('');
     setNewProdPrice('');
     setNewProdStock('');
+    setNewProdCategory('');
+    setEditingProductId(null);
     setShowCatalogModal(false);
+    loadData();
+  };
+  const openAddProduct = () => {
+    setEditingProductId(null);
+    setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory('');
+    setShowCatalogModal(true);
+  };
+  const closeCatalogModal = () => {
+    setShowCatalogModal(false);
+    setEditingProductId(null);
+  };
+  const handleDeleteWholesaleProduct = async (productId) => {
+    if (!window.confirm('Remove this product from your wholesale catalog? Shops will no longer be able to order it.')) return;
+    await mustSucceed(() => api.deleteDistributorProduct(productId), 'Delete product');
+    toast.success('Product removed from catalog');
     loadData();
   };
 
@@ -1035,34 +1074,57 @@ const DistributorDashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
                 <button 
-                  onClick={() => setShowCatalogModal(true)}
+                  onClick={openAddProduct}
                   style={{ background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
                 >
                   <Plus size={16} /> Publish Wholesale Product
                 </button>
               </div>
 
+              {/* Search — was completely missing. Fine with 5 products,
+                  genuinely unusable once a distributor's catalog grows
+                  to the 50-200+ SKUs a real FMCG wholesale business
+                  actually carries. */}
+              {wholesaleProducts.length > 0 && (
+                <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
+                  placeholder="Search your catalog by product name or category…"
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
+              )}
+
               {wholesaleProducts.length === 0 ? (
                 <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
                   <Layers size={48} style={{ color: '#E2E8F0', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
                   <p style={{ margin: 0 }}>No products published in the distributor catalog.</p>
                 </div>
-              ) : (
+              ) : (() => {
+                const q = catalogSearch.trim().toLowerCase();
+                const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)) : wholesaleProducts;
+                if (filtered.length === 0) {
+                  return <p style={{ color: '#64748B', textAlign: 'center', padding: '24px' }}>No products match "{catalogSearch}".</p>;
+                }
+                return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                  {wholesaleProducts.map(p => (
-                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '140px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  {filtered.map(p => (
+                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '170px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                         <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px' }}>
-                        <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}</span>
-                        <span style={{ fontSize: '11px', color: '#475569', fontWeight: '500' }}>Stock: {p.stock} cases</span>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px', marginBottom: '10px' }}>
+                          <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}</span>
+                          <span style={{ fontSize: '11px', color: '#475569', fontWeight: '500' }}>Stock: {p.stock} cases</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
+                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
+                );
+              })()}
             </div>
           )}
 
@@ -1452,8 +1514,8 @@ const DistributorDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>Publish Product</button>
-                <button onClick={() => setShowCatalogModal(false)} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
+                <button onClick={closeCatalogModal} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
           </div>
@@ -1699,29 +1761,46 @@ const DistributorDashboard = () => {
         <div style={{ padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>Wholesale Catalog</h2>
-            <button onClick={() => setShowCatalogModal(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={openAddProduct} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
               + Add Product
             </button>
           </div>
 
+          {wholesaleProducts.length > 0 && (
+            <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
+              placeholder="Search your catalog…"
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
+          )}
+
           {wholesaleProducts.length === 0 ? (
             <p style={{ color: '#64748B', textAlign: 'center' }}>No wholesale products published yet.</p>
-          ) : (
+          ) : (() => {
+            const q = catalogSearch.trim().toLowerCase();
+            const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)) : wholesaleProducts;
+            if (filtered.length === 0) {
+              return <p style={{ color: '#64748B', textAlign: 'center' }}>No products match "{catalogSearch}".</p>;
+            }
+            return (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {wholesaleProducts.map(p => (
+              {filtered.map(p => (
                 <div key={p.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
                     {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                   </div>
-                  <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}</span>
                     <span style={{ fontSize: '11px', color: '#64748B' }}>Stock: {p.stock}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                    <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                   </div>
                 </div>
               ))}
             </div>
-          )}
+            );
+          })()}
         </div>
       )}
 
@@ -1802,8 +1881,8 @@ const DistributorDashboard = () => {
               <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
             </div>
 
-            <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Publish Product</button>
-            <button onClick={() => setShowCatalogModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '10px', borderRadius: '10px', fontSize: '14px', marginTop: '6px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
+            <button onClick={closeCatalogModal} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '10px', borderRadius: '10px', fontSize: '14px', marginTop: '6px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}

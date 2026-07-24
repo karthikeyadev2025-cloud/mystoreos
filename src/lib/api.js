@@ -3361,6 +3361,48 @@ export const api = {
     return newProd;
   },
 
+  // Was completely missing from the app despite the correct RLS
+  // policies (dist_products_update_owner / dist_products_delete_owner)
+  // already existing in the database — a distributor could publish a
+  // wholesale product but had no way to ever change its price or stock
+  // again, or remove it. Real prices change constantly; this was a
+  // basic, load-bearing gap.
+  async updateDistributorProduct(productId, productData) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('distributor_products').update({
+        name: productData.name,
+        price: parseFloat(productData.price) || 0,
+        stock: parseInt(productData.stock) || 0,
+        category: productData.category || null,
+      }).eq('id', productId).select().maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('Product not found or you do not have permission to edit it.');
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category };
+    }
+    const db = getDB();
+    const prod = (db.distributorProducts || []).find(p => p.id === productId);
+    if (prod) {
+      prod.name = productData.name;
+      prod.price = parseFloat(productData.price) || 0;
+      prod.stock = parseInt(productData.stock) || 0;
+      prod.category = productData.category || null;
+      saveDB(db);
+    }
+    return prod;
+  },
+
+  async deleteDistributorProduct(productId) {
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('distributor_products').delete().eq('id', productId);
+      if (error) throw new Error(error.message);
+      return true;
+    }
+    const db = getDB();
+    db.distributorProducts = (db.distributorProducts || []).filter(p => p.id !== productId);
+    saveDB(db);
+    return true;
+  },
+
   async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('stock_orders').insert({
