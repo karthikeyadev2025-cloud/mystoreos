@@ -409,12 +409,82 @@ function renderModern(data, widthMm) {
   return shell(body, { widthMm });
 }
 
+// ─── PRODUCT CATALOG ──────────────────────────────────────────────
+// A completely different kind of document from every invoice template
+// above — a shareable brochure/catalog for a distributor's wholesale
+// products, not a billing document for one specific transaction.
+// Registered as a template type so it reuses the exact same proven
+// print/PDF infrastructure (printInvoice / buildInvoicePdfBlob) rather
+// than building a second, separate rendering pipeline.
+//
+// data shape:
+//   distributorName, distributorPhone, distributorAddress, logoUrl,
+//   generatedDate,
+//   products: [{ name, category, unit, packSize, price, sku }]
+function renderCatalog(data, widthMm) {
+  const products = data.products || [];
+
+  // Group by category, keeping an "Other" bucket for anything
+  // uncategorized rather than dropping those products silently.
+  const groups = {};
+  products.forEach(p => {
+    const cat = p.category || 'Other';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(p);
+  });
+  const categoryNames = Object.keys(groups).sort((a, b) => a === 'Other' ? 1 : b === 'Other' ? -1 : a.localeCompare(b));
+
+  const unitLabel = (p) => {
+    if (p.packSize && p.unit) return `₹${money(p.price)} / ${esc(p.unit)} (${int(p.packSize)}/box)`;
+    if (p.unit) return `₹${money(p.price)} / ${esc(p.unit)}`;
+    return `₹${money(p.price)}`;
+  };
+
+  const sections = categoryNames.map(cat => `
+    <div style="margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #4F46E5;padding-bottom:6px;margin-bottom:12px;">${esc(cat)}</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+        ${groups[cat].map(p => `
+          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;background:#FAFBFC;">
+            <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px;">${esc(p.name)}</div>
+            ${p.sku ? `<div style="font-size:10px;color:#94A3B8;margin-bottom:4px;">Code: ${esc(p.sku)}</div>` : ''}
+            <div style="font-size:14px;font-weight:800;color:#059669;">${unitLabel(p)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Wholesale Catalog</title></head>
+<body style="margin:0;font-family:'Inter',Arial,sans-serif;background:#fff;">
+  <div style="max-width:${widthMm === 210 ? '760px' : '480px'};margin:0 auto;padding:32px 24px;">
+    <div style="text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #4F46E5;">
+      ${data.logoUrl ? `<img src="${esc(data.logoUrl)}" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:10px;" />` : ''}
+      <div style="font-size:26px;font-weight:900;color:#0F172A;letter-spacing:-0.02em;">${esc(data.distributorName || 'Wholesale Distributor')}</div>
+      <div style="font-size:13px;font-weight:700;color:#4F46E5;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Wholesale Product Catalog</div>
+      ${data.distributorAddress ? `<div style="font-size:12px;color:#64748B;margin-top:8px;">${esc(data.distributorAddress)}</div>` : ''}
+      ${data.distributorPhone ? `<div style="font-size:12px;color:#64748B;">📞 ${esc(data.distributorPhone)}</div>` : ''}
+    </div>
+
+    ${products.length === 0
+      ? '<p style="text-align:center;color:#94A3B8;padding:40px 0;">No products published yet.</p>'
+      : sections}
+
+    <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #E2E8F0;color:#94A3B8;font-size:11px;">
+      Generated ${esc(data.generatedDate || '')} · Contact us to place your order
+    </div>
+  </div>
+</body></html>`;
+}
+
 const RENDERERS = {
   classic: renderClassic,
   wholesale: renderWholesale,
   gst_tax: renderGstTax,
   minimal: renderMinimal,
   modern: renderModern,
+  catalog: renderCatalog,
 };
 
 // Public entry point. widthMm: 210 (A4) | 80 | 58.

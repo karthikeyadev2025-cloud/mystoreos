@@ -804,6 +804,47 @@ const DistributorDashboard = () => {
     loadData();
   };
 
+  // Auto-generated shareable product catalog — reuses the same
+  // printInvoice mechanism as invoices, just with the 'catalog'
+  // template registered in invoiceTemplates.js. Opens in a new tab
+  // where the distributor can view, print, or save as PDF.
+  const handleGenerateCatalog = () => {
+    if (wholesaleProducts.length === 0) return toast.error('Add some products to your catalog first');
+    printInvoice('catalog', {
+      distributorName: user?.name || 'Distributor',
+      distributorPhone: user?.phone || '',
+      distributorAddress: user?.businessAddress || '',
+      logoUrl: user?.logo || '',
+      generatedDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      products: wholesaleProducts,
+    }, 'a4');
+  };
+
+  // WhatsApp text share — wa.me links can only carry text, not file
+  // attachments, so this is a separate, genuinely different output:
+  // a clean, readable product list a shop can actually read inline in
+  // a chat, not a link to a PDF they'd have to open separately.
+  const handleShareCatalogWhatsApp = () => {
+    if (wholesaleProducts.length === 0) return toast.error('Add some products to your catalog first');
+    const groups = {};
+    wholesaleProducts.forEach(p => {
+      const cat = p.category || 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(p);
+    });
+    let msg = `📦 *${user?.name || 'Wholesale Catalog'}*\n\n`;
+    Object.entries(groups).forEach(([cat, prods]) => {
+      msg += `*${cat}*\n`;
+      prods.forEach(p => {
+        const priceLine = p.unit ? `₹${p.price} / ${UNIT_SUFFIX[p.unit] || p.unit}` : `₹${p.price}`;
+        msg += `• ${p.name} — ${priceLine}\n`;
+      });
+      msg += '\n';
+    });
+    msg += `Reply to place your order!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   const handleUpdateStockOrder = async (orderId, status, expectedDate) => {
     await mustSucceed(() => api.updateStockOrderStatus(orderId, status, user.id, expectedDate || null), 'Update order status');
     toast.success(
@@ -1519,6 +1560,18 @@ const DistributorDashboard = () => {
                       style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Lock size={12} /> Bulk Import (Pro+)
                     </button>
+                  )}
+                  {wholesaleProducts.length > 0 && (
+                    <>
+                      <button onClick={handleGenerateCatalog}
+                        style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        📄 Generate Catalog
+                      </button>
+                      <button onClick={handleShareCatalogWhatsApp}
+                        style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        💬 Share via WhatsApp
+                      </button>
+                    </>
                   )}
                   <button 
                     onClick={openAddProduct}
@@ -2605,6 +2658,17 @@ const DistributorDashboard = () => {
               + Add Product
             </button>
           </div>
+
+          {wholesaleProducts.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              <button onClick={handleGenerateCatalog} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                📄 Generate Catalog
+              </button>
+              <button onClick={handleShareCatalogWhatsApp} style={{ flex: 1, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                💬 Share via WhatsApp
+              </button>
+            </div>
+          )}
 
           {/* Bulk CSV import is a desktop workflow (uploading a file
               and reviewing a large preview table doesn't fit a phone
