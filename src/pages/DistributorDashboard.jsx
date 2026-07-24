@@ -24,7 +24,8 @@ import {
   TrendingUp,
   Map,
   Settings,
-  MoreHorizontal
+  MoreHorizontal,
+  Users
 } from 'lucide-react';
 
 
@@ -168,6 +169,7 @@ const DistributorDashboard = () => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
+  const [distStaff, setDistStaff] = useState([]);
   const [shopCodeInput, setShopCodeInput] = useState('');
   const [shopLinkBusy, setShopLinkBusy] = useState(false);
   const [pricing, setPricing] = useState(null);
@@ -301,6 +303,13 @@ const DistributorDashboard = () => {
     setWholesaleProducts(await safe(() => api.getDistributorProducts()));
     setDistPlans(await safe(() => api.getDistributorSubscriptionPlans()));
     setPricing(await safe(() => api.getPricing()));
+    // Staff accounts — explicitly promised on the Enterprise distributor
+    // plan ("Staff accounts") but didn't work for any distributor at
+    // all until now (the add-staff/remove-staff authorization logic was
+    // hardcoded to shops only). Loaded the same way shop staff already
+    // is — getShopStaff() was already fully generic, just needed a
+    // distributor id passed in.
+    setDistStaff(await safe(() => api.getShopStaff(user.id)));
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
@@ -387,6 +396,33 @@ const DistributorDashboard = () => {
   // edit an existing one.
   const [editingProductId, setEditingProductId] = useState(null);
   const [catalogSearch, setCatalogSearch] = useState('');
+  const [staffName, setStaffName] = useState('');
+  const [staffPhone, setStaffPhone] = useState('');
+  const [addingStaff, setAddingStaff] = useState(false);
+  const handleAddDistStaff = async () => {
+    if (!staffName.trim() || !/^\d{10}$/.test(staffPhone)) return toast.error('Enter a name and valid 10-digit phone number');
+    setAddingStaff(true);
+    try {
+      await api.addStaff(user.id, staffPhone, '1234', staffName.trim());
+      toast.success(`${staffName} added — they can log in with this number and PIN 1234`);
+      setStaffName(''); setStaffPhone('');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not add staff');
+    } finally {
+      setAddingStaff(false);
+    }
+  };
+  const handleRemoveDistStaff = async (staffId, name) => {
+    if (!window.confirm(`Remove ${name} from your team? They will no longer be able to log in.`)) return;
+    try {
+      await api.deleteStaff(staffId);
+      toast.success(`${name} removed`);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not remove staff');
+    }
+  };
   const openEditProduct = (p) => {
     setEditingProductId(p.id);
     setNewProdName(p.name);
@@ -1367,6 +1403,60 @@ const DistributorDashboard = () => {
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
               </div>
+
+              {/* Staff Accounts — explicitly promised on the Enterprise
+                  plan ("Staff accounts") but had zero implementation at
+                  all: no UI, and the add-staff/remove-staff
+                  authorization was hardcoded to shops only, so even a
+                  paying Enterprise distributor could never actually add
+                  a staff member. Gated on the same staffAccounts
+                  capability flag that was already defined in
+                  DIST_PLAN_CAPS but never actually referenced anywhere. */}
+              <div style={{ marginTop: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Users size={20} color="#64748B" /> Staff Accounts
+                </h2>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Let your team log in and help manage orders, catalog, and collections.</p>
+
+                {!hasDistCap(user, 'staffAccounts') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                      <input value={staffName} onChange={e => setStaffName(e.target.value)} placeholder="Staff name"
+                        style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                      <input value={staffPhone} onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone" inputMode="numeric"
+                        style={{ width: 160, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                      <button onClick={handleAddDistStaff} disabled={addingStaff}
+                        style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
+                        {addingStaff ? 'Adding…' : '+ Add Staff'}
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 16px' }}>New staff log in with their phone number and default PIN <strong>1234</strong> — they should change it after their first login.</p>
+
+                    {distStaff.length === 0 ? (
+                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No staff added yet.</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {distStaff.map(s => (
+                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{s.name}</div>
+                              <div style={{ fontSize: 11, color: '#64748B' }}>{s.phone}</div>
+                            </div>
+                            <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
+                              style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -2088,6 +2178,51 @@ const DistributorDashboard = () => {
                   style={{ background: profileSaving ? '#A5B4FC' : '#4F46E5', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
+              </div>
+
+              {/* Staff Accounts — same feature as desktop, mobile
+                  layout. See desktop version's comment for full
+                  context on why this was completely missing. */}
+              <div style={{ marginTop: '20px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>👥 Staff Accounts</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Let your team log in and help manage orders, catalog, and collections.</p>
+
+                {!hasDistCap(user, 'staffAccounts') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
+                    <input value={staffName} onChange={e => setStaffName(e.target.value)} placeholder="Staff name"
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
+                    <input value={staffPhone} onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone" inputMode="numeric"
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
+                    <button onClick={handleAddDistStaff} disabled={addingStaff}
+                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', marginBottom: 12 }}>
+                      {addingStaff ? 'Adding…' : '+ Add Staff'}
+                    </button>
+                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 12px' }}>New staff log in with their phone number and default PIN <strong>1234</strong>.</p>
+
+                    {distStaff.length === 0 ? (
+                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '8px 0' }}>No staff added yet.</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {distStaff.map(s => (
+                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{s.name}</div>
+                              <div style={{ fontSize: 11, color: '#64748B' }}>{s.phone}</div>
+                            </div>
+                            <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
+                              style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

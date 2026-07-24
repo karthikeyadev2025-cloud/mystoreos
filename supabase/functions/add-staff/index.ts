@@ -58,8 +58,14 @@ serve(async (req) => {
     // 2. Main owner (role=shop, no parent_shop_id) adding staff to their own shop
     // 3. Branch owner (role=shop, has parent_shop_id) adding staff to their own branch
     // 4. Main owner adding staff to one of their branches (shopId's parent_shop_id = caller.id)
+    // 5. Distributor adding staff to their own distributor account — was
+    //    completely missing, meaning "Staff accounts" (explicitly
+    //    promised on the Enterprise plan) didn't actually work for any
+    //    distributor at all. Purely additive — every existing shop
+    //    condition above is untouched.
     const isAdmin = profile.role === 'admin';
     const isOwnShop = profile.role === 'shop' && profile.id === shopId;
+    const isOwnDistributor = profile.role === 'distributor' && profile.id === shopId;
 
     // Check if shopId is a branch owned by this caller
     let isOwnBranch = false;
@@ -72,8 +78,8 @@ serve(async (req) => {
       isOwnBranch = targetShop?.parent_shop_id === profile.id;
     }
 
-    if (!isAdmin && !isOwnShop && !isOwnBranch) {
-      return json({ error: 'You can only add staff to your own shop or branches' }, 403);
+    if (!isAdmin && !isOwnShop && !isOwnBranch && !isOwnDistributor) {
+      return json({ error: 'You can only add staff to your own shop, branches, or distributor account' }, 403);
     }
 
     // Check phone not already in use
