@@ -255,7 +255,15 @@ const Register = () => {
       // in Settings; super admin has to update the row if they need to switch.
       if (businessType === 'shop' && newUser?.id) {
         try {
-          const trimmedCategory = (shopCategory || '').trim() || (businessKind === 'service' ? 'General Services' : 'General Retail');
+          // Was forcing 'General Retail'/'General Services' onto any
+          // shop that left this blank — every business selling
+          // anything that didn't fit a generic bucket (or who just
+          // hadn't filled it in yet) got a fake, meaningless label
+          // instead of genuinely having none. Safe to leave empty:
+          // businessKind (set explicitly above, always) is what
+          // actually drives retail-vs-service routing — shopCategory
+          // is purely a descriptive label, never load-bearing for that.
+          const trimmedCategory = (shopCategory || '').trim();
           // Same moment businessKind is first known is also the first
           // moment we can set the RIGHT starting tier. auth-register
           // hardcodes subscription_tier to the generic 'starter' at

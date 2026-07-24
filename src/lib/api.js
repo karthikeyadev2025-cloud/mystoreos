@@ -129,7 +129,12 @@ const toUser = (row) => row ? ({
   distributorTrialStartedAt: row.distributor_trial_started_at || null,
   homeServiceAddonExpiresAt: row.home_service_addon_expires_at || null,
   hideFromSearch: row.hide_from_search || false,
-  shopCategory: row.shop_category || 'general',
+  // Was forcing 'general' onto any shop with no category set — undid
+  // the fix at registration, since this runs every time a profile
+  // loads anywhere in the app. isServiceCategory() already correctly
+  // treats null/empty as falsy (defaults to retail), so nothing
+  // downstream needs this to be a non-empty string.
+  shopCategory: row.shop_category || null,
   businessKind: row.business_kind || null,   // 'retail' | 'service' — routes shop to POS-first or Bookings-first dashboard
   openingHour: row.opening_hour ?? 8,
   closingHour: row.closing_hour ?? 21,
