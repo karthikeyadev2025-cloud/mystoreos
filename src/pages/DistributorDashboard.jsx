@@ -1662,6 +1662,46 @@ const DistributorDashboard = () => {
                       );
                     })}
                   </div>
+
+                  {/* Top Products — explicitly promised in this tab's
+                      own locked-tier description ("Top shops, top
+                      products, GMV trends") but was genuinely missing.
+                      Computed from stock order line items already
+                      loaded — no new data fetching needed. */}
+                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
+                  {(() => {
+                    const productTotals = {};
+                    stockOrders.forEach(o => {
+                      (o.items || []).forEach(item => {
+                        const key = item.name;
+                        if (!productTotals[key]) productTotals[key] = { qty: 0, revenue: 0 };
+                        productTotals[key].qty += item.qty || 0;
+                        productTotals[key].revenue += (item.price || 0) * (item.qty || 0);
+                      });
+                    });
+                    const topProducts = Object.entries(productTotals)
+                      .sort((a, b) => b[1].qty - a[1].qty)
+                      .slice(0, 5);
+                    if (topProducts.length === 0) {
+                      return <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
+                    }
+                    const maxQty = topProducts[0][1].qty;
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {topProducts.map(([name, stats]) => (
+                          <div key={name} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                            <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
+                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: '#4F46E5', borderRadius: '3px' }} />
+                              </div>
+                              <span style={{ color: '#0F172A', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty} units</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -2703,6 +2743,36 @@ const DistributorDashboard = () => {
                       );
                     })}
                   </div>
+
+                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
+                  {(() => {
+                    const productTotals = {};
+                    stockOrders.forEach(o => {
+                      (o.items || []).forEach(item => {
+                        const key = item.name;
+                        if (!productTotals[key]) productTotals[key] = { qty: 0 };
+                        productTotals[key].qty += item.qty || 0;
+                      });
+                    });
+                    const topProducts = Object.entries(productTotals).sort((a, b) => b[1].qty - a[1].qty).slice(0, 5);
+                    if (topProducts.length === 0) return <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
+                    const maxQty = topProducts[0][1].qty;
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {topProducts.map(([name, stats]) => (
+                          <div key={name} style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10 }}>
+                            <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{ width: '60px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
+                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: '#4F46E5', borderRadius: '3px' }} />
+                              </div>
+                              <span style={{ color: '#0F172A', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
