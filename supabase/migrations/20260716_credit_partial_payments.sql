@@ -39,7 +39,7 @@ CREATE POLICY "credit_payments_read" ON public.credit_payments FOR SELECT
       WHERE c.id = credit_payments.credit_id
         AND (public.owns_shop(c.from_id) OR public.owns_shop(c.to_shop_id))
     )
-    OR public.is_admin()
+    OR public.current_user_role() = 'admin'
   );
 
 DROP POLICY IF EXISTS "credit_payments_write" ON public.credit_payments;
