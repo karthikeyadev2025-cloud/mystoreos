@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
+import { printInvoice } from '../lib/invoicePrint';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
 import PushToggle from '../components/PushToggle';
@@ -32,8 +33,49 @@ import {
 // "expected dispatch date" input. Multiple pending orders can be on
 // screen at once; a single shared date field would leak one order's
 // chosen date into every other card.
-function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch }) {
+// Was completely missing — a distributor supplying real stock to a
+// real shop had no way to generate a proper invoice for that
+// transaction at all, despite the shop side already having a full,
+// working invoice system for its own customer sales. Reuses that
+// exact same printInvoice() engine rather than building a second,
+// separate invoicing system — same templates, same PDF/print
+// behavior, just mapped the other way: the distributor is the
+// issuer here, the shop is the "customer" receiving the goods.
+// Standalone (not a component method) so both the mobile card and
+// the desktop detail panel call the exact same logic.
+function downloadStockOrderInvoice(o, distributor) {
+  printInvoice('wholesale', {
+    shopName: distributor?.name || 'Distributor',
+    shopPhone: distributor?.phone || '',
+    shopAddress: distributor?.businessAddress || '',
+    shopGSTIN: distributor?.gstin || '',
+    billNo: `STK-${o.id?.toString().slice(-6) || Date.now().toString().slice(-6)}`,
+    dateStr: new Date(o.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    modeTitle: 'Stock Supply Invoice',
+    customerName: o.shopName || '',
+    customerPhone: '',
+    customerAddress: '',
+    items: (o.items || []).map(item => ({
+      code: item.id || '',
+      name: item.name,
+      hsn: '',
+      qty: item.qty || 1,
+      rate: item.price,
+      gstPct: 0,
+    })),
+    subtotal: o.total,
+    discountAmount: 0,
+    roundOff: 0,
+    total: o.total,
+    paymentMode: 'Credit (on account)',
+    footerNote: 'Thank you for your business.',
+    termsNote: 'Goods once supplied are governed by standard trade terms.',
+  }, 'a4');
+}
+
+function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor }) {
   const [dateInput, setDateInput] = useState('');
+
   return (
     <div style={{ background: '#FFFFFF', border: selected ? '1px solid #4F46E5' : '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
       <div style={{ display: 'flex', gap: 10 }}>
@@ -94,6 +136,16 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
           {o.status === 'accepted' && (
             <button onClick={onDispatch} style={{ width: '100%', marginTop: 10, background: '#4F46E5', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               📦 Mark as Dispatched
+            </button>
+          )}
+
+          {/* Invoice — any order the distributor has actually committed
+              to (accepted, dispatched, or delivered) can get a real
+              invoice now; pending orders can't since they might still
+              be rejected. */}
+          {o.status !== 'pending' && (
+            <button onClick={() => downloadStockOrderInvoice(o, distributor)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+              🧾 Download Invoice
             </button>
           )}
         </div>
@@ -905,6 +957,20 @@ const DistributorDashboard = () => {
                             </span>
                           </div>
                         )}
+
+                        {/* Invoice — any order the distributor has
+                            actually committed to (accepted, dispatched,
+                            or delivered) can get a real invoice; a
+                            still-pending order can't since it might yet
+                            be rejected. */}
+                        {selectedOrder.status !== 'pending' && (
+                          <button
+                            onClick={() => downloadStockOrderInvoice(selectedOrder, user)}
+                            style={{ width: '100%', marginTop: 12, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                          >
+                            🧾 Download Invoice
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="premium-glass" style={{ padding: '30px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
@@ -1567,6 +1633,7 @@ const DistributorDashboard = () => {
                 onAccept={(date) => handleUpdateStockOrder(o.id, 'accepted', date)}
                 onReject={() => handleUpdateStockOrder(o.id, 'rejected')}
                 onDispatch={() => handleDispatchSelected(o.id)}
+                distributor={user}
               />
             ))
           )}
