@@ -833,6 +833,7 @@ const DistributorDashboard = () => {
     pending:    { bg: '#FEF3C7', color: '#B45309', label: 'Pending' },
     accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
     dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
+    delivered:  { bg: '#D1FAE5', color: '#047857', label: '✅ Delivered' },
     rejected:   { bg: '#FEE2E2', color: '#B91C1C', label: 'Rejected' },
   };
 
