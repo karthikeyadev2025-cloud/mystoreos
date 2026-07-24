@@ -186,6 +186,7 @@ function renderWholesale(data, widthMm) {
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '8px'};font-family:'Inter',Arial,sans-serif;">
       <div style="text-align:center;margin-bottom:10px;">
+        ${data.logoUrl ? `<img src="${esc(data.logoUrl)}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:6px;" />` : ''}
         <div style="font-size:20px;font-weight:800;letter-spacing:0.02em;">${esc(data.shopName || 'Shop')}</div>
         ${data.shopAddress ? `<div style="font-size:11px;color:#333;margin-top:2px;">${esc(data.shopAddress)}</div>` : ''}
         ${data.shopPhone ? `<div style="font-size:11px;color:#333;">${esc(data.shopPhone)}</div>` : ''}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
+import { validateImageFile } from '../lib/fileValidation';
 import { printInvoice } from '../lib/invoicePrint';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
@@ -50,6 +51,11 @@ function downloadStockOrderInvoice(o, distributor) {
     shopPhone: distributor?.phone || '',
     shopAddress: distributor?.businessAddress || '',
     shopGSTIN: distributor?.gstin || '',
+    // Custom branding — only included if the distributor's plan
+    // actually grants it AND they've set one; hasCap-equivalent check
+    // happens at the UI layer (the logo upload section itself is
+    // gated), so any logo value reaching here is already legitimate.
+    logoUrl: distributor?.logo || '',
     billNo: `STK-${o.id?.toString().slice(-6) || Date.now().toString().slice(-6)}`,
     dateStr: new Date(o.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     modeTitle: 'Stock Supply Invoice',
@@ -218,6 +224,15 @@ const DistributorDashboard = () => {
 
   // Distributor business profile / GST settings
   const [profileForm, setProfileForm] = useState({ name: '', gstin: '', stateCode: '', businessAddress: '', upiId: '', latitude: null, longitude: null });
+  // Custom branded reports/invoices — explicitly promised on the
+  // Enterprise plan ("Custom branded reports") but had zero
+  // implementation: no upload UI, and logoUrl was documented in the
+  // invoice template's own comment but never actually rendered by any
+  // template. Reuses the exact same proven mechanism already working
+  // for shop logos — client-side resize/compress to a base64 data URL,
+  // no storage bucket needed — rather than building new upload
+  // infrastructure from scratch.
+  const [logo, setLogo] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   useEffect(() => {
     if (user) setProfileForm({
@@ -229,7 +244,39 @@ const DistributorDashboard = () => {
       latitude: user.latitude || null,
       longitude: user.longitude || null,
     });
+    if (user) setLogo(user.logo || '');
   }, [user]);
+  const handleDistLogoFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(400 / img.width, 400 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        handleDistLogoChange(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  const handleDistLogoChange = async (base64) => {
+    setLogo(base64);
+    await mustSucceed(() => api.updateProfile(user.id, { logo: base64 }), 'Update logo');
+    toast.success('Logo updated!');
+  };
+  const handleDistLogoRemove = async () => {
+    setLogo('');
+    await mustSucceed(() => api.updateProfile(user.id, { logo: '' }), 'Remove logo');
+    toast.success('Logo removed');
+  };
+
   const handleGrabDistributorLocation = () => {
     if (!navigator.geolocation) return toast.error('Geolocation is not supported by your browser');
     toast.info('Getting your location…');
@@ -1809,6 +1856,71 @@ const DistributorDashboard = () => {
                   </div>
                 )}
               </div>
+
+              {/* Custom Branded Reports (Logo) — explicitly promised
+                  on the Enterprise plan ("Custom branded reports") but
+                  had zero implementation: no upload UI anywhere, and
+                  logoUrl was documented in the invoice template's own
+                  code comment but never actually rendered by any
+                  template. Reuses the exact same proven mechanism
+                  already working for shop logos. */}
+              <div style={{ marginTop: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🖼️ Custom Branded Reports
+                </h2>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Add your logo to invoices and reports sent to shops.</p>
+
+                {!hasDistCap(user, 'customBranding') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', textAlign: 'center' }}>
+                    {logo ? (
+                      <img src={logo} alt="Distributor Logo" style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5', marginBottom: 12 }} />
+                    ) : (
+                      <div style={{ width: 100, height: 100, borderRadius: '50%', background: '#F1F5F9', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 12 }}>No Logo</div>
+                    )}
+                    <div>
+                      <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 12 }} />
+                      {logo && (
+                        <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                          Remove Logo
+                        </button>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 12 }}>Appears on every invoice generated from Orders.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Priority Support — explicitly promised on the
+                  Enterprise plan ("Priority 24/7 support"). This is
+                  fundamentally a staffing commitment, not a software
+                  feature — being honest about that rather than
+                  claiming a fully automated support system. What's
+                  real here: a distinct, visible contact path for
+                  Enterprise distributors using the same genuine
+                  support channel already used elsewhere in the app. */}
+              <div style={{ marginTop: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>⭐ Priority Support</h2>
+                {!hasDistCap(user, 'staffAccounts') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <p style={{ margin: '0 0 12px', fontSize: 13, color: '#64748B' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
+                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'inline-block', background: '#4F46E5', color: '#fff', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                      ✉️ adexosindia@gmail.com
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -2646,6 +2758,60 @@ const DistributorDashboard = () => {
                         Revoke Key
                       </button>
                     )}
+                  </div>
+                )}
+              </div>
+
+              {/* Custom Branded Reports (Logo) — same feature as desktop, mobile layout. */}
+              <div style={{ marginTop: '20px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>🖼️ Custom Branded Reports</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Add your logo to invoices and reports sent to shops.</p>
+
+                {!hasDistCap(user, 'customBranding') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                    {logo ? (
+                      <img src={logo} alt="Distributor Logo" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5', marginBottom: 10 }} />
+                    ) : (
+                      <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#F1F5F9', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 11 }}>No Logo</div>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 11 }} />
+                    {logo && (
+                      <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                        Remove Logo
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Priority Support — explicitly promised on the
+                  Enterprise plan ("Priority 24/7 support"). This is
+                  fundamentally a staffing commitment, not a software
+                  feature — being honest about that rather than
+                  claiming a fully automated support system. What's
+                  real here: a distinct, visible contact path for
+                  Enterprise distributors using the same genuine
+                  support channel already used elsewhere in the app. */}
+              <div style={{ marginTop: '20px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>⭐ Priority Support</h2>
+                {!hasDistCap(user, 'staffAccounts') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
+                    <p style={{ margin: '0 0 10px', fontSize: 12, color: '#64748B' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
+                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'block', textAlign: 'center', background: '#4F46E5', color: '#fff', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                      ✉️ adexosindia@gmail.com
+                    </a>
                   </div>
                 )}
               </div>

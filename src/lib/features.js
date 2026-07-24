@@ -24,6 +24,7 @@ export const DIST_PLAN_CAPS = {
     maxShops: -1, routePlanner: true, bulkOrderCSV: true,
     tallyExport: true, multiDevice: 10, advancedAnalytics: true,
     multiBranch: true, apiAccess: true, staffAccounts: true,
+    customBranding: true,
   },
 };
 
