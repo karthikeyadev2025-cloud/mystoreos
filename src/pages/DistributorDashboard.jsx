@@ -209,7 +209,7 @@ const DistributorDashboard = () => {
   const [newProdName, setNewProdName] = useState('');
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdStock, setNewProdStock] = useState('');
-  const [newProdCategory, setNewProdCategory] = useState('general');
+  const [newProdCategory, setNewProdCategory] = useState('');
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
   // New Credit Form
@@ -1448,13 +1448,7 @@ const DistributorDashboard = () => {
 
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
-                <select value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px' }}>
-                  <option value="biscuits">Biscuits & Snacks</option>
-                  <option value="flour">Atta & Flours</option>
-                  <option value="soaps">Soaps & Shampoos</option>
-                  <option value="oil">Cooking Oils</option>
-                  <option value="general">General Items</option>
-                </select>
+                <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
@@ -1805,13 +1799,7 @@ const DistributorDashboard = () => {
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Category</label>
-              <select value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
-                <option value="biscuits">Biscuits & Snacks</option>
-                <option value="flour">Atta & Flours</option>
-                <option value="soaps">Soaps & Shampoos</option>
-                <option value="oil">Cooking Oils</option>
-                <option value="general">General Items</option>
-              </select>
+              <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
             </div>
 
             <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Publish Product</button>
