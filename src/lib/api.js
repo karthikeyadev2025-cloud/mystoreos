@@ -3363,6 +3363,26 @@ export const api = {
     }));
   },
 
+  // Bulk CSV catalog import — bulkOrderCSV has been a defined
+  // capability in DIST_PLAN_CAPS (Pro and Enterprise tiers) since the
+  // beginning, but had zero actual implementation anywhere in the app.
+  // A distributor with 100+ SKUs had no way to publish more than one
+  // product at a time through the Add Product form. Inserts everything
+  // in one request rather than looping individual inserts.
+  async bulkAddDistributorProducts(distributorId, products) {
+    if (!isSupabaseConfigured) throw new Error('Bulk import requires an online connection.');
+    const rows = products.map(p => ({
+      distributor_id: distributorId,
+      name: p.name,
+      price: parseFloat(p.price) || 0,
+      stock: parseInt(p.stock) || 0,
+      category: p.category || null,
+    }));
+    const { data, error } = await supabase.from('distributor_products').insert(rows).select('id');
+    if (error) throw new Error(error.message);
+    return data?.length || 0;
+  },
+
   async addDistributorProduct(productData) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('distributor_products').insert({

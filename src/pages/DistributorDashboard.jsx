@@ -506,6 +506,63 @@ const DistributorDashboard = () => {
     }
   };
 
+  const [showBulkImport, setShowBulkImport] = useState(false);
+  const [bulkImportRows, setBulkImportRows] = useState([]);
+  const [bulkImporting, setBulkImporting] = useState(false);
+
+  // Small, self-contained CSV parser rather than a new npm dependency
+  // for a simple, well-defined format (name,price,stock,category).
+  // Handles the common real-world case of a quoted field containing a
+  // comma (e.g. a product name like "Rice, 5kg Bag").
+  const parseCsvText = (text) => {
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    const parseLine = (line) => {
+      const fields = [];
+      let cur = '', inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQuotes = !inQuotes; continue; }
+        if (ch === ',' && !inQuotes) { fields.push(cur.trim()); cur = ''; continue; }
+        cur += ch;
+      }
+      fields.push(cur.trim());
+      return fields;
+    };
+    let rows = lines.map(parseLine);
+    // Skip a header row if the first cell looks like a label, not data
+    if (rows.length > 0 && /^name$/i.test(rows[0][0]?.trim())) rows = rows.slice(1);
+    return rows
+      .filter(r => r[0] && r[1])
+      .map(r => ({ name: r[0], price: r[1], stock: r[2] || '0', category: r[3] || '' }));
+  };
+
+  const handleCsvFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const parsed = parseCsvText(String(evt.target.result));
+      if (parsed.length === 0) return toast.error('No valid rows found. Expected columns: name, price, stock, category');
+      setBulkImportRows(parsed);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleConfirmBulkImport = async () => {
+    setBulkImporting(true);
+    try {
+      const count = await api.bulkAddDistributorProducts(user.id, bulkImportRows);
+      toast.success(`${count} products imported to your catalog!`);
+      setShowBulkImport(false);
+      setBulkImportRows([]);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Bulk import failed');
+    } finally {
+      setBulkImporting(false);
+    }
+  };
+
   const handleDeleteWholesaleProduct = async (productId) => {
     if (!window.confirm('Remove this product from your wholesale catalog? Shops will no longer be able to order it.')) return;
     await mustSucceed(() => api.deleteDistributorProduct(productId), 'Delete product');
@@ -1150,13 +1207,61 @@ const DistributorDashboard = () => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
-                <button 
-                  onClick={openAddProduct}
-                  style={{ background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
-                >
-                  <Plus size={16} /> Publish Wholesale Product
-                </button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {hasDistCap(user, 'bulkOrderCSV') ? (
+                    <button onClick={() => setShowBulkImport(true)}
+                      style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      Bulk Import CSV
+                    </button>
+                  ) : (
+                    <button onClick={() => setShowUpgradePlanModal(true)}
+                      style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Lock size={12} /> Bulk Import (Pro+)
+                    </button>
+                  )}
+                  <button 
+                    onClick={openAddProduct}
+                    style={{ background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
+                  >
+                    <Plus size={16} /> Publish Wholesale Product
+                  </button>
+                </div>
               </div>
+
+              {showBulkImport && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
+                    <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: '#0F172A' }}>Bulk Import Catalog (CSV)</h3>
+                    <p style={{ margin: '0 0 16px', fontSize: 13, color: '#64748B' }}>Columns: <code>name, price, stock, category</code> — header row optional.</p>
+                    <input type="file" accept=".csv,text/csv" onChange={handleCsvFileSelect}
+                      style={{ width: '100%', padding: 10, border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 16, fontSize: 13 }} />
+                    {bulkImportRows.length > 0 && (
+                      <>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', margin: '0 0 8px' }}>Preview — {bulkImportRows.length} product{bulkImportRows.length === 1 ? '' : 's'} ready to import:</p>
+                        <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 16 }}>
+                          {bulkImportRows.slice(0, 50).map((r, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', fontSize: 12, borderBottom: '1px solid #F1F5F9' }}>
+                              <span>{r.name} {r.category && <span style={{ color: '#94A3B8' }}>· {r.category}</span>}</span>
+                              <span>₹{r.price} · stock {r.stock}</span>
+                            </div>
+                          ))}
+                          {bulkImportRows.length > 50 && <div style={{ padding: 8, fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>+ {bulkImportRows.length - 50} more…</div>}
+                        </div>
+                      </>
+                    )}
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <button onClick={handleConfirmBulkImport} disabled={bulkImportRows.length === 0 || bulkImporting}
+                        style={{ flex: 1, background: bulkImportRows.length === 0 ? '#CBD5E1' : '#4F46E5', color: '#fff', border: 'none', padding: 12, borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: bulkImportRows.length === 0 ? 'default' : 'pointer' }}>
+                        {bulkImporting ? 'Importing…' : `Import ${bulkImportRows.length || ''} Products`}
+                      </button>
+                      <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }}
+                        style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: 12, borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Search — was completely missing. Fine with 5 products,
                   genuinely unusable once a distributor's catalog grows
@@ -1963,6 +2068,16 @@ const DistributorDashboard = () => {
               + Add Product
             </button>
           </div>
+
+          {/* Bulk CSV import is a desktop workflow (uploading a file
+              and reviewing a large preview table doesn't fit a phone
+              screen well) — pointing there rather than cramming a
+              lesser version of the same UI in here. */}
+          {hasDistCap(user, 'bulkOrderCSV') && (
+            <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 16, textAlign: 'center' }}>
+              Have a product list to import? Bulk CSV import is available on the desktop dashboard.
+            </p>
+          )}
 
           {wholesaleProducts.length > 0 && (
             <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
