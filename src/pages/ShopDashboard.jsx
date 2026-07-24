@@ -3056,7 +3056,8 @@ const ShopDashboard = () => {
         id: prod.id,
         name: prod.name,
         price: prod.price,
-        qty
+        qty,
+        unit: prod.unit || null,
       };
     });
 

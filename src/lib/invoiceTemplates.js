@@ -175,7 +175,7 @@ function renderWholesale(data, widthMm) {
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${esc(it.code || '')}</td>
       <td style="padding:6px 8px;border:1px solid #333;">${esc(it.name)}</td>
       ${it.boxes != null ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.boxes)}</td>` : ''}
-      <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.qty)}</td>
+      <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.qty)}${it.unit ? ` ${esc(it.unit)}` : ''}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:right;">${money(it.rate)}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
     </tr>`).join('');

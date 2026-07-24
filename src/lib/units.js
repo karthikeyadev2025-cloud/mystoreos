@@ -16,6 +16,8 @@ export const ALL_UNITS = [
   { value: 'pack',  label: 'Pack',            group: 'Count' },
   { value: 'dozen', label: 'Dozen',           group: 'Count' },
   { value: 'set',   label: 'Set',             group: 'Count' },
+  { value: 'jar',   label: 'Jar',             group: 'Count' },
+  { value: 'case',  label: 'Case',            group: 'Count' },
   { value: 'kg',    label: 'Kilogram (kg)',   group: 'Weight' },
   { value: 'g',     label: 'Gram (g)',        group: 'Weight' },
   { value: 'litre', label: 'Litre (L)',       group: 'Volume' },
@@ -28,7 +30,7 @@ export const ALL_UNITS = [
 // Quick lookup: unit value → short suffix shown next to quantities.
 export const UNIT_SUFFIX = {
   pcs: 'pcs', qty: '', pair: 'pair', box: 'box', pack: 'pack',
-  dozen: 'dozen', set: 'set', kg: 'kg', g: 'g', litre: 'L',
+  dozen: 'dozen', set: 'set', jar: 'jar', case: 'case', kg: 'kg', g: 'g', litre: 'L',
   ml: 'ml', metre: 'm', plate: 'plate', cup: 'cup',
 };
 

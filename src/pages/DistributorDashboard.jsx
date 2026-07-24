@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { validateImageFile } from '../lib/fileValidation';
+import { ALL_UNITS, UNIT_SUFFIX } from '../lib/units';
 import { printInvoice } from '../lib/invoicePrint';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
@@ -67,6 +68,7 @@ function downloadStockOrderInvoice(o, distributor) {
       name: item.name,
       hsn: '',
       qty: item.qty || 1,
+      unit: item.unit ? (UNIT_SUFFIX[item.unit] || item.unit) : '',
       rate: item.price,
       gstPct: 0,
     })),
@@ -318,6 +320,7 @@ const DistributorDashboard = () => {
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdStock, setNewProdStock] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('');
+  const [newProdUnit, setNewProdUnit] = useState('');
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
   // New Credit Form
@@ -616,13 +619,14 @@ const DistributorDashboard = () => {
     setNewProdPrice(String(p.price));
     setNewProdStock(String(p.stock));
     setNewProdCategory(p.category || '');
+    setNewProdUnit(p.unit || '');
     setShowCatalogModal(true);
   };
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
     if (editingProductId) {
       await mustSucceed(() => api.updateDistributorProduct(editingProductId, {
-        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory
+        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit
       }), 'Update product');
       toast.success("Product updated!");
     } else {
@@ -631,7 +635,8 @@ const DistributorDashboard = () => {
         name: newProdName,
         price: newProdPrice,
         stock: newProdStock,
-        category: newProdCategory
+        category: newProdCategory,
+        unit: newProdUnit
       }), 'Publish product');
       toast.success("Product published to wholesale catalog!");
     }
@@ -639,13 +644,14 @@ const DistributorDashboard = () => {
     setNewProdPrice('');
     setNewProdStock('');
     setNewProdCategory('');
+    setNewProdUnit('');
     setEditingProductId(null);
     setShowCatalogModal(false);
     loadData();
   };
   const openAddProduct = () => {
     setEditingProductId(null);
-    setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory('');
+    setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory(''); setNewProdUnit('');
     setShowCatalogModal(true);
   };
   const closeCatalogModal = () => {
@@ -1543,7 +1549,7 @@ const DistributorDashboard = () => {
                       </div>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px', marginBottom: '10px' }}>
-                          <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}</span>
+                          <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}{p.unit && <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
                           <span style={{ fontSize: '11px', color: '#475569', fontWeight: '500' }}>Stock: {p.stock} cases</span>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
@@ -2257,6 +2263,15 @@ const DistributorDashboard = () => {
                 <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
 
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Sold Per (unit)</label>
+                <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+                  <option value="">Not specified</option>
+                  {ALL_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+                </select>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>The price above is per this unit — e.g. ₹150 per jar, ₹1,200 per case.</p>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
                 <button onClick={closeCatalogModal} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
@@ -2544,7 +2559,7 @@ const DistributorDashboard = () => {
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                   </div>
                   <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}{p.unit && <span style={{ fontSize: 10, fontWeight: 600, color: '#64748B' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
                     <span style={{ fontSize: '11px', color: '#64748B' }}>Stock: {p.stock}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
@@ -2634,6 +2649,15 @@ const DistributorDashboard = () => {
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Category</label>
               <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Sold Per (unit)</label>
+              <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }}>
+                <option value="">Not specified</option>
+                {ALL_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+              </select>
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Price above is per this unit (e.g. ₹150 per jar).</p>
             </div>
 
             <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
