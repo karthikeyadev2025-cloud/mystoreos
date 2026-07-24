@@ -188,7 +188,6 @@ function renderWholesale(data, widthMm) {
       <td style="padding:6px 8px;border:1px solid #333;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
     </tr>`).join('');
 
-  const totalQty = items.reduce((a, i) => a + (Number(i.qty) || 0), 0);
   const totalBoxes = items.reduce((a, i) => a + (Number(i.boxes) || 0), 0);
   const colsBeforeQty = 3 + (hasJarsBoxes ? 2 : 0);
 
@@ -237,10 +236,8 @@ function renderWholesale(data, widthMm) {
         <tbody>${rows}</tbody>
         <tfoot>
           <tr style="font-weight:800;">
-            <td colspan="${colsBeforeQty}" style="padding:6px 8px;border:1px solid #333;text-align:right;">Total:</td>
-            ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(totalBoxes)}</td>` : ''}
-            <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(totalQty)}</td>
-            <td style="padding:6px 8px;border:1px solid #333;"></td>
+            <td colspan="${hasJarsBoxes ? colsBeforeQty - 1 : colsBeforeQty + 2}" style="padding:6px 8px;border:1px solid #333;text-align:right;">Total:</td>
+            ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(totalBoxes)}</td><td colspan="2" style="padding:6px 8px;border:1px solid #333;"></td>` : ''}
             <td style="padding:6px 8px;border:1px solid #333;text-align:right;">${money(total)}</td>
           </tr>
         </tfoot>
