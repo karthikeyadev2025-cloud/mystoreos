@@ -143,6 +143,10 @@ export default function FieldLoadOut() {
         style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
+      <button onClick={() => navigate('/field/stock')}
+        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 16, padding: '0 0 0 16px' }}>
+        Stock Overview →
+      </button>
 
       <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Van Load-Out</h1>
       <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 24px' }}>

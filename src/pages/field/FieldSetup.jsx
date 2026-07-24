@@ -125,10 +125,16 @@ export default function FieldSetup() {
       </p>
 
       {vehicles.length > 0 && (
-        <button onClick={() => navigate('/field/loadout')}
-          style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Truck size={15} /> Go to Van Load-Out
-        </button>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/field/loadout')}
+            style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Truck size={15} /> Van Load-Out
+          </button>
+          <button onClick={() => navigate('/field/stock')}
+            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Package size={15} /> Stock Overview
+          </button>
+        </div>
       )}
 
       {/* ─── DEPOTS ─────────────────────────────────────────────── */}

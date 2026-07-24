@@ -119,6 +119,45 @@ export const fieldApi = {
     }));
   },
 
+  // Stock across every location at once — the "where is my stock right
+  // now" view. At 20 vans, checking each one individually isn't
+  // practical. Batch expiry is joined in because near-expiry stock
+  // sitting on a van is the thing you most need to catch early.
+  async getAllStock(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data: whs } = await supabase.from('warehouses')
+      .select('id, name, type').eq('distributor_id', distributorId).eq('active', true);
+    const ids = (whs || []).map(w => w.id);
+    if (ids.length === 0) return [];
+
+    const { data } = await supabase.from('warehouse_stock')
+      .select('*, distributor_products(name, unit, pack_size), product_batches(batch_no, expiry_date)')
+      .in('warehouse_id', ids).gt('qty_base', 0);
+
+    const byWarehouse = {};
+    (whs || []).forEach(w => {
+      byWarehouse[w.id] = { id: w.id, name: w.name, type: w.type, lines: [] };
+    });
+    (data || []).forEach(r => {
+      const bucket = byWarehouse[r.warehouse_id];
+      if (!bucket) return;
+      bucket.lines.push({
+        id: r.id,
+        productName: r.distributor_products?.name || 'Unknown product',
+        unit: r.distributor_products?.unit || null,
+        packSize: r.distributor_products?.pack_size || null,
+        batchNo: r.product_batches?.batch_no || null,
+        expiryDate: r.product_batches?.expiry_date || null,
+        qtyBase: Number(r.qty_base),
+        condition: r.condition,
+      });
+    });
+    return Object.values(byWarehouse).sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'main' ? -1 : b.type === 'main' ? 1 : 0;
+      return a.name.localeCompare(b.name);
+    });
+  },
+
   // ─── DOCUMENT SERIES ──────────────────────────────────────────────
   // Each van's disjoint invoice/credit-note numbering — the mechanism
   // that makes offline billing collision-proof.
