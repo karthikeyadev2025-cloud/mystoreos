@@ -157,6 +157,7 @@ export default defineConfig({
           if (id.includes('/src/pages/ShopDashboard'))        return 'dashboard-shop';
           if (id.includes('/src/pages/AdminDashboard'))       return 'dashboard-admin';
           if (id.includes('/src/pages/DistributorDashboard')) return 'dashboard-dist';
+          if (id.includes('/src/pages/field/'))              return 'field-mode';
           if (id.includes('/src/pages/UserDashboard'))        return 'dashboard-user';
         },
       },

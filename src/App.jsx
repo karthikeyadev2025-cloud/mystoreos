@@ -23,6 +23,9 @@ const ZohoStyleShell = lazy(() => import('./components/ZohoStyleShell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const ManageBooking = lazy(() => import('./pages/ManageBooking'));
 const DistributorDashboard = lazy(() => import('./pages/DistributorDashboard'));
+// Field distribution — separate chunk so reps don't download the full
+// distributor dashboard they mostly don't need.
+const FieldSetup = lazy(() => import('./pages/field/FieldSetup'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
@@ -311,6 +314,16 @@ function App() {
                   <PrivateRoute role="customer">
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><UserDashboard /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                {/* Field distribution. A separate top-level path rather
+                    than /distributor/field, because /distributor/* is a
+                    wildcard that would otherwise swallow it. */}
+                <Route path="/field/setup" element={
+                  <PrivateRoute role="distributor">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><FieldSetup /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />
