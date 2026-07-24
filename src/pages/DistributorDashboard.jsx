@@ -74,6 +74,22 @@ function downloadStockOrderInvoice(o, distributor) {
   }, 'a4');
 }
 
+// Real straight-line distance between two lat/long points (Haversine
+// formula) — the Route Planner's own locked-tier description promises
+// sorting "based on outstanding credit and shop distance," but until
+// now there was no actual distance calculation anywhere, only credit/
+// visit-recency priority. Returns null if either point is missing,
+// so callers can gracefully fall back to priority-only sorting for
+// shops that haven't set a location yet.
+function distanceKm(lat1, lon1, lat2, lon2) {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor }) {
   const [dateInput, setDateInput] = useState('');
 
@@ -183,7 +199,7 @@ const DistributorDashboard = () => {
   const [wholesaleProducts, setWholesaleProducts] = useState([]);
 
   // Distributor business profile / GST settings
-  const [profileForm, setProfileForm] = useState({ name: '', gstin: '', stateCode: '', businessAddress: '', upiId: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', gstin: '', stateCode: '', businessAddress: '', upiId: '', latitude: null, longitude: null });
   const [profileSaving, setProfileSaving] = useState(false);
   useEffect(() => {
     if (user) setProfileForm({
@@ -192,8 +208,21 @@ const DistributorDashboard = () => {
       stateCode: user.stateCode || '',
       businessAddress: user.businessAddress || '',
       upiId: user.upiId || '',
+      latitude: user.latitude || null,
+      longitude: user.longitude || null,
     });
   }, [user]);
+  const handleGrabDistributorLocation = () => {
+    if (!navigator.geolocation) return toast.error('Geolocation is not supported by your browser');
+    toast.info('Getting your location…');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setProfileForm(p => ({ ...p, latitude: position.coords.latitude, longitude: position.coords.longitude }));
+        toast.success('Location captured — save your profile to keep it.');
+      },
+      () => toast.error('Could not get your location. Check location permissions.')
+    );
+  };
   const saveDistributorProfile = async () => {
     setProfileSaving(true);
     try {
@@ -203,6 +232,8 @@ const DistributorDashboard = () => {
         stateCode: profileForm.stateCode,
         businessAddress: profileForm.businessAddress,
         upiId: profileForm.upiId,
+        latitude: profileForm.latitude,
+        longitude: profileForm.longitude,
       });
       toast.success('Business profile saved');
     } catch (e) {
@@ -1337,7 +1368,11 @@ const DistributorDashboard = () => {
                       const bLastVisit = visitedShops[b.id] ? new Date(visitedShops[b.id]) : null;
                       const aNotVisited = !aLastVisit || aLastVisit < sevenAgo ? 1 : 0;
                       const bNotVisited = !bLastVisit || bLastVisit < sevenAgo ? 1 : 0;
-                      return (bOwed + bPending * 100 + bNotVisited * 50) - (aOwed + aPending * 100 + aNotVisited * 50);
+                      const aDist = distanceKm(user.latitude, user.longitude, a.latitude, a.longitude);
+                      const bDist = distanceKm(user.latitude, user.longitude, b.latitude, b.longitude);
+                      const aDistScore = aDist != null ? -aDist * 10 : 0;
+                      const bDistScore = bDist != null ? -bDist * 10 : 0;
+                      return (bOwed + bPending * 100 + bNotVisited * 50 + bDistScore) - (aOwed + aPending * 100 + aNotVisited * 50 + aDistScore);
                     });
                     const totalToCollect = routeShops.reduce((s, sh) => s + credits.filter(c => c.toShopId === sh.id && !c.paid).reduce((a, c) => a + c.amount, 0), 0);
                     const markVisited = (shopId) => {
@@ -1357,11 +1392,13 @@ const DistributorDashboard = () => {
                             const pendingOrders = stockOrders.filter(o => o.shopId === shop.id && o.status === 'pending').length;
                             const lastVisit = visitedShops[shop.id] ? new Date(visitedShops[shop.id]) : null;
                             const notVisited7 = !lastVisit || lastVisit < sevenAgo;
+                            const shopDist = distanceKm(user.latitude, user.longitude, shop.latitude, shop.longitude);
                             return (
                               <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                                     <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
+                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
                                     {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#FEF3C7', color: '#B45309', fontWeight: 'bold' }}>Not visited 7d+</span>}
                                     {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
@@ -1535,6 +1572,18 @@ const DistributorDashboard = () => {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
                   <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
                     style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Warehouse Location</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <button type="button" onClick={handleGrabDistributorLocation}
+                      style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                      📍 {profileForm.latitude ? 'Update Location' : 'Set My Location'}
+                    </button>
+                    {profileForm.latitude && <span style={{ fontSize: 12, color: '#16A34A', fontWeight: 600 }}>✓ Location set</span>}
+                  </div>
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Used by Route Planner to sort stops by actual distance from your warehouse — save your profile after setting this.</p>
                 </div>
 
                 <div>
@@ -2233,7 +2282,11 @@ const DistributorDashboard = () => {
                       const bLastVisit = visitedShops[b.id] ? new Date(visitedShops[b.id]) : null;
                       const aNotVisited = !aLastVisit || aLastVisit < sevenAgo ? 1 : 0;
                       const bNotVisited = !bLastVisit || bLastVisit < sevenAgo ? 1 : 0;
-                      return (bOwed + bPending * 100 + bNotVisited * 50) - (aOwed + aPending * 100 + aNotVisited * 50);
+                      const aDist = distanceKm(user.latitude, user.longitude, a.latitude, a.longitude);
+                      const bDist = distanceKm(user.latitude, user.longitude, b.latitude, b.longitude);
+                      const aDistScore = aDist != null ? -aDist * 10 : 0;
+                      const bDistScore = bDist != null ? -bDist * 10 : 0;
+                      return (bOwed + bPending * 100 + bNotVisited * 50 + bDistScore) - (aOwed + aPending * 100 + aNotVisited * 50 + aDistScore);
                     });
                     const totalToCollect = routeShops.reduce((s, sh) => s + credits.filter(c => c.toShopId === sh.id && !c.paid).reduce((a, c) => a + c.amount, 0), 0);
                     const markVisited = (shopId) => {
@@ -2253,11 +2306,13 @@ const DistributorDashboard = () => {
                             const pendingOrders = stockOrders.filter(o => o.shopId === shop.id && o.status === 'pending').length;
                             const lastVisit = visitedShops[shop.id] ? new Date(visitedShops[shop.id]) : null;
                             const notVisited7 = !lastVisit || lastVisit < sevenAgo;
+                            const shopDist = distanceKm(user.latitude, user.longitude, shop.latitude, shop.longitude);
                             return (
                               <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                                     <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
+                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
                                     {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#FEF3C7', color: '#B45309', fontWeight: 'bold' }}>Not visited 7d+</span>}
                                     {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
@@ -2388,6 +2443,15 @@ const DistributorDashboard = () => {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
                   <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
                     style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Warehouse Location</label>
+                  <button type="button" onClick={handleGrabDistributorLocation}
+                    style={{ width: '100%', background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', marginBottom: 6 }}>
+                    📍 {profileForm.latitude ? 'Update Location' : 'Set My Location'} {profileForm.latitude && '✓'}
+                  </button>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Used by Route Planner to sort stops by real distance — save your profile after setting this.</p>
                 </div>
 
                 <div>
