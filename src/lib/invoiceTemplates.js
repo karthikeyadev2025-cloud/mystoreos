@@ -189,10 +189,11 @@ function renderWholesale(data, widthMm) {
         <div style="font-size:20px;font-weight:800;letter-spacing:0.02em;">${esc(data.shopName || 'Shop')}</div>
         ${data.shopAddress ? `<div style="font-size:11px;color:#333;margin-top:2px;">${esc(data.shopAddress)}</div>` : ''}
         ${data.shopPhone ? `<div style="font-size:11px;color:#333;">${esc(data.shopPhone)}</div>` : ''}
+        ${data.shopGSTIN ? `<div style="font-size:11px;color:#333;font-weight:600;">GSTIN: ${esc(data.shopGSTIN)}</div>` : ''}
       </div>
 
       <div style="border:1.5px solid #333;padding:0;margin-bottom:0;">
-        <div style="text-align:center;font-size:15px;font-weight:800;letter-spacing:0.08em;padding:6px;border-bottom:1.5px solid #333;">QUOTATION</div>
+        <div style="text-align:center;font-size:15px;font-weight:800;letter-spacing:0.08em;padding:6px;border-bottom:1.5px solid #333;">${esc((data.modeTitle || 'QUOTATION').toUpperCase())}</div>
         <table style="width:100%;">
           <tr>
             <td style="width:55%;padding:8px 10px;vertical-align:top;border-right:1px solid #333;">
