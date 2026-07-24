@@ -1991,6 +1991,112 @@ export const api = {
     return true;
   },
 
+  // ───── DISTRIBUTOR MULTI-BRANCH — Enterprise plan promise ─────────────
+  // Adapted directly from the shop branch functions above (createBranch,
+  // getOwnedBranches, deleteBranch) — same generic parent_shop_id /
+  // branch_deleted_at columns, same soft-delete-never-hard-delete
+  // principle, same "switching branches just changes which distributor
+  // id everything is scoped to" design. Written as entirely separate,
+  // parallel functions rather than modifying the shop versions, so
+  // there is zero risk to the live shop branch system — every line
+  // below is new code, nothing shared or touched.
+  async createDistributorBranch({ ownerId, name, phone, password, address = '' }) {
+    if (!ownerId) throw new Error('Owner ID required');
+    if (!name || !name.trim()) throw new Error('Branch name is required');
+    if (!phone || !/^\d{10}$/.test(String(phone).replace(/\D/g, '').slice(-10))) {
+      throw new Error('Enter a valid 10-digit branch phone');
+    }
+    if (!password || password.length < 4) {
+      throw new Error('Set a branch password (min 4 characters) — your branch staff will use it to log in');
+    }
+    const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
+    if (!isSupabaseConfigured) throw new Error('Creating branches requires an online connection.');
+
+    const { data: parent, error: parentErr } = await supabase.from('users')
+      .select('id, role, distributor_plan_tier, gstin, state_code').eq('id', ownerId).maybeSingle();
+    if (parentErr) throw new Error(parentErr.message);
+    if (!parent || parent.role !== 'distributor') throw new Error('Only distributor owners can create branches.');
+
+    const { data: existing } = await supabase.from('users').select('id').eq('phone', normalizedPhone).maybeSingle();
+    if (existing) throw new Error('This phone is already in use. Pick a different number for the branch.');
+
+    const insertObj = {
+      name: name.trim(),
+      phone: normalizedPhone,
+      role: 'distributor',
+      status: 'active',
+      subscription: 'trial',
+      distributor_plan_tier: parent.distributor_plan_tier || 'basic_distributor',
+      parent_shop_id: ownerId,
+      business_address: address || null,
+      gstin: parent.gstin || null,
+      state_code: parent.state_code || null,
+      pass: password,
+      pass_verify: password,
+    };
+    const { data, error } = await supabase.from('users').insert(insertObj).select().maybeSingle();
+    if (error) throw new Error(error.message);
+    return toUser(data);
+  },
+
+  async getOwnedDistributorBranches(ownerId) {
+    if (!ownerId) return [];
+    if (!isSupabaseConfigured) return [];
+    try {
+      let rootId = ownerId;
+      try {
+        const { data: self } = await supabase.from('users').select('id, parent_shop_id').eq('id', ownerId).maybeSingle();
+        if (self?.parent_shop_id) rootId = self.parent_shop_id;
+      } catch { /* fall through, use ownerId as root */ }
+
+      const { data, error } = await supabase.from('users')
+        .select('*')
+        .or(`id.eq.${rootId},parent_shop_id.eq.${rootId}`)
+        .eq('role', 'distributor')
+        .order('parent_shop_id', { ascending: true, nullsFirst: true })
+        .order('created_at', { ascending: true });
+      if (error) {
+        const { data: own } = await supabase.from('users').select('*').eq('id', rootId).maybeSingle();
+        return own ? [toUser(own)] : [];
+      }
+      return (data || []).filter(r => !r.branch_deleted_at).map(toUser);
+    } catch (err) {
+      console.error('getOwnedDistributorBranches failed:', err);
+      return [];
+    }
+  },
+
+  async deleteDistributorBranch(branchId, ownerId) {
+    if (!branchId || !ownerId) throw new Error('IDs required');
+    if (branchId === ownerId) throw new Error('Cannot delete the main distributor account — only its branches.');
+    if (!isSupabaseConfigured) throw new Error('This requires an online connection.');
+    const { data: target } = await supabase.from('users').select('id, parent_shop_id').eq('id', branchId).maybeSingle();
+    if (!target) throw new Error('Branch not found');
+    if (target.parent_shop_id !== ownerId) throw new Error("You don't own this branch");
+    // Soft delete only — historical orders/credits/catalog keep their
+    // distributor_id pointer working, same principle as shop branches.
+    const { error } = await supabase.from('users')
+      .update({ branch_deleted_at: new Date().toISOString() })
+      .eq('id', branchId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async setDistributorBranchPassword(branchId, ownerId, newPassword) {
+    if (!branchId || !ownerId) throw new Error('IDs required');
+    if (!newPassword || newPassword.length < 4) throw new Error('Password must be at least 4 characters');
+    if (branchId === ownerId) throw new Error('Use your normal account settings to change your own password.');
+    if (!isSupabaseConfigured) throw new Error('This requires an online connection.');
+    const { data: target } = await supabase.from('users').select('id, parent_shop_id').eq('id', branchId).maybeSingle();
+    if (!target) throw new Error('Branch not found');
+    if (target.parent_shop_id !== ownerId) throw new Error("You don't own this branch");
+    const { error } = await supabase.from('users')
+      .update({ pass: newPassword, pass_verify: newPassword })
+      .eq('id', branchId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async importProductsFromShop(sourceShopId, targetShopId, options = {}) {
     // Copy every product from sourceShopId into targetShopId. Used to
     // bulk-seed a new branch with the main shop's catalogue so the owner

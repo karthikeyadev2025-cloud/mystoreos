@@ -233,6 +233,12 @@ const DistributorDashboard = () => {
   // no storage bucket needed — rather than building new upload
   // infrastructure from scratch.
   const [logo, setLogo] = useState('');
+  const [distBranches, setDistBranches] = useState([]);
+  const [branchName, setBranchName] = useState('');
+  const [branchPhone, setBranchPhone] = useState('');
+  const [branchPassword, setBranchPassword] = useState('');
+  const [branchAddress, setBranchAddress] = useState('');
+  const [creatingBranch, setCreatingBranch] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   useEffect(() => {
     if (user) setProfileForm({
@@ -409,6 +415,7 @@ const DistributorDashboard = () => {
     // is — getShopStaff() was already fully generic, just needed a
     // distributor id passed in.
     setDistStaff(await safe(() => api.getShopStaff(user.id)));
+    setDistBranches(await safe(() => api.getOwnedDistributorBranches(user.id)));
     setApiKeyInfo(await safe(() => api.getDistributorApiKeyInfo(user.id)));
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
@@ -549,6 +556,43 @@ const DistributorDashboard = () => {
       toast.error(e.message || 'Could not remove staff');
     }
   };
+
+  // Multi-branch — Enterprise plan promise, genuinely missing until now.
+  const handleCreateBranch = async () => {
+    if (!branchName.trim() || !branchPhone || !branchPassword) return toast.error('Fill in branch name, phone, and password');
+    setCreatingBranch(true);
+    try {
+      await api.createDistributorBranch({ ownerId: user.id, name: branchName, phone: branchPhone, password: branchPassword, address: branchAddress });
+      toast.success(`Branch "${branchName}" created — they can log in with the phone and password you set.`);
+      setBranchName(''); setBranchPhone(''); setBranchPassword(''); setBranchAddress('');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not create branch');
+    } finally {
+      setCreatingBranch(false);
+    }
+  };
+  const handleDeleteBranch = async (branchId, name) => {
+    if (!window.confirm(`Remove branch "${name}"? Its past orders and records stay intact, but it will no longer be able to log in.`)) return;
+    try {
+      await api.deleteDistributorBranch(branchId, user.id);
+      toast.success(`Branch "${name}" removed`);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not remove branch');
+    }
+  };
+  const handleResetBranchPassword = async (branchId, name) => {
+    const newPassword = window.prompt(`New password for "${name}" (min 4 characters):`);
+    if (!newPassword) return;
+    try {
+      await api.setDistributorBranchPassword(branchId, user.id, newPassword);
+      toast.success(`Password updated for ${name}`);
+    } catch (e) {
+      toast.error(e.message || 'Could not update password');
+    }
+  };
+
   const openEditProduct = (p) => {
     setEditingProductId(p.id);
     setNewProdName(p.name);
@@ -1896,6 +1940,67 @@ const DistributorDashboard = () => {
                 )}
               </div>
 
+              {/* Multi-branch — explicitly promised on the Enterprise
+                  plan ("Multi-branch support"). Adapted directly from
+                  the shop side's proven branch system (separate
+                  users row, own login, own scoped data via
+                  distributor_id) rather than building something new
+                  and untested — see the api.js functions' own
+                  comments for the full safety analysis. */}
+              <div style={{ marginTop: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🏢 Multi-Branch
+                </h2>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Run multiple warehouses/locations under one distributor account.</p>
+
+                {!hasDistCap(user, 'multiBranch') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Multi-branch is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Add a Branch</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                      <input value={branchName} onChange={e => setBranchName(e.target.value)} placeholder="Branch name (e.g. North Warehouse)"
+                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                      <input value={branchPhone} onChange={e => setBranchPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit login phone" inputMode="numeric"
+                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                      <input value={branchPassword} onChange={e => setBranchPassword(e.target.value)} placeholder="Login password" type="text"
+                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                      <input value={branchAddress} onChange={e => setBranchAddress(e.target.value)} placeholder="Address (optional)"
+                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                    </div>
+                    <button onClick={handleCreateBranch} disabled={creatingBranch}
+                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: 20 }}>
+                      {creatingBranch ? 'Creating…' : '+ Add Branch'}
+                    </button>
+
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Your Branches ({distBranches.filter(b => b.id !== user.id).length})</p>
+                    {distBranches.filter(b => b.id !== user.id).length === 0 ? (
+                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No branches yet — add one above.</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {distBranches.filter(b => b.id !== user.id).map(b => (
+                          <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{b.name}</div>
+                              <div style={{ fontSize: 11, color: '#64748B' }}>{b.phone}{b.businessAddress ? ` · ${b.businessAddress}` : ''}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <button onClick={() => handleResetBranchPassword(b.id, b.name)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Reset Password</button>
+                              <button onClick={() => handleDeleteBranch(b.id, b.name)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 14 }}>Each branch logs in independently with its own phone/password and manages its own catalog, orders, and credits.</p>
+                  </div>
+                )}
+              </div>
+
               {/* Priority Support — explicitly promised on the
                   Enterprise plan ("Priority 24/7 support"). This is
                   fundamentally a staffing commitment, not a software
@@ -2789,6 +2894,19 @@ const DistributorDashboard = () => {
                   </div>
                 )}
               </div>
+
+              {/* Multi-Branch — full management (add/remove branches,
+                  reset passwords) is a desktop workflow, same reasoning
+                  as Bulk CSV Import: a form-heavy administrative task
+                  done once in a while, not a daily mobile action.
+                  Pointing there rather than cramming a lesser version
+                  of the same UI onto a phone screen. */}
+              {hasDistCap(user, 'multiBranch') && (
+                <div style={{ marginTop: '20px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 6px 0', color: '#0F172A' }}>🏢 Multi-Branch</h2>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#4338CA' }}>Manage your branches (add new ones, reset passwords) from the desktop dashboard. You have {distBranches.filter(b => b.id !== user.id).length} branch{distBranches.filter(b => b.id !== user.id).length === 1 ? '' : 'es'} currently.</p>
+                </div>
+              )}
 
               {/* Priority Support — explicitly promised on the
                   Enterprise plan ("Priority 24/7 support"). This is
