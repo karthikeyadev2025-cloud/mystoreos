@@ -1696,12 +1696,26 @@ export const api = {
       const { data: users } = await supabase.from('users').select('id, name').eq('role', 'shop');
       const shopMap = {};
       (users || []).forEach(u => { shopMap[u.id] = u.name; });
-      return (credits || []).map(c => ({ ...toCredit(c), shopName: shopMap[c.to_shop_id] || 'Unknown Shop' }));
+      // Paid-so-far per credit, fetched once for every credit at once
+      // rather than a separate query per row — needed so the UI can
+      // show a real "₹X of ₹Y paid" instead of just the old binary
+      // paid/unpaid flag.
+      const creditIds = (credits || []).map(c => c.id);
+      const paidMap = {};
+      if (creditIds.length > 0) {
+        const { data: payments } = await supabase.from('credit_payments').select('credit_id, amount').in('credit_id', creditIds);
+        (payments || []).forEach(p => { paidMap[p.credit_id] = (paidMap[p.credit_id] || 0) + Number(p.amount); });
+      }
+      return (credits || []).map(c => ({
+        ...toCredit(c),
+        shopName: shopMap[c.to_shop_id] || 'Unknown Shop',
+        paidSoFar: paidMap[c.id] || 0,
+      }));
     }
     const db = getDB();
     return db.credits.filter(c => c.fromId === distId).map(c => {
       const shop = db.users.find(u => u.id === c.toShopId);
-      return { ...c, shopName: shop ? shop.name : 'Unknown Shop' };
+      return { ...c, shopName: shop ? shop.name : 'Unknown Shop', paidSoFar: 0 };
     }).reverse();
   },
 
@@ -1752,6 +1766,37 @@ export const api = {
     const credit = db.credits.find(c => c.id === creditId);
     if (credit) credit.paid = true;
     saveDB(db);
+  },
+
+  // Real partial payment recording — was completely missing. The only
+  // way to track a payment before this was markCreditPaid(), an
+  // all-or-nothing flag with no way to record a shop paying down their
+  // balance in installments, which is how this actually works in real
+  // distributor/shop business. Inserts into credit_payments; the
+  // database trigger (recompute_credit_paid_on_payment) automatically
+  // flips credits.paid to true once cumulative payments reach the full
+  // amount, so every existing query that filters on paid=false for
+  // "still outstanding" keeps working correctly without changes.
+  async recordCreditPayment(creditId, amount, note = '') {
+    if (!isSupabaseConfigured) throw new Error('Payment recording requires an online connection.');
+    const parsedAmount = parseFloat(amount);
+    if (!parsedAmount || parsedAmount <= 0) throw new Error('Enter a valid payment amount.');
+    const { data, error } = await supabase.from('credit_payments')
+      .insert({ credit_id: creditId, amount: parsedAmount, note: note || null })
+      .select('id').maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error('Failed to record payment.');
+    return true;
+  },
+
+  // Full payment history for one credit entry — the actual ledger a
+  // distributor would want to see: every partial payment, when it came
+  // in, and any note attached (e.g. "cash on route", "UPI").
+  async getCreditPayments(creditId) {
+    if (!isSupabaseConfigured) return [];
+    const { data } = await supabase.from('credit_payments')
+      .select('*').eq('credit_id', creditId).order('created_at', { ascending: false });
+    return (data || []).map(p => ({ id: p.id, amount: p.amount, note: p.note, date: p.created_at }));
   },
 
   // ---- SHOPS ----

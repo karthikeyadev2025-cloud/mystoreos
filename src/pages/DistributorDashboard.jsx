@@ -357,6 +357,29 @@ const DistributorDashboard = () => {
     loadData();
   };
 
+  // Real partial payment recording — was completely missing before
+  // tonight. markPaid() above only ever supported "fully cleared, all
+  // at once" — no way to record a shop paying down their balance in
+  // installments, which is how this actually works in real
+  // distributor/shop business.
+  const [paymentInputs, setPaymentInputs] = useState({});
+  const [recordingPayment, setRecordingPayment] = useState(null);
+  const handleRecordPayment = async (creditId) => {
+    const amount = paymentInputs[creditId];
+    if (!amount || parseFloat(amount) <= 0) return toast.error('Enter a valid amount');
+    setRecordingPayment(creditId);
+    try {
+      await api.recordCreditPayment(creditId, amount);
+      toast.success(`₹${amount} payment recorded`);
+      setPaymentInputs(prev => ({ ...prev, [creditId]: '' }));
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not record payment');
+    } finally {
+      setRecordingPayment(null);
+    }
+  };
+
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
     await mustSucceed(() => api.addDistributorProduct({
@@ -490,8 +513,13 @@ const DistributorDashboard = () => {
   };
 
   const distCaps = getDistCaps(user);
-  const totalOutstanding = credits.filter(c => !c.paid).reduce((a, b) => a + b.amount, 0);
-  const totalReceived = credits.filter(c => c.paid).reduce((a, b) => a + b.amount, 0);
+  // Was treating any unpaid credit as fully outstanding, even after
+  // partial payments — a shop that's paid ₹7,000 of a ₹10,000 credit
+  // showed the full ₹10,000 still owed. Now correctly subtracts
+  // whatever's already been paid (paidSoFar, from the new
+  // credit_payments ledger) from each entry before summing.
+  const totalOutstanding = credits.filter(c => !c.paid).reduce((a, b) => a + (b.amount - (b.paidSoFar || 0)), 0);
+  const totalReceived = credits.reduce((a, b) => a + (b.paidSoFar || (b.paid ? b.amount : 0)), 0);
   const pendingCredits = credits.filter(c => !c.paid);
 
   if (!isMobile) {
@@ -696,25 +724,43 @@ const DistributorDashboard = () => {
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '420px', overflowY: 'auto' }} className="custom-scroll">
-                      {pendingCredits.map(c => (
+                      {pendingCredits.map(c => {
+                        const outstanding = c.amount - (c.paidSoFar || 0);
+                        return (
                         <div key={c.id} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                             <div>
                               <h4 style={{ fontSize: '14px', margin: 0, color: '#0F172A', fontWeight: 'bold' }}>{c.shopName}</h4>
                               <span style={{ fontSize: '11px', color: '#64748B' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</span>
+                              {c.paidSoFar > 0 && (
+                                <div style={{ fontSize: 11, color: '#16A34A', fontWeight: 700, marginTop: 2 }}>
+                                  ✓ ₹{c.paidSoFar} paid so far
+                                </div>
+                              )}
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#DC2626' }}>₹{c.amount}</span>
+                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#DC2626' }}>₹{outstanding}</span>
+                              {c.paidSoFar > 0 && <div style={{ fontSize: 10, color: '#94A3B8' }}>of ₹{c.amount}</div>}
                             </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                            <input type="number" placeholder="Partial amount" value={paymentInputs[c.id] || ''}
+                              onChange={e => setPaymentInputs(prev => ({ ...prev, [c.id]: e.target.value }))}
+                              style={{ flex: 1, minWidth: 0, padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }} />
+                            <button onClick={() => handleRecordPayment(c.id)} disabled={recordingPayment === c.id}
+                              style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+                              {recordingPayment === c.id ? '...' : 'Record'}
+                            </button>
                           </div>
                           <button 
                             onClick={() => markPaid(c.id)}
                             style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                           >
-                            Mark Received Cash
+                            Mark Fully Received
                           </button>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1559,23 +1605,37 @@ const DistributorDashboard = () => {
             <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}>Pending Market Collection</h3>
             {pendingCredits.length === 0 && <p style={{ color: '#64748B', textAlign: 'center' }}>No outstanding balances!</p>}
             
-            {pendingCredits.map(c => (
+            {pendingCredits.map(c => {
+              const outstanding = c.amount - (c.paidSoFar || 0);
+              return (
               <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div>
                     <h4 style={{ fontSize: '16px', margin: 0, color: '#0F172A' }}>{c.shopName}</h4>
                     <p style={{ fontSize: '12px', color: '#475569', margin: '4px 0 0 0' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</p>
+                    {c.paidSoFar > 0 && <p style={{ fontSize: 11, color: '#16A34A', fontWeight: 700, margin: '2px 0 0 0' }}>✓ ₹{c.paidSoFar} paid so far</p>}
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <h4 style={{ fontSize: '18px', margin: 0, color: '#DC2626' }}>₹{c.amount}</h4>
-                    <span style={{ fontSize: '10px', background: '#FEE2E2', color: '#B91C1C', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Unpaid</span>
+                    <h4 style={{ fontSize: '18px', margin: 0, color: '#DC2626' }}>₹{outstanding}</h4>
+                    {c.paidSoFar > 0 ? <span style={{ fontSize: 10, color: '#94A3B8' }}>of ₹{c.amount}</span> :
+                      <span style={{ fontSize: '10px', background: '#FEE2E2', color: '#B91C1C', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Unpaid</span>}
                   </div>
                 </div>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  <input type="number" placeholder="Partial amount" value={paymentInputs[c.id] || ''}
+                    onChange={e => setPaymentInputs(prev => ({ ...prev, [c.id]: e.target.value }))}
+                    style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                  <button onClick={() => handleRecordPayment(c.id)} disabled={recordingPayment === c.id}
+                    style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+                    {recordingPayment === c.id ? '...' : 'Record'}
+                  </button>
+                </div>
                 <button onClick={() => markPaid(c.id)} style={{ width: '100%', background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                  ✅ Mark Received Cash
+                  ✅ Mark Fully Received
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
