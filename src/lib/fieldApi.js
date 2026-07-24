@@ -256,6 +256,113 @@ export const fieldApi = {
       id: r.id, name: r.name, unit: r.unit, packSize: r.pack_size, sku: r.sku,
     }));
   },
+
+  // ─── ROUTES ───────────────────────────────────────────────────────
+  async getRoutes(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('routes')
+      .select('*, route_stops(id), warehouses(name)')
+      .eq('distributor_id', distributorId).eq('active', true).order('name');
+    return (data || []).map(r => ({
+      id: r.id,
+      name: r.name,
+      warehouseId: r.warehouse_id,
+      warehouseName: r.warehouses?.name || null,
+      assignedRepId: r.assigned_rep_id,
+      weekdays: r.weekdays || [],
+      stopCount: (r.route_stops || []).length,
+    }));
+  },
+
+  async createRoute(distributorId, { name, warehouseId = null, weekdays = [] }) {
+    requireOnline();
+    if (!name?.trim()) throw new Error('Route name is required');
+    const { data, error } = await supabase.from('routes').insert({
+      distributor_id: distributorId,
+      name: name.trim(),
+      warehouse_id: warehouseId || null,
+      weekdays,
+    }).select('id').maybeSingle();
+    if (error) throw new Error(error.message);
+    return data.id;
+  },
+
+  async deleteRoute(routeId) {
+    requireOnline();
+    const { error } = await supabase.from('routes').update({ active: false }).eq('id', routeId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // Stops in their saved driving order, with coordinates so the
+  // sequencer has something to work with.
+  async getRouteStops(routeId) {
+    if (!isSupabaseConfigured || !routeId) return [];
+    const { data } = await supabase.from('route_stops')
+      .select('id, seq, shop_id, users!route_stops_shop_id_fkey(id, name, phone, business_address, latitude, longitude)')
+      .eq('route_id', routeId).order('seq');
+    return (data || []).map(r => ({
+      stopId: r.id,
+      seq: r.seq,
+      id: r.shop_id,
+      name: r.users?.name || 'Unknown shop',
+      phone: r.users?.phone || '',
+      address: r.users?.business_address || '',
+      latitude: r.users?.latitude ?? null,
+      longitude: r.users?.longitude ?? null,
+    }));
+  },
+
+  async addStopsToRoute(routeId, shopIds) {
+    requireOnline();
+    if (!shopIds?.length) return 0;
+    // Existing stops are left alone — re-adding a shop already on the
+    // route shouldn't wipe its sequence position.
+    const { error } = await supabase.from('route_stops')
+      .upsert(shopIds.map(id => ({ route_id: routeId, shop_id: id })),
+              { onConflict: 'route_id,shop_id', ignoreDuplicates: true });
+    if (error) throw new Error(error.message);
+    return shopIds.length;
+  },
+
+  async removeStop(stopId) {
+    requireOnline();
+    const { error } = await supabase.from('route_stops').delete().eq('id', stopId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // Persists the driving order produced by the sequencer (or a manual
+  // reorder). Written as individual updates rather than a bulk upsert
+  // because upsert would need every column and could clobber data it
+  // wasn't asked to touch.
+  async saveRouteSequence(orderedStops) {
+    requireOnline();
+    for (let i = 0; i < orderedStops.length; i++) {
+      const { error } = await supabase.from('route_stops')
+        .update({ seq: i + 1 }).eq('id', orderedStops[i].stopId);
+      if (error) throw new Error(error.message);
+    }
+    return true;
+  },
+
+  // The pool of outlets a route can draw from: shops this distributor
+  // is actually linked with. Coordinates come along because a shop
+  // without them can't be sequenced.
+  async getRoutableShops(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data: links } = await supabase.from('shop_distributor_links')
+      .select('shop_id').eq('distributor_id', distributorId);
+    const ids = [...new Set((links || []).map(l => l.shop_id))];
+    if (ids.length === 0) return [];
+    const { data } = await supabase.from('users')
+      .select('id, name, phone, business_address, latitude, longitude').in('id', ids);
+    return (data || []).map(r => ({
+      id: r.id, name: r.name, phone: r.phone,
+      address: r.business_address || '',
+      latitude: r.latitude ?? null, longitude: r.longitude ?? null,
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  },
 };
 
 export default fieldApi;
