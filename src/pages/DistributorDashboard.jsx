@@ -90,7 +90,7 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor }) {
+function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor, shopPhone }) {
   const [dateInput, setDateInput] = useState('');
 
   return (
@@ -164,6 +164,24 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
             <button onClick={() => downloadStockOrderInvoice(o, distributor)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               🧾 Download Invoice
             </button>
+          )}
+
+          {/* WhatsApp order sharing — explicitly promised on the Basic
+              tier pricing page as its own line item, distinct from
+              Route Planner's "visiting for collection" message (which
+              only ever covered a different scenario). Genuinely
+              missing until now — shares a real summary of THIS
+              specific order's items, total, and current status. */}
+          {shopPhone && (
+            <a href={`https://wa.me/91${shopPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
+              `Hi ${o.shopName}, here's your order summary:\n\n` +
+              o.items.map(i => `• ${i.name} x${i.qty} — ₹${i.price * i.qty}`).join('\n') +
+              `\n\nTotal: ₹${o.total}\nStatus: ${badge.label}` +
+              (o.expectedDispatchDate ? `\nExpected dispatch: ${new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : '')
+            )}`} target="_blank" rel="noreferrer"
+              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 8, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', textDecoration: 'none', boxSizing: 'border-box' }}>
+              💬 Share via WhatsApp
+            </a>
           )}
         </div>
       </div>
@@ -1278,6 +1296,21 @@ const DistributorDashboard = () => {
                             🧾 Download Invoice
                           </button>
                         )}
+                        {(() => {
+                          const selShopPhone = shops.find(s => s.id === selectedOrder.shopId)?.phone;
+                          if (!selShopPhone) return null;
+                          const selBadge = STOCK_ORDER_BADGE[selectedOrder.status] || STOCK_ORDER_BADGE.pending;
+                          return (
+                            <a href={`https://wa.me/91${selShopPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                              `Hi ${selectedOrder.shopName}, here's your order summary:\n\n` +
+                              selectedOrder.items.map(i => `• ${i.name} x${i.qty} — ₹${i.price * i.qty}`).join('\n') +
+                              `\n\nTotal: ₹${selectedOrder.total}\nStatus: ${selBadge.label}`
+                            )}`} target="_blank" rel="noreferrer"
+                              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 10, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' }}>
+                              💬 Share via WhatsApp
+                            </a>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <div className="premium-glass" style={{ padding: '30px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
@@ -2159,6 +2192,7 @@ const DistributorDashboard = () => {
                 onReject={() => handleUpdateStockOrder(o.id, 'rejected')}
                 onDispatch={() => handleDispatchSelected(o.id)}
                 distributor={user}
+                shopPhone={shops.find(s => s.id === o.shopId)?.phone}
               />
             ))
           )}
