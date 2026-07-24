@@ -1,0 +1,196 @@
+// ═══════════════════════════════════════════════════════════════════
+// BOOKED ORDERS — the depot side of presale
+//
+// Reps book in the field during the day; someone at the depot reviews
+// and releases them for dispatch. Without this screen, bookings pile
+// up with no way to act on them — the loop the rep app starts has to
+// close somewhere.
+//
+// Converting produces a real stock_order, which the distributor
+// dashboard's Orders tab ALREADY handles end to end (pending →
+// accepted → dispatched → delivered). So conversion isn't the start of
+// a parallel process; it hands off into the one that already exists.
+// ═══════════════════════════════════════════════════════════════════
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import { ArrowLeft, ClipboardList, Send, CheckCircle2, PackageCheck } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import fieldApi from '../../lib/fieldApi';
+
+export default function FieldOrders() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [filter, setFilter] = useState('booked');
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await fieldApi.getFieldOrders(user.id, { limit: 100 });
+        if (!cancelled) setOrders(data);
+      } catch (e) {
+        if (!cancelled) toast.error(e.message || 'Could not load orders');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, reloadKey]);
+
+  const convert = async (o) => {
+    setBusy(o.id);
+    try {
+      await fieldApi.convertFieldOrder(o.id);
+      toast.success(`${o.shopName} released for dispatch — now in your Orders tab`);
+      setReloadKey(k => k + 1);
+    } catch (e) {
+      toast.error(e.message || 'Could not convert');
+    } finally { setBusy(null); }
+  };
+
+  // Convert every outstanding booking at once. This is the actual
+  // morning routine — a depot doesn't release 40 bookings one at a
+  // time. Failures are counted rather than aborting the batch, so one
+  // bad order can't block the other thirty-nine.
+  const convertAll = async () => {
+    const pending = orders.filter(o => o.status === 'booked');
+    if (pending.length === 0) return;
+    if (!window.confirm(`Release all ${pending.length} booked orders for dispatch?`)) return;
+    setBusy('all');
+    let ok = 0, failed = 0;
+    for (const o of pending) {
+      try { await fieldApi.convertFieldOrder(o.id); ok++; }
+      catch { failed++; }
+    }
+    if (failed === 0) toast.success(`${ok} orders released for dispatch`);
+    else toast.warn(`${ok} released · ${failed} failed — check them individually`);
+    setBusy(null);
+    setReloadKey(k => k + 1);
+  };
+
+  const shown = orders.filter(o => filter === 'all' || o.status === filter);
+  const bookedCount = orders.filter(o => o.status === 'booked').length;
+  const bookedValue = orders.filter(o => o.status === 'booked').reduce((s, o) => s + o.total, 0);
+
+  const TABS = [
+    { k: 'booked', l: `Awaiting dispatch (${bookedCount})` },
+    { k: 'converted', l: 'Released' },
+    { k: 'all', l: 'All' },
+  ];
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading orders…</div>;
+
+  return (
+    <div style={{ padding: 20, maxWidth: 900, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <ToastContainer theme="light" position="top-center" />
+
+      <button onClick={() => navigate('/field/setup')}
+        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        <ArrowLeft size={15} /> Field Setup
+      </button>
+
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Booked Orders</h1>
+      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
+        Orders your reps booked in the field. Releasing one sends it to your normal Orders tab for dispatch.
+      </p>
+
+      {bookedCount > 0 && (
+        <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: 16, marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#3730A3' }}>
+              {bookedCount} order{bookedCount === 1 ? '' : 's'} awaiting dispatch
+            </div>
+            <div style={{ fontSize: 12, color: '#4338CA', marginTop: 2 }}>
+              ₹{bookedValue.toLocaleString('en-IN')} total
+            </div>
+          </div>
+          <button onClick={convertAll} disabled={busy !== null}
+            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+            <Send size={14} /> {busy === 'all' ? 'Releasing…' : 'Release All'}
+          </button>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {TABS.map(t => (
+          <button key={t.k} onClick={() => setFilter(t.k)}
+            style={{
+              padding: '8px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              border: `1px solid ${filter === t.k ? '#4F46E5' : '#E2E8F0'}`,
+              background: filter === t.k ? '#EEF2FF' : '#fff',
+              color: filter === t.k ? '#4338CA' : '#64748B',
+            }}>{t.l}</button>
+        ))}
+      </div>
+
+      {shown.length === 0 ? (
+        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 40, textAlign: 'center', color: '#94A3B8' }}>
+          <ClipboardList size={32} style={{ opacity: 0.4, marginBottom: 10 }} />
+          <p style={{ margin: 0, fontSize: 13 }}>
+            {filter === 'booked' ? 'Nothing awaiting dispatch.' : 'No orders here yet.'}
+          </p>
+        </div>
+      ) : shown.map(o => (
+        <div key={o.id} style={{
+          background: '#fff',
+          border: '1px solid #E2E8F0',
+          borderLeft: `4px solid ${o.status === 'booked' ? '#4F46E5' : o.status === 'converted' ? '#059669' : '#94A3B8'}`,
+          borderRadius: 12, padding: 16, marginBottom: 10,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>{o.shopName}</div>
+              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                {new Date(o.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                {' · '}{o.lines.length} item{o.lines.length === 1 ? '' : 's'}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                {o.lines.map(l => (
+                  <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', padding: '3px 0' }}>
+                    <span>{l.productName} × {l.qtyBase}</span>
+                    <span style={{ color: '#64748B' }}>₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#059669', marginBottom: 8 }}>
+                ₹{o.total.toLocaleString('en-IN')}
+              </div>
+              {o.status === 'booked' ? (
+                <button onClick={() => convert(o)} disabled={busy !== null}
+                  style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+                  <Send size={12} />{busy === o.id ? 'Releasing…' : 'Release'}
+                </button>
+              ) : o.status === 'converted' ? (
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#047857', background: '#D1FAE5', padding: '5px 12px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                  <CheckCircle2 size={11} /> Dispatched
+                </span>
+              ) : (
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B', background: '#F1F5F9', padding: '5px 12px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                  {o.status}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {o.status === 'converted' && (
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid #F1F5F9', fontSize: 11, color: '#64748B', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <PackageCheck size={12} color="#059669" />
+              Now in your Orders tab — track dispatch from there.
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}

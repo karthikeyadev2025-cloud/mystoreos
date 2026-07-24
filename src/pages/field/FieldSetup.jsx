@@ -134,6 +134,10 @@ export default function FieldSetup() {
             style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={15} /> Today's Run
           </button>
+          <button onClick={() => navigate('/field/orders')}
+            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ClipboardList size={15} /> Booked Orders
+          </button>
           <button onClick={() => navigate('/field/routes')}
             style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Map size={15} /> Routes & Beats

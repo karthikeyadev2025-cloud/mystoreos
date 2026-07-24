@@ -30,6 +30,7 @@ const FieldLoadOut = lazy(() => import('./pages/field/FieldLoadOut'));
 const FieldStock = lazy(() => import('./pages/field/FieldStock'));
 const FieldRoutes = lazy(() => import('./pages/field/FieldRoutes'));
 const FieldRun = lazy(() => import('./pages/field/FieldRun'));
+const FieldOrders = lazy(() => import('./pages/field/FieldOrders'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
@@ -328,6 +329,13 @@ function App() {
                   <PrivateRoute role="distributor">
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><FieldSetup /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                <Route path="/field/orders" element={
+                  <PrivateRoute role="distributor">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><FieldOrders /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />
