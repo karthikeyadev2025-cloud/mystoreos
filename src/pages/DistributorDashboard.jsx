@@ -423,6 +423,20 @@ const DistributorDashboard = () => {
   const handleRecordPayment = async (creditId) => {
     const amount = paymentInputs[creditId];
     if (!amount || parseFloat(amount) <= 0) return toast.error('Enter a valid amount');
+    // Was completely unvalidated against the actual outstanding
+    // balance — a typo (an extra zero, for instance) would silently
+    // record an overpayment with no warning, and that excess amount
+    // has nowhere to go afterward (credits only track the original
+    // amount, not a running balance that could reflect a credit).
+    // Not a hard block — there can be legitimate reasons to round up
+    // slightly — just a confirmation so an obvious mistake gets caught
+    // before it's committed.
+    const credit = pendingCredits.find(c => c.id === creditId);
+    const outstanding = credit ? credit.amount - (credit.paidSoFar || 0) : null;
+    if (outstanding != null && parseFloat(amount) > outstanding) {
+      const proceed = window.confirm(`This is ₹${amount}, more than the ₹${outstanding} actually outstanding. Record it anyway?`);
+      if (!proceed) return;
+    }
     setRecordingPayment(creditId);
     try {
       await api.recordCreditPayment(creditId, amount);
