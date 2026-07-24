@@ -363,6 +363,146 @@ export const fieldApi = {
       latitude: r.latitude ?? null, longitude: r.longitude ?? null,
     })).sort((a, b) => a.name.localeCompare(b.name));
   },
+
+  // ─── FIELD VISITS ─────────────────────────────────────────────────
+  // Today's run for a route, with each stop's visit state merged in so
+  // a rep sees at a glance what's done and what's left.
+  async getTodayRun(distributorId, routeId) {
+    if (!isSupabaseConfigured || !routeId) return [];
+    const today = new Date().toISOString().slice(0, 10);
+    const [stops, visits] = await Promise.all([
+      this.getRouteStops(routeId),
+      supabase.from('route_visits')
+        .select('*').eq('route_id', routeId).eq('visit_date', today)
+        .then(r => r.data || []),
+    ]);
+    const byShop = {};
+    visits.forEach(v => { byShop[v.shop_id] = v; });
+    return stops.map(s => {
+      const v = byShop[s.id];
+      return {
+        ...s,
+        visitId: v?.id || null,
+        status: v?.status || 'planned',
+        skipReason: v?.skip_reason || null,
+        checkedInAt: v?.checked_in_at || null,
+        checkedOutAt: v?.checked_out_at || null,
+      };
+    });
+  },
+
+  // Creates or updates today's visit row. GPS is captured here, at the
+  // boundary — not continuously, which would drain a rep's phone all
+  // day and tell you nothing extra.
+  async checkIn(distributorId, { routeId, shopId, repId = null, latitude = null, longitude = null }) {
+    requireOnline();
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase.from('route_visits').upsert({
+      distributor_id: distributorId,
+      route_id: routeId,
+      shop_id: shopId,
+      rep_id: repId,
+      visit_date: today,
+      status: 'visited',
+      checked_in_at: new Date().toISOString(),
+      latitude, longitude,
+    }, { onConflict: 'shop_id,visit_date,route_id' }).select('id').maybeSingle();
+    if (error) throw new Error(error.message);
+    return data.id;
+  },
+
+  async checkOut(visitId) {
+    requireOnline();
+    const { error } = await supabase.from('route_visits')
+      .update({ checked_out_at: new Date().toISOString() }).eq('id', visitId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // A skipped outlet with a reason is as useful as a completed one —
+  // "shop closed" three weeks running means the beat needs replanning.
+  async skipVisit(distributorId, { routeId, shopId, repId = null, reason }) {
+    requireOnline();
+    if (!reason?.trim()) throw new Error('Give a reason for skipping');
+    const today = new Date().toISOString().slice(0, 10);
+    const { error } = await supabase.from('route_visits').upsert({
+      distributor_id: distributorId,
+      route_id: routeId,
+      shop_id: shopId,
+      rep_id: repId,
+      visit_date: today,
+      status: 'skipped',
+      skip_reason: reason.trim(),
+    }, { onConflict: 'shop_id,visit_date,route_id' });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  // ─── PRESALE ORDER BOOKING ────────────────────────────────────────
+  async bookFieldOrder(distributorId, { shopId, repId = null, routeId = null, visitId = null, lines, note = '' }) {
+    requireOnline();
+    if (!lines?.length) throw new Error('Add at least one product');
+    const total = lines.reduce((s, l) => s + (Number(l.rate) || 0) * (Number(l.qtyBase) || 0), 0);
+
+    const { data: order, error: oErr } = await supabase.from('field_orders').insert({
+      distributor_id: distributorId,
+      shop_id: shopId,
+      rep_id: repId,
+      route_id: routeId,
+      visit_id: visitId,
+      total,
+      note: note?.trim() || null,
+    }).select('id').maybeSingle();
+    if (oErr) throw new Error(oErr.message);
+
+    const { error: lErr } = await supabase.from('field_order_lines').insert(
+      lines.map(l => ({
+        order_id: order.id,
+        product_id: l.productId,
+        qty_base: l.qtyBase,
+        rate: l.rate,
+        line_total: (Number(l.rate) || 0) * (Number(l.qtyBase) || 0),
+      }))
+    );
+    if (lErr) {
+      await supabase.from('field_orders').delete().eq('id', order.id);
+      throw new Error(lErr.message);
+    }
+    return { id: order.id, total };
+  },
+
+  async getFieldOrders(distributorId, { status = null, limit = 50 } = {}) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    let q = supabase.from('field_orders')
+      .select('*, users!field_orders_shop_id_fkey(name), field_order_lines(id, qty_base, rate, distributor_products(name))')
+      .eq('distributor_id', distributorId)
+      .order('created_at', { ascending: false }).limit(limit);
+    if (status) q = q.eq('status', status);
+    const { data } = await q;
+    return (data || []).map(r => ({
+      id: r.id,
+      shopName: r.users?.name || 'Unknown shop',
+      status: r.status,
+      total: Number(r.total),
+      createdAt: r.created_at,
+      stockOrderId: r.stock_order_id,
+      lines: (r.field_order_lines || []).map(l => ({
+        id: l.id,
+        productName: l.distributor_products?.name || 'Unknown',
+        qtyBase: Number(l.qty_base),
+        rate: Number(l.rate),
+      })),
+    }));
+  },
+
+  // Turns a booking into a real stock_order — the flow the distributor
+  // dashboard already handles end to end. Idempotent server-side.
+  async convertFieldOrder(orderId) {
+    requireOnline();
+    const { data, error } = await supabase.rpc('convert_field_order', { p_order_id: orderId });
+    if (error) throw new Error(error.message);
+    return data;
+  },
 };
 
 export default fieldApi;

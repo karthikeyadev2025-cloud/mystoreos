@@ -11,7 +11,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { Warehouse, Truck, Plus, ArrowLeft, Package, Map } from 'lucide-react';
+import { Warehouse, Truck, Plus, ArrowLeft, Package, Map, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
 
@@ -129,6 +129,10 @@ export default function FieldSetup() {
           <button onClick={() => navigate('/field/loadout')}
             style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Truck size={15} /> Van Load-Out
+          </button>
+          <button onClick={() => navigate('/field/run')}
+            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ClipboardList size={15} /> Today's Run
           </button>
           <button onClick={() => navigate('/field/routes')}
             style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
