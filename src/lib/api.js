@@ -2039,6 +2039,29 @@ export const api = {
     return toUser(data);
   },
 
+  // Multi-device tracking — soft warning only, never blocks login. See
+  // the migration file's own comment for the full reasoning on why
+  // this is deliberately not a hard limit like maxShops.
+  async registerDeviceSession(distributorId, deviceId) {
+    if (!isSupabaseConfigured || !distributorId || !deviceId) return;
+    try {
+      await supabase.from('device_sessions')
+        .upsert({ distributor_id: distributorId, device_id: deviceId, last_seen_at: new Date().toISOString() }, { onConflict: 'distributor_id,device_id' });
+    } catch (_e) { /* never block the app over this */ }
+  },
+  async getActiveDeviceCount(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return 0;
+    try {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await supabase.from('device_sessions')
+        .select('id', { count: 'exact', head: true })
+        .eq('distributor_id', distributorId).gt('last_seen_at', thirtyDaysAgo);
+      return count || 0;
+    } catch (_e) {
+      return 0;
+    }
+  },
+
   async getOwnedDistributorBranches(ownerId) {
     if (!ownerId) return [];
     if (!isSupabaseConfigured) return [];

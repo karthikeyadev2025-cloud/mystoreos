@@ -234,6 +234,7 @@ const DistributorDashboard = () => {
   // infrastructure from scratch.
   const [logo, setLogo] = useState('');
   const [distBranches, setDistBranches] = useState([]);
+  const [activeDeviceCount, setActiveDeviceCount] = useState(0);
   const [branchName, setBranchName] = useState('');
   const [branchPhone, setBranchPhone] = useState('');
   const [branchPassword, setBranchPassword] = useState('');
@@ -417,9 +418,25 @@ const DistributorDashboard = () => {
     setDistStaff(await safe(() => api.getShopStaff(user.id)));
     setDistBranches(await safe(() => api.getOwnedDistributorBranches(user.id)));
     setApiKeyInfo(await safe(() => api.getDistributorApiKeyInfo(user.id)));
+    setActiveDeviceCount(await safe(() => api.getActiveDeviceCount(user.id)) || 0);
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
+
+  // Multi-device tracking — registers this browser/device as active
+  // whenever the dashboard loads. deviceId is a random id generated
+  // once and persisted in localStorage — identifies "this browser
+  // profile," not the physical hardware, which is deliberately fuzzy
+  // (see migration comment for why a hard limit isn't used here).
+  useEffect(() => {
+    if (!user?.id) return;
+    let deviceId = localStorage.getItem('mystore_device_id');
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem('mystore_device_id', deviceId);
+    }
+    api.registerDeviceSession(user.id, deviceId);
+  }, [user?.id]);
 
   const handleLinkShop = async () => {
     // Was completely unenforced — distCaps.maxShops only ever showed a
@@ -990,6 +1007,26 @@ const DistributorDashboard = () => {
                 ⚠️ You have {shops.length} shops but your plan allows {distCaps.maxShops}. Upgrade to continue serving all shops.
               </p>
               <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#D97706', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                Upgrade Now
+              </button>
+            </div>
+          )}
+
+          {/* Multi-device warning — "Multi-device" (1/3/10 depending on
+              tier) has been defined pricing metadata since the
+              beginning but never actually tracked. This is a soft
+              warning, deliberately not a hard block — see the
+              migration file's comment for why: session/device counting
+              is inherently fuzzy (cache clears, multiple tabs, shared
+              computers), and blocking access outright risks locking
+              out a legitimate paying distributor over a technical
+              quirk rather than an actual plan violation. */}
+          {distCaps.multiDevice && activeDeviceCount > distCaps.multiDevice && (
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: '#1D4ED8', fontWeight: '500' }}>
+                📱 You've been active on {activeDeviceCount} devices in the last 30 days — your plan includes {distCaps.multiDevice}. Consider upgrading for more.
+              </p>
+              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#2563EB', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Upgrade Now
               </button>
             </div>
@@ -1614,31 +1651,39 @@ const DistributorDashboard = () => {
           {/* ================= ANALYTICS TAB ================= */}
           {activeTab === 'analytics' && (
             <div>
+              {/* Basic Sales Reports — explicitly promised on the
+                  Basic tier, but this whole tab used to be entirely
+                  locked behind advancedAnalytics, meaning Basic-tier
+                  distributors saw nothing here at all despite paying
+                  for reporting. These 4 totals are now shown to every
+                  tier; only the ranking/breakdown sections below stay
+                  Pro+. */}
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Sales Reports</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
+                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
+                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
+                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
+                ].map((stat, i) => (
+                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
+                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
               {!hasDistCap(user, 'advancedAnalytics') ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
                   <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
                   <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
-                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
+                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
                   <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Advanced Analytics</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                    {[
-                      { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
-                      { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
-                      { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
-                      { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
-                    ].map((stat, i) => (
-                      <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                        <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
-                        <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
                   <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {shops.sort((a, b) => {
@@ -2695,31 +2740,34 @@ const DistributorDashboard = () => {
           {/* ================= ANALYTICS TAB ================= */}
           {activeTab === 'analytics' && (
             <div>
+              {/* Basic Sales Reports — same restructure as desktop:
+                  shown to every tier now, only rankings below stay Pro+. */}
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Sales Reports</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
+                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
+                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
+                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
+                ].map((stat, i) => (
+                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
+                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
               {!hasDistCap(user, 'advancedAnalytics') ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
                   <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
                   <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
-                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, GMV trends, and payment collection rates.</p>
+                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
                   <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Advanced Analytics</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                    {[
-                      { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
-                      { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
-                      { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
-                      { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
-                    ].map((stat, i) => (
-                      <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                        <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
-                        <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
                   <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {shops.sort((a, b) => {
