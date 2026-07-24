@@ -3459,7 +3459,8 @@ export const api = {
       const { data } = await query;
       return (data || []).map(row => ({
         id: row.id, distributorId: row.distributor_id, name: row.name,
-        price: row.price, stock: row.stock, category: row.category, unit: row.unit || null
+        price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
+        packSize: row.pack_size || null,
       }));
     }
     const db = getDB();
@@ -3488,7 +3489,8 @@ export const api = {
       .select('*').in('distributor_id', distributorIds);
     return (data || []).map(row => ({
       id: row.id, distributorId: row.distributor_id, name: row.name,
-      price: row.price, stock: row.stock, category: row.category, unit: row.unit || null
+      price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
+      packSize: row.pack_size || null,
     }));
   },
 
@@ -3507,6 +3509,7 @@ export const api = {
       stock: parseInt(p.stock) || 0,
       category: p.category || null,
       unit: p.unit || null,
+      pack_size: p.packSize ? parseInt(p.packSize) : null,
     }));
     const { data, error } = await supabase.from('distributor_products').insert(rows).select('id');
     if (error) throw new Error(error.message);
@@ -3531,9 +3534,14 @@ export const api = {
         // to specify whether the price is per jar, per box, or per
         // piece — previously there was no way to express this at all.
         unit: productData.unit || null,
+        // Pack size — matches the client's real invoice format
+        // exactly: how many individual jars/units come in one box for
+        // this product. Shops order in boxes; the invoice shows
+        // jars-per-box × boxes-ordered = total quantity billed.
+        pack_size: productData.packSize ? parseInt(productData.packSize) : null,
       }).select().single();
       if (error) throw new Error(error.message);
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size };
     }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
@@ -3545,6 +3553,7 @@ export const api = {
       stock: parseInt(productData.stock) || 0,
       category: productData.category || null,
       unit: productData.unit || null,
+      packSize: productData.packSize ? parseInt(productData.packSize) : null,
     };
     db.distributorProducts.push(newProd);
     saveDB(db);
@@ -3565,10 +3574,11 @@ export const api = {
         stock: parseInt(productData.stock) || 0,
         category: productData.category || null,
         unit: productData.unit || null,
+        pack_size: productData.packSize ? parseInt(productData.packSize) : null,
       }).eq('id', productId).select().maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) throw new Error('Product not found or you do not have permission to edit it.');
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size };
     }
     const db = getDB();
     const prod = (db.distributorProducts || []).find(p => p.id === productId);
@@ -3578,6 +3588,7 @@ export const api = {
       prod.stock = parseInt(productData.stock) || 0;
       prod.category = productData.category || null;
       prod.unit = productData.unit || null;
+      prod.packSize = productData.packSize ? parseInt(productData.packSize) : null;
       saveDB(db);
     }
     return prod;

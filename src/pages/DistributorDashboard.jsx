@@ -46,7 +46,17 @@ import {
 // issuer here, the shop is the "customer" receiving the goods.
 // Standalone (not a component method) so both the mobile card and
 // the desktop detail panel call the exact same logic.
-function downloadStockOrderInvoice(o, distributor) {
+// distributorCatalog is the distributor's own wholesaleProducts list
+// (already loaded in the dashboard) — used to look up each ordered
+// item's pack_size (jars-per-box), since stock_orders itself only
+// ever stored a flat qty with no box/jar breakdown. Matches the
+// client's real invoice format exactly: Jars (per box, a product
+// spec) × Boxes (what was ordered) = Qty (total individual units
+// actually billed), rate charged per individual unit.
+function downloadStockOrderInvoice(o, distributor, distributorCatalog = []) {
+  const catalogById = {};
+  distributorCatalog.forEach(p => { catalogById[p.id] = p; });
+
   printInvoice('wholesale', {
     shopName: distributor?.name || 'Distributor',
     shopPhone: distributor?.phone || '',
@@ -63,15 +73,28 @@ function downloadStockOrderInvoice(o, distributor) {
     customerName: o.shopName || '',
     customerPhone: '',
     customerAddress: '',
-    items: (o.items || []).map(item => ({
-      code: item.id || '',
-      name: item.name,
-      hsn: '',
-      qty: item.qty || 1,
-      unit: item.unit ? (UNIT_SUFFIX[item.unit] || item.unit) : '',
-      rate: item.price,
-      gstPct: 0,
-    })),
+    items: (o.items || []).map(item => {
+      const product = catalogById[item.id];
+      const packSize = product?.packSize || null;
+      // When a product has a pack size set, the order's stored qty is
+      // treated as "boxes ordered" (matching how a shop actually
+      // orders this kind of product), and the real total quantity
+      // billed is jars-per-box × boxes — exactly the client's
+      // existing paper invoice math.
+      const boxes = packSize ? (item.qty || 1) : null;
+      const totalQty = packSize ? (packSize * (item.qty || 1)) : (item.qty || 1);
+      return {
+        code: item.id || '',
+        name: item.name,
+        hsn: '',
+        jars: packSize,
+        boxes,
+        qty: totalQty,
+        unit: item.unit ? (UNIT_SUFFIX[item.unit] || item.unit) : '',
+        rate: item.price,
+        gstPct: 0,
+      };
+    }),
     subtotal: o.total,
     discountAmount: 0,
     roundOff: 0,
@@ -98,7 +121,7 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor, shopPhone }) {
+function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor, shopPhone, distributorCatalog }) {
   const [dateInput, setDateInput] = useState('');
 
   return (
@@ -169,7 +192,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
               invoice now; pending orders can't since they might still
               be rejected. */}
           {o.status !== 'pending' && (
-            <button onClick={() => downloadStockOrderInvoice(o, distributor)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+            <button onClick={() => downloadStockOrderInvoice(o, distributor, distributorCatalog)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               🧾 Download Invoice
             </button>
           )}
@@ -321,6 +344,7 @@ const DistributorDashboard = () => {
   const [newProdStock, setNewProdStock] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('');
   const [newProdUnit, setNewProdUnit] = useState('');
+  const [newProdPackSize, setNewProdPackSize] = useState('');
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
   // New Credit Form
@@ -620,13 +644,14 @@ const DistributorDashboard = () => {
     setNewProdStock(String(p.stock));
     setNewProdCategory(p.category || '');
     setNewProdUnit(p.unit || '');
+    setNewProdPackSize(p.packSize ? String(p.packSize) : '');
     setShowCatalogModal(true);
   };
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
     if (editingProductId) {
       await mustSucceed(() => api.updateDistributorProduct(editingProductId, {
-        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit
+        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit, packSize: newProdPackSize
       }), 'Update product');
       toast.success("Product updated!");
     } else {
@@ -636,7 +661,8 @@ const DistributorDashboard = () => {
         price: newProdPrice,
         stock: newProdStock,
         category: newProdCategory,
-        unit: newProdUnit
+        unit: newProdUnit,
+        packSize: newProdPackSize
       }), 'Publish product');
       toast.success("Product published to wholesale catalog!");
     }
@@ -645,13 +671,14 @@ const DistributorDashboard = () => {
     setNewProdStock('');
     setNewProdCategory('');
     setNewProdUnit('');
+    setNewProdPackSize('');
     setEditingProductId(null);
     setShowCatalogModal(false);
     loadData();
   };
   const openAddProduct = () => {
     setEditingProductId(null);
-    setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory(''); setNewProdUnit('');
+    setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory(''); setNewProdUnit(''); setNewProdPackSize('');
     setShowCatalogModal(true);
   };
   const closeCatalogModal = () => {
@@ -1424,7 +1451,7 @@ const DistributorDashboard = () => {
                             be rejected. */}
                         {selectedOrder.status !== 'pending' && (
                           <button
-                            onClick={() => downloadStockOrderInvoice(selectedOrder, user)}
+                            onClick={() => downloadStockOrderInvoice(selectedOrder, user, wholesaleProducts)}
                             style={{ width: '100%', marginTop: 12, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
                           >
                             🧾 Download Invoice
@@ -2272,6 +2299,13 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>The price above is per this unit — e.g. ₹150 per jar, ₹1,200 per case.</p>
               </div>
 
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Jars/Units per Box (optional)</label>
+                <input type="number" min="1" value={newProdPackSize} onChange={e => setNewProdPackSize(e.target.value)} placeholder="e.g. 8"
+                  style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>If shops order this by the box, set how many {newProdUnit ? (ALL_UNITS.find(u => u.value === newProdUnit)?.label.split(' ')[0].toLowerCase() + 's') : 'units'} come in one box. Your invoice will show Jars × Boxes = total Qty, matching your printed billbook format.</p>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
                 <button onClick={closeCatalogModal} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
@@ -2510,6 +2544,7 @@ const DistributorDashboard = () => {
                 onDispatch={() => handleDispatchSelected(o.id)}
                 distributor={user}
                 shopPhone={shops.find(s => s.id === o.shopId)?.phone}
+                distributorCatalog={wholesaleProducts}
               />
             ))
           )}
@@ -2658,6 +2693,13 @@ const DistributorDashboard = () => {
                 {ALL_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </select>
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Price above is per this unit (e.g. ₹150 per jar).</p>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Jars/Units per Box (optional)</label>
+              <input type="number" min="1" value={newProdPackSize} onChange={e => setNewProdPackSize(e.target.value)} placeholder="e.g. 8"
+                style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>If ordered by the box, how many units per box — invoice shows Jars × Boxes = Qty.</p>
             </div>
 
             <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>

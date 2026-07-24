@@ -169,19 +169,28 @@ function renderWholesale(data, widthMm) {
   const { subtotal, total } = computeTotals(data);
   const items = data.items || [];
 
+  // Jars/Boxes columns — matches the client's real printed invoice
+  // format exactly: Jars = units per box (a product spec), Boxes =
+  // how many boxes were ordered, Qty = Jars × Boxes = total individual
+  // units actually billed. Only shown when at least one item actually
+  // uses box-based ordering — a plain per-piece item just shows Qty.
+  const hasJarsBoxes = items.some(it => it.jars != null && it.boxes != null);
+
   const rows = items.map((it, i) => `
     <tr>
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${i + 1}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${esc(it.code || '')}</td>
       <td style="padding:6px 8px;border:1px solid #333;">${esc(it.name)}</td>
-      ${it.boxes != null ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.boxes)}</td>` : ''}
+      ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${it.jars != null ? int(it.jars) : ''}</td>` : ''}
+      ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${it.boxes != null ? int(it.boxes) : ''}</td>` : ''}
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.qty)}${it.unit ? ` ${esc(it.unit)}` : ''}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:right;">${money(it.rate)}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
     </tr>`).join('');
 
-  const hasBoxes = items.some(it => it.boxes != null);
   const totalQty = items.reduce((a, i) => a + (Number(i.qty) || 0), 0);
+  const totalBoxes = items.reduce((a, i) => a + (Number(i.boxes) || 0), 0);
+  const colsBeforeQty = 3 + (hasJarsBoxes ? 2 : 0);
 
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '8px'};font-family:'Inter',Arial,sans-serif;">
@@ -218,7 +227,8 @@ function renderWholesale(data, widthMm) {
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">S.No</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Code</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;text-align:left;">Item Name</th>
-            ${hasBoxes ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Boxes</th>' : ''}
+            ${hasJarsBoxes ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Jars</th>' : ''}
+            ${hasJarsBoxes ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Boxes</th>' : ''}
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Qty</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Rate</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Total</th>
@@ -227,7 +237,8 @@ function renderWholesale(data, widthMm) {
         <tbody>${rows}</tbody>
         <tfoot>
           <tr style="font-weight:800;">
-            <td colspan="${hasBoxes ? 4 : 3}" style="padding:6px 8px;border:1px solid #333;text-align:right;">Total:</td>
+            <td colspan="${colsBeforeQty}" style="padding:6px 8px;border:1px solid #333;text-align:right;">Total:</td>
+            ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(totalBoxes)}</td>` : ''}
             <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(totalQty)}</td>
             <td style="padding:6px 8px;border:1px solid #333;"></td>
             <td style="padding:6px 8px;border:1px solid #333;text-align:right;">${money(total)}</td>
