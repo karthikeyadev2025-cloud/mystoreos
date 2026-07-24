@@ -562,9 +562,20 @@ const DistributorDashboard = () => {
     let rows = lines.map(parseLine);
     // Skip a header row if the first cell looks like a label, not data
     if (rows.length > 0 && /^name$/i.test(rows[0][0]?.trim())) rows = rows.slice(1);
-    return rows
-      .filter(r => r[0] && r[1])
-      .map(r => ({ name: r[0], price: r[1], stock: r[2] || '0', category: r[3] || '' }));
+    // Was accepting any non-empty price string — "N/A", a typo, or a
+    // blank cell would silently import that product at ₹0 with zero
+    // warning, found by testing with realistic messy CSV data rather
+    // than only clean examples. Now requires price to genuinely be a
+    // positive number; rows that fail are dropped and counted so the
+    // distributor is told, not silently given bad data.
+    const isValidPrice = (v) => v && !isNaN(parseFloat(v)) && parseFloat(v) > 0;
+    const candidates = rows.filter(r => r[0] && r[1]);
+    const valid = candidates.filter(r => isValidPrice(r[1]));
+    const skippedCount = candidates.length - valid.length;
+    return {
+      rows: valid.map(r => ({ name: r[0], price: r[1], stock: r[2] || '0', category: r[3] || '' })),
+      skippedCount,
+    };
   };
 
   const handleCsvFileSelect = (e) => {
@@ -572,9 +583,10 @@ const DistributorDashboard = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
-      const parsed = parseCsvText(String(evt.target.result));
-      if (parsed.length === 0) return toast.error('No valid rows found. Expected columns: name, price, stock, category');
-      setBulkImportRows(parsed);
+      const { rows, skippedCount } = parseCsvText(String(evt.target.result));
+      if (rows.length === 0) return toast.error('No valid rows found. Expected columns: name, price, stock, category — price must be a positive number.');
+      setBulkImportRows(rows);
+      if (skippedCount > 0) toast.warn(`${skippedCount} row${skippedCount === 1 ? '' : 's'} skipped — missing or invalid price.`);
     };
     reader.readAsText(file);
   };
