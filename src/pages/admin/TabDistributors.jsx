@@ -95,10 +95,18 @@ export default function TabDistributors() {
   // admin actually configured in Settings > Pricing. Fetched live now,
   // same source of truth as everywhere else this was fixed tonight.
   const [tierPrices, setTierPrices] = useState({ basic_distributor: 999, pro_distributor: 2499, enterprise_distributor: 4999 });
+  // Plan feature editor — saveDistributorSubscriptionPlans() has
+  // existed in api.js the whole time with zero UI to actually call it.
+  // An admin could change which TIER a distributor is on, but never
+  // what each tier actually promises (price, description, feature
+  // list) without editing the database directly.
+  const [editablePlans, setEditablePlans] = useState([]);
+  const [expandedPlan, setExpandedPlan] = useState(null);
+  const [savingPlans, setSavingPlans] = useState(false);
 
   const load = async () => {
     try {
-      const [all, top, pricing] = await Promise.all([api.getAllUsers(), api.getTopDistributorsByCredit(5), api.getPricing()]);
+      const [all, top, pricing, plans] = await Promise.all([api.getAllUsers(), api.getTopDistributorsByCredit(5), api.getPricing(), api.getDistributorSubscriptionPlans()]);
       setDistributors(all.filter(u => u.role === 'distributor'));
       setTopByCredit(top);
       setTierPrices({
@@ -106,6 +114,7 @@ export default function TabDistributors() {
         pro_distributor: Number(pricing?.tiers?.pro_distributor?.monthly) || 2499,
         enterprise_distributor: Number(pricing?.tiers?.enterprise_distributor?.monthly) || 4999,
       });
+      setEditablePlans(plans || []);
     } catch { toast.error('Failed to load distributors'); }
     finally { setLoading(false); }
   };
@@ -134,6 +143,32 @@ export default function TabDistributors() {
   const del = (d) => {
     if (!window.confirm(`Delete ${d.name}? This is permanent.`)) return;
     act(d.id, async () => { await api.deleteUser(d.id); await api.logAdminAction('delete_distributor', d.id, null, null); }, `${d.name} deleted`);
+  };
+
+  const updatePlanField = (planId, field, value) => {
+    setEditablePlans(prev => prev.map(p => p.id === planId ? { ...p, [field]: value } : p));
+  };
+  const updateFeatureLine = (planId, idx, value) => {
+    setEditablePlans(prev => prev.map(p => p.id !== planId ? p : { ...p, features: p.features.map((f, i) => i === idx ? value : f) }));
+  };
+  const addFeatureLine = (planId) => {
+    setEditablePlans(prev => prev.map(p => p.id !== planId ? p : { ...p, features: [...p.features, ''] }));
+  };
+  const removeFeatureLine = (planId, idx) => {
+    setEditablePlans(prev => prev.map(p => p.id !== planId ? p : { ...p, features: p.features.filter((_, i) => i !== idx) }));
+  };
+  const savePlans = async () => {
+    setSavingPlans(true);
+    try {
+      const cleaned = editablePlans.map(p => ({ ...p, features: p.features.filter(f => f.trim()) }));
+      await api.saveDistributorSubscriptionPlans(cleaned);
+      toast.success('Distributor plans updated — changes reflect on the pricing page and dashboard immediately.');
+      setEditablePlans(cleaned);
+    } catch {
+      toast.error('Failed to save plans');
+    } finally {
+      setSavingPlans(false);
+    }
   };
 
   if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading distributors...</div>;
@@ -234,6 +269,54 @@ export default function TabDistributors() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Plan Feature Editor — saveDistributorSubscriptionPlans() has
+          existed with zero UI to call it. This is that UI: edit each
+          tier's price, description, and feature list (what actually
+          shows on the pricing page and in the distributor dashboard's
+          own upgrade prompts) without touching the database directly. */}
+      <div style={{ marginTop: '24px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '20px' }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>Distributor Plan Features</h3>
+        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Edit what each tier promises — reflected on the pricing page and every upgrade prompt immediately after saving.</p>
+
+        {editablePlans.map(plan => (
+          <div key={plan.id} style={{ border: '1px solid #E2E8F0', borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+            <button onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#F8FAFC', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
+              <span>{plan.name} — ₹{plan.price}/mo</span>
+              <ChevronDown size={16} style={{ transform: expandedPlan === plan.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+            </button>
+            {expandedPlan === plan.id && (
+              <div style={{ padding: 16 }}>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Price (₹/month)</label>
+                <input type="number" value={plan.price} onChange={e => updatePlanField(plan.id, 'price', parseInt(e.target.value) || 0)}
+                  style={{ width: 160, padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, marginBottom: 12 }} />
+
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Description</label>
+                <input value={plan.description} onChange={e => updatePlanField(plan.id, 'description', e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, marginBottom: 12, boxSizing: 'border-box' }} />
+
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Features</label>
+                {plan.features.map((f, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                    <input value={f} onChange={e => updateFeatureLine(plan.id, idx, e.target.value)}
+                      style={{ flex: 1, padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
+                    <button onClick={() => removeFeatureLine(plan.id, idx)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '0 10px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>✕</button>
+                  </div>
+                ))}
+                <button onClick={() => addFeatureLine(plan.id)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}>
+                  + Add Feature
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        <button onClick={savePlans} disabled={savingPlans}
+          style={{ marginTop: 8, background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          {savingPlans ? 'Saving…' : 'Save All Plan Changes'}
+        </button>
       </div>
 
       {upgradeModal && <UpgradeModal dist={upgradeModal} onClose={() => setUpgradeModal(null)} onDone={() => { setUpgradeModal(null); load(); }} tierPrices={tierPrices} />}
