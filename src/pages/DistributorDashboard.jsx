@@ -1052,7 +1052,7 @@ const DistributorDashboard = () => {
                   {wholesaleProducts.map(p => (
                     <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '140px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
-                        <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>
+                        {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                         <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px' }}>
@@ -1711,7 +1711,7 @@ const DistributorDashboard = () => {
               {wholesaleProducts.map(p => (
                 <div key={p.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
-                    <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>
+                    {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                   </div>
                   <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>

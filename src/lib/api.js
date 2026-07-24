@@ -3331,7 +3331,12 @@ export const api = {
         name: productData.name,
         price: parseFloat(productData.price) || 0,
         stock: parseInt(productData.stock) || 0,
-        category: productData.category || 'general'
+        // Was forcing 'general' whenever this was left blank — every
+        // distributor selling anything outside FMCG (or who just
+        // hadn't filled it in yet) got a fake, meaningless label
+        // stamped on their product instead of genuinely having no
+        // category. Store exactly what was typed, nothing invented.
+        category: productData.category || null
       }).select().single();
       if (error) throw new Error(error.message);
       return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category };
@@ -3344,7 +3349,7 @@ export const api = {
       name: productData.name,
       price: parseFloat(productData.price) || 0,
       stock: parseInt(productData.stock) || 0,
-      category: productData.category || 'general'
+      category: productData.category || null
     };
     db.distributorProducts.push(newProd);
     saveDB(db);
