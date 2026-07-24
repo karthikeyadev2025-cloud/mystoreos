@@ -57,3 +57,9 @@ verify_jwt = false
 [functions.auth-register]
 # Public signup endpoint
 verify_jwt = false
+
+[functions.distributor-api]
+# Public-facing API for distributor integrations — callers authenticate
+# with their own generated API key (X-API-Key header), not a Supabase
+# session or the app's anon key, which an external system wouldn't have.
+verify_jwt = false

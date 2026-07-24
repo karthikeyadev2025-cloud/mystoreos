@@ -3199,6 +3199,40 @@ export const api = {
     await this.saveSiteConfig('subscription_plans', plans);
   },
 
+  // API Access — explicitly promised on the Enterprise distributor
+  // plan but had zero implementation until now. generateDistributorApiKey
+  // returns the full plaintext key exactly once (via the edge function,
+  // which is the only place that ever sees it before hashing) — every
+  // other read only ever sees the safe prefix.
+  async generateDistributorApiKey() {
+    if (!isSupabaseConfigured) throw new Error('API keys require an online connection.');
+    const { data: { session } } = await supabase.auth.getSession();
+    const userToken = session?.access_token;
+    const { data, error } = await supabase.functions.invoke('generate-distributor-api-key', {
+      headers: userToken ? { Authorization: `Bearer ${userToken}` } : {},
+    });
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
+    return data; // { apiKey, keyPrefix, createdAt } — apiKey shown once
+  },
+
+  async getDistributorApiKeyInfo(distributorId) {
+    if (!isSupabaseConfigured) return null;
+    const { data } = await supabase.from('distributor_api_keys')
+      .select('key_prefix, created_at, last_used_at')
+      .eq('distributor_id', distributorId).eq('revoked', false)
+      .order('created_at', { ascending: false }).maybeSingle();
+    return data ? { keyPrefix: data.key_prefix, createdAt: data.created_at, lastUsedAt: data.last_used_at } : null;
+  },
+
+  async revokeDistributorApiKey(distributorId) {
+    if (!isSupabaseConfigured) throw new Error('This requires an online connection.');
+    const { error } = await supabase.from('distributor_api_keys').update({ revoked: true })
+      .eq('distributor_id', distributorId).eq('revoked', false);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   async getDistributorSubscriptionPlans() {
     const defaults = [
       {

@@ -170,6 +170,9 @@ const DistributorDashboard = () => {
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
   const [distStaff, setDistStaff] = useState([]);
+  const [apiKeyInfo, setApiKeyInfo] = useState(null);
+  const [newlyGeneratedKey, setNewlyGeneratedKey] = useState(null);
+  const [generatingKey, setGeneratingKey] = useState(false);
   const [shopCodeInput, setShopCodeInput] = useState('');
   const [shopLinkBusy, setShopLinkBusy] = useState(false);
   const [pricing, setPricing] = useState(null);
@@ -310,6 +313,7 @@ const DistributorDashboard = () => {
     // is — getShopStaff() was already fully generic, just needed a
     // distributor id passed in.
     setDistStaff(await safe(() => api.getShopStaff(user.id)));
+    setApiKeyInfo(await safe(() => api.getDistributorApiKeyInfo(user.id)));
     const settings = await safe(() => api.getSettings());
     setSysSettings(settings);
   }, [user.id]);
@@ -465,6 +469,31 @@ const DistributorDashboard = () => {
     setShowCatalogModal(false);
     setEditingProductId(null);
   };
+  const handleGenerateApiKey = async () => {
+    if (apiKeyInfo && !window.confirm('This replaces your current key — anything using the old one will stop working immediately. Continue?')) return;
+    setGeneratingKey(true);
+    try {
+      const result = await api.generateDistributorApiKey();
+      setNewlyGeneratedKey(result.apiKey);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not generate API key');
+    } finally {
+      setGeneratingKey(false);
+    }
+  };
+  const handleRevokeApiKey = async () => {
+    if (!window.confirm('Revoke your API key? Anything using it will stop working immediately.')) return;
+    try {
+      await api.revokeDistributorApiKey(user.id);
+      toast.success('API key revoked');
+      setNewlyGeneratedKey(null);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not revoke API key');
+    }
+  };
+
   const handleDeleteWholesaleProduct = async (productId) => {
     if (!window.confirm('Remove this product from your wholesale catalog? Shops will no longer be able to order it.')) return;
     await mustSucceed(() => api.deleteDistributorProduct(productId), 'Delete product');
@@ -1457,6 +1486,73 @@ const DistributorDashboard = () => {
                   </div>
                 )}
               </div>
+
+              {/* API Access — explicitly promised on the Enterprise
+                  plan ("API access") but had zero implementation until
+                  now. Key shown in full exactly once, right after
+                  generation — stored server-side only as a SHA-256
+                  hash, never in plaintext, same principle as a
+                  password. */}
+              <div style={{ marginTop: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Lock size={20} color="#64748B" /> API Access
+                </h2>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
+
+                {!hasDistCap(user, 'apiAccess') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    {newlyGeneratedKey && (
+                      <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                        <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#92400E' }}>⚠️ Copy this now — it won't be shown again:</p>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <code style={{ flex: 1, background: '#fff', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 12, wordBreak: 'break-all' }}>{newlyGeneratedKey}</code>
+                          <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
+                            style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Copy</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {apiKeyInfo ? (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontSize: 13, color: '#0F172A', marginBottom: 4 }}>Active key: <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
+                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                          Created {new Date(apiKeyInfo.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {apiKeyInfo.lastUsedAt && ` · Last used ${new Date(apiKeyInfo.lastUsedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
+                          {!apiKeyInfo.lastUsedAt && ' · Never used yet'}
+                        </div>
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>No active API key.</p>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                      <button onClick={handleGenerateApiKey} disabled={generatingKey}
+                        style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
+                      </button>
+                      {apiKeyInfo && (
+                        <button onClick={handleRevokeApiKey} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                          Revoke
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 14 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: '#475569', margin: '0 0 8px', textTransform: 'uppercase' }}>Quick reference</p>
+                      <code style={{ display: 'block', background: '#0F172A', color: '#E2E8F0', padding: '10px 12px', borderRadius: 8, fontSize: 11, marginBottom: 6, overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                        curl -H "X-API-Key: YOUR_KEY" "https://zdertmpzervgjicuwsfz.supabase.co/functions/v1/distributor-api?resource=orders"
+                      </code>
+                      <p style={{ fontSize: 11, color: '#94A3B8', margin: 0 }}>Available resources: <code>orders</code>, <code>catalog</code>, <code>credits</code></p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -2220,6 +2316,53 @@ const DistributorDashboard = () => {
                           </div>
                         ))}
                       </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* API Access — same feature as desktop, mobile layout. */}
+              <div style={{ marginTop: '20px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>🔑 API Access</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
+
+                {!hasDistCap(user, 'apiAccess') ? (
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  </div>
+                ) : (
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
+                    {newlyGeneratedKey && (
+                      <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: '#92400E' }}>⚠️ Copy this now — it won't be shown again:</p>
+                        <code style={{ display: 'block', background: '#fff', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 11, wordBreak: 'break-all', marginBottom: 8 }}>{newlyGeneratedKey}</code>
+                        <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
+                          style={{ width: '100%', background: '#B45309', color: '#fff', border: 'none', padding: '8px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Copy Key</button>
+                      </div>
+                    )}
+
+                    {apiKeyInfo ? (
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ fontSize: 12, color: '#0F172A', marginBottom: 4 }}>Active: <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
+                        <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                          Created {new Date(apiKeyInfo.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {apiKeyInfo.lastUsedAt ? ` · Used ${new Date(apiKeyInfo.lastUsedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : ' · Never used'}
+                        </div>
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 14 }}>No active API key.</p>
+                    )}
+
+                    <button onClick={handleGenerateApiKey} disabled={generatingKey}
+                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: apiKeyInfo ? 8 : 0 }}>
+                      {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
+                    </button>
+                    {apiKeyInfo && (
+                      <button onClick={handleRevokeApiKey} style={{ width: '100%', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        Revoke Key
+                      </button>
                     )}
                   </div>
                 )}
