@@ -319,6 +319,18 @@ const DistributorDashboard = () => {
   }, [user.id]);
 
   const handleLinkShop = async () => {
+    // Was completely unenforced — distCaps.maxShops only ever showed a
+    // nag banner AFTER the limit was exceeded, never actually blocked
+    // linking a new shop. A Basic-tier (₹999) distributor could link
+    // unlimited shops for free, same as Enterprise (₹4999) — the
+    // tiered pricing model was entirely undermined by this gap. Same
+    // bug class as the Starter-tier bookings leak found earlier
+    // tonight on the shop side.
+    if (distCaps.maxShops !== -1 && shops.length >= distCaps.maxShops) {
+      toast.error(`Your plan allows ${distCaps.maxShops} shops — you're already at that limit. Upgrade to link more.`);
+      setShowUpgradePlanModal(true);
+      return;
+    }
     setShopLinkBusy(true);
     try {
       const res = await api.linkByPublicCode(user.id, 'distributor', shopCodeInput);
