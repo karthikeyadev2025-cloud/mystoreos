@@ -3460,7 +3460,8 @@ export const api = {
       return (data || []).map(row => ({
         id: row.id, distributorId: row.distributor_id, name: row.name,
         price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
-        packSize: row.pack_size || null,
+        packSize: row.pack_size || null, sku: row.sku || null, hsnCode: row.hsn_code || null,
+        gstRate: row.gst_rate != null ? Number(row.gst_rate) : 0,
       }));
     }
     const db = getDB();
@@ -3490,7 +3491,8 @@ export const api = {
     return (data || []).map(row => ({
       id: row.id, distributorId: row.distributor_id, name: row.name,
       price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
-      packSize: row.pack_size || null,
+      packSize: row.pack_size || null, sku: row.sku || null, hsnCode: row.hsn_code || null,
+      gstRate: row.gst_rate != null ? Number(row.gst_rate) : 0,
     }));
   },
 
@@ -3510,6 +3512,9 @@ export const api = {
       category: p.category || null,
       unit: p.unit || null,
       pack_size: p.packSize ? parseInt(p.packSize) : null,
+      sku: p.sku || null,
+      hsn_code: p.hsnCode || null,
+      gst_rate: p.gstRate ? parseFloat(p.gstRate) : 0,
     }));
     const { data, error } = await supabase.from('distributor_products').insert(rows).select('id');
     if (error) throw new Error(error.message);
@@ -3539,9 +3544,17 @@ export const api = {
         // this product. Shops order in boxes; the invoice shows
         // jars-per-box × boxes-ordered = total quantity billed.
         pack_size: productData.packSize ? parseInt(productData.packSize) : null,
+        // Product code (SKU), HSN, and GST rate — the real invoice
+        // has a "Code" column and needs proper GST-compliant tax
+        // details per item; these were completely missing before,
+        // meaning invoice generation always hardcoded hsn:'' and
+        // gstPct:0 regardless of the actual product.
+        sku: productData.sku || null,
+        hsn_code: productData.hsnCode || null,
+        gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
       }).select().single();
       if (error) throw new Error(error.message);
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate };
     }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
@@ -3554,6 +3567,9 @@ export const api = {
       category: productData.category || null,
       unit: productData.unit || null,
       packSize: productData.packSize ? parseInt(productData.packSize) : null,
+      sku: productData.sku || null,
+      hsnCode: productData.hsnCode || null,
+      gstRate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
     };
     db.distributorProducts.push(newProd);
     saveDB(db);
@@ -3575,10 +3591,13 @@ export const api = {
         category: productData.category || null,
         unit: productData.unit || null,
         pack_size: productData.packSize ? parseInt(productData.packSize) : null,
+        sku: productData.sku || null,
+        hsn_code: productData.hsnCode || null,
+        gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
       }).eq('id', productId).select().maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) throw new Error('Product not found or you do not have permission to edit it.');
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate };
     }
     const db = getDB();
     const prod = (db.distributorProducts || []).find(p => p.id === productId);
@@ -3589,6 +3608,9 @@ export const api = {
       prod.category = productData.category || null;
       prod.unit = productData.unit || null;
       prod.packSize = productData.packSize ? parseInt(productData.packSize) : null;
+      prod.sku = productData.sku || null;
+      prod.hsnCode = productData.hsnCode || null;
+      prod.gstRate = productData.gstRate ? parseFloat(productData.gstRate) : 0;
       saveDB(db);
     }
     return prod;

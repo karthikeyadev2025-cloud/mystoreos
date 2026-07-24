@@ -175,12 +175,18 @@ function renderWholesale(data, widthMm) {
   // units actually billed. Only shown when at least one item actually
   // uses box-based ordering — a plain per-piece item just shows Qty.
   const hasJarsBoxes = items.some(it => it.jars != null && it.boxes != null);
+  // HSN — shown as simple reference info (not a GST-inclusive total
+  // calculation, which stays exclusive to the dedicated gst_tax
+  // template) since the client's real invoice format has no GST
+  // breakdown at all, just a Rate column.
+  const hasHsn = items.some(it => it.hsn);
 
   const rows = items.map((it, i) => `
     <tr>
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${i + 1}</td>
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${esc(it.code || '')}</td>
       <td style="padding:6px 8px;border:1px solid #333;">${esc(it.name)}</td>
+      ${hasHsn ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${esc(it.hsn || '')}</td>` : ''}
       ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${it.jars != null ? int(it.jars) : ''}</td>` : ''}
       ${hasJarsBoxes ? `<td style="padding:6px 8px;border:1px solid #333;text-align:center;">${it.boxes != null ? int(it.boxes) : ''}</td>` : ''}
       <td style="padding:6px 8px;border:1px solid #333;text-align:center;">${int(it.qty)}${it.unit ? ` ${esc(it.unit)}` : ''}</td>
@@ -189,7 +195,7 @@ function renderWholesale(data, widthMm) {
     </tr>`).join('');
 
   const totalBoxes = items.reduce((a, i) => a + (Number(i.boxes) || 0), 0);
-  const colsBeforeQty = 3 + (hasJarsBoxes ? 2 : 0);
+  const colsBeforeQty = 3 + (hasHsn ? 1 : 0) + (hasJarsBoxes ? 2 : 0);
 
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '8px'};font-family:'Inter',Arial,sans-serif;">
@@ -226,6 +232,7 @@ function renderWholesale(data, widthMm) {
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">S.No</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Code</th>
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;text-align:left;">Item Name</th>
+            ${hasHsn ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">HSN</th>' : ''}
             ${hasJarsBoxes ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Jars</th>' : ''}
             ${hasJarsBoxes ? '<th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Boxes</th>' : ''}
             <th style="padding:6px 8px;border:1px solid #333;font-size:10px;">Qty</th>

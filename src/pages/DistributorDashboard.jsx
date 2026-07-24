@@ -84,15 +84,19 @@ function downloadStockOrderInvoice(o, distributor, distributorCatalog = []) {
       const boxes = packSize ? (item.qty || 1) : null;
       const totalQty = packSize ? (packSize * (item.qty || 1)) : (item.qty || 1);
       return {
-        code: item.id || '',
+        // Real product code, HSN, and GST rate — was hardcoded blank/
+        // zero regardless of the actual product, meaning invoices
+        // never showed the distributor's own product codes and were
+        // never GST-compliant for any item, ever.
+        code: product?.sku || item.id || '',
         name: item.name,
-        hsn: '',
+        hsn: product?.hsnCode || '',
         jars: packSize,
         boxes,
         qty: totalQty,
         unit: item.unit ? (UNIT_SUFFIX[item.unit] || item.unit) : '',
         rate: item.price,
-        gstPct: 0,
+        gstPct: product?.gstRate || 0,
       };
     }),
     subtotal: o.total,
@@ -345,6 +349,9 @@ const DistributorDashboard = () => {
   const [newProdCategory, setNewProdCategory] = useState('');
   const [newProdUnit, setNewProdUnit] = useState('');
   const [newProdPackSize, setNewProdPackSize] = useState('');
+  const [newProdSku, setNewProdSku] = useState('');
+  const [newProdHsnCode, setNewProdHsnCode] = useState('');
+  const [newProdGstRate, setNewProdGstRate] = useState('0');
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
   // New Credit Form
@@ -645,13 +652,17 @@ const DistributorDashboard = () => {
     setNewProdCategory(p.category || '');
     setNewProdUnit(p.unit || '');
     setNewProdPackSize(p.packSize ? String(p.packSize) : '');
+    setNewProdSku(p.sku || '');
+    setNewProdHsnCode(p.hsnCode || '');
+    setNewProdGstRate(p.gstRate != null ? String(p.gstRate) : '0');
     setShowCatalogModal(true);
   };
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
     if (editingProductId) {
       await mustSucceed(() => api.updateDistributorProduct(editingProductId, {
-        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit, packSize: newProdPackSize
+        name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit, packSize: newProdPackSize,
+        sku: newProdSku, hsnCode: newProdHsnCode, gstRate: newProdGstRate
       }), 'Update product');
       toast.success("Product updated!");
     } else {
@@ -662,7 +673,10 @@ const DistributorDashboard = () => {
         stock: newProdStock,
         category: newProdCategory,
         unit: newProdUnit,
-        packSize: newProdPackSize
+        packSize: newProdPackSize,
+        sku: newProdSku,
+        hsnCode: newProdHsnCode,
+        gstRate: newProdGstRate
       }), 'Publish product');
       toast.success("Product published to wholesale catalog!");
     }
@@ -672,6 +686,9 @@ const DistributorDashboard = () => {
     setNewProdCategory('');
     setNewProdUnit('');
     setNewProdPackSize('');
+    setNewProdSku('');
+    setNewProdHsnCode('');
+    setNewProdGstRate('0');
     setEditingProductId(null);
     setShowCatalogModal(false);
     loadData();
@@ -679,6 +696,7 @@ const DistributorDashboard = () => {
   const openAddProduct = () => {
     setEditingProductId(null);
     setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory(''); setNewProdUnit(''); setNewProdPackSize('');
+    setNewProdSku(''); setNewProdHsnCode(''); setNewProdGstRate('0');
     setShowCatalogModal(true);
   };
   const closeCatalogModal = () => {
@@ -2307,6 +2325,32 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>If shops order this by the box, set how many {newProdUnit ? (ALL_UNITS.find(u => u.value === newProdUnit)?.label.split(' ')[0].toLowerCase() + 's') : 'units'} come in one box. Your invoice will show Jars × Boxes = total Qty, matching your printed billbook format.</p>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Code (optional)</label>
+                  <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. 269"
+                    style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Shows in the Code column on invoices, matching your own numbering.</p>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN Code (optional)</label>
+                  <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8}
+                    style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate</label>
+                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+                  <option value="0">0% (Exempt)</option>
+                  <option value="3">3%</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
                 <button onClick={closeCatalogModal} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
@@ -2701,6 +2745,27 @@ const DistributorDashboard = () => {
               <input type="number" min="1" value={newProdPackSize} onChange={e => setNewProdPackSize(e.target.value)} placeholder="e.g. 8"
                 style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>If ordered by the box, how many units per box — invoice shows Jars × Boxes = Qty.</p>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>Product Code (optional)</label>
+              <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. 269"
+                style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box', marginBottom: 8 }} />
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>HSN Code (optional)</label>
+              <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8}
+                style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px' }}>GST Rate</label>
+              <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }}>
+                <option value="0">0% (Exempt)</option>
+                <option value="3">3%</option>
+                <option value="5">5%</option>
+                <option value="12">12%</option>
+                <option value="18">18%</option>
+                <option value="28">28%</option>
+              </select>
             </div>
 
             <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
