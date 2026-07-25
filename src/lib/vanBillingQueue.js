@@ -145,3 +145,85 @@ export default {
   primeSeries, getSeriesState, allocateInvoiceNumber,
   queueInvoice, getPendingInvoices, getAllLocalInvoices, syncPendingInvoices,
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// RETURNS / CREDIT NOTES
+//
+// Same offline-safe pattern as invoices above — separate series
+// (doc_type='credit_note'), separate local storage bucket, same
+// idempotent sync-by-unique-constraint reasoning. Kept as parallel
+// functions rather than generalising the already-tested invoice
+// functions with a docType parameter, since that refactor would touch
+// code whose correctness is already verified and isn't worth risking
+// for a few dozen lines saved.
+// ═══════════════════════════════════════════════════════════════════
+
+const returnSeriesKey = (vehicleId) => `${KEY_PREFIX}crn_series_${vehicleId}`;
+const returnPendingKey = (vehicleId) => `${KEY_PREFIX}crn_pending_${vehicleId}`;
+
+export async function primeReturnSeries(vehicleId) {
+  const { data, error } = await supabase.rpc('get_van_series_position', {
+    p_vehicle_id: vehicleId, p_doc_type: 'credit_note',
+  });
+  if (error) throw new Error(error.message);
+  const row = data?.[0];
+  if (!row) throw new Error('This van has no credit-note series — check Field Setup.');
+  writeJSON(returnSeriesKey(vehicleId), { prefix: row.prefix, lastNo: row.last_no });
+  return { prefix: row.prefix, lastNo: row.last_no };
+}
+
+export function getReturnSeriesState(vehicleId) {
+  return readJSON(returnSeriesKey(vehicleId), null);
+}
+
+export function allocateCreditNoteNumber(vehicleId) {
+  const state = getReturnSeriesState(vehicleId);
+  if (!state) throw new Error('Van not primed for returns yet — go online once first.');
+  const nextNo = state.lastNo + 1;
+  writeJSON(returnSeriesKey(vehicleId), { ...state, lastNo: nextNo });
+  return { creditNo: nextNo, creditRef: `${state.prefix}${String(nextNo).padStart(5, '0')}` };
+}
+
+export function queueReturn(vehicleId, ret) {
+  const pending = readJSON(returnPendingKey(vehicleId), []);
+  pending.push({ ...ret, queuedAt: new Date().toISOString(), synced: false });
+  writeJSON(returnPendingKey(vehicleId), pending);
+  return ret;
+}
+
+export function getPendingReturns(vehicleId) {
+  return readJSON(returnPendingKey(vehicleId), []).filter(r => !r.synced);
+}
+
+export async function syncPendingReturns(vehicleId) {
+  const all = readJSON(returnPendingKey(vehicleId), []);
+  const pending = all.filter(r => !r.synced);
+  let ok = 0, failed = 0;
+
+  for (const ret of pending) {
+    try {
+      const { error } = await supabase.rpc('sync_van_return', {
+        p_distributor_id: ret.distributorId,
+        p_vehicle_id: vehicleId,
+        p_shop_id: ret.shopId,
+        p_credit_no: ret.creditNo,
+        p_credit_ref: ret.creditRef,
+        p_issued_at: ret.issuedAt,
+        p_reason: ret.reason,
+        p_total_credit: ret.totalCredit,
+        p_lines: ret.lines,
+        p_photo_url: ret.photoUrl || null,
+        p_rep_id: ret.repId || null,
+      });
+      if (error) throw new Error(error.message);
+      ret.synced = true;
+      ok++;
+    } catch (e) {
+      ret.lastError = e.message;
+      failed++;
+    }
+  }
+
+  writeJSON(returnPendingKey(vehicleId), all);
+  return { ok, failed, remaining: all.filter(r => !r.synced).length };
+}

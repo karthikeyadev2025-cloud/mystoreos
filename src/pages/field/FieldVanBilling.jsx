@@ -17,10 +17,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { ArrowLeft, Truck, Plus, X, Wifi, WifiOff, RefreshCw, CheckCircle2, Receipt } from 'lucide-react';
+import { ArrowLeft, Truck, Plus, X, Wifi, WifiOff, RefreshCw, CheckCircle2, Receipt, RotateCcw, Camera } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
 import vanQueue from '../../lib/vanBillingQueue';
+import { validateImageFile } from '../../lib/fileValidation';
+
+const RETURN_REASONS = [
+  { v: 'expired', l: 'Expired' },
+  { v: 'near_expiry', l: 'Near-expiry' },
+  { v: 'damaged', l: 'Damaged' },
+  { v: 'unsold_seasonal', l: 'Unsold seasonal' },
+  { v: 'wrong_delivery', l: 'Wrong delivery' },
+];
 
 export default function FieldVanBilling() {
   const { user } = useAuth();
@@ -44,6 +53,44 @@ export default function FieldVanBilling() {
   const [pickRate, setPickRate] = useState('');
   const [paymentMode, setPaymentMode] = useState('cash');
   const [lastReceipt, setLastReceipt] = useState(null);
+
+  // 'sell' or 'return' — same screen, since a rep switches between
+  // them constantly at the same shop counter, and forcing a separate
+  // page for returns would mean re-selecting the shop every time.
+  const [mode, setMode] = useState('sell');
+  const [returnPendingCount, setReturnPendingCount] = useState(0);
+  const [returnReason, setReturnReason] = useState('expired');
+  const [returnCart, setReturnCart] = useState([]);
+  const [returnPickProduct, setReturnPickProduct] = useState('');
+  const [returnPickQty, setReturnPickQty] = useState('');
+  const [returnPickRate, setReturnPickRate] = useState('');
+  const [lastReturnReceipt, setLastReturnReceipt] = useState(null);
+  const [returnPhoto, setReturnPhoto] = useState('');
+
+  // Same resize/compress-to-base64 pattern already proven for logo
+  // upload elsewhere — no new upload infrastructure needed. Damaged-
+  // goods proof genuinely needs a photo; other reasons don't require
+  // one but can still attach it.
+  const captureReturnPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(600 / img.width, 600 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        setReturnPhoto(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     const on = () => setIsOnline(true);
@@ -75,6 +122,7 @@ export default function FieldVanBilling() {
     if (!vehicleId) return;
     setPendingCount(vanQueue.getPendingInvoices(vehicleId).length);
     setSeriesState(vanQueue.getSeriesState(vehicleId));
+    setReturnPendingCount(vanQueue.getPendingReturns(vehicleId).length);
   }, [vehicleId]);
 
   useEffect(() => {
@@ -98,7 +146,10 @@ export default function FieldVanBilling() {
   const doPrime = async () => {
     setPriming(true);
     try {
-      const state = await vanQueue.primeSeries(vehicleId);
+      const [state] = await Promise.all([
+        vanQueue.primeSeries(vehicleId),
+        vanQueue.primeReturnSeries(vehicleId),
+      ]);
       setSeriesState(state);
       toast.success(`Ready to bill — starting from invoice #${state.lastNo + 1}. Works offline from here.`);
     } catch (e) {
@@ -109,9 +160,14 @@ export default function FieldVanBilling() {
   const doSync = async () => {
     setSyncing(true);
     try {
-      const r = await vanQueue.syncPendingInvoices(vehicleId);
-      if (r.failed === 0) toast.success(`${r.ok} invoice${r.ok === 1 ? '' : 's'} synced`);
-      else toast.warn(`${r.ok} synced · ${r.failed} still failing — will retry`);
+      const [ri, rr] = await Promise.all([
+        vanQueue.syncPendingInvoices(vehicleId),
+        vanQueue.syncPendingReturns(vehicleId),
+      ]);
+      const totalOk = ri.ok + rr.ok;
+      const totalFailed = ri.failed + rr.failed;
+      if (totalFailed === 0 && totalOk > 0) toast.success(`${totalOk} synced`);
+      else if (totalFailed > 0) toast.warn(`${totalOk} synced · ${totalFailed} still failing — will retry`);
       refreshPendingCount();
     } catch (e) {
       toast.error(e.message || 'Sync failed — will retry when connection improves');
@@ -183,6 +239,54 @@ export default function FieldVanBilling() {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  // ─── RETURNS ──────────────────────────────────────────────────────
+  const addToReturnCart = () => {
+    if (!returnPickProduct) return toast.error('Pick a product');
+    const qty = parseFloat(returnPickQty);
+    const rate = parseFloat(returnPickRate);
+    if (!qty || qty <= 0) return toast.error('Enter quantity');
+    if (!rate || rate <= 0) return toast.error('Enter rate');
+    const prod = stock.find(s => s.productId === returnPickProduct) || { productName: 'Product' };
+    setReturnCart(prev => {
+      const found = prev.find(l => l.productId === returnPickProduct);
+      if (found) return prev.map(l => l.productId === returnPickProduct ? { ...l, qtyBase: l.qtyBase + qty } : l);
+      return [...prev, { productId: returnPickProduct, name: prod.productName, qtyBase: qty, rate }];
+    });
+    setReturnPickQty(''); setReturnPickRate('');
+  };
+
+  const returnTotal = returnCart.reduce((s, l) => s + l.rate * l.qtyBase, 0);
+
+  // Same principle as completeSale: fully local and synchronous, no
+  // network call on the critical path. A return is recorded and
+  // credited on the spot regardless of signal.
+  const completeReturn = () => {
+    if (!shopId) return toast.error('Pick the shop');
+    if (returnCart.length === 0) return toast.error('Add at least one item');
+
+    try {
+      const { creditNo, creditRef } = vanQueue.allocateCreditNoteNumber(vehicleId);
+      const ret = {
+        distributorId: user.id,
+        shopId, repId: user.id,
+        creditNo, creditRef,
+        issuedAt: new Date().toISOString(),
+        reason: returnReason,
+        totalCredit: returnTotal,
+        lines: returnCart.map(l => ({ product_id: l.productId, qty_base: l.qtyBase, rate: l.rate })),
+        photoUrl: returnPhoto || null,
+      };
+      vanQueue.queueReturn(vehicleId, ret);
+
+      setLastReturnReceipt({ ...ret, shopName: shops.find(s => s.id === shopId)?.name, lines: returnCart });
+      setReturnCart([]); setShopId(''); setReturnPhoto('');
+      refreshPendingCount();
+      toast.success(`${creditRef} — ₹${returnTotal.toLocaleString('en-IN')} credited`);
+    } catch (e) {
+      toast.error(e.message || 'Could not record return');
+    }
+  };
+
   const S = {
     input: { width: '100%', padding: '12px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
     label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
@@ -233,10 +337,10 @@ export default function FieldVanBilling() {
 
           {vehicleId && seriesState && (
             <>
-              {pendingCount > 0 && (
+              {(pendingCount + returnPendingCount) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#92400E' }}>
-                    {pendingCount} invoice{pendingCount === 1 ? '' : 's'} not yet synced
+                    {pendingCount + returnPendingCount} document{(pendingCount + returnPendingCount) === 1 ? '' : 's'} not yet synced
                   </span>
                   <button onClick={doSync} disabled={syncing || !isOnline}
                     style={{ background: isOnline ? '#B45309' : '#CBD5E1', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 8, fontWeight: 700, fontSize: 11, cursor: isOnline ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -245,7 +349,22 @@ export default function FieldVanBilling() {
                 </div>
               )}
 
-              {lastReceipt && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                <button onClick={() => setMode('sell')}
+                  style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                    border: `1px solid ${mode === 'sell' ? '#4F46E5' : '#E2E8F0'}`,
+                    background: mode === 'sell' ? '#EEF2FF' : '#fff', color: mode === 'sell' ? '#4338CA' : '#64748B' }}>
+                  Sell
+                </button>
+                <button onClick={() => setMode('return')}
+                  style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    border: `1px solid ${mode === 'return' ? '#DC2626' : '#E2E8F0'}`,
+                    background: mode === 'return' ? '#FEF2F2' : '#fff', color: mode === 'return' ? '#B91C1C' : '#64748B' }}>
+                  <RotateCcw size={13} /> Return
+                </button>
+              </div>
+
+              {mode === 'sell' && lastReceipt && (
                 <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <CheckCircle2 size={14} color="#059669" />
@@ -258,6 +377,16 @@ export default function FieldVanBilling() {
                 </div>
               )}
 
+              {mode === 'return' && lastReturnReceipt && (
+                <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <CheckCircle2 size={14} color="#B91C1C" />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>{lastReturnReceipt.creditRef} · ₹{lastReturnReceipt.totalCredit.toLocaleString('en-IN')} credited</span>
+                  </div>
+                </div>
+              )}
+
+              {mode === 'sell' && (
               <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
                 <select value={shopId} onChange={e => setShopId(e.target.value)} style={{ ...S.input, marginBottom: 12 }}>
@@ -315,6 +444,84 @@ export default function FieldVanBilling() {
                   </>
                 )}
               </div>
+              )}
+
+              {mode === 'return' && (
+              <div style={{ background: '#fff', border: '1px solid #FECACA', borderRadius: 12, padding: 16 }}>
+                <label style={S.label}>Shop</label>
+                <select value={shopId} onChange={e => setShopId(e.target.value)} style={{ ...S.input, marginBottom: 12 }}>
+                  <option value="">— select —</option>
+                  {shops.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+
+                <label style={S.label}>Reason</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                  {RETURN_REASONS.map(r => (
+                    <button key={r.v} onClick={() => setReturnReason(r.v)}
+                      style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                        border: `1px solid ${returnReason === r.v ? '#DC2626' : '#E2E8F0'}`,
+                        background: returnReason === r.v ? '#FEF2F2' : '#fff',
+                        color: returnReason === r.v ? '#B91C1C' : '#64748B' }}>{r.l}</button>
+                  ))}
+                </div>
+
+                <label style={S.label}>Product</label>
+                <select value={returnPickProduct} onChange={e => { setReturnPickProduct(e.target.value); setReturnPickRate(''); }} style={{ ...S.input, marginBottom: 8 }}>
+                  <option value="">— select —</option>
+                  {stock.map(s => <option key={s.id} value={s.productId}>{s.productName}</option>)}
+                </select>
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                  <input type="number" inputMode="decimal" value={returnPickQty} onChange={e => setReturnPickQty(e.target.value)} placeholder="Qty" style={S.input} />
+                  <input type="number" inputMode="decimal" value={returnPickRate} onChange={e => setReturnPickRate(e.target.value)} placeholder="Rate ₹" style={S.input} />
+                  <button onClick={addToReturnCart} style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>
+                    <Plus size={16} />
+                  </button>
+                </div>
+
+                {(returnReason === 'damaged' || returnReason === 'expired') && (
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={S.label}>Photo proof {returnReason === 'damaged' ? '(recommended)' : '(optional)'}</label>
+                    {returnPhoto ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img src={returnPhoto} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid #E2E8F0' }} />
+                        <button onClick={() => setReturnPhoto('')} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                      </div>
+                    ) : (
+                      <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px dashed #E2E8F0', borderRadius: 10, padding: 12, cursor: 'pointer', color: '#64748B', fontSize: 12, fontWeight: 700 }}>
+                        <Camera size={16} /> Take Photo
+                        <input type="file" accept="image/*" capture="environment" onChange={captureReturnPhoto} style={{ display: 'none' }} />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {returnCart.map(l => (
+                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.name}</div>
+                      <div style={{ fontSize: 11, color: '#B91C1C' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
+                    </div>
+                    <button onClick={() => setReturnCart(c => c.filter(x => x.productId !== l.productId))}
+                      style={{ background: '#fff', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+
+                {returnCart.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#B91C1C', textAlign: 'right', margin: '10px 0' }}>
+                      ₹{returnTotal.toLocaleString('en-IN')} credit
+                    </div>
+                    <button onClick={completeReturn}
+                      style={{ width: '100%', background: '#DC2626', color: '#fff', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                      Record Return &amp; Credit Shop
+                    </button>
+                  </>
+                )}
+              </div>
+              )}
             </>
           )}
         </>
