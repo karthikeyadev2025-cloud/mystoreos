@@ -1903,6 +1903,14 @@ const DistributorDashboard = () => {
 
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
+              <button onClick={() => navigate('/field/setup')}
+                style={{ width: '100%', textAlign: 'left', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#3730A3' }}>🚚 Field Distribution &amp; Van Sales</div>
+                  <div style={{ fontSize: '12px', color: '#4338CA', marginTop: '2px' }}>Depots, vans, routes, offline billing, and end-of-day settlement</div>
+                </div>
+                <span style={{ fontSize: '18px', color: '#4338CA' }}>→</span>
+              </button>
               <div style={{ marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Settings size={20} color="#64748B" /> Business Profile & GST
@@ -3025,6 +3033,14 @@ const DistributorDashboard = () => {
           {/* ================= HISTORY TAB ================= */}
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
+              <button onClick={() => navigate('/field/setup')}
+                style={{ width: '100%', textAlign: 'left', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#3730A3' }}>🚚 Field Distribution & Van Sales</div>
+                  <div style={{ fontSize: '11px', color: '#4338CA', marginTop: '2px' }}>Depots, vans, routes, offline billing</div>
+                </div>
+                <span style={{ fontSize: '16px', color: '#4338CA' }}>→</span>
+              </button>
               <div style={{ marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Settings size={20} color="#64748B" /> Business Profile & GST
