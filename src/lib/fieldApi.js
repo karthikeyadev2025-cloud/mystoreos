@@ -503,6 +503,79 @@ export const fieldApi = {
     if (error) throw new Error(error.message);
     return data;
   },
+
+  // ─── EOD RECONCILIATION ───────────────────────────────────────────
+  // Opens (or refreshes, if still pending) today's settlement for a
+  // van — computes expected cash/UPI from real invoices and seeds
+  // stock lines straight from the current warehouse_stock ledger.
+  async openSettlement(distributorId, vehicleId) {
+    requireOnline();
+    const { data, error } = await supabase.rpc('open_day_settlement', {
+      p_distributor_id: distributorId, p_vehicle_id: vehicleId,
+    });
+    if (error) throw new Error(error.message);
+    return data; // settlement id
+  },
+
+  async getSettlement(settlementId) {
+    if (!isSupabaseConfigured || !settlementId) return null;
+    const [{ data: settlement }, { data: lines }] = await Promise.all([
+      supabase.from('day_settlements').select('*').eq('id', settlementId).maybeSingle(),
+      supabase.from('day_settlement_stock_lines')
+        .select('*, distributor_products(name)').eq('settlement_id', settlementId),
+    ]);
+    if (!settlement) return null;
+    return {
+      id: settlement.id,
+      status: settlement.status,
+      expectedCash: Number(settlement.expected_cash),
+      expectedUpi: Number(settlement.expected_upi),
+      expectedCredit: Number(settlement.expected_credit),
+      countedCash: settlement.counted_cash != null ? Number(settlement.counted_cash) : null,
+      countedUpi: settlement.counted_upi != null ? Number(settlement.counted_upi) : null,
+      stockVarianceValue: Number(settlement.stock_variance_value),
+      overrideReason: settlement.override_reason,
+      closedAt: settlement.closed_at,
+      lines: (lines || []).map(l => ({
+        id: l.id, productId: l.product_id,
+        productName: l.distributor_products?.name || 'Unknown',
+        expectedQty: Number(l.expected_qty),
+        countedQty: l.counted_qty != null ? Number(l.counted_qty) : null,
+        unitRate: Number(l.unit_rate),
+      })),
+    };
+  },
+
+  // stockCounts: [{ productId, countedQty }]
+  async closeSettlement(settlementId, { countedCash, countedUpi, stockCounts, closedBy, overrideReason = null }) {
+    requireOnline();
+    const { data, error } = await supabase.rpc('close_day_settlement', {
+      p_settlement_id: settlementId,
+      p_counted_cash: countedCash,
+      p_counted_upi: countedUpi,
+      p_stock_counts: stockCounts.map(c => ({ product_id: c.productId, counted_qty: c.countedQty })),
+      p_closed_by: closedBy,
+      p_override_reason: overrideReason,
+    });
+    if (error) throw new Error(error.message);
+    return data; // { closed, needs_override, cash_variance?, upi_variance?, stock_variance_value }
+  },
+
+  async getRecentSettlements(distributorId, limit = 20) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('day_settlements')
+      .select('*, vehicles(code)').eq('distributor_id', distributorId)
+      .order('settlement_date', { ascending: false }).limit(limit);
+    return (data || []).map(r => ({
+      id: r.id,
+      vehicleCode: r.vehicles?.code || '—',
+      date: r.settlement_date,
+      status: r.status,
+      cashVariance: Number(r.cash_variance || 0),
+      upiVariance: Number(r.upi_variance || 0),
+      stockVarianceValue: Number(r.stock_variance_value || 0),
+    }));
+  },
 };
 
 export default fieldApi;
