@@ -14,6 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Warehouse, Truck, Plus, ArrowLeft, Package, Map, ClipboardList, Scale, Users, MapPin } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { getDistCaps } from '../../lib/features';
 
 const TYPE_LABEL = { main: 'Depot', van: 'Van', quarantine: 'Quarantine Bay' };
 const TYPE_COLOR = { main: '#4F46E5', van: '#059669', quarantine: '#DC2626' };
@@ -25,6 +26,7 @@ export default function FieldSetup() {
   const [warehouses, setWarehouses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const caps = getDistCaps(user);
   const [busy, setBusy] = useState(false);
 
   const [whName, setWhName] = useState('');
@@ -108,6 +110,35 @@ export default function FieldSetup() {
 
   if (loading) {
     return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading field setup…</div>;
+  }
+
+  // Tier gate. Enforced HERE at the module entry point rather than on
+  // each of the eleven screens — this is the only door in, so gating it
+  // gates the whole feature without scattering checks everywhere. The
+  // pricing page advertises field distribution as Pro+, so it has to
+  // actually be Pro+ in the product.
+  if (!caps.fieldDistribution) {
+    return (
+      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+        <button onClick={() => navigate('/distributor')}
+          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+          <ArrowLeft size={15} /> Back to Dashboard
+        </button>
+        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+          <Truck size={30} color="#B45309" style={{ marginBottom: 10 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Field Distribution is a Pro feature</h2>
+          <p style={{ fontSize: 13, color: '#78350F', margin: '0 0 16px', lineHeight: 1.6 }}>
+            Run routes and beats, book presale orders from the field, track your team live,
+            and reconcile stock and cash at day&apos;s end. Van sales with offline billing is
+            available on Enterprise.
+          </p>
+          <button onClick={() => navigate('/distributor')}
+            style={{ background: '#B45309', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+            View Upgrade Options
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

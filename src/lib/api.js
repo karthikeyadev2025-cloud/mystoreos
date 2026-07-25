@@ -869,15 +869,15 @@ export const api = {
     const pricing = await this.getPricing();
     const DIST_PRICES = {
       basic_distributor: pricing.tiers.basic_distributor?.monthly ?? 999,
-      pro_distributor: pricing.tiers.pro_distributor?.monthly ?? 2499,
-      enterprise_distributor: pricing.tiers.enterprise_distributor?.monthly ?? 4999,
+      pro_distributor: pricing.tiers.pro_distributor?.monthly ?? 3499,
+      enterprise_distributor: pricing.tiers.enterprise_distributor?.monthly ?? 7999,
       // Legacy aliases some existing rows may still carry (see
       // 20260714_standardize_distributor_tier_naming.sql) — kept so a
       // not-yet-backfilled row still counts correctly rather than
       // silently vanishing from the total.
       dist_basic: pricing.tiers.basic_distributor?.monthly ?? 999,
-      dist_pro: pricing.tiers.pro_distributor?.monthly ?? 2499,
-      dist_enterprise: pricing.tiers.enterprise_distributor?.monthly ?? 4999,
+      dist_pro: pricing.tiers.pro_distributor?.monthly ?? 3499,
+      dist_enterprise: pricing.tiers.enterprise_distributor?.monthly ?? 7999,
     };
     const SHOP_PRICES = {
       starter: pricing.tiers.starter?.monthly ?? 499,
@@ -3050,8 +3050,8 @@ export const api = {
         service_pro:        { monthly: 699,  quarterly: 1887, yearly: 6710 },
         service_enterprise: { monthly: 1499, quarterly: 4047, yearly: 14390 },
         basic_distributor:      { monthly: 999,  quarterly: 2697,  yearly: 9590 },
-        pro_distributor:        { monthly: 2499, quarterly: 6747,  yearly: 23990 },
-        enterprise_distributor: { monthly: 4999, quarterly: 13497, yearly: 47990 },
+        pro_distributor:        { monthly: 3499, quarterly: 9447,  yearly: 33590 },
+        enterprise_distributor: { monthly: 7999, quarterly: 21597, yearly: 76790 },
       },
       discounts: { quarterly: 10, yearly: 20 },
       offer: { enabled: false, percent: 50, cap: 1000, remaining: 1000 },

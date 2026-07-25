@@ -82,8 +82,8 @@ const SSP_FB = [
 const DDP_FB = [
   { id: 'free_dist', name: 'Free', price: 0, popular: false, features: ['Up to 3 shops', 'Basic order mgmt', 'Credit ledger', 'Free forever'] },
   { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
-  { id: 'pro_dist', name: 'PRO', price: 2499, popular: true, features: ['Up to 50 shops', 'Route planner', 'Bulk order CSV', 'Tally export', 'Analytics'] },
-  { id: 'enterprise_dist', name: 'Enterprise', price: 4999, popular: false, features: ['Unlimited shops', 'Multi-branch', 'API access', 'Staff accounts'] },
+  { id: 'pro_dist', name: 'PRO', price: 3499, popular: true, features: ['Up to 50 shops', 'Field sales & route beats', 'Presale order booking', 'End-of-day settlement', 'Up to 3 vehicles', 'Tally export'] },
+  { id: 'enterprise_dist', name: 'Enterprise', price: 7999, popular: false, features: ['Unlimited shops', 'Van sales — offline billing', 'On-the-spot returns', 'Unlimited vehicles', 'Multi-branch', 'API access'] },
 ];
 
 const GCSS = LANDING_CSS;

@@ -22,6 +22,7 @@ import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
 import vanQueue from '../../lib/vanBillingQueue';
 import { validateImageFile } from '../../lib/fileValidation';
+import { getDistCaps } from '../../lib/features';
 
 const RETURN_REASONS = [
   { v: 'expired', l: 'Expired' },
@@ -34,6 +35,7 @@ const RETURN_REASONS = [
 export default function FieldVanBilling() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const caps = getDistCaps(user);
 
   const [vehicles, setVehicles] = useState([]);
   const [vehicleId, setVehicleId] = useState('');
@@ -291,6 +293,29 @@ export default function FieldVanBilling() {
     input: { width: '100%', padding: '12px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
     label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
   };
+
+  // Van sales specifically is Enterprise — the rest of field
+  // distribution (routes, presale, settlement) is Pro. Offline billing
+  // is the genuinely heavyweight capability, so it's tiered separately
+  // and the pricing page says exactly that.
+  if (!caps.vanSales) {
+    return (
+      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+        <button onClick={() => navigate('/field/setup')}
+          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+          <ArrowLeft size={15} /> Field Setup
+        </button>
+        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+          <Truck size={30} color="#B45309" style={{ marginBottom: 10 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Van Sales is an Enterprise feature</h2>
+          <p style={{ fontSize: 13, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
+            Bill customers directly from the van with zero network connection, take returns
+            on the spot, and sync everything when you're back in range.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
 

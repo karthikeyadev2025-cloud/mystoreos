@@ -11,20 +11,36 @@ export const DIST_PLAN_CAPS = {
   trial: {
     maxShops: -1, routePlanner: true, bulkOrderCSV: true,
     tallyExport: true, multiDevice: 3, advancedAnalytics: true,
+    // Field distribution — trial grants full access, same principle as
+    // every other cap here.
+    fieldDistribution: true, vanSales: true, maxVehicles: -1,
+    eodSettlement: true, fieldReps: true,
   },
   basic_distributor: {
     maxShops: 10, routePlanner: false, bulkOrderCSV: false,
     tallyExport: false, multiDevice: 1, advancedAnalytics: false,
+    // Basic is a catalog-and-orders tier — no field operations at all.
+    fieldDistribution: false, vanSales: false, maxVehicles: 0,
+    eodSettlement: false, fieldReps: false,
   },
   pro_distributor: {
     maxShops: 50, routePlanner: true, bulkOrderCSV: true,
     tallyExport: true, multiDevice: 3, advancedAnalytics: true,
+    // Pro gets presale field operations (routes, visits, order booking)
+    // and a limited fleet — but not offline van billing, which is the
+    // genuinely heavyweight capability.
+    fieldDistribution: true, vanSales: false, maxVehicles: 3,
+    eodSettlement: true, fieldReps: true,
   },
   enterprise_distributor: {
     maxShops: -1, routePlanner: true, bulkOrderCSV: true,
     tallyExport: true, multiDevice: 10, advancedAnalytics: true,
     multiBranch: true, apiAccess: true, staffAccounts: true,
     customBranding: true,
+    // Full field distribution including offline van sales and unlimited
+    // fleet — this is the tier the whole van-sales build targets.
+    fieldDistribution: true, vanSales: true, maxVehicles: -1,
+    eodSettlement: true, fieldReps: true,
   },
 };
 
@@ -33,9 +49,13 @@ export const DIST_FEATURE_PLAN_LABEL = {
   bulkOrderCSV: 'Pro Distributor',
   tallyExport: 'Pro Distributor',
   advancedAnalytics: 'Pro Distributor',
+  fieldDistribution: 'Pro Distributor',
+  eodSettlement: 'Pro Distributor',
+  fieldReps: 'Pro Distributor',
   multiBranch: 'Enterprise Distributor',
   apiAccess: 'Enterprise Distributor',
   staffAccounts: 'Enterprise Distributor',
+  vanSales: 'Enterprise Distributor',
 };
 
 export function getDistCaps(user) {
