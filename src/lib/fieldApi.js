@@ -688,6 +688,37 @@ export const fieldApi = {
       };
     });
   },
+
+  // ─── SHOPKEEPER SELF-SERVICE ──────────────────────────────────────
+  // A shop that bought something spot from a van, or had a return
+  // processed, had genuinely zero way to see either in their own
+  // records — the existing credit/khata view only ever knew about
+  // stock_orders, never van_invoices or van_returns at all. This is
+  // the actual "shopkeeper digital ledger" requirement, not a
+  // decorative addition.
+  async getShopVanHistory(shopId) {
+    if (!isSupabaseConfigured || !shopId) return { purchases: [], returns: [] };
+    const [{ data: invoices }, { data: returns }] = await Promise.all([
+      supabase.from('van_invoices')
+        .select('*, van_invoice_lines(qty_base, rate, distributor_products(name)), users!van_invoices_distributor_id_fkey(name)')
+        .eq('shop_id', shopId).order('issued_at', { ascending: false }).limit(50),
+      supabase.from('van_returns')
+        .select('*, van_return_lines(qty_base, rate, distributor_products(name)), users!van_returns_distributor_id_fkey(name)')
+        .eq('shop_id', shopId).order('issued_at', { ascending: false }).limit(50),
+    ]);
+    return {
+      purchases: (invoices || []).map(i => ({
+        id: i.id, ref: i.invoice_ref, distributorName: i.users?.name || 'Distributor',
+        total: Number(i.total), paymentMode: i.payment_mode, issuedAt: i.issued_at,
+        lines: (i.van_invoice_lines || []).map(l => ({ name: l.distributor_products?.name || 'Item', qty: Number(l.qty_base), rate: Number(l.rate) })),
+      })),
+      returns: (returns || []).map(r => ({
+        id: r.id, ref: r.credit_ref, distributorName: r.users?.name || 'Distributor',
+        total: Number(r.total_credit), reason: r.reason, issuedAt: r.issued_at,
+        lines: (r.van_return_lines || []).map(l => ({ name: l.distributor_products?.name || 'Item', qty: Number(l.qty_base), rate: Number(l.rate) })),
+      })),
+    };
+  },
 };
 
 export default fieldApi;
