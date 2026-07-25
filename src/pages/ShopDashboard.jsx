@@ -7520,6 +7520,10 @@ const ShopDashboard = () => {
               <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '14px' }}>
                 Link with your distributors so they can supply you. Share your shop code, or add a distributor using their code.
               </p>
+              <button onClick={() => navigate('/shop/van-purchases')}
+                style={{ background: '#0F172A', border: '1px solid #334155', color: '#93C5FD', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: '14px' }}>
+                🧾 View purchases &amp; returns from distributor vans
+              </button>
 
               {/* Own shop code */}
               {user?.publicCode && (

@@ -35,6 +35,7 @@ const FieldVanBilling = lazy(() => import('./pages/field/FieldVanBilling'));
 const FieldSettlement = lazy(() => import('./pages/field/FieldSettlement'));
 const FieldReps = lazy(() => import('./pages/field/FieldReps'));
 const FieldActivity = lazy(() => import('./pages/field/FieldActivity'));
+const ShopVanHistory = lazy(() => import('./pages/field/ShopVanHistory'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
@@ -309,6 +310,16 @@ function App() {
                   <PrivateRoute role={['shop', 'staff']}>
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><ShopDashboard key="main" /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                {/* Field distribution's shopkeeper self-service — lives
+                    in the field/ module tree since it reads field-
+                    specific tables, but is reachable from a shop login. */}
+                <Route path="/shop/van-purchases" element={
+                  <PrivateRoute role={['shop', 'staff']}>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><ShopVanHistory /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />
