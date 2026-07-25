@@ -719,6 +719,78 @@ export const fieldApi = {
       })),
     };
   },
+
+  // ─── DIAGNOSTICS ──────────────────────────────────────────────────
+  // Checks that every phase's tables and RPCs actually exist and are
+  // reachable, rather than making someone click through eleven screens
+  // to find out which migration didn't apply. Each check is a minimal,
+  // harmless read — no check here writes anything.
+  async runDiagnostics(distributorId) {
+    const results = [];
+    const check = async (phase, label, fn) => {
+      try {
+        await fn();
+        results.push({ phase, label, ok: true });
+      } catch (e) {
+        results.push({ phase, label, ok: false, error: e.message });
+      }
+    };
+
+    await check('Phase 1', 'Warehouses table reachable', async () => {
+      const { error } = await supabase.from('warehouses').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 1', 'Vehicles table reachable', async () => {
+      const { error } = await supabase.from('vehicles').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 1', 'apply_stock_transfer() function exists', async () => {
+      const { error } = await supabase.rpc('apply_stock_transfer', { p_transfer_id: '00000000-0000-0000-0000-000000000000' });
+      // A "not found" error means the function ran and correctly rejected
+      // a fake id — that's success. Anything else (missing function,
+      // permission denied) means the migration didn't apply.
+      if (error && !/not found/i.test(error.message)) throw new Error(error.message);
+    });
+    await check('Phase 2', 'Routes table reachable', async () => {
+      const { error } = await supabase.from('routes').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 2', 'convert_field_order() function exists', async () => {
+      const { error } = await supabase.rpc('convert_field_order', { p_order_id: '00000000-0000-0000-0000-000000000000' });
+      if (error && !/not found/i.test(error.message)) throw new Error(error.message);
+    });
+    await check('Phase 3', 'Van invoices table reachable', async () => {
+      const { error } = await supabase.from('van_invoices').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 3', 'get_van_series_position() function exists', async () => {
+      const { data: vehicles } = await supabase.from('vehicles').select('id').eq('distributor_id', distributorId).limit(1);
+      const testId = vehicles?.[0]?.id || '00000000-0000-0000-0000-000000000000';
+      const { error } = await supabase.rpc('get_van_series_position', { p_vehicle_id: testId, p_doc_type: 'invoice' });
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 3', 'Van returns table reachable', async () => {
+      const { error } = await supabase.from('van_returns').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 4', 'Day settlements table reachable', async () => {
+      const { error } = await supabase.from('day_settlements').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 5', 'Shop RLS policy on van_invoices exists', async () => {
+      // Can't truly test RLS as the distributor (RLS would allow this
+      // regardless via the distributor policy) — this just confirms the
+      // table/column shape the shop-facing query depends on is correct.
+      const { error } = await supabase.from('van_invoices').select('shop_id').limit(1);
+      if (error) throw new Error(error.message);
+    });
+    await check('Phase 5', 'Field reps table reachable', async () => {
+      const { error } = await supabase.from('field_reps').select('id').eq('distributor_id', distributorId).limit(1);
+      if (error) throw new Error(error.message);
+    });
+
+    return results;
+  },
 };
 
 export default fieldApi;

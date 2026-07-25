@@ -124,6 +124,11 @@ export default function FieldSetup() {
         Depots hold your main stock. Each van is its own moving sub-warehouse with an independent stock ledger and invoice series.
       </p>
 
+      <button onClick={() => navigate('/field/diagnostics')}
+        style={{ background: '#FFFBEB', color: '#92400E', border: '1px solid #FDE68A', padding: '9px 16px', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', marginBottom: 16 }}>
+        🩺 Run Field Diagnostics
+      </button>
+
       {vehicles.length > 0 && (
         <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/field/loadout')}

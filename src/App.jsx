@@ -36,6 +36,7 @@ const FieldSettlement = lazy(() => import('./pages/field/FieldSettlement'));
 const FieldReps = lazy(() => import('./pages/field/FieldReps'));
 const FieldActivity = lazy(() => import('./pages/field/FieldActivity'));
 const ShopVanHistory = lazy(() => import('./pages/field/ShopVanHistory'));
+const FieldDiagnostics = lazy(() => import('./pages/field/FieldDiagnostics'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
 const AlternativeComparison = lazy(() => import('./pages/AlternativeComparison'));
@@ -340,6 +341,13 @@ function App() {
                 {/* Field distribution. A separate top-level path rather
                     than /distributor/field, because /distributor/* is a
                     wildcard that would otherwise swallow it. */}
+                <Route path="/field/diagnostics" element={
+                  <PrivateRoute role="distributor">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><FieldDiagnostics /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
                 <Route path="/field/setup" element={
                   <PrivateRoute role="distributor">
                     <Suspense fallback={<DashboardSkeleton />}>
