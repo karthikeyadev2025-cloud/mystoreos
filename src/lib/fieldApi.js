@@ -576,6 +576,70 @@ export const fieldApi = {
       stockVarianceValue: Number(r.stock_variance_value || 0),
     }));
   },
+
+  // ─── FIELD REPS ───────────────────────────────────────────────────
+  // The field_reps table (Phase 1) had zero actual usage until now —
+  // every screen was just using whoever happened to be logged in as
+  // "the rep," with no real assignment to a depot or vehicle, and no
+  // way to see which staff member is even doing field work at all.
+  async getFieldReps(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('field_reps')
+      .select('*, users!field_reps_user_id_fkey(name, phone), warehouses(name), vehicles(code)')
+      .eq('distributor_id', distributorId).eq('active', true);
+    return (data || []).map(r => ({
+      id: r.id,
+      userId: r.user_id,
+      name: r.users?.name || 'Unknown',
+      phone: r.users?.phone || '',
+      homeWarehouseId: r.home_warehouse_id,
+      homeWarehouseName: r.warehouses?.name || null,
+      assignedVehicleId: r.assigned_vehicle_id,
+      assignedVehicleCode: r.vehicles?.code || null,
+      fieldRole: r.field_role,
+    }));
+  },
+
+  // Staff not yet made into a field rep — the actual pool a distributor
+  // picks from, since a rep must already be a staff account (matching
+  // the earlier decision: reps are distributor staff, not a separate
+  // account type).
+  async getUnassignedStaff(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data: staff } = await supabase.from('users')
+      .select('id, name, phone').eq('staff_of', distributorId).eq('status', 'active');
+    const { data: reps } = await supabase.from('field_reps')
+      .select('user_id').eq('distributor_id', distributorId).eq('active', true);
+    const repIds = new Set((reps || []).map(r => r.user_id));
+    return (staff || []).filter(s => !repIds.has(s.id));
+  },
+
+  async assignFieldRep(distributorId, { userId, homeWarehouseId = null, assignedVehicleId = null, fieldRole = 'route_sales_rep' }) {
+    requireOnline();
+    const { error } = await supabase.from('field_reps').upsert({
+      distributor_id: distributorId, user_id: userId,
+      home_warehouse_id: homeWarehouseId, assigned_vehicle_id: assignedVehicleId,
+      field_role: fieldRole, active: true,
+    }, { onConflict: 'user_id' });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async updateFieldRepAssignment(repId, { homeWarehouseId, assignedVehicleId }) {
+    requireOnline();
+    const { error } = await supabase.from('field_reps')
+      .update({ home_warehouse_id: homeWarehouseId, assigned_vehicle_id: assignedVehicleId })
+      .eq('id', repId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  async removeFieldRep(repId) {
+    requireOnline();
+    const { error } = await supabase.from('field_reps').update({ active: false }).eq('id', repId);
+    if (error) throw new Error(error.message);
+    return true;
+  },
 };
 
 export default fieldApi;
