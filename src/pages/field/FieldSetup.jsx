@@ -11,7 +11,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { Warehouse, Truck, Plus, ArrowLeft, Package, Map, ClipboardList, Scale, Users } from 'lucide-react';
+import { Warehouse, Truck, Plus, ArrowLeft, Package, Map, ClipboardList, Scale, Users, MapPin } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
 
@@ -133,6 +133,10 @@ export default function FieldSetup() {
           <button onClick={() => navigate('/field/run')}
             style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={15} /> Today's Run
+          </button>
+          <button onClick={() => navigate('/field/activity')}
+            style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <MapPin size={15} /> Field Activity
           </button>
           <button onClick={() => navigate('/field/reps')}
             style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>

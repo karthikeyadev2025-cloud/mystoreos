@@ -640,6 +640,54 @@ export const fieldApi = {
     if (error) throw new Error(error.message);
     return true;
   },
+
+  // ─── LIVE FIELD ACTIVITY ──────────────────────────────────────────
+  // "Where is everyone right now" — deliberately built from the visit
+  // check-in/check-out data already captured, not continuous GPS
+  // polling. Continuous tracking drains a rep's phone all day for
+  // precision nobody asked for; knowing which shop someone last
+  // checked into (and when) is what a distributor actually needs to
+  // know where their team is.
+  async getFieldActivityToday(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const today = new Date().toISOString().slice(0, 10);
+
+    const [{ data: reps }, { data: visits }] = await Promise.all([
+      supabase.from('field_reps')
+        .select('user_id, field_role, users!field_reps_user_id_fkey(name, phone), vehicles(code)')
+        .eq('distributor_id', distributorId).eq('active', true),
+      supabase.from('route_visits')
+        .select('*, users!route_visits_shop_id_fkey(name)')
+        .eq('distributor_id', distributorId).eq('visit_date', today)
+        .order('checked_in_at', { ascending: false, nullsFirst: false }),
+    ]);
+
+    return (reps || []).map(rep => {
+      const repVisits = (visits || []).filter(v => v.rep_id === rep.user_id);
+      const latest = repVisits.find(v => v.checked_in_at);
+      const visited = repVisits.filter(v => v.status === 'visited').length;
+      const skipped = repVisits.filter(v => v.status === 'skipped').length;
+      // Currently at a stop = checked in but not yet checked out.
+      const currentlyAt = repVisits.find(v => v.checked_in_at && !v.checked_out_at);
+
+      return {
+        userId: rep.user_id,
+        name: rep.users?.name || 'Unknown',
+        phone: rep.users?.phone || '',
+        role: rep.field_role,
+        vehicleCode: rep.vehicles?.code || null,
+        visitedCount: visited,
+        skippedCount: skipped,
+        totalToday: repVisits.length,
+        currentShopName: currentlyAt?.users?.name || null,
+        currentSince: currentlyAt?.checked_in_at || null,
+        lastActivityShopName: latest?.users?.name || null,
+        lastActivityAt: latest?.checked_in_at || null,
+        lastLatitude: latest?.latitude ?? null,
+        lastLongitude: latest?.longitude ?? null,
+      };
+    });
+  },
 };
 
 export default fieldApi;
