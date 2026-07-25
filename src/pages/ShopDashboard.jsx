@@ -3089,6 +3089,23 @@ const ShopDashboard = () => {
     }
   };
 
+  // Adds the delivered goods into this shop's own inventory. Matches
+  // the shop's existing products by name and only creates what's
+  // genuinely new, so a repeat order tops up the same product rather
+  // than creating a duplicate.
+  const handleReceiveStockOrder = async (orderId) => {
+    try {
+      const r = await mustSucceed(() => api.receiveStockOrder(orderId, targetShopId), 'Add to stock');
+      const parts = [];
+      if (r?.updated) parts.push(`${r.updated} product${r.updated === 1 ? '' : 's'} topped up`);
+      if (r?.created) parts.push(`${r.created} new product${r.created === 1 ? '' : 's'} added`);
+      toast.success(parts.length ? parts.join(' · ') : 'Stock added to inventory');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not add to stock');
+    }
+  };
+
   const handleOneClickRestock = async (product) => {
     if (!wholesaleCatalog || wholesaleCatalog.length === 0) {
       return toast.error("Wholesale distributor catalog is empty or offline. Please add distributor items first!");
@@ -6864,6 +6881,23 @@ const ShopDashboard = () => {
                             style={{ background: '#10B981', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
                             ✅ Confirm
                           </button>
+                        )}
+                        {/* Delivered stock does NOT auto-add to inventory —
+                            distributor and shop catalogs are separate, so
+                            this is an explicit step the shop takes when the
+                            goods physically arrive. Without this button the
+                            shop had to hand-edit every product after every
+                            delivery. */}
+                        {o.status === 'delivered' && !o.receivedAt && (
+                          <button onClick={() => handleReceiveStockOrder(o.id)}
+                            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+                            📦 Add to Stock
+                          </button>
+                        )}
+                        {o.status === 'delivered' && o.receivedAt && (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#059669', flexShrink: 0 }}>
+                            ✅ In stock
+                          </span>
                         )}
                       </div>
                     </div>

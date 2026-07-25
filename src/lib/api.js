@@ -3675,6 +3675,21 @@ export const api = {
     return order;
   },
 
+  // Adds a delivered order's goods into the shop's own inventory.
+  // Deliberately a separate, explicit step rather than automatic on
+  // delivery: distributor products and shop products are different
+  // catalogs, so silently auto-creating rows would fill a shop's
+  // catalog with entries they never agreed to. Idempotent server-side —
+  // receiving twice is rejected rather than doubling stock.
+  async receiveStockOrder(orderId, shopId) {
+    if (!isSupabaseConfigured) throw new Error('Requires an online connection.');
+    const { data, error } = await supabase.rpc('receive_stock_order', {
+      p_order_id: orderId, p_shop_id: shopId,
+    });
+    if (error) throw new Error(error.message);
+    return data; // { updated, created }
+  },
+
   async getDistributorOrders(distributorId) {
     if (isSupabaseConfigured) {
       let query = supabase.from('stock_orders').select('*').order('created_at', { ascending: false });
@@ -3687,6 +3702,7 @@ export const api = {
         expectedDispatchDate: row.expected_dispatch_date || null,
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
+        receivedAt: row.received_at || null,
       }));
     }
     const db = getDB();
@@ -3704,6 +3720,7 @@ export const api = {
         expectedDispatchDate: row.expected_dispatch_date || null,
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
+        receivedAt: row.received_at || null,
       }));
     }
     const db = getDB();
