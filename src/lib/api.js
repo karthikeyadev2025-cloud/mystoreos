@@ -191,8 +191,22 @@ async function withOwnerRole(profile) {
   if (!profile || profile.role !== 'staff' || !profile.staff_of) return profile;
   try {
     const { data: owner } = await supabase
-      .from('users').select('role').eq('id', profile.staff_of).maybeSingle();
-    return { ...profile, ownerRole: owner?.role || 'shop' };
+      .from('users')
+      .select('role, subscription, distributor_plan_tier, subscription_tier')
+      .eq('id', profile.staff_of).maybeSingle();
+    return {
+      ...profile,
+      ownerRole: owner?.role || 'shop',
+      // A staff member's OWN record has no meaningful plan — it
+      // defaults to the lowest tier. Without inheriting the employer's
+      // plan, a rep working for an Enterprise distributor would be
+      // capped at Basic and locked out of the very screens their
+      // employer pays for. Kept as separate owner* fields so nothing
+      // reading the staff member's own subscription is affected.
+      ownerSubscription: owner?.subscription || null,
+      ownerDistributorPlanTier: owner?.distributor_plan_tier || null,
+      ownerSubscriptionTier: owner?.subscription_tier || null,
+    };
   } catch {
     // Never block a login over this — default to shop, which is the
     // long-standing behaviour and correct for the large majority.

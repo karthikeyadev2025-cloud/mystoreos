@@ -17,9 +17,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Truck, ArrowLeft, Plus, X, Check, Clock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 export default function FieldLoadOut() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [warehouses, setWarehouses] = useState([]);
@@ -38,14 +41,14 @@ export default function FieldLoadOut() {
   const [pickInBoxes, setPickInBoxes] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
         const [w, p, t] = await Promise.all([
-          fieldApi.getWarehouses(user.id),
-          fieldApi.getTransferableProducts(user.id),
-          fieldApi.getTransfers(user.id, { limit: 20 }),
+          fieldApi.getWarehouses(distId),
+          fieldApi.getTransferableProducts(distId),
+          fieldApi.getTransfers(distId, { limit: 20 }),
         ]);
         if (cancelled) return;
         setWarehouses(w); setProducts(p); setTransfers(t);
@@ -56,7 +59,7 @@ export default function FieldLoadOut() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const depots = warehouses.filter(w => w.type === 'main');
   const vans = warehouses.filter(w => w.type === 'van');
@@ -97,7 +100,7 @@ export default function FieldLoadOut() {
   const submitLoad = async () => {
     setBusy(true);
     try {
-      await fieldApi.createTransfer(user.id, {
+      await fieldApi.createTransfer(distId, {
         fromWarehouseId: fromId, toWarehouseId: toId, kind: 'load_out',
         lines: lines.map(l => ({ productId: l.productId, qtyBase: l.qtyBase })),
       });

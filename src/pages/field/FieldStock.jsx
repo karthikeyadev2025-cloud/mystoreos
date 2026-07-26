@@ -20,6 +20,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, Warehouse, Truck, AlertTriangle, Package } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 const TYPE_META = {
   main:       { label: 'Depot',          color: '#4F46E5', Icon: Warehouse },
@@ -40,16 +41,18 @@ function daysUntil(dateStr) {
 
 export default function FieldStock() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const data = await fieldApi.getAllStock(user.id);
+        const data = await fieldApi.getAllStock(distId);
         if (!cancelled) setLocations(data);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load stock');
@@ -58,7 +61,7 @@ export default function FieldStock() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [distId]);
 
   const describeQty = (l) => {
     if (l.packSize && l.qtyBase % l.packSize === 0) {

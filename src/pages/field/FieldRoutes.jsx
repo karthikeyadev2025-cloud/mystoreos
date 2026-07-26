@@ -21,6 +21,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, Plus, X, Route as RouteIcon, Zap, MapPin, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 import { sequenceRoute } from '../../lib/routeSequencer';
 
 const DAYS = [
@@ -30,6 +31,8 @@ const DAYS = [
 
 export default function FieldRoutes() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [routes, setRoutes] = useState([]);
@@ -50,14 +53,14 @@ export default function FieldRoutes() {
   const [shopFilter, setShopFilter] = useState('');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
         const [r, w, s] = await Promise.all([
-          fieldApi.getRoutes(user.id),
-          fieldApi.getWarehouses(user.id),
-          fieldApi.getRoutableShops(user.id),
+          fieldApi.getRoutes(distId),
+          fieldApi.getWarehouses(distId),
+          fieldApi.getRoutableShops(distId),
         ]);
         if (cancelled) return;
         setRoutes(r); setWarehouses(w.filter(x => x.type === 'main')); setShops(s);
@@ -68,7 +71,7 @@ export default function FieldRoutes() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const openStops = async (route) => {
     setOpenRoute(route);
@@ -84,7 +87,7 @@ export default function FieldRoutes() {
     if (!newName.trim()) return toast.error('Name the route');
     setBusy(true);
     try {
-      await fieldApi.createRoute(user.id, { name: newName, warehouseId: newWh || null, weekdays: newDays });
+      await fieldApi.createRoute(distId, { name: newName, warehouseId: newWh || null, weekdays: newDays });
       toast.success(`Route "${newName}" created`);
       setNewName(''); setNewDays([]);
       reload();

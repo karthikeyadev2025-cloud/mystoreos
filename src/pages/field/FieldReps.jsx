@@ -18,6 +18,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, Users, Warehouse, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 const ROLE_LABEL = {
   route_sales_rep: 'Route Sales Rep',
@@ -28,6 +29,8 @@ const ROLE_LABEL = {
 
 export default function FieldReps() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [reps, setReps] = useState([]);
@@ -44,15 +47,15 @@ export default function FieldReps() {
   const [pickVehicle, setPickVehicle] = useState('');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
         const [r, u, w, v] = await Promise.all([
-          fieldApi.getFieldReps(user.id),
-          fieldApi.getUnassignedStaff(user.id),
-          fieldApi.getWarehouses(user.id),
-          fieldApi.getVehicles(user.id),
+          fieldApi.getFieldReps(distId),
+          fieldApi.getUnassignedStaff(distId),
+          fieldApi.getWarehouses(distId),
+          fieldApi.getVehicles(distId),
         ]);
         if (cancelled) return;
         setReps(r); setUnassigned(u); setWarehouses(w); setVehicles(v);
@@ -63,13 +66,13 @@ export default function FieldReps() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const assign = async () => {
     if (!pickStaff) return toast.error('Pick a staff member');
     setBusy(true);
     try {
-      await fieldApi.assignFieldRep(user.id, {
+      await fieldApi.assignFieldRep(distId, {
         userId: pickStaff, fieldRole: pickRole,
         homeWarehouseId: pickWarehouse || null, assignedVehicleId: pickVehicle || null,
       });

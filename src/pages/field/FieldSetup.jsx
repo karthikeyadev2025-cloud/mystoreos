@@ -14,6 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Warehouse, Truck, Plus, ArrowLeft, Package, Map, ClipboardList, Scale, Users, MapPin } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 import { getDistCaps } from '../../lib/features';
 
 const TYPE_LABEL = { main: 'Depot', van: 'Van', quarantine: 'Quarantine Bay' };
@@ -21,6 +22,8 @@ const TYPE_COLOR = { main: '#4F46E5', van: '#059669', quarantine: '#DC2626' };
 
 export default function FieldSetup() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [warehouses, setWarehouses] = useState([]);
@@ -45,14 +48,14 @@ export default function FieldSetup() {
   const load = () => setReloadKey(k => k + 1);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
 
     (async () => {
       try {
         const [w, v] = await Promise.all([
-          fieldApi.getWarehouses(user.id),
-          fieldApi.getVehicles(user.id),
+          fieldApi.getWarehouses(distId),
+          fieldApi.getVehicles(distId),
         ]);
         if (cancelled) return;
         setWarehouses(w);
@@ -65,13 +68,13 @@ export default function FieldSetup() {
     })();
 
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const addWarehouse = async () => {
     if (!whName.trim()) return toast.error('Enter a name');
     setBusy(true);
     try {
-      await fieldApi.createWarehouse(user.id, { name: whName, type: whType, address: whAddress });
+      await fieldApi.createWarehouse(distId, { name: whName, type: whType, address: whAddress });
       toast.success(`${TYPE_LABEL[whType]} "${whName}" created`);
       setWhName(''); setWhAddress('');
       load();
@@ -84,7 +87,7 @@ export default function FieldSetup() {
     if (!vCode.trim()) return toast.error('Enter a vehicle code (e.g. V04)');
     setBusy(true);
     try {
-      await fieldApi.createVehicle(user.id, {
+      await fieldApi.createVehicle(distId, {
         code: vCode, name: vName, registrationNo: vReg,
         parentWarehouseId: vParent || null,
       });

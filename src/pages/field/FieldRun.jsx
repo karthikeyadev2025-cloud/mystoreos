@@ -21,11 +21,18 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, MapPin, Check, SkipForward, Plus, X, Phone, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf, actorIdOf } from '../../lib/fieldIdentity';
 
 const SKIP_REASONS = ['Shop closed', 'Owner not available', 'No requirement', 'Payment pending', 'Other'];
 
 export default function FieldRun() {
   const { user } = useAuth();
+  // Two different questions: whose business (distId) vs who is
+  // doing the work (actorId). For an owner they're the same id; for a
+  // rep they are not, and conflating them breaks both data scoping and
+  // rep attribution.
+  const distId = distributorIdOf(user);
+  const actorId = actorIdOf(user);
   const navigate = useNavigate();
 
   const [routes, setRoutes] = useState([]);
@@ -43,13 +50,13 @@ export default function FieldRun() {
   const [skipFor, setSkipFor] = useState(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
         const [r, p] = await Promise.all([
-          fieldApi.getRoutes(user.id),
-          fieldApi.getTransferableProducts(user.id),
+          fieldApi.getRoutes(distId),
+          fieldApi.getTransferableProducts(distId),
         ]);
         if (cancelled) return;
         setRoutes(r); setProducts(p);
@@ -66,7 +73,7 @@ export default function FieldRun() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [distId]);
 
   // Bumped after any action that changes the run, so the effect below
   // is the single place that fetches it.
@@ -74,18 +81,18 @@ export default function FieldRun() {
   const refreshRun = () => setRunKey(k => k + 1);
 
   useEffect(() => {
-    if (!routeId || !user?.id) return;
+    if (!routeId || !distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const data = await fieldApi.getTodayRun(user.id, routeId);
+        const data = await fieldApi.getTodayRun(distId, routeId);
         if (!cancelled) setRun(data);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load run');
       }
     })();
     return () => { cancelled = true; };
-  }, [routeId, user?.id, runKey]);
+  }, [routeId, distId, runKey]);
 
   // GPS is best-effort: a rep in a metal-roofed shop may get no fix,
   // and blocking check-in on that would make the app unusable exactly
@@ -104,7 +111,7 @@ export default function FieldRun() {
     setBusy(true);
     try {
       const pos = await getPosition();
-      await fieldApi.checkIn(user.id, { routeId, shopId: stop.id, ...pos });
+      await fieldApi.checkIn(distId, { routeId, shopId: stop.id, repId: actorId, ...pos });
       toast.success(`Checked in at ${stop.name}`);
       setActiveShop(stop.id);
       setCart([]);
@@ -116,7 +123,7 @@ export default function FieldRun() {
   const doSkip = async (stop, reason) => {
     setBusy(true);
     try {
-      await fieldApi.skipVisit(user.id, { routeId, shopId: stop.id, reason });
+      await fieldApi.skipVisit(distId, { routeId, shopId: stop.id, repId: actorId, reason });
       toast.info(`${stop.name} skipped — ${reason}`);
       setSkipFor(null);
       refreshRun();
@@ -143,8 +150,8 @@ export default function FieldRun() {
     setBusy(true);
     try {
       const visit = run.find(s => s.id === stop.id);
-      const { total } = await fieldApi.bookFieldOrder(user.id, {
-        shopId: stop.id, routeId, visitId: visit?.visitId || null,
+      const { total } = await fieldApi.bookFieldOrder(distId, {
+        shopId: stop.id, routeId, repId: actorId, visitId: visit?.visitId || null,
         lines: cart.map(l => ({ productId: l.productId, qtyBase: l.qtyBase, rate: l.rate })),
       });
       if (visit?.visitId) await fieldApi.checkOut(visit.visitId);

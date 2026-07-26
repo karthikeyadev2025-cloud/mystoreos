@@ -61,6 +61,16 @@ export const DIST_FEATURE_PLAN_LABEL = {
 export function getDistCaps(user) {
   if (!user) return DIST_PLAN_CAPS.basic_distributor;
   if (user.role === 'admin') return DIST_PLAN_CAPS.enterprise_distributor;
+  // A staff member's own record carries no real plan — it sits at the
+  // database default. Field reps must inherit their employer's plan,
+  // otherwise a rep working for an Enterprise distributor gets capped
+  // at Basic and locked out of the screens their employer pays for.
+  // Only applies to staff; the owner path below is untouched.
+  if (user.role === 'staff' && user.ownerRole === 'distributor') {
+    if (user.ownerSubscription === 'trial') return DIST_PLAN_CAPS.trial;
+    const ownerTier = user.ownerDistributorPlanTier || 'basic_distributor';
+    return DIST_PLAN_CAPS[ownerTier] ?? DIST_PLAN_CAPS.basic_distributor;
+  }
   // Same fix as getCaps() below: an ACTIVE trial always grants full
   // access, regardless of whatever distributorPlanTier happens to be
   // set to. auth-register/api.js set distributorPlanTier to its

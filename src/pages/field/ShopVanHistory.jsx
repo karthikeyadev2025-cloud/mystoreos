@@ -22,16 +22,19 @@ import fieldApi from '../../lib/fieldApi';
 export default function ShopVanHistory() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  // A shop's own staff must see the SHOP's history, not their own
+  // (empty) record — same resolution ShopDashboard uses everywhere.
+  const shopId = user?.role === 'staff' ? user.staff_of : user?.id;
   const [data, setData] = useState({ purchases: [], returns: [] });
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('purchases');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!shopId) return;
     let cancelled = false;
     (async () => {
       try {
-        const result = await fieldApi.getShopVanHistory(user.id);
+        const result = await fieldApi.getShopVanHistory(shopId);
         if (!cancelled) setData(result);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load your van purchase history');
@@ -40,7 +43,7 @@ export default function ShopVanHistory() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [shopId]);
 
   const S = {
     card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16, marginBottom: 10 },

@@ -20,6 +20,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, Truck, Plus, X, Wifi, WifiOff, RefreshCw, CheckCircle2, Receipt, RotateCcw, Camera } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf, actorIdOf } from '../../lib/fieldIdentity';
 import vanQueue from '../../lib/vanBillingQueue';
 import { validateImageFile } from '../../lib/fileValidation';
 import { getDistCaps } from '../../lib/features';
@@ -34,6 +35,10 @@ const RETURN_REASONS = [
 
 export default function FieldVanBilling() {
   const { user } = useAuth();
+  // Business context vs who is doing the selling. An invoice must
+  // belong to the DISTRIBUTOR but record the REP who raised it.
+  const distId = distributorIdOf(user);
+  const actorId = actorIdOf(user);
   const navigate = useNavigate();
   const caps = getDistCaps(user);
 
@@ -103,11 +108,11 @@ export default function FieldVanBilling() {
   }, []);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const [v, s] = await Promise.all([fieldApi.getVehicles(user.id), fieldApi.getRoutableShops(user.id)]);
+        const [v, s] = await Promise.all([fieldApi.getVehicles(distId), fieldApi.getRoutableShops(distId)]);
         if (cancelled) return;
         setVehicles(v); setShops(s);
         if (v.length === 1) setVehicleId(v[0].id);
@@ -118,7 +123,7 @@ export default function FieldVanBilling() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [distId]);
 
   const refreshPendingCount = useCallback(() => {
     if (!vehicleId) return;
@@ -208,8 +213,8 @@ export default function FieldVanBilling() {
     try {
       const { invoiceNo, invoiceRef } = vanQueue.allocateInvoiceNumber(vehicleId);
       const invoice = {
-        distributorId: user.id,
-        shopId, repId: user.id,
+        distributorId: distId,
+        shopId, repId: actorId,
         invoiceNo, invoiceRef,
         issuedAt: new Date().toISOString(),
         total, paymentMode, amountPaid: total,
@@ -269,8 +274,8 @@ export default function FieldVanBilling() {
     try {
       const { creditNo, creditRef } = vanQueue.allocateCreditNoteNumber(vehicleId);
       const ret = {
-        distributorId: user.id,
-        shopId, repId: user.id,
+        distributorId: distId,
+        shopId, repId: actorId,
         creditNo, creditRef,
         issuedAt: new Date().toISOString(),
         reason: returnReason,

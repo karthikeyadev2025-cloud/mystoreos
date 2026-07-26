@@ -18,9 +18,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, ClipboardList, Send, CheckCircle2, PackageCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 export default function FieldOrders() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
@@ -30,11 +33,11 @@ export default function FieldOrders() {
   const [filter, setFilter] = useState('booked');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const data = await fieldApi.getFieldOrders(user.id, { limit: 100 });
+        const data = await fieldApi.getFieldOrders(distId, { limit: 100 });
         if (!cancelled) setOrders(data);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load orders');
@@ -43,7 +46,7 @@ export default function FieldOrders() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const convert = async (o) => {
     setBusy(o.id);

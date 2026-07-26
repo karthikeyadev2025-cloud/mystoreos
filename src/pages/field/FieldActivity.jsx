@@ -15,6 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, RefreshCw, MapPin, CheckCircle2, SkipForward, Clock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 function timeAgo(iso) {
   if (!iso) return '';
@@ -27,6 +28,8 @@ function timeAgo(iso) {
 
 export default function FieldActivity() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,11 +37,11 @@ export default function FieldActivity() {
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const data = await fieldApi.getFieldActivityToday(user.id);
+        const data = await fieldApi.getFieldActivityToday(distId);
         if (!cancelled) setActivity(data);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load activity');
@@ -47,7 +50,7 @@ export default function FieldActivity() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id, reloadKey]);
+  }, [distId, reloadKey]);
 
   const refresh = () => { setRefreshing(true); setReloadKey(k => k + 1); };
 

@@ -18,9 +18,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ArrowLeft, Scale, AlertTriangle, CheckCircle2, Lock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 export default function FieldSettlement() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
 
   const [vehicles, setVehicles] = useState([]);
@@ -37,11 +40,11 @@ export default function FieldSettlement() {
   const [overrideReason, setOverrideReason] = useState('');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!distId) return;
     let cancelled = false;
     (async () => {
       try {
-        const v = await fieldApi.getVehicles(user.id);
+        const v = await fieldApi.getVehicles(distId);
         if (cancelled) return;
         setVehicles(v);
         if (v.length === 1) setVehicleId(v[0].id);
@@ -52,12 +55,12 @@ export default function FieldSettlement() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [distId]);
 
   const openToday = async () => {
     setOpening(true);
     try {
-      const id = await fieldApi.openSettlement(user.id, vehicleId);
+      const id = await fieldApi.openSettlement(distId, vehicleId);
       const s = await fieldApi.getSettlement(id);
       setSettlement(s);
       setCounts(Object.fromEntries(s.lines.map(l => [l.productId, l.countedQty ?? l.expectedQty])));

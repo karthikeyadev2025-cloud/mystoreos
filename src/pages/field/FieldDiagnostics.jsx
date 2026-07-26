@@ -15,9 +15,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, XCircle, PlayCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { distributorIdOf } from '../../lib/fieldIdentity';
 
 export default function FieldDiagnostics() {
   const { user } = useAuth();
+  // Staff resolve to their employer; owners to themselves.
+  const distId = distributorIdOf(user);
   const navigate = useNavigate();
   const [results, setResults] = useState(null);
   const [running, setRunning] = useState(false);
@@ -26,7 +29,7 @@ export default function FieldDiagnostics() {
     setRunning(true);
     setResults(null);
     try {
-      const r = await fieldApi.runDiagnostics(user.id);
+      const r = await fieldApi.runDiagnostics(distId);
       setResults(r);
     } finally {
       setRunning(false);
