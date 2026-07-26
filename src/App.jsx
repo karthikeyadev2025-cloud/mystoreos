@@ -69,7 +69,14 @@ const PrivateRoute = ({ children, role }) => {
   if (!user) return <Navigate to="/login" />;
   if (role) {
     const roles = Array.isArray(role) ? role : [role];
-    if (!roles.includes(user.role)) return <Navigate to="/" />;
+    // Shop routes already accept ['shop','staff'] so a shop's staff can
+    // work. Distributor routes were exact-match 'distributor', which
+    // locked out a distributor's OWN staff — including every field rep,
+    // for whom the rep-facing screens were built. Staff inherit access
+    // to their owner's area, which is the same principle shop routes
+    // have always used, just applied to distributors too.
+    const inherited = user.role === 'staff' && user.ownerRole && roles.includes(user.ownerRole);
+    if (!roles.includes(user.role) && !inherited) return <Navigate to="/" />;
   }
   return children;
 };
@@ -105,7 +112,12 @@ const RoleRouter = () => {
   }
   switch (user.role) {
     case 'shop':        return <Navigate to="/shop" />;
-    case 'staff':       return <Navigate to="/shop" />;
+    // A staff account carries no indication of who it belongs to, so
+    // every staff member used to land on /shop — including a
+    // distributor's field reps, who then couldn't reach any of their
+    // work. ownerRole (resolved at login) fixes that. Defaults to the
+    // long-standing /shop behaviour for anything unexpected.
+    case 'staff':       return <Navigate to={user.ownerRole === 'distributor' ? '/distributor' : '/shop'} />;
     case 'customer':    return <Navigate to="/user" />;
     case 'distributor': return <Navigate to="/distributor" />;
     case 'admin':       return <Navigate to="/admin" />;

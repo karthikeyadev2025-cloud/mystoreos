@@ -178,6 +178,28 @@ const toProduct = (row) => row ? ({
   createdAt: row.created_at || null,
 }) : null;
 
+// A staff account's role is just 'staff' — it carries no indication of
+// whether they work for a SHOP or a DISTRIBUTOR. Without that, every
+// staff member was routed to /shop and blocked from /distributor and
+// every /field/* screen, which made distributor staff and field reps
+// unable to reach any of the work they exist to do.
+//
+// This resolves the owner's role once, at login, and attaches it as
+// ownerRole. Only does the extra lookup for staff — every other role
+// returns untouched, so no other login path pays for this.
+async function withOwnerRole(profile) {
+  if (!profile || profile.role !== 'staff' || !profile.staff_of) return profile;
+  try {
+    const { data: owner } = await supabase
+      .from('users').select('role').eq('id', profile.staff_of).maybeSingle();
+    return { ...profile, ownerRole: owner?.role || 'shop' };
+  } catch {
+    // Never block a login over this — default to shop, which is the
+    // long-standing behaviour and correct for the large majority.
+    return { ...profile, ownerRole: 'shop' };
+  }
+}
+
 // True when a Supabase error is caused by the optional `unit` column not
 // existing yet (schema not migrated). Lets us retry the write without it.
 const isMissingUnitColumn = (error) =>
@@ -351,7 +373,7 @@ export const api = {
           verifyAttempts++;
         }
       }
-      return data.profile;
+      return await withOwnerRole(data.profile);
     }
     const db = getDB();
     const user = db.users.find(u => u.phone === phone);
@@ -781,7 +803,10 @@ export const api = {
   async getUserById(userId) {
     if (isSupabaseConfigured) {
       const { data } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
-      return data ? toUser(data) : null;
+      // Same enrichment as login — useAuth re-fetches through here on
+      // every page load, so without it ownerRole would be lost on
+      // refresh and a distributor's rep would get bounced to /shop.
+      return data ? await withOwnerRole(toUser(data)) : null;
     }
     const db = getDB();
     return db.users.find(u => u.id === userId) || null;
