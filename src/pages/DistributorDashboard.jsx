@@ -2579,6 +2579,32 @@ const DistributorDashboard = () => {
       {activeTab === 'dashboard' && (
         <>
           <div style={{ padding: '16px' }}>
+            {/* Same load-failure banner as desktop. Without it, a mobile
+                user on a flaky connection sees ₹0 outstanding and no
+                shops, which reads as lost data rather than a network
+                problem. */}
+            {loadFailed && (
+              <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
+                <div style={{ fontSize: 11, color: '#B91C1C', margin: '2px 0 9px' }}>Your records are safe — this is a connection problem, not data loss.</div>
+                <button onClick={() => { setLoadFailed(false); loadData(); }}
+                  style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                  Retry
+                </button>
+              </div>
+            )}
+            {/* MOBILE New Sale. The desktop tree got this button but the
+                mobile tree did not — this dashboard has four separate
+                dashboard-tab render points, so adding a feature to one
+                leaves it invisible to anyone on the other. */}
+            <button onClick={() => navigate('/distributor/new-sale')}
+              style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>🛒 New Sale</div>
+                <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
+              </div>
+              <span style={{ fontSize: 20 }}>→</span>
+            </button>
             <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <p style={{ fontSize: '14px', color: '#475569', margin: 0 }}>Total Market Outstanding</p>
               <h2 style={{ fontSize: '42px', fontWeight: 900, color: '#DC2626', margin: '8px 0' }}>₹{totalOutstanding}</h2>
