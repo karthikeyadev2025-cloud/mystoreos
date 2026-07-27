@@ -363,6 +363,7 @@ const DistributorDashboard = () => {
 
   // Distributor subscription plan state
   const [distPlans, setDistPlans] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
 
@@ -437,24 +438,61 @@ const DistributorDashboard = () => {
   };
 
   const loadData = useCallback(async () => {
-    setCredits(await safe(() => api.getDistCredits(user.id)));
-    setShops(await safe(() => api.getMyRetailShops(user.id)));
-    setStockOrders(await safe(() => api.getDistributorOrders(user.id)));
-    setWholesaleProducts(await safe(() => api.getDistributorProducts()));
-    setDistPlans(await safe(() => api.getDistributorSubscriptionPlans()));
-    setPricing(await safe(() => api.getPricing()));
-    // Staff accounts — explicitly promised on the Enterprise distributor
-    // plan ("Staff accounts") but didn't work for any distributor at
-    // all until now (the add-staff/remove-staff authorization logic was
-    // hardcoded to shops only). Loaded the same way shop staff already
-    // is — getShopStaff() was already fully generic, just needed a
-    // distributor id passed in.
-    setDistStaff(await safe(() => api.getShopStaff(user.id)));
-    setDistBranches(await safe(() => api.getOwnedDistributorBranches(user.id)));
-    setApiKeyInfo(await safe(() => api.getDistributorApiKeyInfo(user.id)));
-    setActiveDeviceCount(await safe(() => api.getActiveDeviceCount(user.id)) || 0);
-    const settings = await safe(() => api.getSettings());
-    setSysSettings(settings);
+    // Was eleven sequential awaits — each waiting for the previous to
+    // finish, so eleven full round-trips in series before the dashboard
+    // showed anything. On a mobile connection that's the difference
+    // between a slow load and a load that feels broken. None of these
+    // depend on each other, so they all run together now.
+    //
+    // getDistributorProducts(user.id) — the id was MISSING before.
+    // Without it the query has no distributor_id filter, and the RLS
+    // policy on distributor_products is `USING (true)` (deliberately,
+    // so shops can browse catalogs). So this loaded EVERY product from
+    // EVERY distributor on the platform into this distributor's own
+    // catalog tab — competitors' products, prices and stock levels,
+    // with no client-side ownership filter anywhere to hide them.
+    const [
+      creditsRes, shopsRes, ordersRes, productsRes, plansRes, pricingRes,
+      staffRes, branchesRes, apiKeyRes, deviceRes, settingsRes,
+    ] = await Promise.all([
+      safe(() => api.getDistCredits(user.id)),
+      safe(() => api.getMyRetailShops(user.id)),
+      safe(() => api.getDistributorOrders(user.id)),
+      safe(() => api.getDistributorProducts(user.id)),
+      safe(() => api.getDistributorSubscriptionPlans()),
+      safe(() => api.getPricing()),
+      // Staff accounts — explicitly promised on the Enterprise
+      // distributor plan but didn't work for any distributor at all
+      // until the add-staff authorization logic was generalised.
+      safe(() => api.getShopStaff(user.id)),
+      safe(() => api.getOwnedDistributorBranches(user.id)),
+      safe(() => api.getDistributorApiKeyInfo(user.id)),
+      safe(() => api.getActiveDeviceCount(user.id)),
+      safe(() => api.getSettings()),
+    ]);
+
+    setCredits(creditsRes);
+    setShops(shopsRes);
+    setStockOrders(ordersRes);
+    setWholesaleProducts(productsRes);
+    setDistPlans(plansRes);
+    setPricing(pricingRes);
+    setDistStaff(staffRes);
+    setDistBranches(branchesRes);
+    setApiKeyInfo(apiKeyRes);
+    setActiveDeviceCount(deviceRes || 0);
+    setSysSettings(settingsRes);
+
+    // safe() returns null on failure by design (it's for reads, and a
+    // failed read shouldn't crash the dashboard). But that means a
+    // network hiccup rendered "0 shops · ₹0 outstanding · no orders" —
+    // visually identical to a genuinely empty account. A distributor
+    // seeing that reasonably concludes their data is gone.
+    //
+    // These three are the core business data; if the essential ones
+    // came back null the load genuinely failed, so say so and offer a
+    // retry rather than quietly showing zeros.
+    setLoadFailed(creditsRes === null && shopsRes === null && ordersRes === null);
   }, [user.id]);
 
   // Multi-device tracking — registers this browser/device as active
@@ -1121,6 +1159,22 @@ const DistributorDashboard = () => {
               </p>
               <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#2563EB', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Upgrade Now
+              </button>
+            </div>
+          )}
+
+          {/* A failed load previously rendered as zeros everywhere, which
+              a distributor reasonably reads as "my data is gone". Saying
+              so plainly, with a retry, is far less alarming than silence. */}
+          {loadFailed && (
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
+                <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 2 }}>Your records are safe — this is a connection problem, not data loss.</div>
+              </div>
+              <button onClick={() => { setLoadFailed(false); loadData(); }}
+                style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                Retry
               </button>
             </div>
           )}
