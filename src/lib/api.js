@@ -1374,7 +1374,25 @@ export const api = {
       if (isResolvedUUID) {
         try {
           const { data: orders } = await supabase.from('orders').select('*').eq('shop_id', resolvedId).order('created_at', { ascending: false });
-          const { data: users } = await supabase.from('users').select('id, name');
+          // Was `.select('id, name')` with NO filter — every user on the
+          // platform, fetched on every single order load, purely to build
+          // a name lookup. At a few thousand users that's thousands of
+          // rows pulled to resolve a handful of names, on a screen a
+          // shopkeeper opens constantly. Now fetches only the customers
+          // who actually placed these orders.
+          const customerIds = [...new Set(
+            (orders || [])
+              .map(o => o.user_id)
+              // Walk-in and estimate rows carry synthetic ids like
+              // 'walk-in:...' that aren't real users — querying them
+              // would error on a uuid column.
+              .filter(id => id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+          )];
+          let users = [];
+          if (customerIds.length) {
+            const { data } = await supabase.from('users').select('id, name').in('id', customerIds);
+            users = data || [];
+          }
           const userMap = {};
           (users || []).forEach(u => { userMap[u.id] = u.name; });
           return (orders || []).map(o => ({ ...toOrder(o), userName: userMap[o.user_id] || (o.user_id === 'walk-in-customer' ? 'Walk-in Bill' : 'Unknown') }));
