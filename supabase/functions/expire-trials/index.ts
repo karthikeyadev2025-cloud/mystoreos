@@ -59,11 +59,18 @@ Deno.serve(async (req: Request) => {
   // plan_expires_at directly means there is exactly one place that
   // decides how long a trial lasts (auth-register, at signup) instead
   // of two that can silently drift out of sync with each other.
+  // BUG FIX: this filtered on subscription = 'trial' only, but
+  // auth-register assigns distributors subscription = 'dist_trial'
+  // (shops get 'trial'). So distributor trials matched NOTHING here and
+  // never expired — every distributor who ever signed up kept using the
+  // product indefinitely without paying. The .in('role',...) above
+  // already included 'distributor', which made the intent clear and the
+  // omission easy to miss. Matching both values fixes it at the source.
   const { data: expiredTrials, error: trialError } = await supabase
     .from('users')
     .update({ subscription: 'expired' })
     .in('role', ['shop', 'distributor'])
-    .eq('subscription', 'trial')
+    .in('subscription', ['trial', 'dist_trial'])
     .not('plan_expires_at', 'is', null)
     .lt('plan_expires_at', now.toISOString())
     .select('id, name, phone')

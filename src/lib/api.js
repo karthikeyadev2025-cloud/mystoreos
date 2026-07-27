@@ -246,7 +246,10 @@ const toCredit = (row) => row ? ({
 
 // Client-side trial expiry check (bridges gap between daily edge-function runs)
 export const isTrialExpired = (user) => {
-  if (!user || user.subscription !== 'trial') return false;
+  // Shops get subscription='trial', distributors get 'dist_trial' —
+  // checking only 'trial' meant this returned false for every
+  // distributor, so their 15-day cap silently never applied.
+  if (!user || (user.subscription !== 'trial' && user.subscription !== 'dist_trial')) return false;
   if (!user.trialStartedAt) return false;
   const daysSinceStart = (Date.now() - new Date(user.trialStartedAt).getTime()) / (1000 * 60 * 60 * 24);
   return daysSinceStart > 15;

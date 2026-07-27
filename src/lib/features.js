@@ -67,7 +67,7 @@ export function getDistCaps(user) {
   // at Basic and locked out of the screens their employer pays for.
   // Only applies to staff; the owner path below is untouched.
   if (user.role === 'staff' && user.ownerRole === 'distributor') {
-    if (user.ownerSubscription === 'trial') return DIST_PLAN_CAPS.trial;
+    if (user.ownerSubscription === 'trial' || user.ownerSubscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
     const ownerTier = user.ownerDistributorPlanTier || 'basic_distributor';
     return DIST_PLAN_CAPS[ownerTier] ?? DIST_PLAN_CAPS.basic_distributor;
   }
@@ -77,7 +77,14 @@ export function getDistCaps(user) {
   // database default (basic_distributor) at signup — that's the tier
   // the account falls back to once the trial ends, not a cap that
   // should apply while subscription is still 'trial'.
-  if (user.subscription === 'trial') return DIST_PLAN_CAPS.trial;
+  // Distributors are assigned subscription = 'dist_trial' at signup,
+  // NOT 'trial' (that's the shop value). This only checked 'trial', so
+  // a distributor in their own 15-day trial fell through to
+  // distributorPlanTier — which defaults to basic_distributor — and got
+  // Basic caps. They'd be told "Field Distribution is a Pro feature"
+  // during the very trial meant to show it to them. Both values now
+  // grant full trial access.
+  if (user.subscription === 'trial' || user.subscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
   const tier = user.distributorPlanTier || 'basic_distributor';
   return DIST_PLAN_CAPS[tier] ?? DIST_PLAN_CAPS.basic_distributor;
 }

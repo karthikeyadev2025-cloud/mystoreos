@@ -16,7 +16,12 @@ export function useSubscription() {
   const capabilities = useMemo(() => getCaps(user), [user]);
 
   const isExpired = useMemo(() => {
-    if (!user || user.role !== 'shop') return false;
+    // Was `user.role !== 'shop'` — which meant a DISTRIBUTOR could never
+    // be expired at all, no matter how long past their trial. Combined
+    // with expire-trials missing 'dist_trial' entirely, distributors
+    // used the product free indefinitely. Both roles pay, so both
+    // expire.
+    if (!user || (user.role !== 'shop' && user.role !== 'distributor')) return false;
     if (user.subscription === 'expired') return true;
     if (isTrialExpired(user)) return true;
     if (user.planExpiresAt && new Date(user.planExpiresAt) < new Date()) return true;
