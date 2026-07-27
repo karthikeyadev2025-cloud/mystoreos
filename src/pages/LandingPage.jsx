@@ -61,7 +61,12 @@ const DEFAULT_FAQ = [
   { q: 'Which languages does it speak?', a: 'Hindi, Telugu, Tamil, Kannada, Marathi and Bengali, alongside English.' },
 ];
 const DSP_FB = [
-  { id: 'free', name: 'Free', price: 0, popular: false, features: ['Up to 50 products', 'Basic billing', '100 bills/month', 'Single device', 'Free forever'] },
+  // NOTE: there is deliberately NO 'free' tier here. One used to be
+  // advertised on this page at ₹0 / "Free forever" — but no free plan
+  // exists in PLAN_CAPS, in the pricing seed, or on the Pricing page.
+  // A visitor would have signed up expecting free and landed on an
+  // expiring trial instead. Retail starts at Starter ₹499, matching
+  // the authoritative seed in api.js and the Pricing page exactly.
   { id: 'starter', name: 'Starter', price: 499, popular: false, features: ['Up to 500 products', 'Standard billing', 'Basic day book', 'WhatsApp sharing', 'Single device'] },
   { id: 'pro', name: 'PRO', price: 999, popular: true, features: ['Unlimited products', 'WhatsApp sharing', 'Staff accounts', 'Batch & expiry tracking', 'UPI payment links'] },
   { id: 'enterprise', name: 'Enterprise', price: 2499, popular: false, features: ['Everything in PRO', 'GST compliance billing', 'CA Portal access', 'Tally ERP export', 'Multi-device sync'] },
@@ -80,7 +85,9 @@ const SSP_FB = [
   { id: 'service_enterprise', name: 'Enterprise', price: 1499, popular: false, features: ['Everything in PRO', 'Recurring / weekly-repeat bookings', 'Multi-branch', 'Multi-device sync', 'Priority support'] },
 ];
 const DDP_FB = [
-  { id: 'free_dist', name: 'Free', price: 0, popular: false, features: ['Up to 3 shops', 'Basic order mgmt', 'Credit ledger', 'Free forever'] },
+  // Same as the retail list above: no 'free' tier here, because none
+  // exists in DIST_PLAN_CAPS or the pricing seed. Distribution starts
+  // at Basic ₹999, matching the Pricing page exactly.
   { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
   { id: 'pro_dist', name: 'PRO', price: 3499, popular: true, features: ['Up to 50 shops', 'Field sales & route beats', 'Presale order booking', 'End-of-day settlement', 'Up to 3 vehicles', 'Tally export'] },
   { id: 'enterprise_dist', name: 'Enterprise', price: 7999, popular: false, features: ['Unlimited shops', 'Van sales — offline billing', 'On-the-spot returns', 'Unlimited vehicles', 'Multi-branch', 'API access'] },
