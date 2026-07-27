@@ -49,6 +49,8 @@ const DIST_PLANS = [
       { label: 'Up to 10 assigned shops', on: true },
       { label: 'Stock order management', on: true },
       { label: 'Credit ledger (payables + receivables)', on: true },
+      { label: 'Purchase bills & supplier payables', on: true },
+      { label: 'Counter & phone sales with GST invoice', on: true },
       { label: 'WhatsApp order sharing', on: true },
       { label: 'Basic sales reports', on: true },
       { label: 'Route planner', on: false },

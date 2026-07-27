@@ -17,6 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
 import { purchaseApi } from '../../lib/fieldApi';
 import { distributorIdOf } from '../../lib/fieldIdentity';
+import { getDistCaps } from '../../lib/features';
 import { profitAndLoss, gstSummary, inputCreditSummary, stockValuation } from '../../lib/distributorReports';
 
 const PERIODS = [
@@ -31,6 +32,7 @@ export default function Reports() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const distId = distributorIdOf(user);
+  const caps = getDistCaps(user);
 
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -84,6 +86,30 @@ export default function Reports() {
     h: { fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 },
     row: { display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: 13 },
   };
+
+  // P&L, GST liability and stock valuation are exactly what the pricing
+  // page sells as "Advanced analytics" on Pro. Basic promises "Basic
+  // sales reports" — which the dashboard's own figures already cover.
+  // Shipping these ungated would make the Pro tier's headline feature
+  // free, which is both a revenue leak and a false pricing page.
+  if (!caps.advancedAnalytics) {
+    return (
+      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+        <button onClick={() => navigate('/distributor')}
+          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+          <ArrowLeft size={15} /> Back to Dashboard
+        </button>
+        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+          <TrendingUp size={28} color="#B45309" style={{ marginBottom: 10 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Reports are a Pro feature</h2>
+          <p style={{ fontSize: 13, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
+            Real profit &amp; loss using your actual purchase costs, GST liability with input credit,
+            and what your stock is worth at cost.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading reports…</div>;
 
