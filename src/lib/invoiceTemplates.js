@@ -294,11 +294,19 @@ function renderGstTax(data, widthMm) {
   }, 0);
   const cgst = gstAmount / 2, sgst = gstAmount / 2;
 
+  // Jars/Boxes, same as the wholesale template. An FMCG distributor
+  // reads their invoice in boxes, not loose units — having a GSTIN
+  // shouldn't cost them the format they actually work in. Only shown
+  // when a line genuinely has a pack size.
+  const hasJarsBoxes = items.some(it => it.jars != null && it.boxes != null);
+
   const rows = items.map((it, i) => `
     <tr>
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;">${i + 1}</td>
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;">${esc(it.name)}</td>
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${esc(it.hsn || '-')}</td>
+      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.jars != null ? int(it.jars) : ''}</td>` : ''}
+      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.boxes != null ? int(it.boxes) : ''}</td>` : ''}
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${int(it.qty)}</td>
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:right;">${money(it.rate)}</td>
       <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.gstPct || 0}%</td>
@@ -322,6 +330,8 @@ function renderGstTax(data, widthMm) {
           <th style="padding:6px;text-align:left;font-size:9.5px;color:#64748B;">#</th>
           <th style="padding:6px;text-align:left;font-size:9.5px;color:#64748B;">Item</th>
           <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">HSN</th>
+          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Jars</th>' : ''}
+          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Boxes</th>' : ''}
           <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Qty</th>
           <th style="padding:6px;text-align:right;font-size:9.5px;color:#64748B;">Rate</th>
           <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">GST</th>

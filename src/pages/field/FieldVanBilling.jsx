@@ -205,6 +205,7 @@ export default function FieldVanBilling() {
       if (found) return prev.map(l => l.productId === pickProduct ? { ...l, qtyBase: l.qtyBase + qty } : l);
       return [...prev, { productId: pickProduct, name: selectedStock.productName, qtyBase: qty, rate,
         hsn: selectedStock.hsnCode || '', gstPct: selectedStock.gstRate || 0,
+        packSize: selectedStock.packSize || null,
         sku: selectedStock.sku || '', unit: selectedStock.unit || '' }];
     });
     setPickQty(''); setPickRate('');
@@ -287,16 +288,28 @@ export default function FieldVanBilling() {
       modeTitle: hasGstin ? 'Tax Invoice' : 'Invoice',
       customerName: lastReceipt.shopName || 'Customer',
       customerPhone: lastReceipt.customerPhone || '',
-      items: lastReceipt.lines.map(l => ({
-        code: l.sku || '',
-        name: l.name,
-        hsn: l.hsn || '',
-        qty: l.qtyBase,
-        unit: l.unit ? (UNIT_SUFFIX[l.unit] || l.unit) : '',
-        rate: l.rate,
-        // Drives the CGST/SGST split the template computes per line.
-        gstPct: l.gstPct || 0,
-      })),
+      items: lastReceipt.lines.map(l => {
+        // Jars × Boxes = Qty, matching the distributor's paper
+        // billbook. qtyBase is the true number of individual units
+        // sold; when the product has a pack size we express that as
+        // whole boxes so the customer reads it the way they buy.
+        // Partial boxes stay blank rather than showing a misleading
+        // fraction — the Qty column is always the exact truth.
+        const pack = l.packSize || null;
+        const wholeBoxes = pack && l.qtyBase % pack === 0 ? l.qtyBase / pack : null;
+        return {
+          code: l.sku || '',
+          name: l.name,
+          hsn: l.hsn || '',
+          jars: wholeBoxes != null ? pack : null,
+          boxes: wholeBoxes,
+          qty: l.qtyBase,
+          unit: l.unit ? (UNIT_SUFFIX[l.unit] || l.unit) : '',
+          rate: l.rate,
+          // Drives the CGST/SGST split the template computes per line.
+          gstPct: l.gstPct || 0,
+        };
+      }),
       subtotal: lastReceipt.total,
       discountAmount: 0,
       roundOff: 0,

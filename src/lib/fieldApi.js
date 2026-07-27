@@ -109,7 +109,7 @@ export const fieldApi = {
     const { data } = await supabase.from('warehouse_stock')
       // hsn_code / gst_rate / sku come along so a van sale can produce a
       // proper GST tax invoice at the counter, not just a text receipt.
-      .select('*, distributor_products(name, unit, hsn_code, gst_rate, sku)')
+      .select('*, distributor_products(name, unit, hsn_code, gst_rate, sku, pack_size)')
       .eq('warehouse_id', warehouseId).gt('qty_base', 0);
     return (data || []).map(r => ({
       id: r.id,
@@ -119,6 +119,9 @@ export const fieldApi = {
       hsnCode: r.distributor_products?.hsn_code || '',
       gstRate: Number(r.distributor_products?.gst_rate) || 0,
       sku: r.distributor_products?.sku || '',
+      // Drives the Jars × Boxes = Qty breakdown on the printed invoice,
+      // matching the distributor's own paper billbook format.
+      packSize: r.distributor_products?.pack_size || null,
       batchId: r.batch_id,
       qtyBase: Number(r.qty_base),
       condition: r.condition,
