@@ -1191,6 +1191,7 @@ const DistributorDashboard = () => {
               dashboard rather than buried in a tab because it's what a
               distributor opens the app to DO. */}
           {activeTab === 'dashboard' && (
+            <>
             <button onClick={() => navigate('/distributor/new-sale')}
               style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
               <div>
@@ -1199,6 +1200,15 @@ const DistributorDashboard = () => {
               </div>
               <span style={{ fontSize: 20 }}>→</span>
             </button>
+            <button onClick={() => navigate('/distributor/purchases')}
+              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800 }}>📥 Purchases</div>
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+            </button>
+            </>
           )}
 
               {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
@@ -2701,6 +2711,14 @@ const DistributorDashboard = () => {
                 <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
               </div>
               <span style={{ fontSize: 20 }}>→</span>
+            </button>
+            <button onClick={() => navigate('/distributor/purchases')}
+              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800 }}>📥 Purchases</div>
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
             </button>
 
               {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────

@@ -803,3 +803,112 @@ export const fieldApi = {
 };
 
 export default fieldApi;
+
+// ═══════════════════════════════════════════════════════════════════
+// PURCHASES & SUPPLIERS — the inward half of the business
+//
+// A distributor BUYS from manufacturers and SELLS to shops. Only the
+// sell half existed; stock appeared by someone typing a number into
+// "Add Product". That meant no supplier ledger, no purchase bills to
+// reconcile, and — because nothing recorded what stock COST — no way
+// to compute actual profit.
+// ═══════════════════════════════════════════════════════════════════
+
+export const purchaseApi = {
+  async getSuppliers(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('suppliers')
+      .select('*').eq('distributor_id', distributorId).eq('active', true).order('name');
+    return (data || []).map(r => ({
+      id: r.id, name: r.name, phone: r.phone || '', gstin: r.gstin || '', address: r.address || '',
+    }));
+  },
+
+  async addSupplier(distributorId, { name, phone = '', gstin = '', address = '' }) {
+    requireOnline();
+    if (!name?.trim()) throw new Error('Supplier name is required');
+    const { data, error } = await supabase.from('suppliers').insert({
+      distributor_id: distributorId, name: name.trim(),
+      phone: phone.trim() || null, gstin: gstin.trim() || null, address: address.trim() || null,
+    }).select('id').maybeSingle();
+    if (error) throw new Error(error.message);
+    return data.id;
+  },
+
+  // One call creates the bill, its lines, increases stock and records
+  // the cost basis — atomic, because a purchase that added stock but no
+  // bill (or the reverse) corrupts both inventory and payables.
+  async recordPurchase(distributorId, { supplierId, billNo, billDate, lines, paymentMode = 'credit', amountPaid = 0, notes = '' }) {
+    requireOnline();
+    if (!lines?.length) throw new Error('Add at least one item');
+    const { data, error } = await supabase.rpc('record_purchase', {
+      p_distributor_id: distributorId,
+      p_supplier_id: supplierId || null,
+      p_bill_no: billNo || null,
+      p_bill_date: billDate || new Date().toISOString().slice(0, 10),
+      p_lines: lines.map(l => ({
+        product_id: l.productId || null,
+        product_name: l.productName,
+        qty: l.qty,
+        cost_rate: l.costRate,
+        gst_pct: l.gstPct || 0,
+      })),
+      p_payment_mode: paymentMode,
+      p_amount_paid: amountPaid || 0,
+      p_notes: notes || null,
+    });
+    if (error) {
+      if (/duplicate key/i.test(error.message)) {
+        throw new Error('That supplier bill number is already recorded — check your purchase history.');
+      }
+      throw new Error(error.message);
+    }
+    return data;
+  },
+
+  // What the distributor OWES. Deliberately separate from customer
+  // receivables — netting the two gives a number that looks meaningful
+  // and tells you nothing about either side.
+  async getSupplierBalances(distributorId) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data, error } = await supabase.rpc('supplier_balances', { p_distributor_id: distributorId });
+    if (error) throw new Error(error.message);
+    return (data || []).map(r => ({
+      supplierId: r.supplier_id, name: r.supplier_name, phone: r.phone || '',
+      purchased: Number(r.total_purchased) || 0,
+      paid: Number(r.total_paid) || 0,
+      outstanding: Number(r.outstanding) || 0,
+      lastBillDate: r.last_bill_date,
+    }));
+  },
+
+  async getPurchases(distributorId, limit = 50) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    const { data } = await supabase.from('purchases')
+      .select('*, suppliers(name), purchase_lines(product_name, qty, cost_rate)')
+      .eq('distributor_id', distributorId).order('bill_date', { ascending: false }).limit(limit);
+    return (data || []).map(r => ({
+      id: r.id,
+      supplierName: r.suppliers?.name || 'Unknown supplier',
+      billNo: r.supplier_bill_no || '—',
+      billDate: r.bill_date,
+      total: Number(r.total) || 0,
+      amountPaid: Number(r.amount_paid) || 0,
+      paymentMode: r.payment_mode,
+      lines: (r.purchase_lines || []).map(l => ({
+        name: l.product_name, qty: Number(l.qty), rate: Number(l.cost_rate),
+      })),
+    }));
+  },
+
+  async paySupplier(distributorId, { supplierId, amount, mode = 'cash', note = '' }) {
+    requireOnline();
+    if (!(amount > 0)) throw new Error('Enter an amount');
+    const { error } = await supabase.from('supplier_payments').insert({
+      distributor_id: distributorId, supplier_id: supplierId,
+      amount, mode, note: note || null,
+    });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+};
