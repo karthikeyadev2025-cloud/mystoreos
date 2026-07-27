@@ -285,6 +285,33 @@ const sendWhatsApp = (phone, message) => {
 // ============================================================
 export const api = {
 
+  // Wakes the auth-login edge function WITHOUT logging anyone in.
+  //
+  // That function imports npm:bcryptjs, which Deno must fetch and
+  // transpile on a cold start — the direct cause of the "server is
+  // taking longer than usual to wake up" error on the login screen.
+  //
+  // Called when the login page mounts, so the function warms up during
+  // the ~10-20 seconds a person spends typing their number and
+  // password. By the time they tap Sign In it's already resident, and
+  // they never see the cold-start delay at all.
+  //
+  // Deliberately fire-and-forget: no await, every error swallowed. This
+  // is a pure optimisation — if it fails the login still works exactly
+  // as before, just slower. It must never be able to break signing in.
+  warmLogin() {
+    try {
+      const url = import.meta.env.VITE_SUPABASE_URL;
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (!url || !key) return;
+      fetch(`${url}/functions/v1/auth-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: key, Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ ping: true }),
+      }).catch(() => {});
+    } catch { /* never surfaces to the user */ }
+  },
+
   // ---- WhatsApp templated messages (bill, credit reminder, trial reminder) ----
   async sendBillWhatsApp(order, shop) {
     const items = (order.items || []).map(i => `• ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('\n');
@@ -358,12 +385,25 @@ export const api = {
         timedOut = true;
       }
 
-      // First attempt timed out → retry once (function is now warming/warm).
+      // First attempt timed out → the function is now warming up.
+      // Retry TWICE rather than once before giving up. Telling someone
+      // to "tap Sign In once more" is a poor answer: their retry starts
+      // the whole sequence over from scratch anyway, so it's slower
+      // than just trying again here, and it reads like the app is
+      // broken. Two more attempts with a generous window means a cold
+      // start resolves itself and the person simply gets logged in.
       if (timedOut) {
-        try {
-          ({ data, error } = await callOnce(8000));
-        } catch (_e2) {
-          throw new Error('The server is taking longer than usual to wake up. Please tap Sign In once more.');
+        for (const ms of [12000, 12000]) {
+          try {
+            ({ data, error } = await callOnce(ms));
+            timedOut = false;
+            break;
+          } catch (_e2) {
+            timedOut = true;
+          }
+        }
+        if (timedOut) {
+          throw new Error('Could not reach the server. Check your connection and try again.');
         }
       }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
@@ -100,6 +100,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPw,  setShowPw]  = useState(false);
+  // Wake the auth edge function the moment this page opens, so it's
+  // warm by the time the user finishes typing. Fire-and-forget — it
+  // cannot fail in a way that affects signing in.
+  useEffect(() => { api.warmLogin(); }, []);
+
   const [showForgot, setShowForgot] = useState(false);
   // Forgot password — was email-based (requestPasswordReset), which
   // never worked for the overwhelming majority of users: they

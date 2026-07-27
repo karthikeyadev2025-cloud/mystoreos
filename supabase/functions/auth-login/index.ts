@@ -62,7 +62,23 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: getCORS(req) });
 
   try {
-    const { phone, password } = await req.json();
+    const body = await req.json();
+
+    // WARM-UP PATH. This function imports npm:bcryptjs, which Deno must
+    // fetch and transpile on a cold start — that's what produced the
+    // "server is taking longer than usual to wake up" message users
+    // were seeing on the login screen.
+    //
+    // A scheduled ping every few minutes keeps the isolate alive so a
+    // real person never pays that cost. Deliberately returns BEFORE any
+    // env reads, client construction or DB access, so a ping is
+    // near-instant and costs nothing — its only job is to keep the
+    // function resident in memory.
+    if (body?.ping === true) {
+      return json({ ok: true, warm: true }, 200, req);
+    }
+
+    const { phone, password } = body || {};
     if (!phone || !password) return json({ error: 'phone and password required' }, 400, req);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
