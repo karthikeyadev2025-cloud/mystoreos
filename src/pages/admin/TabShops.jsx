@@ -294,7 +294,20 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
                 title="Delete Shop"
                 desc="Permanently remove this shop and all its data — this cannot be undone"
                 action="Delete" color="#EF4444"
-                onClick={() => { if (window.confirm(`Permanently delete ${shop.name}?`)) act(() => api.deleteUser(shop.id), `${shop.name} deleted`); }}
+                onClick={() => {
+                  // Was deleting WITHOUT logAdminAction, while the other
+                  // delete path in this same file logs correctly. A shop
+                  // removed through this button left no audit trail at
+                  // all — for a permanent, irreversible action on someone
+                  // else's business data, that's the one operation that
+                  // most needs a record of who did it and when.
+                  if (window.confirm(`Permanently delete ${shop.name}? This cannot be undone.`)) {
+                    act(async () => {
+                      await api.deleteUser(shop.id);
+                      await api.logAdminAction('delete_shop', shop.id, null, null);
+                    }, `${shop.name} deleted`);
+                  }
+                }}
                 busy={busy}
                 danger
               />
