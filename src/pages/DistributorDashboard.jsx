@@ -1216,8 +1216,6 @@ const DistributorDashboard = () => {
               </div>
               <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
             </button>
-            </>
-          )}
 
               {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
                   Outstanding/collected/retailer-count are scoreboard
@@ -1308,6 +1306,8 @@ const DistributorDashboard = () => {
                   ))}
                 </div>
               )}
+            </>
+          )}
 
           {/* ================= DASHBOARD TAB ================= */}
           {activeTab === 'dashboard' && (
