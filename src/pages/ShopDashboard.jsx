@@ -114,6 +114,7 @@ const ShopDashboard = () => {
   );
   const [activeTab, setActiveTab] = useState(isServiceBusiness ? 'dashboard' : 'home');
   const [products, setProducts] = useState([]);
+  const [dataLoadFailed, setDataLoadFailed] = useState(false);
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
   const [search, setSearch] = useState('');
@@ -644,7 +645,13 @@ const ShopDashboard = () => {
       }
     }
 
-    setProducts((await safe(() => api.getShopProducts(targetShopId))) || []);
+    // safe() returns null on a failed read by design. Rendering that as
+    // an empty catalogue is indistinguishable from a shop that genuinely
+    // has no products — so a network hiccup looked like the entire
+    // inventory had vanished. Tracked so the UI can say which it is.
+    const prodRes = await safe(() => api.getShopProducts(targetShopId));
+    setProducts(prodRes || []);
+    setDataLoadFailed(prodRes === null);
     // In Combined ("All Branches") scope: load and merge orders from every
     // branch the owner runs, tagging each with branch info so the UI can
     // show a Branch column. The main shop's own orders are included since
@@ -6428,7 +6435,13 @@ const ShopDashboard = () => {
             <button onClick={() => setShowAddProductModal(true)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
           </div>
           
-          {products.length === 0 && <p style={{padding: 20, textAlign:'center', color:'#94A3B8'}}>No products in inventory.</p>}
+          {products.length === 0 && (
+            <p style={{ padding: 20, textAlign: 'center', color: dataLoadFailed ? '#B91C1C' : '#94A3B8' }}>
+              {dataLoadFailed
+                ? "Couldn't load your inventory — this is a connection problem, not lost data. Refresh to retry."
+                : 'No products in inventory.'}
+            </p>
+          )}
           
           <div style={{ padding: '12px' }}>
             {importFromMainEl}
