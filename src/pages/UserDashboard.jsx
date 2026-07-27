@@ -228,6 +228,8 @@ const UserDashboard = () => {
   // same brand without losing trust.
   const [relatedBranches, setRelatedBranches] = useState([]);
   const [products, setProducts] = useState([]);
+  const [ordersFailed, setOrdersFailed] = useState(false);
+  const [bookingsFailed, setBookingsFailed] = useState(false);
   // True for a shop that offers services but has no physical products at
   // all — a pure salon/spa/clinic. Showing an empty "no products" grid
   // and an always-empty checkout cart on their storefront looked broken,
@@ -378,8 +380,13 @@ const UserDashboard = () => {
     try {
       const data = await api.getUserOrders(user.id, user.phone);
       setOrders(data || []);
+      setOrdersFailed(false);
     } catch (err) {
       console.error('Failed to load orders', err);
+      // Was console-only. A customer whose history failed to load saw
+      // an empty Bills tab — indistinguishable from having no orders,
+      // so they'd reasonably think their purchase history was lost.
+      setOrdersFailed(true);
     }
   }, [user]);
 
@@ -393,8 +400,10 @@ const UserDashboard = () => {
     try {
       const data = await api.getCustomerAppointments(user.phone);
       setMyBookings(data || []);
+      setBookingsFailed(false);
     } catch (err) {
       console.error('Failed to load bookings', err);
+      setBookingsFailed(true);
     } finally {
       setMyBookingsLoaded(true);
     }
@@ -738,7 +747,32 @@ const UserDashboard = () => {
     const key = cartKey(id, variant);
     setCart(prev => {
       const current = prev[key] || 0;
-      const next = Math.max(0, current + change);
+      let next = Math.max(0, current + change);
+
+      // Stock guard. There was NO availability check anywhere — a
+      // customer could add 9,999 units of an item the shop has 3 of,
+      // and the order would go through: placeOrder decrements with
+      // Math.max(0, ...) so stock silently floors at zero and the shop
+      // receives an order they cannot possibly fulfil.
+      //
+      // Only blocks INCREASES, so a cart that's already over (stock
+      // dropped after they added it) can still be reduced rather than
+      // being stuck.
+      if (change > 0) {
+        const prod = products.find(p => p.id === id);
+        const available = prod ? Number(prod.stock) : null;
+        if (available !== null && Number.isFinite(available) && next > available) {
+          next = Math.max(current, Math.min(next, available));
+          if (current >= available) {
+            toast.info(
+              available > 0
+                ? `Only ${available} left at this shop`
+                : 'This item is out of stock'
+            );
+          }
+        }
+      }
+
       const updatedCart = { ...prev, [key]: next };
       
       // Save updated cart to localStorage global carts ledger
@@ -2328,7 +2362,9 @@ const UserDashboard = () => {
                       {orders.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
                           <Receipt size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
-                          You have not placed any orders yet.
+                          {ordersFailed
+                            ? "Couldn't load your orders — this is a connection problem, not lost history. Pull down to retry."
+                            : 'You have not placed any orders yet.'}
                         </div>
                       )}
                     </div>
@@ -2455,7 +2491,9 @@ const UserDashboard = () => {
                     {myBookingsLoaded && myBookings.length === 0 && (
                       <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
                         <Calendar size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
-                        You have no bookings yet.
+                        {bookingsFailed
+                          ? "Couldn't load your bookings — connection problem, not lost data. Pull down to retry."
+                          : 'You have no bookings yet.'}
                       </div>
                     )}
                   </div>
@@ -3567,7 +3605,9 @@ return (
                     {orders.length === 0 && (
                       <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b' }}>
                         <Receipt size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
-                        You have not placed any orders yet. Visit a store and buy items to populate ledger!
+                        {ordersFailed
+                          ? "Couldn't load your orders — this is a connection problem, not lost history. Pull down to retry."
+                          : 'You have not placed any orders yet. Visit a store and buy items to populate ledger!'}
                       </div>
                     )}
                   </div>
@@ -3634,7 +3674,9 @@ return (
                     {myBookingsLoaded && myBookings.length === 0 && (
                       <div style={{ textAlign: 'center', padding: '40px 12px', color: '#64748b', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #CBD5E1' }}>
                         <Calendar size={32} style={{ color: '#1e293b', margin: '0 auto 12px' }} />
-                        You have no bookings yet.
+                        {bookingsFailed
+                          ? "Couldn't load your bookings — connection problem, not lost data. Pull down to retry."
+                          : 'You have no bookings yet.'}
                       </div>
                     )}
                   </div>
