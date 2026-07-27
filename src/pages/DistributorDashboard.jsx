@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { validateImageFile } from '../lib/fileValidation';
 import { ALL_UNITS, UNIT_SUFFIX } from '../lib/units';
+import { agingBuckets, dormantShops, revenueTrend } from '../lib/distributorInsights';
 import { printInvoice } from '../lib/invoicePrint';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
@@ -1005,6 +1006,12 @@ const DistributorDashboard = () => {
   // showed the full ₹10,000 still owed. Now correctly subtracts
   // whatever's already been paid (paidSoFar, from the new
   // credit_payments ledger) from each entry before summing.
+  // Enterprise intelligence — computed from data already loaded, so
+  // no extra queries and it works offline like the rest of the panel.
+  const aging = agingBuckets(credits);
+  const atRiskShops = dormantShops(shops, stockOrders);
+  const trend = revenueTrend(stockOrders);
+
   const totalOutstanding = credits.filter(c => !c.paid).reduce((a, b) => a + (b.amount - (b.paidSoFar || 0)), 0);
   const totalReceived = credits.reduce((a, b) => a + (b.paidSoFar || (b.paid ? b.amount : 0)), 0);
   const pendingCredits = credits.filter(c => !c.paid);
@@ -1193,6 +1200,96 @@ const DistributorDashboard = () => {
               <span style={{ fontSize: 20 }}>→</span>
             </button>
           )}
+
+              {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
+                  Outstanding/collected/retailer-count are scoreboard
+                  numbers — true, but they don't tell a distributor what
+                  to DO. These two answer the questions the business
+                  actually runs on: which money is going bad, and which
+                  customers am I quietly losing. */}
+              {/* Lifetime "revenue collected" only ever rises, so it can
+                  never show a business shrinking. Last 30 days vs the 30
+                  before it can. */}
+              {(trend.current > 0 || trend.previous > 0) && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? '#059669' : '#DC2626' }}>
+                      {trend.changePct >= 0 ? '▲' : '▼'} {Math.abs(trend.changePct)}%
+                    </div>
+                    <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                      vs ₹{Math.round(trend.previous).toLocaleString('en-IN')} prior 30
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {aging.total > 0 && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0 }}>Receivables Aging</h3>
+                    {aging.atRisk > 0 && (
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? '#DC2626' : '#CA8A04' }}>
+                        ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
+                      </span>
+                    )}
+                  </div>
+                  {/* Proportional bar — the shape of the book is the
+                      insight; a total alone can't show it. */}
+                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: '#F1F5F9' }}>
+                    {aging.buckets.map(b => b.amount > 0 && (
+                      <div key={b.label} title={`${b.label}: ₹${Math.round(b.amount).toLocaleString('en-IN')}`}
+                        style={{ width: `${(b.amount / aging.total) * 100}%`, background: b.tone }} />
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 10 }}>
+                    {aging.buckets.map(b => (
+                      <div key={b.label} style={{ borderLeft: `3px solid ${b.tone}`, paddingLeft: 10 }}>
+                        <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : '#CBD5E1' }}>
+                          ₹{Math.round(b.amount).toLocaleString('en-IN')}
+                        </div>
+                        <div style={{ fontSize: 10, color: '#94A3B8' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {aging.atRiskPct >= 30 && (
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                      Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {atRiskShops.length > 0 && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 4px' }}>
+                    Accounts Going Quiet ({atRiskShops.length})
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px' }}>
+                    Ranked by revenue at stake — a shop rarely says it's leaving, it just stops ordering.
+                  </p>
+                  {atRiskShops.slice(0, 5).map(sh => (
+                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #F1F5F9', gap: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{sh.name}</div>
+                        <div style={{ fontSize: 11, color: sh.neverOrdered ? '#B45309' : '#64748B' }}>
+                          {sh.neverOrdered ? 'Linked but never ordered' : `No order in ${sh.daysQuiet} days`}
+                          {sh.lifetimeValue > 0 && ` · ₹${Math.round(sh.lifetimeValue).toLocaleString('en-IN')} lifetime`}
+                        </div>
+                      </div>
+                      {sh.phone && (
+                        <a href={`tel:${sh.phone}`} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          Call
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
           {/* ================= DASHBOARD TAB ================= */}
           {activeTab === 'dashboard' && (
@@ -2605,6 +2702,96 @@ const DistributorDashboard = () => {
               </div>
               <span style={{ fontSize: 20 }}>→</span>
             </button>
+
+              {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
+                  Outstanding/collected/retailer-count are scoreboard
+                  numbers — true, but they don't tell a distributor what
+                  to DO. These two answer the questions the business
+                  actually runs on: which money is going bad, and which
+                  customers am I quietly losing. */}
+              {/* Lifetime "revenue collected" only ever rises, so it can
+                  never show a business shrinking. Last 30 days vs the 30
+                  before it can. */}
+              {(trend.current > 0 || trend.previous > 0) && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? '#059669' : '#DC2626' }}>
+                      {trend.changePct >= 0 ? '▲' : '▼'} {Math.abs(trend.changePct)}%
+                    </div>
+                    <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                      vs ₹{Math.round(trend.previous).toLocaleString('en-IN')} prior 30
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {aging.total > 0 && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0 }}>Receivables Aging</h3>
+                    {aging.atRisk > 0 && (
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? '#DC2626' : '#CA8A04' }}>
+                        ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
+                      </span>
+                    )}
+                  </div>
+                  {/* Proportional bar — the shape of the book is the
+                      insight; a total alone can't show it. */}
+                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: '#F1F5F9' }}>
+                    {aging.buckets.map(b => b.amount > 0 && (
+                      <div key={b.label} title={`${b.label}: ₹${Math.round(b.amount).toLocaleString('en-IN')}`}
+                        style={{ width: `${(b.amount / aging.total) * 100}%`, background: b.tone }} />
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 10 }}>
+                    {aging.buckets.map(b => (
+                      <div key={b.label} style={{ borderLeft: `3px solid ${b.tone}`, paddingLeft: 10 }}>
+                        <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : '#CBD5E1' }}>
+                          ₹{Math.round(b.amount).toLocaleString('en-IN')}
+                        </div>
+                        <div style={{ fontSize: 10, color: '#94A3B8' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {aging.atRiskPct >= 30 && (
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                      Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {atRiskShops.length > 0 && (
+                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 4px' }}>
+                    Accounts Going Quiet ({atRiskShops.length})
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px' }}>
+                    Ranked by revenue at stake — a shop rarely says it's leaving, it just stops ordering.
+                  </p>
+                  {atRiskShops.slice(0, 5).map(sh => (
+                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #F1F5F9', gap: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{sh.name}</div>
+                        <div style={{ fontSize: 11, color: sh.neverOrdered ? '#B45309' : '#64748B' }}>
+                          {sh.neverOrdered ? 'Linked but never ordered' : `No order in ${sh.daysQuiet} days`}
+                          {sh.lifetimeValue > 0 && ` · ₹${Math.round(sh.lifetimeValue).toLocaleString('en-IN')} lifetime`}
+                        </div>
+                      </div>
+                      {sh.phone && (
+                        <a href={`tel:${sh.phone}`} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          Call
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <p style={{ fontSize: '14px', color: '#475569', margin: 0 }}>Total Market Outstanding</p>
               <h2 style={{ fontSize: '42px', fontWeight: 900, color: '#DC2626', margin: '8px 0' }}>₹{totalOutstanding}</h2>
