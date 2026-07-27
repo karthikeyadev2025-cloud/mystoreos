@@ -109,6 +109,38 @@ const shop = readFileSync('src/pages/ShopDashboard.jsx', 'utf8');
     : fail(`${name} — ${bad.length} mutation(s) use safe(), failures will be silent: ${bad.map(b => b[0]).join(', ')}`);
 });
 
+// ── 5. Every RPC the app calls must exist in a migration ───────────
+section('RPCs — every .rpc() target is defined in a migration');
+
+import { readdirSync } from 'fs';
+
+const migrationSrc = readdirSync('supabase/migrations')
+  .filter(f => f.endsWith('.sql'))
+  .map(f => readFileSync(`supabase/migrations/${f}`, 'utf8'))
+  .join('\n');
+
+const rpcTargets = new Set();
+const scanForRpc = (dir) => {
+  readdirSync(dir, { withFileTypes: true }).forEach(e => {
+    const full = `${dir}/${e.name}`;
+    if (e.isDirectory()) return scanForRpc(full);
+    if (!/\.(js|jsx)$/.test(e.name)) return;
+    [...readFileSync(full, 'utf8').matchAll(/\.rpc\('([a-z_]+)'/g)]
+      .forEach(m => rpcTargets.add(m[1]));
+  });
+};
+scanForRpc('src');
+
+[...rpcTargets].sort().forEach(fn => {
+  // Migrations declare functions both with and without the public.
+  // prefix, so match either — an over-strict pattern here produces
+  // false alarms that train people to ignore this check.
+  const re = new RegExp(`CREATE (?:OR REPLACE )?FUNCTION\\s+(?:public\\.)?${fn}\\b`);
+  re.test(migrationSrc)
+    ? pass(`${fn}`)
+    : fail(`${fn} — called in app code but no migration defines it (runtime failure)`);
+});
+
 console.log(
   failures === 0
     ? '\n\x1b[32m✔ all structural checks passed\x1b[0m\n'
