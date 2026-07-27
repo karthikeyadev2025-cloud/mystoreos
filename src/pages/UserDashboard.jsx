@@ -1182,7 +1182,26 @@ const UserDashboard = () => {
       const shopPhone = shopInfo?.phone || '9876543210';
       window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
 
-      // Clear cart and close modal immediately — don't wait for DB
+      // Save the order BEFORE clearing anything.
+      //
+      // This used to clear the cart, close the modal and play the
+      // success scratch-card FIRST, then save to the DB afterwards
+      // ("don't wait for DB"). When that save failed — RLS, network, a
+      // dropped connection on mobile — the customer had already sent
+      // the WhatsApp message, lost their cart, and been shown a success
+      // animation, while no order existed anywhere. The shop received a
+      // WhatsApp with nothing in their dashboard to match it against.
+      // That is exactly the "checkout not working" report.
+      //
+      // The window.open above still fires synchronously before any
+      // await, which is the real constraint here — mobile browsers
+      // block popups that aren't in the direct gesture handler. Only
+      // the destructive local cleanup moved after the save.
+      const placedOrder = await api.placeOrder(
+        effectiveUser.id, ACTIVE_SHOP_ID, items, total, { phone: effectiveUser.phone || '' }
+      );
+
+      // Confirmed saved — now it's safe to clear.
       setCart({});
       try {
         const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
@@ -1198,12 +1217,6 @@ const UserDashboard = () => {
       setScratchCardRevealed(false);
       setScratchModalOpen(true);
 
-      // Persist order to DB — non-blocking, UX already done
-      // Pass customer phone so customer_phone column is written — this is
-      // what ties shop-billed orders (owner typed their phone) to this
-      // account when they later register. Without it, customer_phone = null
-      // and phone-based bill reconciliation misses their own storefront orders.
-      const placedOrder = await api.placeOrder(effectiveUser.id, ACTIVE_SHOP_ID, items, total, { phone: effectiveUser.phone || '' });
       const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
       setLastOrderId(orderId);
       playPaymentSuccessSound();
@@ -1211,7 +1224,14 @@ const UserDashboard = () => {
       loadOrderHistory();
     } catch (err) {
       console.error(err);
-      toast.error('Order could not be saved. Please contact the shop. Error: ' + (err.message || err));
+      // The cart is deliberately still intact here — the save failed, so
+      // nothing was cleared. Telling them to just retry is honest and
+      // actionable, unlike the old path which had already emptied their
+      // cart before it knew whether the order saved.
+      toast.error(
+        'Order could not be saved — your cart is still here, please tap Place Order again. ('
+        + (err.message || err) + ')'
+      );
     }
   };
 
@@ -1918,9 +1938,16 @@ const UserDashboard = () => {
                               localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
                             } catch { /* ignore */ }
                             setPaymentProof('');
+                            // Same clear-before-save bug as the main
+                            // checkout path: the cart was emptied above,
+                            // then this fired without awaiting. A failed
+                            // save left the customer with no cart and no
+                            // order. Now the failure is stated plainly so
+                            // they know to tell the shop, rather than a
+                            // vague "could not save to history".
                             api.placeOrder(user.id, ACTIVE_SHOP_ID, items, total, { phone: user.phone || '' })
                               .then(p => { setLastOrderId(p?.id || ('o_' + Math.random().toString(36).substring(2,10))); loadOrderHistory(); })
-                              .catch(err => { console.error(err); toast.error('Order sent but could not save to history.'); });
+                              .catch(err => { console.error(err); toast.error('WhatsApp sent, but the order did NOT save. Please confirm directly with the shop.'); });
                           }} 
                           style={{ width: '100%', background: 'linear-gradient(135deg, #25d366, #128c7e)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '14px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.2)' }}
                         >
