@@ -3783,6 +3783,20 @@ export const api = {
     return data;
   },
 
+  // Posts a delivered stock order's value to the shop's credit ledger.
+  // Deliberately an explicit action, not automatic: stock_orders has no
+  // payment_mode, so the system can't tell a cash-on-delivery order from
+  // one taken on credit, and auto-posting would invent debt for shops
+  // that already paid. Idempotent server-side.
+  async postStockOrderToCredit(orderId, distributorId) {
+    if (!isSupabaseConfigured) throw new Error('Requires an online connection.');
+    const { data, error } = await supabase.rpc('post_stock_order_to_credit', {
+      p_order_id: orderId, p_distributor_id: distributorId,
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
   async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('stock_orders').insert({
@@ -3858,6 +3872,7 @@ export const api = {
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
         receivedAt: row.received_at || null,
+        creditPostedId: row.credit_posted_id || null,
         customerName: row.customer_name || null,
         customerPhone: row.customer_phone || null,
         createdByDistributor: row.created_by_distributor || false,
@@ -3879,6 +3894,7 @@ export const api = {
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
         receivedAt: row.received_at || null,
+        creditPostedId: row.credit_posted_id || null,
         customerName: row.customer_name || null,
         customerPhone: row.customer_phone || null,
         createdByDistributor: row.created_by_distributor || false,

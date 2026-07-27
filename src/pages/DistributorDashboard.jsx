@@ -126,7 +126,7 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor, shopPhone, distributorCatalog }) {
+function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, onReject, onDispatch, distributor, shopPhone, distributorCatalog, onPostCredit }) {
   const [dateInput, setDateInput] = useState('');
 
   return (
@@ -200,6 +200,26 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
             <button onClick={() => downloadStockOrderInvoice(o, distributor, distributorCatalog)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               🧾 Download Invoice
             </button>
+          )}
+
+          {/* Van and counter sales post to the credit ledger
+              automatically; stock orders did not, so a distributor had
+              to re-type the amount by hand — easy to mistype, easy to
+              forget entirely. Not automatic because stock_orders has no
+              payment_mode, so we genuinely can't tell cash-on-delivery
+              from credit; one tap with the right figure is the honest
+              middle. */}
+          {o.status === 'delivered' && o.shopId && (
+            o.creditPostedId ? (
+              <div style={{ marginTop: 8, textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#059669' }}>
+                ✅ On credit ledger
+              </div>
+            ) : (
+              <button onClick={() => onPostCredit && onPostCredit(o)}
+                style={{ width: '100%', marginTop: 8, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                ₹ Add ₹{o.total} to credit ledger
+              </button>
+            )
           )}
 
           {/* WhatsApp order sharing — explicitly promised on the Basic
@@ -882,6 +902,17 @@ const DistributorDashboard = () => {
     });
     msg += `Reply to place your order!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  // One tap instead of re-typing the amount into the credit tab.
+  const handlePostStockOrderCredit = async (o) => {
+    try {
+      await mustSucceed(() => api.postStockOrderToCredit(o.id, user.id), 'Add to credit ledger');
+      toast.success(`₹${o.total} added to ${o.shopName}'s ledger`);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not add to credit ledger');
+    }
   };
 
   const handleUpdateStockOrder = async (orderId, status, expectedDate) => {
@@ -1700,6 +1731,23 @@ const DistributorDashboard = () => {
                           >
                             🧾 Download Invoice
                           </button>
+                        )}
+                        {/* Same one-tap credit posting as the mobile
+                            card — both trees, so a desktop user isn't
+                            left re-typing amounts by hand. */}
+                        {selectedOrder.status === 'delivered' && selectedOrder.shopId && (
+                          selectedOrder.creditPostedId ? (
+                            <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#059669' }}>
+                              ✅ On credit ledger
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handlePostStockOrderCredit(selectedOrder)}
+                              style={{ width: '100%', marginTop: 12, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                              ₹ Add ₹{selectedOrder.total} to credit ledger
+                            </button>
+                          )
                         )}
                         {(() => {
                           const selShopPhone = shops.find(s => s.id === selectedOrder.shopId)?.phone;
@@ -2967,6 +3015,7 @@ const DistributorDashboard = () => {
                 distributor={user}
                 shopPhone={shops.find(s => s.id === o.shopId)?.phone}
                 distributorCatalog={wholesaleProducts}
+                onPostCredit={handlePostStockOrderCredit}
               />
             ))
           )}
