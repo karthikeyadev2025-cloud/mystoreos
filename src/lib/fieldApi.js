@@ -107,12 +107,18 @@ export const fieldApi = {
   async getWarehouseStock(warehouseId) {
     if (!isSupabaseConfigured || !warehouseId) return [];
     const { data } = await supabase.from('warehouse_stock')
-      .select('*, distributor_products(name, unit)')
+      // hsn_code / gst_rate / sku come along so a van sale can produce a
+      // proper GST tax invoice at the counter, not just a text receipt.
+      .select('*, distributor_products(name, unit, hsn_code, gst_rate, sku)')
       .eq('warehouse_id', warehouseId).gt('qty_base', 0);
     return (data || []).map(r => ({
       id: r.id,
       productId: r.product_id,
       productName: r.distributor_products?.name || 'Unknown product',
+      unit: r.distributor_products?.unit || null,
+      hsnCode: r.distributor_products?.hsn_code || '',
+      gstRate: Number(r.distributor_products?.gst_rate) || 0,
+      sku: r.distributor_products?.sku || '',
       batchId: r.batch_id,
       qtyBase: Number(r.qty_base),
       condition: r.condition,

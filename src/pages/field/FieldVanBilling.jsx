@@ -24,6 +24,8 @@ import { distributorIdOf, actorIdOf } from '../../lib/fieldIdentity';
 import vanQueue from '../../lib/vanBillingQueue';
 import { validateImageFile } from '../../lib/fileValidation';
 import { getDistCaps } from '../../lib/features';
+import { printInvoice } from '../../lib/invoicePrint';
+import { UNIT_SUFFIX } from '../../lib/units';
 
 const RETURN_REASONS = [
   { v: 'expired', l: 'Expired' },
@@ -201,7 +203,9 @@ export default function FieldVanBilling() {
     setCart(prev => {
       const found = prev.find(l => l.productId === pickProduct);
       if (found) return prev.map(l => l.productId === pickProduct ? { ...l, qtyBase: l.qtyBase + qty } : l);
-      return [...prev, { productId: pickProduct, name: selectedStock.productName, qtyBase: qty, rate }];
+      return [...prev, { productId: pickProduct, name: selectedStock.productName, qtyBase: qty, rate,
+        hsn: selectedStock.hsnCode || '', gstPct: selectedStock.gstRate || 0,
+        sku: selectedStock.sku || '', unit: selectedStock.unit || '' }];
     });
     setPickQty(''); setPickRate('');
   };
@@ -238,7 +242,9 @@ export default function FieldVanBilling() {
         return sold ? { ...s, qtyBase: s.qtyBase - sold.qtyBase } : s;
       }));
 
-      setLastReceipt({ ...invoice, shopName: shops.find(s => s.id === shopId)?.name, lines: cart });
+      setLastReceipt({ ...invoice, lines: cart,
+        shopName: shopId ? shops.find(s => s.id === shopId)?.name : walkInName.trim(),
+        customerPhone: shopId ? '' : walkInPhone.trim() });
       setCart([]); setShopId(''); setWalkInName(''); setWalkInPhone('');
       refreshPendingCount();
       toast.success(`${invoiceRef} — ₹${total.toLocaleString('en-IN')}`);
@@ -252,6 +258,53 @@ export default function FieldVanBilling() {
     const lines = lastReceipt.lines.map(l => `${l.name} x${l.qtyBase} = ₹${(l.qtyBase * l.rate).toLocaleString('en-IN')}`).join('\n');
     const msg = `🧾 *${lastReceipt.invoiceRef}*\n${lastReceipt.shopName}\n\n${lines}\n\n*Total: ₹${lastReceipt.total.toLocaleString('en-IN')}*\nPaid via ${lastReceipt.paymentMode}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  // A real, printable invoice for a van sale — the same engine the rest
+  // of MyStore OS uses, not a second half-built one.
+  //
+  // Picks the GST tax template when the distributor has a GSTIN (that's
+  // the compliant document their customer actually needs for input
+  // credit), and falls back to the wholesale layout when they don't, so
+  // a non-GST distributor isn't handed a form full of empty tax rows.
+  //
+  // Works fully offline: everything it needs is already on the receipt
+  // object in memory, so a rep can print or hand over a proper invoice
+  // with no signal at all.
+  const printSaleInvoice = () => {
+    if (!lastReceipt) return;
+    const hasGstin = !!(user?.gstin && String(user.gstin).trim());
+    printInvoice(hasGstin ? 'gst_tax' : 'wholesale', {
+      shopName: user?.name || 'Distributor',
+      shopPhone: user?.phone || '',
+      shopAddress: user?.businessAddress || '',
+      shopGSTIN: user?.gstin || '',
+      logoUrl: user?.logo || '',
+      billNo: lastReceipt.invoiceRef,
+      dateStr: new Date(lastReceipt.issuedAt).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      }),
+      modeTitle: hasGstin ? 'Tax Invoice' : 'Invoice',
+      customerName: lastReceipt.shopName || 'Customer',
+      customerPhone: lastReceipt.customerPhone || '',
+      items: lastReceipt.lines.map(l => ({
+        code: l.sku || '',
+        name: l.name,
+        hsn: l.hsn || '',
+        qty: l.qtyBase,
+        unit: l.unit ? (UNIT_SUFFIX[l.unit] || l.unit) : '',
+        rate: l.rate,
+        // Drives the CGST/SGST split the template computes per line.
+        gstPct: l.gstPct || 0,
+      })),
+      subtotal: lastReceipt.total,
+      discountAmount: 0,
+      roundOff: 0,
+      total: lastReceipt.total,
+      paymentMode: lastReceipt.paymentMode,
+      footerNote: 'Thank you for your business.',
+      termsNote: 'Goods once sold are governed by standard trade terms.',
+    }, 'a4');
   };
 
   // ─── RETURNS ──────────────────────────────────────────────────────
@@ -410,10 +463,16 @@ export default function FieldVanBilling() {
                     <CheckCircle2 size={14} color="#059669" />
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#047857' }}>{lastReceipt.invoiceRef} · ₹{lastReceipt.total.toLocaleString('en-IN')}</span>
                   </div>
-                  <button onClick={shareReceipt}
-                    style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Receipt size={12} /> Share Receipt
-                  </button>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={printSaleInvoice}
+                      style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Receipt size={12} /> Print Invoice
+                    </button>
+                    <button onClick={shareReceipt}
+                      style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      💬 Share
+                    </button>
+                  </div>
                 </div>
               )}
 
