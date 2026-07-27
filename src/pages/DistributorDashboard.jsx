@@ -1208,6 +1208,14 @@ const DistributorDashboard = () => {
               </div>
               <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
             </button>
+            <button onClick={() => navigate('/distributor/reports')}
+              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800 }}>📊 Reports</div>
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+            </button>
             </>
           )}
 
@@ -2717,6 +2725,14 @@ const DistributorDashboard = () => {
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800 }}>📥 Purchases</div>
                 <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+            </button>
+            <button onClick={() => navigate('/distributor/reports')}
+              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800 }}>📊 Reports</div>
+                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
               </div>
               <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
             </button>
