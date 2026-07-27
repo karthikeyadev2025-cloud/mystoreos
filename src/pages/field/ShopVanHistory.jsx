@@ -28,6 +28,28 @@ export default function ShopVanHistory() {
   const [data, setData] = useState({ purchases: [], returns: [] });
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('purchases');
+  const [busy, setBusy] = useState(null);
+
+  // Van purchases had no route into the shop's inventory at all — the
+  // stock-order flow has an "Add to Stock" step, van sales had nothing,
+  // so a shopkeeper had to hand-edit every product after a van visit.
+  const receiveIntoStock = async (item) => {
+    setBusy(item.id);
+    try {
+      const r = await fieldApi.receiveVanInvoice(item.id, user.id);
+      const parts = [];
+      if (r?.updated) parts.push(`${r.updated} topped up`);
+      if (r?.created) parts.push(`${r.created} added`);
+      toast.success(parts.length ? parts.join(' · ') : 'Added to your stock');
+      setData(d => ({
+        ...d,
+        purchases: d.purchases.map(p => p.id === item.id ? { ...p, receivedAt: new Date().toISOString() } : p),
+      }));
+    } catch (e) {
+      toast.error(e.message || 'Could not add to stock');
+    } finally { setBusy(null); }
+  };
+
 
   useEffect(() => {
     if (!shopId) return;
@@ -112,10 +134,18 @@ export default function ShopVanHistory() {
             ))}
           </div>
           {tab === 'purchases' && (
-            <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                 Paid via {item.paymentMode}
               </span>
+              {item.receivedAt ? (
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#059669' }}>✅ In your stock</span>
+              ) : (
+                <button onClick={() => receiveIntoStock(item)} disabled={busy === item.id}
+                  style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                  📦 {busy === item.id ? 'Adding…' : 'Add to my stock'}
+                </button>
+              )}
               <button
                 onClick={() => {
                   const lines = item.lines.map(l => `${l.name} x${l.qty}`).join('\n');

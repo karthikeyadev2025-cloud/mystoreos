@@ -719,6 +719,7 @@ export const fieldApi = {
       purchases: (invoices || []).map(i => ({
         id: i.id, ref: i.invoice_ref, distributorName: i.users?.name || 'Distributor',
         total: Number(i.total), paymentMode: i.payment_mode, issuedAt: i.issued_at,
+        receivedAt: i.received_at || null,
         lines: (i.van_invoice_lines || []).map(l => ({ name: l.distributor_products?.name || 'Item', qty: Number(l.qty_base), rate: Number(l.rate) })),
       })),
       returns: (returns || []).map(r => ({
@@ -727,6 +728,19 @@ export const fieldApi = {
         lines: (r.van_return_lines || []).map(l => ({ name: l.distributor_products?.name || 'Item', qty: Number(l.qty_base), rate: Number(l.rate) })),
       })),
     };
+  },
+
+  // Adds a van purchase into the shop's own inventory. Same explicit
+  // step as receiving a stock order — distributor and shop catalogues
+  // are separate, so auto-creating products on every van sale would
+  // fill a shop's catalogue with rows they never agreed to.
+  async receiveVanInvoice(invoiceId, shopId) {
+    requireOnline();
+    const { data, error } = await supabase.rpc('receive_van_invoice', {
+      p_invoice_id: invoiceId, p_shop_id: shopId,
+    });
+    if (error) throw new Error(error.message);
+    return data;
   },
 
   // ─── DIAGNOSTICS ──────────────────────────────────────────────────
