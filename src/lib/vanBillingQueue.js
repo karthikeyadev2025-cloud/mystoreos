@@ -127,6 +127,8 @@ export async function syncPendingInvoices(vehicleId) {
         p_amount_paid: inv.amountPaid,
         p_lines: inv.lines,
         p_rep_id: inv.repId || null,
+        p_customer_name: inv.customerName || null,
+        p_customer_phone: inv.customerPhone || null,
       });
       if (error) throw new Error(error.message);
       inv.synced = true;
@@ -214,6 +216,8 @@ export async function syncPendingReturns(vehicleId) {
         p_lines: ret.lines,
         p_photo_url: ret.photoUrl || null,
         p_rep_id: ret.repId || null,
+        p_customer_name: ret.customerName || null,
+        p_customer_phone: ret.customerPhone || null,
       });
       if (error) throw new Error(error.message);
       ret.synced = true;

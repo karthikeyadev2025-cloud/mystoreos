@@ -54,6 +54,11 @@ export default function FieldVanBilling() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const [shopId, setShopId] = useState('');
+  // A rep passing an unlinked shop must still be able to sell. Empty
+  // shopId + a typed name = walk-in; the server enforces that credit
+  // still requires a real linked account.
+  const [walkInName, setWalkInName] = useState('');
+  const [walkInPhone, setWalkInPhone] = useState('');
   const [cart, setCart] = useState([]);
   const [pickProduct, setPickProduct] = useState('');
   const [pickQty, setPickQty] = useState('');
@@ -207,14 +212,17 @@ export default function FieldVanBilling() {
   // critical path. Number allocation and the local save are both
   // synchronous — this completes instantly regardless of signal.
   const completeSale = () => {
-    if (!shopId) return toast.error('Pick the shop');
+    if (!shopId && !walkInName.trim()) return toast.error('Pick a shop or enter the customer name');
+    if (!shopId && paymentMode === 'credit') return toast.error('Credit needs a linked shop — take cash or UPI');
     if (cart.length === 0) return toast.error('Cart is empty');
 
     try {
       const { invoiceNo, invoiceRef } = vanQueue.allocateInvoiceNumber(vehicleId);
       const invoice = {
         distributorId: distId,
-        shopId, repId: actorId,
+        shopId: shopId || null, repId: actorId,
+        customerName: shopId ? null : walkInName.trim(),
+        customerPhone: shopId ? null : walkInPhone.trim(),
         invoiceNo, invoiceRef,
         issuedAt: new Date().toISOString(),
         total, paymentMode, amountPaid: total,
@@ -231,7 +239,7 @@ export default function FieldVanBilling() {
       }));
 
       setLastReceipt({ ...invoice, shopName: shops.find(s => s.id === shopId)?.name, lines: cart });
-      setCart([]); setShopId('');
+      setCart([]); setShopId(''); setWalkInName(''); setWalkInPhone('');
       refreshPendingCount();
       toast.success(`${invoiceRef} — ₹${total.toLocaleString('en-IN')}`);
     } catch (e) {
@@ -268,14 +276,16 @@ export default function FieldVanBilling() {
   // network call on the critical path. A return is recorded and
   // credited on the spot regardless of signal.
   const completeReturn = () => {
-    if (!shopId) return toast.error('Pick the shop');
+    if (!shopId && !walkInName.trim()) return toast.error('Pick a shop or enter the customer name');
     if (returnCart.length === 0) return toast.error('Add at least one item');
 
     try {
       const { creditNo, creditRef } = vanQueue.allocateCreditNoteNumber(vehicleId);
       const ret = {
         distributorId: distId,
-        shopId, repId: actorId,
+        shopId: shopId || null, repId: actorId,
+        customerName: shopId ? null : walkInName.trim(),
+        customerPhone: shopId ? null : walkInPhone.trim(),
         creditNo, creditRef,
         issuedAt: new Date().toISOString(),
         reason: returnReason,
@@ -286,7 +296,7 @@ export default function FieldVanBilling() {
       vanQueue.queueReturn(vehicleId, ret);
 
       setLastReturnReceipt({ ...ret, shopName: shops.find(s => s.id === shopId)?.name, lines: returnCart });
-      setReturnCart([]); setShopId(''); setReturnPhoto('');
+      setReturnCart([]); setShopId(''); setWalkInName(''); setWalkInPhone(''); setReturnPhoto('');
       refreshPendingCount();
       toast.success(`${creditRef} — ₹${returnTotal.toLocaleString('en-IN')} credited`);
     } catch (e) {
@@ -419,10 +429,16 @@ export default function FieldVanBilling() {
               {mode === 'sell' && (
               <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
-                <select value={shopId} onChange={e => setShopId(e.target.value)} style={{ ...S.input, marginBottom: 12 }}>
-                  <option value="">— select —</option>
+                <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setWalkInName(''); setWalkInPhone(''); } }} style={{ ...S.input, marginBottom: shopId ? 12 : 8 }}>
+                  <option value="">— walk-in / not listed —</option>
                   {shops.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
+                {!shopId && (
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                    <input value={walkInName} onChange={e => setWalkInName(e.target.value)} placeholder="Customer / shop name" style={S.input} />
+                    <input value={walkInPhone} onChange={e => setWalkInPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} inputMode="numeric" placeholder="Phone (optional)" style={S.input} />
+                  </div>
+                )}
 
                 <label style={S.label}>Product (van stock)</label>
                 <select value={pickProduct} onChange={e => { setPickProduct(e.target.value); setPickRate(''); }} style={{ ...S.input, marginBottom: 8 }}>
@@ -459,13 +475,22 @@ export default function FieldVanBilling() {
                       ₹{total.toLocaleString('en-IN')}
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                      {['cash', 'upi', 'credit'].map(m => (
-                        <button key={m} onClick={() => setPaymentMode(m)}
-                          style={{ flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 700, textTransform: 'capitalize', cursor: 'pointer',
+                      {['cash', 'upi', 'credit'].map(m => {
+                        // Credit needs a real account to owe against, so it's
+                        // disabled for walk-ins rather than failing at sync
+                        // time with the goods already handed over.
+                        const blocked = m === 'credit' && !shopId;
+                        return (
+                        <button key={m} disabled={blocked}
+                          title={blocked ? 'Credit needs a linked shop' : ''}
+                          onClick={() => !blocked && setPaymentMode(m)}
+                          style={{ flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 700, textTransform: 'capitalize',
                             border: `1px solid ${paymentMode === m ? '#4F46E5' : '#E2E8F0'}`,
                             background: paymentMode === m ? '#EEF2FF' : '#fff',
-                            color: paymentMode === m ? '#4338CA' : '#64748B' }}>{m}</button>
-                      ))}
+                            color: paymentMode === m ? '#4338CA' : '#64748B',
+                            opacity: blocked ? 0.4 : 1, cursor: blocked ? 'not-allowed' : 'pointer' }}>{m}</button>
+                        );
+                      })}
                     </div>
                     <button onClick={completeSale}
                       style={{ width: '100%', background: '#059669', color: '#fff', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
@@ -479,10 +504,16 @@ export default function FieldVanBilling() {
               {mode === 'return' && (
               <div style={{ background: '#fff', border: '1px solid #FECACA', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
-                <select value={shopId} onChange={e => setShopId(e.target.value)} style={{ ...S.input, marginBottom: 12 }}>
-                  <option value="">— select —</option>
+                <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setWalkInName(''); setWalkInPhone(''); } }} style={{ ...S.input, marginBottom: shopId ? 12 : 8 }}>
+                  <option value="">— walk-in / not listed —</option>
                   {shops.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
+                {!shopId && (
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                    <input value={walkInName} onChange={e => setWalkInName(e.target.value)} placeholder="Customer / shop name" style={S.input} />
+                    <input value={walkInPhone} onChange={e => setWalkInPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} inputMode="numeric" placeholder="Phone (optional)" style={S.input} />
+                  </div>
+                )}
 
                 <label style={S.label}>Reason</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
