@@ -1485,6 +1485,42 @@ export const api = {
     if (!Array.isArray(items) || items.length === 0) {
       throw new Error('Your cart is empty. Add at least one item before placing the order.');
     }
+
+    // Server-side price check. Everything above this point trusted the
+    // browser: item prices and the order total were stored exactly as
+    // sent, and the RLS insert policy on `orders` is WITH CHECK (true),
+    // so nothing verified the customer paid what the shop actually
+    // charges. A modified request could book a ₹5,000 basket for ₹50.
+    //
+    // validate_order_total() recomputes from the shop's own product
+    // rows — including variant overrides and discounts — and rejects
+    // only when the submitted figure is materially LOWER than the
+    // truth. A HIGHER total is allowed through deliberately: that
+    // happens when a shop drops a price while the customer has the
+    // page open, and blocking someone willing to pay more would be a
+    // bad trade.
+    //
+    // Best-effort: if the function isn't deployed yet, the order still
+    // goes through rather than blocking every checkout on a missing
+    // migration. A price check that takes the whole shop offline when
+    // it fails is worse than the gap it closes.
+    if (isSupabaseConfigured) {
+      try {
+        const { data: check, error: checkErr } = await supabase.rpc('validate_order_total', {
+          p_shop_id: shopId, p_items: items, p_total: total,
+        });
+        if (!checkErr && check && check.ok === false && check.reason === 'price_mismatch') {
+          throw new Error(
+            `Prices have changed since you added these items (this shop now totals ₹${check.expected}). ` +
+            'Please refresh the page and try again.'
+          );
+        }
+      } catch (e) {
+        // Rethrow OUR mismatch error; swallow anything else (function
+        // missing, network blip) so checkout isn't held hostage by it.
+        if (e?.message?.startsWith('Prices have changed')) throw e;
+      }
+    }
     // Normalize the customer phone to a canonical last-10-digits form.
     // This is what we store on the row and what we match against when
     // the customer later creates an account and looks up "My Bills".
