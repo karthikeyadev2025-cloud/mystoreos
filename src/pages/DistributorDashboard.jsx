@@ -1179,6 +1179,21 @@ const DistributorDashboard = () => {
             </div>
           )}
 
+          {/* The most-used action in a real distribution business: taking
+              an order at the counter or on the phone. Sits above the
+              dashboard rather than buried in a tab because it's what a
+              distributor opens the app to DO. */}
+          {activeTab === 'dashboard' && (
+            <button onClick={() => navigate('/distributor/new-sale')}
+              style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>🛒 New Sale</div>
+                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
+              </div>
+              <span style={{ fontSize: 20 }}>→</span>
+            </button>
+          )}
+
           {/* ================= DASHBOARD TAB ================= */}
           {activeTab === 'dashboard' && (
             <div className="responsive-split-grid" style={{ width: '100%' }}>

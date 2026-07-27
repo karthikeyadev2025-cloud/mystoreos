@@ -3710,6 +3710,25 @@ export const api = {
     return true;
   },
 
+  // A distributor selling from the counter or over the phone. Lands in
+  // the SAME stock_orders pipeline as a shop-placed order, so dispatch
+  // tracking, invoicing and the credit ledger all work identically —
+  // no parallel flow to maintain.
+  async createDirectSale(distributorId, { shopId = null, customerName = '', customerPhone = '', items, total, paymentMode = 'cash' }) {
+    if (!isSupabaseConfigured) throw new Error('Requires an online connection.');
+    const { data, error } = await supabase.rpc('create_direct_sale', {
+      p_distributor_id: distributorId,
+      p_shop_id: shopId,
+      p_customer_name: customerName || null,
+      p_customer_phone: customerPhone || null,
+      p_items: items,
+      p_total: total,
+      p_payment_mode: paymentMode,
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
   async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('stock_orders').insert({
@@ -3785,6 +3804,9 @@ export const api = {
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
         receivedAt: row.received_at || null,
+        customerName: row.customer_name || null,
+        customerPhone: row.customer_phone || null,
+        createdByDistributor: row.created_by_distributor || false,
       }));
     }
     const db = getDB();
@@ -3803,6 +3825,9 @@ export const api = {
         dispatchedAt: row.dispatched_at || null,
         deliveredAt: row.delivered_at || null,
         receivedAt: row.received_at || null,
+        customerName: row.customer_name || null,
+        customerPhone: row.customer_phone || null,
+        createdByDistributor: row.created_by_distributor || false,
       }));
     }
     const db = getDB();
