@@ -3575,6 +3575,21 @@ export const api = {
   },
 
   // ---- DISTRIBUTOR WHOLESALE CATALOG & ORDERS ----
+  // For the PUBLIC catalog page — reachable by someone who has never
+  // logged in, which is the entire point of sharing a catalog link with
+  // shops that don't have accounts yet. Routed through a security-
+  // definer function rather than a table grant: see
+  // 20260811_public_distributor_catalog.sql for why a plain RLS policy
+  // or column GRANT was rejected as unsafe for this table specifically.
+  async getDistributorPublicProfile(code) {
+    if (!isSupabaseConfigured || !code) return null;
+    const { data, error } = await supabase.rpc('get_distributor_public_profile', { p_code: code });
+    if (error) throw new Error(error.message);
+    const row = data?.[0];
+    if (!row) return null;
+    return { id: row.id, name: row.name, logo: row.logo || null, businessAddress: row.business_address || null };
+  },
+
   async getDistributorProducts(distributorId) {
     if (isSupabaseConfigured) {
       let query = supabase.from('distributor_products').select('*');

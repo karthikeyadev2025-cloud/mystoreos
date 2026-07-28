@@ -1084,8 +1084,23 @@ const DistributorDashboard = () => {
     }, 'a4');
   };
 
-  const distCode = user?.id ? `DST-${user.id.substring(0, 6).toUpperCase()}` : 'DST-OFFICIAL';
-  const publicCatalogUrl = `https://mystoreos.in/shop?distributor=${distCode}`;
+  // Was `DST-${user.id.substring(0,6)}` — a string computed locally
+  // that never matched the real public_code column in the database at
+  // all. Two consequences, both real: (1) a shop trying to manually
+  // enter this "code" into the existing, working linkByPublicCode flow
+  // would always get "No shop or distributor found with that code",
+  // since it matched nothing; (2) the shared link's destination
+  // (fixed below) had no way to look this distributor up correctly
+  // either way. user.publicCode is the actual value generated at
+  // signup by gen_public_code('DST') and is what linkByPublicCode
+  // already looks up against.
+  const distCode = user?.publicCode || 'DST-OFFICIAL';
+  // Was /shop?distributor=CODE — that page requires a shop/staff login
+  // and has no code anywhere reading a distributor query param, so it
+  // could never render anything for the ~10,000 shops this link is
+  // actually meant to reach. Now points at the public catalog page,
+  // reachable with no account at all.
+  const publicCatalogUrl = `https://mystoreos.in/catalog/${distCode}`;
 
   const handleCopyPublicCatalogLink = () => {
     navigator.clipboard.writeText(publicCatalogUrl);

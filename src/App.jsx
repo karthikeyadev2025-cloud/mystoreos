@@ -13,6 +13,7 @@ import { DashboardSkeleton } from './components/Skeleton';
 
 // Route-level code splitting — each page loads only when navigated to
 const Login = lazy(() => import('./pages/Login'));
+const PublicCatalog = lazy(() => import('./pages/PublicCatalog'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const AuthReset = lazy(() => import('./pages/AuthReset'));
 const Register = lazy(() => import('./pages/Register'));
@@ -275,6 +276,15 @@ function App() {
                 <Route path="/login" element={
                   <Suspense fallback={<PageLoader />}>
                     <ErrorBoundary fullPage><AppLayout><Login /></AppLayout></ErrorBoundary>
+                  </Suspense>
+                } />
+                {/* PUBLIC — no PrivateRoute wrapper at all, deliberately.
+                    This is the actual fix for the shared distributor
+                    link: the whole point is reaching shops with no
+                    account yet. */}
+                <Route path="/catalog/:code" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ErrorBoundary fullPage><PublicCatalog /></ErrorBoundary>
                   </Suspense>
                 } />
                 <Route path="/register" element={
