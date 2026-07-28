@@ -172,9 +172,21 @@ priceFiles.forEach(f => {
 });
 if (hardcoded === 0) pass('all tier prices derive from planCatalogue.js');
 
+// ── 7. Invoice Templates — every template ID has a matching renderer ─────────
+section('Invoice Templates — all templates have registered renderers');
+
+const invTemplatesSrc = readFileSync('src/lib/invoiceTemplates.js', 'utf8');
+const registeredRenderers = new Set([...invTemplatesSrc.matchAll(/(\w+):\s*render\w+/g)].map(m => m[1]));
+['classic', 'wholesale', 'gst_tax', 'minimal', 'modern', 'catalog', 'party_statement'].forEach(t => {
+  registeredRenderers.has(t)
+    ? pass(`template renderer: ${t}`)
+    : fail(`template renderer: ${t} — missing from RENDERERS in invoiceTemplates.js`);
+});
+
 console.log(
   failures === 0
     ? '\n\x1b[32m✔ all structural checks passed\x1b[0m\n'
     : `\n\x1b[31m✘ ${failures} structural check(s) failed\x1b[0m\n`
 );
 process.exit(failures === 0 ? 0 : 1);
+

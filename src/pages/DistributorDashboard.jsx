@@ -110,6 +110,93 @@ function downloadStockOrderInvoice(o, distributor, distributorCatalog = []) {
   }, 'a4');
 }
 
+// Vyapar-style Party Ledger Statement generator — builds a chronological
+// ledger statement of all invoices, payments, stock orders, and credit notes
+// for a retail shop/party, and prints a formal A4 statement.
+function downloadPartyStatement(shop, credits = [], stockOrders = [], distributor) {
+  const shopCredits = credits.filter(c => c.toShopId === shop.id || c.shopId === shop.id);
+  const shopOrders = stockOrders.filter(o => o.shopId === shop.id && o.status !== 'rejected');
+
+  const txs = [];
+
+  shopCredits.forEach(c => {
+    const isCreditNote = Number(c.amount) < 0 || (c.desc || '').toLowerCase().includes('return') || (c.desc || '').toLowerCase().includes('credit note');
+    if (isCreditNote) {
+      txs.push({
+        date: new Date(c.date || Date.now()).toLocaleDateString('en-IN'),
+        rawDate: new Date(c.date || Date.now()).getTime(),
+        refNo: `CN-${c.id?.toString().slice(-6) || 'RET'}`,
+        type: 'Credit Note',
+        description: c.desc || 'Sales Return / Credit Adjustment',
+        debit: 0,
+        credit: Math.abs(Number(c.amount)),
+      });
+    } else {
+      txs.push({
+        date: new Date(c.date || Date.now()).toLocaleDateString('en-IN'),
+        rawDate: new Date(c.date || Date.now()).getTime(),
+        refNo: `CRD-${c.id?.toString().slice(-6) || 'CR'}`,
+        type: 'Invoice',
+        description: c.desc || 'Wholesale Stock Credit Supply',
+        debit: Number(c.amount),
+        credit: 0,
+      });
+    }
+
+    if (c.paidSoFar > 0) {
+      txs.push({
+        date: new Date(c.date || Date.now()).toLocaleDateString('en-IN'),
+        rawDate: new Date(c.date || Date.now()).getTime() + 1,
+        refNo: `PAY-${c.id?.toString().slice(-6) || 'PMT'}`,
+        type: 'Payment',
+        description: 'Payment Received / Credit Cleared',
+        debit: 0,
+        credit: Number(c.paidSoFar),
+      });
+    }
+  });
+
+  shopOrders.forEach(o => {
+    txs.push({
+      date: new Date(o.date || Date.now()).toLocaleDateString('en-IN'),
+      rawDate: new Date(o.date || Date.now()).getTime(),
+      refNo: `STK-${o.id?.toString().slice(-6) || 'ORD'}`,
+      type: 'Stock Order',
+      description: `Wholesale Order (${o.items?.length || 0} items)`,
+      debit: Number(o.total || 0),
+      credit: 0,
+    });
+  });
+
+  let runningBalance = 0;
+  let totalBilled = 0;
+  let totalPaid = 0;
+
+  const sortedTxs = txs.sort((a, b) => a.rawDate - b.rawDate).map(t => {
+    runningBalance += (t.debit - t.credit);
+    totalBilled += t.debit;
+    totalPaid += t.credit;
+    return { ...t, balance: runningBalance };
+  });
+
+  printInvoice('party_statement', {
+    distributorName: distributor?.name || 'Distributor',
+    distributorPhone: distributor?.phone || '',
+    distributorAddress: distributor?.businessAddress || '',
+    distributorGSTIN: distributor?.gstin || '',
+    logoUrl: distributor?.logo || '',
+    partyName: shop.name || 'Retailer',
+    partyPhone: shop.phone || '',
+    partyAddress: shop.address || '',
+    statementDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+    transactions: sortedTxs,
+    totalBilled,
+    totalPaid,
+    closingBalance: runningBalance,
+  }, 'a4');
+}
+
+
 // Real straight-line distance between two lat/long points (Haversine
 // formula) — the Route Planner's own locked-tier description promises
 // sorting "based on outstanding credit and shop distance," but until
@@ -373,6 +460,7 @@ const DistributorDashboard = () => {
   const [newProdSku, setNewProdSku] = useState('');
   const [newProdHsnCode, setNewProdHsnCode] = useState('');
   const [newProdGstRate, setNewProdGstRate] = useState('0');
+  const [newProdImage, setNewProdImage] = useState('');
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
   // New Credit Form
@@ -703,6 +791,27 @@ const DistributorDashboard = () => {
     }
   };
 
+  const handleProdImageFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = Math.min(300 / img.width, 300 / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        setNewProdImage(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const openEditProduct = (p) => {
     setEditingProductId(p.id);
     setNewProdName(p.name);
@@ -714,14 +823,16 @@ const DistributorDashboard = () => {
     setNewProdSku(p.sku || '');
     setNewProdHsnCode(p.hsnCode || '');
     setNewProdGstRate(p.gstRate != null ? String(p.gstRate) : '0');
+    setNewProdImage(p.image || '');
     setShowCatalogModal(true);
   };
+
   const handleAddWholesaleProduct = async () => {
     if (!newProdName || !newProdPrice || !newProdStock) return toast.error("Enter product name, price and stock");
     if (editingProductId) {
       await mustSucceed(() => api.updateDistributorProduct(editingProductId, {
         name: newProdName, price: newProdPrice, stock: newProdStock, category: newProdCategory, unit: newProdUnit, packSize: newProdPackSize,
-        sku: newProdSku, hsnCode: newProdHsnCode, gstRate: newProdGstRate
+        sku: newProdSku, hsnCode: newProdHsnCode, gstRate: newProdGstRate, image: newProdImage
       }), 'Update product');
       toast.success("Product updated!");
     } else {
@@ -735,7 +846,8 @@ const DistributorDashboard = () => {
         packSize: newProdPackSize,
         sku: newProdSku,
         hsnCode: newProdHsnCode,
-        gstRate: newProdGstRate
+        gstRate: newProdGstRate,
+        image: newProdImage
       }), 'Publish product');
       toast.success("Product published to wholesale catalog!");
     }
@@ -748,19 +860,22 @@ const DistributorDashboard = () => {
     setNewProdSku('');
     setNewProdHsnCode('');
     setNewProdGstRate('0');
+    setNewProdImage('');
     setEditingProductId(null);
     setShowCatalogModal(false);
     loadData();
   };
+
   const openAddProduct = () => {
     setEditingProductId(null);
     setNewProdName(''); setNewProdPrice(''); setNewProdStock(''); setNewProdCategory(''); setNewProdUnit(''); setNewProdPackSize('');
-    setNewProdSku(''); setNewProdHsnCode(''); setNewProdGstRate('0');
+    setNewProdSku(''); setNewProdHsnCode(''); setNewProdGstRate('0'); setNewProdImage('');
     setShowCatalogModal(true);
   };
   const closeCatalogModal = () => {
     setShowCatalogModal(false);
     setEditingProductId(null);
+    setNewProdImage('');
   };
   const handleGenerateApiKey = async () => {
     if (apiKeyInfo && !window.confirm('This replaces your current key — anything using the old one will stop working immediately. Continue?')) return;
@@ -1540,6 +1655,28 @@ const DistributorDashboard = () => {
                           <span style={{ fontSize: '12px', color: '#475569' }}>Total Outstanding Credit:</span>
                           <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed}</span>
                         </div>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                          <button
+                            onClick={() => downloadPartyStatement(shop, credits, stockOrders, user)}
+                            style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                          >
+                            🧾 Statement
+                          </button>
+                          {shop.phone && owed > 0 && (
+                            <a
+                              href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                                `Hi ${shop.name}, your total outstanding balance with ${user?.name || 'us'} is ₹${owed}.\n\n` +
+                                (user?.upiId ? `Pay directly via UPI:\nupi://pay?pa=${user.upiId}&pn=${encodeURIComponent(user.name || 'Distributor')}&am=${owed}&cu=INR\n\n` : '') +
+                                `Please settle at your convenience. Thank you!`
+                              )}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}
+                            >
+                              💬 WA Reminder
+                            </a>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -1912,6 +2049,9 @@ const DistributorDashboard = () => {
                   {filtered.map(p => (
                     <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '170px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
+                        {p.image && (
+                          <img src={p.image} alt={p.name} style={{ width: '100%', height: '110px', borderRadius: '8px', objectFit: 'cover', marginBottom: '8px', border: '1px solid #E2E8F0' }} />
+                        )}
                         {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                         <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
                       </div>
@@ -2679,6 +2819,21 @@ const DistributorDashboard = () => {
                   <option value="18">18%</option>
                   <option value="28">28%</option>
                 </select>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Image (optional)</label>
+                {newProdImage ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#F8FAFC', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                    <img src={newProdImage} alt="" style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #CBD5E1' }} />
+                    <button type="button" onClick={() => setNewProdImage('')} style={{ background: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <input type="file" accept="image/*" onChange={handleProdImageFile} style={{ width: '100%', fontSize: '12px' }} />
+                )}
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Image will show in product catalogs, shop orders, and PDF quotes.</p>
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>

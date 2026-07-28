@@ -455,10 +455,13 @@ function renderCatalog(data, widthMm) {
       <div style="font-size:13px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #4F46E5;padding-bottom:6px;margin-bottom:12px;">${esc(cat)}</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
         ${groups[cat].map(p => `
-          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;background:#FAFBFC;">
-            <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px;">${esc(p.name)}</div>
-            ${p.sku ? `<div style="font-size:10px;color:#94A3B8;margin-bottom:4px;">Code: ${esc(p.sku)}</div>` : ''}
-            <div style="font-size:14px;font-weight:800;color:#059669;">${unitLabel(p)}</div>
+          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;background:#FAFBFC;display:flex;gap:12px;align-items:center;">
+            ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid #E2E8F0;" />` : ''}
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px;">${esc(p.name)}</div>
+              ${p.sku ? `<div style="font-size:10px;color:#94A3B8;margin-bottom:4px;">Code: ${esc(p.sku)}</div>` : ''}
+              <div style="font-size:14px;font-weight:800;color:#059669;">${unitLabel(p)}</div>
+            </div>
           </div>
         `).join('')}
       </div>
@@ -488,6 +491,88 @@ function renderCatalog(data, widthMm) {
 </body></html>`;
 }
 
+function renderPartyStatement(data, widthMm = 210) {
+  const isThermal = widthMm !== 210;
+  const txs = data.transactions || [];
+  const rowsHtml = txs.map(t => `
+    <tr style="border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 10px;font-size:12px;color:#334155;">${esc(t.date)}</td>
+      <td style="padding:8px 10px;font-size:12px;font-family:monospace;color:#475569;">${esc(t.refNo || '-')}</td>
+      <td style="padding:8px 10px;font-size:12px;"><span style="background:${t.type === 'Payment' || t.type === 'Credit Note' ? '#DCFCE7' : '#EEF2FF'};color:${t.type === 'Payment' || t.type === 'Credit Note' ? '#15803D' : '#4F46E5'};padding:2px 6px;border-radius:4px;font-weight:700;font-size:10px;">${esc(t.type)}</span></td>
+      <td style="padding:8px 10px;font-size:12px;color:#0F172A;">${esc(t.description)}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#0F172A;font-weight:600;">${t.debit ? '₹' + money(t.debit) : '-'}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#059669;font-weight:600;">${t.credit ? '₹' + money(t.credit) : '-'}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;font-weight:800;color:${t.balance > 0 ? '#DC2626' : '#059669'};">₹${money(t.balance)}</td>
+    </tr>
+  `).join('');
+
+  return shell(`
+    <div style="padding:${isThermal ? '10px' : '20px'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F172A;padding-bottom:16px;margin-bottom:20px;">
+        <div>
+          ${data.logoUrl ? `<img src="${esc(data.logoUrl)}" alt="" style="height:48px;margin-bottom:8px;" />` : ''}
+          <div style="font-size:20px;font-weight:900;color:#0F172A;letter-spacing:-0.01em;">${esc(data.distributorName || 'Distributor')}</div>
+          ${data.distributorAddress ? `<div style="font-size:11px;color:#64748B;margin-top:2px;">${esc(data.distributorAddress)}</div>` : ''}
+          ${data.distributorPhone ? `<div style="font-size:11px;color:#64748B;">Phone: ${esc(data.distributorPhone)}</div>` : ''}
+          ${data.distributorGSTIN ? `<div style="font-size:11px;font-weight:700;color:#475569;">GSTIN: ${esc(data.distributorGSTIN)}</div>` : ''}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:18px;font-weight:900;color:#4F46E5;text-transform:uppercase;letter-spacing:0.05em;">Party Ledger Statement</div>
+          <div style="font-size:11px;color:#64748B;margin-top:4px;">Date Generated: ${esc(data.statementDate)}</div>
+        </div>
+      </div>
+
+      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;font-weight:800;color:#64748B;letter-spacing:0.05em;">Statement For (Retailer / Party)</div>
+          <div style="font-size:16px;font-weight:800;color:#0F172A;margin-top:2px;">${esc(data.partyName)}</div>
+          ${data.partyPhone ? `<div style="font-size:11px;color:#64748B;">Phone: ${esc(data.partyPhone)}</div>` : ''}
+          ${data.partyAddress ? `<div style="font-size:11px;color:#64748B;">${esc(data.partyAddress)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:20px;text-align:right;">
+          <div>
+            <div style="font-size:10px;color:#64748B;font-weight:700;">TOTAL BILLED</div>
+            <div style="font-size:14px;font-weight:800;color:#0F172A;">₹${money(data.totalBilled)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#64748B;font-weight:700;">TOTAL RECEIVED</div>
+            <div style="font-size:14px;font-weight:800;color:#059669;">₹${money(data.totalPaid)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#64748B;font-weight:700;">NET DUE</div>
+            <div style="font-size:16px;font-weight:900;color:${data.closingBalance > 0 ? '#DC2626' : '#059669'};">₹${money(data.closingBalance)}</div>
+          </div>
+        </div>
+      </div>
+
+      <table style="width:100%;margin-bottom:24px;">
+        <thead>
+          <tr style="background:#F1F5F9;border-top:1px solid #CBD5E1;border-bottom:2px solid #CBD5E1;text-align:left;">
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">DATE</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">REF NO</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">TYPE</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">PARTICULARS</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">DEBIT (₹)</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">CREDIT (₹)</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">BALANCE (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${txs.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">No transactions found for this party.</td></tr>' : rowsHtml}
+        </tbody>
+      </table>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;padding-top:16px;border-top:1px solid #E2E8F0;">
+        <div style="font-size:11px;color:#94A3B8;">This is a computer-generated statement of accounts.</div>
+        <div style="text-align:center;width:180px;">
+          <div style="border-bottom:1px solid #94A3B8;height:35px;margin-bottom:4px;"></div>
+          <div style="font-size:11px;font-weight:700;color:#475569;">Authorized Signatory</div>
+        </div>
+      </div>
+    </div>
+  `, { widthMm });
+}
+
 const RENDERERS = {
   classic: renderClassic,
   wholesale: renderWholesale,
@@ -495,6 +580,7 @@ const RENDERERS = {
   minimal: renderMinimal,
   modern: renderModern,
   catalog: renderCatalog,
+  party_statement: renderPartyStatement,
 };
 
 // Public entry point. widthMm: 210 (A4) | 80 | 58.
@@ -502,3 +588,4 @@ export function renderInvoiceHtml(templateId, data, widthMm = 210) {
   const fn = RENDERERS[templateId] || RENDERERS.classic;
   return fn(data, widthMm);
 }
+
