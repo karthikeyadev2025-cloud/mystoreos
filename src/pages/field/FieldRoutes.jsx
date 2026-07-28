@@ -38,6 +38,8 @@ export default function FieldRoutes() {
   const [routes, setRoutes] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [shops, setShops] = useState([]);
+  const [fieldReps, setFieldReps] = useState([]);
+  const [assignBusy, setAssignBusy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -57,13 +59,14 @@ export default function FieldRoutes() {
     let cancelled = false;
     (async () => {
       try {
-        const [r, w, s] = await Promise.all([
+        const [r, w, s, reps] = await Promise.all([
           fieldApi.getRoutes(distId),
           fieldApi.getWarehouses(distId),
           fieldApi.getRoutableShops(distId),
+          fieldApi.getFieldReps(distId),
         ]);
         if (cancelled) return;
-        setRoutes(r); setWarehouses(w.filter(x => x.type === 'main')); setShops(s);
+        setRoutes(r); setWarehouses(w.filter(x => x.type === 'main')); setShops(s); setFieldReps(reps);
       } catch (e) {
         if (!cancelled) toast.error(e.message || 'Could not load routes');
       } finally {
@@ -143,6 +146,24 @@ export default function FieldRoutes() {
 
   const toggleDay = (d) => setNewDays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]);
 
+  // The column existed since the first field-distribution migration
+  // and was read everywhere, but nothing ever wrote to it — any rep
+  // could freely pick any route on login, with no actual lock-in.
+  const assignRep = async (routeId, repId) => {
+    setAssignBusy(routeId);
+    try {
+      await fieldApi.assignRouteToRep(routeId, repId);
+      setRoutes(rs => rs.map(r => r.id === routeId
+        ? { ...r, assignedRepId: repId || null, assignedRepName: fieldReps.find(x => x.userId === repId)?.name || null }
+        : r));
+      toast.success(repId ? 'Route assigned' : 'Route unassigned');
+    } catch (e) {
+      toast.error(e.message || 'Could not assign route');
+    } finally {
+      setAssignBusy(null);
+    }
+  };
+
   const stopIds = new Set(stops.map(s => s.id));
   const available = shops.filter(s => !stopIds.has(s.id) &&
     (!shopFilter || s.name.toLowerCase().includes(shopFilter.toLowerCase())));
@@ -218,6 +239,18 @@ export default function FieldRoutes() {
                 {r.stopCount} outlet{r.stopCount === 1 ? '' : 's'}
                 {r.warehouseName && ` · from ${r.warehouseName}`}
                 {r.weekdays.length > 0 && ` · ${r.weekdays.map(d => DAYS.find(x => x.v === d)?.l).filter(Boolean).join(', ')}`}
+              </div>
+              {/* Was purely cosmetic before — the column existed but
+                  nothing wrote to it, so any rep could pick any route.
+                  This actually assigns it. */}
+              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: '#94A3B8' }}>Assigned to:</span>
+                <select value={r.assignedRepId || ''} disabled={assignBusy === r.id}
+                  onChange={e => assignRep(r.id, e.target.value || null)}
+                  style={{ fontSize: 12, border: '1px solid #E2E8F0', borderRadius: 6, padding: '3px 8px', color: r.assignedRepId ? '#0F172A' : '#94A3B8' }}>
+                  <option value="">Anyone (unassigned)</option>
+                  {fieldReps.map(rep => <option key={rep.userId} value={rep.userId}>{rep.name}</option>)}
+                </select>
               </div>
             </div>
             <button onClick={() => openRoute?.id === r.id ? setOpenRoute(null) : openStops(r)}

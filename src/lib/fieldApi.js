@@ -270,7 +270,10 @@ export const fieldApi = {
   async getRoutes(distributorId) {
     if (!isSupabaseConfigured || !distributorId) return [];
     const { data } = await supabase.from('routes')
-      .select('*, route_stops(id), warehouses(name)')
+      // assigned_rep_id existed on this table already but nothing ever
+      // read the rep's NAME through it — a route could be tied to a
+      // rep internally with no way to show who, in any screen.
+      .select('*, route_stops(id), warehouses(name), users!routes_assigned_rep_id_fkey(name)')
       .eq('distributor_id', distributorId).eq('active', true).order('name');
     return (data || []).map(r => ({
       id: r.id,
@@ -278,9 +281,25 @@ export const fieldApi = {
       warehouseId: r.warehouse_id,
       warehouseName: r.warehouses?.name || null,
       assignedRepId: r.assigned_rep_id,
+      assignedRepName: r.users?.name || null,
       weekdays: r.weekdays || [],
       stopCount: (r.route_stops || []).length,
     }));
+  },
+
+  // The column existed from the very first field-distribution
+  // migration and was read into assignedRepId everywhere routes are
+  // fetched, but nothing anywhere ever WROTE to it — there was no way
+  // to actually assign a route to a specific rep. Any rep who logged
+  // in could freely pick any route belonging to the distributor.
+  // Passing null unassigns it, matching the same pattern used for
+  // vehicle reassignment in FieldReps.
+  async assignRouteToRep(routeId, repId) {
+    requireOnline();
+    const { error } = await supabase.from('routes')
+      .update({ assigned_rep_id: repId || null })
+      .eq('id', routeId);
+    if (error) throw new Error(error.message);
   },
 
   async createRoute(distributorId, { name, warehouseId = null, weekdays = [] }) {

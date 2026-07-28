@@ -194,10 +194,18 @@ export default function FieldRun() {
         </div>
       ) : (
         <>
+          {/* Was every route belonging to the distributor, freely
+              pickable by anyone — the assignment feature existed in the
+              database but nothing enforced it. Now shows only routes
+              assigned to THIS rep, plus any genuinely unassigned ones —
+              not a hard lock, since a rep covering for someone out sick
+              still needs to be able to pick up an open route. */}
           <select value={routeId} onChange={e => { setRouteId(e.target.value); setActiveShop(null); setRun([]); }}
             style={{ ...S.input, marginBottom: 14, fontWeight: 700 }}>
             <option value="">— pick a route —</option>
-            {routes.map(r => <option key={r.id} value={r.id}>{r.name} ({r.stopCount} stops)</option>)}
+            {routes
+              .filter(r => !r.assignedRepId || r.assignedRepId === actorId)
+              .map(r => <option key={r.id} value={r.id}>{r.name} ({r.stopCount} stops){r.assignedRepId ? '' : ' · open'}</option>)}
           </select>
 
           {routeId && run.length > 0 && (
