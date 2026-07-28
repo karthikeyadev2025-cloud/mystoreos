@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../lib/api';
 import { validateImageFile } from '../lib/fileValidation';
 import { ALL_UNITS, UNIT_SUFFIX } from '../lib/units';
@@ -486,6 +486,9 @@ const DistributorDashboard = () => {
   // Distributor subscription plan state
   const [distPlans, setDistPlans] = useState([]);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [shopSearch, setShopSearch] = useState('');
+  const [shopSearchBusy, setShopSearchBusy] = useState(false);
+  const [shopsTotal, setShopsTotal] = useState(0);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
   const [sysSettings, setSysSettings] = useState({ razorpayKey: '' });
 
@@ -646,6 +649,7 @@ const DistributorDashboard = () => {
       setShowUpgradePlanModal(true);
       return;
     }
+
     setShopLinkBusy(true);
     try {
       const res = await api.linkByPublicCode(user.id, 'distributor', shopCodeInput);
@@ -665,6 +669,30 @@ const DistributorDashboard = () => {
     }, 0);
     return () => clearTimeout(timer);
   }, [loadData]);
+
+  // Debounced so typing doesn't fire a query per keystroke — at
+  // thousands of linked shops the un-searched load is capped, so this
+  // is the actual way a distributor finds one specific shop rather
+  // than scrolling. Skips the very first mount: loadData() already
+  // fetches the default list, so without this guard every page load
+  // would fire a second, redundant fetch 350ms later.
+  const shopSearchMounted = useRef(false);
+  useEffect(() => {
+    if (!shopSearchMounted.current) { shopSearchMounted.current = true; return; }
+    const t = setTimeout(async () => {
+      setShopSearchBusy(true);
+      try {
+        setShops(await safe(() => api.getMyRetailShops(user.id, { search: shopSearch })));
+      } finally {
+        setShopSearchBusy(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [shopSearch, user.id]);
+
+  useEffect(() => {
+    (async () => setShopsTotal(await safe(() => api.getMyRetailShopsCount(user.id)) || 0))();
+  }, [user.id, shops.length]);
 
   // Was completely unfiltered — every distributor's dashboard refetched
   // on ANY distributor's order changing anywhere on the platform, not
@@ -1745,7 +1773,24 @@ const DistributorDashboard = () => {
           {/* ================= SHOPS TAB ================= */}
           {activeTab === 'shops' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: '#0F172A' }}>Your Retail Shops ({shops.length})</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px', color: '#0F172A' }}>Your Retail Shops ({shopsTotal})</h2>
+              {/* At thousands of linked shops, listing every full row on
+                  every load was the real risk, and there was no way to
+                  find one specific shop except scrolling. Search hits
+                  the server directly rather than filtering the capped
+                  client-side list, so it finds a shop even when it
+                  isn't in the first 300 shown by default. */}
+              <div style={{ position: 'relative', marginBottom: '16px' }}>
+                <input type="text" value={shopSearch} onChange={e => setShopSearch(e.target.value)}
+                  placeholder="Search shops by name…"
+                  style={{ width: '100%', padding: '10px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: '#94A3B8' }}>Searching…</span>}
+              </div>
+              {!shopSearch && shopsTotal > shops.length && (
+                <p style={{ fontSize: 11, color: '#94A3B8', margin: '-10px 0 14px' }}>
+                  Showing {shops.length} of {shopsTotal} — search above to find a specific shop.
+                </p>
+              )}
 
               <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
                 {user?.publicCode && (
@@ -3442,7 +3487,18 @@ const DistributorDashboard = () => {
       {/* Shops Tab */}
       {activeTab === 'shops' && (
         <div style={{padding: 20}}>
-          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A'}}>My Shops</h2>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 4px 0', color: '#0F172A'}}>My Shops ({shopsTotal})</h2>
+          <div style={{ position: 'relative', marginBottom: '14px' }}>
+            <input type="text" value={shopSearch} onChange={e => setShopSearch(e.target.value)}
+              placeholder="Search shops by name…"
+              style={{ width: '100%', padding: '10px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+            {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: '#94A3B8' }}>Searching…</span>}
+          </div>
+          {!shopSearch && shopsTotal > shops.length && (
+            <p style={{ fontSize: 11, color: '#94A3B8', margin: '-8px 0 12px' }}>
+              Showing {shops.length} of {shopsTotal} — search above to find a specific shop.
+            </p>
+          )}
           {shops.length === 0 ? (
             <p style={{color: '#64748B', textAlign: 'center'}}>No shops available.</p>
           ) : (

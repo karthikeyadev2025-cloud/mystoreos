@@ -2946,7 +2946,14 @@ export const api = {
   },
 
   // ── Distributor: shops with a wholesale order OR an explicit code link ──
-  async getMyRetailShops(distributorId) {
+  // At Jyothi-Foods scale (thousands of linked shops), this was
+  // fetching EVERY full user record on EVERY load, with no way to find
+  // a specific shop except scrolling. Added an optional server-side
+  // name search and a sane cap when there's no search term — 0 shops
+  // still means 0 either way, so existing `shops.length === 0` empty-
+  // state checks throughout the dashboard remain correct regardless of
+  // the cap.
+  async getMyRetailShops(distributorId, { search = '', limit = 300 } = {}) {
     if (!isSupabaseConfigured) return [];
     const { data: orders } = await supabase
       .from('stock_orders').select('shop_id').eq('distributor_id', distributorId);
@@ -2957,8 +2964,26 @@ export const api = {
       ...(links || []).map(l => l.shop_id),
     ].filter(Boolean))];
     if (shopIds.length === 0) return [];
-    const { data: shops } = await supabase.from('users').select('*').in('id', shopIds);
+    let query = supabase.from('users').select('*').in('id', shopIds).order('name');
+    if (search.trim()) query = query.ilike('name', `%${search.trim()}%`);
+    else query = query.limit(limit);
+    const { data: shops } = await query;
     return (shops || []).map(toUser);
+  },
+
+  // Lightweight — just the count, for "X of Y shops" messaging and for
+  // any check that needs the TRUE total rather than the capped list
+  // length.
+  async getMyRetailShopsCount(distributorId) {
+    if (!isSupabaseConfigured) return 0;
+    const { data: orders } = await supabase
+      .from('stock_orders').select('shop_id').eq('distributor_id', distributorId);
+    const { data: links } = await supabase
+      .from('shop_distributor_links').select('shop_id').eq('distributor_id', distributorId);
+    return new Set([
+      ...(orders || []).map(o => o.shop_id),
+      ...(links || []).map(l => l.shop_id),
+    ].filter(Boolean)).size;
   },
 
   // ---- FILE UPLOADS TO SUPABASE STORAGE ----
