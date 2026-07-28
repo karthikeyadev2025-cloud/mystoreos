@@ -883,21 +883,31 @@ export const purchaseApi = {
   // What the distributor OWES. Deliberately separate from customer
   // receivables — netting the two gives a number that looks meaningful
   // and tells you nothing about either side.
+  //
+  // A later external commit wrapped the RPC error in try/catch and
+  // returned [] on ANY failure — including a missing migration, a
+  // dropped connection, or an RLS problem. That silently reintroduces
+  // the exact bug fixed three times earlier this session (distributor
+  // loadData, customer orders/bookings, shop inventory): a failed load
+  // renders identically to "you have no suppliers", so a distributor
+  // hitting a network hiccup mid-demo would see an empty payables list
+  // and reasonably think the feature is broken or their debts vanished.
+  //
+  // Fixed by throwing on a genuine error and letting the CALLER decide
+  // how to show that — same contract every other read in this file
+  // uses — rather than deciding here that failure and empty look the
+  // same.
   async getSupplierBalances(distributorId) {
     if (!isSupabaseConfigured || !distributorId) return [];
-    try {
-      const { data, error } = await supabase.rpc('supplier_balances', { p_distributor_id: distributorId });
-      if (error) return [];
-      return (data || []).map(r => ({
-        supplierId: r.supplier_id, name: r.supplier_name, phone: r.phone || '',
-        purchased: Number(r.total_purchased) || 0,
-        paid: Number(r.total_paid) || 0,
-        outstanding: Number(r.outstanding) || 0,
-        lastBillDate: r.last_bill_date,
-      }));
-    } catch (_ex) {
-      return [];
-    }
+    const { data, error } = await supabase.rpc('supplier_balances', { p_distributor_id: distributorId });
+    if (error) throw new Error(error.message);
+    return (data || []).map(r => ({
+      supplierId: r.supplier_id, name: r.supplier_name, phone: r.phone || '',
+      purchased: Number(r.total_purchased) || 0,
+      paid: Number(r.total_paid) || 0,
+      outstanding: Number(r.outstanding) || 0,
+      lastBillDate: r.last_bill_date,
+    }));
   },
 
   async getPurchases(distributorId, limit = 50) {

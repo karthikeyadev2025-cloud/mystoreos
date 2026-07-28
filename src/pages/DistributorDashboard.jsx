@@ -3417,6 +3417,15 @@ const DistributorDashboard = () => {
                     <div style={{ fontSize: '12px', color: '#64748B' }}>Total Owed</div>
                     <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed}</div>
                   </div>
+                  {/* Existed only in the desktop tree — mobile users
+                      (the majority of this audience) had no way to
+                      generate a party statement at all. */}
+                  <button
+                    onClick={() => downloadPartyStatement(shop, credits, stockOrders, user)}
+                    style={{ marginTop: '8px', width: '100%', background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    🧾 Statement
+                  </button>
                 </div>
               );
             })

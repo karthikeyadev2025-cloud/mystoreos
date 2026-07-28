@@ -40,6 +40,7 @@ const dist = readFileSync('src/pages/DistributorDashboard.jsx', 'utf8');
   ['Accounts Going Quiet', 2],
   ['Field Distribution', 2],
   ["Couldn&apos;t load your data", 2],
+  ['🧾 Statement', 2],
 ].forEach(([needle, expected]) => {
   const n = dist.split(needle).length - 1;
   n === expected
