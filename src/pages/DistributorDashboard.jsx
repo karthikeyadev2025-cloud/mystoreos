@@ -2853,14 +2853,20 @@ const DistributorDashboard = () => {
     <div style={{ backgroundColor: '#F8FAFC', color: '#0F172A', minHeight: '100vh', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
       
-      {/* Header */}
-      <div style={{ background: '#0F172A', padding: '20px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      {/* Mobile Header */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%)', padding: '18px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff' }}>FMCG Distributor</h1>
-          <div style={{ fontSize: '12px', color: '#93c5fd' }}>{user.name} • Offline Sync Ready</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px', boxShadow: '0 2px 8px rgba(99,102,241,0.4)' }}>M</div>
+            <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff', letterSpacing: '-0.3px' }}>FMCG Distributor</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#93C5FD', marginTop: '3px' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isOnline ? '#10B981' : '#F59E0B', display: 'inline-block', boxShadow: isOnline ? '0 0 8px #10B981' : 'none' }}></span>
+            <span>{user.name} • {isOnline ? 'Online Sync Ready' : 'Offline Mode'}</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8 }}>
             <NotificationCenter
               userId={user?.id}
               onToast={(row) => toast.info(row.title, { autoClose: 5000 })}
@@ -2869,8 +2875,8 @@ const DistributorDashboard = () => {
           <button 
             onClick={() => setShowNotifications(!showNotifications)} 
             style={{ 
-              background: 'rgba(255,255,255,0.1)', 
-              border: '1px solid rgba(255,255,255,0.2)', 
+              background: 'rgba(255,255,255,0.08)', 
+              border: '1px solid rgba(255,255,255,0.15)', 
               color: 'white', 
               padding: '8px 12px', 
               borderRadius: '8px', 
@@ -2891,19 +2897,20 @@ const DistributorDashboard = () => {
                 borderRadius: '50%', 
                 padding: '2px 6px', 
                 fontSize: '10px', 
-                fontWeight: 'bold' 
+                fontWeight: 'bold',
+                boxShadow: '0 2px 6px rgba(239,68,68,0.5)'
               }}>
                 {getNotifications().length}
               </span>
             )}
           </button>
-          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto' }}>Logout</button>
+          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', width: 'auto' }}>Logout</button>
         </div>
       </div>
 
       {/* Notifications Drawer Overlay */}
       {showNotifications && (
-        <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+        <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>🔔 Live Notifications</h3>
             <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: '#475569', fontSize: '13px', cursor: 'pointer', width: 'auto' }}>Close</button>
@@ -2934,10 +2941,6 @@ const DistributorDashboard = () => {
       {activeTab === 'dashboard' && (
         <>
           <div style={{ padding: '16px' }}>
-            {/* Same load-failure banner as desktop. Without it, a mobile
-                user on a flaky connection sees ₹0 outstanding and no
-                shops, which reads as lost data rather than a network
-                problem. */}
             {loadFailed && (
               <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
@@ -2948,72 +2951,64 @@ const DistributorDashboard = () => {
                 </button>
               </div>
             )}
-            {/* MOBILE KPI METRICS SUMMARY GRID */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Outstanding</div>
-                <div style={{ fontSize: '18px', fontWeight: '900', color: totalOutstanding > 0 ? '#DC2626' : '#15803D', marginTop: '2px' }}>₹{totalOutstanding}</div>
+            
+            {/* MOBILE KPI METRICS SUMMARY GRID — Polished 3D elevation */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #EF4444', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Outstanding</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: totalOutstanding > 0 ? '#DC2626' : '#059669', marginTop: '4px' }}>₹{totalOutstanding}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Linked Shops</div>
-                <div style={{ fontSize: '18px', fontWeight: '900', color: '#0F172A', marginTop: '2px' }}>{shops.length}</div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #10B981', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Linked Shops</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: '#0F172A', marginTop: '4px' }}>{shops.length}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Catalog SKUs</div>
-                <div style={{ fontSize: '18px', fontWeight: '900', color: '#0F172A', marginTop: '2px' }}>{wholesaleProducts.length}</div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #6366F1', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Catalog SKUs</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: '#0F172A', marginTop: '4px' }}>{wholesaleProducts.length}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Pending Orders</div>
-                <div style={{ fontSize: '18px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : '#0F172A', marginTop: '2px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #F59E0B', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending Orders</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : '#0F172A', marginTop: '4px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
               </div>
             </div>
 
-            {/* MOBILE New Sale button */}
+            {/* MOBILE Action Buttons — Elevated Gradients */}
             <button onClick={() => navigate('/distributor/new-sale')}
-              style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #4338CA 100%)', color: '#fff', border: 'none', borderRadius: 14, padding: '16px 20px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 8px 24px -4px rgba(79, 70, 229, 0.35)' }}>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 800 }}>🛒 New Sale</div>
-                <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
+                <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.2px' }}>🛒 New Sale</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
               </div>
-              <span style={{ fontSize: 20 }}>→</span>
-            </button>
-            <button onClick={() => navigate('/distributor/purchases')}
-              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 800 }}>📥 Purchases</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
-              </div>
-              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
-            </button>
-            <button onClick={() => navigate('/distributor/reports')}
-              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 800 }}>📊 Reports</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
-              </div>
-              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+              <span style={{ fontSize: 20, fontWeight: 900 }}>→</span>
             </button>
 
-              {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
-                  Outstanding/collected/retailer-count are scoreboard
-                  numbers — true, but they don't tell a distributor what
-                  to DO. These two answer the questions the business
-                  actually runs on: which money is going bad, and which
-                  customers am I quietly losing. */}
-              {/* Shown ONLY on a genuinely empty account. Everything
-                  else on this dashboard hides itself when there's no
-                  data — correct individually, but together it left a
-                  new distributor staring at three buttons and zeroes,
-                  which reads as broken rather than new. This makes the
-                  empty state intentional and doubles as a tour of what
-                  the product actually does. Renders nothing the moment
-                  real data exists, so it can never clutter a live
-                  account. */}
+            <button onClick={() => navigate('/distributor/purchases')}
+              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #0EA5E9', borderRadius: 14, padding: '15px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>📥 Purchases</div>
+                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#0EA5E9', fontWeight: 900 }}>→</span>
+            </button>
+
+            <button onClick={() => navigate('/distributor/reports')}
+              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>📊 Reports</div>
+                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
+              </div>
+              <span style={{ fontSize: 18, color: '#8B5CF6', fontWeight: 900 }}>→</span>
+            </button>
+
+              {/* Polished Setup Wizard for New Accounts */}
               {shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
-                <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 20, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
-                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px' }}>
-                    Four steps to a working distribution business. Most take under a minute.
+                <div style={{ background: 'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)', border: '1px solid #C7D2FE', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '18px' }}>🚀</span>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: 0 }}>Welcome — let&apos;s get you set up</h3>
+                  </div>
+                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px', lineHeight: 1.4 }}>
+                    Four quick steps to activate your wholesale distribution business:
                   </p>
                   {[
                     { n: 1, t: 'Add your products', d: 'Build your wholesale catalogue with prices, units and GST', to: null, tab: 'catalog' },
@@ -3023,8 +3018,19 @@ const DistributorDashboard = () => {
                   ].map(s => (
                     <button key={s.n}
                       onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
-                      style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ width: '100%', textAlign: 'left', background: '#FFFFFF', border: '1px solid #E0E7FF', borderRadius: 12, padding: '12px 14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(79,70,229,0.3)' }}>
+                        {s.n}
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
+                      </span>
+                      <span style={{ color: '#4F46E5', fontSize: 16, fontWeight: 900 }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              )}lor: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {s.n}
                       </span>
                       <span style={{ flex: 1 }}>
