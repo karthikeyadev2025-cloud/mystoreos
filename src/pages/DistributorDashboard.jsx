@@ -344,6 +344,7 @@ const DistributorDashboard = () => {
   // already applied to the shop dashboard's mobile nav earlier
   // tonight — a "More" overflow sheet.
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [credits, setCredits] = useState([]);
   const [shops, setShops] = useState([]);
   const [distStaff, setDistStaff] = useState([]);
@@ -602,6 +603,7 @@ const DistributorDashboard = () => {
     // came back null the load genuinely failed, so say so and offer a
     // retry rather than quietly showing zeros.
     setLoadFailed(creditsRes === null && shopsRes === null && ordersRes === null);
+    setDataLoaded(true);
   }, [user.id]);
 
   // Multi-device tracking — registers this browser/device as active
@@ -1378,7 +1380,7 @@ const DistributorDashboard = () => {
                   the product actually does. Renders nothing the moment
                   real data exists, so it can never clutter a live
                   account. */}
-              {shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
+              {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
                 <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 20, marginBottom: 16 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
                   <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px' }}>
@@ -2312,14 +2314,55 @@ const DistributorDashboard = () => {
 
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
-              <button onClick={() => navigate('/field/setup')}
-                style={{ width: '100%', textAlign: 'left', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#3730A3' }}>🚚 Field Distribution &amp; Van Sales</div>
-                  <div style={{ fontSize: '12px', color: '#4338CA', marginTop: '2px' }}>Depots, vans, routes, offline billing, and end-of-day settlement</div>
+              {/* Field Operations & Van Sales Command Hub */}
+              <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(15,23,42,0.15)' }}>
+                <div style={{ marginBottom: '14px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    🚚 Field Distribution &amp; Van Sales Operations
+                  </h3>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94A3B8' }}>
+                    Manage delivery vans, beat routes, presale orders, and end-of-day cash settlement.
+                  </p>
                 </div>
-                <span style={{ fontSize: '18px', color: '#4338CA' }}>→</span>
-              </button>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <button onClick={() => navigate('/field/setup')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ background: '#4F46E5', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🚚</div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Depots &amp; Delivery Vans</div>
+                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Setup warehouses &amp; vehicle series</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/routes')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ background: '#0284C7', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🗺️</div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Beat Routes &amp; Reps</div>
+                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Assign routes &amp; field staff</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/orders')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ background: '#D97706', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>📋</div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Presale &amp; Van Orders</div>
+                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Dispatch orders to delivery vans</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/settlement')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ background: '#059669', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>💰</div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Day-End Settlement</div>
+                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Reconcile driver cash &amp; returns</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
               <div style={{ marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Settings size={20} color="#64748B" /> Business Profile & GST
@@ -3002,7 +3045,7 @@ const DistributorDashboard = () => {
             </button>
 
               {/* Polished Setup Wizard for New Accounts */}
-              {shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
+              {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
                 <div style={{ background: 'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)', border: '1px solid #C7D2FE', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '18px' }}>🚀</span>
@@ -3674,14 +3717,55 @@ const DistributorDashboard = () => {
           {/* ================= HISTORY TAB ================= */}
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
-              <button onClick={() => navigate('/field/setup')}
-                style={{ width: '100%', textAlign: 'left', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#3730A3' }}>🚚 Field Distribution & Van Sales</div>
-                  <div style={{ fontSize: '11px', color: '#4338CA', marginTop: '2px' }}>Depots, vans, routes, offline billing</div>
+              {/* Field Operations & Van Sales Command Hub (Mobile) */}
+              <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '16px', marginBottom: '20px', color: '#FFFFFF', boxShadow: '0 6px 20px rgba(15,23,42,0.15)' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🚚 Field Distribution &amp; Van Sales
+                  </h3>
+                  <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#94A3B8' }}>
+                    Manage delivery vans, beat routes, presale orders, and settlement.
+                  </p>
                 </div>
-                <span style={{ fontSize: '16px', color: '#4338CA' }}>→</span>
-              </button>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <button onClick={() => navigate('/field/setup')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ background: '#4F46E5', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🚚</div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Depots &amp; Vans</div>
+                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Setup vehicles</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/routes')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ background: '#0284C7', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🗺️</div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Beat Routes</div>
+                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Assign routes</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/orders')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ background: '#D97706', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>📋</div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Van Orders</div>
+                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Dispatch stock</div>
+                    </div>
+                  </button>
+
+                  <button onClick={() => navigate('/field/settlement')}
+                    style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ background: '#059669', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>💰</div>
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Settlement</div>
+                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Reconcile cash</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
               <div style={{ marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Settings size={20} color="#64748B" /> Business Profile & GST
