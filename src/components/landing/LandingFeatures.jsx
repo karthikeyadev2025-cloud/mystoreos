@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
-  Store, Printer, Bell, BarChart3, Building2, WifiOff,
+  Store, Printer, Bell, BarChart3, Building2, Smartphone,
   ReceiptIndianRupee, PackageSearch, BookUser, Truck, Gift, FileSpreadsheet,
   CalendarCheck, UsersRound, MessageSquareDot, Link2, Timer, Repeat,
-  Home, Mic, ShieldCheck,
+  Home, Mic, ShieldCheck, Route, IndianRupee, ScanBarcode, FileBarChart,
 } from 'lucide-react';
 import { T, F } from './_tokens';
 import { api } from '../../lib/api';
@@ -22,7 +22,7 @@ const EVERY = [
   ['Thermal & A4 printing',    '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans',  Printer,    '#34D399'],
   ['Instant alerts',           'New order or booking pings your phone — even with the app closed.',     'All plans',  Bell,       '#F5B942'],
   ['Live analytics',           'Revenue, top lines, staff performance. One dashboard, always current.', 'All plans',  BarChart3,  '#22D3EE'],
-  ['Works offline',            'Keep billing without internet. Syncs the moment you reconnect.',        'All plans',  WifiOff,    '#FB7185'],
+  ['No machine to buy',        'No POS terminal, no computer, nothing to install. Your own phone is the full billing counter.', 'All plans', Smartphone, '#F5B942'],
   ['Multi-branch',             'Several outlets, one login. Each keeps its own books.',                 'Enterprise', Building2,  '#A78BFA'],
 ];
 
@@ -34,6 +34,14 @@ const RETAIL = [
   ['Loyalty & flash sales', 'Reward regulars automatically. Run time-boxed offers on your storefront.',  'Pro',        Gift,               '#F472B6'],
   ['CA portal & Tally',     'Give your accountant direct access. One-click Tally export.',               'Enterprise', FileSpreadsheet,    '#22D3EE'],
   ['Voice billing',         'Say "two Parle-G" and it\u2019s on the bill. No typing, both hands free at the counter.', 'All plans', Mic, '#A78BFA'],
+];
+
+const DISTRIBUTOR = [
+  ['Van sales, fully offline',  'Bill a shop on the spot with no signal at all. Syncs the moment the van is back in range.', 'Enterprise', Truck,        '#34D399'],
+  ['Route planning',            'Plan a rep\u2019s beat once. The app orders the stops so less time is spent driving.',       'Pro',        Route,        '#818CF8'],
+  ['Purchases & payables',      'Record what you buy from manufacturers. Real cost, real margin, what you owe them.',       'All plans',  IndianRupee,  '#F5B942'],
+  ['Barcode scanning',          'Scan a product to bill it or find it in seconds \u2014 no more scrolling a long list.',    'All plans',  ScanBarcode,  '#22D3EE'],
+  ['Profit & GST reports',      'Real profit using what you paid, not a guess. GST liability with input credit built in.', 'Pro',        FileBarChart, '#FB7185'],
 ];
 
 const SERVICES = (addonPrice) => [
@@ -80,6 +88,8 @@ export default function LandingFeatures() {
       note: 'Kirana, medical, electronics, apparel, hardware — anything sold over a counter.' },
     { id: 'services', label: 'Services',       rows: SERVICES(addonPrice),
       note: 'Salon, spa, clinic, gym, dental, workshop — anything booked by the hour.' },
+    { id: 'distributor', label: 'Distributor', rows: DISTRIBUTOR,
+      note: 'Supply retail shops — from a counter, a phone call, or a rep out on a route.' },
   ];
   const active = TABS.find(t => t.id === tab) || TABS[0];
 

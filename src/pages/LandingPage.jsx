@@ -22,9 +22,9 @@ import LandingFooter from '../components/landing/LandingFooter';
 const safe = async (fn, def = null) => { try { return await fn(); } catch { return def; } };
 
 const DEFAULT_HERO = {
-  headline: 'One book.\nTwo kinds of business.',
+  headline: 'Your phone is your\nbilling counter now.',
   telugu: 'మీ వ్యాపారాన్ని డిజిటల్ చేయండి',
-  subheadline: 'Sell products over a counter, or book appointments by the hour. MyStore OS keeps both — billing, stock, credit, scheduling, and the books — under one login.',
+  subheadline: 'No machine to buy, no setup call, nothing to install on a computer. Bill a customer in seconds, keep every udhaar and every stock count straight, and get your own online storefront so more people find you and order — all from the same phone you already carry.',
 };
 const DEFAULT_STATS = { shops: 500, orders: 50000, cities: 200, uptime: 99.9 };
 // Mix of retail AND service voices — a salon owner scrolling past twelve
