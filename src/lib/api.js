@@ -3535,12 +3535,21 @@ export const api = {
     return true;
   },
 
+  // FOUND DURING A PRICING-CONSISTENCY AUDIT: this had its OWN price
+  // frozen into a SEPARATE site_config key (distributor_subscription_
+  // plans), completely independent of pricing_v2 — the config
+  // getPricing() reads, which is what the public Pricing page and the
+  // actual Razorpay charge both use. An admin updating one never
+  // touched the other, so the logged-in upgrade screen could show a
+  // stale price indefinitely while the public page and the real charge
+  // had already moved on. Price is now ALWAYS read fresh from the same
+  // getPricing() source everything else uses — this config keeps only
+  // features/descriptions, which are genuinely its own data, not price.
   async getDistributorSubscriptionPlans() {
     const defaults = [
       {
         id: 'basic_distributor',
         name: 'Basic Distributor',
-        price: priceOf('basic_distributor'),
         description: 'For small wholesale suppliers serving 1–10 kirana shops.',
         features: [
           'Up to 10 assigned retail shops',
@@ -3554,7 +3563,6 @@ export const api = {
       {
         id: 'pro_distributor',
         name: 'Pro Distributor',
-        price: priceOf('pro_distributor'),
         description: 'Mid-size FMCG distributors serving 11–50 shops.',
         features: [
           'Up to 50 assigned retail shops',
@@ -3570,7 +3578,6 @@ export const api = {
       {
         id: 'enterprise_distributor',
         name: 'Enterprise Distributor',
-        price: priceOf('enterprise_distributor'),
         description: 'Large distributors managing 50+ shops with multi-branch operations.',
         features: [
           'Unlimited assigned shops',
@@ -3584,7 +3591,16 @@ export const api = {
         capabilities: { maxShops: -1, routePlanner: true, bulkOrderCSV: true, tallyExport: true, multiDevice: 10, advancedAnalytics: true, multiBranch: true, apiAccess: true, staffAccounts: true },
       },
     ];
-    return await this.getSiteConfig('distributor_subscription_plans', defaults);
+    const stored = await this.getSiteConfig('distributor_subscription_plans', defaults);
+    // Strip any price a PAST save may have frozen into this config
+    // (from before this fix), and re-derive it fresh from the single
+    // authoritative pricing source every time — that source is what
+    // both the public page and the real Razorpay charge already use.
+    const pricing = await this.getPricing().catch(() => null);
+    return stored.map(plan => ({
+      ...plan,
+      price: pricing?.tiers?.[plan.id]?.monthly ?? priceOf(plan.id),
+    }));
   },
 
   async saveDistributorSubscriptionPlans(plans) {
