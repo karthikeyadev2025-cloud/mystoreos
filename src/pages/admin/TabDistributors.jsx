@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { priceOf } from '../../lib/planCatalogue';
 import { Search, RefreshCw, Trash2, Key, ChevronDown, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
@@ -94,7 +95,7 @@ export default function TabDistributors() {
   // Was a hardcoded TIER_PRICES constant, never reflecting whatever an
   // admin actually configured in Settings > Pricing. Fetched live now,
   // same source of truth as everywhere else this was fixed tonight.
-  const [tierPrices, setTierPrices] = useState({ basic_distributor: 999, pro_distributor: 3499, enterprise_distributor: 7999 });
+  const [tierPrices, setTierPrices] = useState({ basic_distributor: priceOf('basic_distributor'), pro_distributor: priceOf('pro_distributor'), enterprise_distributor: priceOf('enterprise_distributor') });
   // Plan feature editor — saveDistributorSubscriptionPlans() has
   // existed in api.js the whole time with zero UI to actually call it.
   // An admin could change which TIER a distributor is on, but never
@@ -110,9 +111,9 @@ export default function TabDistributors() {
       setDistributors(all.filter(u => u.role === 'distributor'));
       setTopByCredit(top);
       setTierPrices({
-        basic_distributor: Number(pricing?.tiers?.basic_distributor?.monthly) || 999,
-        pro_distributor: Number(pricing?.tiers?.pro_distributor?.monthly) || 3499,
-        enterprise_distributor: Number(pricing?.tiers?.enterprise_distributor?.monthly) || 7999,
+        basic_distributor: Number(pricing?.tiers?.basic_distributor?.monthly) || priceOf('basic_distributor'),
+        pro_distributor: Number(pricing?.tiers?.pro_distributor?.monthly) || priceOf('pro_distributor'),
+        enterprise_distributor: Number(pricing?.tiers?.enterprise_distributor?.monthly) || priceOf('enterprise_distributor'),
       });
       setEditablePlans(plans || []);
     } catch { toast.error('Failed to load distributors'); }

@@ -141,6 +141,37 @@ scanForRpc('src');
     : fail(`${fn} — called in app code but no migration defines it (runtime failure)`);
 });
 
+// ── 6. Pricing must have exactly ONE source of truth ───────────────
+section('Pricing — no hardcoded tier prices outside planCatalogue');
+
+// Prices used to live in SIX independent places. Updating distributor
+// pricing missed one, and the billing dashboard served stale figures
+// while the landing page showed the new ones — a customer could see two
+// different prices for the same plan. This check exists so that can't
+// silently return.
+const priceFiles = [
+  'src/lib/api.js',
+  'src/pages/Pricing.jsx',
+  'src/pages/LandingPage.jsx',
+  'src/pages/admin/TabDistributors.jsx',
+];
+const knownPrices = [249, 499, 699, 999, 1499, 2499, 3499, 7999];
+let hardcoded = 0;
+priceFiles.forEach(f => {
+  let src;
+  try { src = readFileSync(f, 'utf8'); } catch { return; }
+  src.split('\n').forEach((line, i) => {
+    if (line.trim().startsWith('//')) return;
+    knownPrices.forEach(p => {
+      if (new RegExp(`price:\\s*${p}\\b`).test(line)) {
+        fail(`${f}:${i + 1} hardcodes price ${p} — use priceOf() instead`);
+        hardcoded++;
+      }
+    });
+  });
+});
+if (hardcoded === 0) pass('all tier prices derive from planCatalogue.js');
+
 console.log(
   failures === 0
     ? '\n\x1b[32m✔ all structural checks passed\x1b[0m\n'

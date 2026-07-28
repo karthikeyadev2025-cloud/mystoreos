@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from './supabase';
+import { priceOf, tiersSeed } from './planCatalogue';
 import { enqueue } from './offlineQueue';
 import { validateImageFile } from './fileValidation';
 
@@ -950,21 +951,21 @@ export const api = {
     // hardcoded at the time this file was last edited.
     const pricing = await this.getPricing();
     const DIST_PRICES = {
-      basic_distributor: pricing.tiers.basic_distributor?.monthly ?? 999,
-      pro_distributor: pricing.tiers.pro_distributor?.monthly ?? 3499,
-      enterprise_distributor: pricing.tiers.enterprise_distributor?.monthly ?? 7999,
+      basic_distributor: pricing.tiers.basic_distributor?.monthly ?? priceOf('basic_distributor'),
+      pro_distributor: pricing.tiers.pro_distributor?.monthly ?? priceOf('pro_distributor'),
+      enterprise_distributor: pricing.tiers.enterprise_distributor?.monthly ?? priceOf('enterprise_distributor'),
       // Legacy aliases some existing rows may still carry (see
       // 20260714_standardize_distributor_tier_naming.sql) — kept so a
       // not-yet-backfilled row still counts correctly rather than
       // silently vanishing from the total.
-      dist_basic: pricing.tiers.basic_distributor?.monthly ?? 999,
-      dist_pro: pricing.tiers.pro_distributor?.monthly ?? 3499,
-      dist_enterprise: pricing.tiers.enterprise_distributor?.monthly ?? 7999,
+      dist_basic: pricing.tiers.basic_distributor?.monthly ?? priceOf('basic_distributor'),
+      dist_pro: pricing.tiers.pro_distributor?.monthly ?? priceOf('pro_distributor'),
+      dist_enterprise: pricing.tiers.enterprise_distributor?.monthly ?? priceOf('enterprise_distributor'),
     };
     const SHOP_PRICES = {
-      starter: pricing.tiers.starter?.monthly ?? 499,
-      pro: pricing.tiers.pro?.monthly ?? 999,
-      enterprise: pricing.tiers.enterprise?.monthly ?? 2499,
+      starter: pricing.tiers.starter?.monthly ?? priceOf('starter'),
+      pro: pricing.tiers.pro?.monthly ?? priceOf('pro'),
+      enterprise: pricing.tiers.enterprise?.monthly ?? priceOf('enterprise'),
       service_starter: pricing.tiers.service_starter?.monthly ?? 249,
       service_pro: pricing.tiers.service_pro?.monthly ?? 699,
       service_enterprise: pricing.tiers.service_enterprise?.monthly ?? 1499,
@@ -3168,27 +3169,13 @@ export const api = {
   // with an extra offer.percent off while offer.remaining > 0.
   async getPricing() {
     const def = {
-      tiers: {
-        starter:    { monthly: 499,  quarterly: 1347, yearly: 4790 },
-        pro:        { monthly: 999,  quarterly: 2697, yearly: 9590 },
-        enterprise: { monthly: 2499, quarterly: 6747, yearly: 23990 },
-        // Service business track — separate pricing from Retail above,
-        // same tier names (starter/pro/enterprise) reused only as a
-        // naming CONCEPT, not the same stored keys: these are prefixed
-        // service_* so they never collide with the retail entries. A
-        // service business's Starter genuinely includes bookings
-        // (see PLAN_CAPS.service_starter in features.js) — a "starter"
-        // tier that can't take a single booking isn't a usable starting
-        // point for a service business the way it is for a retail one.
-        // Priced below Retail's equivalent tiers throughout, since a
-        // pure service business doesn't need GST/stock/Tally complexity.
-        service_starter:    { monthly: 249,  quarterly: 672,  yearly: 2390 },
-        service_pro:        { monthly: 699,  quarterly: 1887, yearly: 6710 },
-        service_enterprise: { monthly: 1499, quarterly: 4047, yearly: 14390 },
-        basic_distributor:      { monthly: 999,  quarterly: 2697,  yearly: 9590 },
-        pro_distributor:        { monthly: 3499, quarterly: 9447,  yearly: 33590 },
-        enterprise_distributor: { monthly: 7999, quarterly: 21597, yearly: 76790 },
-      },
+      // Generated from PLAN_CATALOGUE rather than hand-typed. These
+      // numbers previously lived here AND in five other places, and
+      // updating distributor pricing missed this one — the billing
+      // dashboard kept serving the old figures for weeks. Quarterly and
+      // yearly are derived from monthly (-10% / -20%) so they can't
+      // drift out of step with it either.
+      tiers: tiersSeed(),
       discounts: { quarterly: 10, yearly: 20 },
       offer: { enabled: false, percent: 50, cap: 1000, remaining: 1000 },
       enabledCycles: { monthly: true, quarterly: true, yearly: true },
@@ -3306,7 +3293,7 @@ export const api = {
       {
         id: 'service_starter',
         name: 'Service Starter',
-        price: 249,
+        price: priceOf('service_starter'),
         description: 'Genuinely includes bookings from day one — a starter tier that could not take a single appointment would not be a usable starting point.',
         features: [
           'Online booking (up to 10 services)',
@@ -3323,7 +3310,7 @@ export const api = {
       {
         id: 'service_pro',
         name: 'Service PRO',
-        price: 699,
+        price: priceOf('service_pro'),
         description: 'The natural home for a serious salon, spa, or clinic — multi-staff scheduling and automated reminders.',
         features: [
           'Unlimited services',
@@ -3341,7 +3328,7 @@ export const api = {
       {
         id: 'service_enterprise',
         name: 'Service Enterprise',
-        price: 1499,
+        price: priceOf('service_enterprise'),
         description: 'Full service capability, including recurring bookings and multi-branch.',
         features: [
           'Everything in Service PRO',
@@ -3359,7 +3346,7 @@ export const api = {
       {
         id: 'starter',
         name: 'Starter Plan',
-        price: 499,
+        price: priceOf('starter'),
         description: 'Perfect for small neighborhood kirana shops looking to go paperless.',
         features: [
           'Standard digital billing & invoicing',
@@ -3384,7 +3371,7 @@ export const api = {
       {
         id: 'pro',
         name: 'Premium PRO Plan',
-        price: 999,
+        price: priceOf('pro'),
         description: 'Complete ERP suite with intelligent stock management and payment tracking.',
         features: [
           'Unlimited invoicing & estimates',
@@ -3412,7 +3399,7 @@ export const api = {
       {
         id: 'enterprise',
         name: 'Enterprise Ultra Plan',
-        price: 2499,
+        price: priceOf('enterprise'),
         description: 'Robust multisite compliance system for modern retail chains and corporations.',
         features: [
           'GST compliance billing (Intra/Inter-state CGST/SGST/IGST)',
@@ -3503,7 +3490,7 @@ export const api = {
       {
         id: 'basic_distributor',
         name: 'Basic Distributor',
-        price: 999,
+        price: priceOf('basic_distributor'),
         description: 'For small wholesale suppliers serving 1–10 kirana shops.',
         features: [
           'Up to 10 assigned retail shops',
@@ -3517,7 +3504,7 @@ export const api = {
       {
         id: 'pro_distributor',
         name: 'Pro Distributor',
-        price: 2499,
+        price: priceOf('pro_distributor'),
         description: 'Mid-size FMCG distributors serving 11–50 shops.',
         features: [
           'Up to 50 assigned retail shops',
@@ -3533,7 +3520,7 @@ export const api = {
       {
         id: 'enterprise_distributor',
         name: 'Enterprise Distributor',
-        price: 4999,
+        price: priceOf('enterprise_distributor'),
         description: 'Large distributors managing 50+ shops with multi-branch operations.',
         features: [
           'Unlimited assigned shops',

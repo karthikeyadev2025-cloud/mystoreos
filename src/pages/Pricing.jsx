@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { priceOf } from '../lib/planCatalogue';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
@@ -20,21 +21,21 @@ const setMeta = (name, content) => {
    retail's starter — a "starter" tier for a service business that
    can't take a single booking isn't a usable starting point. ────── */
 const SERVICE_PLANS = [
-  { id: 'service_starter', name: 'Starter', price: 249, popular: false, features: [
+  { id: 'service_starter', name: 'Starter', price: priceOf('service_starter'), popular: false, features: [
       { label: 'Online booking (up to 10 services)', on: true }, { label: 'Customer books from your page', on: true },
       { label: 'Double-booking blocked automatically', on: true }, { label: 'WhatsApp booking confirmation', on: true },
       { label: 'Single device', on: true }, { label: 'Standard bill templates', on: true },
       { label: 'Staff scheduling (multi-staff)', on: false }, { label: 'Automated 24h/1h reminders', on: false },
       { label: 'Self-service reschedule/cancel', on: false }, { label: 'Buffer time', on: false }, { label: 'Recurring bookings', on: false },
     ] },
-  { id: 'service_pro', name: 'PRO', price: 699, popular: true, features: [
+  { id: 'service_pro', name: 'PRO', price: priceOf('service_pro'), popular: true, features: [
       { label: 'Unlimited services', on: true }, { label: 'Everything in Starter', on: true },
       { label: 'Staff scheduling — multiple staff, own hours', on: true }, { label: 'Automated WhatsApp + SMS reminders (24h & 1h)', on: true },
       { label: 'Self-service reschedule/cancel by link', on: true }, { label: 'Buffer time between appointments', on: true },
       { label: 'Custom invoice branding', on: true }, { label: 'Advanced reports', on: true },
       { label: 'Recurring bookings', on: false }, { label: 'Multi-branch', on: false },
     ] },
-  { id: 'service_enterprise', name: 'Enterprise', price: 1499, popular: false, features: [
+  { id: 'service_enterprise', name: 'Enterprise', price: priceOf('service_enterprise'), popular: false, features: [
       { label: 'Everything in PRO', on: true }, { label: 'Recurring / weekly-repeat bookings', on: true },
       { label: 'Multi-branch (multiple locations, one login)', on: true }, { label: 'Multi-device sync (5 devices)', on: true },
       { label: 'Priority 24/7 support', on: true }, { label: 'AI demand forecasting', on: true },
@@ -44,7 +45,7 @@ const SERVICE_PLANS = [
 
 /* ─── Static distributor plans ─────────────────────────────────────── */
 const DIST_PLANS = [
-  { id: 'basic_distributor', name: 'Basic Distributor', price: 999, popular: false,
+  { id: 'basic_distributor', name: 'Basic Distributor', price: priceOf('basic_distributor'), popular: false,
     features: [
       { label: 'Up to 10 assigned shops', on: true },
       { label: 'Stock order management', on: true },
@@ -61,7 +62,7 @@ const DIST_PLANS = [
       { label: 'Multi-device', on: false },
     ],
   },
-  { id: 'pro_distributor', name: 'Pro Distributor', price: 3499, popular: true,
+  { id: 'pro_distributor', name: 'Pro Distributor', price: priceOf('pro_distributor'), popular: true,
     features: [
       { label: 'Up to 50 assigned shops', on: true },
       { label: 'Everything in Basic', on: true },
@@ -79,7 +80,7 @@ const DIST_PLANS = [
       { label: 'Van sales (offline billing)', on: false },
     ],
   },
-  { id: 'enterprise_distributor', name: 'Enterprise Distributor', price: 7999, popular: false,
+  { id: 'enterprise_distributor', name: 'Enterprise Distributor', price: priceOf('enterprise_distributor'), popular: false,
     features: [
       { label: 'Unlimited shops', on: true },
       { label: 'Everything in Pro', on: true },
@@ -301,14 +302,14 @@ export default function Pricing() {
   const shopPlans = plans.length
     ? plans
     : [
-        { id: 'starter', name: 'Starter', price: 499, popular: false, features: [
+        { id: 'starter', name: 'Starter', price: priceOf('starter'), popular: false, features: [
             { label: 'Up to 200 products', on: true }, { label: 'Digital billing & invoicing', on: true },
             { label: 'Basic Day Book', on: true }, { label: 'Single device', on: true },
             { label: 'Standard bill templates', on: true }, { label: 'WhatsApp bill sharing', on: true },
             { label: 'Staff accounts', on: false }, { label: 'Batch/expiry tracking', on: false },
             { label: 'GST billing', on: false }, { label: 'Tally export', on: false }, { label: 'CA portal', on: false },
           ] },
-        { id: 'pro', name: 'PRO', price: 999, popular: true, features: [
+        { id: 'pro', name: 'PRO', price: priceOf('pro'), popular: true, features: [
             { label: 'Unlimited products', on: true }, { label: 'Everything in Starter', on: true },
             { label: 'WhatsApp invoice sharing', on: true }, { label: 'Staff accounts + PIN locks', on: true },
             { label: 'Batch & expiry tracking', on: true }, { label: 'UPI payment links', on: true },
@@ -317,7 +318,7 @@ export default function Pricing() {
             { label: 'Flash sales', on: true }, { label: 'GST billing', on: false },
             { label: 'Tally export', on: false }, { label: 'Multi-device sync', on: false },
           ] },
-        { id: 'enterprise', name: 'Enterprise', price: 2499, popular: false, features: [
+        { id: 'enterprise', name: 'Enterprise', price: priceOf('enterprise'), popular: false, features: [
             { label: 'Everything in PRO', on: true }, { label: 'GST compliance (CGST/SGST/IGST)', on: true },
             { label: 'Tally ERP XML export', on: true }, { label: 'GSTR-1 CSV generation', on: true },
             { label: 'CA portal access', on: true }, { label: 'Multi-device sync (5 devices)', on: true },

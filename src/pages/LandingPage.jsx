@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { priceOf } from '../lib/planCatalogue';
 import { useNavigate } from 'react-router-dom';
 import { useSiteConfig } from '../lib/siteConfig';
 import { api } from '../lib/api';
@@ -67,9 +68,9 @@ const DSP_FB = [
   // A visitor would have signed up expecting free and landed on an
   // expiring trial instead. Retail starts at Starter ₹499, matching
   // the authoritative seed in api.js and the Pricing page exactly.
-  { id: 'starter', name: 'Starter', price: 499, popular: false, features: ['Up to 500 products', 'Standard billing', 'Basic day book', 'WhatsApp sharing', 'Single device'] },
-  { id: 'pro', name: 'PRO', price: 999, popular: true, features: ['Unlimited products', 'WhatsApp sharing', 'Staff accounts', 'Batch & expiry tracking', 'UPI payment links'] },
-  { id: 'enterprise', name: 'Enterprise', price: 2499, popular: false, features: ['Everything in PRO', 'GST compliance billing', 'CA Portal access', 'Tally ERP export', 'Multi-device sync'] },
+  { id: 'starter', name: 'Starter', price: priceOf('starter'), popular: false, features: ['Up to 500 products', 'Standard billing', 'Basic day book', 'WhatsApp sharing', 'Single device'] },
+  { id: 'pro', name: 'PRO', price: priceOf('pro'), popular: true, features: ['Unlimited products', 'WhatsApp sharing', 'Staff accounts', 'Batch & expiry tracking', 'UPI payment links'] },
+  { id: 'enterprise', name: 'Enterprise', price: priceOf('enterprise'), popular: false, features: ['Everything in PRO', 'GST compliance billing', 'CA Portal access', 'Tally ERP export', 'Multi-device sync'] },
 ];
 // Service business track — separate pricing from Retail above (see
 // PLAN_CAPS.service_starter/_pro/_enterprise in features.js). Static
@@ -80,17 +81,17 @@ const DSP_FB = [
 // without needing a database-driven plan table like retail/distributor
 // have.
 const SSP_FB = [
-  { id: 'service_starter', name: 'Starter', price: 249, popular: false, features: ['Online booking (up to 10 services)', 'Double-booking blocked automatically', 'WhatsApp booking confirmation', 'Single device'] },
-  { id: 'service_pro', name: 'PRO', price: 699, popular: true, features: ['Unlimited services', 'Multi-staff scheduling', 'Automated WhatsApp + SMS reminders', 'Self-service reschedule/cancel', 'Buffer time'] },
-  { id: 'service_enterprise', name: 'Enterprise', price: 1499, popular: false, features: ['Everything in PRO', 'Recurring / weekly-repeat bookings', 'Multi-branch', 'Multi-device sync', 'Priority support'] },
+  { id: 'service_starter', name: 'Starter', price: priceOf('service_starter'), popular: false, features: ['Online booking (up to 10 services)', 'Double-booking blocked automatically', 'WhatsApp booking confirmation', 'Single device'] },
+  { id: 'service_pro', name: 'PRO', price: priceOf('service_pro'), popular: true, features: ['Unlimited services', 'Multi-staff scheduling', 'Automated WhatsApp + SMS reminders', 'Self-service reschedule/cancel', 'Buffer time'] },
+  { id: 'service_enterprise', name: 'Enterprise', price: priceOf('service_enterprise'), popular: false, features: ['Everything in PRO', 'Recurring / weekly-repeat bookings', 'Multi-branch', 'Multi-device sync', 'Priority support'] },
 ];
 const DDP_FB = [
   // Same as the retail list above: no 'free' tier here, because none
   // exists in DIST_PLAN_CAPS or the pricing seed. Distribution starts
   // at Basic ₹999, matching the Pricing page exactly.
-  { id: 'basic_dist', name: 'Basic', price: 999, popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
-  { id: 'pro_dist', name: 'PRO', price: 3499, popular: true, features: ['Up to 50 shops', 'Field sales & route beats', 'Presale order booking', 'End-of-day settlement', 'Up to 3 vehicles', 'Tally export'] },
-  { id: 'enterprise_dist', name: 'Enterprise', price: 7999, popular: false, features: ['Unlimited shops', 'Van sales — offline billing', 'On-the-spot returns', 'Unlimited vehicles', 'Multi-branch', 'API access'] },
+  { id: 'basic_dist', name: 'Basic', price: priceOf('basic_distributor'), popular: false, features: ['Up to 10 shops', 'Basic order mgmt', 'Credit ledger', 'Analytics'] },
+  { id: 'pro_dist', name: 'PRO', price: priceOf('pro_distributor'), popular: true, features: ['Up to 50 shops', 'Field sales & route beats', 'Presale order booking', 'End-of-day settlement', 'Up to 3 vehicles', 'Tally export'] },
+  { id: 'enterprise_dist', name: 'Enterprise', price: priceOf('enterprise_distributor'), popular: false, features: ['Unlimited shops', 'Van sales — offline billing', 'On-the-spot returns', 'Unlimited vehicles', 'Multi-branch', 'API access'] },
 ];
 
 const GCSS = LANDING_CSS;
