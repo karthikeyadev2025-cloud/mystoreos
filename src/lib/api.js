@@ -1289,6 +1289,31 @@ export const api = {
   },
 
   // ---- STAFF ----
+  // The missing piece — addStaff and deleteStaff existed, but there
+  // was no way to fix a typo'd phone number or update a driver's new
+  // number without removing and re-adding them, which also unlinks
+  // them from their assigned vehicle and warehouse.
+  async updateStaff(staffId, { name, phone } = {}) {
+    if (isSupabaseConfigured) {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userToken = session?.access_token;
+      const { data, error } = await supabase.functions.invoke('update-staff', {
+        body: { staffId, name, phone },
+        headers: userToken ? { Authorization: `Bearer ${userToken}` } : {},
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      return data;
+    }
+    const db = getDB();
+    const staff = db.users.find(u => u.id === staffId);
+    if (!staff) throw new Error('Staff not found');
+    if (name?.trim()) staff.name = name.trim();
+    if (phone) staff.phone = phone.replace(/\D/g, '').slice(-10);
+    saveDB(db);
+    return { success: true, staff };
+  },
+
   async addStaff(shopId, phone, pass, name) {
     if (isSupabaseConfigured) {
       // Must pass the user's JWT so the edge function can verify who's calling.

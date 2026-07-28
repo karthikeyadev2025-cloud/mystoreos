@@ -15,9 +15,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { ArrowLeft, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeft, Users, Warehouse, X, Pencil, Check } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import fieldApi from '../../lib/fieldApi';
+import { api } from '../../lib/api';
 import { distributorIdOf } from '../../lib/fieldIdentity';
 
 const ROLE_LABEL = {
@@ -106,6 +107,31 @@ export default function FieldReps() {
     finally { setBusy(false); }
   };
 
+  // The gap this closes: correcting a typo'd number, or updating it
+  // when a driver's phone actually changes, previously meant removing
+  // and re-adding them — which also unlinks them from their vehicle
+  // and warehouse. This edits in place.
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+
+  const startEdit = (rep) => {
+    setEditingId(rep.userId);
+    setEditName(rep.name);
+    setEditPhone(rep.phone || '');
+  };
+
+  const saveEdit = async () => {
+    setBusy(true);
+    try {
+      await api.updateStaff(editingId, { name: editName, phone: editPhone });
+      toast.success('Updated');
+      setEditingId(null);
+      setReloadKey(k => k + 1);
+    } catch (e) { toast.error(e.message || 'Could not update'); }
+    finally { setBusy(false); }
+  };
+
   const S = {
     card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
     input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
@@ -182,23 +208,46 @@ export default function FieldReps() {
           <p style={{ fontSize: 12, color: '#94A3B8' }}>No one assigned to field work yet.</p>
         ) : reps.map(rep => (
           <div key={rep.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{rep.name}</div>
-              <div style={{ fontSize: 11, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                <span style={{ background: '#EEF2FF', color: '#4338CA', padding: '2px 8px', borderRadius: 10, fontWeight: 700, fontSize: 10 }}>{ROLE_LABEL[rep.fieldRole]}</span>
-                {rep.homeWarehouseName && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Warehouse size={10} />{rep.homeWarehouseName}</span>}
+            {editingId === rep.userId ? (
+              <div style={{ display: 'flex', gap: 8, flex: 1, minWidth: 240, flexWrap: 'wrap' }}>
+                <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Name"
+                  style={{ flex: 1, padding: '7px 10px', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12 }} />
+                <input value={editPhone} onChange={e => setEditPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  inputMode="numeric" placeholder="Phone" style={{ width: 110, padding: '7px 10px', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12 }} />
+                <button onClick={saveEdit} disabled={busy} style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
+                  <Check size={12} />
+                </button>
+                <button onClick={() => setEditingId(null)} style={{ background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
+                  <X size={12} />
+                </button>
               </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <select value={rep.assignedVehicleId || ''} onChange={e => reassignVehicle(rep, e.target.value)}
-                style={{ padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12 }}>
-                <option value="">No vehicle</option>
-                {vehicles.map(v => <option key={v.id} value={v.id}>{v.code}</option>)}
-              </select>
-              <button onClick={() => remove(rep)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
-                <X size={12} />
-              </button>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{rep.name}</div>
+                  <div style={{ fontSize: 11, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                    <span style={{ background: '#EEF2FF', color: '#4338CA', padding: '2px 8px', borderRadius: 10, fontWeight: 700, fontSize: 10 }}>{ROLE_LABEL[rep.fieldRole]}</span>
+                    {/* Was invisible on this screen entirely — no way to
+                        even SEE a rep's phone here, let alone fix it. */}
+                    {rep.phone && <span>{rep.phone}</span>}
+                    {rep.homeWarehouseName && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Warehouse size={10} />{rep.homeWarehouseName}</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <select value={rep.assignedVehicleId || ''} onChange={e => reassignVehicle(rep, e.target.value)}
+                    style={{ padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12 }}>
+                    <option value="">No vehicle</option>
+                    {vehicles.map(v => <option key={v.id} value={v.id}>{v.code}</option>)}
+                  </select>
+                  <button onClick={() => startEdit(rep)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
+                    <Pencil size={12} />
+                  </button>
+                  <button onClick={() => remove(rep)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
+                    <X size={12} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
