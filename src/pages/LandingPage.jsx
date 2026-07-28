@@ -118,19 +118,18 @@ export default function LandingPage() {
     safe(() => api.seedSubscriptionPlans());
     safe(() => api.getPricing()).then(d => d && setPricing(d));
     safe(() => api.getSubscriptionPlans()).then(d => {
-      if (d && d.length) {
-        // Always ensure Free plan is first
-        const hasFree = d.some(p => p.price === 0 || p.id === 'free');
-        const basePlans = hasFree ? d : [DSP_FB[0], ...d];
-        setPlans(basePlans);
-      }
+      // FOUND THE ACTUAL DUPLICATE-PLANS BUG: this used to guarantee a
+      // free plan existed by prepending DSP_FB[0] whenever the fetched
+      // data lacked one. After the free tier was removed from the
+      // product entirely, `hasFree` can never be true again — so this
+      // ran on every single load, unconditionally prepending the
+      // fallback's first entry (Starter, now that Free is gone) onto
+      // real API data that already starts with Starter. Two Starter
+      // plans, every time, for every user. Just use the real data.
+      if (d && d.length) setPlans(d);
     });
     safe(() => api.getDistributorSubscriptionPlans()).then(d => {
-      if (d && d.length) {
-        const hasFree = d.some(p => p.price === 0 || p.id === 'free_dist');
-        const basePlans = hasFree ? d : [DDP_FB[0], ...d];
-        setDistPlans(basePlans);
-      }
+      if (d && d.length) setDistPlans(d);
     });
   }, []);
 
