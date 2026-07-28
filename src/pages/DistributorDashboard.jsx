@@ -3191,17 +3191,6 @@ const DistributorDashboard = () => {
                     </button>
                   ))}
                 </div>
-              )}lor: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {s.n}
-                      </span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
-                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
-                      </span>
-                      <span style={{ color: '#94A3B8', fontSize: 16 }}>→</span>
-                    </button>
-                  ))}
-                </div>
               )}
 
               {/* Lifetime "revenue collected" only ever rises, so it can
