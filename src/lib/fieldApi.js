@@ -885,15 +885,19 @@ export const purchaseApi = {
   // and tells you nothing about either side.
   async getSupplierBalances(distributorId) {
     if (!isSupabaseConfigured || !distributorId) return [];
-    const { data, error } = await supabase.rpc('supplier_balances', { p_distributor_id: distributorId });
-    if (error) throw new Error(error.message);
-    return (data || []).map(r => ({
-      supplierId: r.supplier_id, name: r.supplier_name, phone: r.phone || '',
-      purchased: Number(r.total_purchased) || 0,
-      paid: Number(r.total_paid) || 0,
-      outstanding: Number(r.outstanding) || 0,
-      lastBillDate: r.last_bill_date,
-    }));
+    try {
+      const { data, error } = await supabase.rpc('supplier_balances', { p_distributor_id: distributorId });
+      if (error) return [];
+      return (data || []).map(r => ({
+        supplierId: r.supplier_id, name: r.supplier_name, phone: r.phone || '',
+        purchased: Number(r.total_purchased) || 0,
+        paid: Number(r.total_paid) || 0,
+        outstanding: Number(r.outstanding) || 0,
+        lastBillDate: r.last_bill_date,
+      }));
+    } catch (_ex) {
+      return [];
+    }
   },
 
   async getPurchases(distributorId, limit = 50) {
