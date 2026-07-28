@@ -908,10 +908,8 @@ const DistributorDashboard = () => {
   const [bulkImportRows, setBulkImportRows] = useState([]);
   const [bulkImporting, setBulkImporting] = useState(false);
 
-  // Small, self-contained CSV parser rather than a new npm dependency
-  // for a simple, well-defined format (name,price,stock,category).
-  // Handles the common real-world case of a quoted field containing a
-  // comma (e.g. a product name like "Rice, 5kg Bag").
+  // Smart CSV parser with automatic header recognition for Vyapar, Tally,
+  // Marg ERP, Busy, Zoho Books, and Excel export files.
   const parseCsvText = (text) => {
     const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
     const parseLine = (line) => {
@@ -926,23 +924,99 @@ const DistributorDashboard = () => {
       fields.push(cur.trim());
       return fields;
     };
-    let rows = lines.map(parseLine);
-    // Skip a header row if the first cell looks like a label, not data
-    if (rows.length > 0 && /^name$/i.test(rows[0][0]?.trim())) rows = rows.slice(1);
-    // Was accepting any non-empty price string — "N/A", a typo, or a
-    // blank cell would silently import that product at ₹0 with zero
-    // warning, found by testing with realistic messy CSV data rather
-    // than only clean examples. Now requires price to genuinely be a
-    // positive number; rows that fail are dropped and counted so the
-    // distributor is told, not silently given bad data.
-    const isValidPrice = (v) => v && !isNaN(parseFloat(v)) && parseFloat(v) > 0;
-    const candidates = rows.filter(r => r[0] && r[1]);
-    const valid = candidates.filter(r => isValidPrice(r[1]));
-    const skippedCount = candidates.length - valid.length;
-    return {
-      rows: valid.map(r => ({ name: r[0], price: r[1], stock: r[2] || '0', category: r[3] || '' })),
-      skippedCount,
-    };
+
+    let allRows = lines.map(parseLine);
+    if (allRows.length === 0) return { rows: [], skippedCount: 0 };
+
+    let nameIdx = -1, priceIdx = -1, stockIdx = -1, catIdx = -1;
+    let unitIdx = -1, packIdx = -1, skuIdx = -1, hsnIdx = -1, gstIdx = -1;
+
+    const firstRow = allRows[0];
+    const isHeader = firstRow.some(cell => /name|item|product|price|rate|stock|qty|sku|code|hsn|gst/i.test(cell));
+
+    if (isHeader) {
+      firstRow.forEach((col, idx) => {
+        const c = col.toLowerCase().trim();
+        if (/name|item|product|description/i.test(c) && nameIdx === -1) nameIdx = idx;
+        else if (/price|rate|wholesale|selling|mrp|cost/i.test(c) && priceIdx === -1) priceIdx = idx;
+        else if (/stock|qty|quantity|count|available/i.test(c) && stockIdx === -1) stockIdx = idx;
+        else if (/category|group|type/i.test(c) && catIdx === -1) catIdx = idx;
+        else if (/pack size|packsize|box qty|jars/i.test(c) && packIdx === -1) packIdx = idx;
+        else if (/unit|uom/i.test(c) && unitIdx === -1) unitIdx = idx;
+        else if (/sku|code|item code|barcode/i.test(c) && skuIdx === -1) skuIdx = idx;
+        else if (/hsn|hsncode|hsn_code|sac/i.test(c) && hsnIdx === -1) hsnIdx = idx;
+        else if (/gst|tax|gst_rate|vat/i.test(c) && gstIdx === -1) gstIdx = idx;
+      });
+      allRows = allRows.slice(1);
+    }
+
+    if (nameIdx === -1) nameIdx = 0;
+    if (priceIdx === -1) priceIdx = 1;
+    if (stockIdx === -1) stockIdx = 2;
+    if (catIdx === -1) catIdx = 3;
+    if (unitIdx === -1) unitIdx = 4;
+    if (packIdx === -1) packIdx = 5;
+    if (skuIdx === -1) skuIdx = 6;
+    if (hsnIdx === -1) hsnIdx = 7;
+    if (gstIdx === -1) gstIdx = 8;
+
+    const isValidPrice = (v) => v != null && v !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
+    
+    let skippedCount = 0;
+    const parsedRows = [];
+
+    allRows.forEach(r => {
+      const name = r[nameIdx]?.trim();
+      const price = r[priceIdx]?.trim();
+      if (!name || !isValidPrice(price)) {
+        skippedCount++;
+        return;
+      }
+
+      parsedRows.push({
+        name,
+        price: parseFloat(price) || 0,
+        stock: r[stockIdx] ? parseInt(r[stockIdx]) || 0 : 0,
+        category: r[catIdx] || '',
+        unit: r[unitIdx] || '',
+        packSize: r[packIdx] ? parseInt(r[packIdx]) || null : null,
+        sku: r[skuIdx] || '',
+        hsnCode: r[hsnIdx] || '',
+        gstRate: r[gstIdx] ? parseFloat(r[gstIdx]) || 0 : 0,
+      });
+    });
+
+    return { rows: parsedRows, skippedCount };
+  };
+
+  const downloadSampleCsv = (type = 'standard') => {
+    let content = '';
+    let filename = 'mystoreos_catalog_import.csv';
+    if (type === 'vyapar') {
+      filename = 'vyapar_import_sample.csv';
+      content = 'Item Name,Selling Price,Stock Qty,Category,Item Code,HSN,Tax Rate\n' +
+        'Parle-G Biscuit 100g,120,50,Biscuits,SKU-101,1905,18\n' +
+        'Frooti Mango Drink 120ml,150,30,Beverages,SKU-102,2202,12\n';
+    } else if (type === 'tally') {
+      filename = 'tally_import_sample.csv';
+      content = 'Product Name,Wholesale Price,Available Stock,Group,SKU,HSN Code,GST %\n' +
+        'Good Day Butter 50g,90,100,Biscuits,GD-50,1905,18\n' +
+        'Thums Up Can 300ml,350,40,Soft Drinks,TU-300,2202,28\n';
+    } else {
+      filename = 'standard_catalog_template.csv';
+      content = 'Name,Price,Stock,Category,Unit,PackSize,SKU,HSNCode,GSTRate\n' +
+        'Parle-G Jar (24 Pkts),240,50,Biscuits,jar,24,269,1905,18\n' +
+        'Maaza 1.2L Bottle,480,20,Beverages,case,6,270,2202,12\n';
+    }
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleCsvFileSelect = (e) => {
@@ -1991,33 +2065,76 @@ const DistributorDashboard = () => {
               </div>
 
               {showBulkImport && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
-                    <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: '#0F172A' }}>Bulk Import Catalog (CSV)</h3>
-                    <p style={{ margin: '0 0 16px', fontSize: 13, color: '#64748B' }}>Columns: <code>name, price, stock, category</code> — header row optional.</p>
-                    <input type="file" accept=".csv,text/csv" onChange={handleCsvFileSelect}
-                      style={{ width: '100%', padding: 10, border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 16, fontSize: 13 }} />
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, maxWidth: 620, width: '100%', maxHeight: '88vh', overflowY: 'auto', border: '1px solid #E2E8F0', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0F172A' }}>Bulk Import Products from Other Software</h3>
+                      <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }} style={{ background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 16 }}>×</button>
+                    </div>
+                    
+                    <p style={{ margin: '0 0 14px', fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>
+                      Directly import CSV files exported from <strong>Vyapar, Tally, Marg ERP, Busy, Zoho Books, or Excel</strong>. Automatic header matching supported!
+                    </p>
+
+                    {/* Download Sample CSV Templates */}
+                    <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#475569', marginBottom: 8, textTransform: 'uppercase' }}>📥 Download Sample CSV Format Templates:</div>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button type="button" onClick={() => downloadSampleCsv('standard')}
+                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#4F46E5', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          📄 Standard Template
+                        </button>
+                        <button type="button" onClick={() => downloadSampleCsv('vyapar')}
+                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#059669', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          📄 Vyapar Export Sample
+                        </button>
+                        <button type="button" onClick={() => downloadSampleCsv('tally')}
+                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#0284C7', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          📄 Tally Export Sample
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: '#334155', marginBottom: 6 }}>Upload CSV File</label>
+                      <input type="file" accept=".csv,text/csv" onChange={handleCsvFileSelect}
+                        style={{ width: '100%', padding: 10, border: '1px solid #CBD5E1', borderRadius: 10, fontSize: 13, background: '#FFFFFF', boxSizing: 'border-box' }} />
+                    </div>
+
                     {bulkImportRows.length > 0 && (
                       <>
-                        <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', margin: '0 0 8px' }}>Preview — {bulkImportRows.length} product{bulkImportRows.length === 1 ? '' : 's'} ready to import:</p>
-                        <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 16 }}>
+                        <p style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>
+                          Preview — {bulkImportRows.length} product{bulkImportRows.length === 1 ? '' : 's'} ready to import:
+                        </p>
+                        <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #CBD5E1', borderRadius: 12, marginBottom: 16, background: '#FFFFFF' }}>
                           {bulkImportRows.slice(0, 50).map((r, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', fontSize: 12, borderBottom: '1px solid #F1F5F9' }}>
-                              <span>{r.name} {r.category && <span style={{ color: '#94A3B8' }}>· {r.category}</span>}</span>
-                              <span>₹{r.price} · stock {r.stock}</span>
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', fontSize: 12, borderBottom: '1px solid #F1F5F9' }}>
+                              <div>
+                                <div style={{ fontWeight: 800, color: '#0F172A' }}>{r.name}</div>
+                                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                                  {r.category && <span>Category: {r.category} · </span>}
+                                  {r.sku && <span>SKU: {r.sku} · </span>}
+                                  {r.hsnCode && <span>HSN: {r.hsnCode} · </span>}
+                                  {r.gstRate > 0 && <span>GST: {r.gstRate}%</span>}
+                                </div>
+                              </div>
+                              <div style={{ textAlign: 'right', fontWeight: 900, color: '#4F46E5' }}>
+                                ₹{r.price} <span style={{ color: '#64748B', fontSize: 11, fontWeight: 'normal' }}>({r.stock} in stock)</span>
+                              </div>
                             </div>
                           ))}
-                          {bulkImportRows.length > 50 && <div style={{ padding: 8, fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>+ {bulkImportRows.length - 50} more…</div>}
+                          {bulkImportRows.length > 50 && <div style={{ padding: 10, fontSize: 11, color: '#64748B', textAlign: 'center', fontWeight: 'bold' }}>+ {bulkImportRows.length - 50} more products…</div>}
                         </div>
                       </>
                     )}
+
                     <div style={{ display: 'flex', gap: 10 }}>
                       <button onClick={handleConfirmBulkImport} disabled={bulkImportRows.length === 0 || bulkImporting}
-                        style={{ flex: 1, background: bulkImportRows.length === 0 ? '#CBD5E1' : '#4F46E5', color: '#fff', border: 'none', padding: 12, borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: bulkImportRows.length === 0 ? 'default' : 'pointer' }}>
-                        {bulkImporting ? 'Importing…' : `Import ${bulkImportRows.length || ''} Products`}
+                        style={{ flex: 1, background: bulkImportRows.length === 0 ? '#CBD5E1' : 'linear-gradient(135deg, #4F46E5, #4338CA)', color: '#fff', border: 'none', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: bulkImportRows.length === 0 ? 'default' : 'pointer', boxShadow: bulkImportRows.length === 0 ? 'none' : '0 4px 14px rgba(79,70,229,0.3)' }}>
+                        {bulkImporting ? 'Importing Products…' : `Import ${bulkImportRows.length || ''} Products to Catalog`}
                       </button>
                       <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }}
-                        style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: 12, borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                        style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>
