@@ -1254,6 +1254,43 @@ const DistributorDashboard = () => {
                   to DO. These two answer the questions the business
                   actually runs on: which money is going bad, and which
                   customers am I quietly losing. */}
+              {/* Shown ONLY on a genuinely empty account. Everything
+                  else on this dashboard hides itself when there's no
+                  data — correct individually, but together it left a
+                  new distributor staring at three buttons and zeroes,
+                  which reads as broken rather than new. This makes the
+                  empty state intentional and doubles as a tour of what
+                  the product actually does. Renders nothing the moment
+                  real data exists, so it can never clutter a live
+                  account. */}
+              {shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
+                <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
+                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px' }}>
+                    Four steps to a working distribution business. Most take under a minute.
+                  </p>
+                  {[
+                    { n: 1, t: 'Add your products', d: 'Build your wholesale catalogue with prices, units and GST', to: null, tab: 'catalog' },
+                    { n: 2, t: 'Record a purchase', d: 'Enter a supplier bill — stock goes up and cost is captured', to: '/distributor/purchases' },
+                    { n: 3, t: 'Link your shops', d: 'Share your distributor code so retailers can order from you', to: null, tab: 'shops' },
+                    { n: 4, t: 'Make your first sale', d: 'Counter or phone order, with a proper GST invoice', to: '/distributor/new-sale' },
+                  ].map(s => (
+                    <button key={s.n}
+                      onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
+                      style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {s.n}
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
+                      </span>
+                      <span style={{ color: '#94A3B8', fontSize: 16 }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Lifetime "revenue collected" only ever rises, so it can
                   never show a business shrinking. Last 30 days vs the 30
                   before it can. */}
@@ -2791,6 +2828,43 @@ const DistributorDashboard = () => {
                   to DO. These two answer the questions the business
                   actually runs on: which money is going bad, and which
                   customers am I quietly losing. */}
+              {/* Shown ONLY on a genuinely empty account. Everything
+                  else on this dashboard hides itself when there's no
+                  data — correct individually, but together it left a
+                  new distributor staring at three buttons and zeroes,
+                  which reads as broken rather than new. This makes the
+                  empty state intentional and doubles as a tour of what
+                  the product actually does. Renders nothing the moment
+                  real data exists, so it can never clutter a live
+                  account. */}
+              {shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
+                <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
+                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px' }}>
+                    Four steps to a working distribution business. Most take under a minute.
+                  </p>
+                  {[
+                    { n: 1, t: 'Add your products', d: 'Build your wholesale catalogue with prices, units and GST', to: null, tab: 'catalog' },
+                    { n: 2, t: 'Record a purchase', d: 'Enter a supplier bill — stock goes up and cost is captured', to: '/distributor/purchases' },
+                    { n: 3, t: 'Link your shops', d: 'Share your distributor code so retailers can order from you', to: null, tab: 'shops' },
+                    { n: 4, t: 'Make your first sale', d: 'Counter or phone order, with a proper GST invoice', to: '/distributor/new-sale' },
+                  ].map(s => (
+                    <button key={s.n}
+                      onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
+                      style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {s.n}
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
+                      </span>
+                      <span style={{ color: '#94A3B8', fontSize: 16 }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Lifetime "revenue collected" only ever rises, so it can
                   never show a business shrinking. Last 30 days vs the 30
                   before it can. */}
