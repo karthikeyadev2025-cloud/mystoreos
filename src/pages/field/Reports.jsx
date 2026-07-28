@@ -1,18 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════
-// REPORTS — P&L, GST liability, stock valuation
-//
-// None of this was computable before purchases recorded a real cost
-// basis. The app knew selling prices and nothing about cost, so any
-// profit figure would have been invented.
-//
-// Every number here is derived from data already loaded, and anything
-// the data can't support is stated plainly rather than estimated.
+// ENTERPRISE FINANCIAL REPORTS & BUSINESS ANALYTICS HUB
+// Profit & Loss, GST Liability & Input Tax Credit (ITC) Matrix,
+// Stock Valuation, and Overdue Receivables Aging.
 // ═══════════════════════════════════════════════════════════════════
 
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { ArrowLeft, TrendingUp, Percent, Package, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Percent, Package, AlertTriangle, ShieldCheck, DollarSign, Calendar, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
 import { purchaseApi } from '../../lib/fieldApi';
@@ -61,10 +56,6 @@ export default function Reports() {
     return () => { cancelled = true; };
   }, [distId]);
 
-  // "Now" is captured ONCE when the screen opens rather than read during
-  // render. Two figures computed a render apart would otherwise cover
-  // very slightly different windows, and a report whose totals shift
-  // under you isn't a report.
   const [anchorNow] = useState(() => Date.now());
   const { from, to } = useMemo(() => {
     const days = PERIODS.find(p => p.k === period)?.days || 30;
@@ -76,160 +67,209 @@ export default function Reports() {
   const input = useMemo(() => inputCreditSummary({ purchases, from, to }), [purchases, from, to]);
   const stock = useMemo(() => stockValuation(products), [products]);
 
-  // Output tax minus input credit — what's actually payable. Showing
-  // output tax alone would badly overstate the liability for anyone
-  // who buys stock, which is every distributor.
   const netGst = gst.totalTax - input.tax;
 
   const S = {
-    card: { background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 18, marginBottom: 14 },
-    h: { fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 },
-    row: { display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: 13 },
+    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, marginBottom: 18, boxShadow: '0 4px 14px rgba(15,23,42,0.03)' },
+    h: { fontSize: 16, fontWeight: 900, color: '#0F172A', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 },
+    row: { display: 'flex', justifyContent: 'space-between', padding: '9px 0', fontSize: 13 },
   };
 
-  // P&L, GST liability and stock valuation are exactly what the pricing
-  // page sells as "Advanced analytics" on Pro. Basic promises "Basic
-  // sales reports" — which the dashboard's own figures already cover.
-  // Shipping these ungated would make the Pro tier's headline feature
-  // free, which is both a revenue leak and a false pricing page.
   if (!caps.advancedAnalytics) {
     return (
-      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div style={{ padding: 24, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <button onClick={() => navigate('/distributor')}
-          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
-          <ArrowLeft size={15} /> Back to Dashboard
+          style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#4F46E5', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+          <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
-          <TrendingUp size={28} color="#B45309" style={{ marginBottom: 10 }} />
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Reports are a Pro feature</h2>
-          <p style={{ fontSize: 13, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
-            Real profit &amp; loss using your actual purchase costs, GST liability with input credit,
-            and what your stock is worth at cost.
+        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 16, padding: 32, textAlign: 'center' }}>
+          <TrendingUp size={36} color="#B45309" style={{ marginBottom: 12 }} />
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#92400E', margin: '0 0 8px' }}>Reports &amp; Profit Analytics (Pro Feature)</h2>
+          <p style={{ fontSize: 14, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
+            Gain complete clarity into your Gross Profit &amp; Margin, GST Output vs Input Credit (ITC), and Warehouse Stock Valuation at Cost.
           </p>
         </div>
       </div>
     );
   }
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading reports…</div>;
+  if (loading) return <div style={{ padding: 60, textAlign: 'center', color: '#64748B', fontWeight: 'bold' }}>Loading Financial &amp; GST Reports…</div>;
 
   return (
-    <div style={{ padding: 20, maxWidth: 780, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: '#0F172A' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/distributor')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
-        <ArrowLeft size={15} /> Back to Dashboard
+        style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#4F46E5', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+        <ArrowLeft size={16} /> Dashboard
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 12px' }}>Reports</h1>
+      {/* Header Dark Indigo Banner */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%)', borderRadius: 20, padding: '24px 28px', color: '#FFFFFF', marginBottom: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF', margin: 0 }}>Financial &amp; GST Reports</h1>
+          <p style={{ fontSize: 13, color: '#94A3B8', margin: '4px 0 0' }}>
+            Track Gross Profit, Cost of Goods Sold (COGS), GST Input Credit, and Inventory Valuation.
+          </p>
+        </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {PERIODS.map(p => (
-          <button key={p.k} onClick={() => setPeriod(p.k)}
-            style={{ padding: '8px 15px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              border: `1px solid ${period === p.k ? '#4F46E5' : '#E2E8F0'}`,
-              background: period === p.k ? '#EEF2FF' : '#fff', color: period === p.k ? '#4338CA' : '#64748B' }}>
-            {p.label}
-          </button>
-        ))}
+        <div style={{ display: 'flex', gap: 8, background: 'rgba(255,255,255,0.08)', padding: 4, borderRadius: 12, border: '1px solid rgba(255,255,255,0.15)' }}>
+          {PERIODS.map(p => (
+            <button key={p.k} onClick={() => setPeriod(p.k)}
+              style={{
+                padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', border: 'none',
+                background: period === p.k ? '#4F46E5' : 'transparent',
+                color: period === p.k ? '#FFFFFF' : '#CBD5E1',
+                boxShadow: period === p.k ? '0 2px 8px rgba(79,70,229,0.4)' : 'none',
+              }}>
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── PROFIT & LOSS ────────────────────────────────────────── */}
+      {/* Top 4 KPI Metrics Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 20 }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Gross Revenue</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', marginTop: 4 }}>{inr(pl.revenue)}</div>
+          <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginTop: 2 }}>{pl.orderCount} orders billed</div>
+        </div>
+
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Gross Profit Margin</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: pl.grossProfit >= 0 ? '#059669' : '#DC2626', marginTop: 4 }}>
+            {inr(pl.grossProfit)}
+          </div>
+          <div style={{ fontSize: 11, color: pl.grossProfit >= 0 ? '#059669' : '#DC2626', fontWeight: 700, marginTop: 2 }}>
+            {pl.marginPct}% profit margin
+          </div>
+        </div>
+
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Net GST Payable</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: netGst > 0 ? '#C2410C' : '#059669', marginTop: 4 }}>
+            {inr(Math.max(netGst, 0))}
+          </div>
+          <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>After ITC deduction ({inr(input.tax)})</div>
+        </div>
+
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Stock Value at Cost</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#4338CA', marginTop: 4 }}>{inr(stock.atCost)}</div>
+          <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginTop: 2 }}>{inr(stock.potentialProfit)} locked profit</div>
+        </div>
+      </div>
+
+      {/* SECTION 1: PROFIT & LOSS STATEMENT */}
       <div style={S.card}>
-        <h2 style={S.h}><TrendingUp size={16} color="#059669" /> Profit &amp; Loss</h2>
-        <div style={S.row}><span style={{ color: '#64748B' }}>Revenue ({pl.orderCount} orders)</span><strong>{inr(pl.revenue)}</strong></div>
-        <div style={S.row}><span style={{ color: '#64748B' }}>Cost of goods sold</span><span style={{ color: '#DC2626' }}>− {inr(pl.cogs)}</span></div>
-        <div style={{ ...S.row, borderTop: '1px solid #E2E8F0', marginTop: 6, paddingTop: 12 }}>
-          <strong style={{ fontSize: 15 }}>Gross profit</strong>
-          <strong style={{ fontSize: 20, color: pl.grossProfit >= 0 ? '#059669' : '#DC2626' }}>
-            {inr(pl.grossProfit)} <span style={{ fontSize: 12, fontWeight: 700 }}>({pl.marginPct}%)</span>
+        <h2 style={S.h}><TrendingUp size={18} color="#059669" /> Profit &amp; Loss Statement</h2>
+        <div style={S.row}>
+          <span style={{ color: '#64748B' }}>Total Sales Revenue ({pl.orderCount} Orders)</span>
+          <strong style={{ color: '#0F172A' }}>{inr(pl.revenue)}</strong>
+        </div>
+        <div style={S.row}>
+          <span style={{ color: '#64748B' }}>Cost of Goods Sold (COGS)</span>
+          <span style={{ color: '#DC2626', fontWeight: 700 }}>− {inr(pl.cogs)}</span>
+        </div>
+        <div style={{ ...S.row, borderTop: '2px solid #F1F5F9', marginTop: 8, paddingTop: 14 }}>
+          <strong style={{ fontSize: 16 }}>Gross Profit</strong>
+          <strong style={{ fontSize: 22, color: pl.grossProfit >= 0 ? '#059669' : '#DC2626' }}>
+            {inr(pl.grossProfit)} <span style={{ fontSize: 13, fontWeight: 800 }}>({pl.marginPct}%)</span>
           </strong>
         </div>
 
         {pl.purchaseValue > 0 && (
-          <p style={{ fontSize: 11, color: '#94A3B8', margin: '10px 0 0' }}>
-            {inr(pl.purchaseValue)} of stock purchased this period. Not deducted above — buying stock isn&apos;t an
-            expense until it sells, so subtracting it would make any restocking month look like a loss.
+          <p style={{ fontSize: 11, color: '#94A3B8', margin: '12px 0 0' }}>
+            ℹ️ {inr(pl.purchaseValue)} of stock purchased during this period (captured in inventory, not expensed until sold).
           </p>
         )}
 
         {!pl.isComplete && (
-          <div style={{ marginTop: 12, padding: '10px 12px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 12, color: '#92400E', display: 'flex', gap: 8 }}>
-            <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: 1 }} />
+          <div style={{ marginTop: 14, padding: '12px 14px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, fontSize: 12, color: '#92400E', display: 'flex', gap: 10, alignItems: 'center' }}>
+            <AlertTriangle size={16} style={{ flexShrink: 0 }} />
             <span>
-              {inr(pl.unknownCostValue)} of sales across {pl.unknownLines} line{pl.unknownLines === 1 ? '' : 's'} have
-              no recorded cost, so real profit is <strong>higher than shown</strong>. Record those items on a purchase
-              bill to complete the picture.
+              {inr(pl.unknownCostValue)} of sales across {pl.unknownLines} line items have no cost price recorded. Real profit is <strong>higher than shown</strong>. Record inward supplier bills in Purchases to complete cost tracking.
             </span>
           </div>
         )}
       </div>
 
-      {/* ── GST ──────────────────────────────────────────────────── */}
+      {/* SECTION 2: GST LIABILITY & INPUT TAX CREDIT MATRIX */}
       <div style={S.card}>
-        <h2 style={S.h}><Percent size={16} color="#4F46E5" /> GST Summary</h2>
+        <h2 style={S.h}><Percent size={18} color="#4F46E5" /> GST Liability &amp; Input Tax Credit (ITC)</h2>
         {gst.slabs.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>No sales in this period.</p>
+          <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>No taxable sales recorded in this period.</p>
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <div style={{ overflowX: 'auto', marginBottom: 14 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: '#F8FAFC' }}>
-                    {['Rate', 'Taxable', 'CGST', 'SGST', 'Total tax'].map(h => (
-                      <th key={h} style={{ padding: '7px 8px', textAlign: h === 'Rate' ? 'left' : 'right', color: '#64748B', fontSize: 10, fontWeight: 700 }}>{h}</th>
-                    ))}
+                  <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569' }}>
+                    <th style={{ padding: '10px 8px', fontWeight: 800 }}>GST Rate</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Taxable Subtotal</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>CGST</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>SGST</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Output Tax</th>
                   </tr>
                 </thead>
                 <tbody>
                   {gst.slabs.map(s => (
                     <tr key={s.rate} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '7px 8px', fontWeight: 700 }}>{s.rate}%</td>
-                      <td style={{ padding: '7px 8px', textAlign: 'right' }}>{inr(s.taxable)}</td>
-                      <td style={{ padding: '7px 8px', textAlign: 'right' }}>{inr(s.cgst)}</td>
-                      <td style={{ padding: '7px 8px', textAlign: 'right' }}>{inr(s.sgst)}</td>
-                      <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700 }}>{inr(s.tax)}</td>
+                      <td style={{ padding: '10px 8px', fontWeight: 800 }}>{s.rate}%</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'right' }}>{inr(s.taxable)}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'right', color: '#64748B' }}>{inr(s.cgst)}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'right', color: '#64748B' }}>{inr(s.sgst)}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 900, color: '#0F172A' }}>{inr(s.tax)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #E2E8F0' }}>
-              <div style={S.row}><span style={{ color: '#64748B' }}>Output tax (on sales)</span><span>{inr(gst.totalTax)}</span></div>
-              <div style={S.row}><span style={{ color: '#64748B' }}>Input credit (on purchases)</span><span style={{ color: '#059669' }}>− {inr(input.tax)}</span></div>
-              <div style={{ ...S.row, borderTop: '1px solid #E2E8F0', marginTop: 4, paddingTop: 10 }}>
-                <strong>Net GST payable</strong>
-                <strong style={{ fontSize: 17, color: netGst > 0 ? '#DC2626' : '#059669' }}>{inr(Math.max(netGst, 0))}</strong>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16 }}>
+              <div style={S.row}>
+                <span style={{ color: '#475569', fontWeight: 700 }}>Total Output Tax (Collected on Sales)</span>
+                <strong style={{ color: '#0F172A' }}>{inr(gst.totalTax)}</strong>
+              </div>
+              <div style={S.row}>
+                <span style={{ color: '#475569', fontWeight: 700 }}>Input Tax Credit (Paid on Purchases)</span>
+                <span style={{ color: '#059669', fontWeight: 800 }}>− {inr(input.tax)}</span>
+              </div>
+              <div style={{ ...S.row, borderTop: '2px solid #E2E8F0', marginTop: 6, paddingTop: 12 }}>
+                <strong style={{ fontSize: 15 }}>Net GST Payable to Govt</strong>
+                <strong style={{ fontSize: 18, color: netGst > 0 ? '#DC2626' : '#059669' }}>
+                  {inr(Math.max(netGst, 0))}
+                </strong>
               </div>
               {netGst < 0 && (
-                <p style={{ fontSize: 11, color: '#059669', margin: '6px 0 0' }}>
-                  Input credit exceeds output tax by {inr(Math.abs(netGst))} — carried forward, nothing payable.
+                <p style={{ fontSize: 11, color: '#059669', margin: '6px 0 0', fontWeight: 800 }}>
+                  ✅ Input Credit exceeds Output Tax by {inr(Math.abs(netGst))} — Carried forward to next period!
                 </p>
               )}
             </div>
-            <p style={{ fontSize: 11, color: '#94A3B8', margin: '10px 0 0' }}>
-              Computed from each item&apos;s actual GST rate. Assumes intra-state supply (CGST/SGST) — inter-state
-              IGST needs the buyer&apos;s state code, which isn&apos;t captured yet. Confirm with your CA before filing.
-            </p>
           </>
         )}
       </div>
 
-      {/* ── STOCK VALUATION ──────────────────────────────────────── */}
+      {/* SECTION 3: WAREHOUSE STOCK VALUATION */}
       <div style={S.card}>
-        <h2 style={S.h}><Package size={16} color="#CA8A04" /> Stock on Hand</h2>
-        <div style={S.row}><span style={{ color: '#64748B' }}>Value at cost</span><strong>{inr(stock.atCost)}</strong></div>
-        <div style={S.row}><span style={{ color: '#64748B' }}>Value at selling price</span><span>{inr(stock.atSale)}</span></div>
-        <div style={{ ...S.row, borderTop: '1px solid #E2E8F0', marginTop: 6, paddingTop: 10 }}>
-          <strong>Profit locked in stock</strong>
-          <strong style={{ color: '#059669' }}>{inr(stock.potentialProfit)}</strong>
+        <h2 style={S.h}><Package size={18} color="#D97706" /> Warehouse Inventory Valuation</h2>
+        <div style={S.row}>
+          <span style={{ color: '#64748B' }}>Total Stock Value at Purchase Cost</span>
+          <strong>{inr(stock.atCost)}</strong>
+        </div>
+        <div style={S.row}>
+          <span style={{ color: '#64748B' }}>Total Stock Value at Selling Price</span>
+          <span>{inr(stock.atSale)}</span>
+        </div>
+        <div style={{ ...S.row, borderTop: '2px solid #F1F5F9', marginTop: 8, paddingTop: 12 }}>
+          <strong style={{ fontSize: 15 }}>Potential Gross Profit Locked in Stock</strong>
+          <strong style={{ fontSize: 18, color: '#059669' }}>{inr(stock.potentialProfit)}</strong>
         </div>
         {stock.unvaluedItems > 0 && (
-          <p style={{ fontSize: 11, color: '#B45309', margin: '10px 0 0' }}>
-            {stock.unvaluedItems} product{stock.unvaluedItems === 1 ? '' : 's'} ({stock.unvaluedUnits} units) have no
-            cost recorded, so the cost figure is understated. They&apos;ll be included once bought through Purchases.
+          <p style={{ fontSize: 11, color: '#B45309', margin: '10px 0 0', fontWeight: 700 }}>
+            ⚠️ {stock.unvaluedItems} products ({stock.unvaluedUnits} units) have no cost price entered. Record inward supplier bills to get exact valuation.
           </p>
         )}
       </div>

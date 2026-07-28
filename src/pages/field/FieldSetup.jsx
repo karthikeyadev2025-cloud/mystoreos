@@ -32,6 +32,14 @@ export default function FieldSetup() {
   const caps = getDistCaps(user);
   const [busy, setBusy] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [whName, setWhName] = useState('');
   const [whType, setWhType] = useState('main');
   const [whAddress, setWhAddress] = useState('');
@@ -211,7 +219,7 @@ export default function FieldSetup() {
           Your physical stock locations. A quarantine bay holds damaged or expired returns so they can never be reloaded onto a van.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr auto', gap: 10, alignItems: 'end', marginBottom: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr 1.5fr auto', gap: 10, alignItems: 'end', marginBottom: 18 }}>
           <div>
             <label style={S.label}>Name</label>
             <input value={whName} onChange={e => setWhName(e.target.value)} placeholder="e.g. Guntur Main Depot" style={S.input} />
@@ -227,8 +235,8 @@ export default function FieldSetup() {
             <label style={S.label}>Address (optional)</label>
             <input value={whAddress} onChange={e => setWhAddress(e.target.value)} placeholder="Location" style={S.input} />
           </div>
-          <button onClick={addWarehouse} disabled={busy} style={S.primary}>
-            <Plus size={13} style={{ verticalAlign: -2, marginRight: 4 }} />Add
+          <button onClick={addWarehouse} disabled={busy} style={{ ...S.primary, width: isMobile ? '100%' : 'auto' }}>
+            <Plus size={13} style={{ verticalAlign: -2, marginRight: 4 }} />Add Depot
           </button>
         </div>
 
@@ -260,7 +268,7 @@ export default function FieldSetup() {
           Adding a van also creates its stock ledger and its own invoice series (e.g. <code>INV-V04-00001</code>), so it can bill with no network connection without ever clashing with another van.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '0.7fr 1.2fr 1fr 1.2fr auto', gap: 10, alignItems: 'end', marginBottom: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '0.7fr 1.2fr 1fr 1.2fr auto', gap: 10, alignItems: 'end', marginBottom: 18 }}>
           <div>
             <label style={S.label}>Code</label>
             <input value={vCode} onChange={e => setVCode(e.target.value.toUpperCase())} placeholder="V04" maxLength={6} style={S.input} />
@@ -280,7 +288,7 @@ export default function FieldSetup() {
               {depots.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           </div>
-          <button onClick={addVehicle} disabled={busy} style={{ ...S.primary, background: '#059669' }}>
+          <button onClick={addVehicle} disabled={busy} style={{ ...S.primary, background: '#059669', width: isMobile ? '100%' : 'auto' }}>
             <Plus size={13} style={{ verticalAlign: -2, marginRight: 4 }} />Add Van
           </button>
         </div>
