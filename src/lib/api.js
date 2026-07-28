@@ -3714,18 +3714,51 @@ export const api = {
   // in one request rather than looping individual inserts.
   async bulkAddDistributorProducts(distributorId, products) {
     if (!isSupabaseConfigured) throw new Error('Bulk import requires an online connection.');
-    const rows = products.map(p => ({
-      distributor_id: distributorId,
-      name: p.name,
-      price: parseFloat(p.price) || 0,
-      stock: parseInt(p.stock) || 0,
-      category: p.category || null,
-      unit: p.unit || null,
-      pack_size: p.packSize ? parseInt(p.packSize) : null,
-      sku: p.sku || null,
-      hsn_code: p.hsnCode || null,
-      gst_rate: p.gstRate ? parseFloat(p.gstRate) : 0,
-    }));
+
+    // FOUND BY TESTING AGAINST REAL POSTGRES, not assumed: the unique
+    // barcode constraint added for single-product entry makes a batch
+    // INSERT atomic — ONE duplicate item code anywhere in a 500-row
+    // CSV fails the ENTIRE import, including every row that was
+    // perfectly fine. Confirmed directly: 3 rows, 2 sharing a code,
+    // 3 rejected, not 1. Real-world exports from Vyapar/Tally/etc
+    // routinely have exactly this kind of messiness (typos, reused
+    // codes, many blank codes that all collapse to the same value),
+    // so this would have made "bulk import" fail unpredictably and
+    // opaquely the moment real data was fed into it.
+    //
+    // Fix: a code is kept ONLY if it's genuinely unique — both within
+    // this batch AND against every barcode this distributor already
+    // has. Anything else is dropped to null rather than failing the
+    // whole import; the SKU/name/price still save correctly, a
+    // duplicate item just doesn't get a scannable barcode until fixed
+    // by hand, which is a far smaller cost than losing the entire
+    // import over one bad row.
+    const { data: existingRows } = await supabase.from('distributor_products')
+      .select('barcode').eq('distributor_id', distributorId).not('barcode', 'is', null);
+    const existingBarcodes = new Set((existingRows || []).map(r => r.barcode));
+    const seenInBatch = new Set();
+
+    const rows = products.map(p => {
+      const candidate = p.barcode || p.sku || null;
+      let barcode = null;
+      if (candidate && !existingBarcodes.has(candidate) && !seenInBatch.has(candidate)) {
+        barcode = candidate;
+        seenInBatch.add(candidate);
+      }
+      return {
+        distributor_id: distributorId,
+        name: p.name,
+        price: parseFloat(p.price) || 0,
+        stock: parseInt(p.stock) || 0,
+        category: p.category || null,
+        unit: p.unit || null,
+        pack_size: p.packSize ? parseInt(p.packSize) : null,
+        sku: p.sku || null,
+        hsn_code: p.hsnCode || null,
+        gst_rate: p.gstRate ? parseFloat(p.gstRate) : 0,
+        barcode,
+      };
+    });
     const { data, error } = await supabase.from('distributor_products').insert(rows).select('id');
     if (error) throw new Error(error.message);
     return data?.length || 0;
