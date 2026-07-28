@@ -1092,27 +1092,54 @@ const DistributorDashboard = () => {
     toast.success(`Public Catalog Link copied! Share this link with retail shops: ${publicCatalogUrl}`);
   };
 
-  const handleShareCatalogWhatsApp = () => {
+  const handleShareCatalogWhatsApp = async () => {
     if (wholesaleProducts.length === 0) return toast.error('Add some products to your catalog first');
-    const groups = {};
-    wholesaleProducts.forEach(p => {
-      const cat = p.category || 'Other';
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(p);
-    });
-    let msg = `📦 *${user?.name || 'Wholesale Catalog'}*\n`;
-    msg += `🌐 *Browse Photos & Order Online:* ${publicCatalogUrl}\n`;
-    msg += `🔑 *Distributor Link Code:* ${distCode}\n\n`;
-    Object.entries(groups).forEach(([cat, prods]) => {
-      msg += `*${cat}*\n`;
-      prods.forEach(p => {
-        const priceLine = p.unit ? `₹${p.price} / ${UNIT_SUFFIX[p.unit] || p.unit}` : `₹${p.price}`;
-        msg += `• ${p.name} — ${priceLine}\n`;
-      });
-      msg += '\n';
-    });
-    msg += `Click the link above to view product photos & place orders!`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+
+    // BUG FOUND DURING AUDIT: this used to send a WhatsApp text message
+    // promising "Browse Photos & Order Online" with a link to
+    // /shop?distributor=CODE. That page does not exist for this purpose —
+    // /shop is gated to role shop/staff (an anonymous WhatsApp recipient
+    // is bounced to login), and even a logged-in shop opening it would
+    // just see THEIR OWN dashboard: ShopDashboard has no code anywhere
+    // that reads a `distributor` query param. The message advertised a
+    // photo catalog that no click could ever reach.
+    //
+    // FIX: build the actual catalog PDF — the 'catalog' template already
+    // includes product images — and share that FILE using the same
+    // native file-share pattern already proven for shop invoices
+    // (ShopDashboard, handleDownloadReceipt). This is a real document
+    // reaching a real chat, not a broken promise of a webpage.
+    try {
+      const { buildInvoicePdfBlob } = await import('../lib/invoicePrint');
+      const pdfBlob = await buildInvoicePdfBlob('catalog', {
+        distributorName: user?.name || 'Distributor',
+        distributorPhone: user?.phone || '',
+        distributorAddress: user?.businessAddress || '',
+        logoUrl: user?.logo || '',
+        generatedDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        products: wholesaleProducts,
+      }, 'a4');
+      const fileName = `${(user?.name || 'Catalog').replace(/[^a-zA-Z0-9]/g, '_')}_Catalog.pdf`;
+      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({ files: [pdfFile], title: fileName });
+          return;
+        } catch (shareErr) {
+          if (shareErr?.name === 'AbortError') return; // user cancelled, not an error
+        }
+      }
+
+      // Desktop / no file-share support: open the same PDF so it can be
+      // saved and shared manually, rather than silently doing nothing.
+      const url = URL.createObjectURL(pdfBlob);
+      window.open(url, '_blank');
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch { /* ignore */ } }, 60000);
+      toast.info('Catalog opened — download and share it from there.');
+    } catch (e) {
+      toast.error(e.message || 'Could not generate the catalog');
+    }
   };
 
   // One tap instead of re-typing the amount into the credit tab.
