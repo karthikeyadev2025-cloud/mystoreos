@@ -3585,6 +3585,12 @@ export const api = {
         price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
         packSize: row.pack_size || null, sku: row.sku || null, hsnCode: row.hsn_code || null,
         gstRate: row.gst_rate != null ? Number(row.gst_rate) : 0,
+        // Was missing here entirely. Even with the columns added and
+        // both add/update writing to them correctly, a barcode or image
+        // would still never appear anywhere — this is the function that
+        // populates the catalog list every screen actually renders from.
+        barcode: row.barcode || null, barcodeFormat: row.barcode_format || null,
+        image: row.image_url || null,
       }));
     }
     const db = getDB();
@@ -3675,9 +3681,16 @@ export const api = {
         sku: productData.sku || null,
         hsn_code: productData.hsnCode || null,
         gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
+        // Was present on updateDistributorProduct but missing here
+        // entirely — a NEW product created through "Add Product" never
+        // got a barcode or image saved at all, even after the columns
+        // existed. Only editing an already-created product worked.
+        barcode: productData.barcode || productData.sku || null,
+        barcode_format: productData.barcodeFormat || null,
+        image_url: productData.image || null,
       }).select().single();
       if (error) throw new Error(error.message);
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format, image: data.image_url };
     }
     const db = getDB();
     if (!db.distributorProducts) db.distributorProducts = [];
@@ -3719,10 +3732,15 @@ export const api = {
         gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
         barcode: productData.barcode || productData.sku || null,
         barcode_format: productData.barcodeFormat || null,
+        // Was collected in the UI and included in this exact payload
+        // by the catalog-images feature, but never read here — the
+        // distributor uploaded a photo, saw "success", and it silently
+        // never saved. Discovered only by refreshing the page.
+        image_url: productData.image || null,
       }).eq('id', productId).select().maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) throw new Error('Product not found or you do not have permission to edit it.');
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format, image: data.image_url };
     }
     const db = getDB();
     const prod = (db.distributorProducts || []).find(p => p.id === productId);
