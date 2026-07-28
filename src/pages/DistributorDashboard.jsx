@@ -2037,9 +2037,9 @@ const DistributorDashboard = () => {
           {/* ================= CATALOG TAB ================= */}
           {activeTab === 'catalog' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: 12 }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                   {hasDistCap(user, 'bulkOrderCSV') ? (
                     <button onClick={() => setShowBulkImport(true)}
                       style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -3446,24 +3446,34 @@ const DistributorDashboard = () => {
 
       {/* Catalog Tab */}
       {activeTab === 'catalog' && (
-        <div style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>Wholesale Catalog</h2>
-            <button onClick={openAddProduct} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+        <div style={{ padding: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>Wholesale Catalog ({wholesaleProducts.length})</h2>
+            <button onClick={openAddProduct} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               + Add Product
             </button>
           </div>
 
-          {wholesaleProducts.length > 0 && (
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <button onClick={handleGenerateCatalog} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-                📄 Generate Catalog
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            {hasDistCap(user, 'bulkOrderCSV') && (
+              <button onClick={() => setShowBulkImport(true)} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                📥 Bulk CSV
               </button>
-              <button onClick={handleShareCatalogWhatsApp} style={{ flex: 1, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-                💬 Share via WhatsApp
-              </button>
-            </div>
-          )}
+            )}
+            {wholesaleProducts.length > 0 && (
+              <>
+                <button onClick={handleGenerateCatalog} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  📄 PDF Catalog
+                </button>
+                <button onClick={handleCopyPublicCatalogLink} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🔗 Web Link
+                </button>
+                <button onClick={handleShareCatalogWhatsApp} style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  💬 WhatsApp
+                </button>
+              </>
+            )}
+          </div>
 
           {/* Bulk CSV import is a desktop workflow (uploading a file
               and reviewing a large preview table doesn't fit a phone
