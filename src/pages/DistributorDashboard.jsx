@@ -1072,10 +1072,14 @@ const DistributorDashboard = () => {
     }, 'a4');
   };
 
-  // WhatsApp text share — wa.me links can only carry text, not file
-  // attachments, so this is a separate, genuinely different output:
-  // a clean, readable product list a shop can actually read inline in
-  // a chat, not a link to a PDF they'd have to open separately.
+  const distCode = user?.id ? `DST-${user.id.substring(0, 6).toUpperCase()}` : 'DST-OFFICIAL';
+  const publicCatalogUrl = `https://mystoreos.in/shop?distributor=${distCode}`;
+
+  const handleCopyPublicCatalogLink = () => {
+    navigator.clipboard.writeText(publicCatalogUrl);
+    toast.success(`Public Catalog Link copied! Share this link with retail shops: ${publicCatalogUrl}`);
+  };
+
   const handleShareCatalogWhatsApp = () => {
     if (wholesaleProducts.length === 0) return toast.error('Add some products to your catalog first');
     const groups = {};
@@ -1084,7 +1088,9 @@ const DistributorDashboard = () => {
       if (!groups[cat]) groups[cat] = [];
       groups[cat].push(p);
     });
-    let msg = `📦 *${user?.name || 'Wholesale Catalog'}*\n\n`;
+    let msg = `📦 *${user?.name || 'Wholesale Catalog'}*\n`;
+    msg += `🌐 *Browse Photos & Order Online:* ${publicCatalogUrl}\n`;
+    msg += `🔑 *Distributor Link Code:* ${distCode}\n\n`;
     Object.entries(groups).forEach(([cat, prods]) => {
       msg += `*${cat}*\n`;
       prods.forEach(p => {
@@ -1093,7 +1099,7 @@ const DistributorDashboard = () => {
       });
       msg += '\n';
     });
-    msg += `Reply to place your order!`;
+    msg += `Click the link above to view product photos & place orders!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -2050,6 +2056,10 @@ const DistributorDashboard = () => {
                       <button onClick={handleGenerateCatalog}
                         style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         📄 Generate Catalog
+                      </button>
+                      <button onClick={handleCopyPublicCatalogLink}
+                        style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        🔗 Copy Web Catalog Link
                       </button>
                       <button onClick={handleShareCatalogWhatsApp}
                         style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
