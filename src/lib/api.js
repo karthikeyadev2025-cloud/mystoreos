@@ -3717,10 +3717,12 @@ export const api = {
         sku: productData.sku || null,
         hsn_code: productData.hsnCode || null,
         gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
+        barcode: productData.barcode || productData.sku || null,
+        barcode_format: productData.barcodeFormat || null,
       }).eq('id', productId).select().maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) throw new Error('Product not found or you do not have permission to edit it.');
-      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate };
+      return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format };
     }
     const db = getDB();
     const prod = (db.distributorProducts || []).find(p => p.id === productId);
@@ -3734,8 +3736,26 @@ export const api = {
       prod.sku = productData.sku || null;
       prod.hsnCode = productData.hsnCode || null;
       prod.gstRate = productData.gstRate ? parseFloat(productData.gstRate) : 0;
+      prod.barcode = productData.barcode || productData.sku || null;
+      prod.barcodeFormat = productData.barcodeFormat || null;
       saveDB(db);
     }
+    return prod;
+  },
+
+  async assignDistributorBarcode(productId, barcode, format = 'CODE128') {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('distributor_products')
+        .update({ barcode, barcode_format: format })
+        .eq('id', productId)
+        .select().maybeSingle();
+      if (error) throw new Error(error.message);
+      return data;
+    }
+    const db = getDB();
+    const prod = (db.distributorProducts || []).find(p => p.id === productId);
+    if (prod) { prod.barcode = barcode; prod.barcodeFormat = format; saveDB(db); }
     return prod;
   },
 

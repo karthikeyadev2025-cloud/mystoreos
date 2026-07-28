@@ -6,6 +6,7 @@ import { agingBuckets, dormantShops, revenueTrend } from '../lib/distributorInsi
 import { printInvoice } from '../lib/invoicePrint';
 import { safe, mustSucceed } from '../lib/asyncHelpers';
 import NotificationCenter from '../components/NotificationCenter';
+import BarcodeManager from '../components/BarcodeManager';
 import PushToggle from '../components/PushToggle';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
@@ -359,6 +360,17 @@ const DistributorDashboard = () => {
   // Stock Orders & Wholesale Catalog states
   const [stockOrders, setStockOrders] = useState([]);
   const [wholesaleProducts, setWholesaleProducts] = useState([]);
+  const [showBarcodeManager, setShowBarcodeManager] = useState(false);
+
+  const handleAssignDistributorBarcode = async (productId, barcode, format) => {
+    try {
+      await api.assignDistributorBarcode(productId, barcode, format);
+      toast.success('Barcode assigned to product');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Failed to assign barcode');
+    }
+  };
 
   // Distributor business profile / GST settings
   const [profileForm, setProfileForm] = useState({ name: '', gstin: '', stateCode: '', businessAddress: '', upiId: '', latitude: null, longitude: null });
@@ -2053,6 +2065,10 @@ const DistributorDashboard = () => {
                   )}
                   {wholesaleProducts.length > 0 && (
                     <>
+                      <button onClick={() => setShowBarcodeManager(true)}
+                        style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FFEDD5', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        🏷️ Barcodes &amp; Labels
+                      </button>
                       <button onClick={handleGenerateCatalog}
                         style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         📄 Generate Catalog
@@ -3462,6 +3478,9 @@ const DistributorDashboard = () => {
             )}
             {wholesaleProducts.length > 0 && (
               <>
+                <button onClick={() => setShowBarcodeManager(true)} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FFEDD5', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🏷️ Barcodes
+                </button>
                 <button onClick={handleGenerateCatalog} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   📄 PDF Catalog
                 </button>
@@ -4182,6 +4201,16 @@ const DistributorDashboard = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {showBarcodeManager && (
+        <BarcodeManager
+          products={wholesaleProducts}
+          shopName={user?.name || 'Distributor Catalog'}
+          shopId={user?.id}
+          onClose={() => setShowBarcodeManager(false)}
+          onAssignBarcode={(productId, barcode, format) => handleAssignDistributorBarcode(productId, barcode, format)}
+        />
       )}
 
     </div>
