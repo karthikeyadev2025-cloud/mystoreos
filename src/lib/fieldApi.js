@@ -536,6 +536,41 @@ export const fieldApi = {
   // Opens (or refreshes, if still pending) today's settlement for a
   // van — computes expected cash/UPI from real invoices and seeds
   // stock lines straight from the current warehouse_stock ledger.
+  // The gap this closes: settlement only ever showed TODAY's open/
+  // close cycle. Once closed, there was no way to look back — "what
+  // did Van 01 collect last Tuesday" or a week's totals across every
+  // van had nowhere to be seen, even though every closed day was
+  // already being saved. Reads what's already there; writes nothing.
+  async getSettlementHistory(distributorId, { vehicleId = null, from = null, to = null, limit = 60 } = {}) {
+    if (!isSupabaseConfigured || !distributorId) return [];
+    let query = supabase.from('day_settlements')
+      .select('*, vehicles(code)')
+      .eq('distributor_id', distributorId)
+      .order('settlement_date', { ascending: false })
+      .limit(limit);
+    if (vehicleId) query = query.eq('vehicle_id', vehicleId);
+    if (from) query = query.gte('settlement_date', from);
+    if (to) query = query.lte('settlement_date', to);
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return (data || []).map(r => ({
+      id: r.id,
+      vehicleCode: r.vehicles?.code || 'Unknown van',
+      date: r.settlement_date,
+      status: r.status,
+      expectedCash: Number(r.expected_cash) || 0,
+      expectedUpi: Number(r.expected_upi) || 0,
+      expectedCredit: Number(r.expected_credit) || 0,
+      countedCash: r.counted_cash != null ? Number(r.counted_cash) : null,
+      countedUpi: r.counted_upi != null ? Number(r.counted_upi) : null,
+      cashVariance: Number(r.cash_variance) || 0,
+      upiVariance: Number(r.upi_variance) || 0,
+      stockVarianceValue: Number(r.stock_variance_value) || 0,
+      overrideReason: r.override_reason || null,
+      closedAt: r.closed_at,
+    }));
+  },
+
   async openSettlement(distributorId, vehicleId) {
     requireOnline();
     const { data, error } = await supabase.rpc('open_day_settlement', {

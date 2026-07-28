@@ -40,6 +40,7 @@ const ShopVanHistory = lazy(() => import('./pages/field/ShopVanHistory'));
 const FieldDiagnostics = lazy(() => import('./pages/field/FieldDiagnostics'));
 const DirectSale = lazy(() => import('./pages/field/DirectSale'));
 const Purchases = lazy(() => import('./pages/field/Purchases'));
+const FieldSettlementHistory = lazy(() => import('./pages/field/FieldSettlementHistory'));
 const Reports = lazy(() => import('./pages/field/Reports'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CADashboard = lazy(() => import('./pages/CADashboard'));
@@ -370,6 +371,13 @@ function App() {
                   <PrivateRoute role="distributor">
                     <Suspense fallback={<DashboardSkeleton />}>
                       <ErrorBoundary fullPage><WideAppLayout><Reports /></WideAppLayout></ErrorBoundary>
+                    </Suspense>
+                  </PrivateRoute>
+                } />
+                <Route path="/field/settlement/history" element={
+                  <PrivateRoute role="distributor">
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ErrorBoundary fullPage><WideAppLayout><FieldSettlementHistory /></WideAppLayout></ErrorBoundary>
                     </Suspense>
                   </PrivateRoute>
                 } />

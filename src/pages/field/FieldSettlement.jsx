@@ -118,7 +118,16 @@ export default function FieldSettlement() {
         <ArrowLeft size={15} /> Field Setup
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>End-of-Day Settlement</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>End-of-Day Settlement</h1>
+        {/* The screen this session was missing — settlement only ever
+            showed today. Without this link it would only be reachable
+            by typing the URL directly. */}
+        <button onClick={() => navigate('/field/settlement/history')}
+          style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          📊 Day Reports
+        </button>
+      </div>
       <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
         Stock and cash both close independently — a real gap in either is blocked, not waved through.
       </p>
