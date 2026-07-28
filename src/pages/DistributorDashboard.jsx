@@ -3153,7 +3153,7 @@ const DistributorDashboard = () => {
             </button>
 
             <button onClick={() => navigate('/distributor/reports')}
-              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>📊 Reports</div>
                 <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>

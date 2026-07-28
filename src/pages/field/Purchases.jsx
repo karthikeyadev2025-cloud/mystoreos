@@ -425,7 +425,7 @@ export default function Purchases() {
                       <th style={{ padding: '10px 8px', fontWeight: 800 }}>Product Name</th>
                       <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Total Qty Received</th>
                       <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Cost Price (₹)</th>
-                      <th style={{ padding: '10px 8px', fontWeight 800, textAlign: 'right' }}>GST %</th>
+                      <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>GST %</th>
                       <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Line Total (₹)</th>
                       <th style={{ padding: '10px 8px', textAlign: 'center' }}>Action</th>
                     </tr>
