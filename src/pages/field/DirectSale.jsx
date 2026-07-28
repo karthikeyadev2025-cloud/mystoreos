@@ -68,6 +68,14 @@ export default function DirectSale() {
   // Last Saved Sale State
   const [lastSale, setLastSale] = useState(null);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     if (!distId) return;
     let cancelled = false;
@@ -464,7 +472,7 @@ export default function DirectSale() {
 
       {/* SECTION 1: Document Type & Customer Selection */}
       <div style={S.card}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: 16, marginBottom: 16 }}>
           <div>
             <label style={S.label}>Invoice Type</label>
             <select value={docType} onChange={e => setDocType(e.target.value)} style={S.input}>
@@ -490,7 +498,7 @@ export default function DirectSale() {
 
         {/* Selected Party Debt & Credit Limit Alert */}
         {selectedShopObj && (
-          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
             <div>
               <span style={{ fontSize: 12, fontWeight: 800, color: '#475569' }}>PARTY CREDIT LEDGER STATUS</span>
               <div style={{ fontSize: 14, fontWeight: 900, color: selectedShopObj.owed > 0 ? '#DC2626' : '#059669', marginTop: 2 }}>
@@ -505,7 +513,7 @@ export default function DirectSale() {
 
         {/* Walk-in Customer Details */}
         {!shopId && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
             <div>
               <label style={S.label}>Customer Name</label>
               <input value={custName} onChange={e => setCustName(e.target.value)} placeholder="e.g. Venkatesh Stores" style={S.input} />
@@ -524,10 +532,10 @@ export default function DirectSale() {
 
       {/* SECTION 2: Product Addition & FMCG Pack Size Billing Form */}
       <div style={S.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <label style={{ ...S.label, margin: 0 }}>Add Product Items</label>
           {products.length > 0 && (
-            <div style={{ position: 'relative', width: 260 }}>
+            <div style={{ position: 'relative', width: isMobile ? '100%' : 260 }}>
               <Search size={14} style={{ position: 'absolute', left: 10, top: 12, color: '#94A3B8' }} />
               <input 
                 type="text" 
@@ -540,77 +548,122 @@ export default function DirectSale() {
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Select Product</label>
-            <select value={selectedProdId} onChange={e => handleProductSelect(e.target.value)} style={S.input}>
-              <option value="">— Select Wholesale Product —</option>
-              {filteredProducts.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name} {p.sku ? `[${p.sku}]` : ''} · ₹{p.price}/{p.unit || 'unit'} (Stock: {p.stock || 0})
-                </option>
-              ))}
-            </select>
-          </div>
+        {isMobile ? (
+          /* Mobile Stacked Input Layout */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Select Product</label>
+              <select value={selectedProdId} onChange={e => handleProductSelect(e.target.value)} style={S.input}>
+                <option value="">— Select Wholesale Product —</option>
+                {filteredProducts.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} {p.sku ? `[${p.sku}]` : ''} · ₹{p.price}/{p.unit || 'unit'} (Stock: {p.stock || 0})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>
-              Boxes / Cases {selectedProduct?.packSize ? `(${selectedProduct.packSize}/box)` : ''}
-            </label>
-            <input 
-              type="number" 
-              inputMode="numeric" 
-              value={entryBoxes} 
-              onChange={e => setEntryBoxes(e.target.value)} 
-              placeholder="0" 
-              style={S.input} 
-            />
-          </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Boxes / Cases</label>
+                <input type="number" inputMode="numeric" value={entryBoxes} onChange={e => setEntryBoxes(e.target.value)} placeholder="0" style={S.input} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Loose Jars</label>
+                <input type="number" inputMode="numeric" value={entryLooseUnits} onChange={e => setEntryLooseUnits(e.target.value)} placeholder="0" style={S.input} />
+              </div>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Loose Jars / Units</label>
-            <input 
-              type="number" 
-              inputMode="numeric" 
-              value={entryLooseUnits} 
-              onChange={e => setEntryLooseUnits(e.target.value)} 
-              placeholder="0" 
-              style={S.input} 
-            />
-          </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Rate (₹/unit)</label>
+                <input type="number" inputMode="decimal" value={entryRate} onChange={e => setEntryRate(e.target.value)} placeholder="Rate ₹" style={S.input} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Discount %</label>
+                <input type="number" inputMode="decimal" value={entryDiscPct} onChange={e => setEntryDiscPct(e.target.value)} placeholder="0%" style={S.input} />
+              </div>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Rate (₹/unit)</label>
-            <input 
-              type="number" 
-              inputMode="decimal" 
-              value={entryRate} 
-              onChange={e => setEntryRate(e.target.value)} 
-              placeholder="Rate ₹" 
-              style={S.input} 
-            />
+            <button onClick={addLineItem}
+              style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: '#fff', border: 'none', padding: '14px', borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
+              <Plus size={16} /> Add Item to Invoice
+            </button>
           </div>
+        ) : (
+          /* Desktop Grid Layout */
+          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Select Product</label>
+              <select value={selectedProdId} onChange={e => handleProductSelect(e.target.value)} style={S.input}>
+                <option value="">— Select Wholesale Product —</option>
+                {filteredProducts.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} {p.sku ? `[${p.sku}]` : ''} · ₹{p.price}/{p.unit || 'unit'} (Stock: {p.stock || 0})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Discount %</label>
-            <input 
-              type="number" 
-              inputMode="decimal" 
-              value={entryDiscPct} 
-              onChange={e => setEntryDiscPct(e.target.value)} 
-              placeholder="0%" 
-              style={S.input} 
-            />
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>
+                Boxes / Cases {selectedProduct?.packSize ? `(${selectedProduct.packSize}/box)` : ''}
+              </label>
+              <input 
+                type="number" 
+                inputMode="numeric" 
+                value={entryBoxes} 
+                onChange={e => setEntryBoxes(e.target.value)} 
+                placeholder="0" 
+                style={S.input} 
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Loose Jars / Units</label>
+              <input 
+                type="number" 
+                inputMode="numeric" 
+                value={entryLooseUnits} 
+                onChange={e => setEntryLooseUnits(e.target.value)} 
+                placeholder="0" 
+                style={S.input} 
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Rate (₹/unit)</label>
+              <input 
+                type="number" 
+                inputMode="decimal" 
+                value={entryRate} 
+                onChange={e => setEntryRate(e.target.value)} 
+                placeholder="Rate ₹" 
+                style={S.input} 
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Discount %</label>
+              <input 
+                type="number" 
+                inputMode="decimal" 
+                value={entryDiscPct} 
+                onChange={e => setEntryDiscPct(e.target.value)} 
+                placeholder="0%" 
+                style={S.input} 
+              />
+            </div>
+
+            <button onClick={addLineItem}
+              style={{ background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: '#fff', border: 'none', padding: '11px 18px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
+              <Plus size={16} /> Add Item
+            </button>
           </div>
-
-          <button onClick={addLineItem}
-            style={{ background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: '#fff', border: 'none', padding: '11px 18px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
-            <Plus size={16} /> Add Item
-          </button>
-        </div>
+        )}
       </div>
 
-      {/* SECTION 3: Invoice Line Items Table */}
+      {/* SECTION 3: Invoice Line Items Table / Mobile Cards */}
       {cart.length > 0 && (
         <div style={S.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -622,62 +675,97 @@ export default function DirectSale() {
             </span>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
-              <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569' }}>
-                  <th style={{ padding: '10px 8px', fontWeight: 800 }}>#</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800 }}>Item Description</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Pack Breakdown</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Total Qty</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Rate (₹)</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Disc %</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>GST %</th>
-                  <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Amount (₹)</th>
-                  <th style={{ padding: '10px 8px', textAlign: 'center' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item, idx) => (
-                  <tr key={item.productId} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '12px 8px', color: '#64748B', fontWeight: 700 }}>{idx + 1}</td>
-                    <td style={{ padding: '12px 8px' }}>
-                      <div style={{ fontWeight: 800, color: '#0F172A' }}>{item.name}</div>
-                      <div style={{ fontSize: 11, color: '#94A3B8' }}>
+          {isMobile ? (
+            /* Mobile Card List View for Items */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {cart.map((item, idx) => (
+                <div key={item.productId} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: 14, color: '#0F172A' }}>{item.name}</div>
+                      <div style={{ fontSize: 11, color: '#64748B' }}>
                         {item.sku ? `SKU: ${item.sku} ` : ''}{item.hsn ? `· HSN: ${item.hsn}` : ''}
                       </div>
-                    </td>
-                    <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                      {item.boxes > 0 && <span style={{ background: '#EEF2FF', color: '#4338CA', padding: '2px 6px', borderRadius: 6, fontSize: 11, fontWeight: 800, marginRight: 4 }}>{item.boxes} Box{item.boxes > 1 ? 'es' : ''}</span>}
-                      {item.looseUnits > 0 && <span style={{ background: '#FEF3C7', color: '#92400E', padding: '2px 6px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>{item.looseUnits} Loose</span>}
-                      {item.boxes === 0 && item.looseUnits === 0 && '—'}
-                    </td>
-                    <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <button onClick={() => updateLineQty(item.productId, -1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 22, height: 22, fontWeight: 800, cursor: 'pointer' }}>-</button>
-                        <span style={{ fontWeight: 800, minWidth: 24, textAlign: 'center' }}>{item.qty}</span>
-                        <button onClick={() => updateLineQty(item.productId, 1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 22, height: 22, fontWeight: 800, cursor: 'pointer' }}>+</button>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 700 }}>₹{item.rate}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', color: item.discPct > 0 ? '#DC2626' : '#64748B', fontWeight: 700 }}>{item.discPct > 0 ? `${item.discPct}%` : '—'}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', color: '#475569' }}>{item.gstRate}%</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: '#0F172A' }}>₹{item.lineTotal.toFixed(2)}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                      <button onClick={() => removeLineItem(item.productId)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
-                        <X size={14} />
-                      </button>
-                    </td>
+                    </div>
+                    <button onClick={() => removeLineItem(item.productId)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 10px', marginTop: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button onClick={() => updateLineQty(item.productId, -1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 26, height: 26, fontWeight: 800, cursor: 'pointer' }}>-</button>
+                      <span style={{ fontWeight: 800, fontSize: 14 }}>{item.qty} units</span>
+                      <button onClick={() => updateLineQty(item.productId, 1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 26, height: 26, fontWeight: 800, cursor: 'pointer' }}>+</button>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, color: '#64748B' }}>₹{item.rate} / unit</div>
+                      <div style={{ fontWeight: 900, fontSize: 15, color: '#0F172A' }}>₹{item.lineTotal.toFixed(0)}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Desktop Table View */
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569' }}>
+                    <th style={{ padding: '10px 8px', fontWeight: 800 }}>#</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800 }}>Item Description</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Pack Breakdown</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Total Qty</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Rate (₹)</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Disc %</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>GST %</th>
+                    <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'right' }}>Amount (₹)</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {cart.map((item, idx) => (
+                    <tr key={item.productId} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                      <td style={{ padding: '12px 8px', color: '#64748B', fontWeight: 700 }}>{idx + 1}</td>
+                      <td style={{ padding: '12px 8px' }}>
+                        <div style={{ fontWeight: 800, color: '#0F172A' }}>{item.name}</div>
+                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                          {item.sku ? `SKU: ${item.sku} ` : ''}{item.hsn ? `· HSN: ${item.hsn}` : ''}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                        {item.boxes > 0 && <span style={{ background: '#EEF2FF', color: '#4338CA', padding: '2px 6px', borderRadius: 6, fontSize: 11, fontWeight: 800, marginRight: 4 }}>{item.boxes} Box{item.boxes > 1 ? 'es' : ''}</span>}
+                        {item.looseUnits > 0 && <span style={{ background: '#FEF3C7', color: '#92400E', padding: '2px 6px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>{item.looseUnits} Loose</span>}
+                        {item.boxes === 0 && item.looseUnits === 0 && '—'}
+                      </td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <button onClick={() => updateLineQty(item.productId, -1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 22, height: 22, fontWeight: 800, cursor: 'pointer' }}>-</button>
+                          <span style={{ fontWeight: 800, minWidth: 24, textAlign: 'center' }}>{item.qty}</span>
+                          <button onClick={() => updateLineQty(item.productId, 1)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 4, width: 22, height: 22, fontWeight: 800, cursor: 'pointer' }}>+</button>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 700 }}>₹{item.rate}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', color: item.discPct > 0 ? '#DC2626' : '#64748B', fontWeight: 700 }}>{item.discPct > 0 ? `${item.discPct}%` : '—'}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#475569' }}>{item.gstRate}%</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: '#0F172A' }}>₹{item.lineTotal.toFixed(2)}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                        <button onClick={() => removeLineItem(item.productId)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                          <X size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* SECTION 4: Logistics, Transport & Van Assignment */}
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '2px solid #F1F5F9' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 800, color: '#334155' }}>🚚 Delivery Logistics &amp; Transport Details</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: 12 }}>
               <div>
                 <label style={S.label}>Assign Delivery Van</label>
                 <select value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)} style={S.input}>
@@ -690,15 +778,15 @@ export default function DirectSale() {
                 </select>
               </div>
               <div>
-                <label style={S.label}>Transport / Carrier</label>
+                <label style={S.label}>Transport Carrier</label>
                 <input value={transportName} onChange={e => setTransportName(e.target.value)} placeholder="e.g. Sompeta Express" style={S.input} />
               </div>
               <div>
-                <label style={S.label}>L.R No. (Lorry Receipt)</label>
+                <label style={S.label}>L.R No.</label>
                 <input value={lrNo} onChange={e => setLrNo(e.target.value)} placeholder="e.g. LR-8912" style={S.input} />
               </div>
               <div>
-                <label style={S.label}>Freight / Shipping ₹</label>
+                <label style={S.label}>Freight Charges ₹</label>
                 <input type="number" inputMode="decimal" value={freightCharges} onChange={e => setFreightCharges(e.target.value)} placeholder="0" style={S.input} />
               </div>
             </div>
