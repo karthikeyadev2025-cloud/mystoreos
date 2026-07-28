@@ -2948,10 +2948,27 @@ const DistributorDashboard = () => {
                 </button>
               </div>
             )}
-            {/* MOBILE New Sale. The desktop tree got this button but the
-                mobile tree did not — this dashboard has four separate
-                dashboard-tab render points, so adding a feature to one
-                leaves it invisible to anyone on the other. */}
+            {/* MOBILE KPI METRICS SUMMARY GRID */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Outstanding</div>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: totalOutstanding > 0 ? '#DC2626' : '#15803D', marginTop: '2px' }}>₹{totalOutstanding}</div>
+              </div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Linked Shops</div>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: '#0F172A', marginTop: '2px' }}>{shops.length}</div>
+              </div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Catalog SKUs</div>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: '#0F172A', marginTop: '2px' }}>{wholesaleProducts.length}</div>
+              </div>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Pending Orders</div>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : '#0F172A', marginTop: '2px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
+              </div>
+            </div>
+
+            {/* MOBILE New Sale button */}
             <button onClick={() => navigate('/distributor/new-sale')}
               style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
               <div>
