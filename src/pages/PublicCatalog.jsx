@@ -143,6 +143,17 @@ export default function PublicCatalog() {
                     ₹{p.price}{p.unit ? ` / ${UNIT_SUFFIX[p.unit] || p.unit}` : ''}
                   </div>
                 </div>
+                {/* Real per-product order action, not just a generic CTA
+                    at the bottom of the page. type=shop is explicit
+                    rather than relying on Register's default, and
+                    distributor carries through so registering auto-
+                    links them — no separate manual code-entry step
+                    after signup. */}
+                <button
+                  onClick={() => navigate(`/register?type=shop&distributor=${encodeURIComponent(code)}`)}
+                  style={{ flexShrink: 0, background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                  Order
+                </button>
               </div>
             ))}
           </div>
@@ -152,7 +163,7 @@ export default function PublicCatalog() {
           <p style={{ fontSize: 13, color: '#3730A3', fontWeight: 700, margin: '0 0 10px' }}>
             Want to order from {distributor.name}?
           </p>
-          <button onClick={() => navigate('/register')}
+          <button onClick={() => navigate(`/register?type=shop&distributor=${encodeURIComponent(code)}`)}
             style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
             Start your 15-day free trial
           </button>

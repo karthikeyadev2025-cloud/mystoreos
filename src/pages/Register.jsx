@@ -286,6 +286,27 @@ const Register = () => {
         }
       }
       login(newUser);
+
+      // Auto-link to the distributor whose public catalog they arrived
+      // from — set only when someone reached /register via
+      // /catalog/:code and tapped "order" on a product. Wrapped
+      // non-fatally, matching the pattern above: a failed auto-link
+      // must never block registration itself, since the shop can
+      // always link manually afterwards from their own dashboard.
+      // Without this, every one of the ~10,000 shops a distributor
+      // shares this link with would need a SEPARATE manual step after
+      // signing up just to reach the account they came here to reach.
+      const linkDistCode = searchParams.get('distributor');
+      if (businessType === 'shop' && linkDistCode && newUser?.id) {
+        try {
+          await api.linkByPublicCode(newUser.id, 'shop', linkDistCode);
+        } catch (_e) {
+          // Non-fatal — most commonly an already-superseded or invalid
+          // code. The shop can link manually from their own dashboard;
+          // silently failing here must never block account creation.
+        }
+      }
+
       if (businessType === 'customer') {
         navigate('/dashboard');
       } else {
