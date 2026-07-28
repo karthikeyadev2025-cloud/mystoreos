@@ -731,13 +731,15 @@ const DistributorDashboard = () => {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [staffName, setStaffName] = useState('');
   const [staffPhone, setStaffPhone] = useState('');
+  const [staffRole, setStaffRole] = useState('billing');
   const [addingStaff, setAddingStaff] = useState(false);
   const handleAddDistStaff = async () => {
     if (!staffName.trim() || !/^\d{10}$/.test(staffPhone)) return toast.error('Enter a name and valid 10-digit phone number');
     setAddingStaff(true);
     try {
-      await api.addStaff(user.id, staffPhone, '1234', staffName.trim());
-      toast.success(`${staffName} added — they can log in with this number and PIN 1234`);
+      const roleLabel = staffRole === 'billing' ? 'Billing Cashier' : staffRole === 'van_driver' ? 'Van Driver / Rep' : staffRole === 'inventory' ? 'Warehouse Manager' : staffRole === 'accountant' ? 'Accountant' : 'Branch Supervisor';
+      await api.addStaff(user.id, staffPhone, '1234', `${staffName.trim()} [${roleLabel}]`);
+      toast.success(`${staffName} added as ${roleLabel} — log in with PIN 1234`);
       setStaffName(''); setStaffPhone('');
       loadData();
     } catch (e) {
@@ -2569,11 +2571,19 @@ const DistributorDashboard = () => {
                   </div>
                 ) : (
                   <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
                       <input value={staffName} onChange={e => setStaffName(e.target.value)} placeholder="Staff name"
-                        style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                        style={{ flex: 1, minWidth: 140, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                       <input value={staffPhone} onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone" inputMode="numeric"
-                        style={{ width: 160, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                        style={{ width: 140, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                      <select value={staffRole} onChange={e => setStaffRole(e.target.value)}
+                        style={{ width: 170, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', background: '#FFFFFF', boxSizing: 'border-box' }}>
+                        <option value="billing">💳 Billing Cashier</option>
+                        <option value="van_driver">🚚 Van Driver / Rep</option>
+                        <option value="inventory">📦 Warehouse Mgr</option>
+                        <option value="accountant">💰 Accountant</option>
+                        <option value="supervisor">👑 Supervisor</option>
+                      </select>
                       <button onClick={handleAddDistStaff} disabled={addingStaff}
                         style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
                         {addingStaff ? 'Adding…' : '+ Add Staff'}
