@@ -2026,13 +2026,16 @@ const DistributorDashboard = () => {
                           onClick={() => setSelectedOrder(o)}
                           className="premium-glass" 
                           style={{ 
-                            padding: '16px', 
+                            padding: '14px 16px', 
                             cursor: 'pointer', 
-                            border: selectedOrder?.id === o.id ? '1px solid #4F46E5' : '1px solid #E2E8F0',
+                            border: selectedOrder?.id === o.id ? '2px solid #4F46E5' : '1px solid #E2E8F0',
                             background: selectedOrder?.id === o.id ? '#EEF2FF' : '#FFFFFF',
                             transition: 'all 0.2s',
                             boxShadow: '0 1px 2px rgba(15,23,42,0.06)',
-                            display: 'flex', alignItems: 'flex-start', gap: 10,
+                            display: 'flex', alignItems: 'center', gap: 12,
+                            minHeight: '64px',
+                            flexShrink: 0,
+                            borderRadius: '12px',
                           }}
                         >
                           {o.status === 'accepted' && (

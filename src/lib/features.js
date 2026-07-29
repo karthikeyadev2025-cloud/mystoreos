@@ -34,7 +34,7 @@ export const DIST_PLAN_CAPS = {
   },
   enterprise_distributor: {
     maxShops: -1, routePlanner: true, bulkOrderCSV: true,
-    tallyExport: true, multiDevice: 10, advancedAnalytics: true,
+    tallyExport: true, multiDevice: -1, advancedAnalytics: true,
     multiBranch: true, apiAccess: true, staffAccounts: true,
     customBranding: true,
     // Full field distribution including offline van sales and unlimited
