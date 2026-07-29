@@ -30,7 +30,8 @@ import {
   Map,
   Settings,
   MoreHorizontal,
-  Users
+  Users,
+  Copy
 } from 'lucide-react';
 
 
