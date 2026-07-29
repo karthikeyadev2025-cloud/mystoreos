@@ -77,19 +77,24 @@ export function getDistCaps(user) {
   if (user.role === 'admin') return DIST_PLAN_CAPS.enterprise_distributor;
 
   if (user.role === 'staff' && user.ownerRole === 'distributor') {
-    const ownerTier = normalizeDistTier(user.ownerDistributorPlanTier);
-    if (ownerTier === 'enterprise_distributor' || ownerTier === 'pro_distributor') return DIST_PLAN_CAPS[ownerTier];
+    const ownerTier = String(user.ownerDistributorPlanTier || user.ownerSubscriptionTier || '').toLowerCase();
+    if (ownerTier.includes('enterprise')) return DIST_PLAN_CAPS.enterprise_distributor;
+    if (ownerTier.includes('pro')) return DIST_PLAN_CAPS.pro_distributor;
     if (user.ownerSubscription === 'trial' || user.ownerSubscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
-    return DIST_PLAN_CAPS[ownerTier] ?? DIST_PLAN_CAPS.basic_distributor;
+    return DIST_PLAN_CAPS.basic_distributor;
   }
 
-  const tier = normalizeDistTier(user.distributorPlanTier || user.subscriptionTier);
-  if (tier === 'enterprise_distributor' || tier === 'pro_distributor') {
-    return DIST_PLAN_CAPS[tier];
+  const rawTier = String(user.distributorPlanTier || user.subscriptionTier || user.subscription_tier || '').toLowerCase();
+  
+  if (rawTier.includes('enterprise')) {
+    return DIST_PLAN_CAPS.enterprise_distributor;
+  }
+  if (rawTier.includes('pro')) {
+    return DIST_PLAN_CAPS.pro_distributor;
   }
 
   if (user.subscription === 'trial' || user.subscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
-  return DIST_PLAN_CAPS[tier] ?? DIST_PLAN_CAPS.basic_distributor;
+  return DIST_PLAN_CAPS[normalizeDistTier(rawTier)] ?? DIST_PLAN_CAPS.basic_distributor;
 }
 
 export function hasDistCap(user, feature) {
