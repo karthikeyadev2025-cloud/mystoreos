@@ -31,7 +31,8 @@ import {
   Settings,
   MoreHorizontal,
   Users,
-  Copy
+  Copy,
+  Share2
 } from 'lucide-react';
 
 

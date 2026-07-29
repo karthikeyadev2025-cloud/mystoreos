@@ -15,7 +15,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
 import { hasCap } from '../lib/features';
-import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors, MoreHorizontal, Users, Star, CreditCard } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors, MoreHorizontal, Users, Star, CreditCard, Mic } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
