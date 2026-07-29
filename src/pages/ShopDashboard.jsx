@@ -5149,7 +5149,7 @@ const ShopDashboard = () => {
             />
           )}
 
-          {activeTab === 'restock' && isOwner && (
+          {activeTab === 'restock' && (
             <DesktopRestock 
               wholesaleCatalog={wholesaleCatalog}
               restockCart={restockCart}
@@ -5157,6 +5157,8 @@ const ShopDashboard = () => {
               handleRestockQtyChange={handleRestockQtyChange}
               handlePlaceRestockOrder={handlePlaceRestockOrder}
               onMarkDelivered={handleMarkStockOrderDelivered}
+              onOpenVoiceRecorder={() => setShowVoiceRecorderModal(true)}
+              onShopVoiceRestockOrder={handleShopVoiceRestockOrder}
               user={user}
             />
           )}
@@ -6831,7 +6833,7 @@ const ShopDashboard = () => {
       )}
 
       {/* RESTOCKING SUPPLY TAB */}
-      {isOwner && activeTab === 'restock' && (
+      {activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
           <div style={{ background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D' }}>
             <h2 style={{ margin: 0, fontSize: 18, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>

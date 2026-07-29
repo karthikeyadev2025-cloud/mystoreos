@@ -1,4 +1,5 @@
-import { Truck, ShoppingCart, ShieldAlert, Plus, Check, Package, Clock } from 'lucide-react';
+import { Truck, ShoppingCart, ShieldAlert, Plus, Check, Package, Clock, Mic } from 'lucide-react';
+import VoiceOrderInput from './VoiceOrderInput';
 
 // Matches the same 4-state lookup built on the distributor side —
 // kept in sync manually since these are two different dashboards, not
@@ -14,12 +15,14 @@ const STOCK_ORDER_BADGE = {
 
 const DesktopRestock = ({
   products = [],
-  wholesaleCatalog,
-  restockCart,
+  wholesaleCatalog = [],
+  restockCart = {},
   handleRestockQtyChange,
   handlePlaceRestockOrder,
   stockOrders = [],
   onMarkDelivered,
+  onOpenVoiceRecorder,
+  onShopVoiceRestockOrder,
 }) => {
   const lowStockList = products.filter(p => p.stock < (p.reorderLevel || 10));
   const cartItemCount = Object.keys(restockCart).length;
@@ -31,6 +34,34 @@ const DesktopRestock = ({
 
   return (
     <>
+    {/* AI Voice Order Recorder Top Banner for Desktop */}
+    <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '2px solid #6366F1', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: '#FFFFFF', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid #818CF8', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818CF8', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
+          <Mic size={28} />
+        </div>
+        <div>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8 }}>
+            🎙️ AI Voice Stock Order Assistant
+          </div>
+          <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#C7D2FE' }}>
+            Speak your full order continuously (e.g. <i>"Chikki 2 jars, Biscuit 10 cases, Red Label Tea 5 boxes"</i>). AI parses products, quantities &amp; pack sizes for re-verification!
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <button
+          onClick={onOpenVoiceRecorder}
+          style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFFFFF', border: 'none', padding: '12px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)' }}
+        >
+          🎙️ Record Full AI Voice Order
+        </button>
+        {onShopVoiceRestockOrder && (
+          <VoiceOrderInput onTranscript={onShopVoiceRestockOrder} placeholder="Speak: chikki 2 jars..." />
+        )}
+      </div>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', alignItems: 'start' }}>
       
       {/* Left Column: FMCG Wholesale Catalog */}
