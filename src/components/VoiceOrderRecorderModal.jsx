@@ -221,7 +221,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
 
         {/* AI Analyzed Items Re-verification Table */}
         <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
             <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>
               📋 AI Matched Products ({analyzedItems.length} items)
             </h4>
@@ -237,15 +237,15 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
               No items matched yet. Tap the microphone button above and speak your order!
             </div>
           ) : (
-            <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <table style={{ width: '100%', minWidth: 500, borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', textTransform: 'uppercase', fontSize: 10, color: '#64748B' }}>
-                    <th style={{ padding: '8px 12px', textAlign: 'left' }}>Product</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Pack Size</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Boxes / Qty</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'right' }}>Amount (₹)</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>Action</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Product</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center' }}>Pack Size</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center' }}>Boxes / Qty</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right' }}>Amount (₹)</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -259,18 +259,18 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
                         {item.packSize} per box
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, padding: '2px 6px' }}>
-                          <button onClick={() => handleQtyChange(item.productId, -1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, color: '#4F46E5' }}>-</button>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 8, padding: '4px 8px' }}>
+                          <button onClick={() => handleQtyChange(item.productId, -1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: '#4F46E5', minWidth: 28, minHeight: 28 }}>-</button>
                           <span style={{ fontWeight: 800 }}>{item.qty} units</span>
-                          <button onClick={() => handleQtyChange(item.productId, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, color: '#4F46E5' }}>+</button>
+                          <button onClick={() => handleQtyChange(item.productId, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: '#4F46E5', minWidth: 28, minHeight: 28 }}>+</button>
                         </div>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: '#059669' }}>
                         ₹{(item.qty * item.price).toLocaleString('en-IN')}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <button onClick={() => handleRemoveItem(item.productId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#EF4444' }}>
-                          <Trash2 size={16} />
+                        <button onClick={() => handleRemoveItem(item.productId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#EF4444', padding: 6 }}>
+                          <Trash2 size={18} />
                         </button>
                       </td>
                     </tr>
@@ -282,35 +282,38 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
         </div>
 
         {/* Footer Summary & Confirm Action */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #F1F5F9', paddingTop: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #F1F5F9', paddingTop: 16, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>Total Billed</div>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{grandTotal.toLocaleString('en-IN')}</div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={onClose} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '12px 18px', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>
+          <div style={{ display: 'flex', gap: 10, width: window.innerWidth < 480 ? '100%' : 'auto' }}>
+            <button onClick={onClose} style={{ flex: window.innerWidth < 480 ? 1 : 'none', background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '12px 18px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', minHeight: 44 }}>
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={analyzedItems.length === 0}
               style={{
+                flex: window.innerWidth < 480 ? 2 : 'none',
                 background: analyzedItems.length === 0 ? '#94A3B8' : 'linear-gradient(135deg, #059669, #047857)',
                 border: 'none',
                 color: '#FFFFFF',
-                padding: '12px 24px',
+                padding: '12px 20px',
                 borderRadius: 10,
                 fontWeight: 900,
                 fontSize: 14,
                 cursor: analyzedItems.length === 0 ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: 8,
+                minHeight: 44,
                 boxShadow: analyzedItems.length === 0 ? 'none' : '0 6px 20px rgba(5,150,105,0.35)',
               }}
             >
-              <ShoppingCart size={18} /> 🚀 Submit Stock Order to Distributor
+              <ShoppingCart size={18} /> Submit Order
             </button>
           </div>
         </div>
