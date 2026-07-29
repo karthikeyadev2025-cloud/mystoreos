@@ -4086,6 +4086,15 @@ export const api = {
     if (!items || items.length === 0) throw new Error('Restock order cart is empty');
 
     if (isSupabaseConfigured) {
+      let resolvedDistId = distributorId;
+      if (!resolvedDistId) {
+        resolvedDistId = items[0]?.distributor_id || items[0]?.distributorId || items[0]?.distId;
+      }
+      if (!resolvedDistId) {
+        const { data: link } = await supabase.from('shop_distributor_links').select('distributor_id').eq('shop_id', shopId).limit(1).maybeSingle();
+        if (link?.distributor_id) resolvedDistId = link.distributor_id;
+      }
+
       const payload = {
         shop_id: shopId,
         shop_name: shopName || 'Retail Shop',
@@ -4093,7 +4102,7 @@ export const api = {
         total: Number(total) || 0,
         status: 'pending',
       };
-      if (distributorId) payload.distributor_id = distributorId;
+      if (resolvedDistId) payload.distributor_id = resolvedDistId;
 
       const { data, error } = await supabase.from('stock_orders').insert(payload).select().maybeSingle();
       if (error) throw new Error(error.message);

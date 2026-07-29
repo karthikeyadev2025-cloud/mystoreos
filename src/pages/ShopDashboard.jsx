@@ -3097,7 +3097,7 @@ const ShopDashboard = () => {
 
     const total = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const firstProd = wholesaleCatalog.find(p => p.id === cartEntries[0]?.[0]);
-    const distributorId = firstProd?.distributorId || null;
+    const distributorId = firstProd?.distributor_id || firstProd?.distributorId || firstProd?.distId || null;
 
     try {
       await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name || 'Retail Shop', items, total, distributorId), 'Submit restock order');
