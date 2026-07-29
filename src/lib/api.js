@@ -4101,11 +4101,17 @@ export const api = {
         items,
         total: Number(total) || 0,
         status: 'pending',
-        notes: notes || '',
       };
       if (resolvedDistId) payload.distributor_id = resolvedDistId;
+      if (notes) payload.notes = notes;
 
-      const { data, error } = await supabase.from('stock_orders').insert(payload).select().maybeSingle();
+      let { data, error } = await supabase.from('stock_orders').insert(payload).select().maybeSingle();
+      if (error && (error.message.includes("'notes'") || error.message.includes("notes"))) {
+        delete payload.notes;
+        const retry = await supabase.from('stock_orders').insert(payload).select().maybeSingle();
+        data = retry.data;
+        error = retry.error;
+      }
       if (error) throw new Error(error.message);
 
       const resRow = data || { id: 'so_' + generateId(), ...payload, created_at: new Date().toISOString() };

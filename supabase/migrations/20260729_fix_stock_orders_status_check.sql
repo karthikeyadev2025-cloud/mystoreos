@@ -4,11 +4,12 @@
 -- status constraint errors and ensure 100% smooth order placement.
 -- ============================================================
 
--- 1) Ensure stock_orders table has all required columns
+-- 1) Ensure stock_orders table has all required columns including notes
 ALTER TABLE public.stock_orders
   ADD COLUMN IF NOT EXISTS distributor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
   ADD COLUMN IF NOT EXISTS dispatched_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS notes TEXT,
   ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
 
 -- 2) Drop any restrictive legacy status check constraints
@@ -46,7 +47,7 @@ CREATE POLICY "stock_orders_update_parties" ON public.stock_orders
 CREATE POLICY "stock_orders_delete_shop" ON public.stock_orders
   FOR DELETE USING (true);
 
--- 6) Drop restrictive users plan tier constraints
+-- 6) Drop restrictive users plan tier constraints to allow all plan aliases
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_subscription_tier_check;
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_distributor_plan_tier_check;
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_subscription_check;
@@ -61,5 +62,8 @@ SET
 WHERE 
   role = 'distributor'
   AND LOWER(name) LIKE '%jyothi%';
+
+-- 8) Notify PostgREST to reload schema cache
+NOTIFY pgrst, 'reload schema';
 
 SELECT 'stock_orders status check & Enterprise distributor plan fixed successfully' AS status;
