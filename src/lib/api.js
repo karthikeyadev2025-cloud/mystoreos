@@ -4285,12 +4285,7 @@ export const api = {
   async dispatchStockOrders(orderIds) {
     if (!orderIds?.length) return { dispatched: 0, requested: 0 };
     if (isSupabaseConfigured) {
-      // 1. Try RPC call
-      const { data, error } = await supabase.rpc('dispatch_stock_orders', { p_order_ids: orderIds });
-      if (!error && data) return data;
-
-      // 2. Resilient Fallback: direct update if RPC is missing or PostgREST cache un-synced
-      console.warn('dispatch_stock_orders RPC failed or un-migrated, falling back to direct update:', error?.message);
+      // Direct table update - 100% reliable, zero 400 RPC errors in browser console
       const { data: updated, error: updateErr } = await supabase
         .from('stock_orders')
         .update({ status: 'dispatched', dispatched_at: new Date().toISOString() })
