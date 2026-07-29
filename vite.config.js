@@ -56,54 +56,33 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
-        globPatterns: ['**/*.{ico,png,svg,webmanifest}'],
-        globIgnores: ['**/assets/**', '**/index.html'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 4_000_000,
-        navigateFallback: null,
-        navigateFallbackDenylist: [],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/, /^\/auth/, /^\/supabase/],
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
-            // index.html decides which hashed JS bundle to load. The
-            // previous NetworkFirst used a 3s timeout before falling back
-            // to cache — on a flaky/slow mobile connection (11-140 KB/s
-            // seen across the reported screenshots), that's exactly when a
-            // real deploy update would silently lose to old cached HTML
-            // pointing at old JS. Workbox's NetworkFirst minimum useful
-            // timeout is ~1s; going lower risks false-negatives on a
-            // genuinely-fine-but-momentarily-slow connection. This keeps
-            // basic offline tolerance for a live billing app (a shop with
-            // patchy connectivity still needs SOMETHING to load) while
-            // shrinking the staleness window as much as Workbox allows,
-            // combined with cleanupOutdatedCaches (already enabled) so any
-            // fallback that does occur is at most one build old, not
-            // indefinitely stale.
+            // Navigation requests (HTML SPA routes like /shop, /distributor, /field/billing)
+            // Try network first with 2s timeout for fresh builds; fallback to cached index.html when offline.
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
-            options: { cacheName: 'navigation', networkTimeoutSeconds: 1, expiration: { maxEntries: 4 } },
+            options: {
+              cacheName: 'navigation',
+              networkTimeoutSeconds: 2,
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            },
           },
           {
-            // Hashed JS/CSS bundles (e.g. dashboard-shop-SDl6FvOT.js) get a
-            // NEW, permanently unique filename on every single build — so
-            // there is no such thing as a "stale" cached copy of a given
-            // filename becoming wrong; the filename itself only exists for
-            // exactly one build, forever. NetworkFirst with a timeout
-            // fallback was actively counterproductive here: on any slow or
-            // flaky connection it would silently serve whatever OLDER
-            // bundle happened to be cached from a previous visit instead of
-            // waiting for the new one — the most likely real explanation
-            // for "the fix isn't showing" on a visibly fluctuating mobile
-            // connection (11-140 KB/s seen across the reported
-            // screenshots). CacheFirst is safe and correct for genuinely
-            // immutable, uniquely-named files: try cache for speed, but
-            // always fetch+cache on a true miss (a new hash that's never
-            // been seen before) rather than ever falling back to a
-            // different, older hash's content.
-            urlPattern: /\/assets\/.+\.(js|css)$/,
+            // Immutable hashed JS/CSS/Font bundles — serve CacheFirst for instant load offline & online
+            urlPattern: /\/assets\/.+\.(js|css|woff2?)$/,
             handler: 'CacheFirst',
-            options: { cacheName: 'hashed-assets', expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+            options: {
+              cacheName: 'hashed-assets',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
           },
         ],
       },
