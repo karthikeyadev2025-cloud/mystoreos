@@ -4882,13 +4882,14 @@ export const api = {
   // even though the admin had activated a paid plan.
   // Now: assigning any real tier also flips subscription to 'active'.
   async updateUserSubscription(userId, tier, expiresAt) {
-    const updateObj = { subscription_tier: tier, plan_expires_at: expiresAt || null, subscription: 'active' };
+    const distTier = String(tier || '').toLowerCase().includes('enterprise') ? 'enterprise_distributor' : (String(tier || '').toLowerCase().includes('pro') ? 'pro_distributor' : tier);
+    const updateObj = { 
+      subscription_tier: tier, 
+      distributor_plan_tier: distTier,
+      plan_expires_at: expiresAt || null, 
+      subscription: 'active' 
+    };
     if (isSupabaseConfigured) {
-      // These six admin functions (through bulkUpdateSubscription below)
-      // all had zero error checking — a genuinely risky gap for the
-      // exact tools an admin uses to grant/adjust a client's plan or
-      // resolve a locked-out account, with no visible sign anything
-      // went wrong if it didn't actually apply.
       const { data, error } = await supabase.from('users').update(updateObj).eq('id', userId).select('id').maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) throw new Error('User not found or update not permitted.');
@@ -4896,7 +4897,7 @@ export const api = {
     }
     const db = getDB();
     const u = db.users.find(x => x.id === userId);
-    if (u) { u.subscriptionTier = tier; u.planExpiresAt = expiresAt || null; u.subscription = 'active'; saveDB(db); }
+    if (u) { u.subscriptionTier = tier; u.distributorPlanTier = distTier; u.planExpiresAt = expiresAt || null; u.subscription = 'active'; saveDB(db); }
   },
 
   async updateDistributorSubscription(userId, tier, expiresAt) {
