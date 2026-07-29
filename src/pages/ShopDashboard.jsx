@@ -304,6 +304,7 @@ const ShopDashboard = () => {
   const [roundOff, setRoundOff] = useState(0); // manual round-off amount, cashier types this in (+/- rupees)
   const [wholesaleCatalog, setWholesaleCatalog] = useState([]);
   const [restockCart, setRestockCart] = useState({}); // { wholesaleProdId: qty }
+  const [restockNotes, setRestockNotes] = useState(''); // Special order notes for distributor
 
   // Sales Returns
   const [showReturnModal, setShowReturnModal] = useState(false);
@@ -3100,9 +3101,10 @@ const ShopDashboard = () => {
     const distributorId = firstProd?.distributor_id || firstProd?.distributorId || firstProd?.distId || null;
 
     try {
-      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name || 'Retail Shop', items, total, distributorId), 'Submit restock order');
+      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name || 'Retail Shop', items, total, distributorId, restockNotes), 'Submit restock order');
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
+      setRestockNotes('');
       loadData();
     } catch (e) {
       toast.error(e?.message || "Failed to place restock order");
@@ -6971,6 +6973,20 @@ const ShopDashboard = () => {
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Special Order Notes input */}
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', display: 'block', marginBottom: 4 }}>
+                      📝 Special Order Notes / Delivery Instructions for Distributor:
+                    </label>
+                    <input
+                      type="text"
+                      value={restockNotes}
+                      onChange={e => setRestockNotes(e.target.value)}
+                      placeholder="e.g. Urgent delivery before 4 PM, call on arrival..."
+                      style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '10px 12px', color: '#FFF', fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
+                    />
                   </div>
 
                   {/* Cart Summary & Order Action */}

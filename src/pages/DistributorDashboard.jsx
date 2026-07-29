@@ -2140,6 +2140,12 @@ const DistributorDashboard = () => {
                               </div>
                             ))}
                           </div>
+
+                          {selectedOrder.notes && (
+                            <div style={{ marginTop: 12, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#92400E' }}>
+                              💬 <strong>Shopkeeper Special Notes:</strong> "{selectedOrder.notes}"
+                            </div>
+                          )}
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '900', color: '#0F172A', borderTop: '2px dashed #E2E8F0', paddingTop: '14px', marginBottom: '20px' }}>

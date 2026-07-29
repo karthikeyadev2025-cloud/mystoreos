@@ -4081,7 +4081,7 @@ export const api = {
     return data;
   },
 
-  async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
+  async placeStockOrder(shopId, shopName, items, total, distributorId = null, notes = '') {
     if (!shopId) throw new Error('Shop ID is required to place a stock order');
     if (!items || items.length === 0) throw new Error('Restock order cart is empty');
 
@@ -4101,6 +4101,7 @@ export const api = {
         items,
         total: Number(total) || 0,
         status: 'pending',
+        notes: notes || '',
       };
       if (resolvedDistId) payload.distributor_id = resolvedDistId;
 
@@ -4115,8 +4116,9 @@ export const api = {
         items: resRow.items || items,
         total: resRow.total || total,
         status: resRow.status || 'pending',
+        notes: resRow.notes || notes || '',
         date: resRow.created_at || new Date().toISOString(),
-        distributorId: resRow.distributor_id || distributorId
+        distributorId: resRow.distributor_id || resolvedDistId
       };
     }
     const db = getDB();

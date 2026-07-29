@@ -2,12 +2,29 @@ import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, CheckCircle2, AlertCircle, ShoppingCart, Trash2, X, RefreshCw, Volume2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
+const TELUGU_NUMBERS = {
+  'ఒకటి': 1, 'ఒక': 1, 'okati': 1, 'oka': 1,
+  'రెండు': 2, 'rendu': 2,
+  'మూడు': 3, 'moodu': 3, 'mudu': 3,
+  'నాలుగు': 4, 'naalugu': 4, 'nalugu': 4,
+  'ఐదు': 5, 'aidu': 5, 'aaidu': 5,
+  'ఆరు': 6, 'aaru': 6,
+  'ఏడు': 7, 'yedu': 7, 'edu': 7,
+  'ఎనిమిది': 8, 'enimidi': 8,
+  'తొమ్మిది': 9, 'tommidi': 9,
+  'పది': 10, 'padi': 10,
+  'ఇరవై': 20, 'iravai': 20,
+  'యాభై': 50, 'yaabhai': 50,
+  'వంద': 100, 'vanda': 100,
+};
+
 export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfirmOrder, onClose }) {
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [transcript, setTranscript] = useState('');
   const [analyzedItems, setAnalyzedItems] = useState([]);
   const [recognition, setRecognition] = useState(null);
+  const [voiceLang, setVoiceLang] = useState('te-IN'); // Default: Telugu (India)
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -20,11 +37,12 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
     const recog = new SpeechRecognition();
     recog.continuous = true;
     recog.interimResults = true;
-    recog.lang = 'en-IN';
+    recog.lang = voiceLang;
 
     recog.onstart = () => {
       setRecording(true);
       setRecordingTime(0);
+      if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
     };
 
@@ -68,7 +86,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
       try { recog.stop(); } catch (err) {}
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [wholesaleCatalog]);
+  }, [wholesaleCatalog, voiceLang]);
 
   const requestMicrophonePermission = async () => {
     try {
@@ -109,7 +127,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
           const recog = new SpeechRecognition();
           recog.continuous = true;
           recog.interimResults = true;
-          recog.lang = 'en-IN';
+          recog.lang = voiceLang;
           recog.onstart = () => {
             setRecording(true);
             setRecordingTime(0);
@@ -135,21 +153,31 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
     }
   };
 
-  // AI Multi-Item Sentence & Item Parser
+  // AI Multi-Item Sentence & Item Parser with Telugu Support
   const analyzeVoiceText = (text) => {
     if (!text || !wholesaleCatalog.length) return;
 
-    // Split speech into phrases by "and", "plus", commas, or full stops
-    const phrases = text.split(/(?:,|\band\b|\bplus\b|\.|\n)+/i).map(p => p.trim()).filter(Boolean);
+    // Split speech into phrases by commas, "and", "లేదా", or full stops
+    const phrases = text.split(/(?:,|\band\b|\bplus\b|\.|\n|మరియు|కూడా)+/i).map(p => p.trim()).filter(Boolean);
     const results = [];
 
     phrases.forEach(phrase => {
       const lower = phrase.toLowerCase();
       
-      // Find numbers in phrase (e.g. "5 boxes", "10 jars")
+      // Find numbers in phrase (digits or Telugu words)
+      let qtyVal = 1;
       const numMatch = lower.match(/\d+/);
-      const qtyVal = numMatch ? parseInt(numMatch[0]) : 1;
-      const isBox = lower.includes('box') || lower.includes('case') || lower.includes('pack') || lower.includes('jarlu') || lower.includes('petti');
+      if (numMatch) {
+        qtyVal = parseInt(numMatch[0]);
+      } else {
+        Object.entries(TELUGU_NUMBERS).forEach(([word, val]) => {
+          if (lower.includes(word)) qtyVal = val;
+        });
+      }
+
+      const isBox = lower.includes('box') || lower.includes('case') || lower.includes('pack') || 
+                    lower.includes('jarlu') || lower.includes('petti') || lower.includes('పెట్టె') || 
+                    lower.includes('ప్యాకెట్') || lower.includes('మూట') || lower.includes('కాటా');
 
       // Match against wholesale catalog
       let bestMatch = null;
@@ -244,6 +272,32 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
             <X size={22} />
+          </button>
+        </div>
+
+        {/* Language Selection Bar */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, background: '#F1F5F9', padding: 4, borderRadius: 10 }}>
+          <button
+            onClick={() => setVoiceLang('te-IN')}
+            style={{
+              flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
+              background: voiceLang === 'te-IN' ? '#4F46E5' : 'transparent',
+              color: voiceLang === 'te-IN' ? '#FFFFFF' : '#475569',
+              fontWeight: 800, fontSize: 13, cursor: 'pointer'
+            }}
+          >
+            🇮🇳 తెలుగు (Telugu)
+          </button>
+          <button
+            onClick={() => setVoiceLang('en-IN')}
+            style={{
+              flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
+              background: voiceLang === 'en-IN' ? '#4F46E5' : 'transparent',
+              color: voiceLang === 'en-IN' ? '#FFFFFF' : '#475569',
+              fontWeight: 800, fontSize: 13, cursor: 'pointer'
+            }}
+          >
+            🇬🇧 English
           </button>
         </div>
 
