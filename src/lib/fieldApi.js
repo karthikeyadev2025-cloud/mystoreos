@@ -378,18 +378,12 @@ export const fieldApi = {
   // is actually linked with. Coordinates come along because a shop
   // without them can't be sequenced.
   async getRoutableShops(distributorId) {
-    if (!isSupabaseConfigured || !distributorId) return [];
-    const { data: links } = await supabase.from('shop_distributor_links')
-      .select('shop_id').eq('distributor_id', distributorId);
-    const ids = [...new Set((links || []).map(l => l.shop_id))];
-    if (ids.length === 0) return [];
-    const { data } = await supabase.from('users')
-      .select('id, name, phone, business_address, latitude, longitude').in('id', ids);
-    return (data || []).map(r => ({
-      id: r.id, name: r.name, phone: r.phone,
-      address: r.business_address || '',
-      latitude: r.latitude ?? null, longitude: r.longitude ?? null,
-    })).sort((a, b) => a.name.localeCompare(b.name));
+    if (!distributorId) return [];
+    if (isSupabaseConfigured) {
+      return await api.getDistributorCustomers(distributorId);
+    }
+    const db = getDB();
+    return db.distributorCustomers || [];
   },
 
   // ─── FIELD VISITS ─────────────────────────────────────────────────

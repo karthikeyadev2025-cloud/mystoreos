@@ -357,10 +357,52 @@ const DistributorDashboard = () => {
   const [pricing, setPricing] = useState(null);
   const [distCycle, setDistCycle] = useState('monthly');
   
-  // Stock Orders & Wholesale Catalog states
   const [stockOrders, setStockOrders] = useState([]);
   const [wholesaleProducts, setWholesaleProducts] = useState([]);
   const [showBarcodeManager, setShowBarcodeManager] = useState(false);
+  const [showBulkCustModal, setShowBulkCustModal] = useState(false);
+  const [bulkCustText, setBulkCustText] = useState('');
+  const [bulkCustBusy, setBulkCustBusy] = useState(false);
+
+  const handleBulkCustomerCSV = async () => {
+    if (!bulkCustText.trim()) return toast.error('Please paste CSV text or select a file');
+    setBulkCustBusy(true);
+    try {
+      const lines = bulkCustText.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) throw new Error('CSV is empty');
+
+      let startIdx = 0;
+      const headerLine = lines[0].toLowerCase();
+      if (headerLine.includes('name') || headerLine.includes('phone') || headerLine.includes('shop')) {
+        startIdx = 1;
+      }
+
+      const customers = [];
+      for (let i = startIdx; i < lines.length; i++) {
+        const parts = lines[i].split(',').map(p => p.trim().replace(/^["']|["']$/g, ''));
+        if (!parts[0]) continue;
+        customers.push({
+          name: parts[0],
+          phone: parts[1] || '',
+          gstin: parts[2] || '',
+          address: parts[3] || '',
+          creditLimit: parseFloat(parts[4]) || 0,
+        });
+      }
+
+      if (customers.length === 0) throw new Error('No valid customer records found in CSV');
+
+      const count = await api.bulkAddDistributorCustomers(user.id, customers);
+      toast.success(`Successfully imported ${count} customers/shops!`);
+      setShowBulkCustModal(false);
+      setBulkCustText('');
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'CSV Import failed');
+    } finally {
+      setBulkCustBusy(false);
+    }
+  };
 
   const handleAssignDistributorBarcode = async (productId, barcode, format) => {
     try {
@@ -1773,7 +1815,15 @@ const DistributorDashboard = () => {
           {/* ================= SHOPS TAB ================= */}
           {activeTab === 'shops' && (
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px', color: '#0F172A' }}>Your Retail Shops ({shopsTotal})</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Your Retail Shops &amp; Customers ({shopsTotal})</h2>
+                <button 
+                  onClick={() => setShowBulkCustModal(true)}
+                  style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  📥 Bulk Import CSV
+                </button>
+              </div>
               {/* At thousands of linked shops, listing every full row on
                   every load was the real risk, and there was no way to
                   find one specific shop except scrolling. Search hits
@@ -4318,6 +4368,66 @@ const DistributorDashboard = () => {
           onClose={() => setShowBarcodeManager(false)}
           onAssignBarcode={(productId, barcode, format) => handleAssignDistributorBarcode(productId, barcode, format)}
         />
+      )}
+
+      {/* 📥 1-Click Bulk Customer CSV Import Modal */}
+      {showBulkCustModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '16px' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '24px', maxWidth: '520px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#0F172A' }}>📥 Bulk Import Customers (CSV)</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748B' }}>
+                  Upload or paste your retail shop client list from Vyapar, Tally, or Excel.
+                </p>
+              </div>
+              <button onClick={() => setShowBulkCustModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', marginBottom: '14px', fontSize: '11px', color: '#475569', lineHeight: 1.5 }}>
+              <strong>Format:</strong> <code>Shop Name, Phone, GSTIN, Address, Credit Limit</code><br />
+              <strong>Sample Row:</strong> <code>Sri Lakshmi Stores, 9876543210, 37AAAAA0000A1Z5, Main Road Sompeta, 50000</code>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+                Paste CSV Data or Drag &amp; Drop:
+              </label>
+              <textarea
+                rows={6}
+                value={bulkCustText}
+                onChange={e => setBulkCustText(e.target.value)}
+                placeholder="Sri Venkateswara Supermarket, 9876543210, 37AAAAA0000A1Z5, Main Bazaar, 50000&#10;Ganesh Traders, 9123456789, 37BBBBB1111B2Z6, MG Road, 25000"
+                style={{ width: '100%', padding: '12px', border: '1px solid #CBD5E1', borderRadius: '10px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button 
+                type="button"
+                onClick={() => {
+                  const sample = "Shop Name, Phone, GSTIN, Address, Credit Limit\nSri Lakshmi Stores, 9876543210, 37AAAAA0000A1Z5, Main Road Sompeta, 50000\nGanesh Traders, 9123456789, 37BBBBB1111B2Z6, MG Road, 25000";
+                  setBulkCustText(sample);
+                  toast.info('Sample CSV loaded!');
+                }}
+                style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                📄 Load Sample Format
+              </button>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => setShowBulkCustModal(false)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleBulkCustomerCSV} disabled={bulkCustBusy} style={{ background: '#4F46E5', border: 'none', color: '#FFFFFF', padding: '10px 20px', borderRadius: '8px', fontWeight: '900', fontSize: '13px', cursor: 'pointer' }}>
+                  {bulkCustBusy ? 'Importing…' : '🚀 Import Customers'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

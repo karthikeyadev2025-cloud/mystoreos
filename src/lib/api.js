@@ -3926,6 +3926,97 @@ export const api = {
     return prod;
   },
 
+  async getDistributorCustomers(distributorId) {
+    if (!distributorId) return [];
+    if (isSupabaseConfigured) {
+      // Combine both app-linked shops (shop_distributor_links) AND offline party directory (distributor_customers)
+      const [linkedRes, offlineRes] = await Promise.all([
+        supabase.from('shop_distributor_links').select('shop_id').eq('distributor_id', distributorId),
+        supabase.from('distributor_customers').select('*').eq('distributor_id', distributorId).order('name', { ascending: true })
+      ]);
+
+      const linkedIds = [...new Set((linkedRes.data || []).map(l => l.shop_id))];
+      let linkedShops = [];
+      if (linkedIds.length > 0) {
+        const { data: userData } = await supabase.from('users').select('id, name, phone, gstin, business_address').in('id', linkedIds);
+        linkedShops = (userData || []).map(u => ({
+          id: u.id,
+          name: u.name,
+          phone: u.phone || '',
+          gstin: u.gstin || '',
+          address: u.business_address || '',
+          isLinkedAppShop: true,
+          owed: 0,
+        }));
+      }
+
+      const offlineCustomers = (offlineRes.data || []).map(c => ({
+        id: c.id,
+        name: c.name,
+        phone: c.phone || '',
+        gstin: c.gstin || '',
+        address: c.address || '',
+        city: c.city || '',
+        creditLimit: Number(c.credit_limit) || 0,
+        owed: Number(c.owed) || 0,
+        isLinkedAppShop: false,
+      }));
+
+      // Combine and deduplicate by phone/id
+      const combined = [...linkedShops, ...offlineCustomers];
+      const seen = new Set();
+      return combined.filter(c => {
+        const key = c.phone ? c.phone.trim() : c.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    const db = getDB();
+    return db.distributorCustomers || [];
+  },
+
+  async addDistributorCustomer(distributorId, customerData) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('distributor_customers').insert({
+        distributor_id: distributorId,
+        name: customerData.name,
+        phone: customerData.phone || null,
+        gstin: customerData.gstin || null,
+        address: customerData.address || null,
+        city: customerData.city || null,
+        credit_limit: parseFloat(customerData.creditLimit) || 0,
+        owed: parseFloat(customerData.owed) || 0,
+      }).select().single();
+      if (error) throw new Error(error.message);
+      return data;
+    }
+    const db = getDB();
+    if (!db.distributorCustomers) db.distributorCustomers = [];
+    const newCust = { id: 'dc_' + generateId(), distributorId, ...customerData };
+    db.distributorCustomers.push(newCust);
+    saveDB(db);
+    return newCust;
+  },
+
+  async bulkAddDistributorCustomers(distributorId, customers) {
+    if (!isSupabaseConfigured) throw new Error('Bulk customer import requires an online connection.');
+    const rows = customers.map(c => ({
+      distributor_id: distributorId,
+      name: c.name,
+      phone: c.phone || null,
+      gstin: c.gstin || null,
+      address: c.address || null,
+      city: c.city || null,
+      credit_limit: parseFloat(c.creditLimit || c.credit_limit) || 0,
+      owed: parseFloat(c.owed) || 0,
+    }));
+    const { data, error } = await supabase.from('distributor_customers').insert(rows).select('id');
+    if (error) throw new Error(error.message);
+    return data?.length || 0;
+  },
+
   async deleteDistributorProduct(productId) {
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('distributor_products').delete().eq('id', productId);

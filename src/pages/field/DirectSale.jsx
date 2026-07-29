@@ -35,11 +35,18 @@ export default function DirectSale() {
   const [docType, setDocType] = useState('invoice'); // 'invoice' | 'quotation' | 'challan'
   const [isInterstate, setIsInterstate] = useState(false);
 
-  // Customer State
+  // Customer State & Search
   const [shopId, setShopId] = useState('');
   const [custName, setCustName] = useState('');
   const [custPhone, setCustPhone] = useState('');
   const [custGstin, setCustGstin] = useState('');
+  const [shopSearch, setShopSearch] = useState('');
+  const [showAddCustModal, setShowAddCustModal] = useState(false);
+  const [newCustName, setNewCustName] = useState('');
+  const [newCustPhone, setNewCustPhone] = useState('');
+  const [newCustGstin, setNewCustGstin] = useState('');
+  const [newCustAddress, setNewCustAddress] = useState('');
+  const [newCustCreditLimit, setNewCustCreditLimit] = useState('');
 
   // Cart & Line Items
   const [cart, setCart] = useState([]);
@@ -100,6 +107,46 @@ export default function DirectSale() {
   const selectedProduct = useMemo(() => products.find(p => p.id === selectedProdId), [products, selectedProdId]);
 
   // Dynamic search filtered products
+  const filteredShops = useMemo(() => {
+    const q = shopSearch.trim().toLowerCase();
+    if (!q) return shops;
+    return shops.filter(s => 
+      s.name?.toLowerCase().includes(q) || 
+      s.phone?.includes(q) || 
+      s.gstin?.toLowerCase().includes(q) ||
+      s.address?.toLowerCase().includes(q)
+    );
+  }, [shops, shopSearch]);
+
+  const handleAddQuickCustomer = async () => {
+    if (!newCustName.trim()) return toast.error('Enter shop/client name');
+    try {
+      const created = await api.addDistributorCustomer(distId, {
+        name: newCustName.trim(),
+        phone: newCustPhone.trim(),
+        gstin: newCustGstin.trim(),
+        address: newCustAddress.trim(),
+        creditLimit: parseFloat(newCustCreditLimit) || 0,
+      });
+      const formatted = {
+        id: created.id,
+        name: created.name,
+        phone: created.phone || '',
+        gstin: created.gstin || '',
+        address: created.address || '',
+        owed: 0,
+      };
+      setShops(prev => [formatted, ...prev]);
+      setShopId(created.id);
+      setShopSearch(created.name);
+      setShowAddCustModal(false);
+      setNewCustName(''); setNewCustPhone(''); setNewCustGstin(''); setNewCustAddress(''); setNewCustCreditLimit('');
+      toast.success(`Customer "${created.name}" added & selected!`);
+    } catch (e) {
+      toast.error(e.message || 'Could not save customer');
+    }
+  };
+
   const filteredProducts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return products;
@@ -491,13 +538,49 @@ export default function DirectSale() {
           </div>
 
           <div>
-            <label style={S.label}>Retail Shop / Party Account</label>
-            <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setCustName(''); setCustPhone(''); } }}
-              style={S.input}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={S.label}>Retail Shop / Party Account</label>
+              <button 
+                type="button"
+                onClick={() => setShowAddCustModal(true)}
+                style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+              >
+                + Add New Customer
+              </button>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <input 
+                type="text"
+                placeholder="🔍 Search shop name, client, phone, or GSTIN..."
+                value={shopSearch}
+                onChange={e => setShopSearch(e.target.value)}
+                style={{ ...S.input, paddingRight: shopSearch ? 30 : 14 }}
+              />
+              {shopSearch && (
+                <button 
+                  onClick={() => { setShopSearch(''); setShopId(''); }}
+                  style={{ position: 'absolute', right: 10, top: 10, background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            <select 
+              value={shopId} 
+              onChange={e => { 
+                setShopId(e.target.value); 
+                const match = shops.find(s => s.id === e.target.value);
+                if (match) { setShopSearch(match.name); setCustName(''); setCustPhone(''); }
+                else { setShopSearch(''); }
+              }}
+              style={{ ...S.input, marginTop: 6 }}
+            >
               <option value="">— Walk-in Customer / Cash Counter Sale —</option>
-              {shops.map(s => (
+              {filteredShops.map(s => (
                 <option key={s.id} value={s.id}>
-                  {s.name} {s.owed > 0 ? `(Owed: ₹${s.owed.toLocaleString('en-IN')})` : ''}
+                  {s.name} {s.phone ? `(${s.phone})` : ''} {s.gstin ? `[GST: ${s.gstin}]` : ''} {s.owed > 0 ? `· Owed: ₹${s.owed.toLocaleString('en-IN')}` : ''}
                 </option>
               ))}
             </select>
@@ -888,6 +971,52 @@ export default function DirectSale() {
               style={{ width: '100%', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: '#fff', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px -4px rgba(5,150,105,0.35)' }}>
               <ShoppingCart size={20} /> {busy ? 'Generating GST Invoice…' : `Complete & Save ${docType === 'quotation' ? 'Quotation' : 'Tax Invoice'} (₹${totals.grandTotal.toLocaleString('en-IN')})`}
             </button>
+          </div>
+        </div>
+      {/* Quick Add Customer Modal */}
+      {showAddCustModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 24, maxWidth: 480, width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0F172A' }}>+ Add New Retail Shop / Party</h3>
+              <button onClick={() => setShowAddCustModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={S.label}>Shop / Client Name *</label>
+                <input value={newCustName} onChange={e => setNewCustName(e.target.value)} placeholder="e.g. Sri Venkateswara Supermarket" style={S.input} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={S.label}>Phone Number</label>
+                  <input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} placeholder="e.g. 9876543210" style={S.input} />
+                </div>
+                <div>
+                  <label style={S.label}>GSTIN Number</label>
+                  <input value={newCustGstin} onChange={e => setNewCustGstin(e.target.value)} placeholder="e.g. 37AAAAA0000A1Z5" style={S.input} />
+                </div>
+              </div>
+              <div>
+                <label style={S.label}>Billing Address</label>
+                <input value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)} placeholder="e.g. Main Bazaar, Sompeta" style={S.input} />
+              </div>
+              <div>
+                <label style={S.label}>Credit Limit ₹</label>
+                <input type="number" value={newCustCreditLimit} onChange={e => setNewCustCreditLimit(e.target.value)} placeholder="e.g. 50000" style={S.input} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button onClick={() => setShowAddCustModal(false)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '10px 16px', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={handleAddQuickCustomer} style={{ background: '#4F46E5', border: 'none', color: '#FFFFFF', padding: '10px 20px', borderRadius: 10, fontWeight: 800, cursor: 'pointer' }}>
+                Save &amp; Select
+              </button>
+            </div>
           </div>
         </div>
       )}
