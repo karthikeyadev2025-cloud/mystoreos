@@ -46,8 +46,11 @@ CREATE POLICY "stock_orders_update_parties" ON public.stock_orders
 CREATE POLICY "stock_orders_delete_shop" ON public.stock_orders
   FOR DELETE USING (true);
 
--- 6) Drop restrictive users_subscription_tier_check constraint to prevent registration/update failures
+-- 6) Drop restrictive users plan tier constraints
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_subscription_tier_check;
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_distributor_plan_tier_check;
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_subscription_check;
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS check_users_distributor_plan_tier;
 
 -- 7) Ensure Distributor Enterprise plan is active for Jyothi Foods / Jyothi Enterprises
 UPDATE public.users
