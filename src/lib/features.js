@@ -10,9 +10,9 @@ export const DIST_PLAN_CAPS = {
   // to the side of the app that never got it.
   trial: {
     maxShops: -1, routePlanner: true, bulkOrderCSV: true,
-    tallyExport: true, multiDevice: 3, advancedAnalytics: true,
-    // Field distribution — trial grants full access, same principle as
-    // every other cap here.
+    tallyExport: true, multiDevice: 10, advancedAnalytics: true,
+    multiBranch: true, apiAccess: true, staffAccounts: true,
+    customBranding: true,
     fieldDistribution: true, vanSales: true, maxVehicles: -1,
     eodSettlement: true, fieldReps: true,
   },
@@ -77,13 +77,18 @@ export function getDistCaps(user) {
   if (user.role === 'admin') return DIST_PLAN_CAPS.enterprise_distributor;
 
   if (user.role === 'staff' && user.ownerRole === 'distributor') {
-    if (user.ownerSubscription === 'trial' || user.ownerSubscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
     const ownerTier = normalizeDistTier(user.ownerDistributorPlanTier);
+    if (ownerTier === 'enterprise_distributor' || ownerTier === 'pro_distributor') return DIST_PLAN_CAPS[ownerTier];
+    if (user.ownerSubscription === 'trial' || user.ownerSubscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
     return DIST_PLAN_CAPS[ownerTier] ?? DIST_PLAN_CAPS.basic_distributor;
   }
 
+  const tier = normalizeDistTier(user.distributorPlanTier || user.subscriptionTier);
+  if (tier === 'enterprise_distributor' || tier === 'pro_distributor') {
+    return DIST_PLAN_CAPS[tier];
+  }
+
   if (user.subscription === 'trial' || user.subscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
-  const tier = normalizeDistTier(user.distributorPlanTier);
   return DIST_PLAN_CAPS[tier] ?? DIST_PLAN_CAPS.basic_distributor;
 }
 

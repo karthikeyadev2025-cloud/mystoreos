@@ -27,7 +27,7 @@ function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
       await api.logAdminAction('upgrade_dist_plan', dist.id, dist.distributorPlanTier, tier);
       toast.success(`${dist.name} upgraded to ${TIER_LABELS[tier]}`);
       onDone();
-    } catch { toast.error('Failed'); }
+    } catch (e) { toast.error(e?.message || 'Failed to update plan'); }
     finally { setBusy(false); }
   };
   return (
