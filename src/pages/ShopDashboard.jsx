@@ -6840,6 +6840,29 @@ const ShopDashboard = () => {
           </div>
           
           <div style={{ padding: '16px' }}>
+            {/* AI Voice Order Recorder Header Banner */}
+            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '2px solid #6366F1', borderRadius: '16px', padding: '20px', marginBottom: '20px', color: '#FFFFFF', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid #818CF8', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818CF8', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
+                  <Mic size={28} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    🎙️ AI Voice Stock Order Assistant
+                  </div>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#C7D2FE' }}>
+                    Speak your full order continuously (e.g. <i>"Chikki 2 jars, Biscuit 10 cases, Red Label Tea 5 boxes"</i>). AI parses products, quantities &amp; pack sizes for re-verification!
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowVoiceRecorderModal(true)}
+                style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFFFFF', border: 'none', padding: '12px 24px', borderRadius: '12px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', whiteSpace: 'nowrap' }}
+              >
+                🎙️ Tap to Speak Whole Order
+              </button>
+            </div>
             {/* AI low stock indicator list */}
             {products.filter(p => p.stock < 10).length > 0 && (
               <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
