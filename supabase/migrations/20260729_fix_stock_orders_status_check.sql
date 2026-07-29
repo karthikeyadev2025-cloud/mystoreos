@@ -21,7 +21,7 @@ ALTER TABLE public.stock_orders
   ADD CONSTRAINT stock_orders_status_check
   CHECK (status IN ('pending', 'accepted', 'dispatched', 'delivered', 'rejected', 'cancelled'));
 
--- 4) Index for performance
+-- 4) Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_stock_orders_distributor ON public.stock_orders(distributor_id);
 CREATE INDEX IF NOT EXISTS idx_stock_orders_shop ON public.stock_orders(shop_id);
 CREATE INDEX IF NOT EXISTS idx_stock_orders_status ON public.stock_orders(status);
@@ -56,7 +56,6 @@ WHERE
   role = 'distributor'
   AND (
     LOWER(name) LIKE '%jyothi%' 
-    OR LOWER(business_name) LIKE '%jyothi%'
     OR subscription_tier LIKE '%enterprise%'
     OR distributor_plan_tier LIKE '%enterprise%'
   );
