@@ -320,6 +320,7 @@ const ShopDashboard = () => {
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
   const [showVoiceRecorderModal, setShowVoiceRecorderModal] = useState(false);
+  const [wholesaleSearchQuery, setWholesaleSearchQuery] = useState('');
 
   const handleConfirmVoiceOrder = async (analyzedItems) => {
     if (!analyzedItems || analyzedItems.length === 0) return;
@@ -6928,8 +6929,35 @@ const ShopDashboard = () => {
               )}
             </div>
 
-            {/* Wholesale Catalog List */}
-            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', marginBottom: '12px' }}>📦 FMCG Wholesale Catalog</h3>
+            {/* Wholesale Catalog List & Search Bar with Voice Order */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', margin: 0 }}>📦 FMCG Wholesale Catalog ({wholesaleCatalog.length})</h3>
+              
+              {wholesaleCatalog.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
+                  <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? 0 : 220 }}>
+                    <Search size={14} style={{ position: 'absolute', left: 10, top: 11, color: '#818CF8' }} />
+                    <input
+                      type="text"
+                      value={wholesaleSearchQuery}
+                      onChange={e => setWholesaleSearchQuery(e.target.value)}
+                      placeholder="Fast search catalog name, SKU..."
+                      style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#FFF', padding: '6px 28px 6px 30px', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                    {wholesaleSearchQuery && (
+                      <button onClick={() => setWholesaleSearchQuery('')} style={{ position: 'absolute', right: 8, top: 7, background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}>
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <VoiceOrderInput onTranscript={(text) => {
+                    setWholesaleSearchQuery(text);
+                    handleShopVoiceRestockOrder(text);
+                  }} placeholder="Voice search..." />
+                </div>
+              )}
+            </div>
+
             {wholesaleCatalog.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 8px' }}>
                 <p style={{ color: '#fff', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>No linked distributors yet</p>
@@ -6939,7 +6967,11 @@ const ShopDashboard = () => {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {wholesaleCatalog.map(p => (
+                {wholesaleCatalog.filter(p => {
+                  if (!wholesaleSearchQuery.trim()) return true;
+                  const q = wholesaleSearchQuery.toLowerCase().trim();
+                  return p.name?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q);
+                }).map(p => (
                   <div key={p.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: '#3B82F6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
