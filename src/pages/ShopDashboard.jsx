@@ -6894,7 +6894,15 @@ const ShopDashboard = () => {
                 </div>
               </div>
               {Object.keys(restockCart).length === 0 ? (
-                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Record full voice order above or add bulk products from the catalog below.</p>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                  <p style={{ color: '#94A3B8', fontSize: '13px', margin: '0 0 12px' }}>Your basket is empty. Record full voice order below or add bulk products from the catalog.</p>
+                  <button
+                    onClick={() => setShowVoiceRecorderModal(true)}
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(16,185,129,0.35)', width: '100%' }}
+                  >
+                    🎙️ Tap to Speak &amp; Order Supplies by Voice
+                  </button>
+                </div>
               ) : (
                 <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
