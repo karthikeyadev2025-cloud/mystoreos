@@ -2391,14 +2391,41 @@ const DistributorDashboard = () => {
                 </div>
               )}
 
-              {/* Search — was completely missing. Fine with 5 products,
-                  genuinely unusable once a distributor's catalog grows
-                  to the 50-200+ SKUs a real FMCG wholesale business
-                  actually carries. */}
+              {/* Inventory Control & Stock Valuation Summary Bar */}
+              {wholesaleProducts.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 18 }}>
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Total Stock Value</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#059669', marginTop: 2 }}>
+                      ₹{wholesaleProducts.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>In-Stock SKUs</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#2563EB', marginTop: 2 }}>
+                      {wholesaleProducts.filter(p => Number(p.stock || 0) > 0).length} / {wholesaleProducts.length} SKUs
+                    </div>
+                  </div>
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Low Stock Items</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#D97706', marginTop: 2 }}>
+                      {wholesaleProducts.filter(p => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10)).length} Items
+                    </div>
+                  </div>
+                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Out of Stock</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#DC2626', marginTop: 2 }}>
+                      {wholesaleProducts.filter(p => Number(p.stock || 0) <= 0).length} Items
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Search & Stock Filter */}
               {wholesaleProducts.length > 0 && (
                 <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
-                  placeholder="Search your catalog by product name or category…"
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
+                  placeholder="Search your catalog by product name, category, or SKU…"
+                  style={{ width: '100%', padding: '12px 14px', border: '1px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
               )}
 
               {wholesaleProducts.length === 0 ? (
@@ -2408,33 +2435,47 @@ const DistributorDashboard = () => {
                 </div>
               ) : (() => {
                 const q = catalogSearch.trim().toLowerCase();
-                const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)) : wholesaleProducts;
+                const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q)) : wholesaleProducts;
                 if (filtered.length === 0) {
                   return <p style={{ color: '#64748B', textAlign: 'center', padding: '24px' }}>No products match "{catalogSearch}".</p>;
                 }
                 return (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                  {filtered.map(p => (
-                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '170px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+                  {filtered.map(p => {
+                    const isOutOfStock = Number(p.stock || 0) <= 0;
+                    const isLowStock = Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10);
+                    return (
+                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '190px', background: '#FFFFFF', border: `2px solid ${isOutOfStock ? '#FCA5A5' : isLowStock ? '#FDE68A' : '#E2E8F0'}`, borderRadius: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         {p.image && (
                           <img src={p.image} alt={p.name} style={{ width: '100%', height: '110px', borderRadius: '8px', objectFit: 'cover', marginBottom: '8px', border: '1px solid #E2E8F0' }} />
                         )}
-                        {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
-                        <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
+                          {isOutOfStock ? (
+                            <span style={{ fontSize: '9px', background: '#FEF2F2', color: '#991B1B', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FECACA' }}>❌ OUT OF STOCK</span>
+                          ) : isLowStock ? (
+                            <span style={{ fontSize: '9px', background: '#FEF3C7', color: '#B45309', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FDE68A' }}>⚠️ LOW STOCK</span>
+                          ) : (
+                            <span style={{ fontSize: '9px', background: '#F0FDF4', color: '#15803D', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #BBF7D0' }}>✅ IN STOCK</span>
+                          )}
+                        </div>
+                        <h4 style={{ margin: '4px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
+                        {p.sku && <div style={{ fontSize: 11, color: '#64748B' }}>SKU: {p.sku} {p.hsn_code ? `· HSN: ${p.hsn_code}` : ''}</div>}
                       </div>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px', marginBottom: '10px' }}>
                           <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}{p.unit && <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
-                          <span style={{ fontSize: '11px', color: '#475569', fontWeight: '500' }}>Stock: {p.stock} cases</span>
+                          <span style={{ fontSize: '12px', color: isOutOfStock ? '#DC2626' : isLowStock ? '#D97706' : '#0F172A', fontWeight: '800' }}>Stock: {p.stock} units</span>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
-                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                          <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit Stock</button>
+                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 );
               })()}
