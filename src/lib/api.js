@@ -875,30 +875,45 @@ export const api = {
   // distributor by the distributor's DST- code. Either creates the same link.
   async linkByPublicCode(myId, myRole, code) {
     if (!isSupabaseConfigured) throw new Error('Not available');
-    const clean = (code || '').trim().toUpperCase();
-    if (!clean) throw new Error('Enter a code.');
-    const { data: target } = await supabase.from('users')
-      .select('id, role, name, public_code').eq('public_code', clean).maybeSingle();
-    if (!target) throw new Error('No shop or distributor found with that code.');
+    const clean = (code || '').trim();
+    if (!clean) throw new Error('Enter a code, phone number, GSTIN, or name.');
+    const upper = clean.toUpperCase();
+
+    let { data: matches } = await supabase.from('users')
+      .select('id, role, name, public_code, phone, gstin')
+      .or(`public_code.eq.${upper},gstin.eq.${upper},phone.eq.${clean},id.eq.${clean}`);
+
+    if (!matches || matches.length === 0) {
+      const { data: nameMatches } = await supabase.from('users')
+        .select('id, role, name, public_code, phone, gstin')
+        .ilike('name', `%${clean}%`);
+      matches = nameMatches || [];
+    }
+
+    const target = (matches || []).find(u => 
+      myRole === 'distributor' ? (u.role === 'shop' || u.role === 'user') : (u.role === 'distributor' || u.role === 'admin')
+    );
+    
+    if (!target) {
+      throw new Error(`No ${myRole === 'distributor' ? 'shop' : 'distributor'} found matching "${code}". Please verify code, phone number, or GSTIN.`);
+    }
 
     let shop_id, distributor_id;
     if (myRole === 'distributor') {
-      if (target.role !== 'shop') throw new Error('That code is not a shop code.');
       shop_id = target.id; distributor_id = myId;
-    } else if (myRole === 'shop') {
-      if (target.role !== 'distributor') throw new Error('That code is not a distributor code.');
-      shop_id = myId; distributor_id = target.id;
     } else {
-      throw new Error('Only shops and distributors can link.');
+      shop_id = myId; distributor_id = target.id;
     }
 
     const { error } = await supabase.from('shop_distributor_links')
       .insert({ shop_id, distributor_id, created_by: myId });
     if (error) {
-      if (/duplicate|unique/i.test(error.message)) throw new Error(`Already linked with ${target.name}.`);
+      if (/duplicate|unique/i.test(error.message)) {
+        return { name: target.name, code: target.public_code || target.gstin || target.phone, alreadyLinked: true };
+      }
       throw new Error(error.message);
     }
-    return { name: target.name, code: target.public_code };
+    return { name: target.name, code: target.public_code || target.gstin || target.phone };
   },
 
   async getLinkedDistributors(shopId) {
@@ -3695,14 +3710,18 @@ export const api = {
     const { data: links } = await supabase.from('shop_distributor_links')
       .select('distributor_id').eq('shop_id', shopId);
     const distributorIds = [...new Set((links || []).map(l => l.distributor_id))];
-    if (distributorIds.length === 0) return [];
-    const { data } = await supabase.from('distributor_products')
-      .select('*').in('distributor_id', distributorIds);
+    
+    let query = supabase.from('distributor_products').select('*');
+    if (distributorIds.length > 0) {
+      query = query.in('distributor_id', distributorIds);
+    }
+    const { data } = await query;
     return (data || []).map(row => ({
       id: row.id, distributorId: row.distributor_id, name: row.name,
       price: row.price, stock: row.stock, category: row.category, unit: row.unit || null,
       packSize: row.pack_size || null, sku: row.sku || null, hsnCode: row.hsn_code || null,
       gstRate: row.gst_rate != null ? Number(row.gst_rate) : 0,
+      barcode: row.barcode || null, image: row.image_url || null,
     }));
   },
 
