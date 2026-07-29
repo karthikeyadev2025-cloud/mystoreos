@@ -23,6 +23,7 @@ import { sharePdfNative, isNativeApp } from '../lib/capacitorInit';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
+import VoiceOrderInput from '../components/VoiceOrderInput';
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { localDateStr } from '../lib/dateUtils';
 import { validateImageFile } from '../lib/fileValidation';
@@ -3161,6 +3162,48 @@ const ShopDashboard = () => {
       loadData();
     } catch {
       toast.error("Failed to place 1-click restock order");
+    }
+  };
+
+  const handleShopVoiceRestockOrder = (text) => {
+    if (!text || !wholesaleCatalog || wholesaleCatalog.length === 0) {
+      return toast.warning('Wholesale catalog is empty or offline');
+    }
+    const lower = text.toLowerCase();
+    
+    const numMatch = lower.match(/\d+/);
+    let qty = numMatch ? parseInt(numMatch[0]) : 1;
+    const isBox = lower.includes('box') || lower.includes('case') || lower.includes('pack');
+
+    const match = wholesaleCatalog.find(p => lower.includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(lower));
+
+    if (match) {
+      const packSize = match.packSize || 1;
+      const finalQty = isBox ? (qty * packSize) : qty;
+      
+      setRestockCart(prev => ({
+        ...prev,
+        [match.id]: (prev[match.id] || 0) + finalQty
+      }));
+      toast.success(`🎤 Voice Added: ${match.name} (${finalQty} units) to Restock Basket!`);
+    } else {
+      const words = lower.split(' ').filter(w => w.length > 2);
+      let partialMatch = null;
+      for (const w of words) {
+        partialMatch = wholesaleCatalog.find(p => p.name.toLowerCase().includes(w));
+        if (partialMatch) break;
+      }
+      if (partialMatch) {
+        const packSize = partialMatch.packSize || 1;
+        const finalQty = isBox ? (qty * packSize) : qty;
+        setRestockCart(prev => ({
+          ...prev,
+          [partialMatch.id]: (prev[partialMatch.id] || 0) + finalQty
+        }));
+        toast.success(`🎤 Voice Added: ${partialMatch.name} (${finalQty} units) to Restock Basket!`);
+      } else {
+        toast.warning(`Could not find "${text}" in wholesale catalog`);
+      }
     }
   };
 
@@ -6791,9 +6834,12 @@ const ShopDashboard = () => {
 
             {/* Restock Basket Panel */}
             <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🛒 Restock Basket</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🛒 Restock Basket</h3>
+                <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak: chikki 2 jars, biscuit 10..." />
+              </div>
               {Object.keys(restockCart).length === 0 ? (
-                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Add bulk products from the catalog below.</p>
+                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Speak items above or add bulk products from the catalog below.</p>
               ) : (
                 <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
