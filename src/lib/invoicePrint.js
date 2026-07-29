@@ -18,14 +18,16 @@ import { renderInvoiceHtml } from './invoiceTemplates';
 function widthMmFor(paperFormat) {
   if (paperFormat === 'thermal58') return 58;
   if (paperFormat === 'thermal80') return 80;
+  if (paperFormat === 'a5') return 148;
   return 210; // a4
 }
 
 // Print — opens a new tab and triggers the browser print dialog with
-// the correct paper size pre-set via @page CSS.
-export function printInvoice(templateId, data, paperFormat = 'a4') {
+// the correct paper size pre-set via @page CSS (A4, A5, Thermal 80mm/58mm).
+export function printInvoice(templateId, data, paperFormat = 'a4', options = {}) {
   const widthMm = widthMmFor(paperFormat);
-  const html = renderInvoiceHtml(templateId, data, widthMm);
+  const isDuplicate = options.isDuplicate || options.duplicate || data.isDuplicate || data.duplicate || false;
+  const html = renderInvoiceHtml(templateId, data, widthMm, { paperFormat, isDuplicate, ...options });
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');

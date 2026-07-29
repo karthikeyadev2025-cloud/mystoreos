@@ -65,14 +65,41 @@ const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 const money = (n) => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const int = (n) => Number(n || 0).toLocaleString('en-IN');
 
-// Shared print CSS shell — every template gets the correct @page size
-// for the chosen paper (A4 / 80mm / 58mm thermal), matching the
-// technique validated in thermalReceipt.js and printPdf.js.
-function shell(bodyHtml, { widthMm = 210, extraCss = '' } = {}) {
-  const isThermal = widthMm !== 210;
-  const pageCss = isThermal
-    ? `@page { size: ${widthMm}mm auto; margin: 0; }`
-    : `@page { size: A4; margin: 12mm; }`;
+// Shared print CSS shell — supports A4 (210mm), A5 (148mm), 80mm & 58mm thermal,
+// Duplicate Copy printing (Original for Recipient + Duplicate for Supplier),
+// and CSS page margin resets to prevent browser default URL/date headers & footers from printing.
+function shell(bodyHtml, { widthMm = 210, paperFormat = 'a4', isDuplicate = false, extraCss = '' } = {}) {
+  const isThermal = widthMm === 58 || widthMm === 80;
+  const isA5 = paperFormat === 'a5' || widthMm === 148;
+
+  let pageCss = `@page { size: A4; margin: 8mm; }`;
+  if (isA5) {
+    pageCss = `@page { size: A5; margin: 6mm; }`;
+  } else if (isThermal) {
+    pageCss = `@page { size: ${widthMm}mm auto; margin: 0; }`;
+  }
+
+  const printBodyWidth = isThermal ? `${widthMm}mm` : (isA5 ? '134mm' : '194mm');
+
+  // If duplicate printing is enabled, render Original Copy + Duplicate Copy
+  let content = bodyHtml;
+  if (isDuplicate && !isThermal) {
+    content = `
+      <div class="invoice-copy original-copy">
+        <div style="background:#0F172A;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
+          ORIGINAL FOR RECIPIENT
+        </div>
+        ${bodyHtml}
+      </div>
+      <div style="page-break-before: always; margin-top: 15px;" class="invoice-copy duplicate-copy">
+        <div style="background:#334155;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
+          DUPLICATE FOR SUPPLIER / TRANSPORTER
+        </div>
+        ${bodyHtml}
+      </div>
+    `;
+  }
+
   return `<!doctype html>
 <html>
 <head>
@@ -84,12 +111,23 @@ function shell(bodyHtml, { widthMm = 210, extraCss = '' } = {}) {
   body {
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     color: #0F172A;
-    width: ${isThermal ? widthMm + 'mm' : '186mm'};
-    max-width: ${isThermal ? widthMm + 'mm' : '100%'};
+    width: ${printBodyWidth};
+    max-width: 100%;
     margin: 0 auto;
-    font-size: ${isThermal ? '11px' : '13px'};
+    font-size: ${isThermal ? '11px' : (isA5 ? '11.5px' : '13px')};
   }
   table { border-collapse: collapse; width: 100%; }
+  
+  /* Suppress default browser header/footer URLs & dates on print */
+  @media print {
+    @page {
+      margin: ${isThermal ? '0' : (isA5 ? '6mm' : '8mm')};
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
   ${extraCss}
 </style>
 </head>
@@ -583,9 +621,9 @@ const RENDERERS = {
   party_statement: renderPartyStatement,
 };
 
-// Public entry point. widthMm: 210 (A4) | 80 | 58.
-export function renderInvoiceHtml(templateId, data, widthMm = 210) {
+// Public entry point. widthMm: 210 (A4) | 148 (A5) | 80 | 58.
+export function renderInvoiceHtml(templateId, data, widthMm = 210, options = {}) {
   const fn = RENDERERS[templateId] || RENDERERS.classic;
-  return fn(data, widthMm);
+  return fn(data, widthMm, options);
 }
 

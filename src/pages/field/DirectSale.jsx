@@ -332,7 +332,7 @@ export default function DirectSale() {
     }
   };
 
-  const handlePrintInvoice = (format = 'a4') => {
+  const handlePrintInvoice = (format = 'a4', isDuplicate = false) => {
     if (!lastSale) return;
     const hasGstin = !!(user?.gstin && String(user.gstin).trim());
     
@@ -373,7 +373,7 @@ export default function DirectSale() {
       paymentMode: lastSale.payMode,
       footerNote: 'Thank you for doing business with us.',
       termsNote: 'Damage/Breakage recovery governed by standard FMCG trade terms. Subject to local jurisdiction.',
-    }, format);
+    }, format, { isDuplicate });
   };
 
   const handleShareWhatsApp = () => {
@@ -450,12 +450,20 @@ export default function DirectSale() {
                 Customer: <strong>{lastSale.buyer}</strong> · {lastSale.assignedVeh ? `Van: ${lastSale.assignedVeh}` : 'Warehouse Direct'}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => handlePrintInvoice('a4')}
-                style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Receipt size={15} /> Print A4 GST Invoice
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button onClick={() => handlePrintInvoice('a4', false)}
+                style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Receipt size={15} /> Print A4
               </button>
-              <button onClick={() => handlePrintInvoice('3inch')}
+              <button onClick={() => handlePrintInvoice('a5', false)}
+                style={{ background: '#7C3AED', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Receipt size={15} /> Print A5
+              </button>
+              <button onClick={() => handlePrintInvoice('a4', true)}
+                style={{ background: '#0F172A', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Printer size={15} /> Print Duplicate Copy
+              </button>
+              <button onClick={() => handlePrintInvoice('3inch', false)}
                 style={{ background: '#0284C7', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Printer size={15} /> Thermal Receipt
               </button>
