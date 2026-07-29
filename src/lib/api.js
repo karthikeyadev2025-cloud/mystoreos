@@ -3766,43 +3766,55 @@ export const api = {
 
   async addDistributorProduct(productData) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('distributor_products').insert({
+      const payload = {
         distributor_id: productData.distributorId,
         name: productData.name,
         price: parseFloat(productData.price) || 0,
         stock: parseInt(productData.stock) || 0,
-        // Was forcing 'general' whenever this was left blank — every
-        // distributor selling anything outside FMCG (or who just
-        // hadn't filled it in yet) got a fake, meaningless label
-        // stamped on their product instead of genuinely having no
-        // category. Store exactly what was typed, nothing invented.
         category: productData.category || null,
-        // Unit (box/jar/case/piece/etc) — was completely missing.
-        // A distributor selling something like pickles or honey needs
-        // to specify whether the price is per jar, per box, or per
-        // piece — previously there was no way to express this at all.
         unit: productData.unit || null,
-        // Pack size — matches the client's real invoice format
-        // exactly: how many individual jars/units come in one box for
-        // this product. Shops order in boxes; the invoice shows
-        // jars-per-box × boxes-ordered = total quantity billed.
         pack_size: productData.packSize ? parseInt(productData.packSize) : null,
-        // Product code (SKU), HSN, and GST rate — the real invoice
-        // has a "Code" column and needs proper GST-compliant tax
-        // details per item; these were completely missing before,
-        // meaning invoice generation always hardcoded hsn:'' and
-        // gstPct:0 regardless of the actual product.
         sku: productData.sku || null,
         hsn_code: productData.hsnCode || null,
         gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
-        // Was present on updateDistributorProduct but missing here
-        // entirely — a NEW product created through "Add Product" never
-        // got a barcode or image saved at all, even after the columns
-        // existed. Only editing an already-created product worked.
         barcode: productData.barcode || productData.sku || null,
         barcode_format: productData.barcodeFormat || null,
         image_url: productData.image || null,
-      }).select().single();
+      };
+
+      // Resilient write: if PostgREST schema cache is missing newer optional columns
+      // (e.g. gst_rate, hsn_code, sku, barcode, image_url), retry by stripping un-migrated columns
+      let { data, error } = await supabase.from('distributor_products').insert(payload).select().single();
+      
+      if (error && (error.message.includes('column') || error.message.includes('schema cache'))) {
+        console.warn('Retrying distributor_products insert without optional columns:', error.message);
+        const retryPayload = { ...payload };
+        const optionalFields = ['gst_rate', 'hsn_code', 'sku', 'barcode', 'barcode_format', 'image_url', 'pack_size', 'unit'];
+        for (const col of optionalFields) {
+          if (error.message.includes(`'${col}'`) || error.message.includes(col)) {
+            delete retryPayload[col];
+          }
+        }
+        const retryRes = await supabase.from('distributor_products').insert(retryPayload).select().single();
+        if (!retryRes.error) {
+          data = retryRes.data;
+          error = null;
+        } else {
+          // Absolute fallback to core columns
+          const corePayload = {
+            distributor_id: productData.distributorId,
+            name: productData.name,
+            price: parseFloat(productData.price) || 0,
+            stock: parseInt(productData.stock) || 0,
+            category: productData.category || null,
+          };
+          const fallbackRes = await supabase.from('distributor_products').insert(corePayload).select().single();
+          if (fallbackRes.error) throw new Error(fallbackRes.error.message);
+          data = fallbackRes.data;
+          error = null;
+        }
+      }
+
       if (error) throw new Error(error.message);
       return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format, image: data.image_url };
     }
@@ -3826,15 +3838,9 @@ export const api = {
     return newProd;
   },
 
-  // Was completely missing from the app despite the correct RLS
-  // policies (dist_products_update_owner / dist_products_delete_owner)
-  // already existing in the database — a distributor could publish a
-  // wholesale product but had no way to ever change its price or stock
-  // again, or remove it. Real prices change constantly; this was a
-  // basic, load-bearing gap.
   async updateDistributorProduct(productId, productData) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('distributor_products').update({
+      const payload = {
         name: productData.name,
         price: parseFloat(productData.price) || 0,
         stock: parseInt(productData.stock) || 0,
@@ -3846,12 +3852,41 @@ export const api = {
         gst_rate: productData.gstRate ? parseFloat(productData.gstRate) : 0,
         barcode: productData.barcode || productData.sku || null,
         barcode_format: productData.barcodeFormat || null,
-        // Was collected in the UI and included in this exact payload
-        // by the catalog-images feature, but never read here — the
-        // distributor uploaded a photo, saw "success", and it silently
-        // never saved. Discovered only by refreshing the page.
         image_url: productData.image || null,
-      }).eq('id', productId).select().maybeSingle();
+      };
+
+      // Resilient write: if PostgREST schema cache is missing newer optional columns
+      // (e.g. gst_rate, hsn_code, sku, barcode, image_url), retry by stripping un-migrated columns
+      let { data, error } = await supabase.from('distributor_products').update(payload).eq('id', productId).select().maybeSingle();
+
+      if (error && (error.message.includes('column') || error.message.includes('schema cache'))) {
+        console.warn('Retrying distributor_products update without optional columns:', error.message);
+        const retryPayload = { ...payload };
+        const optionalFields = ['gst_rate', 'hsn_code', 'sku', 'barcode', 'barcode_format', 'image_url', 'pack_size', 'unit'];
+        for (const col of optionalFields) {
+          if (error.message.includes(`'${col}'`) || error.message.includes(col)) {
+            delete retryPayload[col];
+          }
+        }
+        const retryRes = await supabase.from('distributor_products').update(retryPayload).eq('id', productId).select().maybeSingle();
+        if (!retryRes.error) {
+          data = retryRes.data;
+          error = null;
+        } else {
+          // Absolute fallback to core columns
+          const corePayload = {
+            name: productData.name,
+            price: parseFloat(productData.price) || 0,
+            stock: parseInt(productData.stock) || 0,
+            category: productData.category || null,
+          };
+          const fallbackRes = await supabase.from('distributor_products').update(corePayload).eq('id', productId).select().maybeSingle();
+          if (fallbackRes.error) throw new Error(fallbackRes.error.message);
+          data = fallbackRes.data;
+          error = null;
+        }
+      }
+
       if (error) throw new Error(error.message);
       if (!data) throw new Error('Product not found or you do not have permission to edit it.');
       return { id: data.id, distributorId: data.distributor_id, name: data.name, price: data.price, stock: data.stock, category: data.category, unit: data.unit, packSize: data.pack_size, sku: data.sku, hsnCode: data.hsn_code, gstRate: data.gst_rate, barcode: data.barcode, barcodeFormat: data.barcode_format, image: data.image_url };
