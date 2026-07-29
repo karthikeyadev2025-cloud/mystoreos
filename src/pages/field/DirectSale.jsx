@@ -153,10 +153,25 @@ export default function DirectSale() {
     return products.filter(p => 
       p.name?.toLowerCase().includes(q) || 
       p.sku?.toLowerCase().includes(q) || 
+      p.barcode?.toLowerCase().includes(q) ||
       p.hsnCode?.toLowerCase().includes(q) ||
       p.category?.toLowerCase().includes(q)
     );
   }, [products, searchQuery]);
+
+  // Barcode / SKU Auto-Match Listener — triggers instant selection when a barcode scanner inputs text
+  useEffect(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q || q.length < 3) return;
+    const exactMatch = products.find(p => 
+      p.barcode?.toLowerCase() === q || 
+      p.sku?.toLowerCase() === q
+    );
+    if (exactMatch && exactMatch.id !== selectedProdId) {
+      handleProductSelect(exactMatch.id);
+      toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
+    }
+  }, [searchQuery, products]);
 
   const handleProductSelect = (prodId) => {
     setSelectedProdId(prodId);
@@ -626,18 +641,52 @@ export default function DirectSale() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <label style={{ ...S.label, margin: 0 }}>Add Product Items</label>
           {products.length > 0 && (
-            <div style={{ position: 'relative', width: isMobile ? '100%' : 260 }}>
-              <Search size={14} style={{ position: 'absolute', left: 10, top: 12, color: '#94A3B8' }} />
+            <div style={{ position: 'relative', width: isMobile ? '100%' : 320 }}>
+              <Search size={14} style={{ position: 'absolute', left: 10, top: 12, color: '#4F46E5' }} />
               <input 
                 type="text" 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
-                placeholder="Search catalog by name or SKU…" 
-                style={{ ...S.input, paddingLeft: 30, padding: '7px 10px 7px 30px', fontSize: 12 }} 
+                placeholder="⚡ Fast search name, SKU, HSN, barcode..." 
+                style={{ ...S.input, paddingLeft: 30, paddingRight: searchQuery ? 30 : 10, padding: '7px 30px 7px 30px', fontSize: 12, borderColor: '#818CF8' }} 
               />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
+                  <X size={14} />
+                </button>
+              )}
             </div>
           )}
         </div>
+
+        {/* ⚡ Fast Pick Quick Chips */}
+        {products.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, marginBottom: 10, scrollbarWidth: 'none' }}>
+            {filteredProducts.slice(0, 10).map(p => (
+              <button 
+                key={p.id}
+                type="button"
+                onClick={() => handleProductSelect(p.id)}
+                style={{ 
+                  background: selectedProdId === p.id ? '#4F46E5' : '#F1F5F9',
+                  color: selectedProdId === p.id ? '#FFFFFF' : '#334155',
+                  border: `1px solid ${selectedProdId === p.id ? '#4F46E5' : '#CBD5E1'}`,
+                  borderRadius: 8,
+                  padding: '5px 10px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                ⚡ {p.name} <span style={{ opacity: 0.8 }}>(₹{p.price})</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {isMobile ? (
           /* Mobile Stacked Input Layout */
