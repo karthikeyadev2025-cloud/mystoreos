@@ -22,7 +22,15 @@ export default function VoiceOrderInput({ onTranscript, placeholder = 'Tap mic a
     recog.onend = () => setListening(false);
     recog.onerror = (e) => {
       setListening(false);
-      if (e.error !== 'no-speech') {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        if (!window._micPermissionToastShown) {
+          window._micPermissionToastShown = true;
+          toast.error('🎙️ Microphone permission blocked. Tap lock 🔒 in address bar & allow Microphone!');
+          setTimeout(() => { window._micPermissionToastShown = false; }, 5000);
+        }
+        return;
+      }
+      if (e.error !== 'no-speech' && e.error !== 'aborted') {
         toast.error(`Voice error: ${e.error}`);
       }
     };

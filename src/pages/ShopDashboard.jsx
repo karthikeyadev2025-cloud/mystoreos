@@ -6893,15 +6893,12 @@ const ShopDashboard = () => {
                   <span style={{ fontSize: '11px', color: '#94A3B8' }}>Order FMCG supplies directly from your distributor</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => setShowVoiceRecorderModal(true)}
-                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
-                  >
-                    🎙️ Voice Order
-                  </button>
-                  <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak items..." />
-                </div>
+                <button
+                  onClick={() => setShowVoiceRecorderModal(true)}
+                  style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
+                >
+                  🎙️ AI Voice Order
+                </button>
               </div>
 
               {Object.keys(restockCart).length === 0 ? (

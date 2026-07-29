@@ -37,6 +37,13 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
       console.warn('Speech recognition error:', e);
       setRecording(false);
       if (timerRef.current) clearInterval(timerRef.current);
+      if (e?.error === 'not-allowed' || e?.error === 'service-not-allowed') {
+        if (!window._micPermissionToastShown) {
+          window._micPermissionToastShown = true;
+          toast.error('🎙️ Microphone permission blocked. Tap lock 🔒 in address bar & allow Microphone!');
+          setTimeout(() => { window._micPermissionToastShown = false; }, 5000);
+        }
+      }
     };
 
     recog.onresult = (e) => {
