@@ -45,13 +45,26 @@ export default function VoiceOrderInput({ onTranscript, placeholder = 'Tap mic a
     setRecognition(recog);
   }, [onTranscript]);
 
-  const toggleListening = () => {
+  const toggleListening = async () => {
     if (!supported) {
       return toast.warning('Voice recognition is not supported in this browser. Try Chrome or Edge.');
     }
     if (listening) {
       recognition?.stop();
     } else {
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop());
+        }
+      } catch (err) {
+        console.warn('Microphone permission error:', err);
+        if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+          toast.error('🎙️ Microphone permission denied. Please allow Microphone in your browser settings!');
+          return;
+        }
+      }
+
       try {
         recognition?.start();
       } catch (e) {

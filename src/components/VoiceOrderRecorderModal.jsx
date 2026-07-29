@@ -70,13 +70,33 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
     };
   }, [wholesaleCatalog]);
 
-  const toggleRecording = () => {
+  const requestMicrophonePermission = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+      }
+    } catch (err) {
+      console.warn('Microphone permission request error:', err);
+      if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+        toast.error('🎙️ Microphone permission denied. Please allow Microphone in your browser settings!');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const toggleRecording = async () => {
     if (recording) {
       try { recognition?.stop(); } catch (e) {}
       setRecording(false);
     } else {
       setTranscript('');
       setAnalyzedItems([]);
+      const permitted = await requestMicrophonePermission();
+      if (!permitted) return;
+
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         toast.warning('Voice recording is not supported in this browser. Type your order in the text box below!');
