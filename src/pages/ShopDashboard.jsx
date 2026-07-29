@@ -24,6 +24,7 @@ import { sharePdfNative, isNativeApp } from '../lib/capacitorInit';
 import Barcode from 'react-barcode';
 import BarcodeManager from '../components/BarcodeManager';
 import VoiceOrderInput from '../components/VoiceOrderInput';
+import VoiceOrderRecorderModal from '../components/VoiceOrderRecorderModal';
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { localDateStr } from '../lib/dateUtils';
 import { validateImageFile } from '../lib/fileValidation';
@@ -318,6 +319,28 @@ const ShopDashboard = () => {
   // SaaS Subscription States
   const [plans, setPlans] = useState([]);
   const [showPlanSelectorModal, setShowPlanSelectorModal] = useState(false);
+  const [showVoiceRecorderModal, setShowVoiceRecorderModal] = useState(false);
+
+  const handleConfirmVoiceOrder = async (analyzedItems) => {
+    if (!analyzedItems || analyzedItems.length === 0) return;
+    const orderItems = analyzedItems.map(i => ({
+      id: i.productId,
+      name: i.name,
+      price: i.price,
+      qty: i.qty,
+    }));
+    const total = analyzedItems.reduce((sum, i) => sum + (i.qty * i.price), 0);
+    const firstProd = wholesaleCatalog.find(p => p.id === analyzedItems[0].productId);
+
+    try {
+      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name, orderItems, total, firstProd?.distributorId || null), 'AI Voice Stock Order');
+      toast.success(`🚀 AI Voice Order Sent to Distributor! Total: ₹${total.toLocaleString('en-IN')}`);
+      setShowVoiceRecorderModal(false);
+      loadData();
+    } catch (e) {
+      toast.error(e.message || 'Could not send AI voice order');
+    }
+  };
   // Mobile bottom nav has no room for every tab desktop's sidebar shows.
   // Customers, Expenses, Membership, and Feedback had NO way to be
   // reached on mobile at all — not in the bottom nav, not via any
@@ -6834,12 +6857,20 @@ const ShopDashboard = () => {
 
             {/* Restock Basket Panel */}
             <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🛒 Restock Basket</h3>
-                <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak: chikki 2 jars, biscuit 10..." />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    onClick={() => setShowVoiceRecorderModal(true)}
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}
+                  >
+                    🎙️ Record Full AI Voice Order
+                  </button>
+                  <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak: chikki 2 jars, biscuit 10..." />
+                </div>
               </div>
               {Object.keys(restockCart).length === 0 ? (
-                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Speak items above or add bulk products from the catalog below.</p>
+                <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0 }}>Your basket is empty. Record full voice order above or add bulk products from the catalog below.</p>
               ) : (
                 <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -9092,6 +9123,14 @@ function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }
       <div style={{ marginTop: 16, padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 12, color: '#475569' }}>
         💡 Click any branch card above to switch to that branch and start billing, manage products, or view detailed reports.
       </div>
+
+      {showVoiceRecorderModal && (
+        <VoiceOrderRecorderModal 
+          wholesaleCatalog={wholesaleCatalog} 
+          onConfirmOrder={handleConfirmVoiceOrder} 
+          onClose={() => setShowVoiceRecorderModal(false)} 
+        />
+      )}
     </div>
   );
 }
