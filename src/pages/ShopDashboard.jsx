@@ -3084,11 +3084,11 @@ const ShopDashboard = () => {
     const items = cartEntries.map(([prodId, qty]) => {
       const prod = wholesaleCatalog.find(p => p.id === prodId);
       return {
-        id: prod.id,
-        name: prod.name,
-        price: prod.price,
+        id: prod?.id || prodId,
+        name: prod?.name || 'Wholesale Product',
+        price: prod?.price || 0,
         qty,
-        unit: prod.unit || null,
+        unit: prod?.unit || null,
       };
     });
 
@@ -3099,12 +3099,12 @@ const ShopDashboard = () => {
     const distributorId = firstProd?.distributorId || null;
 
     try {
-      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name, items, total, distributorId), 'Submit restock order');
+      await mustSucceed(() => api.placeStockOrder(targetShopId, shop.name || 'Retail Shop', items, total, distributorId), 'Submit restock order');
       toast.success("Restock order submitted to distributor!");
       setRestockCart({});
       loadData();
-    } catch {
-      toast.error("Failed to place restock order");
+    } catch (e) {
+      toast.error(e?.message || "Failed to place restock order");
     }
   };
 

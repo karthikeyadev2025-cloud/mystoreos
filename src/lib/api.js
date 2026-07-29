@@ -4082,13 +4082,33 @@ export const api = {
   },
 
   async placeStockOrder(shopId, shopName, items, total, distributorId = null) {
+    if (!shopId) throw new Error('Shop ID is required to place a stock order');
+    if (!items || items.length === 0) throw new Error('Restock order cart is empty');
+
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('stock_orders').insert({
-        shop_id: shopId, shop_name: shopName, items, total, status: 'pending',
-        distributor_id: distributorId || null,
-      }).select().maybeSingle();
+      const payload = {
+        shop_id: shopId,
+        shop_name: shopName || 'Retail Shop',
+        items,
+        total: Number(total) || 0,
+        status: 'pending',
+      };
+      if (distributorId) payload.distributor_id = distributorId;
+
+      const { data, error } = await supabase.from('stock_orders').insert(payload).select().maybeSingle();
       if (error) throw new Error(error.message);
-      return { id: data.id, shopId: data.shop_id, shopName: data.shop_name, items: data.items, total: data.total, status: data.status, date: data.created_at, distributorId: data.distributor_id };
+
+      const resRow = data || { id: 'so_' + generateId(), ...payload, created_at: new Date().toISOString() };
+      return {
+        id: resRow.id,
+        shopId: resRow.shop_id || shopId,
+        shopName: resRow.shop_name || shopName,
+        items: resRow.items || items,
+        total: resRow.total || total,
+        status: resRow.status || 'pending',
+        date: resRow.created_at || new Date().toISOString(),
+        distributorId: resRow.distributor_id || distributorId
+      };
     }
     const db = getDB();
     if (!db.stockOrders) db.stockOrders = [];
