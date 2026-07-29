@@ -218,12 +218,22 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
             {recording ? 'Speak continuously. Items and quantities will be analyzed live below.' : 'Supports English, Hindi & Telugu item names and quantities.'}
           </p>
 
-          {/* Realtime Live Transcript */}
-          {transcript && (
-            <div style={{ marginTop: 12, background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 10, padding: 10, fontSize: 12, color: '#334155', fontStyle: 'italic', textAlign: 'left' }}>
-              💬 <strong>Live Voice Transcript:</strong> "{transcript}"
-            </div>
-          )}
+          {/* Realtime Live Transcript / Manual Fallback Input */}
+          <div style={{ marginTop: 12 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 4, textAlign: 'left' }}>
+              💬 Live Transcript / Type Order (e.g. <i>"Chikki 2 jars, Biscuit 10 cases"</i>):
+            </label>
+            <input
+              type="text"
+              value={transcript}
+              onChange={e => {
+                setTranscript(e.target.value);
+                analyzeVoiceText(e.target.value);
+              }}
+              placeholder="Speak using microphone above, or type items here..."
+              style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box', fontWeight: 600 }}
+            />
+          </div>
         </div>
 
         {/* AI Analyzed Items Re-verification Table */}
