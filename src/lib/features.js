@@ -44,6 +44,20 @@ export const DIST_PLAN_CAPS = {
   },
 };
 
+export function normalizeDistTier(t) {
+  if (!t) return 'basic_distributor';
+  const lower = String(t).toLowerCase().trim();
+  if (lower === 'enterprise' || lower === 'enterprise_distributor') return 'enterprise_distributor';
+  if (lower === 'pro' || lower === 'pro_distributor') return 'pro_distributor';
+  if (lower === 'basic' || lower === 'basic_distributor') return 'basic_distributor';
+  return lower;
+}
+
+// Add aliases so 'enterprise', 'pro', and 'basic' resolve seamlessly
+DIST_PLAN_CAPS.enterprise = DIST_PLAN_CAPS.enterprise_distributor;
+DIST_PLAN_CAPS.pro = DIST_PLAN_CAPS.pro_distributor;
+DIST_PLAN_CAPS.basic = DIST_PLAN_CAPS.basic_distributor;
+
 export const DIST_FEATURE_PLAN_LABEL = {
   routePlanner: 'Pro Distributor',
   bulkOrderCSV: 'Pro Distributor',
@@ -61,31 +75,15 @@ export const DIST_FEATURE_PLAN_LABEL = {
 export function getDistCaps(user) {
   if (!user) return DIST_PLAN_CAPS.basic_distributor;
   if (user.role === 'admin') return DIST_PLAN_CAPS.enterprise_distributor;
-  // A staff member's own record carries no real plan — it sits at the
-  // database default. Field reps must inherit their employer's plan,
-  // otherwise a rep working for an Enterprise distributor gets capped
-  // at Basic and locked out of the screens their employer pays for.
-  // Only applies to staff; the owner path below is untouched.
+
   if (user.role === 'staff' && user.ownerRole === 'distributor') {
     if (user.ownerSubscription === 'trial' || user.ownerSubscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
-    const ownerTier = user.ownerDistributorPlanTier || 'basic_distributor';
+    const ownerTier = normalizeDistTier(user.ownerDistributorPlanTier);
     return DIST_PLAN_CAPS[ownerTier] ?? DIST_PLAN_CAPS.basic_distributor;
   }
-  // Same fix as getCaps() below: an ACTIVE trial always grants full
-  // access, regardless of whatever distributorPlanTier happens to be
-  // set to. auth-register/api.js set distributorPlanTier to its
-  // database default (basic_distributor) at signup — that's the tier
-  // the account falls back to once the trial ends, not a cap that
-  // should apply while subscription is still 'trial'.
-  // Distributors are assigned subscription = 'dist_trial' at signup,
-  // NOT 'trial' (that's the shop value). This only checked 'trial', so
-  // a distributor in their own 15-day trial fell through to
-  // distributorPlanTier — which defaults to basic_distributor — and got
-  // Basic caps. They'd be told "Field Distribution is a Pro feature"
-  // during the very trial meant to show it to them. Both values now
-  // grant full trial access.
+
   if (user.subscription === 'trial' || user.subscription === 'dist_trial') return DIST_PLAN_CAPS.trial;
-  const tier = user.distributorPlanTier || 'basic_distributor';
+  const tier = normalizeDistTier(user.distributorPlanTier);
   return DIST_PLAN_CAPS[tier] ?? DIST_PLAN_CAPS.basic_distributor;
 }
 

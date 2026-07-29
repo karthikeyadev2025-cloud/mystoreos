@@ -620,7 +620,7 @@ const DistributorDashboard = () => {
     // with no client-side ownership filter anywhere to hide them.
     const [
       creditsRes, shopsRes, ordersRes, productsRes, plansRes, pricingRes,
-      staffRes, branchesRes, apiKeyRes, deviceRes, settingsRes,
+      staffRes, branchesRes, apiKeyRes, deviceRes, settingsRes, profileRes,
     ] = await Promise.all([
       safe(() => api.getDistCredits(user.id)),
       safe(() => api.getMyRetailShops(user.id)),
@@ -628,15 +628,17 @@ const DistributorDashboard = () => {
       safe(() => api.getDistributorProducts(user.id)),
       safe(() => api.getDistributorSubscriptionPlans()),
       safe(() => api.getPricing()),
-      // Staff accounts — explicitly promised on the Enterprise
-      // distributor plan but didn't work for any distributor at all
-      // until the add-staff authorization logic was generalised.
       safe(() => api.getShopStaff(user.id)),
       safe(() => api.getOwnedDistributorBranches(user.id)),
       safe(() => api.getDistributorApiKeyInfo(user.id)),
       safe(() => api.getActiveDeviceCount(user.id)),
       safe(() => api.getSettings()),
+      safe(() => api.getProfile(user.id)),
     ]);
+
+    if (profileRes && login && (profileRes.distributorPlanTier !== user.distributorPlanTier || profileRes.subscription !== user.subscription)) {
+      login({ ...user, ...profileRes });
+    }
 
     setCredits(creditsRes);
     setShops(shopsRes);

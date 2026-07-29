@@ -125,7 +125,7 @@ const toUser = (row) => row ? ({
   planExpiresAt: row.plan_expires_at || null,
   trialStartedAt: row.trial_started_at || null,
   createdAt: row.created_at || null,
-  distributorPlanTier: row.distributor_plan_tier || 'basic_distributor',
+  distributorPlanTier: String(row.distributor_plan_tier || row.subscription_tier || 'basic_distributor').toLowerCase().includes('enterprise') ? 'enterprise_distributor' : (String(row.distributor_plan_tier || row.subscription_tier || '').toLowerCase().includes('pro') ? 'pro_distributor' : 'basic_distributor'),
   distributorPlanExpiresAt: row.distributor_plan_expires_at || null,
   distributorTrialStartedAt: row.distributor_trial_started_at || null,
   homeServiceAddonExpiresAt: row.home_service_addon_expires_at || null,
@@ -4841,7 +4841,19 @@ export const api = {
   },
 
   async updateDistributorSubscription(userId, tier, expiresAt) {
-    const updateObj = { distributor_plan_tier: tier, distributor_plan_expires_at: expiresAt || null };
+    let normTier = 'enterprise_distributor';
+    const lower = String(tier || '').toLowerCase();
+    if (lower.includes('enterprise')) normTier = 'enterprise_distributor';
+    else if (lower.includes('pro')) normTier = 'pro_distributor';
+    else if (lower.includes('basic')) normTier = 'basic_distributor';
+    else normTier = tier;
+
+    const updateObj = { 
+      distributor_plan_tier: normTier, 
+      subscription_tier: normTier,
+      subscription: 'active',
+      distributor_plan_expires_at: expiresAt || null 
+    };
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').update(updateObj).eq('id', userId).select('id').maybeSingle();
       if (error) throw new Error(error.message);
@@ -4850,7 +4862,13 @@ export const api = {
     }
     const db = getDB();
     const u = db.users.find(x => x.id === userId);
-    if (u) { u.distributorPlanTier = tier; u.distributorPlanExpiresAt = expiresAt || null; saveDB(db); }
+    if (u) { 
+      u.distributorPlanTier = normTier; 
+      u.subscriptionTier = normTier;
+      u.subscription = 'active';
+      u.distributorPlanExpiresAt = expiresAt || null; 
+      saveDB(db); 
+    }
   },
 
   async updateUserRole(userId, role) {
