@@ -1582,6 +1582,39 @@ const DistributorDashboard = () => {
             </div>
           )}
 
+          {/* Distributor Low Stock & Out of Stock Inventory Alert Banner */}
+          {(() => {
+            const outOfStockItems = wholesaleProducts.filter(p => Number(p.stock || 0) <= 0);
+            const lowStockItems = wholesaleProducts.filter(p => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10));
+            if (outOfStockItems.length === 0 && lowStockItems.length === 0) return null;
+            return (
+              <div style={{ background: '#FEF2F2', border: '2px solid #FCA5A5', borderRadius: 14, padding: '16px', marginBottom: 18, boxShadow: '0 4px 14px rgba(239,68,68,0.15)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#991B1B', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    ⚠️ INVENTORY ALERT: {outOfStockItems.length > 0 ? `${outOfStockItems.length} ITEMS OUT OF STOCK!` : ''} {lowStockItems.length > 0 ? `${lowStockItems.length} Items Low Stock` : ''}
+                  </div>
+                  <button onClick={() => setActiveTab('catalog')} style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                    📦 Manage Stock
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {outOfStockItems.map(item => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: '#FFFFFF', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                      <span style={{ fontWeight: 800, color: '#991B1B' }}>❌ {item.name} — STOCK ENDED (0 units)</span>
+                      <span style={{ color: '#DC2626', fontWeight: 900 }}>OUT OF STOCK</span>
+                    </div>
+                  ))}
+                  {lowStockItems.map(item => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: '#FFFFFF', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                      <span style={{ fontWeight: 700, color: '#B45309' }}>⚠️ {item.name} — LOW STOCK ({item.stock} left, min: {item.min_stock || 10})</span>
+                      <span style={{ color: '#D97706', fontWeight: 800 }}>Low Stock</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* The most-used action in a real distribution business: taking
               an order at the counter or on the phone. Sits above the
               dashboard rather than buried in a tab because it's what a

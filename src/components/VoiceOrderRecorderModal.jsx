@@ -57,21 +57,60 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
 
     setRecognition(recog);
 
+    // Auto-start recording immediately when modal opens
+    try {
+      recog.start();
+    } catch (err) {
+      console.warn('Auto speech start:', err);
+    }
+
     return () => {
+      try { recog.stop(); } catch (err) {}
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [wholesaleCatalog]);
 
   const toggleRecording = () => {
     if (recording) {
-      recognition?.stop();
+      try { recognition?.stop(); } catch (e) {}
+      setRecording(false);
     } else {
       setTranscript('');
       setAnalyzedItems([]);
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast.warning('Voice recording is not supported in this browser. Type your order in the text box below!');
+        return;
+      }
       try {
-        recognition?.start();
+        if (recognition) {
+          recognition.start();
+        } else {
+          const recog = new SpeechRecognition();
+          recog.continuous = true;
+          recog.interimResults = true;
+          recog.lang = 'en-IN';
+          recog.onstart = () => {
+            setRecording(true);
+            setRecordingTime(0);
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+          };
+          recog.onend = () => setRecording(false);
+          recog.onerror = (e) => setRecording(false);
+          recog.onresult = (e) => {
+            let currentText = '';
+            for (let i = 0; i < e.results.length; i++) {
+              currentText += e.results[i][0].transcript + ' ';
+            }
+            setTranscript(currentText.trim());
+            analyzeVoiceText(currentText.trim());
+          };
+          setRecognition(recog);
+          recog.start();
+        }
       } catch (e) {
-        console.warn(e);
+        console.warn('Speech toggle error:', e);
       }
     }
   };
