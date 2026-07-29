@@ -6882,59 +6882,128 @@ const ShopDashboard = () => {
             )}
 
             {/* Restock Basket Panel */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#fff' }}>🛒 Restock Basket</h3>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button 
-                    onClick={() => setShowVoiceRecorderModal(true)}
-                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 12px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}
-                  >
-                    🎙️ Record Full AI Voice Order
-                  </button>
-                  <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak: chikki 2 jars, biscuit 10..." />
+            <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '2px solid #334155', borderRadius: '16px', padding: '18px', marginBottom: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+              
+              {/* Cart Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#FFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    🛒 Restock Basket ({Object.keys(restockCart).length} SKUs)
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>Order FMCG supplies directly from your distributor</span>
                 </div>
-              </div>
-              {Object.keys(restockCart).length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                  <p style={{ color: '#94A3B8', fontSize: '13px', margin: '0 0 12px' }}>Your basket is empty. Record full voice order below or add bulk products from the catalog.</p>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => setShowVoiceRecorderModal(true)}
-                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(16,185,129,0.35)', width: '100%' }}
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
+                  >
+                    🎙️ Voice Order
+                  </button>
+                  <VoiceOrderInput onTranscript={handleShopVoiceRestockOrder} placeholder="Speak items..." />
+                </div>
+              </div>
+
+              {Object.keys(restockCart).length === 0 ? (
+                <div style={{ background: '#0F172A', border: '2px dashed #334155', borderRadius: '12px', padding: '24px 16px', textAlign: 'center' }}>
+                  <p style={{ color: '#94A3B8', fontSize: '13px', margin: '0 0 14px' }}>Your restock basket is empty. Record full voice order below or add bulk products from the catalog.</p>
+                  <button
+                    onClick={() => setShowVoiceRecorderModal(true)}
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', width: '100%' }}
                   >
                     🎙️ Tap to Speak &amp; Order Supplies by Voice
                   </button>
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                  {/* Cart Item Cards (Editable) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                     {Object.entries(restockCart).map(([prodId, qty]) => {
                       const prod = wholesaleCatalog.find(p => p.id === prodId);
                       if (!prod) return null;
+                      const lineTotal = prod.price * qty;
+
                       return (
-                        <div key={prodId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#CBD5E1' }}>
-                          <span>{prod.name} (x{qty})</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontWeight: 'bold', color: '#22C55E', marginRight: '8px' }}>₹{prod.price * qty}</span>
-                            <button onClick={() => handleRestockQtyChange(prodId, -1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 24, height: 24, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                            <button onClick={() => handleRestockQtyChange(prodId, 1)} style={{ background: '#334155', border: 'none', color: '#fff', width: 24, height: 24, borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                        <div key={prodId} style={{ background: '#0F172A', border: '1px solid #334155', borderRadius: '12px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#FFF' }}>{prod.name}</div>
+                            <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                              ₹{prod.price} / unit {prod.packSize ? `· (${prod.packSize}/box)` : ''}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            {/* Quantity Stepper */}
+                            <div style={{ display: 'flex', alignItems: 'center', background: '#1E293B', border: '1px solid #475569', borderRadius: '8px', overflow: 'hidden' }}>
+                              <button
+                                onClick={() => handleRestockQtyChange(prodId, -1)}
+                                style={{ background: '#334155', border: 'none', color: '#FFF', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              >
+                                -
+                              </button>
+                              <input
+                                type="number"
+                                value={qty}
+                                onChange={e => {
+                                  const val = parseInt(e.target.value) || 0;
+                                  const diff = val - qty;
+                                  if (diff !== 0) handleRestockQtyChange(prodId, diff);
+                                }}
+                                style={{ width: 44, textAlign: 'center', background: 'transparent', border: 'none', color: '#FFF', fontWeight: 800, fontSize: 13, outline: 'none' }}
+                              />
+                              <button
+                                onClick={() => handleRestockQtyChange(prodId, 1)}
+                                style={{ background: '#334155', border: 'none', color: '#FFF', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            <div style={{ fontSize: '15px', fontWeight: '900', color: '#22C55E', minWidth: 60, textAlign: 'right' }}>
+                              ₹{lineTotal.toLocaleString('en-IN')}
+                            </div>
+
+                            <button
+                              onClick={() => handleRestockQtyChange(prodId, -qty)}
+                              style={{ background: 'rgba(239,68,68,0.15)', border: 'none', color: '#EF4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              title="Remove item"
+                            >
+                              <X size={16} />
+                            </button>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px', marginBottom: '12px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Basket Total</span>
-                    <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#FBBF24' }}>
-                      ₹{Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
-                        const prod = wholesaleCatalog.find(p => p.id === prodId);
-                        return sum + (prod ? prod.price * qty : 0);
-                      }, 0)}
-                    </span>
+
+                  {/* Cart Summary & Order Action */}
+                  <div style={{ borderTop: '1px solid #334155', paddingTop: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div>
+                        <div style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700 }}>Total Basket Amount</div>
+                        <div style={{ fontSize: '20px', fontWeight: '900', color: '#FBBF24' }}>
+                          ₹{Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
+                            const prod = wholesaleCatalog.find(p => p.id === prodId);
+                            return sum + (prod ? prod.price * qty : 0);
+                          }, 0).toLocaleString('en-IN')}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setShowVoiceRecorderModal(true)}
+                        style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', color: '#10B981', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      >
+                        🎙️ Record More Items
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={handlePlaceRestockOrder}
+                      style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', boxShadow: '0 6px 20px rgba(34,197,94,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                      🚀 Submit Stock Order to Distributor
+                    </button>
                   </div>
-                  <button onClick={handlePlaceRestockOrder} style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
-                    📦 Order Supplies on Credit
-                  </button>
                 </>
               )}
             </div>
