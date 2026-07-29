@@ -25,6 +25,7 @@ import {
   LogOut,
   Plus,
   Lock,
+  Key,
   TrendingUp,
   Map,
   Settings,
@@ -1470,6 +1471,40 @@ const DistributorDashboard = () => {
 
         {/* Main Content Pane */}
         <div className="fluid-dashboard-main">
+          {/* Prominent Distributor Code Banner */}
+          <div style={{ background: 'linear-gradient(135deg, #1E1B4B, #312E81)', color: '#FFFFFF', borderRadius: '14px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 4px 15px rgba(49,46,129,0.25)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Key size={22} style={{ color: '#818CF8' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#C7D2FE', fontWeight: 700 }}>Your Unique Distributor Code</div>
+                <div style={{ fontSize: '20px', fontWeight: 900, fontFamily: 'monospace', letterSpacing: '1.5px', color: '#FDE047' }}>
+                  {user?.publicCode || user?.gstin || (user?.phone ? ('DIST-' + user.phone) : ('DIST-' + (user?.id || '').slice(0, 8).toUpperCase()))}
+                </div>
+                <div style={{ fontSize: '11px', color: '#A5B4FC' }}>Share this code with shopkeepers to link accounts or search your catalog</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  const code = user?.publicCode || user?.gstin || (user?.phone ? ('DIST-' + user.phone) : ('DIST-' + (user?.id || '').slice(0, 8).toUpperCase()));
+                  navigator.clipboard?.writeText(code);
+                  toast.success('Distributor Code copied!');
+                }}
+                style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Copy size={15} /> Copy Code
+              </button>
+              <button
+                onClick={handleCopyPublicCatalogLink}
+                style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Share2 size={15} /> Share Web Catalog Link
+              </button>
+            </div>
+          </div>
           
           {/* Notifications Banner Overlay inside Desktop view */}
           {showNotifications && (
