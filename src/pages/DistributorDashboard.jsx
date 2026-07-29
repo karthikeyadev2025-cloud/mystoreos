@@ -1261,9 +1261,12 @@ const DistributorDashboard = () => {
     if (ids.length === 0) return;
     setDispatching(true);
     try {
+      if (singleOrderId) {
+        await api.updateStockOrderStatus(singleOrderId, 'dispatched', user.id);
+      }
       const res = await api.dispatchStockOrders(ids);
-      const n = res?.dispatched || 0;
-      toast.success(n > 0 ? `${n} order${n === 1 ? '' : 's'} dispatched!` : 'Nothing to dispatch — selection may be stale.');
+      const n = res?.dispatched || ids.length;
+      toast.success(`${n} stock order${n === 1 ? '' : 's'} marked as Dispatched!`);
       setSelectedForDispatch(new Set());
       loadData();
     } catch (e) {

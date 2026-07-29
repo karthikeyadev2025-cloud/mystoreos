@@ -19,6 +19,7 @@ import fieldApi from '../../lib/fieldApi';
 import { distributorIdOf } from '../../lib/fieldIdentity';
 import { printInvoice } from '../../lib/invoicePrint';
 import { UNIT_SUFFIX } from '../../lib/units';
+import VoiceOrderInput from '../../components/VoiceOrderInput';
 
 export default function DirectSale() {
   const { user } = useAuth();
@@ -172,6 +173,35 @@ export default function DirectSale() {
       toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
     }
   }, [searchQuery, products]);
+
+  const handleVoiceTranscript = (text) => {
+    if (!text) return;
+    setSearchQuery(text);
+    const lower = text.toLowerCase();
+
+    const shopMatch = shops.find(s => lower.includes(s.name?.toLowerCase()));
+    if (shopMatch) {
+      setShopId(shopMatch.id);
+      setShopSearch(shopMatch.name);
+      toast.info(`🎤 Selected shop: ${shopMatch.name}`);
+    }
+
+    const prodMatch = products.find(p => lower.includes(p.name?.toLowerCase()));
+    if (prodMatch) {
+      handleProductSelect(prodMatch.id);
+      toast.info(`🎤 Selected product: ${prodMatch.name}`);
+    }
+
+    const numMatch = text.match(/\d+/);
+    if (numMatch) {
+      const num = numMatch[0];
+      if (lower.includes('box') || lower.includes('case') || lower.includes('pack')) {
+        setEntryBoxes(num);
+      } else {
+        setEntryLooseUnits(num);
+      }
+    }
+  };
 
   const handleProductSelect = (prodId) => {
     setSelectedProdId(prodId);
@@ -639,9 +669,12 @@ export default function DirectSale() {
       {/* SECTION 2: Product Addition & FMCG Pack Size Billing Form */}
       <div style={S.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-          <label style={{ ...S.label, margin: 0 }}>Add Product Items</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label style={{ ...S.label, margin: 0 }}>Add Product Items</label>
+            <VoiceOrderInput onTranscript={handleVoiceTranscript} />
+          </div>
           {products.length > 0 && (
-            <div style={{ position: 'relative', width: isMobile ? '100%' : 320 }}>
+            <div style={{ position: 'relative', width: isMobile ? '100%' : 300 }}>
               <Search size={14} style={{ position: 'absolute', left: 10, top: 12, color: '#4F46E5' }} />
               <input 
                 type="text" 
