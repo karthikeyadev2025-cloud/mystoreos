@@ -4984,6 +4984,27 @@ export const api = {
     if (u) { u.status = 'active'; saveDB(db); }
   },
 
+  // Explicit status setter for the admin UI. suspendUser above sets
+  // status='pending' which sends the account back to the pre-approval
+  // queue — semantically different from 'suspended' which the login
+  // guard at auth-login/index.ts explicitly blocks. Admin actions
+  // that want the login-blocking behaviour should call this with
+  // 'suspended', not suspendUser.
+  async setUserStatus(userId, status) {
+    if (!['active', 'suspended', 'pending'].includes(status)) {
+      throw new Error(`Invalid status: ${status}`);
+    }
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').update({ status }).eq('id', userId).select('id').maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error('User not found or status change not permitted.');
+      return;
+    }
+    const db = getDB();
+    const u = db.users.find(x => x.id === userId);
+    if (u) { u.status = status; saveDB(db); }
+  },
+
   async bulkUpdateSubscription(userIds, tier) {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('users').update({ subscription_tier: tier }).in('id', userIds).select('id');
