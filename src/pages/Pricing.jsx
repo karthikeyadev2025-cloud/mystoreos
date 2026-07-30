@@ -147,7 +147,7 @@ function Cell({ val }) {
   return <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '13px' }}>{val}</span>;
 }
 
-function PlanCard({ plan, idx, popular, onCta, cycle = 'monthly', pricing = null, isShop = true }) {
+function PlanCard({ plan, idx, popular, onCta, cycle = 'monthly', pricing = null }) {
   const TIER_STYLES = [
     { border: 'rgba(100,116,139,0.5)', glow: '' },
     { border: '#4F46E5', glow: '0 0 40px rgba(79,70,229,0.25)' },

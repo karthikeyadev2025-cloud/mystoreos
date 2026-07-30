@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, Check, X, ShoppingCart, Calendar, CreditCard, UserPlus, Info, AlertTriangle } from 'lucide-react';
+import { Bell, X, ShoppingCart, Calendar, CreditCard, UserPlus, Info, AlertTriangle } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 

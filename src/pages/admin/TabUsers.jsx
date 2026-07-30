@@ -64,7 +64,7 @@ export default function TabUsers() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { queueMicrotask(load); }, []);
 
   const suspend = async (u) => {
     setBusy(prev => ({ ...prev, [u.id]: true }));

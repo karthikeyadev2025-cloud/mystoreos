@@ -24,7 +24,7 @@ export async function setStatusBarDark() {
   try {
     await StatusBar.setStyle({ style: Style.Dark });
     if (isAndroid()) await StatusBar.setBackgroundColor({ color: '#0f172a' });
-  } catch {}
+  } catch { /* status bar API unavailable on this platform — non-critical */ }
 }
 
 export async function setStatusBarLight() {
@@ -32,7 +32,7 @@ export async function setStatusBarLight() {
   try {
     await StatusBar.setStyle({ style: Style.Light });
     if (isAndroid()) await StatusBar.setBackgroundColor({ color: '#ffffff' });
-  } catch {}
+  } catch { /* status bar API unavailable on this platform — non-critical */ }
 }
 
 // ── Splash Screen ─────────────────────────────────────────────────────────────
@@ -40,32 +40,32 @@ export async function hideSplash() {
   if (!isNative()) return;
   try {
     await SplashScreen.hide({ fadeOutDuration: 300 });
-  } catch {}
+  } catch { /* splash screen API unavailable — non-critical */ }
 }
 
 // ── Haptics ───────────────────────────────────────────────────────────────────
 export async function hapticSuccess() {
   if (!isNative()) return;
-  try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
+  try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch { /* haptics unavailable — non-critical */ }
 }
 export async function hapticLight() {
   if (!isNative()) return;
-  try { await Haptics.impact({ style: ImpactStyle.Light }); } catch {}
+  try { await Haptics.impact({ style: ImpactStyle.Light }); } catch { /* haptics unavailable — non-critical */ }
 }
 export async function hapticError() {
   if (!isNative()) return;
-  try { await Haptics.vibrate({ duration: 250 }); } catch {}
+  try { await Haptics.vibrate({ duration: 250 }); } catch { /* haptics unavailable — non-critical */ }
 }
 export async function hapticHeavy() {
   if (!isNative()) return;
-  try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch {}
+  try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch { /* haptics unavailable — non-critical */ }
 }
 
 // ── Native Share ──────────────────────────────────────────────────────────────
 export async function nativeShare(title, text, url, files) {
   if (!isNative()) return false;
   try {
-    await Share.share({ title, text, url, dialogTitle: 'Share Bill' });
+    await Share.share({ title, text, url, files, dialogTitle: 'Share Bill' });
     return true;
   } catch { return false; }
 }
@@ -73,7 +73,7 @@ export async function nativeShare(title, text, url, files) {
 // ── Browser ───────────────────────────────────────────────────────────────────
 export async function openUrl(url) {
   if (isNative()) {
-    try { await Browser.open({ url, presentationStyle: 'popover' }); return; } catch {}
+    try { await Browser.open({ url, presentationStyle: 'popover' }); return; } catch { /* fall through to window.open below */ }
   }
   window.open(url, '_blank');
 }
@@ -105,7 +105,7 @@ export function onNetworkChange(cb) {
 
 // ── Preferences (persistent key-value) ───────────────────────────────────────
 export async function setPref(key, value) {
-  try { await Preferences.set({ key, value: JSON.stringify(value) }); } catch {}
+  try { await Preferences.set({ key, value: JSON.stringify(value) }); } catch { /* preferences API unavailable — non-critical */ }
 }
 export async function getPref(key, fallback = null) {
   try {
@@ -114,7 +114,7 @@ export async function getPref(key, fallback = null) {
   } catch { return fallback; }
 }
 export async function removePref(key) {
-  try { await Preferences.remove({ key }); } catch {}
+  try { await Preferences.remove({ key }); } catch { /* preferences API unavailable — non-critical */ }
 }
 
 // ── App Events ────────────────────────────────────────────────────────────────

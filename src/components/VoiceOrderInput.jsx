@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2 } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-export default function VoiceOrderInput({ onTranscript, placeholder = 'Tap mic and speak...' }) {
+export default function VoiceOrderInput({ onTranscript }) {
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [supported, setSupported] = useState(true);
@@ -10,7 +10,7 @@ export default function VoiceOrderInput({ onTranscript, placeholder = 'Tap mic a
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setSupported(false);
+      queueMicrotask(() => setSupported(false));
       return;
     }
     const recog = new SpeechRecognition();
@@ -42,7 +42,7 @@ export default function VoiceOrderInput({ onTranscript, placeholder = 'Tap mic a
       }
     };
 
-    setRecognition(recog);
+    queueMicrotask(() => setRecognition(recog));
   }, [onTranscript]);
 
   const toggleListening = async () => {

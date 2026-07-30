@@ -1,5 +1,4 @@
-import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users, LogOut, TrendingUp, Coins, IndianRupee } from 'lucide-react';
-import { useI18n } from '../lib/i18n';
+import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users, LogOut } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 import { toast } from 'react-toastify';
 

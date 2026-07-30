@@ -52,10 +52,10 @@ export default async function handler(req, res) {
   const host = (req.headers && req.headers.host) || 'mystoreos.in';
   const shopId = ((req.query && req.query.shopId) || '').toString();
 
-  let baseHtml = '';
+  let baseHtml;
   try {
     baseHtml = await getBaseHtml(host);
-  } catch (e) {
+  } catch (_e) {
     // Extremely rare (origin can't serve its own index.html). Minimal safe page.
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send('<!doctype html><meta http-equiv="refresh" content="0;url=/"><title>MyStore OS</title>');
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
         return;
       }
     }
-  } catch (e) {
+  } catch (_e) {
     // fall through to the unmodified SPA HTML
   }
 

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
-import { Plus, Edit2, Trash2, Check, X, Clock, Calendar, Phone, User, ChevronLeft, ChevronRight, Scissors } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, Clock, Calendar, Phone, User, Scissors } from 'lucide-react';
 import CompleteBillModal from './CompleteBillModal';
 import { useServiceFeatures } from '../hooks/useServiceFeatures';
-import FeatureUpgradePrompt, { UpgradeChip } from './FeatureUpgradePrompt';
+import FeatureUpgradePrompt from './FeatureUpgradePrompt';
 import StaffManagement from './StaffManagement';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
 import { useAuth } from '../hooks/useAuth';
@@ -468,7 +468,6 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   const [recCount, setRecCount]           = useState(4);
 
   const selectedService = services.find(s => s.id === serviceId);
-  const selectedProvider = providers.find(p => p.id === providerId);
 
   useEffect(() => {
     if (providerId) {
@@ -476,7 +475,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         .then(avail => { setDayAvailability(avail); setBookedRanges(avail.bookedRanges || []); })
         .catch(() => setBookedRanges([]));
     } else {
-      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
+      queueMicrotask(() => setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false }));
       api.getBookedSlots(shopId, date).then(setBookedRanges).catch(() => setBookedRanges([]));
     }
   }, [shopId, date, providerId]);
@@ -710,20 +709,19 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   );
 }
 
-export default function DesktopBookings({ shopId, shopName, initialTab = 'appointments', sysSettings, onAddonPurchased }) {
+export default function DesktopBookings({ shopId, initialTab = 'appointments', sysSettings, onAddonPurchased }) {
   const features = useServiceFeatures();
   const [tab, setTab] = useState(initialTab); // 'appointments' | 'services' | 'staff'
   // If the parent switches the top-level sidebar entry (e.g. Services →
   // Staff), keep the internal sub-tab in sync. useState only reads the
   // initial value once, so without this, clicking a different sidebar
   // entry would land back on whatever sub-tab was last selected.
-  useEffect(() => { setTab(initialTab); }, [initialTab]);
+  useEffect(() => { queueMicrotask(() => setTab(initialTab)); }, [initialTab]);
   const [services, setServices] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [filterDate, setFilterDate] = useState(new Date().toISOString().slice(0, 10));
   const [filterStatus, setFilterStatus] = useState('');
   const [viewMode, setViewMode] = useState('today'); // 'today' | 'upcoming' | 'all'
   const [completingAppointment, setCompletingAppointment] = useState(null);
@@ -741,11 +739,11 @@ export default function DesktopBookings({ shopId, shopName, initialTab = 'appoin
       setServices(svcs);
       setAppointments(appts);
       setProviders(provs || []);
-    } catch (e) { toast.error('Failed to load bookings'); }
+    } catch (_e) { toast.error('Failed to load bookings'); }
     finally { setLoading(false); }
   }, [shopId]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { queueMicrotask(loadData); }, [loadData]);
 
   // Was entirely missing: no realtime subscription and no polling meant
   // a new booking from the public storefront (or a customer cancelling/

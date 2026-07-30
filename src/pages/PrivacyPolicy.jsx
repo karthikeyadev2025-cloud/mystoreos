@@ -1,4 +1,5 @@
-import LegalDoc, { docStyles as S } from './_LegalDoc';
+import LegalDoc from './_LegalDoc';
+import { docStyles as S } from './_legalDocStyles';
 
 // Every word of the original policy is preserved. Only the shell
 // (nav, header, section chrome) changed — the legal text itself is a

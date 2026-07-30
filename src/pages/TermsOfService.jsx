@@ -1,4 +1,5 @@
-import LegalDoc, { docStyles as S } from './_LegalDoc';
+import LegalDoc from './_LegalDoc';
+import { docStyles as S } from './_legalDocStyles';
 
 const SECTIONS = [
   {

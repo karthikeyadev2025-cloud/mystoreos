@@ -6,7 +6,6 @@ import { useSiteConfig } from '../lib/siteConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff, ArrowLeft, Zap, ShieldCheck } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
-import MLogo from '../components/MLogo';
 import { sendPhoneOTP, resetRecaptcha, signOutFirebasePhoneSession } from '../lib/firebasePhoneAuth';
 
 const CSS = `
@@ -333,7 +332,7 @@ const Register = () => {
       } else {
         sessionStorage.removeItem('mystore_oauth_claim');
       }
-    } catch {}
+    } catch { /* sessionStorage unavailable — non-critical */ }
     try {
       await api.signInWithGoogle();
       // Browser is redirecting to Google — nothing else to do here.

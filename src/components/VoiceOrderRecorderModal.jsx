@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, CheckCircle2, AlertCircle, ShoppingCart, Trash2, X, RefreshCw, Volume2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Mic, MicOff, ShoppingCart, Trash2, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const TELUGU_NUMBERS = {
@@ -26,6 +26,83 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
   const [recognition, setRecognition] = useState(null);
   const [voiceLang, setVoiceLang] = useState('te-IN'); // Default: Telugu (India)
   const timerRef = useRef(null);
+
+  // AI Multi-Item Sentence & Item Parser with Telugu Support
+  const analyzeVoiceText = useCallback((text) => {
+    if (!text || !wholesaleCatalog.length) return;
+
+    // Split speech into phrases by commas, "and", "లేదా", or full stops
+    const phrases = text.split(/(?:,|\band\b|\bplus\b|\.|\n|మరియు|కూడా)+/i).map(p => p.trim()).filter(Boolean);
+    const results = [];
+
+    phrases.forEach(phrase => {
+      const lower = phrase.toLowerCase();
+
+      // Find numbers in phrase (digits or Telugu words)
+      let qtyVal = 1;
+      const numMatch = lower.match(/\d+/);
+      if (numMatch) {
+        qtyVal = parseInt(numMatch[0]);
+      } else {
+        Object.entries(TELUGU_NUMBERS).forEach(([word, val]) => {
+          if (lower.includes(word)) qtyVal = val;
+        });
+      }
+
+      const isBox = lower.includes('box') || lower.includes('case') || lower.includes('pack') ||
+                    lower.includes('jarlu') || lower.includes('petti') || lower.includes('పెట్టె') ||
+                    lower.includes('ప్యాకెట్') || lower.includes('మూట') || lower.includes('కాటా');
+
+      // Match against wholesale catalog
+      let bestMatch = null;
+      let highestScore = 0;
+
+      wholesaleCatalog.forEach(prod => {
+        const prodName = prod.name.toLowerCase();
+        const words = prodName.split(/\s+/);
+
+        let score = 0;
+        if (lower.includes(prodName)) score = 100;
+        else {
+          words.forEach(w => {
+            if (w.length > 2 && lower.includes(w)) score += 30;
+          });
+        }
+
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = prod;
+        }
+      });
+
+      if (bestMatch && highestScore >= 30) {
+        const packSize = bestMatch.packSize || 1;
+        const totalUnits = isBox ? (qtyVal * packSize) : qtyVal;
+
+        // Check if already in results
+        const existingIdx = results.findIndex(r => r.productId === bestMatch.id);
+        if (existingIdx >= 0) {
+          results[existingIdx].qty = totalUnits;
+          results[existingIdx].boxes = isBox ? qtyVal : Math.floor(totalUnits / packSize);
+          results[existingIdx].lineTotal = totalUnits * bestMatch.price;
+        } else {
+          results.push({
+            productId: bestMatch.id,
+            name: bestMatch.name,
+            price: bestMatch.price,
+            packSize,
+            boxes: isBox ? qtyVal : Math.floor(totalUnits / packSize),
+            looseUnits: isBox ? 0 : totalUnits % packSize,
+            qty: totalUnits,
+            lineTotal: totalUnits * bestMatch.price,
+            spokenPhrase: phrase,
+          });
+        }
+      }
+    });
+
+    setAnalyzedItems(results);
+  }, [wholesaleCatalog]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -73,7 +150,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
       analyzeVoiceText(currentText.trim());
     };
 
-    setRecognition(recog);
+    queueMicrotask(() => setRecognition(recog));
 
     // Auto-start recording immediately when modal opens
     try {
@@ -83,10 +160,10 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
     }
 
     return () => {
-      try { recog.stop(); } catch (err) {}
+      try { recog.stop(); } catch (_err) { /* already stopped */ }
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [wholesaleCatalog, voiceLang]);
+  }, [wholesaleCatalog, voiceLang, analyzeVoiceText]);
 
   const requestMicrophonePermission = async () => {
     try {
@@ -107,7 +184,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
 
   const toggleRecording = async () => {
     if (recording) {
-      try { recognition?.stop(); } catch (e) {}
+      try { recognition?.stop(); } catch (_e) { /* already stopped */ }
       setRecording(false);
     } else {
       setTranscript('');
@@ -135,7 +212,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
             timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
           };
           recog.onend = () => setRecording(false);
-          recog.onerror = (e) => setRecording(false);
+          recog.onerror = (_e) => setRecording(false);
           recog.onresult = (e) => {
             let currentText = '';
             for (let i = 0; i < e.results.length; i++) {
@@ -151,83 +228,6 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
         console.warn('Speech toggle error:', e);
       }
     }
-  };
-
-  // AI Multi-Item Sentence & Item Parser with Telugu Support
-  const analyzeVoiceText = (text) => {
-    if (!text || !wholesaleCatalog.length) return;
-
-    // Split speech into phrases by commas, "and", "లేదా", or full stops
-    const phrases = text.split(/(?:,|\band\b|\bplus\b|\.|\n|మరియు|కూడా)+/i).map(p => p.trim()).filter(Boolean);
-    const results = [];
-
-    phrases.forEach(phrase => {
-      const lower = phrase.toLowerCase();
-      
-      // Find numbers in phrase (digits or Telugu words)
-      let qtyVal = 1;
-      const numMatch = lower.match(/\d+/);
-      if (numMatch) {
-        qtyVal = parseInt(numMatch[0]);
-      } else {
-        Object.entries(TELUGU_NUMBERS).forEach(([word, val]) => {
-          if (lower.includes(word)) qtyVal = val;
-        });
-      }
-
-      const isBox = lower.includes('box') || lower.includes('case') || lower.includes('pack') || 
-                    lower.includes('jarlu') || lower.includes('petti') || lower.includes('పెట్టె') || 
-                    lower.includes('ప్యాకెట్') || lower.includes('మూట') || lower.includes('కాటా');
-
-      // Match against wholesale catalog
-      let bestMatch = null;
-      let highestScore = 0;
-
-      wholesaleCatalog.forEach(prod => {
-        const prodName = prod.name.toLowerCase();
-        const words = prodName.split(/\s+/);
-        
-        let score = 0;
-        if (lower.includes(prodName)) score = 100;
-        else {
-          words.forEach(w => {
-            if (w.length > 2 && lower.includes(w)) score += 30;
-          });
-        }
-
-        if (score > highestScore) {
-          highestScore = score;
-          bestMatch = prod;
-        }
-      });
-
-      if (bestMatch && highestScore >= 30) {
-        const packSize = bestMatch.packSize || 1;
-        const totalUnits = isBox ? (qtyVal * packSize) : qtyVal;
-
-        // Check if already in results
-        const existingIdx = results.findIndex(r => r.productId === bestMatch.id);
-        if (existingIdx >= 0) {
-          results[existingIdx].qty = totalUnits;
-          results[existingIdx].boxes = isBox ? qtyVal : Math.floor(totalUnits / packSize);
-          results[existingIdx].lineTotal = totalUnits * bestMatch.price;
-        } else {
-          results.push({
-            productId: bestMatch.id,
-            name: bestMatch.name,
-            price: bestMatch.price,
-            packSize,
-            boxes: isBox ? qtyVal : Math.floor(totalUnits / packSize),
-            looseUnits: isBox ? 0 : totalUnits % packSize,
-            qty: totalUnits,
-            lineTotal: totalUnits * bestMatch.price,
-            spokenPhrase: phrase,
-          });
-        }
-      }
-    });
-
-    setAnalyzedItems(results);
   };
 
   const handleQtyChange = (productId, delta) => {

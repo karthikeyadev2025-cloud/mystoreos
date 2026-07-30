@@ -27,7 +27,7 @@ export default function AuthCallback() {
         try {
           const claim = JSON.parse(sessionStorage.getItem('mystore_oauth_claim') || 'null');
           if (claim?.phone && /^\d{10}$/.test(claim.phone)) claimPhone = claim.phone;
-        } catch {}
+        } catch { /* no valid claim stashed — proceed without it */ }
 
         if (res.isNew) {
           // If we're in claim mode, skip the role-picker — they're a

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '../lib/api';
-import { Calendar, Clock, TrendingUp, Users, Plus, ChevronRight, Scissors, Phone } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Users, Plus, ChevronRight, Scissors } from 'lucide-react';
 import CompleteBillModal from './CompleteBillModal';
 
 const STATUS_CONFIG = {
@@ -59,11 +59,11 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
     try {
       const data = await api.getAppointments(shopId);
       setAppointments(data);
-    } catch (e) { /* stay on empty state, don't crash the home screen */ }
+    } catch (_e) { /* stay on empty state, don't crash the home screen */ }
     setLoading(false);
   }, [shopId]);
 
-  useEffect(() => { loadAppointments(); }, [loadAppointments]);
+  useEffect(() => { queueMicrotask(loadAppointments); }, [loadAppointments]);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -94,14 +94,13 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
   }, [orders, today]);
 
   const pendingCount = todaysAppointments.filter(a => a.status === 'pending').length;
-  const confirmedCount = todaysAppointments.filter(a => a.status === 'confirmed').length;
   const completedTodayCount = todaysAppointments.filter(a => a.status === 'completed').length;
 
   const handleStatusChange = async (id, status) => {
     try {
       await api.updateAppointmentStatus(id, status);
       loadAppointments();
-    } catch (e) { /* silent — this is a quick-action row, full error handling lives in the Bookings tab */ }
+    } catch (_e) { /* silent — this is a quick-action row, full error handling lives in the Bookings tab */ }
   };
 
   return (

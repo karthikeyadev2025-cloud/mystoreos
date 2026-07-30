@@ -44,9 +44,8 @@ export function useServiceFeatures() {
   // on every render is correct, not wasteful. (The database trigger is
   // the actual enforcement boundary regardless; this only controls
   // what the UI offers to click.)
-  const canOfferHomeService = user?.homeServiceAddonExpiresAt
-    ? new Date(user.homeServiceAddonExpiresAt).getTime() > Date.now()
-    : false;
+  // eslint-disable-next-line react-hooks/purity -- deliberately re-evaluated every render, see comment above
+  const canOfferHomeService = user?.homeServiceAddonExpiresAt ? new Date(user.homeServiceAddonExpiresAt).getTime() > Date.now() : false;
 
   return useMemo(() => {
     const isServiceShop = user?.businessKind === 'service';

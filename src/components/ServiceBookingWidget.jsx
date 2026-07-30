@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
-import { Clock, Calendar, ChevronRight, CheckCircle, Scissors, MapPin } from 'lucide-react';
+import { Clock, ChevronRight, CheckCircle, MapPin } from 'lucide-react';
 import { getCurrentLocation, isGeolocationSupported } from '../lib/geolocation';
 
 const SERVICE_CATEGORIES = [
@@ -109,7 +109,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   // (shop has no staff set up), falls back to the original shop-wide
   // fixed-grid behaviour.
   useEffect(() => {
-    setLoadingSlots(true);
+    queueMicrotask(() => setLoadingSlots(true));
     if (selectedProvider) {
       api.getProviderAvailability(selectedProvider.id, selectedDate)
         .then(avail => {
@@ -118,7 +118,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         })
         .finally(() => setLoadingSlots(false));
     } else {
-      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
+      queueMicrotask(() => setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false }));
       api.getBookedSlots(shopId, selectedDate)
         .then(setBookedRanges)
         .finally(() => setLoadingSlots(false));

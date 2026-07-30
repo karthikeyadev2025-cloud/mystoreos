@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
-import { Plus, Edit2, Trash2, Award, Users, AlertTriangle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Award, Users } from 'lucide-react';
 
 const EMPTY_PLAN = {
   name: '', description: '', duration_days: 30, price: '',
@@ -201,11 +201,11 @@ export default function DesktopMembership({ shopId }) {
     try {
       const [p, m] = await Promise.all([api.getMembershipPlans(shopId), api.getMemberships(shopId)]);
       setPlans(p); setMembers(m);
-    } catch (e) { toast.error('Failed to load'); }
+    } catch (_e) { toast.error('Failed to load'); }
     setLoading(false);
   }, [shopId]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { queueMicrotask(loadData); }, [loadData]);
 
   const today = new Date().toISOString().slice(0, 10);
   const activeMembers = members.filter(m => m.status === 'active' && m.expires_on >= today);

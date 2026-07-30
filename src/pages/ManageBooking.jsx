@@ -62,23 +62,23 @@ export default function ManageBooking() {
       const data = await api.getAppointmentByToken(token);
       if (!data) { setNotFound(true); }
       else { setAppt(data); }
-    } catch (e) {
+    } catch (_e) {
       setNotFound(true);
     }
     setLoading(false);
   }, [token]);
 
-  useEffect(() => { loadAppt(); }, [loadAppt]);
+  useEffect(() => { queueMicrotask(loadAppt); }, [loadAppt]);
 
   useEffect(() => {
     if (mode !== 'reschedule' || !appt) return;
-    setLoadingSlots(true);
+    queueMicrotask(() => setLoadingSlots(true));
     if (appt.provider_id) {
       api.getProviderAvailability(appt.provider_id, newDate)
         .then(avail => { setDayAvailability(avail); setBookedRanges(avail.bookedRanges || []); })
         .finally(() => setLoadingSlots(false));
     } else {
-      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
+      queueMicrotask(() => setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false }));
       api.getBookedSlots(appt.shop_id, newDate).then(setBookedRanges).finally(() => setLoadingSlots(false));
     }
   }, [mode, appt, newDate]);

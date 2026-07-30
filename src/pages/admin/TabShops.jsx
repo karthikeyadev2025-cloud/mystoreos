@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Search, CheckCircle, XCircle, Trash2, Key, ShieldCheck, RefreshCw,
-  AlertTriangle, Eye, EyeOff, Store, Phone, MapPin, Image, X,
-  TrendingUp, Package, Users, Clock, IndianRupee, ChevronDown,
-  MoreVertical, Filter, Download, Mail, Star
+  AlertTriangle, Eye, EyeOff, Store, Image, X,
+  Clock, ChevronDown, Star
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
@@ -138,7 +137,6 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
   const photos = shop.shopPhotos || [];
   const tier   = shop.subscriptionTier || shop.subscription || 'trial';
   const planCfg = PLAN_CFG[tier] || PLAN_CFG.trial;
-  const statusCfg = STATUS_CFG[shop.status] || STATUS_CFG.pending;
 
   const act = async (fn, label) => {
     setBusy(true);
@@ -373,7 +371,7 @@ export default function TabShops() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { queueMicrotask(load); }, [load]);
 
   const act = useCallback(async (id, fn, label) => {
     setBusy(b => ({ ...b, [id]: true }));
@@ -385,7 +383,6 @@ export default function TabShops() {
   const approve       = s => act(s.id, () => api.approveUser(s.id),                                                `${s.name} approved ✅`);
   const suspend       = s => act(s.id, async () => { await api.suspendUser(s.id);   await api.logAdminAction('suspend_user',   s.id, 'active', 'pending'); }, `${s.name} suspended`);
   const unsuspend     = s => act(s.id, async () => { await api.unsuspendUser(s.id); await api.logAdminAction('unsuspend_user', s.id, 'pending', 'active'); }, `${s.name} activated`);
-  const toggleVis     = s => act(s.id, () => api.setShopVisibility(s.id, !s.hideFromSearch), `Visibility updated`);
   const del           = s => { if (window.confirm(`Delete ${s.name}? Permanent.`)) act(s.id, async () => { await api.deleteUser(s.id); await api.logAdminAction('delete_user', s.id, null, null); }, `${s.name} deleted`); };
 
   // Stats

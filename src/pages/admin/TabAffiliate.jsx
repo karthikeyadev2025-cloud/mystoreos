@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
-import { Users, Link, CheckCircle, Clock, Plus, ToggleLeft, ToggleRight, IndianRupee, TrendingUp } from 'lucide-react';
+import { Users, Clock, IndianRupee, TrendingUp } from 'lucide-react';
 
 const S = {
   card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
@@ -42,7 +42,7 @@ export default function TabAffiliate() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { queueMicrotask(load); }, []);
 
   const totalPending = attrs.filter(a => a.status === 'pending').reduce((s, a) => s + (a.amount || 0), 0);
   const totalApproved = attrs.filter(a => a.status === 'approved' || a.status === 'paid').reduce((s, a) => s + (a.amount || 0), 0);

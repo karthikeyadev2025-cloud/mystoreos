@@ -25,6 +25,6 @@ export const mustSucceed = async (fn, label = 'operation') => {
   try { return await fn(); }
   catch (e) {
     const msg = e?.message || e?.error_description || e?.error || String(e);
-    throw new Error(`${label} failed: ${msg}`);
+    throw new Error(`${label} failed: ${msg}`, { cause: e });
   }
 };
