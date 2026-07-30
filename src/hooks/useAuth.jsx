@@ -3,6 +3,16 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+// Fields where a null/empty value from a partial or racing DB read must
+// NOT overwrite a good cached value — historically caused publicCode to
+// vanish intermittently (see the merge effect below). Kept intentionally
+// small: only include a field here if you've seen it arrive spuriously
+// null from a fetch that wasn't a deliberate user clear. Every other
+// field (upiId, merchantUpiId, paymentQr, logo, etc.) takes the fresh
+// value unconditionally, including null, so a user-initiated clear from
+// Settings actually sticks instead of being masked by the cached copy.
+const ALWAYS_PROTECTED_FIELDS = new Set(['publicCode', 'id', 'role', 'phone']);
+
 // Module-level flag: true only when the user explicitly tapped Logout.
 // Prevents onAuthStateChange(SIGNED_OUT) — which fires on token expiry too —
 // from wiping the local session on Android when the app resumes after being
@@ -103,14 +113,23 @@ export const AuthProvider = ({ children }) => {
         const { api } = await import("../lib/api");
         const fresh = await api.getUserById(cached.id);
         if (cancelled || !fresh) return;
-        // Non-destructive merge: fresh DB values win, but a null/undefined/empty
-        // fresh field must NOT wipe a good cached value (e.g. publicCode). This
-        // is why the shop ID "sometimes showed, sometimes not" — a partial fresh
-        // read overwrote the cached code with null.
+        // Merge: fresh DB values win for everything by default. The one
+        // exception is CLEARABLE_ALWAYS_PROTECTED below — fields that
+        // historically arrived null/empty from a partial DB read (not a
+        // deliberate user action) and wiping them caused real bugs, e.g.
+        // publicCode vanishing whenever a fetch raced an unrelated write.
+        // Everything else — including upiId, merchantUpiId, paymentQr,
+        // logo — now takes the fresh value even when it's null, because
+        // those ARE fields a user legitimately clears from Settings, and
+        // the old blanket protection meant a cleared QR code kept showing
+        // in the cached session until the next full logout/login.
         const merged = { ...cached };
         for (const k of Object.keys(fresh)) {
           const v = fresh[k];
-          if (v !== null && v !== undefined && v !== '') merged[k] = v;
+          const isProtected = ALWAYS_PROTECTED_FIELDS.has(k);
+          if (!isProtected || (v !== null && v !== undefined && v !== '')) {
+            merged[k] = v;
+          }
         }
         if (JSON.stringify(merged) !== JSON.stringify(cached)) {
           try { localStorage.setItem("mystore_session", JSON.stringify(merged)); } catch (_e) { /* ignore */ }

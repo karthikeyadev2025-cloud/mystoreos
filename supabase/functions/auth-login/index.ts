@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import bcrypt from 'npm:bcryptjs@2.4.3';
+import { findAuthUserByEmail } from '../_shared/paginated-list-users.ts';
 
 // Allow all origins: web (mystoreos.in), Android (https://localhost),
 // iOS (capacitor://localhost), and Capacitor custom schemes
@@ -165,8 +166,8 @@ serve(async (req) => {
         // different id than the profile row (pre-dates the id-sync
         // convention) — still only reached if the direct lookup above
         // didn't resolve it, not on every login.
-        const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000, page: 1 });
-        existing = users?.find((u) => u.email === email) || null;
+        const existingAuth = await findAuthUserByEmail(admin, email);
+        existing = existingAuth as typeof existing;
       }
       if (!existing) return json({ error: 'Auth setup failed. Please contact support.' }, 500);
       await admin.auth.admin.updateUserById(existing.id, { password });

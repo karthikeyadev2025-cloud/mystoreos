@@ -344,7 +344,7 @@ export default function TabCMS() {
             { key: 'twitterUrl',    label: '🐦 X / Twitter URL',          placeholder: 'https://x.com/mystoreos' },
             { key: 'youtubeUrl',    label: '▶️ YouTube Channel URL',      placeholder: 'https://youtube.com/@mystoreos' },
             { key: 'linkedinUrl',   label: '💼 LinkedIn Page URL',        placeholder: 'https://linkedin.com/company/mystoreos' },
-            { key: 'whatsappUrl',   label: '💬 WhatsApp Support URL',     placeholder: 'https://wa.me/918885490495' },
+            { key: 'whatsappUrl',   label: '💬 WhatsApp Support URL',     placeholder: 'https://wa.me/91XXXXXXXXXX' },
           ].map(field => (
             <div key={field.key} style={S.row}>
               <label style={S.label}>

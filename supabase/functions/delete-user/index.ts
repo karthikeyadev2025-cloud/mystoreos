@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { findAuthUserByEmail } from '../_shared/paginated-list-users.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': 'https://mystoreos.in',
@@ -68,8 +69,7 @@ serve(async (req) => {
 
     if (!authDeleted && target?.phone) {
       const email = `${target.phone}@mystore.internal`;
-      const { data: list } = await admin.auth.admin.listUsers();
-      const match = list?.users?.find((u) => u.email === email);
+      const match = await findAuthUserByEmail(admin, email);
       if (match) {
         await admin.auth.admin.deleteUser(match.id).catch(() => {});
       }

@@ -9,7 +9,13 @@ import { validateImageFile } from './fileValidation';
 // ============================================================
 
 // Admin password loaded from env var (production) with a dev fallback so local logins still work.
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || 'Mystore@karthi@2025';
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS;
+if (import.meta.env.PROD && !ADMIN_PASS) {
+  // Hard fail in production if VITE_ADMIN_PASS isn't set. Previously this
+  // fell back to a hardcoded string which shipped into every prod bundle
+  // and was grep-able by anyone. See docs/AUDIT_P0_PATCH_NOTES.md §1.
+  throw new Error('VITE_ADMIN_PASS environment variable is required in production builds');
+}
 
 // HSN/SAC codes are strictly 4, 6, or 8 numeric digits per Indian GST law.
 // The 4 Add/Edit Product forms and the bulk CSV importer all wrote this
@@ -31,7 +37,7 @@ function sanitizeHsnCode(raw) {
 // ---- localStorage Mock (fallback for offline/dev) ----
 const mockDB = {
   users: [
-    { id: 'admin', phone: '8885490495', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' },
+    { id: 'admin', phone: '0000000000', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' },
     { id: 'u_1', phone: '9876543210', pass: '1234', role: 'shop', name: 'Sai Supermarket', status: 'active', subscription: 'trial', upiId: '9876543210@ybl', latitude: 16.3067, longitude: 80.4365, logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_4', phone: '9000000000', pass: '1234', role: 'shop', name: 'Balaji Kirana Store', status: 'active', subscription: 'active', upiId: '9000000000@ybl', latitude: 16.3120, longitude: 80.4450, logo: 'https://images.unsplash.com/photo-1601599561263-8a39304edeec?auto=format&fit=crop&w=120&h=120&q=80' },
     { id: 'u_2', phone: '9999999999', pass: '1234', role: 'customer', name: 'Raju', status: 'active' },
@@ -77,9 +83,9 @@ try {
       }
 
       if (db && db.users) {
-        const hasAdmin = db.users.some(u => u.phone === '8885490495');
+        const hasAdmin = db.users.some(u => u.phone === '0000000000');
         if (!hasAdmin) {
-          db.users.push({ id: 'admin', phone: '8885490495', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' });
+          db.users.push({ id: 'admin', phone: '0000000000', pass: ADMIN_PASS, role: 'admin', name: 'Super Admin', status: 'active' });
           modified = true;
         }
         const hasCA = db.users.some(u => u.role === 'ca');
@@ -719,6 +725,13 @@ export const api = {
   },
 
   async register(name, phone, pass, role) {
+    // Was unenforced here — a 1-character password could reach the
+    // auth-register edge function and succeed. The edge function gets
+    // the same check (see auth-register/index.ts) since a client-side
+    // check alone doesn't stop someone calling the function directly.
+    if (!pass || String(pass).length < 6) {
+      throw new Error('Password must be at least 6 characters.');
+    }
     if (isSupabaseConfigured) {
       try {
         const res = await fetch(
@@ -1545,41 +1558,11 @@ export const api = {
       throw new Error('Your cart is empty. Add at least one item before placing the order.');
     }
 
-    // Server-side price check. Everything above this point trusted the
-    // browser: item prices and the order total were stored exactly as
-    // sent, and the RLS insert policy on `orders` is WITH CHECK (true),
-    // so nothing verified the customer paid what the shop actually
-    // charges. A modified request could book a ₹5,000 basket for ₹50.
+    // Server-side price check now runs inside place_order_atomic — the
+    // atomic path further down calls validate_order_total() internally
+    // as its first step, so the separate best-effort pre-check that used
+    // to live here is redundant and has been removed.
     //
-    // validate_order_total() recomputes from the shop's own product
-    // rows — including variant overrides and discounts — and rejects
-    // only when the submitted figure is materially LOWER than the
-    // truth. A HIGHER total is allowed through deliberately: that
-    // happens when a shop drops a price while the customer has the
-    // page open, and blocking someone willing to pay more would be a
-    // bad trade.
-    //
-    // Best-effort: if the function isn't deployed yet, the order still
-    // goes through rather than blocking every checkout on a missing
-    // migration. A price check that takes the whole shop offline when
-    // it fails is worse than the gap it closes.
-    if (isSupabaseConfigured) {
-      try {
-        const { data: check, error: checkErr } = await supabase.rpc('validate_order_total', {
-          p_shop_id: shopId, p_items: items, p_total: total,
-        });
-        if (!checkErr && check && check.ok === false && check.reason === 'price_mismatch') {
-          throw new Error(
-            `Prices have changed since you added these items (this shop now totals ₹${check.expected}). ` +
-            'Please refresh the page and try again.'
-          );
-        }
-      } catch (e) {
-        // Rethrow OUR mismatch error; swallow anything else (function
-        // missing, network blip) so checkout isn't held hostage by it.
-        if (e?.message?.startsWith('Prices have changed')) throw e;
-      }
-    }
     // Normalize the customer phone to a canonical last-10-digits form.
     // This is what we store on the row and what we match against when
     // the customer later creates an account and looks up "My Bills".
@@ -1655,38 +1638,60 @@ export const api = {
         payment_method: paymentMethod || 'Cash',
         invoice_no: invoiceNo,
       };
-      // Self-heal around the customer_phone column not existing yet
-      // (migration not run): retry without it instead of failing the bill.
-      let attempt = { ...insertObj };
-      let data = null, error = null;
-      for (let tries = 0; tries < 4; tries++) {
-        ({ data, error } = await supabase.from('orders').insert(attempt).select().maybeSingle());
-        if (!error) break;
-        const msg = error.message || '';
-        const miss = msg.match(/find the ['"]?(\w+)['"]? column/i)
-          || msg.match(/column (?:[\w.]+\.)?["']?(\w+)["']? does not exist/i);
-        if (!miss || !(miss[1] in attempt)) break;
-        delete attempt[miss[1]];
-      }
-      if (error) throw new Error(error.message);
-      
-      // Decrement product inventory stock levels in Supabase
-      if (items && Array.isArray(items)) {
-        for (const item of items) {
-          try {
-            const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).maybeSingle();
-            if (prodData) {
-              const currentStock = parseInt(prodData.stock) || 0;
-              const newStock = Math.max(0, currentStock - (parseInt(item.qty) || 1));
-              await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
-            }
-          } catch (err) {
-            console.error("Failed to update stock in Supabase for item:", item.id, err);
-          }
+
+      // Atomic path: place_order_atomic RPC does the price check +
+      // atomic stock decrement + order insert in one transaction.
+      // Replaces the previous read-then-write stock loop with a
+      // swallow-catch that silently drifted inventory on any RLS or
+      // network hiccup, and the self-heal-around-missing-columns
+      // retry loop that shipped as a dev-time defence but was never
+      // needed after the migrations landed.
+      const { data: rpcRes, error: rpcErr } = await supabase.rpc('place_order_atomic', {
+        p_shop_id: resolvedId,
+        p_user_id: userId,
+        p_items: items,
+        p_total: total,
+        p_customer_phone: normalizedPhone,
+        p_customer_gstin: customerData.gstin || null,
+        p_customer_address: customerData.address || null,
+        p_customer_state_code: customerData.stateCode || null,
+        p_customer_id: matchedCustomerId,
+        p_payment_method: paymentMethod || 'Cash',
+        p_status: status,
+        p_invoice_no: invoiceNo,
+      });
+
+      if (rpcErr) throw new Error(rpcErr.message);
+
+      if (!rpcRes?.ok) {
+        const reason = rpcRes?.reason;
+        if (reason === 'price_mismatch') {
+          throw new Error(
+            `Prices have changed since you added these items (this shop now totals ₹${rpcRes.detail?.expected}). ` +
+            'Please refresh the page and try again.'
+          );
         }
+        if (reason === 'insufficient_stock') {
+          throw new Error('One or more items are out of stock. Please refresh your cart and try again.');
+        }
+        if (reason === 'unknown_product') {
+          throw new Error(`One of the items is no longer available in this shop's catalogue. Please refresh and try again.`);
+        }
+        if (reason === 'not_your_order') {
+          throw new Error('You cannot place an order on behalf of another user.');
+        }
+        if (reason === 'empty_order') {
+          throw new Error('Your cart is empty.');
+        }
+        throw new Error(rpcRes?.message || 'Order could not be placed. Please try again.');
       }
-      
-      return toOrder(data);
+
+      // Load the full row so toOrder() returns the same shape as before.
+      // Fallback synthesises from insertObj if the reload fails so the UI
+      // still gets a usable order object.
+      const { data: fullOrder } = await supabase
+        .from('orders').select('*').eq('id', rpcRes.order_id).maybeSingle();
+      return toOrder(fullOrder || { id: rpcRes.order_id, ...insertObj, created_at: new Date().toISOString() });
     }
     const db = getDB();
     const order = { 
@@ -1795,35 +1800,28 @@ export const api = {
 
       const originalQtyTotal = (orderRow?.items || []).reduce((s, it) => s + (Number(it.qty) || 1), 0);
       const returnedQtyTotal = (returnItems || []).reduce((s, it) => s + (Number(it.returnQty) || 0), 0);
-      const priorRefund = Number(orderRow?.refund_amount) || 0;
       const isFullReturn = returnedQtyTotal >= originalQtyTotal;
 
-      // Was fire-and-forget with no error check on the core return/refund
-      // write. The caller (ShopDashboard) already has a real try/catch
-      // specifically to surface a genuine failure as an error toast
-      // instead of a false 'Return processed!' — but nothing here ever
-      // threw, so that catch block could never actually fire.
-      const { data: updatedOrder, error: retErr } = await supabase.from('orders').update({
-        status: isFullReturn ? 'Returned' : 'Accepted', // partial return keeps the bill active, just flags the refund
-        returned_at: new Date().toISOString(),
-        refund_amount: priorRefund + refundAmount,
-        refund_mode: refundMode,
-        returned_items: returnItems,
-      }).eq('id', orderId).select('id').maybeSingle();
-      if (retErr) throw new Error(retErr.message);
-      if (!updatedOrder) throw new Error('Order not found or you do not have permission to process this return.');
+      // Atomic path: process_return_atomic does the order-status update
+      // AND stock restoration in one transaction. Replaces the previous
+      // fire-and-forget per-item read-then-write loop, which had the same
+      // lost-update race as placeOrder's old stock logic and a swallow
+      // catch that silently dropped restored stock on any RLS/network
+      // hiccup.
+      const { data: rpcRes, error: rpcErr } = await supabase.rpc('process_return_atomic', {
+        p_order_id: orderId,
+        p_return_items: returnItems,
+        p_refund_amount: refundAmount,
+        p_refund_mode: refundMode,
+        p_is_full_return: isFullReturn,
+      });
 
-      for (const item of returnItems) {
-        try {
-          const { data: prodData } = await supabase.from('products').select('stock').eq('id', item.id).maybeSingle();
-          if (prodData) {
-            const currentStock = parseInt(prodData.stock) || 0;
-            const newStock = currentStock + (parseInt(item.returnQty) || 1);
-            await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
-          }
-        } catch (err) {
-          console.error("Failed to restore stock in Supabase", err);
-        }
+      if (rpcErr) throw new Error(rpcErr.message);
+      if (!rpcRes?.ok) {
+        const reason = rpcRes?.reason;
+        if (reason === 'order_not_found') throw new Error('Order not found.');
+        if (reason === 'not_your_shop') throw new Error('You do not have permission to process this return.');
+        throw new Error(rpcRes?.message || 'Return could not be processed.');
       }
       return { refundAmount, isFullReturn };
     }
@@ -2058,8 +2056,8 @@ export const api = {
     if (!phone || !/^\d{10}$/.test(String(phone).replace(/\D/g, '').slice(-10))) {
       throw new Error('Enter a valid 10-digit branch phone');
     }
-    if (!password || password.length < 4) {
-      throw new Error('Set a branch password (min 4 characters) — your branch staff will use it to log in');
+    if (!password || password.length < 6) {
+      throw new Error('Set a branch password (min 6 characters) — your branch staff will use it to log in');
     }
     const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
 
@@ -2183,8 +2181,8 @@ export const api = {
     if (!phone || !/^\d{10}$/.test(String(phone).replace(/\D/g, '').slice(-10))) {
       throw new Error('Enter a valid 10-digit branch phone');
     }
-    if (!password || password.length < 4) {
-      throw new Error('Set a branch password (min 4 characters) — your branch staff will use it to log in');
+    if (!password || password.length < 6) {
+      throw new Error('Set a branch password (min 6 characters) — your branch staff will use it to log in');
     }
     const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
     if (!isSupabaseConfigured) throw new Error('Creating branches requires an online connection.');
@@ -4408,7 +4406,7 @@ export const api = {
   async migrateLocalToSupabase() {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured');
     const db = getDB();
-    const DEMO_PHONES = new Set(['8885490495', '9876543210', '9000000000', '9999999999', '8888888888', '7777777777', '1111111111']);
+    const DEMO_PHONES = new Set(['0000000000', '9876543210', '9000000000', '9999999999', '8888888888', '7777777777', '1111111111']);
     const DEMO_IDS = new Set(['u_1', 'u_4', 'u_2', 'u_3', 'u_staff1', 'u_ca1', 'admin']);
     const realUsers = db.users.filter(u => !DEMO_IDS.has(u.id) && !DEMO_PHONES.has(u.phone));
     let usersMigrated = 0, productsMigrated = 0, skipped = 0;

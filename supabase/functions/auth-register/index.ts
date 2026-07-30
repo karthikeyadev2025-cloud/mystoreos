@@ -22,12 +22,15 @@ const getCORS = (req: Request) => {
 const json = (data: object, status: number, req: Request) =>
   new Response(JSON.stringify(data), { status, headers: { ...getCORS(req), 'Content-Type': 'application/json' } });
 
+import { findAuthUserByEmail } from '../_shared/paginated-list-users.ts';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: getCORS(req) });
 
   try {
     const { name, phone, password, role } = await req.json();
     if (!name || !phone || !password || !role) return json({ error: 'name, phone, password and role required' }, 400, req);
+    if (String(password).length < 6) return json({ error: 'Password must be at least 6 characters.' }, 400, req);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -53,9 +56,7 @@ serve(async (req) => {
 
     if (authErr) {
       if (authErr.message.includes('already been registered') || authErr.status === 422 || authErr.message.includes('already exists')) {
-        const { data: { users }, error: listErr } = await admin.auth.admin.listUsers();
-        if (listErr) return json({ error: `Auth listing failed: ${listErr.message}` }, 500, req);
-        const existingAuth = users?.find(u => u.email === email);
+        const existingAuth = await findAuthUserByEmail(admin, email);
         if (!existingAuth) return json({ error: 'Auth user conflict, please contact support.' }, 500, req);
         uid = existingAuth.id;
         const { error: updateErr } = await admin.auth.admin.updateUserById(uid, { password });
@@ -89,7 +90,10 @@ serve(async (req) => {
     const baseInsert: Record<string, unknown> = {
       id: uid, phone,
       pass: await bcrypt.hash(password, 10),
-      pass_verify: password,
+      // pass_verify (plaintext) intentionally dropped — P0 already
+      // revoked anon/authenticated SELECT on this column, but writing
+      // the plaintext at all was unnecessary risk with no consumer left
+      // depending on it. bcrypt hash is sufficient for authentication.
       role, name,
       status: requiresApproval ? 'pending' : 'active',
       subscription, subscription_tier, trial_started_at, plan_expires_at,

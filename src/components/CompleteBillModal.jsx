@@ -32,11 +32,23 @@ export default function CompleteBillModal({ appointment, onClose, onDone }) {
         completedByName: user?.name || null,
       });
       toast.success('Appointment completed & bill created!');
-      onDone();
+      try {
+        // onDone() is the caller's own follow-up (closing the modal,
+        // refreshing a list, etc). If it throws, the bill itself still
+        // succeeded — the success toast above is correct and should
+        // stand. Isolating this in its own try/catch stops a failure
+        // here from also firing the error toast below, which used to
+        // show both 'Appointment completed!' and 'Failed to complete
+        // appointment' for a single click.
+        onDone();
+      } catch (doneErr) {
+        console.error('CompleteBillModal onDone() failed after a successful bill:', doneErr);
+      }
     } catch (e) {
       toast.error(e.message || 'Failed to complete appointment');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   return (

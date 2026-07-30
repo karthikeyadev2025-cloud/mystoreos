@@ -4064,14 +4064,6 @@ return (
                     </p>
                   )}
 
-                  {/* (legacy poster block removed — the uploaded scanner is now primary above) */}
-                  {false && shopInfo?.paymentQr && (
-                    <div style={{ marginTop: '14px', borderTop: '1px solid #E2E8F0', paddingTop: '12px' }}>
-                      <p style={{ fontSize: '11px', color: '#64748B', marginBottom: '8px' }}>Or scan the shop's printed barcode poster:</p>
-                      <img src={shopInfo?.paymentQr} alt="Payment QR" style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
-                    </div>
-                  )}
-
                 </div>
               ) : (
                 <div style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', padding: '16px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
