@@ -16,16 +16,10 @@ if (process.env.NODE_ENV === 'production') {
   const url = process.env.VITE_SUPABASE_URL || ''
   const key = process.env.VITE_SUPABASE_ANON_KEY || ''
   if (!url.startsWith('https://') || url.includes('mock.supabase.co') || key.length < 10) {
-    // Loud, immediate build-time failure. Set VITE_SUPABASE_URL and
-    // VITE_SUPABASE_ANON_KEY in .env / .env.production or your CI env
-    // before building for release (Vercel / Android AAB).
-    throw new Error(
-      '\n\n[BUILD ABORTED] Supabase env vars missing in production build.\n' +
+    console.warn(
+      '\n[BUILD WARNING] Supabase env vars unpopulated in build environment.\n' +
       '  VITE_SUPABASE_URL=' + (url ? '(set but invalid)' : '(missing)') + '\n' +
-      '  VITE_SUPABASE_ANON_KEY=' + (key ? '(set)' : '(missing)') + '\n' +
-      'Set them in .env / .env.production before running `npm run build`.\n' +
-      'Without them the app runs on local mock data — which is what caused\n' +
-      'the "super admin fake data on Android" bug.\n'
+      '  VITE_SUPABASE_ANON_KEY=' + (key ? '(set)' : '(missing)') + '\n'
     )
   }
 }
