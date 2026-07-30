@@ -5,13 +5,12 @@
 // WhatsApp Sharing, and Credit Ledger Settlement.
 // ═══════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { 
-  ArrowLeft, Plus, X, Receipt, CheckCircle2, ShoppingCart, 
-  Search, Truck, FileText, Share2, Tag, Percent, DollarSign, 
-  AlertTriangle, Calculator, ShieldCheck, Printer
+import {
+  ArrowLeft, Plus, X, Receipt, CheckCircle2, ShoppingCart,
+  Search, Share2, Printer
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
@@ -160,19 +159,32 @@ export default function DirectSale() {
     );
   }, [products, searchQuery]);
 
+  const handleProductSelect = useCallback((prodId) => {
+    setSelectedProdId(prodId);
+    const prod = products.find(p => p.id === prodId);
+    if (prod) {
+      setEntryRate(prod.price ? String(prod.price) : '');
+      setEntryBoxes('');
+      setEntryLooseUnits('');
+      setEntryDiscPct('0');
+    }
+  }, [products]);
+
   // Barcode / SKU Auto-Match Listener — triggers instant selection when a barcode scanner inputs text
   useEffect(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q || q.length < 3) return;
-    const exactMatch = products.find(p => 
-      p.barcode?.toLowerCase() === q || 
+    const exactMatch = products.find(p =>
+      p.barcode?.toLowerCase() === q ||
       p.sku?.toLowerCase() === q
     );
     if (exactMatch && exactMatch.id !== selectedProdId) {
-      handleProductSelect(exactMatch.id);
-      toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
+      queueMicrotask(() => {
+        handleProductSelect(exactMatch.id);
+        toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
+      });
     }
-  }, [searchQuery, products]);
+  }, [searchQuery, products, selectedProdId, handleProductSelect]);
 
   const handleVoiceTranscript = (text) => {
     if (!text) return;
@@ -200,17 +212,6 @@ export default function DirectSale() {
       } else {
         setEntryLooseUnits(num);
       }
-    }
-  };
-
-  const handleProductSelect = (prodId) => {
-    setSelectedProdId(prodId);
-    const prod = products.find(p => p.id === prodId);
-    if (prod) {
-      setEntryRate(prod.price ? String(prod.price) : '');
-      setEntryBoxes('');
-      setEntryLooseUnits('');
-      setEntryDiscPct('0');
     }
   };
 
@@ -851,7 +852,7 @@ export default function DirectSale() {
           {isMobile ? (
             /* Mobile Card List View for Items */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {cart.map((item, idx) => (
+              {cart.map((item) => (
                 <div key={item.productId} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <div>

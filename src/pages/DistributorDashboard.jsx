@@ -32,7 +32,8 @@ import {
   MoreHorizontal,
   Users,
   Copy,
-  Share2
+  Share2,
+  X
 } from 'lucide-react';
 
 
@@ -437,16 +438,18 @@ const DistributorDashboard = () => {
   const [creatingBranch, setCreatingBranch] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   useEffect(() => {
-    if (user) setProfileForm({
-      name: user.name || '',
-      gstin: user.gstin || '',
-      stateCode: user.stateCode || '',
-      businessAddress: user.businessAddress || '',
-      upiId: user.upiId || '',
-      latitude: user.latitude || null,
-      longitude: user.longitude || null,
+    queueMicrotask(() => {
+      if (user) setProfileForm({
+        name: user.name || '',
+        gstin: user.gstin || '',
+        stateCode: user.stateCode || '',
+        businessAddress: user.businessAddress || '',
+        upiId: user.upiId || '',
+        latitude: user.latitude || null,
+        longitude: user.longitude || null,
+      });
+      if (user) setLogo(user.logo || '');
     });
-    if (user) setLogo(user.logo || '');
   }, [user]);
   const handleDistLogoFile = (e) => {
     const file = e.target.files[0];
@@ -1079,8 +1082,8 @@ const DistributorDashboard = () => {
   };
 
   const downloadSampleCsv = (type = 'standard') => {
-    let content = '';
-    let filename = 'mystoreos_catalog_import.csv';
+    let content;
+    let filename;
     if (type === 'vyapar') {
       filename = 'vyapar_import_sample.csv';
       content = 'Item Name,Selling Price,Stock Qty,Category,Item Code,HSN,Tax Rate\n' +
@@ -1304,7 +1307,7 @@ const DistributorDashboard = () => {
     const pr = pricing ? api.computePrice(pricing, plan.id, cycle) : null;
     const payPlanId = cycle === 'monthly' ? plan.id : `${plan.id}_${cycle}`;
     const payPrice = pr?.final || plan.price;
-    let orderId = null;
+    let orderId;
     try {
       const orderData = await api.createRazorpayOrder(payPlanId, payPrice);
       orderId = orderData?.orderId;

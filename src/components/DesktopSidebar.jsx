@@ -33,7 +33,7 @@ const TABS = [
   { id: 'profile',    Icon: Settings,   label: 'Settings',    ownerOnly: true },
 ];
 
-export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', branchSwitcherEl = null, syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null, canBookings = true }) {
+export default function DesktopSidebar({ activeTab, setActiveTab, isOwner, pendingOrders = 0, handleLogout, userName = 'Shop', publicCode = '', syncStatus = {}, hasMultipleBranches = false, shopCategory = 'retail', businessKind = null, canBookings = true }) {
   // Prefer the explicit business_kind field (set at signup, LOCKED). Fall
   // back to category-name matching (isServiceCategory, shared with
   // ShopDashboard.jsx) for legacy accounts that predate the business_kind

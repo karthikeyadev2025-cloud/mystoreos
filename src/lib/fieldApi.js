@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { isSupabaseConfigured, supabase } from './supabase';
+import { api } from './api';
 
 const requireOnline = () => {
   if (!isSupabaseConfigured) throw new Error('Field setup requires an online connection.');
@@ -379,11 +380,7 @@ export const fieldApi = {
   // without them can't be sequenced.
   async getRoutableShops(distributorId) {
     if (!distributorId) return [];
-    if (isSupabaseConfigured) {
-      return await api.getDistributorCustomers(distributorId);
-    }
-    const db = getDB();
-    return db.distributorCustomers || [];
+    return await api.getDistributorCustomers(distributorId);
   },
 
   // ─── FIELD VISITS ─────────────────────────────────────────────────

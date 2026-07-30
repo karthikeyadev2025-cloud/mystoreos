@@ -53,7 +53,7 @@ export default function TabSupport() {
   const loadTickets = async (status = ticketFilter) => {
     try { setTickets(await api.getAllTickets(status)); } catch { /* ignore */ }
   };
-  useEffect(() => { loadTickets(ticketFilter); /* eslint-disable-next-line */ }, [ticketFilter]);
+  useEffect(() => { queueMicrotask(() => loadTickets(ticketFilter)); }, [ticketFilter]);
 
   const openAdminTicket = async (t) => {
     setActiveTicket(t);

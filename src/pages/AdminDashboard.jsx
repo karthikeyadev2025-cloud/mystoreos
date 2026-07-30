@@ -42,8 +42,6 @@ const TABS = [
   { id: 'affiliate',     label: 'Affiliate & Referrals', Icon: Link,         Component: TabAffiliate },
 ];
 
-const isMobile = () => window.innerWidth < 1024;
-
 const TabFallback = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#6B7280', fontSize: '14px' }}>
     Loading tab...

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Receipt, ArrowRight, Printer, CornerUpLeft, Check, BadgeCheck, Phone, User, Calendar, CreditCard, Package, X, ShoppingBag, Clock, CheckCircle2 } from 'lucide-react';
+import { Search, Receipt, ArrowRight, Printer, CornerUpLeft, Check, BadgeCheck, X, ShoppingBag, Clock, CheckCircle2 } from 'lucide-react';
 
 const PM_COLOR = { Cash: '#10B981', UPI: '#4F46E5', Card: '#3B82F6', Credit: '#EF4444' };
 const PM_ICON  = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
@@ -137,7 +137,7 @@ const DesktopBills = ({
               <p style={{ fontSize: 12, margin: 0 }}>{searchTerm ? `Try a different search` : `Bills appear here after you create them`}</p>
             </div>
           ) : sortedOrders.map(o => {
-            const { type, name, phone, staffName } = decodeOrderUserId(o.userId);
+            const { name, phone, staffName } = decodeOrderUserId(o.userId);
             const isSelected = selectedBill?.id === o.id;
             return (
               <div key={o.id}

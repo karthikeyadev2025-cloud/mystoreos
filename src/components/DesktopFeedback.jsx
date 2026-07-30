@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { toast } from 'react-toastify';
-import { MessageSquare, Star, ThumbsUp, ThumbsDown, Send } from 'lucide-react';
+import { MessageSquare, Star, Send } from 'lucide-react';
 
 const Stars = ({ n, size = 14 }) => (
   <div style={{ display: 'inline-flex', gap: 2 }}>
@@ -68,10 +68,10 @@ export default function DesktopFeedback({ shopId }) {
   const load = useCallback(async () => {
     setLoading(true);
     try { setFeedback(await api.getFeedback(shopId)); }
-    catch (e) { toast.error('Failed to load feedback'); }
+    catch (_e) { toast.error('Failed to load feedback'); }
     finally { setLoading(false); }
   }, [shopId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { queueMicrotask(load); }, [load]);
 
   const filtered = feedback.filter(f => {
     if (filter === 'positive') return f.rating >= 4;

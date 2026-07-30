@@ -132,7 +132,7 @@ function shell(bodyHtml, { widthMm = 210, paperFormat = 'a4', isDuplicate = fals
 </style>
 </head>
 <body>
-${bodyHtml}
+${content}
 <script>
   window.addEventListener('load', () => setTimeout(() => window.print(), 300));
   setTimeout(() => window.print(), 900);
@@ -204,7 +204,7 @@ function renderClassic(data, widthMm) {
 // Code / Item Name / Qty / Rate / Total columns, boxed header, amount
 // in words, numbered terms & conditions, signature line.
 function renderWholesale(data, widthMm) {
-  const { subtotal, total } = computeTotals(data);
+  const { total } = computeTotals(data);
   const items = data.items || [];
 
   // Jars/Boxes columns — matches the client's real printed invoice

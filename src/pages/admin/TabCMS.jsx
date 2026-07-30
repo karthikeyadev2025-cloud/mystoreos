@@ -48,7 +48,6 @@ export default function TabCMS() {
   // (only the hardcoded defaults in api.js would ever show). Same
   // businessKind split as getSubscriptionPlans() itself.
   const [plansKind, setPlansKind] = useState('retail');
-  const [saving, setSaving] = useState(false);
   // Promo bar — was claimed as "admin-editable" in a code comment on
   // LandingPromoBar.jsx, but no admin UI for it ever actually existed
   // (confirmed: same true of the hero/stats/testimonials sections this
@@ -363,10 +362,10 @@ export default function TabCMS() {
 
         <button
           onClick={save}
-          disabled={saving}
-          style={S.saveBtn(saving)}
+          disabled={busy.cfg}
+          style={S.saveBtn(busy.cfg)}
         >
-          {saving ? 'Saving...' : '💾 Save App & Social Links'}
+          {busy.cfg ? 'Saving...' : '💾 Save App & Social Links'}
         </button>
       </div>
     </div>

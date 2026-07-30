@@ -14,7 +14,11 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        // Injected via vite.config.js `define` at build time.
+        __BUILD_STAMP__: 'readonly',
+      },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
     rules: {
@@ -23,6 +27,19 @@ export default defineConfig([
         argsIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
       }],
+    },
+  },
+  {
+    // Node-executed config/build/test/API files — not part of the browser bundle.
+    files: [
+      'vite.config.js',
+      'playwright.config.js',
+      'api/**/*.js',
+      'scripts/**/*.js',
+      'tests/**/*.js',
+    ],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

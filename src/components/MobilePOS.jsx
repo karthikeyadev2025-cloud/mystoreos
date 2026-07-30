@@ -15,7 +15,6 @@ import { useState } from 'react';
 import { Search, ScanLine, Plus, X, Trash2, ChevronUp, ChevronDown, Receipt, BarChart3, Mic } from 'lucide-react';
 
 export default function MobilePOS({
-  products,
   filteredProducts,
   billItems,
   search,
@@ -27,7 +26,6 @@ export default function MobilePOS({
   removeBillItem,
   setShowScanner,
   setShowAddProductModal,
-  setActiveTab,
   isOwner,
   flashSales,
   // Bill / checkout state from parent

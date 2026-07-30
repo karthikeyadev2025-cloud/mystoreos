@@ -5,7 +5,7 @@ import { api } from '../lib/api';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Copy, Link, LogOut, TrendingUp, Users, IndianRupee, Clock, CheckCircle } from 'lucide-react';
+import { Copy, Link, LogOut, Users, IndianRupee, Clock } from 'lucide-react';
 
 const S = {
   card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },

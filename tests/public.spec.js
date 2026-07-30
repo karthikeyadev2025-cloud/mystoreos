@@ -87,5 +87,6 @@ test.describe('Public storefronts', () => {
     await expect(page.locator('body')).not.toBeEmpty({ timeout: 8_000 });
     // Ignorable: 404s / RLS-blocked selects log to console. Real crashes
     // still fail via pageerror.
+    expectNoErrors(errors.filter(e => e.startsWith('pageerror:')));
   });
 });

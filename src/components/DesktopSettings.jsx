@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, Phone, User, Trash2, AlertTriangle } from 'lucide-react';
+import { Camera, MapPin, QrCode, Share2, Printer, Users, ShieldAlert, Award, FileText, CreditCard, Eye, EyeOff, Clock, Tag, Image, Truck, Lock, User, Trash2, AlertTriangle } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'react-toastify';
 import PushToggle from './PushToggle';
@@ -20,8 +20,6 @@ const DesktopSettings = ({
   setEditName,
   editPhone = '',
   setEditPhone,
-  currentPassword = '',
-  setCurrentPassword,
   newPassword = '',
   setNewPassword,
   confirmPassword = '',
@@ -108,7 +106,6 @@ const DesktopSettings = ({
   handleSaveShopHours,
   handleSaveShopBanner,
 }) => {
-  const [showCurrPw, setShowCurrPw] = useState(false);
   const [showNewPw,  setShowNewPw]  = useState(false);
   const [showConfPw, setShowConfPw] = useState(false);
   const qrCanvasRef = useRef(null);

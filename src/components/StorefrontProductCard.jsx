@@ -1,8 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-// ── Tiny blur-up placeholder (generated inline — no extra requests) ──────────
-const BLUR_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23e2e8f0'/%3E%3C/svg%3E";
-
 // ── Progressive image: skeleton → blur → sharp ───────────────────────────────
 function ProgressiveImg({ src, alt, style = {} }) {
   const [state, setState] = useState('idle'); // idle | loading | loaded | error
@@ -21,7 +18,7 @@ function ProgressiveImg({ src, alt, style = {} }) {
 
   useEffect(() => {
     if (!inView || !src) return;
-    setState('loading');
+    queueMicrotask(() => setState('loading'));
     const img = new window.Image();
     img.onload  = () => setState('loaded');
     img.onerror = () => setState('error');

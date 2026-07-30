@@ -38,10 +38,9 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
   // Load source's products whenever the source picker changes. Stock=0
   // products are excluded — moving nothing serves no purpose.
   useEffect(() => {
-    if (!fromShopId) { setSourceProducts([]); return; }
+    if (!fromShopId) { queueMicrotask(() => setSourceProducts([])); return; }
     let cancelled = false;
-    setLoadingProducts(true);
-    setQtyMap({});                   // reset selections — source changed
+    queueMicrotask(() => { setLoadingProducts(true); setQtyMap({}); });   // reset selections — source changed
     (async () => {
       try {
         const list = await api.getShopProducts(fromShopId);
@@ -60,10 +59,12 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
   // Default the target picker to "the other branch" if there are
   // exactly two eligible branches — saves one tap in the most common case.
   useEffect(() => {
-    if (!toShopId && fromShopId && eligibleBranches.length === 2) {
-      const other = eligibleBranches.find(b => b.id !== fromShopId);
-      if (other) setToShopId(other.id);
-    }
+    queueMicrotask(() => {
+      if (!toShopId && fromShopId && eligibleBranches.length === 2) {
+        const other = eligibleBranches.find(b => b.id !== fromShopId);
+        if (other) setToShopId(other.id);
+      }
+    });
   }, [fromShopId, toShopId, eligibleBranches]);
 
   const selectedItems = useMemo(() =>

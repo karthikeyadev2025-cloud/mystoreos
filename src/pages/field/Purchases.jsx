@@ -8,9 +8,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { 
-  ArrowLeft, Plus, X, IndianRupee, FileText, Building2, 
-  Search, CheckCircle2, TrendingUp, AlertTriangle, Wallet, DollarSign
+import {
+  ArrowLeft, Plus, X, FileText,
+  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
@@ -88,7 +88,6 @@ export default function Purchases() {
 
   const reload = () => setReloadKey(k => k + 1);
   const selectedProduct = useMemo(() => products.find(p => p.id === pickProduct), [products, pickProduct]);
-  const selectedSupplierObj = useMemo(() => suppliers.find(s => s.id === supplierId), [suppliers, supplierId]);
 
   const addSupplier = async () => {
     if (!newSupName.trim()) return toast.error('Please enter manufacturer / supplier name');

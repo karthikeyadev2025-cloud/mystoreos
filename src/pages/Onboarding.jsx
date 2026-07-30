@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
-import { safe, mustSucceed } from '../lib/asyncHelpers';
+import { mustSucceed } from '../lib/asyncHelpers';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { validateImageFile } from '../lib/fileValidation';
@@ -124,7 +124,7 @@ export default function Onboarding() {
         }), 'Save business profile');
         // Attribute referral code if provided
         if (refCode.trim()) {
-          try { await api.attributeReferral(refCode.trim(), user.id); } catch (_) {}
+          try { await api.attributeReferral(refCode.trim(), user.id); } catch (_e) { /* invalid/expired referral code — non-critical */ }
         }
         setStep(1);
       } else if (step === 1) {

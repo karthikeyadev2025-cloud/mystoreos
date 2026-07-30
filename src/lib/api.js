@@ -221,12 +221,6 @@ async function withOwnerRole(profile) {
   }
 }
 
-// True when a Supabase error is caused by the optional `unit` column not
-// existing yet (schema not migrated). Lets us retry the write without it.
-const isMissingUnitColumn = (error) =>
-  !!error && typeof error.message === 'string' &&
-  /column .*unit.* does not exist|'unit' column|could not find the 'unit'/i.test(error.message);
-
 const toOrder = (row) => row ? ({
   id: row.id, userId: row.user_id, shopId: row.shop_id, items: row.items,
   total: row.total, status: row.status, date: row.created_at,
@@ -373,7 +367,7 @@ export const api = {
           return { data, error: null };
         } catch (e) {
           clearTimeout(timeoutId);
-          if (e.name === 'AbortError') throw new Error('edge_timeout');
+          if (e.name === 'AbortError') throw new Error('edge_timeout', { cause: e });
           throw e;
         }
       };
@@ -849,11 +843,11 @@ export const api = {
         if (!error && data?.success) return;
         // If the function returned an error payload, surface it.
         if (data?.error) throw new Error(data.error);
-      } catch (_e) {
+      } catch (e) {
         // Fallback: if the edge function isn't deployed, at least delete the
         // profile row (legacy behaviour) so the admin action isn't a no-op.
         const { error: delErr } = await supabase.from('users').delete().eq('id', userId);
-        if (delErr) throw new Error(delErr.message);
+        if (delErr) throw new Error(delErr.message, { cause: e });
       }
       return;
     }
@@ -1478,7 +1472,7 @@ export const api = {
     // "My Bills" view without any manual claim flow.
     if (isSupabaseConfigured) {
       const normalizedPhone = userPhone ? String(userPhone).replace(/\D/g, '').slice(-10) : null;
-      let ordersById = [];
+      let ordersById;
       let ordersByPhone = [];
 
       const { data: byId } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
@@ -4916,7 +4910,7 @@ export const api = {
   },
 
   async updateDistributorSubscription(userId, tier, expiresAt) {
-    let normTier = 'enterprise_distributor';
+    let normTier;
     const lower = String(tier || '').toLowerCase();
     if (lower.includes('enterprise')) normTier = 'enterprise_distributor';
     else if (lower.includes('pro')) normTier = 'pro_distributor';

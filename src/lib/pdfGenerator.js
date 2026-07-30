@@ -110,7 +110,6 @@ const drawFooter = (doc, shop, yStart) => {
     doc.setFont('helvetica', 'normal');
     y += 4;
     doc.text(shop.termsConditions, 15, y, { maxWidth: 180 });
-    y += 6;
   }
 
   doc.setFont('helvetica', 'italic');

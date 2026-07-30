@@ -8,9 +8,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useSiteConfig } from '../lib/siteConfig';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, MapPin, QrCode, Receipt, ShoppingCart, ArrowLeft, 
-  Compass, ChevronRight, X, Sparkles, 
-  Printer, Info, Clock, User, Navigation, 
+  Search, MapPin, QrCode, Receipt, ShoppingCart, ArrowLeft,
+  Compass, ChevronRight, X, Sparkles,
+  Printer, Info, Clock, Navigation,
   AlertTriangle, CreditCard, Mic, Gift, Copy, Calendar
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -256,58 +256,16 @@ const UserDashboard = () => {
   const [lastOrderId, setLastOrderId] = useState('');
   const scratchCanvasRef = useRef(null);
 
-  const playPaymentSuccessSound = () => {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc1.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
-      gain1.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-      osc1.start();
-      osc1.stop(ctx.currentTime + 0.25);
-      
-      setTimeout(() => {
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(880, ctx.currentTime); // A5
-        osc2.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.2); // E6
-        gain2.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start();
-        osc2.stop(ctx.currentTime + 0.3);
-      }, 120);
-    } catch (e) {
-      console.error("Audio Context failed", e);
-    }
-  };
-
-  const speakOrderPlaced = (order) => {
-    if ('speechSynthesis' in window) {
-      const shopName = order?.shopName || shopInfo?.name || 'the store';
-      const text = `Your order has been placed successfully at ${shopName}. Please complete the payment to confirm.`;
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.rate = 1.0;
-      speech.pitch = 1.0;
-      window.speechSynthesis.speak(speech);
-    }
-  };
   const isDrawingScratch = useRef(false);
 
   
   // Persistent Multi-store Cart
   const [cart, setCart] = useState({});
   const [showWaModal, setShowWaModal] = useState(false);
+  // Stable UPI transaction reference for the tap-to-pay link — computed
+  // once via lazy useState init, not on every render (Date.now() during
+  // render is flagged by ESLint react-hooks/purity).
+  const [waTxnRef] = useState(() => 'ORD' + Date.now().toString().slice(-8));
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [authTab, setAuthTab] = useState('signup');
   const [authStep, setAuthStep] = useState('form');
@@ -412,7 +370,7 @@ const UserDashboard = () => {
   // Lazy-load bookings the first time the customer opens that tab.
   useEffect(() => {
     if (activeTab === 'bookings' && !myBookingsLoaded) {
-      loadMyBookings();
+      queueMicrotask(loadMyBookings);
     }
   }, [activeTab, myBookingsLoaded, loadMyBookings]);
 
@@ -509,7 +467,7 @@ const UserDashboard = () => {
             osc.frequency.value = 660; g.gain.setValueAtTime(0.3, ctx.currentTime);
             g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
             osc.start(); osc.stop(ctx.currentTime + 0.45);
-          } catch {}
+          } catch { /* audio playback unavailable — non-critical */ }
         }
         if (newRow.status === 'Completed' && newRow.payment_verified) {
           toast.success('💰 Payment verified! Your order is complete.', { autoClose: 6000 });
@@ -897,7 +855,7 @@ const UserDashboard = () => {
 
     // Safety timeout — stop after 8 seconds regardless
     const safetyTimer = setTimeout(() => {
-      try { rec.stop(); } catch {}
+      try { rec.stop(); } catch { /* already stopped */ }
       setIsListeningGlobal(false);
       setIsListeningLocal(false);
     }, 8000);
@@ -1040,10 +998,12 @@ const UserDashboard = () => {
   // If session expires while WA modal is open, close it and route back to auth.
   useEffect(() => {
     if (!user && showWaModal) {
-      setShowWaModal(false);
-      setGuestName(''); setGuestPhone(''); setGuestPassword('');
-      setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
-      setShowGuestModal(true);
+      queueMicrotask(() => {
+        setShowWaModal(false);
+        setGuestName(''); setGuestPhone(''); setGuestPassword('');
+        setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
+        setShowGuestModal(true);
+      });
     }
   }, [user, showWaModal]);
 
@@ -1142,130 +1102,6 @@ const UserDashboard = () => {
         console.error("Failed to upload avatar", err);
         toast.error(err?.message || "Failed to upload photo. Please try again.");
       }
-    }
-  };
-
-  const sendWhatsAppOrder = async (overrideUser = null) => {
-    // overrideUser: pass loggedInUser from guest-register path to sidestep
-    // the React closure trap (user was null when the fn was defined).
-    //
-    // syncOpen: true = window.open fires synchronously (still inside the
-    // user gesture call stack — browser allows it). false = we're inside
-    // an async chain (e.g. after await api.register) and the browser will
-    // block window.open. In that case we store the WA URL in pendingWaUrl
-    // state and show a tap button in the UI instead.
-    const effectiveUser = overrideUser || user;
-    const { total, items } = getCartTotals();
-    try {
-      // Two-tier check: missing user OR malformed user (no id field).
-      // The second case used to crash with the cryptic Postgres error
-      // 'null value in column "user_id" of relation "orders" violates
-      // not-null constraint' — a stale/corrupt localStorage session
-      // could put a user object into auth state without an id, slip
-      // past the existing !effectiveUser guard, and only fail at the DB.
-      // Now both cases route the customer back to the registration modal
-      // with a clear in-app explanation, instead of a Postgres-flavored
-      // error toast they can't act on.
-      if (!effectiveUser || !effectiveUser.id) {
-        if (effectiveUser && !effectiveUser.id) {
-          // Diagnostic: this should never happen in normal flow. Log it
-          // so we can find the root cause if/when a customer reports it.
-          console.warn('sendWhatsAppOrder: user object present but missing id', effectiveUser);
-          // Wipe the corrupt session so the next click is a clean guest path.
-          try { localStorage.removeItem('mystore_session'); } catch { /* ignore */ }
-        }
-        openAuthModal();
-        return;
-      }
-
-      // Build WA message BEFORE any await — browsers block window.open()
-      // calls that don't fire synchronously in a user gesture handler.
-      // Old code: await placeOrder() → window.open() — mobile browsers
-      // silently suppressed the popup, leaving the customer stuck.
-      let msg = `*🛒 NEW ORDER — ${shopInfo?.name || 'Your Store'}*\n`;
-      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `👤 *Customer:* ${effectiveUser.name}\n`;
-      msg += `📱 *Mobile:* +91${effectiveUser.phone}\n`;
-      msg += `🕐 *Time:* ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}\n`;
-      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-      items.forEach(item => {
-        const line = item.price * item.qty;
-        const variantStr = item.selectedVariant ? ` (${item.selectedVariant})` : item.weight ? ` (${item.weight})` : '';
-        if (item.originalPrice) {
-          const origLine = item.originalPrice * item.qty;
-          msg += `• *${item.name}*${variantStr} (-${item.discountPct}% OFF)\n`;
-          msg += `  ${item.qty} × ~~₹${item.originalPrice}~~ ₹${item.price} = *₹${line}* ~~₹${origLine}~~\n`;
-        } else {
-          msg += `• *${item.name}*${variantStr}\n`;
-          msg += `  ${item.qty} × ₹${item.price} = *₹${line}*\n`;
-        }
-      });
-      const { totalSavings } = getCartTotals();
-      if (totalSavings > 0) msg += `🎉 *You saved ₹${totalSavings}!*\n`;
-      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *TOTAL: ₹${total}*\n`;
-      msg += `💳 *Payment:* ${paymentMethod === 'upi' ? '📱 UPI' : '💵 Cash'}\n`;
-      if (paymentProof) {
-        msg += `🧾 *UPI Ref:* ${paymentProof}\n`;
-      }
-      msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `Reply *CONFIRMED* to accept this order.\n`;
-      msg += `_Powered by MyStore OS_`;
-
-
-      const shopPhone = shopInfo?.phone || '9876543210';
-      window.open(`https://wa.me/91${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-
-      // Save the order BEFORE clearing anything.
-      //
-      // This used to clear the cart, close the modal and play the
-      // success scratch-card FIRST, then save to the DB afterwards
-      // ("don't wait for DB"). When that save failed — RLS, network, a
-      // dropped connection on mobile — the customer had already sent
-      // the WhatsApp message, lost their cart, and been shown a success
-      // animation, while no order existed anywhere. The shop received a
-      // WhatsApp with nothing in their dashboard to match it against.
-      // That is exactly the "checkout not working" report.
-      //
-      // The window.open above still fires synchronously before any
-      // await, which is the real constraint here — mobile browsers
-      // block popups that aren't in the direct gesture handler. Only
-      // the destructive local cleanup moved after the save.
-      const placedOrder = await api.placeOrder(
-        effectiveUser.id, ACTIVE_SHOP_ID, items, total, { phone: effectiveUser.phone || '' }
-      );
-
-      // Confirmed saved — now it's safe to clear.
-      setCart({});
-      try {
-        const allCarts = JSON.parse(localStorage.getItem('mystore_carts') || '{}');
-        delete allCarts[ACTIVE_SHOP_ID];
-        localStorage.setItem('mystore_carts', JSON.stringify(allCarts));
-      } catch { /* ignore */ }
-      setPaymentProof('');
-      setShowWaModal(false);
-
-      // Scratch card
-      const wonAmount = Math.floor(Math.random() * 91) + 10;
-      setScratchCardAmount(wonAmount);
-      setScratchCardRevealed(false);
-      setScratchModalOpen(true);
-
-      const orderId = placedOrder?.id || 'o_' + Math.random().toString(36).substring(2, 10);
-      setLastOrderId(orderId);
-      playPaymentSuccessSound();
-      speakOrderPlaced(placedOrder || { id: orderId, total, shopName: shopInfo?.name || 'the store' });
-      loadOrderHistory();
-    } catch (err) {
-      console.error(err);
-      // The cart is deliberately still intact here — the save failed, so
-      // nothing was cleared. Telling them to just retry is honest and
-      // actionable, unlike the old path which had already emptied their
-      // cart before it knew whether the order saved.
-      toast.error(
-        'Order could not be saved — your cart is still here, please tap Place Order again. ('
-        + (err.message || err) + ')'
-      );
     }
   };
 
@@ -1698,7 +1534,7 @@ const UserDashboard = () => {
                       onClick={() => handleVoiceSearch('local')}
                       style={{
                         width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                        background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                        background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF',
                         color: isListeningLocal ? '#fff' : '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                         flexShrink: 0, transition: 'all 0.3s',
                         boxShadow: isListeningLocal ? '0 0 12px #4F46E5' : 'none'
@@ -2157,7 +1993,7 @@ const UserDashboard = () => {
                     {/* Category filter chips */}
                     <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                       {[['all', 'All'], ['kirana', 'Kirana'], ['medical', 'Medical'], ['general', 'General'], ['electronics', 'Electronics']].map(([val, label]) => (
-                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#475569', boxShadow: shopCategoryFilter === val ? '0 4px 12px rgba(79,70,229,0.2)' : 'none', transition: 'all 0.15s' }}>
+                        <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#475569', boxShadow: shopCategoryFilter === val ? '0 4px 12px rgba(79,70,229,0.2)' : 'none', transition: 'all 0.15s' }}>
                           {label}
                         </button>
                       ))}
@@ -2246,7 +2082,7 @@ const UserDashboard = () => {
                       onClick={() => handleVoiceSearch('global')}
                       style={{
                         width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                        background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                        background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF',
                         color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                         flexShrink: 0, transition: 'all 0.3s',
                         boxShadow: isListeningGlobal ? '0 0 12px #4F46E5' : 'none'
@@ -2955,7 +2791,6 @@ return (
                 <div style={{
                   marginTop: '16px',
                   background: '#F8FAFC', border: '1px solid #E2E8F0',
-                  border: '1px solid #E2E8F0',
                   borderRadius: '16px',
                   padding: '16px',
                   maxWidth: '380px',
@@ -3074,7 +2909,7 @@ return (
                 onClick={() => handleVoiceSearch('local')}
                 style={{
                   width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                  background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                  background: isListeningLocal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF',
                   color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                   flexShrink: 0, transition: 'all 0.3s',
                   boxShadow: isListeningLocal ? '0 0 12px #4F46E5' : 'none'
@@ -3093,7 +2928,7 @@ return (
                   onClick={() => setFilter(c)}
                   style={{ 
                     flexShrink: 0, padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', textTransform: 'capitalize', width: 'auto',
-                    background: filter === c ? '#4F46E5' : '#FFFFFF', border: '1px solid ' + (filter === c ? '#4F46E5' : '#E2E8F0'),
+                    background: filter === c ? '#4F46E5' : '#FFFFFF',
                     color: filter === c ? 'white' : '#94a3b8',
                     border: filter === c ? 'none' : '1px solid #E2E8F0',
                     transition: 'all 0.2s'
@@ -3327,7 +3162,7 @@ return (
                 {/* Category chips */}
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
                   {[['all', 'All'], ['kirana', 'Kirana'], ['medical', 'Medical'], ['general', 'General'], ['electronics', 'Electronics']].map(([val, label]) => (
-                    <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', width: 'auto', flexShrink: 0, background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B' }}>
+                    <button key={val} onClick={() => setShopCategoryFilter(val)} style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', width: 'auto', flexShrink: 0, background: shopCategoryFilter === val ? 'linear-gradient(135deg, #4F46E5, #6366F1)' : '#FFFFFF', border: '1px solid ' + (shopCategoryFilter === val ? '#4F46E5' : '#E2E8F0'), color: shopCategoryFilter === val ? '#FFFFFF' : '#64748B' }}>
                       {label}
                     </button>
                   ))}
@@ -3387,7 +3222,7 @@ return (
                     onClick={() => handleVoiceSearch('global')}
                     style={{
                       width: '48px', height: '48px', borderRadius: '14px', border: '1px solid #E2E8F0',
-                      background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF', border: '1px solid #E2E8F0',
+                      background: isListeningGlobal ? 'linear-gradient(135deg, #ef4444, #4F46E5)' : '#FFFFFF',
                       color: isListeningGlobal ? '#fff' : '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                       flexShrink: 0, transition: 'all 0.3s',
                       boxShadow: isListeningGlobal ? '0 0 12px #4F46E5' : 'none'
@@ -3470,7 +3305,7 @@ return (
                 </p>
 
                 {/* Viewfinder box representation */}
-                <div style={{ position: 'relative', width: '250px', height: '250px', border: '2px dashed rgba(255,255,255,0.2)', borderRadius: '24px', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                <div style={{ position: 'relative', width: '250px', height: '250px', borderRadius: '24px', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
                   
                   {isScanning ? (
                     <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: 'rgba(16,185,129,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
@@ -3591,7 +3426,7 @@ return (
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '3px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800',
                             background: order.status === 'Cancelled' ? 'rgba(100,116,139,0.15)' : order.status === 'Returned' ? 'rgba(124,58,237,0.15)' : (order.status === 'Completed' || order.paymentVerified) ? 'rgba(16,185,129,0.15)' : order.status === 'Accepted' ? 'rgba(79,70,229,0.12)' : 'rgba(245,158,11,0.15)',
                             color: order.status === 'Cancelled' ? '#64748b' : order.status === 'Returned' ? '#7C3AED' : (order.status === 'Completed' || order.paymentVerified) ? '#10b981' : order.status === 'Accepted' ? '#4F46E5' : '#f59e0b',
-                            textTransform: 'uppercase', marginTop: '4px', display: 'block'
+                            textTransform: 'uppercase', marginTop: '4px'
                           }}>
                             {order.status === 'Cancelled' ? '❌ Cancelled' : order.status === 'Returned' ? '↩️ Returned' : (order.status === 'Completed' || order.paymentVerified) ? '💰 Paid & Done' : order.status === 'Accepted' ? '✅ Accepted' : '⏳ Pending'}
                           </div>
@@ -4044,7 +3879,7 @@ return (
                   {canTapToPay(shopInfo) && isMobileDevice ? (
                     /* Merchant VPA present → a real tap-to-pay link WITH the amount works. */
                     <a 
-                      href={buildUpiUri(shopInfo, { amount: getCartTotals().total, txnRef: 'ORD' + Date.now().toString().slice(-8), note: 'Order Payment' })}
+                      href={buildUpiUri(shopInfo, { amount: getCartTotals().total, txnRef: waTxnRef, note: 'Order Payment' })}
                       style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, #10b981, #059669)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', border: 'none', textAlign: 'center', color: '#fff', transition: 'transform 0.1s', marginTop: shopInfo?.paymentQr ? '4px' : '0' }}
                       onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
                       onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}

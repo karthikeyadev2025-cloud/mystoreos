@@ -7,7 +7,7 @@ import { printPdfWithFormat } from '../lib/printPdf';
 import NotificationCenter from '../components/NotificationCenter';
 import PushToggle from '../components/PushToggle';
 import { INVOICE_TEMPLATES } from '../lib/invoiceTemplates';
-import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, formatQty, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
+import { defaultUnitForCategory, unitOptionsForCategory, resolveUnit, UNIT_SUFFIX, categorySuggestionsFor } from '../lib/units';
 import { useAuth } from '../hooks/useAuth';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useRealtimeTable } from '../hooks/useRealtimeTable';
@@ -15,7 +15,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSessionGuard } from '../hooks/useSessionGuard';
 import { TrialExpiredOverlay } from '../components/PlanGate';
 import { hasCap } from '../lib/features';
-import { Home, Package, Receipt, Wallet, LogOut, ScanLine, Plus, IndianRupee, Book, Share2, Search, Barcode as BarcodeIcon, Camera, X, QrCode, Truck, Building2, Scissors, MoreHorizontal, Users, Star, CreditCard, Mic } from 'lucide-react';
+import { Home, Package, Receipt, Wallet, LogOut, IndianRupee, Book, Search, Barcode as BarcodeIcon, Camera, X, Truck, Building2, Scissors, MoreHorizontal, Users, Star, CreditCard, Mic } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,7 +34,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { sendCreditReminder, sendBillNotification, sendPaymentConfirmation, sendTrialReminder, hasWhatsAppAPI } from '../lib/notify';
 import { generateVoucherPDF, generateCreditNotePDF } from '../lib/pdfGenerator';
 
-import DesktopTopBar from '../components/DesktopTopBar';
 import DesktopSidebar from '../components/DesktopSidebar';
 import DesktopPOS from '../components/DesktopPOS';
 import MobilePOS from '../components/MobilePOS';
@@ -120,7 +119,6 @@ const ShopDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [credits, setCredits] = useState([]);
   const [search, setSearch] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
   const posSearchRef = useRef(null);
   // Dedicated, always-mounted hidden QR canvas used ONLY by downloadQrPoster.
   // The previous version scraped document.querySelector('.qr-code-holder svg')
@@ -297,8 +295,7 @@ const ShopDashboard = () => {
   const [customerLoyaltyPoints, setCustomerLoyaltyPoints] = useState(0);
   const [loyaltyRedeem, setLoyaltyRedeem] = useState(0);
 
-  // Promo Code & Wholesale Restocking States
-  const [promoCode, setPromoCode] = useState('');
+  // Wholesale Restocking States
   const [discountAmount, setDiscountAmount] = useState(0);
   const [manualDiscountPct, setManualDiscountPct] = useState(0); // manual % discount entered in POS
   const [roundOff, setRoundOff] = useState(0); // manual round-off amount, cashier types this in (+/- rupees)
@@ -388,9 +385,9 @@ const ShopDashboard = () => {
   // union sales across every branch the owner runs. Owners use this when
   // they want a god's-eye view of the whole business across all locations
   // (e.g. RK Mens & Jeans: how did Main + Hitech City do combined today?).
-  const [reportsScope, setReportsScope] = useState('branch');
+  const [reportsScope] = useState('branch');
   const [allBranchOrders, setAllBranchOrders] = useState([]);
-  const [allBranchOrdersLoading, setAllBranchOrdersLoading] = useState(false);
+  const [, setAllBranchOrdersLoading] = useState(false);
 
   // For staff: still scoped to their staff_of shop. For owner: defaults to
   // their main shop (user.id), but if they've picked a branch, all queries
@@ -448,31 +445,33 @@ const ShopDashboard = () => {
   //    to land on Sales/POS instead of Bookings.
   const didAutoCorrectTab = useRef(false);
   useEffect(() => {
-    if (didAutoCorrectTab.current) return;
+    queueMicrotask(() => {
+      if (didAutoCorrectTab.current) return;
 
-    if (user.role === 'staff') {
-      if (!shopProfile) return; // wait for the owner's data to load
-      const ownerIsService = shopProfile.businessKind === 'service' ||
-        (!shopProfile.businessKind && isServiceCategory(shopProfile.shopCategory));
-      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
-        setActiveTab('dashboard');
-      }
-      didAutoCorrectTab.current = true;
-    } else if (isOwner) {
-      // For shop owners, `user` itself becomes authoritative once
-      // useAuth's background merge (getUserById → toUser) completes. We
-      // can't easily tell "has the merge happened yet" from inside this
-      // component, so this check simply re-evaluates on every change to
-      // user.businessKind — if it flips to 'service' after mount while
-      // the person is still sitting on the default landing tabs, correct
-      // it once. Guards against ever double-firing via the ref.
-      const ownerIsService = user.businessKind === 'service' ||
-        (!user.businessKind && isServiceCategory(user.shopCategory));
-      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
-        setActiveTab('dashboard');
+      if (user.role === 'staff') {
+        if (!shopProfile) return; // wait for the owner's data to load
+        const ownerIsService = shopProfile.businessKind === 'service' ||
+          (!shopProfile.businessKind && isServiceCategory(shopProfile.shopCategory));
+        if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+          setActiveTab('dashboard');
+        }
         didAutoCorrectTab.current = true;
+      } else if (isOwner) {
+        // For shop owners, `user` itself becomes authoritative once
+        // useAuth's background merge (getUserById → toUser) completes. We
+        // can't easily tell "has the merge happened yet" from inside this
+        // component, so this check simply re-evaluates on every change to
+        // user.businessKind — if it flips to 'service' after mount while
+        // the person is still sitting on the default landing tabs, correct
+        // it once. Guards against ever double-firing via the ref.
+        const ownerIsService = user.businessKind === 'service' ||
+          (!user.businessKind && isServiceCategory(user.shopCategory));
+        if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+          setActiveTab('dashboard');
+          didAutoCorrectTab.current = true;
+        }
       }
-    }
+    });
   }, [shopProfile, user.role, user.businessKind, user.shopCategory, activeTab, isOwner]);
 
 
@@ -587,7 +586,7 @@ const ShopDashboard = () => {
         playTone(1100, 0.9, 0.18, 0.4);
         playTone(1320, 1.1, 0.25, 0.4);
       }
-    } catch {}
+    } catch { /* audio playback unavailable — non-critical */ }
 
     // Browser notification (works even when tab is in background)
     if ('Notification' in window) {
@@ -600,7 +599,7 @@ const ShopDashboard = () => {
             tag: 'new-order',
             renotify: true,
           });
-        } catch {}
+        } catch { /* Notification API unavailable — non-critical */ }
       };
       if (Notification.permission === 'granted') {
         show();
@@ -667,7 +666,7 @@ const ShopDashboard = () => {
         merged.logo = freshOwner.logo || '';
         merged.paymentQr = freshOwner.paymentQr || '';
         merged.upiId = freshOwner.upiId || '';
-        try { localStorage.setItem('mystore_session', JSON.stringify(merged)); } catch {}
+        try { localStorage.setItem('mystore_session', JSON.stringify(merged)); } catch { /* localStorage unavailable — non-critical */ }
       }
     }
 
@@ -803,11 +802,11 @@ const ShopDashboard = () => {
   // owner explicitly switches to combined mode.
   useEffect(() => {
     if (reportsScope !== 'all' || user.role === 'staff' || branches.length < 2) {
-      setAllBranchOrders([]);
+      queueMicrotask(() => setAllBranchOrders([]));
       return;
     }
     let cancelled = false;
-    setAllBranchOrdersLoading(true);
+    queueMicrotask(() => setAllBranchOrdersLoading(true));
     (async () => {
       try {
         const results = await Promise.all(
@@ -1163,20 +1162,6 @@ const ShopDashboard = () => {
     setRoundOff(0);
   };
 
-  const applyPromoCode = () => {
-    const code = promoCode.trim().toUpperCase();
-    if (code === 'FLAT100') {
-      if (billTotal < 100) return toast.error("Total must be at least ₹100 for FLAT100");
-      setDiscountAmount(100);
-      toast.success("₹100 discount applied!");
-    } else if (code === 'WELCOME10') {
-      setDiscountAmount(Math.round(billTotal * 0.10));
-      toast.success("10% discount applied!");
-    } else {
-      toast.error("Invalid promo code!");
-    }
-  };
-
   // ── Print current bill without saving/sending ─────────────────────────────
   // Renders the current cart to PDF and opens it in a new browser tab so
   // the browser's native print dialog appears. Does NOT place an order
@@ -1250,6 +1235,7 @@ const ShopDashboard = () => {
           shopPhone: shop.phone || '',
           shopAddress: businessAddress || shop.address || '',
           shopGSTIN: gstin || '',
+          // eslint-disable-next-line react-hooks/purity -- runs inside printCurrentBill, a click handler, never during render
           billNo: invoiceNo?.formatted || `${Date.now().toString().slice(-6)}`,
           dateStr: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
           modeTitle: modeTitleTpl,
@@ -1277,7 +1263,6 @@ const ShopDashboard = () => {
         setBillItems([]);
         setDiscountAmount(0);
         setManualDiscountPct(0);
-        setPromoCode('');
         setLoyaltyRedeem(0);
         setRoundOff(0);
         setCustomerLoyaltyPoints(0);
@@ -1318,6 +1303,7 @@ const ShopDashboard = () => {
           shopAddress: businessAddress || shop.address || '',
           gstin: customerGstin ? (gstin || '') : (gstin || ''),
           modeTitle: modeTitleT,
+          // eslint-disable-next-line react-hooks/purity -- runs inside printCurrentBill, a click handler, never during render
           billNo: `${Date.now().toString().slice(-6)}`,
           dateStr: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
           customerName: customerName || '',
@@ -1343,7 +1329,6 @@ const ShopDashboard = () => {
         setBillItems([]);
         setDiscountAmount(0);
         setManualDiscountPct(0);
-        setPromoCode('');
         setLoyaltyRedeem(0);
         setRoundOff(0);
         setCustomerLoyaltyPoints(0);
@@ -1356,10 +1341,8 @@ const ShopDashboard = () => {
       }
 
       const mmW        = fmt === 'thermal58' ? 58 : fmt === 'thermal80' ? 80 : 210;
-      const pageH      = isThermal ? 0 : 297; // 0 = auto-height for thermal
       const marginL    = isThermal ? 3 : 15;
       const contentW   = mmW - marginL * 2;
-      const baseFontSz = printFontSize === 'large' ? 12 : 10;
 
       const doc = new JsPDF({
         unit: 'mm',
@@ -1396,7 +1379,7 @@ const ShopDashboard = () => {
       const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
       const logoW = 20, logoH = 20;
       if (hasLogo && !isThermal) {
-        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, logoW, logoH); } catch(e) {}
+        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, logoW, logoH); } catch (_e) { /* corrupt/unsupported logo image — skip */ }
       }
 
       const textX = hasLogo && !isThermal ? marginL + logoW + 4 : marginL;
@@ -1589,7 +1572,6 @@ const ShopDashboard = () => {
       setBillItems([]);
       setDiscountAmount(0);
       setManualDiscountPct(0);
-      setPromoCode('');
       setLoyaltyRedeem(0);
       setRoundOff(0);
       setCustomerLoyaltyPoints(0);
@@ -1698,8 +1680,6 @@ const ShopDashboard = () => {
       const pageH       = 297;
       const marginL     = 15;
       const contentW    = pageW - marginL * 2;
-      const baseFontSz  = printFontSize === 'large' ? 12 : 10;
-      const titleFontSz = printFontSize === 'large' ? 15 : 13;
 
       const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
@@ -1731,7 +1711,7 @@ const ShopDashboard = () => {
       const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
       const logoW = isThermal ? 14 : 22, logoH = isThermal ? 14 : 22, logoX = marginL;
       if (hasLogo) {
-        try { doc.addImage(shop.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch(e) {}
+        try { doc.addImage(shop.logo, 'JPEG', logoX, hy - 6, logoW, logoH); } catch (_e) { /* corrupt/unsupported logo image — skip */ }
       }
       const textX = hasLogo ? (marginL + logoW + 3) : marginL;
 
@@ -1864,7 +1844,6 @@ const ShopDashboard = () => {
       const colSgst  = marginL + 128;   // SGST amount right-edge
       const colIgst  = marginL + 128;   // IGST amount right-edge (same slot as SGST)
       const colTotal = isThermal ? (pageW - marginL - 1) : (pageW - marginL - 2);
-      const colTotalAlign = 'right';
 
       // Table Headers
       if (!isThermal) {
@@ -2110,7 +2089,6 @@ const ShopDashboard = () => {
 
       // Payment method badge
       if (billingMode === 'bill') {
-        const pmIcons = { Cash: '💵', UPI: '📱', Card: '💳', Credit: '📒' };
         const pmColors = { Cash: [16,185,129], UPI: [79,70,229], Card: [59,130,246], Credit: [239,68,68] };
         const pm = paymentMethod || 'Cash';
         const [pmR,pmG,pmB] = pmColors[pm] || pmColors['Cash'];
@@ -2230,7 +2208,6 @@ const ShopDashboard = () => {
 
       // If copies > 1, duplicate the page
       if (printCopies > 1) {
-        const singlePageData = doc.output('arraybuffer');
         for (let c = 1; c < printCopies; c++) {
           doc.addPage(isThermal ? [pageW, pageH] : 'a4');
           // Re-add content via a new doc and copy pages isn't natively supported in jsPDF
@@ -2364,6 +2341,7 @@ const ShopDashboard = () => {
         if (totalSavedWA > 0) msg += `🎉 *You saved Rs.${totalSavedWA} on this ${billingMode === 'estimate' ? 'estimate' : billingMode === 'challan' ? 'challan' : 'bill'}!*\n`;
         let upiUri = null;
         if (billingMode === 'bill' && upiId) {
+          // eslint-disable-next-line react-hooks/purity -- runs inside executeSendWhatsAppBill, a click handler, never during render
           const ref = invoiceNo ? `Ref-${invoiceNo}` : ('ORD' + Date.now().toString().slice(-8));
           const shopForUpi = { upiId, merchantUpiId: shop.merchantUpiId, merchantCode: shop.merchantCode, name: shop.name };
           upiUri = buildUpiUri(shopForUpi, { amount: total, txnRef: ref, note: invoiceNo ? `Bill ${invoiceNo}` : 'Bill Payment' });
@@ -2413,7 +2391,7 @@ const ShopDashboard = () => {
             // reported lived partly here.
             let digits = customerPhone.replace(/\D/g, '');
             if (digits.startsWith('0091')) digits = digits.slice(4);     // 00-91-xxx → xxx
-            else if (digits.startsWith('91') && digits.length === 12) {} // already +91-format, keep
+            else if (digits.startsWith('91') && digits.length === 12) { /* already +91-format, keep */ }
             else if (digits.startsWith('0') && digits.length === 11) digits = digits.slice(1); // 0-xxx → xxx
             if (digits.length === 10) digits = '91' + digits;             // bare 10-digit → prepend 91
             window.open(`https://wa.me/${digits}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -2425,11 +2403,11 @@ const ShopDashboard = () => {
             // was an 8-second toast that quietly disappeared and cashiers
             // missed it — especially in busy shop sessions with multiple
             // bills back-to-back.
-            const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [pdfFile] }));
+            const canShareFile = !!(navigator.canShare && navigator.canShare({ files: [finalPdfFile] }));
             if (canShareFile) {
               setPdfShareQueue(prev => [...prev, {
                 id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                pdfFile,
+                pdfFile: finalPdfFile,
                 customerPhone,
                 mode: billingMode,
               }]);
@@ -2502,7 +2480,6 @@ const ShopDashboard = () => {
       setBillItems([]);
       setDiscountAmount(0);
       setManualDiscountPct(0);
-      setPromoCode('');
       setLoyaltyRedeem(0);
       setRoundOff(0);
       setCustomerLoyaltyPoints(0);
@@ -2623,32 +2600,11 @@ const ShopDashboard = () => {
   const itemLevelSavings = billItemsOriginalTotal - billTotal;
   const manualDiscountAmt = Math.round(billTotal * (manualDiscountPct / 100));
 
-  // Auto round-off remainder. Line-item prices can be fractional
-  // (e.g. ₹499.50, or 5% off ₹333.33 = ₹316.66), so the natural
-  // pre-round total often lands on paise. We snap the FINAL total to
-  // the nearest whole rupee and expose the difference as a round-off
-  // line, so the printed receipt always balances (line items + round
-  // off = total) even when the cashier didn't manually enter one.
-  //
-  // If the cashier HAS entered a manual roundOff, that takes precedence
-  // (they're deliberately rounding ₹297 → ₹295 for cash convenience).
-  // Otherwise we use the auto remainder. Rounded to 2dp to kill
-  // floating-point noise like -0.29999999999998.
-  const loyaltyDiscountRupeesLive = Math.floor(loyaltyRedeem / 10);
-  const naturalPreRound = Math.max(0, billTotal - discountAmount - manualDiscountAmt - loyaltyDiscountRupeesLive);
-  const autoRoundRemainder = Math.round((Math.round(naturalPreRound) - naturalPreRound) * 100) / 100;
-  // effectiveRoundOff: manual entry wins; else the auto remainder.
-  const effectiveRoundOff = (Number(roundOff) || 0) !== 0
-    ? (Number(roundOff) || 0)
-    : autoRoundRemainder;
-  // Stable UPI transaction reference for the in-app QR modal — must not
-  // change on every render (or the QR image re-encodes constantly, and
-  // ESLint react-hooks/purity flags Date.now() called in render). Placed
-  // here right after billTotal on purpose: an earlier attempt put this
-  // useMemo up near the useStates, which caused a TDZ crash ('Cannot
-  // access billTotal before initialization') that took down the whole
-  // dashboard for every logged-in shop.
-  const upiTxnRef = useMemo(() => 'BILL' + Date.now().toString().slice(-8), [billTotal]);
+  // Stable UPI transaction reference for the in-app QR modal — computed
+  // once via lazy useState init (not on every render, or the QR image
+  // would re-encode constantly and ESLint react-hooks/purity flags
+  // Date.now() called in render).
+  const [upiTxnRef] = useState(() => 'BILL' + Date.now().toString().slice(-8));
 
   // Extracted from filteredProducts below so voice-add-to-bill can call
   // it directly and get a synchronous decision — going through
@@ -3483,7 +3439,6 @@ const ShopDashboard = () => {
     const W = 210, H = 297;
     const accent = [79, 70, 229];   // indigo — primary brand colour
     const accentDeep = [67, 56, 202];
-    const ink = [15, 23, 42];
     const sub = [100, 116, 139];
     const faint = [148, 163, 184];
 
@@ -3684,10 +3639,10 @@ const ShopDashboard = () => {
         updates.phone = cleanPhone;
       }
       if (Object.keys(updates).length === 0) { toast('Nothing changed'); return; }
-      const updated = await mustSucceed(() => api.updateProfile(user.id, updates), 'Update account details');
+      await mustSucceed(() => api.updateProfile(user.id, updates), 'Update account details');
       // Refresh session
       const refreshed = { ...user, ...updates };
-      try { localStorage.setItem('mystore_session', JSON.stringify(refreshed)); } catch {}
+      try { localStorage.setItem('mystore_session', JSON.stringify(refreshed)); } catch { /* localStorage unavailable — non-critical */ }
       toast.success('✅ Account details updated!');
     } catch(e) { toast.error(e.message || 'Could not update'); }
     finally { setProfileSaving(false); }
@@ -4021,7 +3976,7 @@ const ShopDashboard = () => {
       let hy = isThermal ? 13 : 20;
       const hasLogo = printShowLogo && shop.logo && shop.logo.startsWith('data:image');
       if (hasLogo) {
-        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, isThermal ? 14 : 22, isThermal ? 14 : 22); } catch {}
+        try { doc.addImage(shop.logo, 'JPEG', marginL, hy - 6, isThermal ? 14 : 22, isThermal ? 14 : 22); } catch { /* corrupt/unsupported logo image — skip */ }
       }
       const textX = hasLogo ? marginL + (isThermal ? 17 : 25) : marginL;
 
@@ -4301,27 +4256,6 @@ const ShopDashboard = () => {
     toast.success('Logo removed');
   };
 
-  const handleNewProdImage = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const check = validateImageFile(file);
-    if (!check.ok) { toast.error(check.reason); e.target.value = ''; return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new window.Image();
-      img.onload = () => {
-        const ratio = Math.min(300 / img.width, 300 / img.height, 1);
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width * ratio;
-        canvas.height = img.height * ratio;
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        setNewProdImage(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleShopPhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (shopPhotos.length + files.length > 6) return toast.error('Maximum 6 photos allowed');
@@ -4477,11 +4411,11 @@ const ShopDashboard = () => {
     // order_id the payment can't be signature-verified, so we must NOT fall
     // back to a client-only charge (that path can take money without granting
     // the plan, or be tampered). Hard-fail with a clear message instead.
-    let orderId = null;
+    let orderId;
     try {
       const orderData = await api.createRazorpayOrder(payPlanId, payPrice);
       orderId = orderData?.orderId;
-    } catch (e) {
+    } catch (_e) {
       orderId = null;
     }
     if (!orderId) {
@@ -4692,7 +4626,6 @@ const ShopDashboard = () => {
   const currentBranchForImport = visibleBranches.find(b => b.id === targetShopId);
   const isOnBranch = !!currentBranchForImport?.parentShopId;
   const isOnMainShop = !isOnBranch;
-  const otherBranchesFromMain = visibleBranches.filter(b => b.parentShopId === targetShopId || b.parentShopId);
   // Branches that can receive a push FROM the current main shop
   const branchesForPush = visibleBranches.filter(b => b.parentShopId === targetShopId);
 
@@ -5826,6 +5759,14 @@ const ShopDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showVoiceRecorderModal && (
+        <VoiceOrderRecorderModal
+          wholesaleCatalog={wholesaleCatalog}
+          onConfirmOrder={handleConfirmVoiceOrder}
+          onClose={() => setShowVoiceRecorderModal(false)}
+        />
       )}
 
       {/* EDIT PRODUCT MODAL — Desktop */}
@@ -8879,6 +8820,14 @@ const ShopDashboard = () => {
         </div>
       )}
 
+      {showVoiceRecorderModal && (
+        <VoiceOrderRecorderModal
+          wholesaleCatalog={wholesaleCatalog}
+          onConfirmOrder={handleConfirmVoiceOrder}
+          onClose={() => setShowVoiceRecorderModal(false)}
+        />
+      )}
+
       {/* CANCEL ORDER MODAL — only for Pending orders */}
       {showCancelModal && cancelTargetOrder && (() => {
         const decoded = decodeOrderUserId(cancelTargetOrder.userId);
@@ -9065,7 +9014,7 @@ const ShopDashboard = () => {
 // comparison, recent activity across all branches, and quick branch
 // switcher. No edit operations here — to act on data, owner picks a
 // branch from the dropdown and goes to that branch's normal tabs.
-function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }) {
+function BranchesDashboard({ orders, branches }) {
   const navigate = useNavigate();
   const [range, setRange] = useState('today');
   const [metric, setMetric] = useState('revenue');
@@ -9270,25 +9219,15 @@ function BranchesDashboard({ orders, branches, setActiveBranchId, setActiveTab }
       <div style={{ marginTop: 16, padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 12, color: '#475569' }}>
         💡 Click any branch card above to switch to that branch and start billing, manage products, or view detailed reports.
       </div>
-
-      {showVoiceRecorderModal && (
-        <VoiceOrderRecorderModal 
-          wholesaleCatalog={wholesaleCatalog} 
-          onConfirmOrder={handleConfirmVoiceOrder} 
-          onClose={() => setShowVoiceRecorderModal(false)} 
-        />
-      )}
     </div>
   );
 }
 
-function CompareBranchesPanel({ orders, branches }) {
+function CompareBranchesPanel() {
   // Legacy component kept for the Reports tab. The Branches tab uses
   // BranchesDashboard which is the canonical multi-branch view.
   return null;
 }
-
-function CombinedScopeBanner() { return null; /* deprecated */ }
 
 function PushToBranchCard({ branches, onPush }) {
   const [selectedBranchId, setSelectedBranchId] = useState(

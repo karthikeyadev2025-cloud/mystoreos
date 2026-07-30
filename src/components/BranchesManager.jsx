@@ -41,7 +41,7 @@ export default function BranchesManager({ ownerId, onChange }) {
     }
   }, [ownerId]);
 
-  useEffect(() => { reload(); }, [reload]);
+  useEffect(() => { queueMicrotask(reload); }, [reload]);
 
   const handleDelete = async (branch) => {
     if (!window.confirm(`Remove "${branch.name}"?\n\nHistorical bills and products from this branch will still be preserved for reports — but the branch disappears from your switcher.`)) return;

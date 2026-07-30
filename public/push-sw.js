@@ -10,7 +10,7 @@
 
 self.addEventListener('push', (event) => {
   // Servers send: { title, body, category, action_url, icon, badge }
-  let payload = {};
+  let payload;
   try { payload = event.data ? event.data.json() : {}; } catch { payload = {}; }
 
   const title = payload.title || 'MyStore OS';

@@ -7,7 +7,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { ArrowLeft, TrendingUp, Percent, Package, AlertTriangle, ShieldCheck, DollarSign, Calendar, RefreshCw } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Percent, Package, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
 import { purchaseApi } from '../../lib/fieldApi';
