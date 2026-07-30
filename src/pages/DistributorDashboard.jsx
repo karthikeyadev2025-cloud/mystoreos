@@ -636,7 +636,7 @@ const DistributorDashboard = () => {
       safe(() => api.getDistributorApiKeyInfo(user.id)),
       safe(() => api.getActiveDeviceCount(user.id)),
       safe(() => api.getSettings()),
-      safe(() => api.getProfile(user.id)),
+      safe(() => api.getUserById(user.id)),
     ]);
 
     if (profileRes && login && (profileRes.distributorPlanTier !== user.distributorPlanTier || profileRes.subscription !== user.subscription)) {

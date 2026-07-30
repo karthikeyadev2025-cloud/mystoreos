@@ -69,7 +69,7 @@ export default function TabUsers() {
   const suspend = async (u) => {
     setBusy(prev => ({ ...prev, [u.id]: true }));
     try {
-      await api.updateUserStatus(u.id, 'suspended');
+      await api.setUserStatus(u.id, 'suspended');
       await api.logAdminAction('suspend_user', u.id, null, null);
       toast.success(`${u.name} suspended`);
       load();
@@ -80,7 +80,7 @@ export default function TabUsers() {
   const activate = async (u) => {
     setBusy(prev => ({ ...prev, [u.id]: true }));
     try {
-      await api.updateUserStatus(u.id, 'active');
+      await api.setUserStatus(u.id, 'active');
       await api.approveUser(u.id);
       await api.logAdminAction('activate_user', u.id, null, null);
       toast.success(`${u.name} activated`);

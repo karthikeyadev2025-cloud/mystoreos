@@ -286,7 +286,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
                 title={shop.hideFromSearch ? 'Show in Search' : 'Hide from Search'}
                 desc={shop.hideFromSearch ? 'Make this shop visible in the marketplace' : 'Hide this shop from public search results'}
                 action={shop.hideFromSearch ? 'Show' : 'Hide'} color={shop.hideFromSearch ? '#0EA5E9' : '#64748B'}
-                onClick={() => act(() => api.toggleShopVisibility(shop.id, !shop.hideFromSearch), `Visibility updated`)}
+                onClick={() => act(() => api.setShopVisibility(shop.id, !shop.hideFromSearch), `Visibility updated`)}
                 busy={busy}
               />
               <ActionRow
@@ -366,7 +366,7 @@ export default function TabShops() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [all, pend] = await Promise.all([api.getAdminUsers?.() || api.getAllShops(), api.getPendingUsers?.() || []]);
+      const [all, pend] = await Promise.all([api.getAllUsers(), api.getPendingApprovals()]);
       setShops(Array.isArray(all) ? all.filter(u => u.role === 'shop' || u.role === 'distributor') : []);
       setPending(Array.isArray(pend) ? pend : []);
     } catch { toast.error('Failed to load shops'); }
@@ -385,7 +385,7 @@ export default function TabShops() {
   const approve       = s => act(s.id, () => api.approveUser(s.id),                                                `${s.name} approved ✅`);
   const suspend       = s => act(s.id, async () => { await api.suspendUser(s.id);   await api.logAdminAction('suspend_user',   s.id, 'active', 'pending'); }, `${s.name} suspended`);
   const unsuspend     = s => act(s.id, async () => { await api.unsuspendUser(s.id); await api.logAdminAction('unsuspend_user', s.id, 'pending', 'active'); }, `${s.name} activated`);
-  const toggleVis     = s => act(s.id, () => api.toggleShopVisibility?.(s.id, !s.hideFromSearch), `Visibility updated`);
+  const toggleVis     = s => act(s.id, () => api.setShopVisibility(s.id, !s.hideFromSearch), `Visibility updated`);
   const del           = s => { if (window.confirm(`Delete ${s.name}? Permanent.`)) act(s.id, async () => { await api.deleteUser(s.id); await api.logAdminAction('delete_user', s.id, null, null); }, `${s.name} deleted`); };
 
   // Stats
