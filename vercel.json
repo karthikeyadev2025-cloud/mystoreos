@@ -94,7 +94,7 @@
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://mystoreos.in"
+          "value": "*"
         }
       ]
     }
