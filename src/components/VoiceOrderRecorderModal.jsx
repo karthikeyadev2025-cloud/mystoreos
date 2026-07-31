@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, ShoppingCart, Trash2, X } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { ensureMicPermission } from '../lib/micPermission';
 
 const TELUGU_NUMBERS = {
   'ఒకటి': 1, 'ఒక': 1, 'okati': 1, 'oka': 1,
@@ -152,32 +153,42 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
 
     setRecognition(recog);
 
-    // Auto-start recording immediately when modal opens
-    try {
-      recog.start();
-    } catch (err) {
-      console.warn('Auto speech start:', err);
-    }
+    // Auto-start when the modal opens — but ONLY after the mic has actually
+    // been granted. This used to call recog.start() immediately, before the
+    // browser had ever been asked. Recognition then failed with
+    // 'not-allowed' and the error handler reported "Microphone permission
+    // blocked" to a user who was never shown a prompt in the first place.
+    let cancelled = false;
+    (async () => {
+      const perm = await ensureMicPermission();
+      if (cancelled) return;
+      if (!perm.ok) {
+        toast.error(perm.message, { autoClose: 8000 });
+        return;
+      }
+      try {
+        recog.start();
+      } catch (err) {
+        if (err?.name !== 'InvalidStateError') console.warn('Auto speech start:', err);
+      }
+    })();
 
     return () => {
-      try { recog.stop(); } catch (_err) { /* already stopped */ }
+      cancelled = true;
+      try { recog.abort(); } catch (_err) { /* already stopped */ }
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [wholesaleCatalog, voiceLang, analyzeVoiceText]);
 
   const requestMicrophonePermission = async () => {
-    try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        return true;
-      }
-    } catch (err) {
-      console.warn('Microphone permission request error:', err);
-      if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-        toast.error('🎙️ Microphone permission denied. Please allow Microphone in your browser settings!');
-        return false;
-      }
+    // Delegates to the shared helper so this and VoiceOrderInput behave
+    // identically: it distinguishes "never asked" (raises the real Allow
+    // prompt) from "already blocked" (which no site can re-prompt — the
+    // user gets the exact steps to unblock instead).
+    const perm = await ensureMicPermission();
+    if (!perm.ok) {
+      toast.error(perm.message, { autoClose: 8000 });
+      return false;
     }
     return true;
   };
