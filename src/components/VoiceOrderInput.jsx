@@ -1,11 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { ensureMicPermission } from '../lib/micPermission';
 
 export default function VoiceOrderInput({ onTranscript }) {
   const [listening, setListening] = useState(false);
-  const [recognition, setRecognition] = useState(null);
   const [supported, setSupported] = useState(true);
+  const [starting, setStarting] = useState(false);
+
+  // The recognition instance is kept in a ref, not state, and is built
+  // exactly once. It used to live in state and be rebuilt by an effect
+  // keyed on `onTranscript` — but ShopDashboard passes an inline arrow, so
+  // a brand-new SpeechRecognition was constructed on EVERY render. That
+  // churn is what produced the spurious "not-allowed"/"aborted" errors and
+  // the mic that appeared to do nothing: on the first paint the state was
+  // still null, and `recognition?.start()` silently no-opped.
+  const recognitionRef = useRef(null);
+  // Latest callback without re-creating recognition (avoids stale closure).
+  const onTranscriptRef = useRef(onTranscript);
+  useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -13,70 +26,88 @@ export default function VoiceOrderInput({ onTranscript }) {
       setSupported(false);
       return;
     }
+
     const recog = new SpeechRecognition();
     recog.continuous = false;
     recog.interimResults = false;
     recog.lang = 'en-IN'; // Supports Indian English, Hindi & Telugu numbers
 
-    recog.onstart = () => setListening(true);
-    recog.onend = () => setListening(false);
+    recog.onstart = () => { setStarting(false); setListening(true); };
+    recog.onend   = () => { setStarting(false); setListening(false); };
+
     recog.onerror = (e) => {
+      setStarting(false);
       setListening(false);
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        if (!window._micPermissionToastShown) {
-          window._micPermissionToastShown = true;
-          toast.error('🎙️ Microphone permission blocked. Tap lock 🔒 in address bar & allow Microphone!');
-          setTimeout(() => { window._micPermissionToastShown = false; }, 5000);
-        }
+        // Permission is handled up-front in toggleListening(); reaching here
+        // means it was revoked mid-session or the engine was denied.
+        toast.error('🎙️ Microphone access was blocked. Allow it from the address-bar icon, then reload.');
         return;
       }
-      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      if (e.error === 'no-speech') {
+        toast.info("Didn't catch that — tap the mic and speak again.");
+        return;
+      }
+      if (e.error !== 'aborted') {
         toast.error(`Voice error: ${e.error}`);
       }
     };
+
     recog.onresult = (e) => {
       const text = e.results[0][0].transcript;
       if (text) {
         toast.info(`🎤 Voice: "${text}"`);
-        if (onTranscript) onTranscript(text);
+        onTranscriptRef.current?.(text);
       }
     };
 
-    setRecognition(recog);
-  }, [onTranscript]);
+    recognitionRef.current = recog;
+    return () => {
+      try { recog.abort(); } catch { /* already stopped */ }
+      recognitionRef.current = null;
+    };
+  }, []);
 
-  const toggleListening = async () => {
+  const toggleListening = useCallback(async () => {
     if (!supported) {
       return toast.warning('Voice recognition is not supported in this browser. Try Chrome or Edge.');
     }
-    if (listening) {
-      recognition?.stop();
-    } else {
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(track => track.stop());
-        }
-      } catch (err) {
-        console.warn('Microphone permission error:', err);
-        if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-          toast.error('🎙️ Microphone permission denied. Please allow Microphone in your browser settings!');
-          return;
-        }
-      }
+    const recog = recognitionRef.current;
+    if (!recog || starting) return;
 
-      try {
-        recognition?.start();
-      } catch (e) {
-        console.warn('Speech error:', e);
+    if (listening) {
+      try { recog.stop(); } catch { /* already stopped */ }
+      return;
+    }
+
+    setStarting(true);
+    // Ask for the mic BEFORE starting recognition. When the permission has
+    // never been granted this is what raises the browser's Allow dialog —
+    // the previous code's failure mode was reporting "denied" without the
+    // user ever having been asked.
+    const perm = await ensureMicPermission();
+    if (!perm.ok) {
+      setStarting(false);
+      toast.error(perm.message, { autoClose: 8000 });
+      return;
+    }
+
+    try {
+      recog.start();
+    } catch (e) {
+      setStarting(false);
+      // InvalidStateError = already running; harmless.
+      if (e?.name !== 'InvalidStateError') {
+        toast.error('Could not start voice input. Please try again.');
       }
     }
-  };
+  }, [supported, listening, starting]);
 
   return (
     <button
       type="button"
       onClick={toggleListening}
+      disabled={starting}
       style={{
         background: listening ? '#DC2626' : '#4F46E5',
         color: '#FFFFFF',
@@ -85,7 +116,8 @@ export default function VoiceOrderInput({ onTranscript }) {
         padding: '8px 12px',
         fontSize: 12,
         fontWeight: 800,
-        cursor: 'pointer',
+        cursor: starting ? 'wait' : 'pointer',
+        opacity: starting ? 0.7 : 1,
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
@@ -95,7 +127,7 @@ export default function VoiceOrderInput({ onTranscript }) {
       title="Voice Order & Search"
     >
       {listening ? <MicOff size={15} /> : <Mic size={15} />}
-      {listening ? 'Listening...' : '🎤 Voice Order'}
+      {starting ? 'Starting…' : listening ? 'Listening...' : '🎤 Voice Order'}
     </button>
   );
 }
