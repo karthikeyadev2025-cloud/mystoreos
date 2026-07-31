@@ -28,7 +28,12 @@ dist-ssr
 *.sw?
 
 # Tool artifacts (ruflo / claude-flow MCP)
-.claude/
+# .claude/settings.json is shared project config (which plugins/marketplaces
+# this repo uses) and IS tracked. Everything else under .claude/ stays local:
+# settings.local.json holds per-developer permissions, and the rest is
+# scratch state from the MCP tooling.
+.claude/*
+!.claude/settings.json
 .claude-flow/
 .swarm/
 .agents/
