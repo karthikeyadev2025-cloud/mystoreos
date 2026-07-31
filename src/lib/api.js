@@ -117,9 +117,35 @@ const saveDB = (db) => {
 };
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
+// Explicit column list for every client-side read of public.users.
+//
+// We CANNOT use select('*') here. 20260730_p0_security_fixes.sql runs
+//   REVOKE SELECT (pass, pass_verify) ON public.users FROM anon, authenticated;
+// and `select=*` asks Postgres for every column — including those two. The
+// whole statement is then denied (42501) and PostgREST returns 403, which
+// silently broke every user-facing read: login's profile fetch, the admin
+// user directory, pending approvals, staff lookups. Listing columns keeps
+// the security fix intact while letting the reads through.
+//
+// Keep this in sync with toUser() below. `pass`/`pass_verify` must never be
+// added — password checks belong server-side (see verify_admin_pin RPC).
+const USER_COLS = [
+  'id', 'phone', 'role', 'name', 'status', 'subscription', 'upi_id',
+  'merchant_upi_id', 'merchant_code', 'logo', 'shop_photos', 'payment_qr',
+  'avatar', 'staff_of', 'latitude', 'longitude', 'gstin', 'state_code',
+  'business_address', 'subscription_tier', 'plan_expires_at',
+  'trial_started_at', 'created_at', 'distributor_plan_tier',
+  'distributor_plan_expires_at', 'distributor_trial_started_at',
+  'home_service_addon_expires_at', 'hide_from_search', 'shop_category',
+  'business_kind', 'opening_hour', 'closing_hour', 'weekly_holidays',
+  'shop_banner', 'ca_id', 'public_code', 'parent_shop_id',
+  'branch_deleted_at', 'onboarding_completed',
+].join(',');
+
 // ---- Helper: Convert Supabase snake_case row to camelCase ----
+// NOTE: no `pass` field — it is deliberately not selected (see USER_COLS).
 const toUser = (row) => row ? ({
-  id: row.id, phone: row.phone, pass: row.pass, role: row.role, name: row.name,
+  id: row.id, phone: row.phone, role: row.role, name: row.name,
   status: row.status, subscription: row.subscription, upiId: row.upi_id,
   merchantUpiId: row.merchant_upi_id || null, merchantCode: row.merchant_code || null,
   logo: row.logo, shopPhotos: row.shop_photos || [], paymentQr: row.payment_qr,
@@ -475,7 +501,7 @@ export const api = {
 
   async loginByPhone(phone) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').select('*').eq('phone', phone).maybeSingle();
+      const { data, error } = await supabase.from('users').select(USER_COLS).eq('phone', phone).maybeSingle();
       if (error || !data) throw new Error("Phone number not registered. Please register first.");
       if (data.status === 'suspended') throw new Error("Account suspended. Please raise a ticket at /support");
       return toUser(data);
@@ -624,7 +650,7 @@ export const api = {
     // Now that a real Supabase session exists, fetch the actual profile
     // row the rest of the app expects (same shape as a normal login).
     const authedUserId = verifyData.session.user.id;
-    const { data: profile, error: profErr } = await supabase.from('users').select('*').eq('id', authedUserId).maybeSingle();
+    const { data: profile, error: profErr } = await supabase.from('users').select(USER_COLS).eq('id', authedUserId).maybeSingle();
     if (profErr || !profile) throw new Error('Logged in, but could not load your profile.');
     return this.getUserById ? (await this.getUserById(profile.id)) : profile;
   },
@@ -858,7 +884,10 @@ export const api = {
 
   async getPendingApprovals() {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').eq('status', 'pending');
+      const { data, error } = await supabase.from('users').select(USER_COLS).eq('status', 'pending');
+      // Surface the failure rather than showing an empty approvals queue —
+      // a silently-empty queue looks identical to "nothing to approve".
+      if (error) throw new Error(error.message || 'Could not load pending approvals');
       return (data || []).map(toUser);
     }
     const db = getDB();
@@ -867,7 +896,7 @@ export const api = {
 
   async getUserById(userId) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      const { data } = await supabase.from('users').select(USER_COLS).eq('id', userId).maybeSingle();
       // Same enrichment as login — useAuth re-fetches through here on
       // every page load, so without it ownerRole would be lost on
       // refresh and a distributor's rep would get bounced to /shop.
@@ -929,7 +958,7 @@ export const api = {
       .select('distributor_id').eq('shop_id', shopId);
     const ids = [...new Set((links || []).map(l => l.distributor_id))];
     if (!ids.length) return [];
-    const { data } = await supabase.from('users').select('*').in('id', ids);
+    const { data } = await supabase.from('users').select(USER_COLS).in('id', ids);
     return (data || []).map(toUser);
   },
 
@@ -939,7 +968,7 @@ export const api = {
       .select('shop_id').eq('distributor_id', distributorId);
     const ids = [...new Set((links || []).map(l => l.shop_id))];
     if (!ids.length) return [];
-    const { data } = await supabase.from('users').select('*').in('id', ids);
+    const { data } = await supabase.from('users').select(USER_COLS).in('id', ids);
     return (data || []).map(toUser);
   },
 
@@ -1077,7 +1106,7 @@ export const api = {
 
   async getAllUsersByRole(role) {
     if (isSupabaseConfigured) {
-      let query = supabase.from('users').select('*');
+      let query = supabase.from('users').select(USER_COLS);
       if (role) query = query.eq('role', role);
       const { data } = await query;
       return (data || []).map(toUser);
@@ -1361,7 +1390,7 @@ export const api = {
 
   async getShopStaff(shopId) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').eq('role', 'staff').eq('staff_of', shopId);
+      const { data } = await supabase.from('users').select(USER_COLS).eq('role', 'staff').eq('staff_of', shopId);
       return (data || []).map(toUser);
     }
     const db = getDB();
@@ -1391,8 +1420,15 @@ export const api = {
 
   async verifyAdminPin(shopId, pin) {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('pass').eq('id', shopId).maybeSingle();
-      if (!data || data.pass !== pin) throw new Error("Invalid Admin PIN");
+      // Compared server-side: users.pass is not readable by anon/authenticated
+      // (P0 column revoke), and the credential should never reach the browser
+      // anyway. See 20260815_verify_admin_pin_rpc.sql.
+      const { data, error } = await supabase.rpc('verify_admin_pin', {
+        p_shop_id: shopId,
+        p_pin: pin,
+      });
+      if (error) throw new Error(error.message || 'Could not verify Admin PIN');
+      if (data !== true) throw new Error("Invalid Admin PIN");
       return true;
     }
     const db = getDB();
@@ -2018,12 +2054,12 @@ export const api = {
           // Just return the single shop record via getShopById which uses a
           // more permissive public read path.
           if (error.code === 'PGRST301' || error.message?.includes('400') || /permission|policy|rls/i.test(error.message || '')) {
-            const { data: own } = await supabase.from('users').select('*').eq('id', rootId).maybeSingle();
+            const { data: own } = await supabase.from('users').select(USER_COLS).eq('id', rootId).maybeSingle();
             return own ? [toUser(own)] : [];
           }
           // Column doesn't exist yet (migration not run)
           if (/parent_shop_id|branch_deleted_at/i.test(error.message || '')) {
-            const { data: own } = await supabase.from('users').select('*').eq('id', ownerId).maybeSingle();
+            const { data: own } = await supabase.from('users').select(USER_COLS).eq('id', ownerId).maybeSingle();
             return own ? [toUser(own)] : [];
           }
           throw new Error(error.message);
@@ -2248,7 +2284,7 @@ export const api = {
         .order('parent_shop_id', { ascending: true, nullsFirst: true })
         .order('created_at', { ascending: true });
       if (error) {
-        const { data: own } = await supabase.from('users').select('*').eq('id', rootId).maybeSingle();
+        const { data: own } = await supabase.from('users').select(USER_COLS).eq('id', rootId).maybeSingle();
         return own ? [toUser(own)] : [];
       }
       return (data || []).filter(r => !r.branch_deleted_at).map(toUser);
@@ -2834,7 +2870,7 @@ export const api = {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId);
       if (isUUID) {
         try {
-          const { data } = await supabase.from('users').select('*').eq('id', shopId).eq('role', 'shop').maybeSingle();
+          const { data } = await supabase.from('users').select(USER_COLS).eq('id', shopId).eq('role', 'shop').maybeSingle();
           if (data) return toUser(data);
         } catch (err) {
           console.error("Supabase getShopById UUID lookup failed:", err);
@@ -2843,7 +2879,7 @@ export const api = {
       
       // Fallback: try matching by phone or search mockDB
       try {
-        const { data } = await supabase.from('users').select('*').eq('phone', shopId).eq('role', 'shop').maybeSingle();
+        const { data } = await supabase.from('users').select(USER_COLS).eq('phone', shopId).eq('role', 'shop').maybeSingle();
         if (data) return toUser(data);
       } catch (_err) {
         // Silent
@@ -2869,7 +2905,7 @@ export const api = {
 
   async getAllShops() {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').in('role', ['shop', 'distributor']);
+      const { data } = await supabase.from('users').select(USER_COLS).in('role', ['shop', 'distributor']);
       return (data || []).map(toUser);
     }
     const db = getDB();
@@ -2973,7 +3009,7 @@ export const api = {
   // ── CA: only shops that assigned this CA ──
   async getMyClients(caId) {
     if (!isSupabaseConfigured) return [];
-    const { data } = await supabase.from('users').select('*').eq('role', 'shop').eq('ca_id', caId);
+    const { data } = await supabase.from('users').select(USER_COLS).eq('role', 'shop').eq('ca_id', caId);
     return (data || []).map(toUser);
   },
 
@@ -2996,7 +3032,7 @@ export const api = {
       ...(links || []).map(l => l.shop_id),
     ].filter(Boolean))];
     if (shopIds.length === 0) return [];
-    let query = supabase.from('users').select('*').in('id', shopIds).order('name');
+    let query = supabase.from('users').select(USER_COLS).in('id', shopIds).order('name');
     if (search.trim()) query = query.ilike('name', `%${search.trim()}%`);
     else query = query.limit(limit);
     const { data: shops } = await query;
@@ -3119,7 +3155,7 @@ export const api = {
       if (__lastRealError) {
         throw new Error(__lastRealError.message || 'Failed to save — you may not have permission to update this.');
       }
-      const { data: updated } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      const { data: updated } = await supabase.from('users').select(USER_COLS).eq('id', userId).maybeSingle();
       return toUser(updated);
     }
     const db = getDB();
@@ -3628,7 +3664,7 @@ export const api = {
       const { data: prods } = await supabase.from('products').select('*').ilike('name', `%${query}%`);
       if (!prods || prods.length === 0) return [];
       const shopIds = [...new Set(prods.map(p => p.shop_id))];
-      const { data: shops } = await supabase.from('users').select('*').in('id', shopIds);
+      const { data: shops } = await supabase.from('users').select(USER_COLS).in('id', shopIds);
       const shopMap = {};
       (shops || []).forEach(s => { shopMap[s.id] = toUser(s); });
       return prods.map(p => ({
@@ -4862,7 +4898,12 @@ export const api = {
   // ---- ADMIN: USER MANAGEMENT ----
   async getAllUsers() {
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('users').select(USER_COLS).order('created_at', { ascending: false });
+      // Was `const { data }` — a permission error (e.g. the 403 caused by
+      // select('*') hitting the revoked pass columns) came back as data=null
+      // and rendered as an empty user directory. An admin then sees "no
+      // users" and has no way to tell a broken query from an empty table.
+      if (error) throw new Error(error.message || 'Could not load users');
       return (data || []).map(toUser);
     }
     const db = getDB();
@@ -4872,7 +4913,7 @@ export const api = {
   async searchUsers(query) {
     const q = (query || '').toLowerCase();
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*')
+      const { data } = await supabase.from('users').select(USER_COLS)
         .or(`name.ilike.%${q}%,phone.ilike.%${q}%`).limit(50);
       return (data || []).map(toUser);
     }
@@ -5097,7 +5138,7 @@ export const api = {
   async getExpiredTrials() {
     const cutoff = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
     if (isSupabaseConfigured) {
-      const { data } = await supabase.from('users').select('*')
+      const { data } = await supabase.from('users').select(USER_COLS)
         .eq('role', 'shop').eq('subscription', 'trial').lt('trial_started_at', cutoff);
       return (data || []).map(toUser);
     }
