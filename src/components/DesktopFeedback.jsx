@@ -71,7 +71,7 @@ export default function DesktopFeedback({ shopId }) {
     catch (_e) { toast.error('Failed to load feedback'); }
     finally { setLoading(false); }
   }, [shopId]);
-  useEffect(() => { queueMicrotask(load); }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const filtered = feedback.filter(f => {
     if (filter === 'positive') return f.rating >= 4;

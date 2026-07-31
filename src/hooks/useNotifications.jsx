@@ -43,7 +43,7 @@ export function useNotifications(userId, { onNew } = {}) {
   // Initial hydration + realtime subscription.
   useEffect(() => {
     if (!userId) return;
-    queueMicrotask(reload);
+    reload();
     if (!isSupabaseConfigured) return;
 
     const channel = supabase

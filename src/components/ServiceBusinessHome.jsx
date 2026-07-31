@@ -63,7 +63,7 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
     setLoading(false);
   }, [shopId]);
 
-  useEffect(() => { queueMicrotask(loadAppointments); }, [loadAppointments]);
+  useEffect(() => { loadAppointments(); }, [loadAppointments]);
 
   const today = new Date().toISOString().slice(0, 10);
 

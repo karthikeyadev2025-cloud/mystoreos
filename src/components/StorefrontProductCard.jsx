@@ -18,7 +18,7 @@ function ProgressiveImg({ src, alt, style = {} }) {
 
   useEffect(() => {
     if (!inView || !src) return;
-    queueMicrotask(() => setState('loading'));
+    setState('loading');
     const img = new window.Image();
     img.onload  = () => setState('loaded');
     img.onerror = () => setState('error');

@@ -38,11 +38,9 @@ export default function TabComms() {
   const [busyCs, setBusyCs] = useState(false);
   useEffect(() => {
     if (!config) return;
-    queueMicrotask(() => {
-      setCs({
-        comingSoon1Active: !!config.comingSoon1Active, comingSoon1Title: config.comingSoon1Title || '', comingSoon1Sub: config.comingSoon1Sub || '',
-        comingSoon2Active: !!config.comingSoon2Active, comingSoon2Title: config.comingSoon2Title || '', comingSoon2Sub: config.comingSoon2Sub || '',
-      });
+    setCs({
+      comingSoon1Active: !!config.comingSoon1Active, comingSoon1Title: config.comingSoon1Title || '', comingSoon1Sub: config.comingSoon1Sub || '',
+      comingSoon2Active: !!config.comingSoon2Active, comingSoon2Title: config.comingSoon2Title || '', comingSoon2Sub: config.comingSoon2Sub || '',
     });
   }, [config]);
   const saveComingSoon = async () => {

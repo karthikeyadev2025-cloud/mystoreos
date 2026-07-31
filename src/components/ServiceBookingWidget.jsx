@@ -109,7 +109,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   // (shop has no staff set up), falls back to the original shop-wide
   // fixed-grid behaviour.
   useEffect(() => {
-    queueMicrotask(() => setLoadingSlots(true));
+    setLoadingSlots(true);
     if (selectedProvider) {
       api.getProviderAvailability(selectedProvider.id, selectedDate)
         .then(avail => {
@@ -118,7 +118,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
         })
         .finally(() => setLoadingSlots(false));
     } else {
-      queueMicrotask(() => setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false }));
+      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
       api.getBookedSlots(shopId, selectedDate)
         .then(setBookedRanges)
         .finally(() => setLoadingSlots(false));

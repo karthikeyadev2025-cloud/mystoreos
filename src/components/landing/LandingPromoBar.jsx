@@ -52,9 +52,7 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
     // Dismissal is per-browser-session only — re-shows on next visit /
     // after the dev server restarts, so it doesn't get permanently hidden
     // for a returning visitor across days.
-    queueMicrotask(() => {
-      try { setDismissed(sessionStorage.getItem('mso_promo_dismissed') === '1'); } catch { /* sessionStorage unavailable — stay shown */ }
-    });
+    try { setDismissed(sessionStorage.getItem('mso_promo_dismissed') === '1'); } catch { /* sessionStorage unavailable — stay shown */ }
   }, []);
 
   if (!promo?.active || !promo?.text || dismissed) return null;

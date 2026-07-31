@@ -370,7 +370,7 @@ const UserDashboard = () => {
   // Lazy-load bookings the first time the customer opens that tab.
   useEffect(() => {
     if (activeTab === 'bookings' && !myBookingsLoaded) {
-      queueMicrotask(loadMyBookings);
+      loadMyBookings();
     }
   }, [activeTab, myBookingsLoaded, loadMyBookings]);
 
@@ -998,12 +998,10 @@ const UserDashboard = () => {
   // If session expires while WA modal is open, close it and route back to auth.
   useEffect(() => {
     if (!user && showWaModal) {
-      queueMicrotask(() => {
-        setShowWaModal(false);
-        setGuestName(''); setGuestPhone(''); setGuestPassword('');
-        setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
-        setShowGuestModal(true);
-      });
+      setShowWaModal(false);
+      setGuestName(''); setGuestPhone(''); setGuestPassword('');
+      setAuthTab('signup'); setAuthStep('form'); setAuthLoggedInUser(null);
+      setShowGuestModal(true);
     }
   }, [user, showWaModal]);
 

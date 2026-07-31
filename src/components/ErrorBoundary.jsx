@@ -69,13 +69,6 @@ class ErrorBoundary extends Component {
           : this.props.fallback;
       }
 
-      let isDev = false;
-      try {
-        isDev = !!(import.meta.env && import.meta.env.DEV);
-      } catch {
-        // Safe fallback
-      }
-
       let errorString;
       try {
         errorString = this.state.error ? String(this.state.error.message || this.state.error) : '';
@@ -106,7 +99,7 @@ class ErrorBoundary extends Component {
               We hit an unexpected error. Your data is safe — try refreshing the page or click retry below.
             </p>
 
-            {isDev && errorString && (
+            {errorString && (
               <div style={{
                 background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
                 borderRadius: '10px', padding: '12px', marginBottom: '20px', textAlign: 'left',

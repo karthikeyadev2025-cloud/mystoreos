@@ -438,18 +438,16 @@ const DistributorDashboard = () => {
   const [creatingBranch, setCreatingBranch] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   useEffect(() => {
-    queueMicrotask(() => {
-      if (user) setProfileForm({
-        name: user.name || '',
-        gstin: user.gstin || '',
-        stateCode: user.stateCode || '',
-        businessAddress: user.businessAddress || '',
-        upiId: user.upiId || '',
-        latitude: user.latitude || null,
-        longitude: user.longitude || null,
-      });
-      if (user) setLogo(user.logo || '');
+    if (user) setProfileForm({
+      name: user.name || '',
+      gstin: user.gstin || '',
+      stateCode: user.stateCode || '',
+      businessAddress: user.businessAddress || '',
+      upiId: user.upiId || '',
+      latitude: user.latitude || null,
+      longitude: user.longitude || null,
     });
+    if (user) setLogo(user.logo || '');
   }, [user]);
   const handleDistLogoFile = (e) => {
     const file = e.target.files[0];
