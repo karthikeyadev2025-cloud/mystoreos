@@ -475,7 +475,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         .then(avail => { setDayAvailability(avail); setBookedRanges(avail.bookedRanges || []); })
         .catch(() => setBookedRanges([]));
     } else {
-      queueMicrotask(() => setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false }));
+      setDayAvailability({ isOpen: true, workingStart: null, workingEnd: null, onTimeOff: false });
       api.getBookedSlots(shopId, date).then(setBookedRanges).catch(() => setBookedRanges([]));
     }
   }, [shopId, date, providerId]);
@@ -716,7 +716,7 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
   // Staff), keep the internal sub-tab in sync. useState only reads the
   // initial value once, so without this, clicking a different sidebar
   // entry would land back on whatever sub-tab was last selected.
-  useEffect(() => { queueMicrotask(() => setTab(initialTab)); }, [initialTab]);
+  useEffect(() => { setTab(initialTab); }, [initialTab]);
   const [services, setServices] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -743,7 +743,7 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
     finally { setLoading(false); }
   }, [shopId]);
 
-  useEffect(() => { queueMicrotask(loadData); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   // Was entirely missing: no realtime subscription and no polling meant
   // a new booking from the public storefront (or a customer cancelling/

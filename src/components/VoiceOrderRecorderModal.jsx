@@ -150,7 +150,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
       analyzeVoiceText(currentText.trim());
     };
 
-    queueMicrotask(() => setRecognition(recog));
+    setRecognition(recog);
 
     // Auto-start recording immediately when modal opens
     try {

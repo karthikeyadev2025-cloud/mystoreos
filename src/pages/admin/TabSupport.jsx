@@ -53,7 +53,8 @@ export default function TabSupport() {
   const loadTickets = async (status = ticketFilter) => {
     try { setTickets(await api.getAllTickets(status)); } catch { /* ignore */ }
   };
-  useEffect(() => { queueMicrotask(() => loadTickets(ticketFilter)); }, [ticketFilter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadTickets(ticketFilter); }, [ticketFilter]);
 
   const openAdminTicket = async (t) => {
     setActiveTicket(t);

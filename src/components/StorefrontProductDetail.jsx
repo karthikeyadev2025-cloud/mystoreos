@@ -16,10 +16,8 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
 
   // Reset to the first variant whenever a different product is opened
   useEffect(() => {
-    queueMicrotask(() => {
-      setSelectedVariant(hasVariantPricing ? product.variantPrices[0].name : null);
-      setIdx(0);
-    });
+    setSelectedVariant(hasVariantPricing ? product.variantPrices[0].name : null);
+    setIdx(0);
   }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

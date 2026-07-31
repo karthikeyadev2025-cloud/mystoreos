@@ -10,7 +10,7 @@ export default function VoiceOrderInput({ onTranscript }) {
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      queueMicrotask(() => setSupported(false));
+      setSupported(false);
       return;
     }
     const recog = new SpeechRecognition();
@@ -42,7 +42,7 @@ export default function VoiceOrderInput({ onTranscript }) {
       }
     };
 
-    queueMicrotask(() => setRecognition(recog));
+    setRecognition(recog);
   }, [onTranscript]);
 
   const toggleListening = async () => {

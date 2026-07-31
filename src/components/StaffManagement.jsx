@@ -67,7 +67,7 @@ function TimeOffManager({ providerId }) {
     try { setTimeOff(await api.getProviderTimeOff(providerId)); } catch (_e) { /* non-fatal for this sub-panel */ }
   }, [providerId]);
 
-  useEffect(() => { queueMicrotask(load); }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const add = async () => {
     if (endDate < startDate) return toast.error('End date must be after start date');
@@ -265,7 +265,7 @@ export default function StaffManagement({ shopId }) {
     setLoading(false);
   }, [shopId]);
 
-  useEffect(() => { queueMicrotask(loadProviders); }, [loadProviders]);
+  useEffect(() => { loadProviders(); }, [loadProviders]);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this staff member? Existing appointments keep their history but lose the assignment.')) return;

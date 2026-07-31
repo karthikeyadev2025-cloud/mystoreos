@@ -42,7 +42,7 @@ export default function TabAffiliate() {
     setLoading(false);
   };
 
-  useEffect(() => { queueMicrotask(load); }, []);
+  useEffect(() => { load(); }, []);
 
   const totalPending = attrs.filter(a => a.status === 'pending').reduce((s, a) => s + (a.amount || 0), 0);
   const totalApproved = attrs.filter(a => a.status === 'approved' || a.status === 'paid').reduce((s, a) => s + (a.amount || 0), 0);

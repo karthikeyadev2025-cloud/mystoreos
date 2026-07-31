@@ -445,33 +445,31 @@ const ShopDashboard = () => {
   //    to land on Sales/POS instead of Bookings.
   const didAutoCorrectTab = useRef(false);
   useEffect(() => {
-    queueMicrotask(() => {
-      if (didAutoCorrectTab.current) return;
+    if (didAutoCorrectTab.current) return;
 
-      if (user.role === 'staff') {
-        if (!shopProfile) return; // wait for the owner's data to load
-        const ownerIsService = shopProfile.businessKind === 'service' ||
-          (!shopProfile.businessKind && isServiceCategory(shopProfile.shopCategory));
-        if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
-          setActiveTab('dashboard');
-        }
-        didAutoCorrectTab.current = true;
-      } else if (isOwner) {
-        // For shop owners, `user` itself becomes authoritative once
-        // useAuth's background merge (getUserById → toUser) completes. We
-        // can't easily tell "has the merge happened yet" from inside this
-        // component, so this check simply re-evaluates on every change to
-        // user.businessKind — if it flips to 'service' after mount while
-        // the person is still sitting on the default landing tabs, correct
-        // it once. Guards against ever double-firing via the ref.
-        const ownerIsService = user.businessKind === 'service' ||
-          (!user.businessKind && isServiceCategory(user.shopCategory));
-        if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
-          setActiveTab('dashboard');
-          didAutoCorrectTab.current = true;
-        }
+    if (user.role === 'staff') {
+      if (!shopProfile) return; // wait for the owner's data to load
+      const ownerIsService = shopProfile.businessKind === 'service' ||
+        (!shopProfile.businessKind && isServiceCategory(shopProfile.shopCategory));
+      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+        setActiveTab('dashboard');
       }
-    });
+      didAutoCorrectTab.current = true;
+    } else if (isOwner) {
+      // For shop owners, `user` itself becomes authoritative once
+      // useAuth's background merge (getUserById → toUser) completes. We
+      // can't easily tell "has the merge happened yet" from inside this
+      // component, so this check simply re-evaluates on every change to
+      // user.businessKind — if it flips to 'service' after mount while
+      // the person is still sitting on the default landing tabs, correct
+      // it once. Guards against ever double-firing via the ref.
+      const ownerIsService = user.businessKind === 'service' ||
+        (!user.businessKind && isServiceCategory(user.shopCategory));
+      if (ownerIsService && (activeTab === 'home' || activeTab === 'dashboard')) {
+        setActiveTab('dashboard');
+        didAutoCorrectTab.current = true;
+      }
+    }
   }, [shopProfile, user.role, user.businessKind, user.shopCategory, activeTab, isOwner]);
 
 
@@ -802,11 +800,11 @@ const ShopDashboard = () => {
   // owner explicitly switches to combined mode.
   useEffect(() => {
     if (reportsScope !== 'all' || user.role === 'staff' || branches.length < 2) {
-      queueMicrotask(() => setAllBranchOrders([]));
+      setAllBranchOrders([]);
       return;
     }
     let cancelled = false;
-    queueMicrotask(() => setAllBranchOrdersLoading(true));
+    setAllBranchOrdersLoading(true);
     (async () => {
       try {
         const results = await Promise.all(

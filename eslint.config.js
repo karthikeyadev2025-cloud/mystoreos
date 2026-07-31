@@ -27,6 +27,15 @@ export default defineConfig([
         argsIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
       }],
+      // These three landed as errors in eslint-plugin-react-hooks v6 and
+      // flag long-standing patterns all over the dashboards. Mechanically
+      // "fixing" them (e.g. deferring setState out of effect bodies) changes
+      // render/effect timing and caused real regressions. Kept as warnings so
+      // they stay visible and can be addressed deliberately, one call site at
+      // a time, with the behaviour actually verified — not silenced in bulk.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/immutability': 'warn',
     },
   },
   {

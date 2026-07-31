@@ -24,7 +24,7 @@ export default function PushToggle({ userId }) {
     setStatus(s);
   };
 
-  useEffect(() => { queueMicrotask(refresh); }, []);
+  useEffect(() => { refresh(); }, []);
 
   if (!isPushSupported()) {
     return (

@@ -371,7 +371,7 @@ export default function TabShops() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { queueMicrotask(load); }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const act = useCallback(async (id, fn, label) => {
     setBusy(b => ({ ...b, [id]: true }));

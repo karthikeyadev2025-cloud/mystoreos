@@ -179,10 +179,8 @@ export default function DirectSale() {
       p.sku?.toLowerCase() === q
     );
     if (exactMatch && exactMatch.id !== selectedProdId) {
-      queueMicrotask(() => {
-        handleProductSelect(exactMatch.id);
-        toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
-      });
+      handleProductSelect(exactMatch.id);
+      toast.info(`⚡ Auto-matched product: ${exactMatch.name}`);
     }
   }, [searchQuery, products, selectedProdId, handleProductSelect]);
 

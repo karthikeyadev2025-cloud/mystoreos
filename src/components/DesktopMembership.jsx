@@ -205,7 +205,7 @@ export default function DesktopMembership({ shopId }) {
     setLoading(false);
   }, [shopId]);
 
-  useEffect(() => { queueMicrotask(loadData); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const today = new Date().toISOString().slice(0, 10);
   const activeMembers = members.filter(m => m.status === 'active' && m.expires_on >= today);
