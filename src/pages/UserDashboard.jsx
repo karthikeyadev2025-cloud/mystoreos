@@ -2488,7 +2488,7 @@ const UserDashboard = () => {
                         })
                         .catch(err => {
                           console.error('Order DB save failed:', err);
-                          toast.error('Order sent to shop on WhatsApp but could not save to history.');
+                          toast.error(err?.message || 'Order sent to shop on WhatsApp but could not save to history.');
                         });
                     }}
                     style={{ width: '100%', background: 'linear-gradient(135deg,#25d366,#128c7e)', color: '#fff', border: 'none', padding: '15px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
@@ -3978,7 +3978,7 @@ return (
                     })
                     .catch(err => {
                       console.error('Order DB save failed:', err);
-                      toast.error('Order sent to shop but could not save to history.');
+                      toast.error(err?.message || 'Order sent to shop but could not save to history.');
                     });
                 }
               }}
