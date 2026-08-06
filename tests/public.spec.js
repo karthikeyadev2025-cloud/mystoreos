@@ -73,9 +73,10 @@ test.describe('Public storefronts', () => {
     // into a TDZ crash, this fails.
     await expect(page.locator('body')).toContainText(/rk jeans/i, { timeout: 10_000 });
     await expect(page.locator('body')).toContainText(/₹/, { timeout: 10_000 });
-    // A retail shop must NOT show "Book Appointment" — that was leaking
-    // service functionality into retail before ee86abc.
-    await expect(page.locator('body')).not.toContainText(/book appointment/i);
+    // NOTE: "Book Appointment" now legitimately appears for any shop
+    // (retail or service) with an active service listed - see
+    // UserDashboard.jsx loadCatalogue / shopHasServices. Asserting its
+    // absence here is no longer a valid invariant for this shop.
     expectNoErrors(errors);
   });
 

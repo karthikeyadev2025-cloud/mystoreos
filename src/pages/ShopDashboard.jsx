@@ -2489,7 +2489,7 @@ const ShopDashboard = () => {
       loadData();
     } catch (e) {
       console.error(e);
-      toast.error("Error saving receipt");
+      toast.error(e?.message || "Error saving receipt");
     }
   };
 
