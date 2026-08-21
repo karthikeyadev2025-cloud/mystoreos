@@ -1,4 +1,4 @@
-// P5 — proves two live RLS gaps, then proves the fix closes them.
+// P6 — proves two live RLS gaps, then proves the fix closes them.
 //
 // Unlike the P4 tests (which exercise SECURITY DEFINER functions), these
 // need real RLS enforcement, so the harness creates actual anon /

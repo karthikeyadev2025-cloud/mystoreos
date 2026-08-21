@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════
--- P5 — Two live RLS gaps
+-- P6 — Two live RLS gaps
 --
 -- Both are cases where a later, correct policy was added but the earlier
 -- permissive one was never dropped. In Postgres, multiple PERMISSIVE
@@ -151,4 +151,4 @@ REVOKE ALL ON FUNCTION public.get_booked_slots(uuid, date, uuid) FROM public;
 GRANT EXECUTE ON FUNCTION public.get_booked_slots(uuid, date, uuid) TO anon, authenticated;
 
 
-SELECT 'P5 RLS gap fixes installed' AS status;
+SELECT 'P6 RLS gap fixes installed' AS status;
