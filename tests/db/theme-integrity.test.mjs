@@ -108,9 +108,12 @@ for (const f of [...files, 'index.html']) {
   let body = '';
   try { body = readFileSync(f, 'utf8'); } catch { continue; }
   for (const face of OLD_FACES) {
-    // A mention inside a comment is fine; a font-family declaration is not.
-    const re = new RegExp(`font-?[fF]amily[^;\\n]*${face}`);
-    if (re.test(body)) fontOffenders.push(`${face} in ${f}`);
+    // A mention inside a comment is fine; a font-family declaration is
+    // not — and neither is a CDN request for the face, which is how it
+    // kept being downloaded after every font-family had been replaced.
+    const declared = new RegExp(`font-?[fF]amily[^;\\n]*${face}`);
+    const fetched  = new RegExp(`family=${face.replace(/ /g, '\\+')}`, 'i');
+    if (declared.test(body) || fetched.test(body)) fontOffenders.push(`${face} in ${f}`);
   }
 }
 check('no font-family still names a retired typeface',
@@ -118,9 +121,21 @@ check('no font-family still names a retired typeface',
 
 // Fonts must be self-hosted: this ships in a Capacitor wrapper where a
 // CDN fetch is a round trip on first paint and fails offline.
-const html = readFileSync('index.html', 'utf8');
-check('no CDN font links (fonts are self-hosted)',
-      !/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html));
+//
+// This originally checked index.html ALONE and passed while three
+// @import url(fonts.googleapis.com) lines were live in src/index.css,
+// src/pages/Login.jsx and src/components/landing/_tokens.js — two of
+// them still pulling Plus Jakarta Sans, the face that was supposedly
+// retired. A test that checks one file and reports on all of them is
+// worse than no test: it makes the wrong answer look verified.
+const cdnFontRefs = [];
+for (const f of [...files, 'index.html']) {
+  let body = '';
+  try { body = readFileSync(f, 'utf8'); } catch { continue; }
+  if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(body)) cdnFontRefs.push(f);
+}
+check('no CDN font links anywhere (fonts are self-hosted)',
+      cdnFontRefs.length === 0, cdnFontRefs.join(', '));
 
 // Each family must actually be loaded somewhere. Bricolage arrives via a
 // hand-written @font-face in styles/fonts.css rather than an @fontsource

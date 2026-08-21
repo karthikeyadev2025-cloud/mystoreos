@@ -10,7 +10,10 @@ export default function LandingFinalCTA({ navigate: nav }) {
 
   return (
     <section style={{
-      background: T.voidLift,
+      // The one dark band on a light page, and deliberately so: the
+      // conversion moment gets the strongest value contrast available.
+      // A uniformly light page has no rhythm and nothing to land on.
+      background: 'var(--c-ink-surface)',
       padding: 'clamp(72px,9vw,112px) clamp(20px,5vw,48px)',
       position: 'relative',
       overflow: 'hidden',
@@ -47,7 +50,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
           <button
             className="lx-btn"
             onClick={() => navigate('/register')}
-            style={{ background: T.voidLift, color: T.text, fontWeight: 700 }}
+            style={{ background: 'var(--c-surface)', color: 'var(--c-ink)', fontWeight: 700 }}
           >
             Start free for 15 days
           </button>

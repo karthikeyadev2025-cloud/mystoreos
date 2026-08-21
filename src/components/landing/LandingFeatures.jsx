@@ -57,8 +57,8 @@ const SERVICES = (addonPrice) => [
 
 const PLAN_TONE = {
   'All plans':  { fg: 'var(--c-success)', bg: 'rgba(52,211,153,0.12)' },
-  'Pro':        { fg: 'var(--c-primary-light)', bg: 'rgba(129,140,248,0.14)' },
-  'Enterprise': { fg: 'var(--c-warning)', bg: 'rgba(245,185,66,0.13)' },
+  'Pro':        { fg: 'var(--c-primary)', bg: 'var(--c-primary-soft)' },
+  'Enterprise': { fg: 'var(--c-warning)', bg: 'var(--c-accent-soft)' },
 };
 // Add-on badges carry a live price ("Add-on ₹199/mo") rather than a
 // fixed tier name, so they can't be exact-matched against PLAN_TONE's

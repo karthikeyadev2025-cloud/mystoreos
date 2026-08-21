@@ -4,7 +4,9 @@
    Zoho-quality UI: clean hierarchy, proper spacing, joy to use
    Primary: var(--c-primary)  Canvas: var(--c-line-soft)  White: var(--c-surface)
    ═══════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Fonts are self-hosted via @fontsource in main.jsx. The CDN @import that
+   used to live here pulled Plus Jakarta Sans — the retired face — and cost
+   a network round trip that fails offline inside the Capacitor wrapper. */
 
 /* ═══════════════════════════════════════════════════════════════
    ANDROID/MOBILE: Add visible padding from screen edges

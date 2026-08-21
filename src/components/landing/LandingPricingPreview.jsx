@@ -49,16 +49,16 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
   };
 
   return (
-    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'var(--c-ink-surface)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'var(--c-bg)', borderTop: '1px solid var(--c-line)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-warning)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Pricing</div>
           <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: 'var(--c-bg)', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>
           <p style={{ color: 'rgba(248,250,252,0.38)', fontSize: 16, marginTop: 10 }}>Start free. Upgrade when ready. Cancel anytime.</p>
-          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
+          <div style={{ display: 'inline-flex', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
             {['shop', 'service', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
-                style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? 'var(--c-ink-surface)' : 'var(--c-faint)', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
+                style={{ background: tab === t ? 'var(--c-primary-soft)' : 'transparent', border: `1px solid ${tab === t ? 'var(--c-primary-border)' : 'transparent'}`, color: tab === t ? 'var(--c-primary)' : 'var(--c-muted)', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
                 {t === 'shop' ? '🏪 Shopkeeper' : t === 'service' ? '💇 Service business' : '🚚 Distributor'}
               </button>
             ))}
@@ -67,7 +67,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
           {/* Billing cycle toggle (shop only, config-driven) */}
           {cycles.length > 1 && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
+              <div style={{ display: 'inline-flex', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 4, gap: 4, flexWrap: 'wrap' }}>
                 {cycles.map(c => {
                   const disc = c !== 'monthly' ? Number(pricing?.discounts?.[c]) || 0 : 0;
                   return (
@@ -94,9 +94,9 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
             return (
             <motion.div key={p.id || i}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-              style={{ background: 'linear-gradient(180deg,var(--c-ink-surface-2),var(--c-ink))', border: `1px solid ${p.popular ? 'var(--c-primary-light)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 16, boxShadow: p.popular ? '0 0 44px -10px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.09)' : 'inset 0 1px 0 rgba(255,255,255,0.05)', padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
+              style={{ background: 'var(--c-surface)', border: `1px solid ${p.popular ? 'var(--c-primary)' : 'var(--c-line)'}`, borderRadius: 16, boxShadow: p.popular ? '0 12px 32px -14px rgba(18,69,122,0.35)' : '0 1px 2px rgba(11,31,51,0.04)', padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
               {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,var(--c-primary-light),var(--c-warning))' }} />}
-              {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: 'linear-gradient(135deg,var(--c-primary-light),var(--c-primary))', color: 'var(--c-surface)', fontSize: 9.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', boxShadow: '0 0 20px -4px rgba(99,102,241,0.6)' }}>POPULAR</div>}
+              {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: 'var(--c-accent)', color: 'var(--c-ink)', fontSize: 9.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', boxShadow: '0 2px 8px -2px rgba(18,69,122,0.35)' }}>POPULAR</div>}
               {isFree && <div style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)', color: 'var(--c-success)', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20 }}>FREE FOREVER</div>}
               <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-bg)', marginBottom: 6 }}>{p.name}</div>
               <div style={{ fontSize: 'clamp(24px,3.5vw,36px)', fontWeight: 900, color: 'var(--c-bg)', marginBottom: 4 }}>
@@ -121,7 +121,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
                   </li>
                 ))}
               </ul>
-              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: p.popular ? 'linear-gradient(135deg,var(--c-primary-light),var(--c-primary))' : 'rgba(255,255,255,0.06)', color: 'var(--c-surface)', fontWeight: 600, fontSize: 13.5, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", border: p.popular ? 'none' : '1px solid rgba(255,255,255,0.16)' }}>
+              <button onClick={() => navigate('/register')} style={{ marginTop: 20, width: '100%', padding: '12px', borderRadius: 10, background: p.popular ? 'var(--c-primary)' : 'var(--c-surface-2)', color: 'var(--c-surface)', fontWeight: 600, fontSize: 13.5, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", border: p.popular ? 'none' : '1px solid rgba(255,255,255,0.16)' }}>
                 {isFree ? 'Get Started Free' : 'Start Free Trial →'}
               </button>
             </motion.div>
@@ -143,7 +143,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{
             marginTop: 32, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto',
-            background: 'linear-gradient(180deg,var(--c-ink-surface-2),var(--c-ink))', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--c-surface)', border: '1px solid var(--c-line)',
             borderRadius: 8, padding: '28px 32px',
             display: 'flex', flexDirection: 'column', gap: 14,
           }}

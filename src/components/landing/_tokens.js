@@ -1,75 +1,101 @@
 // ─────────────────────────────────────────────────────────────────────
-// LANDING TOKENS — deep ground, lit surfaces.
+// LANDING TOKENS — light ground, printed ledger.
 //
-// The ledger stays as the structural idea (ruled rows, tabular figures,
-// the day book as the hero artifact) — but it's lit from within rather
-// than printed flat. Think a premium product shot of the book, not a
-// photocopy of it.
+// This page used to be a dark "void" with glowing panels. The idea was
+// good and is kept: the day book is still the hero, two facing pages,
+// retail left and services right, both posting into one Day Total. The
+// artwork is still the argument.
 //
-// Depth comes from three layers:
-//   1. the void      — the page ground, near-black with a blue cast
-//   2. the surface   — raised panels, lifted off the void by light
-//   3. the artifact  — the day book, glowing, the thing you look at
+// What changed is the light. Reasons, in order of weight:
 //
-// Brand indigo carries all the energy. The gold is the second voice —
-// used for money, totals, and the things that make a shopkeeper money.
+//   1. Every competitor in this category — Vyapar, myBillBook, Zoho
+//      Books, Tally — is light. Dark reads as developer tool or crypto.
+//      Software that touches a shopkeeper's money and their GST filing
+//      should feel trustworthy and faintly boring, not moody.
+//   2. The dashboard is warm cream now. A dark landing opening into a
+//      light app is a visible seam at exactly the wrong moment: signup.
+//   3. The audience is on mid-range Android in Indian daylight. Dark
+//      surfaces on a cheap LCD in sunlight are genuinely harder to read.
+//   4. heynikki.in is light. Same company, same face.
+//
+// Depth now comes from print, not from glow:
+//   1. the ground     — warm cream, the page the ledger sits on
+//   2. the surface    — white panels, lifted by a soft shadow
+//   3. the artifact   — the day book, ruled and legible
+//
+// Navy carries the structure. Amber is the second voice and is reserved
+// for money — totals, the bottom line, the thing that pays the bill.
+//
+// A note on the glows: on a dark ground a blurred colour pool reads as
+// atmosphere. On cream it reads as a printing defect. They are kept but
+// pulled right down and warmed, so they tint the ground rather than
+// announce themselves.
 // ─────────────────────────────────────────────────────────────────────
 
 export const T = {
-  // Ground — near-black, cooled with blue so it reads as depth, not soot
-  void:        'var(--c-ink-surface)',
-  voidLift:    'var(--c-ink-surface)',
-  surface:     'var(--c-ink)',
-  surfaceLift: 'var(--c-ink-surface-2)',
+  // Ground — the warm cream from heynikki.in
+  void:        'var(--c-bg)',
+  voidLift:    'var(--c-surface-2)',
+  surface:     'var(--c-surface)',
+  surfaceLift: 'var(--c-surface)',
 
-  // Hairlines and edges
-  edge:        'rgba(255,255,255,0.08)',
-  edgeLift:    'rgba(255,255,255,0.14)',
-  edgeGlow:    'rgba(129,140,248,0.35)',
+  // Hairlines and edges — warm sand, the ruled lines of a ledger
+  edge:        'var(--c-line)',
+  edgeLift:    'var(--c-line-strong)',
+  edgeGlow:    'var(--c-primary-border)',
 
   // Text
-  text:        'var(--c-bg)',
-  textSoft:    'rgba(248,250,252,0.62)',
-  textFaint:   'rgba(248,250,252,0.38)',
-  textGhost:   'rgba(248,250,252,0.22)',
+  text:        'var(--c-ink)',
+  textSoft:    'var(--c-muted)',
+  textFaint:   'var(--c-faint)',
+  textGhost:   'var(--c-line-strong)',
 
-  // Brand — the energy of the page
-  brand:       'var(--c-primary-light)',
-  brandBright: 'var(--c-primary-light)',
-  brandDeep:   'var(--c-primary)',
-  brandGlow:   'rgba(99,102,241,0.28)',
+  // Brand — navy carries the structure
+  brand:       'var(--c-primary)',
+  brandBright: 'var(--c-primary)',
+  brandDeep:   'var(--c-primary-hover)',
+  brandGlow:   'rgba(18, 69, 122, 0.10)',
 
-  // Gold — money, totals, the bottom line. The second voice.
-  gold:        'var(--c-warning)',
-  goldBright:  'var(--c-warning)',
-  goldGlow:    'rgba(245,185,66,0.22)',
+  // Amber — money, totals, the bottom line. The second voice.
+  gold:        'var(--c-accent)',
+  goldBright:  'var(--c-accent-hover)',
+  goldGlow:    'rgba(233, 167, 44, 0.14)',
 
   // Semantics
-  green:       'var(--c-success)',
-  greenGlow:   'rgba(52,211,153,0.18)',
+  green:       'var(--c-success-strong)',
+  greenGlow:   'rgba(34, 197, 94, 0.10)',
   rose:        'var(--c-danger)',
-  roseGlow:    'rgba(251,113,133,0.18)',
+  roseGlow:    'rgba(194, 56, 43, 0.10)',
 };
 
 export const F = {
-  display: "'Archivo', system-ui, sans-serif",
-  body:    "'Inter', system-ui, sans-serif",
-  mono:    "'JetBrains Mono', ui-monospace, 'Courier New', monospace",
+  // The same three faces as the rest of the app, self-hosted. This page
+  // previously pulled Archivo and Inter from Google's CDN — a different
+  // typeface family from the product it was selling, and a network
+  // dependency that fails offline in the Capacitor wrapper.
+  display: "var(--font-display)",
+  body:    "var(--font-sans)",
+  mono:    "var(--font-mono)",
 };
 
 export const LANDING_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* No CDN import. See F below — the landing page now uses the same
+   self-hosted brand faces as the rest of the app. */
 
 html { scroll-behavior: smooth; }
 *, *::before, *::after { box-sizing: border-box; }
 
 /* ── Ambient light. Two soft pools of colour bleeding through the void,
       so the page has atmosphere rather than being a flat black rectangle. */
+/* Kept, but at a fraction of the strength. A blurred colour pool on a
+   dark ground reads as atmosphere; the same pool on cream reads as a
+   printing defect. At this opacity it only warms the ground. */
 .lx-glow {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(90px);
+  filter: blur(110px);
+  opacity: 0.35;
   z-index: 0;
 }
 
@@ -109,24 +135,25 @@ html { scroll-behavior: smooth; }
 
 /* ── Surface. A raised panel, lifted off the void by a light edge on top
       and a shadow beneath. This is what stops the page reading flat. */
+/* On a dark ground a panel is lifted by an inner white highlight and a
+   deep shadow. On cream neither works: the highlight is invisible and
+   the shadow reads as grime. A white panel on cream separates by value
+   alone, so it needs only a hairline and a soft, warm-tinted shadow. */
 .lx-surface {
-  background: linear-gradient(180deg, ${T.surfaceLift} 0%, ${T.surface} 100%);
+  background: ${T.surface};
   border: 1px solid ${T.edge};
   border-radius: 16px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 1px 2px rgba(0,0,0,0.4),
-    0 12px 40px -12px rgba(0,0,0,0.6);
+    0 1px 2px rgba(11, 31, 51, 0.04),
+    0 12px 32px -16px rgba(11, 31, 51, 0.12);
 }
 .lx-surface-hover { transition: transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s, border-color .2s; }
 .lx-surface-hover:hover {
   transform: translateY(-3px);
   border-color: ${T.edgeGlow};
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.09),
-    0 1px 2px rgba(0,0,0,0.4),
-    0 20px 50px -14px rgba(0,0,0,0.7),
-    0 0 40px -12px ${T.brandGlow};
+    0 1px 2px rgba(11, 31, 51, 0.05),
+    0 22px 44px -20px rgba(11, 31, 51, 0.18);
 }
 
 /* ── Buttons */
@@ -147,29 +174,22 @@ html { scroll-behavior: smooth; }
   position: relative;
 }
 .lx-btn-primary {
-  background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
-  color: var(--c-surface);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.25),
-    0 2px 8px rgba(0,0,0,0.4),
-    0 0 32px -6px ${T.brandGlow};
+  background: ${T.brandBright};
+  color: var(--c-ink-inverse);
+  box-shadow: 0 1px 2px rgba(11, 31, 51, 0.10);
 }
 .lx-btn-primary:hover {
   transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.3),
-    0 4px 14px rgba(0,0,0,0.5),
-    0 0 52px -6px ${T.brandGlow};
+  background: ${T.brandDeep};
+  box-shadow: 0 6px 18px -6px rgba(18, 69, 122, 0.45);
 }
 .lx-btn-ghost {
-  background: rgba(255,255,255,0.04);
+  background: ${T.surface};
   color: ${T.text};
   border-color: ${T.edgeLift};
-  backdrop-filter: blur(8px);
 }
 .lx-btn-ghost:hover {
-  background: rgba(255,255,255,0.08);
+  background: var(--c-surface-2);
   border-color: ${T.edgeGlow};
   transform: translateY(-2px);
 }
@@ -181,21 +201,21 @@ html { scroll-behavior: smooth; }
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: rgba(255,255,255,0.03);
+  background: ${T.surface};
   border: 1px solid ${T.edge};
   border-radius: 8px;
-  color: ${T.textFaint};
+  color: ${T.textSoft};
   padding: 10px 18px;
   cursor: pointer;
   width: auto;
   transition: all .18s;
 }
-.lx-tab:hover { color: ${T.text}; border-color: ${T.edgeLift}; background: rgba(255,255,255,0.06); }
+.lx-tab:hover { color: ${T.text}; border-color: ${T.edgeLift}; background: var(--c-surface-2); }
 .lx-tab[data-active='true'] {
-  color: var(--c-surface);
-  background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
+  color: var(--c-ink-inverse);
+  background: ${T.brandBright};
   border-color: transparent;
-  box-shadow: 0 0 28px -6px ${T.brandGlow}, inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow: 0 1px 2px rgba(11, 31, 51, 0.10);
 }
 
 /* ── Pills / chips */
@@ -211,7 +231,7 @@ html { scroll-behavior: smooth; }
   padding: 5px 11px;
   border-radius: 999px;
   border: 1px solid ${T.edge};
-  background: rgba(255,255,255,0.04);
+  background: ${T.surface};
   color: ${T.textSoft};
 }
 

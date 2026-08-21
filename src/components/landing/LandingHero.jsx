@@ -62,7 +62,7 @@ function Page({ label, dot, cols, rows, subtotal, subtotalLabel, delay, divider 
         <div key={name} className="lx-post" style={{
           display: 'grid', gridTemplateColumns: '1fr 52px 68px', gap: 10,
           alignItems: 'center', padding: '10px 0',
-          borderBottom: `1px solid rgba(255,255,255,0.04)`,
+          borderBottom: `1px solid ${T.edge}`,
           animationDelay: `${delay + i * 100}ms`,
         }}>
           <span style={{
@@ -117,8 +117,10 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
       {/* Faint grid — graph paper under the ledger */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)`,
+        // Ink on cream now, not white on black — a faint ruled grid, the
+        // graph paper a ledger is drawn on.
+        backgroundImage: `linear-gradient(rgba(11,31,51,0.035) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(11,31,51,0.035) 1px, transparent 1px)`,
         backgroundSize: '48px 48px',
         maskImage: 'radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 100%)',
         WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 100%)',
@@ -144,7 +146,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         <div className="lx-hero-grid">
           {/* ── Left: the pitch ── */}
           <div style={{ minWidth: 0 }}>
-            <span className="lx-chip lx-post" style={{ marginBottom: 22, color: T.brandBright, borderColor: T.edgeGlow, background: 'rgba(99,102,241,0.10)' }}>
+            <span className="lx-chip lx-post" style={{ marginBottom: 22, color: T.brandBright, borderColor: T.edgeGlow, background: 'var(--c-primary-soft)' }}>
               <Zap size={11} /> 15-day free trial
             </span>
 
@@ -208,7 +210,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '13px clamp(18px,2.2vw,24px)',
                 borderBottom: `1px solid ${T.edge}`,
-                background: 'rgba(255,255,255,0.025)',
+                background: 'var(--c-surface-2)',
               }}>
                 <span style={{
                   fontFamily: F.mono, fontSize: 10, letterSpacing: '0.14em',
@@ -240,7 +242,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '17px clamp(18px,2.2vw,24px)',
                 borderTop: `1px solid ${T.edgeLift}`,
-                background: `linear-gradient(180deg, rgba(245,185,66,0.07), rgba(245,185,66,0.02))`,
+                background: `linear-gradient(180deg, var(--c-accent-soft), transparent)`,
                 animationDelay: '1120ms',
               }}>
                 <span style={{
