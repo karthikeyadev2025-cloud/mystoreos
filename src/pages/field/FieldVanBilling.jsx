@@ -386,10 +386,10 @@ export default function FieldVanBilling() {
           style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Field Setup
         </button>
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 14, padding: 28, textAlign: 'center' }}>
           <Truck size={30} color="var(--c-warning-strong)" style={{ marginBottom: 10 }} />
           <h2 style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-warning-strong)', margin: '0 0 6px' }}>Van Sales is an Enterprise feature</h2>
-          <p style={{ fontSize: 13, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: 'var(--c-warning-strong)', margin: 0, lineHeight: 1.6 }}>
             Bill customers directly from the van with zero network connection, take returns
             on the spot, and sync everything when you're back in range.
           </p>
@@ -417,7 +417,7 @@ export default function FieldVanBilling() {
       </div>
 
       {vehicles.length === 0 ? (
-        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
           No vans set up yet.
         </div>
       ) : (
@@ -444,7 +444,7 @@ export default function FieldVanBilling() {
           {vehicleId && seriesState && (
             <>
               {(pendingCount + returnPendingCount) > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-warning-strong)' }}>
                     {pendingCount + returnPendingCount} document{(pendingCount + returnPendingCount) === 1 ? '' : 's'} not yet synced
                   </span>
@@ -471,10 +471,10 @@ export default function FieldVanBilling() {
               </div>
 
               {mode === 'sell' && lastReceipt && (
-                <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <CheckCircle2 size={14} color="var(--c-success-strong)" />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#047857' }}>{lastReceipt.invoiceRef} · ₹{lastReceipt.total.toLocaleString('en-IN')}</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-success-strong)' }}>{lastReceipt.invoiceRef} · ₹{lastReceipt.total.toLocaleString('en-IN')}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={printSaleInvoice}
@@ -490,10 +490,10 @@ export default function FieldVanBilling() {
               )}
 
               {mode === 'return' && lastReturnReceipt && (
-                <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <CheckCircle2 size={14} color="var(--c-danger-strong)" />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>{lastReturnReceipt.creditRef} · ₹{lastReturnReceipt.totalCredit.toLocaleString('en-IN')} credited</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-danger-strong)' }}>{lastReturnReceipt.creditRef} · ₹{lastReturnReceipt.totalCredit.toLocaleString('en-IN')} credited</span>
                   </div>
                 </div>
               )}
@@ -535,7 +535,7 @@ export default function FieldVanBilling() {
                       <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
                     </div>
                     <button onClick={() => setCart(c => c.filter(x => x.productId !== l.productId))}
-                      style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>
@@ -574,7 +574,7 @@ export default function FieldVanBilling() {
               )}
 
               {mode === 'return' && (
-              <div style={{ background: 'var(--c-surface)', border: '1px solid #FECACA', borderRadius: 12, padding: 16 }}>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
                 <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setWalkInName(''); setWalkInPhone(''); } }} style={{ ...S.input, marginBottom: shopId ? 12 : 8 }}>
                   <option value="">— walk-in / not listed —</option>
@@ -618,7 +618,7 @@ export default function FieldVanBilling() {
                     {returnPhoto ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <img src={returnPhoto} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--c-line)' }} />
-                        <button onClick={() => setReturnPhoto('')} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                        <button onClick={() => setReturnPhoto('')} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                       </div>
                     ) : (
                       <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px dashed var(--c-line)', borderRadius: 10, padding: 12, cursor: 'pointer', color: 'var(--c-muted)', fontSize: 12, fontWeight: 700 }}>
@@ -630,13 +630,13 @@ export default function FieldVanBilling() {
                 )}
 
                 {returnCart.map(l => (
-                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
+                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, marginBottom: 6 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.name}</div>
                       <div style={{ fontSize: 11, color: 'var(--c-danger-strong)' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
                     </div>
                     <button onClick={() => setReturnCart(c => c.filter(x => x.productId !== l.productId))}
-                      style={{ background: 'var(--c-surface)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-surface)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>

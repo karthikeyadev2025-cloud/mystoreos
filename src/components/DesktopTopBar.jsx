@@ -95,14 +95,14 @@ const DesktopTopBar = ({
           const active = activeTab === id;
           return (
             <button key={id} onClick={() => setActiveTab(id)}
-              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'var(--c-ink)':' #6473A0', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'var(--c-ink)':' var(--c-primary-light)', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
               onMouseEnter={e => { if(!active) e.currentTarget.style.color='var(--c-primary)'; }}
               onMouseLeave={e => { if(!active) e.currentTarget.style.color='var(--c-muted)'; }}
             >
               <Icon size={14} color={active?GOLD:'currentColor'} style={{ flexShrink:0 }} />
               {label}
               {badge && pendingOrders > 0 && (
-                <span style={{ background:'#E53E3E', color:'var(--c-surface)', borderRadius:10, padding:'1px 5px', fontSize:9, fontWeight:800, marginLeft:2 }}>{pendingOrders}</span>
+                <span style={{ background:'var(--c-danger)', color:'var(--c-surface)', borderRadius:10, padding:'1px 5px', fontSize:9, fontWeight:800, marginLeft:2 }}>{pendingOrders}</span>
               )}
               {active && <div style={{ position:'absolute', bottom:0, left:8, right:8, height:2.5, borderRadius:'2px 2px 0 0', background:'var(--c-ink)' }} />}
             </button>

@@ -528,16 +528,16 @@ export default function DirectSale() {
 
       {/* Last Invoice Completion Banner */}
       {lastSale && (
-        <div style={{ background: 'linear-gradient(135deg, var(--c-success-soft) 0%, var(--c-success-soft) 100%)', border: '1px solid #A7F3D0', borderRadius: 16, padding: 18, marginBottom: 20, boxShadow: '0 6px 20px rgba(16,185,129,0.1)' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-success-soft) 0%, var(--c-success-soft) 100%)', border: '1px solid var(--c-success-soft)', borderRadius: 16, padding: 18, marginBottom: 20, boxShadow: '0 6px 20px rgba(16,185,129,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <CheckCircle2 size={20} color="var(--c-success-strong)" />
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#047857' }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-success-strong)' }}>
                   {lastSale.docType === 'quotation' ? 'Quotation Generated' : 'Invoice Completed'} · ₹{lastSale.totals.grandTotal.toLocaleString('en-IN')}
                 </span>
               </div>
-              <p style={{ margin: '4px 0 0 28px', fontSize: 12, color: '#065F46' }}>
+              <p style={{ margin: '4px 0 0 28px', fontSize: 12, color: 'var(--c-success-strong)' }}>
                 Customer: <strong>{lastSale.buyer}</strong> · {lastSale.assignedVeh ? `Van: ${lastSale.assignedVeh}` : 'Warehouse Direct'}
               </p>
             </div>
@@ -547,7 +547,7 @@ export default function DirectSale() {
                 <Receipt size={15} /> Print A4
               </button>
               <button onClick={() => handlePrintInvoice('a5', false)}
-                style={{ background: '#7C3AED', color: 'var(--c-surface)', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                style={{ background: 'var(--c-violet)', color: 'var(--c-surface)', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Receipt size={15} /> Print A5
               </button>
               <button onClick={() => handlePrintInvoice('a4', true)}
@@ -555,7 +555,7 @@ export default function DirectSale() {
                 <Printer size={15} /> Print Duplicate Copy
               </button>
               <button onClick={() => handlePrintInvoice('3inch', false)}
-                style={{ background: '#0284C7', color: 'var(--c-surface)', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Printer size={15} /> Thermal Receipt
               </button>
               {lastSale.phone && (
@@ -859,7 +859,7 @@ export default function DirectSale() {
                         {item.sku ? `SKU: ${item.sku} ` : ''}{item.hsn ? `· HSN: ${item.hsn}` : ''}
                       </div>
                     </div>
-                    <button onClick={() => removeLineItem(item.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                    <button onClick={() => removeLineItem(item.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={14} />
                     </button>
                   </div>
@@ -923,7 +923,7 @@ export default function DirectSale() {
                       <td style={{ padding: '12px 8px', textAlign: 'right', color: 'var(--c-ink-2)' }}>{item.gstRate}%</td>
                       <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: 'var(--c-ink)' }}>₹{item.lineTotal.toFixed(2)}</td>
                       <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                        <button onClick={() => removeLineItem(item.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                        <button onClick={() => removeLineItem(item.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                           <X size={14} />
                         </button>
                       </td>
@@ -1008,7 +1008,7 @@ export default function DirectSale() {
                   </div>
                 )}
                 {totals.freight > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#2563EB' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--c-primary)' }}>
                     <span>Freight Charges:</span>
                     <span>+₹{totals.freight.toFixed(2)}</span>
                   </div>
@@ -1049,7 +1049,7 @@ export default function DirectSale() {
             </div>
 
             <button onClick={handleSubmitSale} disabled={busy}
-              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success-strong) 0%, #047857 100%)', color: 'var(--c-surface)', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px -4px rgba(5,150,105,0.35)' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success-strong) 0%, var(--c-success-strong) 100%)', color: 'var(--c-surface)', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px -4px rgba(5,150,105,0.35)' }}>
               <ShoppingCart size={20} /> {busy ? 'Generating GST Invoice…' : `Complete & Save ${docType === 'quotation' ? 'Quotation' : 'Tax Invoice'} (₹${totals.grandTotal.toLocaleString('en-IN')})`}
             </button>
           </div>

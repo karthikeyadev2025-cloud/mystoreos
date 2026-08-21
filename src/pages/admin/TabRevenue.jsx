@@ -4,21 +4,21 @@ import { RefreshCw, TrendingUp, IndianRupee, Store, Truck, CreditCard } from 'lu
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_COLORS = { starter: 'var(--c-warning)', pro: 'var(--c-primary)', enterprise: 'var(--c-success)', service_starter: '#fb923c', service_pro: '#a78bfa', service_enterprise: '#34d399' };
+const TIER_COLORS = { starter: 'var(--c-warning)', pro: 'var(--c-primary)', enterprise: 'var(--c-success)', service_starter: 'var(--c-orange)', service_pro: 'var(--c-violet)', service_enterprise: 'var(--c-success)' };
 const DIST_COLORS = { basic_distributor: 'var(--c-muted)', pro_distributor: 'var(--c-primary)', enterprise_distributor: 'var(--c-success)' };
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' },
   label: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' },
   val: { color: 'var(--c-ink)', fontSize: '26px', fontWeight: 700 },
   sub: { color: 'var(--c-muted)', fontSize: '12px', marginTop: '4px' },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
-  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #F3F4F6' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid var(--c-line-soft)' },
 };
 
-const CHART_STYLE = { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
+const CHART_STYLE = { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
   return (
@@ -104,7 +104,7 @@ export default function TabRevenue() {
           <h2 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700 }}>Revenue & Billing</h2>
           <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>MRR breakdown and subscription analytics</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
           <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>
@@ -116,7 +116,7 @@ export default function TabRevenue() {
         <StatCard icon={Truck} label="Distributor MRR" value={`₹${(stats?.distMRR || 0).toLocaleString()}`} sub={`${distributors.length} distributors`} color="var(--c-success)" />
         <StatCard icon={TrendingUp} label="Annualized ARR" value={`₹${(totalMRR * 12).toLocaleString()}`} color="var(--c-warning)" />
         <StatCard icon={CreditCard} label="Outstanding Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues across platform" color="var(--c-danger)" />
-        <StatCard icon={Store} label="Paid Shops" value={stats?.paidShops || 0} sub={`of ${stats?.totalShops || 0} total`} color="#06B6D4" />
+        <StatCard icon={Store} label="Paid Shops" value={stats?.paidShops || 0} sub={`of ${stats?.totalShops || 0} total`} color="var(--c-cyan)" />
       </div>
 
       <div style={{ ...S.card, marginBottom: '20px' }}>
@@ -147,7 +147,7 @@ export default function TabRevenue() {
           <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Shop Tier Breakdown</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+              <tr style={{ borderBottom: '2px solid var(--c-line)' }}>
                 <th style={S.th}>Tier</th><th style={S.th}>Count</th><th style={S.th}>MRR</th>
               </tr>
             </thead>
@@ -180,7 +180,7 @@ export default function TabRevenue() {
           <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Distributor Tier Breakdown</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+              <tr style={{ borderBottom: '2px solid var(--c-line)' }}>
                 <th style={S.th}>Tier</th><th style={S.th}>Count</th><th style={S.th}>MRR</th>
               </tr>
             </thead>

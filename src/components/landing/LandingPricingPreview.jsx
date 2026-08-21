@@ -49,7 +49,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
   };
 
   return (
-    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: '#0C1120', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'var(--c-ink-surface)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-warning)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Pricing</div>
@@ -58,7 +58,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
           <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(26,34,48,0.08)', borderRadius: 12, padding: 4, marginTop: 20, gap: 4 }}>
             {['shop', 'service', 'distributor'].map(t => (
               <button key={t} onClick={() => setTab(t)}
-                style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? '#0C121B' : '#909AA6', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
+                style={{ background: tab === t ? 'rgba(244,63,94,0.15)' : 'transparent', border: `1px solid ${tab === t ? 'rgba(244,63,94,0.3)' : 'transparent'}`, color: tab === t ? 'var(--c-ink-surface)' : 'var(--c-faint)', padding: '8px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", transition: 'all 0.2s' }}>
                 {t === 'shop' ? '🏪 Shopkeeper' : t === 'service' ? '💇 Service business' : '🚚 Distributor'}
               </button>
             ))}
@@ -72,7 +72,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
                   const disc = c !== 'monthly' ? Number(pricing?.discounts?.[c]) || 0 : 0;
                   return (
                     <button key={c} onClick={() => setCycle(c)}
-                      style={{ background: cycle === c ? 'linear-gradient(135deg,var(--c-primary-light),var(--c-primary))' : 'transparent', border: 'none', color: cycle === c ? 'var(--c-surface)' : '#5A6472', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                      style={{ background: cycle === c ? 'linear-gradient(135deg,var(--c-primary-light),var(--c-primary))' : 'transparent', border: 'none', color: cycle === c ? 'var(--c-surface)' : 'var(--c-muted)', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>
                       {cycleLabel[c]}{disc > 0 && <span style={{ marginLeft: 6, fontSize: 10, color: cycle === c ? 'var(--c-surface)' : 'var(--c-success)', fontWeight: 800 }}>-{disc}%</span>}
                     </button>
                   );
@@ -94,8 +94,8 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
             return (
             <motion.div key={p.id || i}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-              style={{ background: 'linear-gradient(180deg,#161F35,#111827)', border: `1px solid ${p.popular ? 'var(--c-primary-light)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 16, boxShadow: p.popular ? '0 0 44px -10px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.09)' : 'inset 0 1px 0 rgba(255,255,255,0.05)', padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
-              {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,var(--c-primary-light),#F5B942)' }} />}
+              style={{ background: 'linear-gradient(180deg,var(--c-ink-surface-2),var(--c-ink))', border: `1px solid ${p.popular ? 'var(--c-primary-light)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 16, boxShadow: p.popular ? '0 0 44px -10px rgba(99,102,241,0.45), inset 0 1px 0 rgba(255,255,255,0.09)' : 'inset 0 1px 0 rgba(255,255,255,0.05)', padding: 'clamp(20px,3vw,28px) clamp(16px,2.5vw,24px)', position: 'relative', overflow: 'hidden' }}>
+              {p.popular && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,var(--c-primary-light),var(--c-warning))' }} />}
               {p.popular && <div style={{ position: 'absolute', top: 14, right: 16, background: 'linear-gradient(135deg,var(--c-primary-light),var(--c-primary))', color: 'var(--c-surface)', fontSize: 9.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', boxShadow: '0 0 20px -4px rgba(99,102,241,0.6)' }}>POPULAR</div>}
               {isFree && <div style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)', color: 'var(--c-success)', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 20 }}>FREE FOREVER</div>}
               <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-bg)', marginBottom: 6 }}>{p.name}</div>
@@ -143,7 +143,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{
             marginTop: 32, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto',
-            background: 'linear-gradient(180deg,#161F35,#111827)', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'linear-gradient(180deg,var(--c-ink-surface-2),var(--c-ink))', border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 8, padding: '28px 32px',
             display: 'flex', flexDirection: 'column', gap: 14,
           }}
@@ -151,7 +151,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
             <div style={{ fontSize: 36 }}>🏠</div>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
+              <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: 'var(--c-violet)', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
                 ADD-ON — ANY PLAN
               </div>
               <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: 'var(--c-bg)', letterSpacing: '-0.5px' }}>
@@ -165,7 +165,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
               <div style={{ fontSize: 30, fontWeight: 900, color: 'var(--c-bg)', letterSpacing: '-1px' }}>
                 ₹{pricing?.addons?.homeService ?? 199}<span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(248,250,252,0.62)' }}>/mo</span>
               </div>
-              <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 600 }}>
+              <div style={{ fontSize: 11, color: 'var(--c-violet)', fontWeight: 600 }}>
                 Works with Starter, Pro, or Enterprise
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
               'Same booking flow customers already use',
             ].map(f => (
               <div key={f} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: 'rgba(248,250,252,0.62)' }}>
-                <span style={{ color: '#a78bfa', fontWeight: 800 }}>✓</span> {f}
+                <span style={{ color: 'var(--c-violet)', fontWeight: 800 }}>✓</span> {f}
               </div>
             ))}
           </div>

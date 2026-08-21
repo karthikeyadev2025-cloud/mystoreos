@@ -152,7 +152,7 @@ export default function ShopVanHistory() {
                   const msg = `Hi, I'd like to reorder what I got in ${item.ref}:\n\n${lines}\n\nPlease let me know availability. Thanks!`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
                 }}
-                style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
                 💬 Reorder via WhatsApp
               </button>
             </div>

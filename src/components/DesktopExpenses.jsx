@@ -7,8 +7,8 @@ const EXPENSE_CATS = ['Rent', 'Electricity', 'Wages', 'Supplies', 'Packaging', '
 
 const CAT_COLORS = {
   Rent: 'var(--c-danger)', Electricity: 'var(--c-warning)', Wages: '#4A7CAD',
-  Supplies: 'var(--c-info)', Packaging: '#06B6D4', Transport: 'var(--c-success)',
-  Maintenance: '#F97316', Misc: 'var(--c-muted)',
+  Supplies: 'var(--c-info)', Packaging: 'var(--c-cyan)', Transport: 'var(--c-success)',
+  Maintenance: 'var(--c-orange)', Misc: 'var(--c-muted)',
 };
 
 // Local calendar day/month — was new Date().toISOString(), which is UTC
@@ -118,8 +118,8 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
           {/* Left — add form + list */}
           <div>
             {/* Add form */}
-            <div style={{ background: '#FFF1F2', border: '1px solid #FFE4E6', borderRadius: '14px', padding: '16px', marginBottom: '20px' }}>
-              <p style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '700', color: '#BE123C' }}>
+            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-soft)', borderRadius: '14px', padding: '16px', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '700', color: 'var(--c-rose-strong)' }}>
                 <Plus size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
                 Add Expense
               </p>

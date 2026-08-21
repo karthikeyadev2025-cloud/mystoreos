@@ -19,9 +19,9 @@ const PLAN_CFG = {
   // Service Pro customer's badge in the admin's own shop list showed
   // "⏱ Trial" — visually indistinguishable from someone who hadn't
   // paid at all.
-  service_starter:    { color: '#fb923c', bg: '#FFF7ED', label: 'Svc Starter',    icon: '🌱' },
-  service_pro:        { color: '#a78bfa', bg: '#F5F3FF', label: 'Svc Pro',        icon: '⚡' },
-  service_enterprise: { color: '#34d399', bg: 'var(--c-success-soft)', label: 'Svc Enterprise', icon: '🏆' },
+  service_starter:    { color: 'var(--c-orange)', bg: 'var(--c-orange-soft)', label: 'Svc Starter',    icon: '🌱' },
+  service_pro:        { color: 'var(--c-violet)', bg: 'var(--c-violet-soft)', label: 'Svc Pro',        icon: '⚡' },
+  service_enterprise: { color: 'var(--c-success)', bg: 'var(--c-success-soft)', label: 'Svc Enterprise', icon: '🏆' },
 };
 const STATUS_CFG = {
   active:    { color: 'var(--c-success)', bg: 'var(--c-success-soft)', dot: 'var(--c-success)', label: 'Active' },
@@ -43,7 +43,7 @@ const FILTERS = [
 
 const font = { fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' };
 const btn = (c = 'var(--c-primary)') => ({ ...font, height: 32, background: `${c}12`, border: `1px solid ${c}30`, color: c, borderRadius: 8, padding: '0 11px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' });
-const inp = { ...font, background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: 8, color: 'var(--c-ink)', padding: '8px 12px', fontSize: 13, outline: 'none' };
+const inp = { ...font, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: 8, color: 'var(--c-ink)', padding: '8px 12px', fontSize: 13, outline: 'none' };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function PlanBadge({ tier }) {
@@ -60,7 +60,7 @@ function StatusDot({ status }) {
 }
 function Avatar({ shop, size = 36 }) {
   return shop.logo
-    ? <img src={shop.logo} alt="" style={{ width: size, height: size, borderRadius: size / 3, objectFit: 'cover', border: '1px solid #E5E7EB', flexShrink: 0 }} />
+    ? <img src={shop.logo} alt="" style={{ width: size, height: size, borderRadius: size / 3, objectFit: 'cover', border: '1px solid var(--c-line)', flexShrink: 0 }} />
     : <div style={{ width: size, height: size, borderRadius: size / 3, background: `hsl(${(shop.name||'S').charCodeAt(0) * 7 % 360},60%,50%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.4, fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0 }}>{(shop.name||'S')[0].toUpperCase()}</div>;
 }
 
@@ -107,7 +107,7 @@ function UpgradeModal({ shop, onClose, onDone }) {
         <h3 style={{ margin: '0 0 6px', fontWeight: 800, color: 'var(--c-ink)' }}>Change Plan</h3>
         <p style={{ color: 'var(--c-muted)', fontSize: 13, margin: '0 0 18px' }}>{shop.name}</p>
         {Object.entries(PLAN_CFG).map(([key, cfg]) => (
-          <button key={key} onClick={() => setTier(key)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10, border: `2px solid ${tier === key ? cfg.color : '#E5E7EB'}`, background: tier === key ? cfg.bg : 'transparent', cursor: 'pointer', marginBottom: 8, ...font, textAlign: 'left' }}>
+          <button key={key} onClick={() => setTier(key)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 10, border: `2px solid ${tier === key ? cfg.color : 'var(--c-line)'}`, background: tier === key ? cfg.bg : 'transparent', cursor: 'pointer', marginBottom: 8, ...font, textAlign: 'left' }}>
             <span style={{ fontSize: 18 }}>{cfg.icon}</span>
             <div>
               <div style={{ fontWeight: 700, fontSize: 13, color: tier === key ? cfg.color : 'var(--c-ink)' }}>{cfg.label}</div>
@@ -150,7 +150,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-surface)', borderRadius: 20, width: '100%', maxWidth: 720, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.25)', ...font }}>
 
         {/* ── Header ── */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #E5E7EB', display: 'flex', gap: 16, alignItems: 'center', background: shop.status === 'pending' ? 'linear-gradient(135deg,#FEF9C3,var(--c-warning-soft))' : 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', flexShrink: 0 }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--c-line)', display: 'flex', gap: 16, alignItems: 'center', background: shop.status === 'pending' ? 'linear-gradient(135deg,var(--c-warning-soft),var(--c-warning-soft))' : 'linear-gradient(135deg,var(--c-success-soft),var(--c-success-soft))', flexShrink: 0 }}>
           <Avatar shop={shop} size={56} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'var(--c-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shop.name}</h2>
@@ -165,7 +165,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
         </div>
 
         {/* ── Tabs ── */}
-        <div style={{ display: 'flex', gap: 2, padding: '0 24px', borderBottom: '1px solid #E5E7EB', flexShrink: 0, background: '#FAFAFA' }}>
+        <div style={{ display: 'flex', gap: 2, padding: '0 24px', borderBottom: '1px solid var(--c-line)', flexShrink: 0, background: 'var(--c-surface-2)' }}>
           {[['overview', 'Overview'], ['photos', `Photos (${photos.length})`], ['actions', 'Actions']].map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} style={{ padding: '12px 16px', border: 'none', background: 'none', borderBottom: tab === k ? '2px solid var(--c-primary)' : '2px solid transparent', color: tab === k ? 'var(--c-primary)' : 'var(--c-muted)', fontWeight: tab === k ? 700 : 500, fontSize: 13, cursor: 'pointer', ...font }}>
               {l}
@@ -280,10 +280,10 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
                 customAction={<button onClick={() => { onClose(); setTimeout(() => onUpgrade('reset'), 100); }} style={{ ...btn('var(--c-primary)'), height: 34 }}>Reset PW</button>}
               />
               <ActionRow
-                icon={shop.hideFromSearch ? <Eye size={18} color="#0EA5E9" /> : <EyeOff size={18} color="var(--c-muted)" />}
+                icon={shop.hideFromSearch ? <Eye size={18} color="var(--c-cyan)" /> : <EyeOff size={18} color="var(--c-muted)" />}
                 title={shop.hideFromSearch ? 'Show in Search' : 'Hide from Search'}
                 desc={shop.hideFromSearch ? 'Make this shop visible in the marketplace' : 'Hide this shop from public search results'}
-                action={shop.hideFromSearch ? 'Show' : 'Hide'} color={shop.hideFromSearch ? '#0EA5E9' : 'var(--c-muted)'}
+                action={shop.hideFromSearch ? 'Show' : 'Hide'} color={shop.hideFromSearch ? 'var(--c-cyan)' : 'var(--c-muted)'}
                 onClick={() => act(() => api.setShopVisibility(shop.id, !shop.hideFromSearch), `Visibility updated`)}
                 busy={busy}
               />
@@ -332,7 +332,7 @@ function ShopDetailModal({ shop, onClose, onApprove, onSuspend, onActivate, onUp
 
 function ActionRow({ icon, title, desc, action, color, onClick, busy, danger, customAction }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: danger ? 'var(--c-danger-soft)' : 'var(--c-bg)', border: `1px solid ${danger ? '#FECACA' : 'var(--c-line)'}`, borderRadius: 12, padding: '14px 16px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: danger ? 'var(--c-danger-soft)' : 'var(--c-bg)', border: `1px solid ${danger ? 'var(--c-danger-border)' : 'var(--c-line)'}`, borderRadius: 12, padding: '14px 16px' }}>
       <div style={{ width: 38, height: 38, borderRadius: 10, background: danger ? 'var(--c-danger-soft)' : 'var(--c-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-ink)' }}>{title}</div>
@@ -456,7 +456,7 @@ export default function TabShops() {
 
       {/* ── Pending Approval Queue ── */}
       {stats.pending > 0 && (
-        <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 16, padding: '18px 20px', marginBottom: 24 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', borderRadius: 16, padding: '18px 20px', marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <AlertTriangle size={18} color="var(--c-accent-hover)" />
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--c-warning-strong)' }}>
@@ -467,7 +467,7 @@ export default function TabShops() {
             {pending.filter(u => u.role === 'shop').map(shop => {
               const photos = shop.shopPhotos || [];
               return (
-                <div key={shop.id} style={{ background: 'var(--c-surface)', border: '1px solid #FCD34D', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'transform 0.15s' }}
+                <div key={shop.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-warning)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'transform 0.15s' }}
                   onClick={() => setDetailModal(shop)}
                   onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -496,7 +496,7 @@ export default function TabShops() {
       )}
 
       {/* ── Search + Filters + Sort ── */}
-      <div style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: 14, padding: '16px 20px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: '16px 20px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
           {/* Search */}
           <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
@@ -520,7 +520,7 @@ export default function TabShops() {
         {/* Filter chips */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {FILTERS.map(f => (
-            <button key={f.key} onClick={() => setFilter(f.key)} style={{ padding: '5px 12px', borderRadius: 20, border: `1px solid ${filter === f.key ? 'var(--c-primary)' : '#E5E7EB'}`, background: filter === f.key ? 'rgba(79,70,229,0.08)' : 'var(--c-surface)', color: filter === f.key ? 'var(--c-primary)' : 'var(--c-ink-2)', fontSize: 12, cursor: 'pointer', fontWeight: filter === f.key ? 700 : 400, ...font, transition: 'all 0.15s' }}>
+            <button key={f.key} onClick={() => setFilter(f.key)} style={{ padding: '5px 12px', borderRadius: 20, border: `1px solid ${filter === f.key ? 'var(--c-primary)' : 'var(--c-line)'}`, background: filter === f.key ? 'rgba(79,70,229,0.08)' : 'var(--c-surface)', color: filter === f.key ? 'var(--c-primary)' : 'var(--c-ink-2)', fontSize: 12, cursor: 'pointer', fontWeight: filter === f.key ? 700 : 400, ...font, transition: 'all 0.15s' }}>
               {f.label}{filter === f.key && ` (${filtered.length})`}
             </button>
           ))}
@@ -529,11 +529,11 @@ export default function TabShops() {
 
       {/* ── Table View ── */}
       {viewMode === 'table' && (
-        <div style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', ...font }}>
               <thead>
-                <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid #E5E7EB' }}>
+                <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-line)' }}>
                   {['Shop', 'Phone', 'Plan', 'Status', 'Photos', 'Joined', 'Actions'].map(h => (
                     <th key={h} style={{ color: 'var(--c-muted)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '11px 16px', textAlign: 'left', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
@@ -551,8 +551,8 @@ export default function TabShops() {
                   const photos = shop.shopPhotos || [];
                   const isBusy = busy[shop.id];
                   return (
-                    <tr key={shop.id} style={{ borderBottom: '1px solid #F3F4F6', transition: 'background 0.1s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                    <tr key={shop.id} style={{ borderBottom: '1px solid var(--c-line-soft)', transition: 'background 0.1s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--c-surface-2)'}
                       onMouseLeave={e => e.currentTarget.style.background = ''}>
                       {/* Shop */}
                       <td style={{ padding: '13px 16px' }}>
@@ -616,7 +616,7 @@ export default function TabShops() {
             const photos = shop.shopPhotos || [];
             const tier = shop.subscriptionTier || shop.subscription || 'trial';
             return (
-              <div key={shop.id} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'all 0.15s' }}
+              <div key={shop.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'all 0.15s' }}
                 onClick={() => setDetailModal(shop)}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; }}>

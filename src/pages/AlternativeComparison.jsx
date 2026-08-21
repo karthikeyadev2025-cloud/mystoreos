@@ -186,7 +186,7 @@ export default function AlternativeComparison() {
           borderRadius: '20px',
           fontSize: '12px',
           fontWeight: 600,
-          color: '#fbbf24'
+          color: 'var(--c-warning)'
         }}>
           <Star size={12} fill="#fbbf24" />
           <span>#1 Tally & Vyapar Competitor</span>
@@ -198,7 +198,7 @@ export default function AlternativeComparison() {
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
           <MLogo size={42} radius={10} />
           <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '1px', background: 'linear-gradient(to right, var(--c-surface), var(--c-faint))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            MYSTORE <span style={{ color: '#fbbf24' }}>OS</span>
+            MYSTORE <span style={{ color: 'var(--c-warning)' }}>OS</span>
           </span>
         </div>
 
@@ -216,7 +216,7 @@ export default function AlternativeComparison() {
         </h1>
         <p style={{
           fontSize: 'clamp(18px, 3.5vw, 22px)',
-          color: '#fbbf24',
+          color: 'var(--c-warning)',
           fontWeight: 500,
           marginBottom: '12px',
           maxWidth: '680px',
@@ -245,7 +245,7 @@ export default function AlternativeComparison() {
           textAlign: 'left'
         }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Flame size={20} color="#fbbf24" /> Side-by-Side Comparison
+            <Flame size={20} color="var(--c-warning)" /> Side-by-Side Comparison
           </h2>
 
           <div style={{ overflowX: 'auto' }}>
@@ -253,7 +253,7 @@ export default function AlternativeComparison() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                   <th style={{ padding: '12px 8px', color: 'var(--c-muted)', fontWeight: 600, textAlign: 'left' }}>Feature Matrix</th>
-                  <th style={{ padding: '12px 8px', color: '#f43f5e', fontWeight: 600, textAlign: 'center' }}>{data.name}</th>
+                  <th style={{ padding: '12px 8px', color: 'var(--c-danger)', fontWeight: 600, textAlign: 'center' }}>{data.name}</th>
                   <th style={{ padding: '12px 8px', color: 'var(--c-success)', fontWeight: 600, textAlign: 'center', background: 'rgba(16,185,129,0.04)', borderRadius: '12px 12px 0 0' }}>MyStore OS</th>
                 </tr>
               </thead>
@@ -265,7 +265,7 @@ export default function AlternativeComparison() {
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>Yearly Cost (Subscription)</td>
-                  <td style={{ padding: '14px 8px', color: '#f43f5e', textAlign: 'center', fontWeight: 500 }}>{data.tco}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-danger)', textAlign: 'center', fontWeight: 500 }}>{data.tco}</td>
                   <td style={{ padding: '14px 8px', color: 'var(--c-success)', textAlign: 'center', fontWeight: 700, background: 'rgba(16,185,129,0.04)' }}>🎉 Free Tier Available</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -303,7 +303,7 @@ export default function AlternativeComparison() {
             textAlign: 'left'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--c-success)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Star size={18} fill="#10b981" /> Why Retailers Love MyStore OS over {data.name}
+              <Star size={18} fill="#22C55E" /> Why Retailers Love MyStore OS over {data.name}
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {data.pros.map((pro, index) => (
@@ -328,14 +328,14 @@ export default function AlternativeComparison() {
           flexDirection: 'column',
           gap: '12px'
         }}>
-          <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+          <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--c-warning)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
             <Landmark size={18} /> FMCG Wholesale & Distributor Integration
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--c-line-strong)', lineHeight: 1.5, margin: 0 }}>
             Unlike generic software like {data.name}, MyStore OS has built-in features optimised for wholesale markets and FMCG distributors across India.
             Manage bulk dispatch notes, track supplier credit ledger balances, and print receipt PDFs in 6 regional languages.
           </p>
-          <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 600 }}>
+          <span style={{ fontSize: '12px', color: 'var(--c-warning)', fontWeight: 600 }}>
             💡 Indian shopkeepers save up to ₹1,500 every month switching from thermal printers to WhatsApp billing.
           </span>
         </div>

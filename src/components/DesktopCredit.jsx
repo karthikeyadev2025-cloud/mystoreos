@@ -55,7 +55,7 @@ const DesktopCredit = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-danger)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Supplier Payables</p>
-              <h3 style={{ margin: '6px 0 0 0', fontSize: '28px', color: '#991B1B', fontWeight: '800' }}>₹{payable}</h3>
+              <h3 style={{ margin: '6px 0 0 0', fontSize: '28px', color: 'var(--c-danger-strong)', fontWeight: '800' }}>₹{payable}</h3>
             </div>
             <div style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowUpRight size={22} />
@@ -67,11 +67,11 @@ const DesktopCredit = ({
         </div>
 
         {/* Receivable Summary Box */}
-        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: 'var(--c-success-soft)' }}>
+        <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-success-soft)', background: 'var(--c-success-soft)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-success)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Customer Receivables</p>
-              <h3 style={{ margin: '6px 0 0 0', fontSize: '28px', color: '#065F46', fontWeight: '800' }}>₹{activeCustomerOutstanding}</h3>
+              <h3 style={{ margin: '6px 0 0 0', fontSize: '28px', color: 'var(--c-success-strong)', fontWeight: '800' }}>₹{activeCustomerOutstanding}</h3>
             </div>
             <div style={{ background: 'var(--c-success-soft)', color: 'var(--c-success)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowDownLeft size={22} />
@@ -103,7 +103,7 @@ const DesktopCredit = ({
                 width: '100%', padding: '12px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: 'bold',
                 background: creditTabSub === 'receivable' ? 'var(--c-success-soft)' : 'transparent',
                 color: creditTabSub === 'receivable' ? 'var(--c-success)' : 'var(--c-muted)',
-                border: creditTabSub === 'receivable' ? '1px solid #A7F3D0' : '1px solid transparent',
+                border: creditTabSub === 'receivable' ? '1px solid var(--c-success-soft)' : '1px solid transparent',
               }}
             >
               🟢 View Customer Receivables
@@ -146,7 +146,7 @@ const DesktopCredit = ({
                   <div key={c.id} className="premium-glass" style={{ padding: '16px', borderRadius: '12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--c-ink)' }}>{c.distName || 'Distributor'}</span>
-                      <span style={{ fontSize: '11px', background: c.paid ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', color: c.paid ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold', border: `1px solid ${c.paid ? '#A7F3D0' : 'var(--c-danger-border)'}` }}>
+                      <span style={{ fontSize: '11px', background: c.paid ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', color: c.paid ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold', border: `1px solid ${c.paid ? 'var(--c-success-soft)' : 'var(--c-danger-border)'}` }}>
                         {c.paid ? 'Paid' : 'Unpaid'}
                       </span>
                     </div>
@@ -164,7 +164,7 @@ const DesktopCredit = ({
                               if (!upiId) return toast.error('No UPI ID set. Go to Settings.');
                               window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(user.name)}&am=${c.amount}&cu=INR`, '_blank');
                             }} 
-                            style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
+                            style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary)', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
                           >
                             Pay UPI
                           </button>
@@ -260,7 +260,7 @@ const DesktopCredit = ({
                             <span style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--c-ink)' }}>{custName}</span>
                             {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-muted)' }}>Ph: {custPhone}</p>}
                           </div>
-                          <span style={{ fontSize: '11px', background: c.paid ? 'var(--c-success-soft)' : '#FFF7ED', color: c.paid ? 'var(--c-success)' : 'var(--c-warning)', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold', border: `1px solid ${c.paid ? '#A7F3D0' : '#FFEDD5'}` }}>
+                          <span style={{ fontSize: '11px', background: c.paid ? 'var(--c-success-soft)' : 'var(--c-orange-soft)', color: c.paid ? 'var(--c-success)' : 'var(--c-warning)', padding: '2px 8px', borderRadius: '6px', fontWeight: 'bold', border: `1px solid ${c.paid ? 'var(--c-success-soft)' : 'var(--c-orange-soft)'}` }}>
                             {c.paid ? 'Settled' : 'Outstanding'}
                           </span>
                         </div>

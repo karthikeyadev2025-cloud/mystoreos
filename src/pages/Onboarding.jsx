@@ -174,7 +174,7 @@ export default function Onboarding() {
 
   if (step === 3) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#090514,#120F2D)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,var(--c-ink-surface),var(--c-ink-surface-2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <div style={{ textAlign: 'center', color: 'var(--c-bg)', padding: '24px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
           <h2 style={{ fontSize: '28px', fontWeight: 900, margin: '0 0 12px' }}>You're all set!</h2>
@@ -190,7 +190,7 @@ export default function Onboarding() {
   // ── OAuth new-user role picker ──
   if (pickingRole) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--c-ink-surface), var(--c-ink-surface-2), var(--c-ink-surface))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
           <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: 'var(--c-bg)' }}>Welcome{oauthPending?.name ? `, ${oauthPending.name.split(' ')[0]}` : ''}! 👋</h2>
@@ -223,7 +223,7 @@ export default function Onboarding() {
   return (
     <>
       <style>{`.onb-hidden{display:none}`}</style>
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--c-ink-surface), var(--c-ink-surface-2), var(--c-ink-surface))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
 

@@ -144,7 +144,7 @@ const DesktopSettings = ({
       <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
         <ShieldAlert size={48} color="var(--c-danger)" style={{ margin: '0 auto 16px' }} />
         <h3 style={{ color: 'var(--c-ink)', margin: '0 0 8px 0' }}>Access Denied</h3>
-        <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', margin: 0 }}>
           Only the Shop Owner accounts can configure settings, UPI payment keys, and recruit staff helpers.
         </p>
       </div>
@@ -343,20 +343,20 @@ const DesktopSettings = ({
                   style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
-              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '10px', padding: '12px' }}>
-                <label style={{ display: 'block', fontSize: '11px', color: '#166534', marginBottom: '4px', fontWeight: 800 }}>⭐ Merchant UPI ID (for "Tap to Pay")</label>
-                <p style={{ fontSize: '10.5px', color: '#15803D', margin: '0 0 8px', lineHeight: 1.4 }}>
+              <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '10px', padding: '12px' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-success-strong)', marginBottom: '4px', fontWeight: 800 }}>⭐ Merchant UPI ID (for "Tap to Pay")</label>
+                <p style={{ fontSize: '10.5px', color: 'var(--c-success-strong)', margin: '0 0 8px', lineHeight: 1.4 }}>
                   Personal UPI IDs can only be <b>scanned</b>. To let customers <b>tap a link</b> to pay (PhonePe/GPay/Paytm), get a free Merchant UPI ID from the <b>PhonePe Business / Paytm for Business / GPay for Business</b> app and paste it here.
                 </p>
                 <input 
                   type="text" value={merchantUpiId || ''} onChange={e => setMerchantUpiId(e.target.value)} 
                   placeholder="e.g. yourstore.12345@ybl (merchant VPA)" 
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid #BBF7D0', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none', marginBottom: '8px' }} 
+                  style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-success-soft)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none', marginBottom: '8px' }} 
                 />
                 <input 
                   type="text" value={merchantCode || ''} onChange={e => setMerchantCode(e.target.value)} 
                   placeholder="Merchant Category Code (optional, e.g. 5411)" 
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid #BBF7D0', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none' }} 
+                  style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-success-soft)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none' }} 
                 />
               </div>
               <button onClick={handleSaveProfile} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -407,7 +407,7 @@ const DesktopSettings = ({
           </div>
           
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={handleGrabLocation} style={{ flex: 1, background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={handleGrabLocation} style={{ flex: 1, background: 'var(--c-violet-soft)', border: '1px solid var(--c-violet-soft)', color: 'var(--c-violet-strong)', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               🛰️ Auto-Grab Coordinates
             </button>
             <button onClick={handleSaveProfile} style={{ flex: 1, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -494,7 +494,7 @@ const DesktopSettings = ({
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Printer size={18} color="var(--c-muted)" /> Print Settings
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '18px', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '12px', color: 'var(--c-muted)', marginBottom: '18px', lineHeight: '1.5' }}>
             Set your printer type once — every bill, estimate, and challan PDF will automatically use the right paper size, layout, and font size.
           </p>
 
@@ -680,8 +680,8 @@ const DesktopSettings = ({
                     </p>
                     <span style={{
                       fontSize: '9px', fontWeight: 'bold', padding: '1px 6px', borderRadius: '8px',
-                      background: payment.status === 'success' ? '#DCFCE7' : 'var(--c-danger-soft)',
-                      color: payment.status === 'success' ? '#15803D' : 'var(--c-danger-strong)',
+                      background: payment.status === 'success' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)',
+                      color: payment.status === 'success' ? 'var(--c-success-strong)' : 'var(--c-danger-strong)',
                       textTransform: 'uppercase',
                     }}>
                       {payment.status}
@@ -702,7 +702,7 @@ const DesktopSettings = ({
             </h3>
             <span style={{ background: 'linear-gradient(135deg,var(--c-warning),var(--c-accent-hover))', color: 'var(--c-surface)', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px', letterSpacing: '0.5px' }}>COMING SOON</span>
           </div>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '12px', color: 'var(--c-muted)', marginBottom: '16px', lineHeight: '1.5' }}>
             Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon — enabled by our team.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--c-bg)', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--c-line)', opacity: 0.6, pointerEvents: 'none' }}>
@@ -720,7 +720,7 @@ const DesktopSettings = ({
           <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '800', color: 'var(--c-ink)', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <QrCode size={18} color="var(--c-muted)" /> Your Store QR Code
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', textAlign: 'left', marginBottom: '16px' }}>Share this QR for customers to instantly open your catalogue.</p>
+          <p style={{ fontSize: '12px', color: 'var(--c-muted)', textAlign: 'left', marginBottom: '16px' }}>Share this QR for customers to instantly open your catalogue.</p>
 
           <div style={{ background: 'var(--c-surface)', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px', border: '1px solid var(--c-line)' }}>
             <QRCodeSVG value={getShopUrl()} size={120} />
@@ -729,7 +729,7 @@ const DesktopSettings = ({
           <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
             <QRCodeCanvas ref={qrCanvasRef} value={getShopUrl()} size={300} />
           </div>
-          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#2563EB', wordBreak: 'break-all', fontWeight: '500' }}>{getShopUrl()}</p>
+          <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: 'var(--c-primary)', wordBreak: 'break-all', fontWeight: '500' }}>{getShopUrl()}</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
             <button
@@ -745,13 +745,13 @@ const DesktopSettings = ({
                   toast.error('QR code not ready yet — please try again in a moment.');
                 }
               }}
-              style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary)', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               ⬇ PNG
             </button>
             <button
               onClick={handleShareShop}
-              style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Share2 size={12} /> Share
             </button>
@@ -760,7 +760,7 @@ const DesktopSettings = ({
                 const url = getShopUrl();
                 const qrHtml = '<html><body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;background:var(--c-surface)">'
                   + '<h2 style="color:var(--c-ink);margin-bottom:8px">' + (user?.name || 'My Store') + '</h2>'
-                  + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid #F0F0F0;border-radius:12px"/>'
+                  + '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url) + '" style="border:8px solid var(--c-line-soft);border-radius:12px"/>'
                   + '<p style="color:var(--c-muted);font-size:13px;margin-top:12px">' + url + '</p>'
                   + '</body></html>';
                 const blob = new Blob([qrHtml], { type: 'text/html' });
@@ -768,7 +768,7 @@ const DesktopSettings = ({
                 const win = window.open(blobUrl, '_blank');
                 if (win) win.addEventListener('load', () => { win.print(); URL.revokeObjectURL(blobUrl); });
               }}
-              style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', color: '#6D28D9', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+              style={{ background: 'var(--c-violet-soft)', border: '1px solid var(--c-violet-soft)', color: 'var(--c-violet-strong)', padding: '10px 6px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
             >
               <Printer size={12} /> Print
             </button>
@@ -824,7 +824,7 @@ const DesktopSettings = ({
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Users size={18} color="var(--c-muted)" /> Staff Management (సహాయకులు)</span>
             <PlanGate feature="staffAccounts" fallback={<LockedFeature feature="staffAccounts" compact />}>{null}</PlanGate>
           </h3>
-          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.4' }}>
+          <p style={{ fontSize: '12px', color: 'var(--c-muted)', marginBottom: '16px', lineHeight: '1.4' }}>
             Add helpers who can scan barcodes and bill customers. You set their 4-digit PIN — share it with them directly.
           </p>
 
@@ -853,7 +853,7 @@ const DesktopSettings = ({
                   />
                 </div>
                 {newStaffPin.length === 4 && (
-                  <div style={{ background: 'var(--c-success-soft)', border: '1px solid #6EE7B7', borderRadius: '8px', padding: '6px 10px', flexShrink: 0, marginTop: '16px' }}>
+                  <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '8px', padding: '6px 10px', flexShrink: 0, marginTop: '16px' }}>
                     <span style={{ fontSize: '11px', color: 'var(--c-success-strong)', fontWeight: '700' }}>✓ PIN ready</span>
                   </div>
                 )}
@@ -880,7 +880,7 @@ const DesktopSettings = ({
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ background: s.status === 'disabled' ? 'var(--c-danger-soft)' : '#DCFCE7', color: s.status === 'disabled' ? 'var(--c-danger-strong)' : '#15803D', fontSize: '10px', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                      <span style={{ background: s.status === 'disabled' ? 'var(--c-danger-soft)' : 'var(--c-success-soft)', color: s.status === 'disabled' ? 'var(--c-danger-strong)' : 'var(--c-success-strong)', fontSize: '10px', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
                         {s.status === 'disabled' ? '● Disabled' : '● Active'}
                       </span>
                       {s.status !== 'disabled' && (
@@ -899,7 +899,7 @@ const DesktopSettings = ({
         {/* Shop Hours */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} color="var(--c-muted)" /> Shop Hours</h3>
-          <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
+          <p style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '16px' }}>Set your opening and closing times. An "Open Now" badge appears on your dashboard header.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-ink-2)', marginBottom: '4px', fontWeight: '600' }}>Opens at</label>
@@ -933,7 +933,7 @@ const DesktopSettings = ({
         {/* Offer Banner */}
         <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
           <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}><Tag size={18} color="var(--c-muted)" /> Offer Banner</h3>
-          <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
+          <p style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '16px' }}>Highlight a promotion. Appears as a highlighted banner on your shop home when active.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-ink-2)', marginBottom: '4px', fontWeight: '600' }}>Banner Title</label>
@@ -951,7 +951,7 @@ const DesktopSettings = ({
               <div>
                 <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-ink-2)', marginBottom: '4px', fontWeight: '600' }}>Status</label>
                 <button onClick={() => setShopBanner && setShopBanner(prev => ({ ...prev, active: !prev?.active }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: `1px solid ${shopBanner?.active ? '#86EFAC' : 'var(--c-line)'}`, background: shopBanner?.active ? '#DCFCE7' : 'var(--c-surface)', color: shopBanner?.active ? '#166534' : 'var(--c-ink-2)' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: `1px solid ${shopBanner?.active ? 'var(--c-success-soft)' : 'var(--c-line)'}`, background: shopBanner?.active ? 'var(--c-success-soft)' : 'var(--c-surface)', color: shopBanner?.active ? 'var(--c-success-strong)' : 'var(--c-ink-2)' }}>
                   {shopBanner?.active ? '✅ Live' : '⬜ Inactive'}
                 </button>
               </div>
@@ -1004,11 +1004,11 @@ const DesktopSettings = ({
 
             {/* Upload slot */}
             {shopPhotos.length < 6 && (
-              <label style={{ height: '80px', border: '2px dashed var(--c-primary-border)', borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#F8FAFF', transition: 'border-color .2s', gap: '4px' }}
+              <label style={{ height: '80px', border: '2px dashed var(--c-primary-border)', borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--c-primary-soft)', transition: 'border-color .2s', gap: '4px' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--c-primary)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--c-primary-border)'}>
                 <span style={{ fontSize: '22px' }}>➕</span>
-                <span style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600' }}>Add Photo</span>
+                <span style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '600' }}>Add Photo</span>
                 <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'none' }} />
               </label>
             )}
@@ -1026,7 +1026,7 @@ const DesktopSettings = ({
 
         {/* Danger Zone — Reset Test Data — main shop only, not branches */}
         {(user.role === 'shop' || user.isOwner) && !user.parentShopId && (
-          <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid #FECACA', background: '#FFFBFA', boxShadow: '0 1px 3px rgba(220,38,38,0.06)' }}>
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid var(--c-danger-border)', background: 'var(--c-danger-soft)', boxShadow: '0 1px 3px rgba(220,38,38,0.06)' }}>
             <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: 'var(--c-danger-strong)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertTriangle size={18} color="var(--c-danger-strong)" /> Danger Zone
             </h3>

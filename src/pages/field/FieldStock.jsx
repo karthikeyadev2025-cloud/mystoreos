@@ -100,7 +100,7 @@ export default function FieldStock() {
       </p>
 
       {expiringSoon.length > 0 && (
-        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <AlertTriangle size={16} color="var(--c-warning-strong)" />
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-warning-strong)' }}>
@@ -108,7 +108,7 @@ export default function FieldStock() {
             </span>
           </div>
           {expiringSoon.slice(0, 6).map(l => (
-            <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#78350F', padding: '4px 0' }}>
+            <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: 'var(--c-warning-strong)', padding: '4px 0' }}>
               <span>
                 <strong>{l.productName}</strong>
                 {l.batchNo && <span style={{ opacity: 0.7 }}> · {l.batchNo}</span>}
@@ -180,12 +180,12 @@ export default function FieldStock() {
                 })}
 
                 {held.length > 0 && (
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #FECACA' }}>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed var(--c-danger-border)' }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--c-danger-strong)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Package size={12} /> Not for sale
                     </div>
                     {held.map(l => (
-                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
+                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, marginBottom: 6 }}>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
                           <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', textTransform: 'capitalize' }}>{l.condition}</div>

@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
   input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '9px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
   dlBtn: (busy, color = 'var(--c-primary)') => ({ background: busy ? 'var(--c-line-soft)' : `${color}10`, border: `1px solid ${busy ? 'var(--c-line-strong)' : color + '30'}`, color: busy ? 'var(--c-muted)' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
 };
@@ -104,7 +104,7 @@ export default function TabExports() {
     <div className="admin-tab-content" style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#10B98115", border: "1px solid #10B98130", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#22C55E15", border: "1px solid #22C55E30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Download size={22} color="var(--c-success)" />
           </div>
           <div>
@@ -119,16 +119,16 @@ export default function TabExports() {
         action={<button onClick={exportUsers} disabled={busy.users} style={S.dlBtn(busy.users, 'var(--c-info)')}><Download size={14} />{busy.users ? 'Exporting...' : 'Download Users CSV'}</button>}
       />
 
-      <ExportCard icon={Store} title="Shops Only" description="All shop accounts with GSTIN, location, and subscription tier." color="#f43f5e"
-        action={<button onClick={exportShops} disabled={busy.shops} style={S.dlBtn(busy.shops, '#f43f5e')}><Download size={14} />{busy.shops ? 'Exporting...' : 'Download Shops CSV'}</button>}
+      <ExportCard icon={Store} title="Shops Only" description="All shop accounts with GSTIN, location, and subscription tier." color="var(--c-danger)"
+        action={<button onClick={exportShops} disabled={busy.shops} style={S.dlBtn(busy.shops, 'var(--c-danger)')}><Download size={14} />{busy.shops ? 'Exporting...' : 'Download Shops CSV'}</button>}
       />
 
       <ExportCard icon={Truck} title="Distributors" description="All distributor accounts with plan tier and status." color="var(--c-success)"
         action={<button onClick={exportDistributors} disabled={busy.distributors} style={S.dlBtn(busy.distributors, 'var(--c-success)')}><Download size={14} />{busy.distributors ? 'Exporting...' : 'Download Distributors CSV'}</button>}
       />
 
-      <ExportCard icon={ShoppingCart} title="Orders" description="All transactions with optional date range filter." color="#8b5cf6"
-        action={<button onClick={exportOrders} disabled={busy.orders} style={S.dlBtn(busy.orders, '#8b5cf6')}><Download size={14} />{busy.orders ? 'Exporting...' : 'Download Orders CSV'}</button>}>
+      <ExportCard icon={ShoppingCart} title="Orders" description="All transactions with optional date range filter." color="var(--c-violet)"
+        action={<button onClick={exportOrders} disabled={busy.orders} style={S.dlBtn(busy.orders, 'var(--c-violet)')}><Download size={14} />{busy.orders ? 'Exporting...' : 'Download Orders CSV'}</button>}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div>
             <label style={{ color: 'var(--c-ink-2)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>From</label>

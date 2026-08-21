@@ -39,6 +39,10 @@ const ROOT = 'src';
 
 /* Files where NO occurrence may become a var(). */
 const FILE_DENYLIST = [
+  /* The token file DEFINES the palette. Converting a literal here would
+     produce `--c-cyan-strong: var(--c-cyan-strong)` — a self-reference
+     that resolves to nothing and takes the color with it. */
+  'src/styles/tokens.css',
   'src/lib/invoiceTemplates.js',   // print-window HTML, no :root
   'src/lib/thermalReceipt.js',     // thermal printer ESC/POS HTML
   'src/lib/pdfGenerator.js',       // jsPDF
@@ -60,7 +64,27 @@ const LINE_DENYLIST = [
   /theme[-_]?color/i,      // <meta>
   /stopColor/,             // SVG gradients
   /\bcolor\s*:\s*\[/,      // color arrays passed to chart libs
+  /type\s*=\s*["']color["']/,  // <input type="color"> — parses hex only
 ];
+
+
+/* Hex that must stay exactly as-is. Not "unmapped" — deliberately kept.
+ *
+ *   WhatsApp and Google brand colors: a "Share on WhatsApp" button that
+ *   isn't WhatsApp green stops being recognisable, and Google's sign-in
+ *   mark has brand guidelines attached to it. (The Google logo paths are
+ *   already inside fill= attributes and so caught by LINE_DENYLIST; they
+ *   are listed here too so the intent is explicit rather than incidental.)
+ *
+ *   #000000 is the fallback for <input type="color"> in TabDesign — a
+ *   native color picker parses hex only, and var() there yields an empty
+ *   value and a picker stuck on black.
+ */
+const PRESERVE = new Set([
+  '#25d366', '#128c7e',                          // WhatsApp
+  '#4285f4', '#34a853', '#ea4335', '#fbbc05',    // Google
+  '#000000',                                     // <input type="color"> fallback
+]);
 
 /* hex -> token. Only high-confidence mappings; anything not listed is
    left alone and reported so it can be judged by hand. */
@@ -105,6 +129,170 @@ const MAP = {
   '#fee2e2': '--c-danger-soft',
 
   '#3b82f6': '--c-info',
+
+  // ---- neutrals: the gray-* family used alongside slate-* ----
+  '#111827': '--c-ink',
+  '#1f2937': '--c-ink-2',
+  '#374151': '--c-ink-2',
+  '#6b7280': '--c-muted',
+  '#9ca3af': '--c-faint',
+  '#d1d5db': '--c-line-strong',
+  '#e5e7eb': '--c-line',
+  '#f3f4f6': '--c-line-soft',
+  '#f4f5f7': '--c-line-soft',
+  '#f9fafb': '--c-surface-2',
+  '#fbfbf7': '--c-surface-2',
+
+  // ---- dark surfaces & gradient stops (old indigo/near-black) ----
+  '#0d1117': '--c-ink-surface',
+  '#0c1120': '--c-ink-surface',
+  '#090514': '--c-ink-surface',
+  '#0f0c29': '--c-ink-surface',
+  '#161b22': '--c-ink-surface-2',
+  '#161f35': '--c-ink-surface-2',
+  '#1e222d': '--c-ink-surface-2',
+  '#120f2d': '--c-ink-surface-2',
+  '#24243e': '--c-ink-surface-2',
+  '#2a2f3d': '--c-ink-surface-3',
+  '#1e1b4b': '--c-primary-hover',
+  '#312e81': '--c-primary',
+  '#3730a3': '--c-primary',
+  '#302b63': '--c-primary',
+
+  // ---- success ----
+  '#22c55e': '--c-success',
+  '#34d399': '--c-success',
+  '#15803d': '--c-success-strong',
+  '#047857': '--c-success-strong',
+  '#065f46': '--c-success-strong',
+  '#166534': '--c-success-strong',
+  '#2e7d32': '--c-success-strong',
+  '#a7f3d0': '--c-success-soft',
+  '#6ee7b7': '--c-success-soft',
+  '#86efac': '--c-success-soft',
+  '#bbf7d0': '--c-success-soft',
+  '#dcfce7': '--c-success-soft',
+  '#f0fdf4': '--c-success-soft',
+  '#e8f5e9': '--c-success-soft',
+  '#a5d6a7': '--c-success-soft',
+
+  // ---- danger ----
+  '#e11d48': '--c-danger',
+  '#f43f5e': '--c-danger',
+  '#fb7185': '--c-danger',
+  '#f87171': '--c-danger',
+  '#991b1b': '--c-danger-strong',
+  '#7f1d1d': '--c-danger-strong',
+  '#fecaca': '--c-danger-border',
+  '#fff5f5': '--c-danger-soft',
+
+  // ---- warning / amber ----
+  '#fbbf24': '--c-warning',
+  '#fcd34d': '--c-warning',
+  '#f5b942': '--c-warning',
+  '#ca8a04': '--c-warning-strong',
+  '#b8860b': '--c-warning-strong',
+  '#78350f': '--c-warning-strong',
+  '#fde68a': '--c-accent-border',
+  '#fffbeb': '--c-warning-soft',
+
+  // ---- orange (restock / expiry) ----
+  '#f97316': '--c-orange',
+  '#ea580c': '--c-orange',
+  '#c2410c': '--c-orange-strong',
+  '#fdba74': '--c-orange-soft',
+  '#fed7aa': '--c-orange-soft',
+  '#ffedd5': '--c-orange-soft',
+  '#fff7ed': '--c-orange-soft',
+
+  // ---- blue (info / links) ----
+  '#1d4ed8': '--c-primary',
+  '#2563eb': '--c-primary',
+  '#0284c7': '--c-primary',
+  '#60a5fa': '--c-primary-light',
+  '#93c5fd': '--c-primary-light',
+  '#a5b4fc': '--c-primary-light',
+  '#bfdbfe': '--c-primary-border',
+  '#dbeafe': '--c-primary-soft',
+  '#eff6ff': '--c-primary-soft',
+  '#e0e7ff': '--c-primary-soft',
+
+  // ---- cyan (CA / reports) ----
+  '#06b6d4': '--c-cyan',
+  '#0ea5e9': '--c-cyan',
+  '#22d3ee': '--c-cyan',
+
+  // ---- violet (loyalty / membership / signup) ----
+  '#7c3aed': '--c-violet',
+  '#8b5cf6': '--c-violet',
+  '#a78bfa': '--c-violet',
+  '#c084fc': '--c-violet',
+  '#6d28d9': '--c-violet-strong',
+  '#ddd6fe': '--c-violet-soft',
+  '#e9d5ff': '--c-violet-soft',
+  '#f3e8ff': '--c-violet-soft',
+  '#f5f3ff': '--c-violet-soft',
+  '#faf5ff': '--c-violet-soft',
+  '#fef2fe': '--c-violet-soft',
+
+  // ---- rose (feedback / ratings) ----
+  '#ec4899': '--c-rose',
+
+  // ---- long tail: one-off shades that duplicate an existing role ----
+  '#020617': '--c-ink-surface',
+  '#080b14': '--c-ink-surface',
+  '#090d16': '--c-ink-surface',
+  '#0a1628': '--c-ink-surface',
+  '#0c121b': '--c-ink-surface',
+  '#11151c': '--c-ink-surface',
+  '#1a202c': '--c-ink-surface-2',
+  '#131c2d': '--c-ink-surface-2',
+  '#0a1f0a': '--c-ink-surface-2',
+  '#1a0f00': '--c-ink-surface-2',
+  '#1e0e0e': '--c-ink-surface-2',
+  '#241d13': '--c-ink-surface-3',
+  '#6473a0': '--c-primary-light',
+  '#2f7fff': '--c-primary',
+  '#5a6472': '--c-muted',
+  '#909aa6': '--c-faint',
+  '#9aa2b0': '--c-faint',
+  '#b0b8c3': '--c-faint',
+  '#f0f0f0': '--c-line-soft',
+  '#fafafa': '--c-surface-2',
+  '#fafafb': '--c-surface-2',
+  '#fbfaf7': '--c-surface-2',
+  '#f8faff': '--c-primary-soft',
+  '#fffbfa': '--c-danger-soft',
+  '#fff1f2': '--c-danger-soft',
+  '#ffe4e6': '--c-danger-soft',
+  '#e53e3e': '--c-danger',
+  '#064e3b': '--c-success-strong',
+  '#099268': '--c-success-strong',
+  '#1fad53': '--c-success',
+  '#4ade80': '--c-success',
+  '#84cc16': '--c-success',
+  '#c3fae8': '--c-success-soft',
+  '#e6fcf5': '--c-success-soft',
+  '#0891b2': '--c-cyan',
+  '#cffafe': '--c-cyan-soft',
+  '#5b21b6': '--c-violet-strong',
+  '#9a3412': '--c-orange-strong',
+  '#fb923c': '--c-orange',
+  '#a16207': '--c-warning-strong',
+  '#e8a020': '--c-accent-hover',
+  '#fde047': '--c-warning',
+  '#ffe066': '--c-warning',
+  '#fef9c3': '--c-warning-soft',
+  '#fff9db': '--c-warning-soft',
+  '#be123c': '--c-rose-strong',
+  '#831843': '--c-rose-strong',
+  '#9d174d': '--c-rose-strong',
+  '#f472b6': '--c-rose',
+  '#f9a8d4': '--c-rose-soft',
+  '#fbcfe8': '--c-rose-soft',
+  '#fce7f3': '--c-rose-soft',
+
+
 };
 
 const walk = (dir, out = []) => {
@@ -141,6 +329,7 @@ for (const file of walk(ROOT)) {
     }
     return line.replace(/#[0-9a-fA-F]{3,8}\b/g, (hex) => {
       if (hex.length === 9) return hex;            // 8-digit = has alpha, leave it
+      if (PRESERVE.has(norm(hex))) return hex;     // brand / native-picker literals
       const token = MAP[norm(hex)];
       if (!token) {
         unmapped.set(norm(hex), (unmapped.get(norm(hex)) || 0) + 1);

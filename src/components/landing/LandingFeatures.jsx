@@ -19,53 +19,53 @@ import { api } from '../../lib/api';
 
 const EVERY = [
   ['Storefront & marketplace', 'Your own public page. Customers find you, order, or book.',              'All plans',  Store,      'var(--c-primary-light)'],
-  ['Thermal & A4 printing',    '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans',  Printer,    '#34D399'],
-  ['Instant alerts',           'New order or booking pings your phone — even with the app closed.',     'All plans',  Bell,       '#F5B942'],
-  ['Live analytics',           'Revenue, top lines, staff performance. One dashboard, always current.', 'All plans',  BarChart3,  '#22D3EE'],
-  ['No machine to buy',        'No POS terminal, no computer, nothing to install. Your own phone is the full billing counter.', 'All plans', Smartphone, '#F5B942'],
-  ['Multi-branch',             'Several outlets, one login. Each keeps its own books.',                 'Enterprise', Building2,  '#A78BFA'],
+  ['Thermal & A4 printing',    '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans',  Printer,    'var(--c-success)'],
+  ['Instant alerts',           'New order or booking pings your phone — even with the app closed.',     'All plans',  Bell,       'var(--c-warning)'],
+  ['Live analytics',           'Revenue, top lines, staff performance. One dashboard, always current.', 'All plans',  BarChart3,  'var(--c-cyan)'],
+  ['No machine to buy',        'No POS terminal, no computer, nothing to install. Your own phone is the full billing counter.', 'All plans', Smartphone, 'var(--c-warning)'],
+  ['Multi-branch',             'Several outlets, one login. Each keeps its own books.',                 'Enterprise', Building2,  'var(--c-violet)'],
 ];
 
 const RETAIL = [
   ['GST invoicing',         'GSTIN-compliant bills in seconds. GSTR-1 and GSTR-3B export built in.',     'Enterprise', ReceiptIndianRupee, 'var(--c-primary-light)'],
-  ['Stock & expiry',        'Reorder points, batch numbers, and expiry warnings before you eat a loss.', 'Pro',        PackageSearch,      '#FB7185'],
-  ['Udhaar ledger',         'Customer balances live. Automatic WhatsApp reminders. Supplier book too.',  'All plans',  BookUser,           '#F5B942'],
-  ['Distributor orders',    'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans',  Truck,              '#34D399'],
-  ['Loyalty & flash sales', 'Reward regulars automatically. Run time-boxed offers on your storefront.',  'Pro',        Gift,               '#F472B6'],
-  ['CA portal & Tally',     'Give your accountant direct access. One-click Tally export.',               'Enterprise', FileSpreadsheet,    '#22D3EE'],
-  ['Voice billing',         'Say "two Parle-G" and it\u2019s on the bill. No typing, both hands free at the counter.', 'All plans', Mic, '#A78BFA'],
+  ['Stock & expiry',        'Reorder points, batch numbers, and expiry warnings before you eat a loss.', 'Pro',        PackageSearch,      'var(--c-danger)'],
+  ['Udhaar ledger',         'Customer balances live. Automatic WhatsApp reminders. Supplier book too.',  'All plans',  BookUser,           'var(--c-warning)'],
+  ['Distributor orders',    'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans',  Truck,              'var(--c-success)'],
+  ['Loyalty & flash sales', 'Reward regulars automatically. Run time-boxed offers on your storefront.',  'Pro',        Gift,               'var(--c-rose)'],
+  ['CA portal & Tally',     'Give your accountant direct access. One-click Tally export.',               'Enterprise', FileSpreadsheet,    'var(--c-cyan)'],
+  ['Voice billing',         'Say "two Parle-G" and it\u2019s on the bill. No typing, both hands free at the counter.', 'All plans', Mic, 'var(--c-violet)'],
 ];
 
 const DISTRIBUTOR = [
-  ['Van sales, fully offline',  'Bill a shop on the spot with no signal at all. Syncs the moment the van is back in range.', 'Enterprise', Truck,        '#34D399'],
+  ['Van sales, fully offline',  'Bill a shop on the spot with no signal at all. Syncs the moment the van is back in range.', 'Enterprise', Truck,        'var(--c-success)'],
   ['Route planning',            'Plan a rep\u2019s beat once. The app orders the stops so less time is spent driving.',       'Pro',        Route,        'var(--c-primary-light)'],
-  ['Purchases & payables',      'Record what you buy from manufacturers. Real cost, real margin, what you owe them.',       'All plans',  IndianRupee,  '#F5B942'],
-  ['Barcode scanning',          'Scan a product to bill it or find it in seconds \u2014 no more scrolling a long list.',    'All plans',  ScanBarcode,  '#22D3EE'],
-  ['Profit & GST reports',      'Real profit using what you paid, not a guess. GST liability with input credit built in.', 'Pro',        FileBarChart, '#FB7185'],
+  ['Purchases & payables',      'Record what you buy from manufacturers. Real cost, real margin, what you owe them.',       'All plans',  IndianRupee,  'var(--c-warning)'],
+  ['Barcode scanning',          'Scan a product to bill it or find it in seconds \u2014 no more scrolling a long list.',    'All plans',  ScanBarcode,  'var(--c-cyan)'],
+  ['Profit & GST reports',      'Real profit using what you paid, not a guess. GST liability with input credit built in.', 'Pro',        FileBarChart, 'var(--c-danger)'],
 ];
 
 const SERVICES = (addonPrice) => [
-  ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro',        CalendarCheck,     '#34D399'],
+  ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro',        CalendarCheck,     'var(--c-success)'],
   ['Staff scheduling',     'Assign services to specific staff. Per-person hours and time off.',           'Pro',        UsersRound,        'var(--c-primary-light)'],
-  ['Automatic reminders',  'WhatsApp and SMS, 24 hours and 1 hour before. No-shows drop sharply.',        'Pro',        MessageSquareDot,  '#F5B942'],
-  ['Self-service changes', 'Customers reschedule or cancel by link. No phone calls.',                     'Pro',        Link2,             '#22D3EE'],
-  ['Buffer time',          'Reserve cleanup and prep time after each appointment.',                       'Pro',        Timer,             '#FB7185'],
-  ['Recurring bookings',   'Hold the same slot weekly or monthly. Clashes skipped automatically.',        'Enterprise', Repeat,            '#A78BFA'],
-  ['Home service visits',  'Customers book at their own address. Built for salons, spas, beauty, repairs.', `Add-on ₹${addonPrice}/mo`, Home, '#FB7185'],
+  ['Automatic reminders',  'WhatsApp and SMS, 24 hours and 1 hour before. No-shows drop sharply.',        'Pro',        MessageSquareDot,  'var(--c-warning)'],
+  ['Self-service changes', 'Customers reschedule or cancel by link. No phone calls.',                     'Pro',        Link2,             'var(--c-cyan)'],
+  ['Buffer time',          'Reserve cleanup and prep time after each appointment.',                       'Pro',        Timer,             'var(--c-danger)'],
+  ['Recurring bookings',   'Hold the same slot weekly or monthly. Clashes skipped automatically.',        'Enterprise', Repeat,            'var(--c-violet)'],
+  ['Home service visits',  'Customers book at their own address. Built for salons, spas, beauty, repairs.', `Add-on ₹${addonPrice}/mo`, Home, 'var(--c-danger)'],
   ['Staff safety check-in','Exact visit location, on-the-way/arrived check-in, and a one-tap emergency alert for staff working alone at a home visit.', `Add-on ₹${addonPrice}/mo`, ShieldCheck, 'var(--c-danger)'],
 ];
 
 const PLAN_TONE = {
-  'All plans':  { fg: '#34D399', bg: 'rgba(52,211,153,0.12)' },
+  'All plans':  { fg: 'var(--c-success)', bg: 'rgba(52,211,153,0.12)' },
   'Pro':        { fg: 'var(--c-primary-light)', bg: 'rgba(129,140,248,0.14)' },
-  'Enterprise': { fg: '#F5B942', bg: 'rgba(245,185,66,0.13)' },
+  'Enterprise': { fg: 'var(--c-warning)', bg: 'rgba(245,185,66,0.13)' },
 };
 // Add-on badges carry a live price ("Add-on ₹199/mo") rather than a
 // fixed tier name, so they can't be exact-matched against PLAN_TONE's
 // keys — detected by prefix instead. Distinct rose tone: not included
 // in any plan, purchased separately, worth standing out from the
 // green/indigo/gold tier colours.
-const toneFor = (plan) => plan.startsWith('Add-on') ? { fg: '#FB7185', bg: 'rgba(251,113,133,0.13)' } : (PLAN_TONE[plan] || PLAN_TONE['All plans']);
+const toneFor = (plan) => plan.startsWith('Add-on') ? { fg: 'var(--c-danger)', bg: 'rgba(251,113,133,0.13)' } : (PLAN_TONE[plan] || PLAN_TONE['All plans']);
 
 export default function LandingFeatures() {
   const [tab, setTab] = useState('every');

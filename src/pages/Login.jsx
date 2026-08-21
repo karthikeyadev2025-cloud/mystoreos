@@ -30,10 +30,10 @@ const CSS = `
 .lp-root {
   min-height: 100vh; width: 100%; display: flex;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background: #0D1117; overflow-x: hidden;
+  background: var(--c-ink-surface); overflow-x: hidden;
 }
 .lp-brand {
-  flex: 1; background: #0D1117; display: flex; flex-direction: column;
+  flex: 1; background: var(--c-ink-surface); display: flex; flex-direction: column;
   justify-content: center; padding: clamp(40px,6vw,60px) clamp(32px,5vw,56px);
   position: relative; overflow: hidden;
   border-right: 1px solid rgba(255,255,255,0.07);
@@ -51,7 +51,7 @@ const CSS = `
   pointer-events: none;
 }
 .lp-form-side {
-  width: min(480px, 100%); background: #161B22;
+  width: min(480px, 100%); background: var(--c-ink-surface-2);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: clamp(32px,5vw,48px) clamp(20px,5vw,44px); min-height: 100vh; overflow-y: auto;
 }
@@ -88,7 +88,7 @@ const CSS = `
   .lp-form-side {
     width: 100% !important; min-width: unset !important;
     padding: clamp(32px,7vw,48px) clamp(20px,6vw,40px) !important;
-    background: #0D1117 !important;
+    background: var(--c-ink-surface) !important;
   }
 }
 `;
@@ -380,7 +380,7 @@ export default function Login() {
                 <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 8, padding: '8px 12px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 14 }}>👤</span>
                   <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12 }}>
-                    Staff members: use your <strong style={{ color: '#6EE7B7' }}>4-digit PIN</strong> as your password
+                    Staff members: use your <strong style={{ color: 'var(--c-success-soft)' }}>4-digit PIN</strong> as your password
                   </span>
                 </div>
 
@@ -478,7 +478,7 @@ export default function Login() {
               <div style={{ marginTop: 32, padding: '14px 16px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, display: 'flex', gap: 10 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--c-success)', display: 'inline-block', marginTop: 5, flexShrink: 0, animation: 'pulse 2s infinite' }}/>
                 <div>
-                  <div style={{ color: '#6EE7B7', fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>Protected & Encrypted</div>
+                  <div style={{ color: 'var(--c-success-soft)', fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>Protected & Encrypted</div>
                   <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>256-bit SSL · RBI-compliant data storage</div>
                 </div>
               </div>

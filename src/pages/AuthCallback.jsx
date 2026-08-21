@@ -72,7 +72,7 @@ export default function AuthCallback() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', background: '#0D1117',
+      alignItems: 'center', justifyContent: 'center', background: 'var(--c-ink-surface)',
       fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", padding: 24 }}>
       <MLogo size={48} radius={13} />
       {!error ? (

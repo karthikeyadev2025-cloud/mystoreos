@@ -63,7 +63,7 @@ export default function MobileDashboard({
       <div style={{ margin: '-14px 12px 0', background: 'var(--c-surface)', borderRadius: 16, border: '1px solid var(--c-line)', boxShadow: '0 4px 16px rgba(15,23,42,0.08)', padding: 16, display: 'flex', alignItems: 'center', gap: 16, position: 'relative' }}>
         <div style={{ position: 'relative', width: 112, height: 112, flexShrink: 0 }}>
           <svg width="112" height="112" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="56" cy="56" r={RING_R} fill="none" stroke="#F1F5F9" strokeWidth="9" />
+            <circle cx="56" cy="56" r={RING_R} fill="none" stroke="#EFECE5" strokeWidth="9" />
             <circle cx="56" cy="56" r={RING_R} fill="none" stroke={ringColor} strokeWidth="9" strokeLinecap="round" strokeDasharray={RING_C} strokeDashoffset={ringOffset} style={{ transition: 'stroke-dashoffset 0.6s' }} />
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -124,7 +124,7 @@ export default function MobileDashboard({
       {/* Pending orders alert */}
       {pendingOrders > 0 && (
         <button onClick={() => { setActiveTab && setActiveTab('bills'); onClose && onClose(); }}
-          style={{ width: 'calc(100% - 24px)', margin: '0 12px 10px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'left' }}>
+          style={{ width: 'calc(100% - 24px)', margin: '0 12px 10px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'left' }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--c-warning)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Receipt size={16} color="var(--c-surface)" />
           </div>
@@ -141,11 +141,11 @@ export default function MobileDashboard({
         <div style={{ margin: '0 12px 10px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ background: outOfStock.length ? 'var(--c-danger-soft)' : 'var(--c-warning-soft)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--c-line)' }}>
             <AlertTriangle size={15} color={outOfStock.length ? 'var(--c-danger)' : 'var(--c-warning)'} />
-            <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: outOfStock.length ? '#991B1B' : 'var(--c-warning-strong)' }}>
+            <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: outOfStock.length ? 'var(--c-danger-strong)' : 'var(--c-warning-strong)' }}>
               {lowStock.length} {lowStock.length === 1 ? 'item' : 'items'} low on stock
             </div>
             {isOwner && (
-              <button onClick={() => { setActiveTab && setActiveTab('restock'); onClose && onClose(); }} style={{ background: 'var(--c-surface)', border: `1px solid ${outOfStock.length ? 'var(--c-danger-border)' : '#FDE68A'}`, color: outOfStock.length ? '#991B1B' : 'var(--c-warning-strong)', borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={() => { setActiveTab && setActiveTab('restock'); onClose && onClose(); }} style={{ background: 'var(--c-surface)', border: `1px solid ${outOfStock.length ? 'var(--c-danger-border)' : 'var(--c-accent-border)'}`, color: outOfStock.length ? 'var(--c-danger-strong)' : 'var(--c-warning-strong)', borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                 Restock
               </button>
             )}
@@ -171,13 +171,13 @@ export default function MobileDashboard({
 
       {/* AI Insight (only if there's something to say) */}
       {lowStock.length > 0 && (
-        <div style={{ margin: '0 12px 10px', background: 'linear-gradient(135deg, #F5F3FF, var(--c-primary-soft))', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10 }}>
+        <div style={{ margin: '0 12px 10px', background: 'linear-gradient(135deg, var(--c-violet-soft), var(--c-primary-soft))', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10 }}>
           <div style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Sparkles size={14} color="var(--c-surface)" />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-primary-hover)', marginBottom: 2 }}>AI Insight</div>
-            <div style={{ fontSize: 11.5, color: '#3730A3', lineHeight: 1.4 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--c-primary)', lineHeight: 1.4 }}>
               Based on your stock levels, consider reordering <b>{lowStock.slice(0, 3).map(p => p.name).join(', ')}</b>
               {lowStock.length > 3 && ` and ${lowStock.length - 3} more`} soon to avoid running out.
             </div>

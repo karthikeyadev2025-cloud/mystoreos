@@ -28,7 +28,7 @@ export default function NativeWelcome() {
         width: '100vw',
         height: '100vh',
         background: 'var(--c-ink)',
-        backgroundImage: 'radial-gradient(circle at 50% 30%, #312E81 0%, #1E1B4B 40%, var(--c-ink) 100%)',
+        backgroundImage: 'radial-gradient(circle at 50% 30%, var(--c-primary) 0%, var(--c-primary-hover) 40%, var(--c-ink) 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -69,7 +69,7 @@ export default function NativeWelcome() {
         display: 'none',
         width: 110,
         height: 110,
-        background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)',
+        background: 'linear-gradient(135deg, var(--c-primary) 0%, var(--c-violet) 100%)',
         borderRadius: 26,
         alignItems: 'center',
         justifyContent: 'center',
@@ -96,7 +96,7 @@ export default function NativeWelcome() {
         color: 'var(--c-surface)',
         letterSpacing: '-0.5px',
       }}>
-        Welcome to <span style={{ color: '#A5B4FC' }}>MyStore OS</span>
+        Welcome to <span style={{ color: 'var(--c-primary-light)' }}>MyStore OS</span>
       </h1>
       
       {/* Subtitle - EXPLICIT LIGHT GRAY */}
@@ -115,7 +115,7 @@ export default function NativeWelcome() {
       
       {/* CTA button */}
       <div style={{
-        background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)',
+        background: 'linear-gradient(135deg, var(--c-primary) 0%, var(--c-violet) 100%)',
         borderRadius: 14,
         padding: '14px 32px',
         display: 'flex',

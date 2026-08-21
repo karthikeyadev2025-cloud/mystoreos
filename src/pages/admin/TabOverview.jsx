@@ -20,7 +20,7 @@ const T = {
   positive:      'var(--c-success)',
   negative:      'var(--c-danger)',
   warn:          'var(--c-warning)',
-  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,#7C3AED 45%,var(--c-primary-hover) 100%)',
+  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,var(--c-violet) 45%,var(--c-primary-hover) 100%)',
 };
 
 const styles = {
@@ -61,13 +61,13 @@ const styles = {
   panelHint:   { color: T.inkFaint, fontSize: 11 },
 };
 
-const PIE_COLORS = ['var(--c-primary)', '#7C3AED', 'var(--c-success)', 'var(--c-warning)'];
+const PIE_COLORS = ['var(--c-primary)', 'var(--c-violet)', 'var(--c-success)', 'var(--c-warning)'];
 
 // Delta chip. Guards against Infinity (previous period was 0) and NaN
 // so the dashboard never shows a broken number.
 function DeltaChip({ pct }) {
   if (pct === Infinity || pct === -Infinity) return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: T.positive, background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: T.positive, background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
       <Sparkles size={10} /> NEW
     </span>
   );
@@ -76,7 +76,7 @@ function DeltaChip({ pct }) {
   const positive = pct > 0;
   const color = zero ? T.inkFaint : (positive ? T.positive : T.negative);
   const bg    = zero ? 'var(--c-line-soft)' : (positive ? 'var(--c-success-soft)' : 'var(--c-danger-soft)');
-  const border= zero ? 'var(--c-line)' : (positive ? '#A7F3D0' : '#FECACA');
+  const border= zero ? 'var(--c-line)' : (positive ? 'var(--c-success-soft)' : 'var(--c-danger-border)');
   const Icon  = zero ? null : (positive ? ArrowUpRight : ArrowDownRight);
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color, background: bg, border: `1px solid ${border}`, padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
@@ -261,10 +261,10 @@ export default function TabOverview() {
       {/* KPI ROW */}
       <div style={styles.kpiGrid}>
         <Kpi Icon={Store}        color="var(--c-primary)" label="Total Shops"    value={stats.totalShops || 0}         sub={`${stats.paidShops || 0} paying`} deltaPct={stats.shopsDeltaPct}   spark={sparks.shops} />
-        <Kpi Icon={Users}        color="#7C3AED" label="Customers"      value={stats.totalUsers || 0}         deltaPct={stats.custDeltaPct}                                       spark={sparks.customers} />
+        <Kpi Icon={Users}        color="var(--c-violet)" label="Customers"      value={stats.totalUsers || 0}         deltaPct={stats.custDeltaPct}                                       spark={sparks.customers} />
         <Kpi Icon={Truck}        color="var(--c-success)" label="Distributors"   value={stats.totalDistributors || 0}                                                                     spark={sparks.distributors} />
         <Kpi Icon={ShoppingCart} color="var(--c-info)" label="Orders (30d)"   value={Number(stats.ordersLast30 || 0).toLocaleString('en-IN')} deltaPct={stats.ordersDeltaPct} />
-        <Kpi Icon={IndianRupee}  color="#06B6D4" label="Revenue Total"  value={stats.revenue || '₹0'}         sub="MRR run rate" spark={revenueSpark} />
+        <Kpi Icon={IndianRupee}  color="var(--c-cyan)" label="Revenue Total"  value={stats.revenue || '₹0'}         sub="MRR run rate" spark={revenueSpark} />
         <Kpi Icon={AlertCircle}  color="var(--c-danger)" label="Open Credit"    value={`₹${Number(stats.activeCredit || 0).toLocaleString('en-IN')}`} sub="Unpaid dues" />
       </div>
 
@@ -279,19 +279,19 @@ export default function TabOverview() {
             <AreaChart data={revenueData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
               <defs>
                 <linearGradient id="shopGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#12457A" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#12457A" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="distGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#12457A" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#12457A" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="month" tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
               <Tooltip contentStyle={{ background: 'var(--c-surface)', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} formatter={v => [`₹${v}`, '']} />
-              <Area type="monotone" dataKey="shops"        name="Shops"        stroke="#4F46E5" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#7C3AED" fill="url(#distGrad)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="shops"        name="Shops"        stroke="#12457A" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#12457A" fill="url(#distGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -331,9 +331,9 @@ export default function TabOverview() {
             <XAxis dataKey="month" tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ background: 'var(--c-surface)', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} cursor={{ fill: 'rgba(79,70,229,0.05)' }} />
-            <Bar dataKey="shops"        name="Shops"        fill="#4F46E5" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="customers"    name="Customers"    fill="#7C3AED" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="distributors" name="Distributors" fill="#10B981" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="shops"        name="Shops"        fill="#12457A" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="customers"    name="Customers"    fill="#12457A" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="distributors" name="Distributors" fill="#22C55E" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

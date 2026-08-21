@@ -135,10 +135,10 @@ export default function FieldSetup() {
           style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Back to Dashboard
         </button>
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 14, padding: 28, textAlign: 'center' }}>
           <Truck size={30} color="var(--c-warning-strong)" style={{ marginBottom: 10 }} />
           <h2 style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-warning-strong)', margin: '0 0 6px' }}>Field Distribution is a Pro feature</h2>
-          <p style={{ fontSize: 13, color: '#78350F', margin: '0 0 16px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: 'var(--c-warning-strong)', margin: '0 0 16px', lineHeight: 1.6 }}>
             Run routes and beats, book presale orders from the field, track your team live,
             and reconcile stock and cash at day&apos;s end. Van sales with offline billing is
             available on Enterprise.
@@ -167,7 +167,7 @@ export default function FieldSetup() {
       </p>
 
       <button onClick={() => navigate('/field/diagnostics')}
-        style={{ background: '#FFFBEB', color: 'var(--c-warning-strong)', border: '1px solid #FDE68A', padding: '9px 16px', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', marginBottom: 16 }}>
+        style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid var(--c-accent-border)', padding: '9px 16px', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', marginBottom: 16 }}>
         🩺 Run Field Diagnostics
       </button>
 

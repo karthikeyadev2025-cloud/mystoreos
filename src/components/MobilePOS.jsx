@@ -179,8 +179,8 @@ export default function MobilePOS({
                             {iDisc > 0 ? (
                               <>
                                 <span style={{ color: 'var(--c-faint)', textDecoration: 'line-through' }}>₹{lineBase}</span>
-                                <span style={{ background: '#DCFCE7', color: '#15803D', padding: '0 5px', borderRadius: 4, fontWeight: 700 }}>−{iDisc}%</span>
-                                <span style={{ fontWeight: 800, color: '#15803D' }}>₹{lineNet}</span>
+                                <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '0 5px', borderRadius: 4, fontWeight: 700 }}>−{iDisc}%</span>
+                                <span style={{ fontWeight: 800, color: 'var(--c-success-strong)' }}>₹{lineNet}</span>
                               </>
                             ) : (
                               <span style={{ fontWeight: 700, color: 'var(--c-ink)' }}>= ₹{lineBase}</span>
@@ -197,9 +197,9 @@ export default function MobilePOS({
                             onClick={() => setDiscountRow(showingDisc ? null : item.id)}
                             aria-label="Discount this item"
                             style={{
-                              background: iDisc > 0 ? '#DCFCE7' : 'transparent',
-                              border: iDisc > 0 ? '1px solid #86EFAC' : '1px solid transparent',
-                              color: iDisc > 0 ? '#15803D' : 'var(--c-faint)',
+                              background: iDisc > 0 ? 'var(--c-success-soft)' : 'transparent',
+                              border: iDisc > 0 ? '1px solid var(--c-success-soft)' : '1px solid transparent',
+                              color: iDisc > 0 ? 'var(--c-success-strong)' : 'var(--c-faint)',
                               cursor: 'pointer', padding: '4px 6px',
                               borderRadius: 6, fontSize: 11, fontWeight: 800,
                               minWidth: 28,
@@ -213,7 +213,7 @@ export default function MobilePOS({
                         </button>
                       </div>
                       {showingDisc && updateBillItemDiscount && (
-                        <div style={{ padding: '0 14px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#FAFAFB' }}>
+                        <div style={{ padding: '0 14px 12px', display: 'flex', alignItems: 'center', gap: 8, background: 'var(--c-surface-2)' }}>
                           <span style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, flexShrink: 0 }}>Item discount</span>
                           <div style={{ flex: 1, display: 'flex', gap: 4 }}>
                             {[0, 5, 10, 15, 20].map(pct => (
@@ -282,7 +282,7 @@ export default function MobilePOS({
                     {[
                       { key: 'Cash', label: 'Cash', icon: '💵', color: 'var(--c-success)' },
                       { key: 'UPI', label: 'UPI', icon: '📱', color: 'var(--c-primary)' },
-                      { key: 'Card', label: 'Card', icon: '💳', color: '#0EA5E9' },
+                      { key: 'Card', label: 'Card', icon: '💳', color: 'var(--c-cyan)' },
                       { key: 'Credit', label: 'Credit', icon: '📒', color: 'var(--c-warning)' },
                     ].map(p => {
                       const selected = paymentMethod === p.key;
@@ -481,7 +481,7 @@ export default function MobilePOS({
                   <div style={{ fontSize: 12, color: outOfStock ? 'var(--c-danger)' : lowStock ? 'var(--c-warning)' : 'var(--c-muted)', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                     <span>{outOfStock ? 'Out of stock' : `Stock: ${p.stock}`}</span>
                     {hasDiscount && !outOfStock && (
-                      <span style={{ background: 'var(--c-danger-soft)', color: '#991B1B', padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                      <span style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
                         {activeSale ? `${sale.discount}% off` : `${standingDiscPct}% off`}
                       </span>
                     )}

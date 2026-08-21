@@ -82,10 +82,10 @@ export default function Reports() {
           style={{ background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 16, padding: 32, textAlign: 'center' }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 16, padding: 32, textAlign: 'center' }}>
           <TrendingUp size={36} color="var(--c-warning-strong)" style={{ marginBottom: 12 }} />
           <h2 style={{ fontSize: 20, fontWeight: 900, color: 'var(--c-warning-strong)', margin: '0 0 8px' }}>Reports &amp; Profit Analytics (Pro Feature)</h2>
-          <p style={{ fontSize: 14, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: 'var(--c-warning-strong)', margin: 0, lineHeight: 1.6 }}>
             Gain complete clarity into your Gross Profit &amp; Margin, GST Output vs Input Credit (ITC), and Warehouse Stock Valuation at Cost.
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function Reports() {
       </button>
 
       {/* Header Dark Indigo Banner */}
-      <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 50%, #312E81 100%)', borderRadius: 20, padding: '24px 28px', color: 'var(--c-surface)', marginBottom: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, var(--c-primary-hover) 50%, var(--c-primary) 100%)', borderRadius: 20, padding: '24px 28px', color: 'var(--c-surface)', marginBottom: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, color: 'var(--c-surface)', margin: 0 }}>Financial &amp; GST Reports</h1>
           <p style={{ fontSize: 13, color: 'var(--c-faint)', margin: '4px 0 0' }}>
@@ -148,7 +148,7 @@ export default function Reports() {
 
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 16, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
           <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--c-muted)', textTransform: 'uppercase' }}>Net GST Payable</div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: netGst > 0 ? '#C2410C' : 'var(--c-success-strong)', marginTop: 4 }}>
+          <div style={{ fontSize: 22, fontWeight: 900, color: netGst > 0 ? 'var(--c-orange-strong)' : 'var(--c-success-strong)', marginTop: 4 }}>
             {inr(Math.max(netGst, 0))}
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>After ITC deduction ({inr(input.tax)})</div>
@@ -186,7 +186,7 @@ export default function Reports() {
         )}
 
         {!pl.isComplete && (
-          <div style={{ marginTop: 14, padding: '12px 14px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, fontSize: 12, color: 'var(--c-warning-strong)', display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ marginTop: 14, padding: '12px 14px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, fontSize: 12, color: 'var(--c-warning-strong)', display: 'flex', gap: 10, alignItems: 'center' }}>
             <AlertTriangle size={16} style={{ flexShrink: 0 }} />
             <span>
               {inr(pl.unknownCostValue)} of sales across {pl.unknownLines} line items have no cost price recorded. Real profit is <strong>higher than shown</strong>. Record inward supplier bills in Purchases to complete cost tracking.

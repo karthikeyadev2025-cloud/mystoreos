@@ -85,12 +85,12 @@ function ReferAndEarnCard({ userId, userName }) {
       </div>
       {loading ? <div style={{ color: 'var(--c-muted)', fontSize: 12 }}>Generating your code...</div> : (
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ background: 'var(--c-ink)', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#A78BFA', letterSpacing: 3, flexShrink: 0 }}>
+          <div style={{ background: 'var(--c-ink)', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: 'var(--c-violet)', letterSpacing: 3, flexShrink: 0 }}>
             {code?.code || '—'}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#A78BFA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📋 Copy Code</button>
-            <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60A5FA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>🔗 Copy Link</button>
+            <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: 'var(--c-violet)', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📋 Copy Code</button>
+            <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: 'var(--c-primary-light)', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>🔗 Copy Link</button>
             <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25D366,#128C7E)', border: 'none', color: 'var(--c-surface)', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📲 Share on WhatsApp</button>
           </div>
         </div>
@@ -1360,10 +1360,10 @@ const ShopDashboard = () => {
       };
 
       // Shared header colour
-      let themeColor = '#10B981';
+      let themeColor = '#22C55E';
       let modeTitle  = 'TAX INVOICE';
       let modeShort  = 'INV';
-      if (billingMode === 'estimate') { themeColor = '#4F46E5'; modeTitle = 'PROFORMA ESTIMATE'; modeShort = 'EST'; }
+      if (billingMode === 'estimate') { themeColor = '#12457A'; modeTitle = 'PROFORMA ESTIMATE'; modeShort = 'EST'; }
       if (billingMode === 'challan')  { themeColor = '#3B82F6'; modeTitle = 'DELIVERY CHALLAN';  modeShort = 'DC';  }
       const hex2rgb = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
       const [tR,tG,tB] = hex2rgb(themeColor);
@@ -1682,11 +1682,11 @@ const ShopDashboard = () => {
       const doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
       // Theme colours per document type
-      let themeColor = '#10B981';
+      let themeColor = '#22C55E';
       let modeTitle  = 'TAX INVOICE';
       let modeShort  = 'INV';
       if (billingMode === 'estimate') {
-        themeColor = '#4F46E5'; modeTitle = 'PROFORMA ESTIMATE / QUOTATION'; modeShort = 'EST';
+        themeColor = '#12457A'; modeTitle = 'PROFORMA ESTIMATE / QUOTATION'; modeShort = 'EST';
       } else if (billingMode === 'challan') {
         themeColor = '#3B82F6'; modeTitle = 'DELIVERY CHALLAN'; modeShort = 'DC';
       }
@@ -3942,7 +3942,7 @@ const ShopDashboard = () => {
       const marginL     = isThermal ? 3 : 15;
       const contentW    = pageW - marginL * 2;
 
-      const themeColor = opts.testMode ? '#4F46E5' : type === 'estimate' ? '#4F46E5' : type === 'challan' ? '#3B82F6' : '#10B981';
+      const themeColor = opts.testMode ? '#12457A' : type === 'estimate' ? '#12457A' : type === 'challan' ? '#3B82F6' : '#22C55E';
       const modeTitle  = opts.testMode ? 'TEST PRINT' : type === 'estimate' ? 'PROFORMA ESTIMATE' : type === 'challan' ? 'DELIVERY CHALLAN' : 'TAX INVOICE';
       const hex2rgb = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
       const [tR,tG,tB] = hex2rgb(themeColor);
@@ -4464,7 +4464,7 @@ const ShopDashboard = () => {
   const getAnnounceColor = () => {
     switch(announceConfig.type) {
       case 'warning': return 'var(--c-primary)';
-      case 'success': return '#22C55E';
+      case 'success': return 'var(--c-success)';
       case 'error': return 'var(--c-danger)';
       default: return 'var(--c-info)';
     }
@@ -4529,7 +4529,7 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: 'var(--c-ink)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: 'border-box' },
+    bg: { backgroundColor: 'var(--c-line-soft)', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: 'var(--c-ink)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: 'border-box' },
     header: { background: 'var(--c-ink)', padding: 'calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--c-ink)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', width: '100%', boxSizing: 'border-box', overflow: 'hidden', gap: '8px' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: 'var(--c-surface)', border: '1px solid var(--c-line)', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
@@ -4543,7 +4543,7 @@ const ShopDashboard = () => {
     gridSub: { fontSize: '10px', color: 'var(--c-muted)', margin: 0 },
     section: { margin: '16px 12px', backgroundColor: 'var(--c-surface)', borderRadius: '12px', border: '1px solid var(--c-line)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
     sectionHeader: { backgroundColor: 'var(--c-bg)', padding: '12px', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-ink)', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', gap: '8px' },
-    whatsappBtn: { backgroundColor: '#22C55E', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
+    whatsappBtn: { backgroundColor: 'var(--c-success)', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
     upiBtn: { backgroundColor: 'var(--c-primary)', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
     prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--c-line)' },
     orderCard: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', margin: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
@@ -4632,7 +4632,7 @@ const ShopDashboard = () => {
 
   const importFromMainEl = (canImportFromMain || canPushToABranch) ? (
     canImportFromMain ? (
-    <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),#F5F3FF)', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+    <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),var(--c-violet-soft))', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontSize: 18, flexShrink: 0 }}>📦</div>
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>Copy all products from Main Shop</div>
@@ -4706,7 +4706,7 @@ const ShopDashboard = () => {
           {data.branchBreakdown.map((b, idx) => {
             const sharePct = Math.round((b.monthRevenue / totalMonth) * 100);
             return (
-              <div key={b.branchId} style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 10, background: idx === 0 ? '#F0FDF4' : 'var(--c-surface)' }}>
+              <div key={b.branchId} style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 10, background: idx === 0 ? 'var(--c-success-soft)' : 'var(--c-surface)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-ink)' }}>{b.branchName}</span>
                   {b.isMain && <span style={{ fontSize: 9.5, background: 'var(--c-primary)', color: 'var(--c-surface)', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
@@ -4760,7 +4760,7 @@ const ShopDashboard = () => {
         maxWidth: 720,
         margin: '0 auto 10px',
         background: 'var(--c-surface)',
-        border: '1px solid #BBF7D0',
+        border: '1px solid var(--c-success-soft)',
         borderLeft: '4px solid var(--c-success)',
         borderRadius: 14,
         padding: '12px 14px',
@@ -4859,7 +4859,7 @@ const ShopDashboard = () => {
               <div style={{ fontSize: '48px', marginBottom: '14px' }}>📱</div>
               <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '800', color: 'white' }}>Device Limit Reached</h2>
               <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--c-faint)', lineHeight: '1.6' }}>
-                Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: '#FBBF24' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
+                Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: 'var(--c-warning)' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
                 You have {activeSessions.length} device{activeSessions.length !== 1 ? 's' : ''} logged in.
               </p>
               <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: 'var(--c-muted)' }}>
@@ -5286,7 +5286,7 @@ const ShopDashboard = () => {
                   />
                 )}
               </div>
-              <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+              <p style={{ color: 'var(--c-success)', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
                 <span style={{ fontSize: '10px', color: 'var(--c-primary)', fontWeight: '700' }}>MyStore OS</span>
                 <span style={{ fontSize: '9px', color: 'var(--c-muted)' }}> • mystoreos.in</span>
@@ -5321,7 +5321,7 @@ const ShopDashboard = () => {
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-ink)', padding: '12px', borderRadius: '8px', border: '1px solid var(--c-ink-2)' }}>
                     <div>
                       <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold' }}>{item.name}</p>
-                      <p style={{ margin: 0, fontSize: '12px', color: '#FBBF24' }}>₹{item.price} x {item.qty}</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-warning)' }}>₹{item.price} x {item.qty}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: 'var(--c-ink-2)', color: 'var(--c-surface)', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
@@ -5990,7 +5990,7 @@ const ShopDashboard = () => {
             {shop?.publicCode && <span style={{ fontFamily: 'monospace', fontSize: '11px', color: 'var(--c-primary-light)', fontWeight: 700 }}>· {shop.publicCode}</span>}
             {branchSwitcherEl}
           </p>
-          <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ADE80' : '#F87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
+          <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? 'var(--c-success)' : 'var(--c-danger)', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
             {isOpenNow ? '● Open Now' : `● Closed`}
           </span>
         </div>
@@ -6020,7 +6020,7 @@ const ShopDashboard = () => {
       </div>
 
       {isOwner && isViewingMain && isOnTrial && !trialBannerDismissed && (
-        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,var(--c-success-strong),#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,var(--c-accent-hover),var(--c-warning-strong))' : 'linear-gradient(90deg,var(--c-danger-strong),var(--c-danger-strong))', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,var(--c-success-strong),var(--c-success-strong))' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,var(--c-accent-hover),var(--c-warning-strong))' : 'linear-gradient(90deg,var(--c-danger-strong),var(--c-danger-strong))', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-surface)' }}>
             ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
             {trialDaysLeft <= 3 && <span style={{ marginLeft: '8px', opacity: 0.9, fontWeight: 400, fontSize: '12px' }}>— Upgrade to keep your data & features</span>}
@@ -6056,7 +6056,7 @@ const ShopDashboard = () => {
           {(pendingOrders > 0 || products.filter(p => p.stock < (p.reorderLevel || 10)).length > 0) && (
             <div style={{ display: 'flex', gap: '8px', padding: '10px 12px 0', overflowX: 'auto', flexWrap: 'nowrap' }}>
               {pendingOrders > 0 && (
-                <button onClick={() => setActiveTab('bills')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid #FCD34D', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => setActiveTab('bills')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid var(--c-warning)', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                   <Receipt size={13} /> {pendingOrders} new {pendingOrders === 1 ? 'order' : 'orders'} →
                 </button>
               )}
@@ -6064,7 +6064,7 @@ const ShopDashboard = () => {
                 const low = products.filter(p => p.stock < (p.reorderLevel || 10));
                 if (!low.length) return null;
                 return (
-                  <button onClick={() => setActiveTab('products')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-danger-soft)', color: '#991B1B', border: '1px solid var(--c-danger-border)', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                  <button onClick={() => setActiveTab('products')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                     ⚠ {low.length} low stock →
                   </button>
                 );
@@ -6138,7 +6138,7 @@ const ShopDashboard = () => {
       {/* ORDERS / BILLS TAB */}
       {activeTab === 'bills' && (
         <div style={{paddingBottom: 40}}>
-          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <div style={{background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Online Orders & Bills</h2>
             
             {/* Glassmorphic Sub-tab toggle */}
@@ -6148,7 +6148,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'sales' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'sales' ? '#22C55E' : 'var(--c-faint)',
+                  color: billsSubTab === 'sales' ? 'var(--c-success)' : 'var(--c-faint)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -6159,7 +6159,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'drafts' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'drafts' ? '#FBBF24' : 'var(--c-faint)',
+                  color: billsSubTab === 'drafts' ? 'var(--c-warning)' : 'var(--c-faint)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -6202,12 +6202,12 @@ const ShopDashboard = () => {
               if (billsSubTab === 'drafts') {
                 if (type === 'estimate') {
                   cardBorder = '1px solid rgba(245,158,11,0.4)';
-                  cardBg = 'linear-gradient(145deg, #241D13, var(--c-ink))';
+                  cardBg = 'linear-gradient(145deg, var(--c-ink-surface-3), var(--c-ink))';
                   badgeText = 'Draft Estimate';
                   badgeColor = 'var(--c-primary)';
                 } else if (type === 'challan') {
                   cardBorder = '1px solid rgba(59,130,246,0.4)';
-                  cardBg = 'linear-gradient(145deg, #131C2D, var(--c-ink))';
+                  cardBg = 'linear-gradient(145deg, var(--c-ink-surface-2), var(--c-ink))';
                   badgeText = 'Delivery Challan';
                   badgeColor = 'var(--c-info)';
                 }
@@ -6228,7 +6228,7 @@ const ShopDashboard = () => {
                           {badgeText}
                         </span>
                       )}
-                      <span style={{color: o.status === 'Pending' ? 'var(--c-danger)' : '#22C55E', fontWeight:'bold', fontSize: 13}}>
+                      <span style={{color: o.status === 'Pending' ? 'var(--c-danger)' : 'var(--c-success)', fontWeight:'bold', fontSize: 13}}>
                         {o.status === 'Pending' ? '⚠️ Pending' : '✅ Accepted'}
                       </span>
                     </div>
@@ -6244,21 +6244,21 @@ const ShopDashboard = () => {
                   </div>
                   
                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'8px'}}>
-                    <span style={{fontSize:18, fontWeight:'bold', color:'#FBBF24'}}>₹{o.total}</span>
+                    <span style={{fontSize:18, fontWeight:'bold', color:'var(--c-warning)'}}>₹{o.total}</span>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       <button onClick={() => setSelectedOrder(o)} style={{background:'var(--c-info)', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                         View Receipt
                       </button>
                       
                       {billsSubTab === 'drafts' && type === 'estimate' && (
-                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #FBBF24, var(--c-accent-hover))', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, var(--c-warning), var(--c-accent-hover))', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ⚡ Convert to Bill
                         </button>
                       )}
 
                       {o.status === 'Pending' && (
                         <>
-                          <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,#22C55E,var(--c-success-strong))', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                          <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,var(--c-success),var(--c-success-strong))', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
                             ✅ Accept &amp; Notify
                           </button>
                           <button onClick={() => openCancelModal(o)} style={{background:'var(--c-danger-soft)', color:'var(--c-danger)', border:'1px solid var(--c-danger-border)', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -6356,7 +6356,7 @@ const ShopDashboard = () => {
                       )}
                       {/* Total customer savings — banner */}
                       {(totalItemSavings + (selectedOrder.discountAmount || 0)) > 0 && (
-                        <div style={{ marginTop: 8, background: '#DCFCE7', border: '1px dashed var(--c-success-strong)', padding: '6px 10px', borderRadius: 4, textAlign: 'center', fontSize: 11, fontWeight: 'bold', color: '#15803D' }}>
+                        <div style={{ marginTop: 8, background: 'var(--c-success-soft)', border: '1px dashed var(--c-success-strong)', padding: '6px 10px', borderRadius: 4, textAlign: 'center', fontSize: 11, fontWeight: 'bold', color: 'var(--c-success-strong)' }}>
                           🎉 YOU SAVED ₹{totalItemSavings + (selectedOrder.discountAmount || 0)} ON THIS BILL
                         </div>
                       )}
@@ -6387,21 +6387,21 @@ const ShopDashboard = () => {
 
               {/* Return info — shown when this bill has any returned items */}
               {(selectedOrder.returnedAt || selectedOrder.refundAmount > 0) && (
-                <div style={{ marginTop: '10px', padding: '10px', background: '#F5F3FF', border: '1px dashed #7C3AED', borderRadius: '6px', fontSize: '11px' }}>
-                  <p style={{ margin: '0 0 4px', fontWeight: 'bold', color: '#7C3AED' }}>
+                <div style={{ marginTop: '10px', padding: '10px', background: 'var(--c-violet-soft)', border: '1px dashed var(--c-violet)', borderRadius: '6px', fontSize: '11px' }}>
+                  <p style={{ margin: '0 0 4px', fontWeight: 'bold', color: 'var(--c-violet)' }}>
                     ↩️ {selectedOrder.status === 'Returned' ? 'Fully Returned' : 'Partial Return'}
                   </p>
                   {selectedOrder.returnedAt && (
-                    <p style={{ margin: '0 0 2px', color: '#6D28D9' }}>
+                    <p style={{ margin: '0 0 2px', color: 'var(--c-violet-strong)' }}>
                       On {new Date(selectedOrder.returnedAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
                     </p>
                   )}
                   {selectedOrder.returnedItems?.length > 0 && (
-                    <p style={{ margin: '0 0 2px', color: '#6D28D9' }}>
+                    <p style={{ margin: '0 0 2px', color: 'var(--c-violet-strong)' }}>
                       Items: {selectedOrder.returnedItems.map(it => `${it.name} x${it.returnQty}`).join(', ')}
                     </p>
                   )}
-                  <p style={{ margin: 0, color: '#6D28D9' }}>
+                  <p style={{ margin: 0, color: 'var(--c-violet-strong)' }}>
                     Refunded ₹{Number(selectedOrder.refundAmount||0).toFixed(2)} via {selectedOrder.refundMode || 'cash'}
                   </p>
                 </div>
@@ -6440,7 +6440,7 @@ const ShopDashboard = () => {
       {/* PRODUCTS INVENTORY TAB */}
       {activeTab === 'products' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Inventory</h2>
             <button onClick={() => setShowAddProductModal(true)} style={{background:'var(--c-info)', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
           </div>
@@ -6518,7 +6518,7 @@ const ShopDashboard = () => {
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #2A2F3D', paddingTop: '12px', marginTop: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--c-ink-surface-3)', paddingTop: '12px', marginTop: '12px' }}>
                     <button 
                       onClick={() => handleOneClickRestock(p)} 
                       style={{ 
@@ -6558,7 +6558,7 @@ const ShopDashboard = () => {
       {/* CREDIT LEDGER TAB */}
       {activeTab === 'credit' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <div style={{background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)', display: 'flex', flexDirection: 'column', gap: '12px'}}>
             <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Credit Book (బకాయిలు)</h2>
             
             {/* Toggle Payable vs Receivable */}
@@ -6606,7 +6606,7 @@ const ShopDashboard = () => {
                   <div key={c.id} style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '15px', color: 'var(--c-surface)' }}>{c.distName || 'Distributor'}</span>
-                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : 'var(--c-danger)' }}>
+                      <span style={{ fontWeight: 'bold', color: c.paid ? 'var(--c-success)' : 'var(--c-danger)' }}>
                         {c.paid ? '✅ Settled' : '⏳ Unpaid'}
                       </span>
                     </div>
@@ -6615,7 +6615,7 @@ const ShopDashboard = () => {
                       <span>Invoice: #{c.id.split('_')[1]}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--c-ink-2)', paddingTop: '12px' }}>
-                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
+                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--c-warning)' }}>₹{c.amount}</span>
                       {!c.paid && (
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => {
@@ -6695,7 +6695,7 @@ const ShopDashboard = () => {
                           <span style={{ fontWeight: 'bold', fontSize: '15px', color: 'var(--c-surface)' }}>{custName}</span>
                           {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Ph: {custPhone}</p>}
                         </div>
-                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : 'var(--c-primary)' }}>
+                        <span style={{ fontWeight: 'bold', color: c.paid ? 'var(--c-success)' : 'var(--c-primary)' }}>
                           {c.paid ? '✅ Settled' : '⏳ Pending'}
                         </span>
                       </div>
@@ -6710,7 +6710,7 @@ const ShopDashboard = () => {
                       </div>
                       
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--c-ink-2)', paddingTop: '12px' }}>
-                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--c-warning)' }}>₹{c.amount}</span>
                         {!c.paid && (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={() => sendCustomerCreditReminder(c)} style={{ background: '#25D366', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -6776,7 +6776,7 @@ const ShopDashboard = () => {
       {/* RESTOCKING SUPPLY TAB */}
       {activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
-          <div style={{ background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D' }}>
+          <div style={{ background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)' }}>
             <h2 style={{ margin: 0, fontSize: 18, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Truck size={20} color="var(--c-info)" /> Supply & Wholesale Restock
             </h2>
@@ -6785,7 +6785,7 @@ const ShopDashboard = () => {
           
           <div style={{ padding: '16px' }}>
             {/* AI Voice Order Recorder Header Banner */}
-            <div style={{ background: 'linear-gradient(135deg, var(--c-ink), #1E1B4B)', border: '2px solid var(--c-primary-light)', borderRadius: '16px', padding: '20px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ background: 'linear-gradient(135deg, var(--c-ink), var(--c-primary-hover))', border: '2px solid var(--c-primary-light)', borderRadius: '16px', padding: '20px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid var(--c-primary-light)', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-primary-light)', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
                   <Mic size={28} />
@@ -6897,7 +6897,7 @@ const ShopDashboard = () => {
                               </button>
                             </div>
 
-                            <div style={{ fontSize: '15px', fontWeight: '900', color: '#22C55E', minWidth: 60, textAlign: 'right' }}>
+                            <div style={{ fontSize: '15px', fontWeight: '900', color: 'var(--c-success)', minWidth: 60, textAlign: 'right' }}>
                               ₹{lineTotal.toLocaleString('en-IN')}
                             </div>
 
@@ -6933,7 +6933,7 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                       <div>
                         <div style={{ fontSize: '11px', color: 'var(--c-faint)', textTransform: 'uppercase', fontWeight: 700 }}>Total Basket Amount</div>
-                        <div style={{ fontSize: '20px', fontWeight: '900', color: '#FBBF24' }}>
+                        <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--c-warning)' }}>
                           ₹{Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
                             const prod = wholesaleCatalog.find(p => p.id === prodId);
                             return sum + (prod ? prod.price * qty : 0);
@@ -6951,7 +6951,7 @@ const ShopDashboard = () => {
 
                     <button
                       onClick={handlePlaceRestockOrder}
-                      style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, var(--c-success-strong))', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', boxShadow: '0 6px 20px rgba(34,197,94,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', boxShadow: '0 6px 20px rgba(34,197,94,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       🚀 Submit Stock Order to Distributor
                     </button>
@@ -7007,7 +7007,7 @@ const ShopDashboard = () => {
                     <div>
                       <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: 'var(--c-info)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
                       <h4 style={{ margin: '6px 0 2px 0', fontSize: '14px', color: 'var(--c-surface)', fontWeight: 'bold' }}>{p.name}</h4>
-                      <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Wholesale Price: <span style={{ color: '#22C55E', fontWeight: 'bold' }}>₹{p.price}</span></p>
+                      <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Wholesale Price: <span style={{ color: 'var(--c-success)', fontWeight: 'bold' }}>₹{p.price}</span></p>
                     </div>
                     <button onClick={() => handleRestockQtyChange(p.id, 1)} style={{ background: 'var(--c-info)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                       + Add Bulk
@@ -7029,7 +7029,7 @@ const ShopDashboard = () => {
                 {stockOrders.map(o => {
                   const MOBILE_BADGE = {
                     pending:    { bg: 'rgba(245,158,11,0.15)', color: 'var(--c-warning)', label: 'Pending' },
-                    accepted:   { bg: 'rgba(34,197,94,0.15)',  color: '#22C55E', label: 'Accepted' },
+                    accepted:   { bg: 'rgba(34,197,94,0.15)',  color: 'var(--c-success)', label: 'Accepted' },
                     dispatched: { bg: 'rgba(59,130,246,0.15)', color: 'var(--c-info)', label: '📦 Dispatched' },
                     delivered:  { bg: 'rgba(16,185,129,0.15)', color: 'var(--c-success)', label: '✅ Delivered' },
                     rejected:   { bg: 'rgba(239,68,68,0.15)',  color: 'var(--c-danger)', label: 'Rejected' },
@@ -7108,7 +7108,7 @@ const ShopDashboard = () => {
 
         return (
           <div style={{paddingBottom: 80}}>
-            <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
+            <div style={{background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)'}}>
               <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Retail Day Book & Reports</h2>
               <p style={{margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-faint)'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
             </div>
@@ -7151,7 +7151,7 @@ const ShopDashboard = () => {
 
                 {/* Margins Data Summary */}
                 <div style={{ flex: 1, minWidth: '150px' }}>
-                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? 'var(--c-danger-border)' : '#A7F3D0' }}>
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? 'var(--c-danger-border)' : 'var(--c-success-soft)' }}>
                     {isLoss ? '🔴 Loss Today: ' : '🟢 Profit Today: '} ₹{Math.abs(netProfit)}
                   </h3>
                   
@@ -7210,8 +7210,8 @@ const ShopDashboard = () => {
                         <XAxis dataKey="label" tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
                         <Tooltip contentStyle={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
-                        <Bar dataKey="income" fill="#10B981" radius={[3, 3, 0, 0]} />
-                        <Bar dataKey="expenses" fill="#EF4444" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="income" fill="#22C55E" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="expenses" fill="#C2382B" radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -7261,7 +7261,7 @@ const ShopDashboard = () => {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {ledgerItems.map((item, idx) => (
-                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-ink)', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D' }}>
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-ink)', padding: '12px', borderRadius: '10px', border: '1px solid var(--c-ink-surface-3)' }}>
                         <div>
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
@@ -7288,7 +7288,7 @@ const ShopDashboard = () => {
       {/* Profile & Settings TAB */}
       {isOwner && activeTab === 'profile' && (
         <div style={{paddingBottom: 80}}>
-          <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
+          <div style={{background: 'var(--c-ink-surface-2)', padding: '16px', borderBottom: '1px solid var(--c-ink-surface-3)'}}>
             <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
@@ -7319,7 +7319,7 @@ const ShopDashboard = () => {
             {isViewingMain && <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
-                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#FBBF24' : 'var(--c-success)', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? 'var(--c-warning)' : 'var(--c-success)', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
                   {isOnTrial ? `Trial — ${trialDaysLeft}d left` : 'Active'}
                 </span>
               </div>
@@ -7449,10 +7449,10 @@ const ShopDashboard = () => {
                     placeholder={`Re-enter ${user.role === 'staff' ? 'PIN' : 'password'}`}
                     maxLength={user.role === 'staff' ? 4 : undefined}
                     inputMode={user.role === 'staff' ? 'numeric' : 'text'}
-                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: `1px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? 'var(--c-danger)' : confirmPassword && newPassword && confirmPassword === newPassword ? '#22C55E' : 'var(--c-ink-2)'}`, borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
+                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: `1px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? 'var(--c-danger)' : confirmPassword && newPassword && confirmPassword === newPassword ? 'var(--c-success)' : 'var(--c-ink-2)'}`, borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
                   />
                   {confirmPassword && newPassword && (
-                    <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? '#22C55E' : 'var(--c-danger)', fontWeight: '600' }}>
+                    <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? 'var(--c-success)' : 'var(--c-danger)', fontWeight: '600' }}>
                       {confirmPassword === newPassword ? '✓ Match' : '✗ Do not match'}
                     </p>
                   )}
@@ -7519,8 +7519,8 @@ const ShopDashboard = () => {
               </p>
               {paymentQr ? (
                 <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22C55E', background: 'var(--c-surface)', padding: '8px' }} />
-                  <p style={{ fontSize: '11px', color: '#22C55E', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid var(--c-success)', background: 'var(--c-surface)', padding: '8px' }} />
+                  <p style={{ fontSize: '11px', color: 'var(--c-success)', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
                   <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid var(--c-danger)', color: 'var(--c-danger)', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
                     Remove QR
                   </button>
@@ -7602,7 +7602,7 @@ const ShopDashboard = () => {
                 </div>
               </div>
               
-              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), #6D28D9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
+              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-violet-strong))', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
                 🛰️ Auto-Grab Live Shop Coordinates
               </button>
               
@@ -7707,7 +7707,7 @@ const ShopDashboard = () => {
                     <div style={{ color: 'var(--c-faint)', fontSize: '12px' }}>{myCA.phone}</div>
                   </div>
                   <button onClick={handleRemoveCA} disabled={caBusy}
-                    style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--c-danger)', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     Remove
                   </button>
                 </div>
@@ -7731,7 +7731,7 @@ const ShopDashboard = () => {
                 Link with your distributors so they can supply you. Share your shop code, or add a distributor using their code.
               </p>
               <button onClick={() => navigate('/shop/van-purchases')}
-                style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', color: '#93C5FD', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: '14px' }}>
+                style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', color: 'var(--c-primary-light)', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: '14px' }}>
                 🧾 View purchases &amp; returns from distributor vans
               </button>
 
@@ -7770,7 +7770,7 @@ const ShopDashboard = () => {
                         <div style={{ color: 'var(--c-faint)', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
                       </div>
                       <button onClick={() => handleUnlinkDistributor(d.id)}
-                        style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                        style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--c-danger)', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                         Remove
                       </button>
                     </div>
@@ -7793,10 +7793,10 @@ const ShopDashboard = () => {
               <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-info)', wordBreak: 'break-all' }}>{getShopUrl()}</p>
               
               <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-info), #2563EB)', color: 'var(--c-surface)', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-info), var(--c-primary))', color: 'var(--c-surface)', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖼️ Download QR Code (PNG)
                 </button>
-                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #FBBF24, var(--c-accent-hover))', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-warning), var(--c-accent-hover))', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖨️ Download Printable QR Poster (PDF)
                 </button>
                 <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -7824,7 +7824,7 @@ const ShopDashboard = () => {
                     style={{
                       padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? 'var(--c-info)' : 'var(--c-ink-2)'}`,
                       background: locale === code ? 'rgba(59,130,246,0.15)' : 'transparent',
-                      color: locale === code ? '#60A5FA' : 'var(--c-faint)',
+                      color: locale === code ? 'var(--c-primary-light)' : 'var(--c-faint)',
                       fontSize: '12px', fontWeight: locale === code ? 700 : 400, cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'
                     }}
@@ -7968,9 +7968,9 @@ const ShopDashboard = () => {
                     <input
                       type="password" value={newStaffPin} onChange={e => setNewStaffPin(e.target.value.replace(/\D/g,'').slice(0,4))}
                       placeholder="e.g. 5678" inputMode="numeric" maxLength={4}
-                      style={{ width: '100%', padding: '10px 14px', background: 'var(--c-ink)', border: `1px solid ${newStaffPin.length === 4 ? '#22C55E' : 'var(--c-ink-2)'}`, borderRadius: '8px', color: 'var(--c-surface)', fontSize: '18px', letterSpacing: '0.4em', outline: 'none' }}
+                      style={{ width: '100%', padding: '10px 14px', background: 'var(--c-ink)', border: `1px solid ${newStaffPin.length === 4 ? 'var(--c-success)' : 'var(--c-ink-2)'}`, borderRadius: '8px', color: 'var(--c-surface)', fontSize: '18px', letterSpacing: '0.4em', outline: 'none' }}
                     />
-                    {newStaffPin.length === 4 && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#22C55E' }}>✓ PIN set — share this with the staff member</p>}
+                    {newStaffPin.length === 4 && <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'var(--c-success)' }}>✓ PIN set — share this with the staff member</p>}
                   </div>
                   <button onClick={handleAddStaff} style={{ width: '100%', background: 'var(--c-info)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                     + Add Staff Member
@@ -7979,7 +7979,7 @@ const ShopDashboard = () => {
               </div>
               ) : (
               <div style={{ background: 'var(--c-ink)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '13px', color: '#FBBF24', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
+                <div style={{ fontSize: '13px', color: 'var(--c-warning)', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
                 <p style={{ fontSize: '12px', color: 'var(--c-faint)', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
                 <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
                   Upgrade to PRO →
@@ -7996,7 +7996,7 @@ const ShopDashboard = () => {
                     <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Ph: {s.phone}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ background: s.status === 'disabled' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: s.status === 'disabled' ? 'var(--c-danger)' : '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${s.status === 'disabled' ? 'var(--c-danger)' : '#22C55E'}`, fontWeight: 'bold' }}>
+                    <span style={{ background: s.status === 'disabled' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: s.status === 'disabled' ? 'var(--c-danger)' : 'var(--c-success)', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${s.status === 'disabled' ? 'var(--c-danger)' : 'var(--c-success)'}`, fontWeight: 'bold' }}>
                       {s.status === 'disabled' ? '● Disabled' : '● Active'}
                     </span>
                     {s.status !== 'disabled' && (
@@ -8012,10 +8012,10 @@ const ShopDashboard = () => {
 
           {/* DANGER ZONE — Reset Test Data (mobile) — main shop only */}
           {isOwner && isViewingMain && (
-            <div style={{ background: '#1E0E0E', border: '1.5px solid #7F1D1D', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: 'var(--c-ink-surface-2)', border: '1.5px solid var(--c-danger-strong)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: 'var(--c-danger-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
               <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
-              <div style={{ background: 'var(--c-ink)', border: '1px solid #7F1D1D', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-danger-strong)', borderRadius: '10px', padding: '14px' }}>
                 <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-surface)', marginBottom: '6px' }}>Reset Test Data</div>
                 <p style={{ fontSize: '12px', color: 'var(--c-faint)', margin: '0 0 6px', lineHeight: '1.5' }}>
                   Deletes all bills, estimates, challans, credit ledger, and stock orders. Invoice numbers restart at #0001.
@@ -8024,7 +8024,7 @@ const ShopDashboard = () => {
                   ✅ Kept: products, customers, staff, logo, QR &amp; settings.
                 </p>
                 <button onClick={handleResetTestData}
-                  style={{ width: '100%', background: '#7F1D1D', border: 'none', color: 'var(--c-surface)', padding: '12px', borderRadius: '9px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ width: '100%', background: 'var(--c-danger-strong)', border: 'none', color: 'var(--c-surface)', padding: '12px', borderRadius: '9px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
                   🗑️ Reset Now
                 </button>
               </div>
@@ -8048,7 +8048,7 @@ const ShopDashboard = () => {
               />
             )}
           </div>
-          <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
+          <p style={{ color: 'var(--c-success)', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
                 <span style={{ fontSize: '10px', color: 'var(--c-primary)', fontWeight: '700' }}>MyStore OS</span>
                 <span style={{ fontSize: '9px', color: 'var(--c-muted)' }}> • mystoreos.in</span>
@@ -8090,7 +8090,7 @@ const ShopDashboard = () => {
       {/* RETURN MODAL */}
       {showReturnModal && returnOrder && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid var(--c-line)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
             <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-ink)', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
               Process Sales Return
               <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>✕</span>
@@ -8141,7 +8141,7 @@ const ShopDashboard = () => {
       {/* ADMIN PIN MODAL */}
       {showAdminPinModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1150, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid var(--c-line)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
             <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-danger)', fontWeight: 'bold' }}>Admin Authorization Required</h2>
             <p style={{ fontSize: '13px', color: 'var(--c-muted)', marginBottom: '24px', lineHeight: '1.5' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
             
@@ -8164,7 +8164,7 @@ const ShopDashboard = () => {
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
         <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid var(--c-line)', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
             <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: 'var(--c-ink)' }}>📦 Add Product to Inventory</h2>
             
             <div style={{ marginBottom: '16px' }}>
@@ -8337,7 +8337,7 @@ const ShopDashboard = () => {
       {/* EDIT PRODUCT MODAL */}
       {showEditProductModal && !showScanner && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid var(--c-line)', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
             <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: 'var(--c-ink)' }}>✏️ Edit Product Details</h2>
             
             <div style={{ marginBottom: '16px' }}>
@@ -8592,7 +8592,7 @@ const ShopDashboard = () => {
           </button>
         )}
         {isOwner && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: ['customers', 'expenses', 'membership', 'feedback'].includes(activeTab) ? '#4F46E5' : '#64748B' }} onClick={() => setShowMoreMenu(true)}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: ['customers', 'expenses', 'membership', 'feedback'].includes(activeTab) ? '#12457A' : '#5A6672' }} onClick={() => setShowMoreMenu(true)}>
             <MoreHorizontal size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>More</p>
           </button>
@@ -8831,7 +8831,7 @@ const ShopDashboard = () => {
         const decoded = decodeOrderUserId(cancelTargetOrder.userId);
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
-            <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '420px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+            <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '420px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid var(--c-danger-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--c-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <span style={{ fontSize: '20px' }}>❌</span>
@@ -8844,7 +8844,7 @@ const ShopDashboard = () => {
                 </div>
               </div>
 
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: 'var(--c-warning-strong)' }}>
+              <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: 'var(--c-warning-strong)' }}>
                 This order hasn't been accepted yet — no payment has been taken and no stock has moved. The customer will be notified that their order was cancelled.
               </div>
 
@@ -8881,7 +8881,7 @@ const ShopDashboard = () => {
       {/* RESET TEST DATA MODAL — Danger Zone confirmation */}
       {showResetTestDataModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
-          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '440px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '440px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid var(--c-danger-border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
               <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--c-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ fontSize: '22px' }}>⚠️</span>
@@ -8892,9 +8892,9 @@ const ShopDashboard = () => {
               </div>
             </div>
 
-            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
-              <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#7F1D1D', fontWeight: '700' }}>This will permanently delete:</p>
-              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: '#991B1B', lineHeight: '1.7' }}>
+            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
+              <p style={{ margin: '0 0 6px', fontSize: '13px', color: 'var(--c-danger-strong)', fontWeight: '700' }}>This will permanently delete:</p>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: 'var(--c-danger-strong)', lineHeight: '1.7' }}>
                 <li>All {orders.length} bill{orders.length === 1 ? '' : 's'}, estimates &amp; challans</li>
                 <li>Credit ledger entries for this shop</li>
                 <li>Pending/past stock orders</li>
@@ -9017,7 +9017,7 @@ function BranchesDashboard({ orders, branches }) {
   const [range, setRange] = useState('today');
   const [metric, setMetric] = useState('revenue');
 
-  const COLORS = ['var(--c-primary)', 'var(--c-success)', 'var(--c-warning)', '#EC4899', '#06B6D4', '#8B5CF6', 'var(--c-danger)', '#84CC16'];
+  const COLORS = ['var(--c-primary)', 'var(--c-success)', 'var(--c-warning)', 'var(--c-rose)', 'var(--c-cyan)', 'var(--c-violet)', 'var(--c-danger)', 'var(--c-success)'];
   const branchColor = (i) => COLORS[i % COLORS.length];
 
   const now = new Date();
@@ -9103,29 +9103,29 @@ function BranchesDashboard({ orders, branches }) {
 
       {/* Headline KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft), #E0E7FF)', padding: 18, borderRadius: 12, border: '1px solid var(--c-primary-border)' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft), var(--c-primary-soft))', padding: 18, borderRadius: 12, border: '1px solid var(--c-primary-border)' }}>
           <div style={{ fontSize: 11, color: 'var(--c-primary-hover)', fontWeight: 700, marginBottom: 4 }}>TOTAL REVENUE</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#312E81' }}>{fmtINR(totalRevenue)}</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-primary)' }}>{fmtINR(totalRevenue)}</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, var(--c-success-soft), var(--c-success-soft))', padding: 18, borderRadius: 12, border: '1px solid #6EE7B7' }}>
-          <div style={{ fontSize: 11, color: '#047857', fontWeight: 700, marginBottom: 4 }}>BILLS</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#064E3B' }}>{totalCount}</div>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-success-soft), var(--c-success-soft))', padding: 18, borderRadius: 12, border: '1px solid var(--c-success-soft)' }}>
+          <div style={{ fontSize: 11, color: 'var(--c-success-strong)', fontWeight: 700, marginBottom: 4 }}>BILLS</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-success-strong)' }}>{totalCount}</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, var(--c-warning-soft), #FDE68A)', padding: 18, borderRadius: 12, border: '1px solid #FBBF24' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-warning-soft), var(--c-accent-border))', padding: 18, borderRadius: 12, border: '1px solid var(--c-warning)' }}>
           <div style={{ fontSize: 11, color: 'var(--c-warning-strong)', fontWeight: 700, marginBottom: 4 }}>AVG BILL</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#78350F' }}>{fmtINR(avgBillAll)}</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-warning-strong)' }}>{fmtINR(avgBillAll)}</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #FCE7F3, #FBCFE8)', padding: 18, borderRadius: 12, border: '1px solid #F9A8D4' }}>
-          <div style={{ fontSize: 11, color: '#9D174D', fontWeight: 700, marginBottom: 4 }}>ITEMS SOLD</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#831843' }}>{totalItems}</div>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-rose-soft), var(--c-rose-soft))', padding: 18, borderRadius: 12, border: '1px solid var(--c-rose-soft)' }}>
+          <div style={{ fontSize: 11, color: 'var(--c-rose-strong)', fontWeight: 700, marginBottom: 4 }}>ITEMS SOLD</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-rose-strong)' }}>{totalItems}</div>
         </div>
       </div>
 
       {/* Winner banner */}
       {winner && winner.count > 0 && (
-        <div style={{ marginBottom: 16, padding: 14, borderRadius: 10, background: '#F0FDF4', border: '1px solid #86EFAC', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ marginBottom: 16, padding: 14, borderRadius: 10, background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 22 }}>🏆</span>
-          <span style={{ fontSize: 14, color: '#166534' }}>
+          <span style={{ fontSize: 14, color: 'var(--c-success-strong)' }}>
             <b style={{ fontWeight: 800 }}>{winner.name}</b> leads with{' '}
             {metric === 'revenue' ? <b>{fmtINR(winner.revenue)}</b>
               : metric === 'bills' ? <b>{winner.count} bills</b>
@@ -9244,7 +9244,7 @@ function PushToBranchCard({ branches, onPush }) {
   };
 
   return (
-    <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', border: '1px solid #86EFAC', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+    <div style={{ background: 'linear-gradient(135deg,var(--c-success-soft),var(--c-success-soft))', border: '1px solid var(--c-success-soft)', borderRadius: 12, padding: 14, marginBottom: 14 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
         <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--c-success-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontSize: 18, flexShrink: 0 }}>🏪</div>
         <div style={{ flex: 1, minWidth: 180 }}>
@@ -9261,7 +9261,7 @@ function PushToBranchCard({ branches, onPush }) {
             value={selectedBranchId}
             onChange={e => setSelectedBranchId(e.target.value)}
             disabled={pushing}
-            style={{ flex: 1, minWidth: 160, padding: '8px 12px', border: '1.5px solid #86EFAC', borderRadius: 8, fontSize: 13, color: 'var(--c-ink)', outline: 'none', fontFamily: 'inherit', background: 'var(--c-surface)', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 160, padding: '8px 12px', border: '1.5px solid var(--c-success-soft)', borderRadius: 8, fontSize: 13, color: 'var(--c-ink)', outline: 'none', fontFamily: 'inherit', background: 'var(--c-surface)', cursor: 'pointer' }}
           >
             <option value="">— Select branch —</option>
             {branches.map(b => (
@@ -9269,7 +9269,7 @@ function PushToBranchCard({ branches, onPush }) {
             ))}
           </select>
         ) : (
-          <div style={{ flex: 1, padding: '8px 12px', background: 'var(--c-surface)', border: '1px solid #86EFAC', borderRadius: 8, fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>
+          <div style={{ flex: 1, padding: '8px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-success-soft)', borderRadius: 8, fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>
             → {branches[0]?.name}
           </div>
         )}
@@ -9277,7 +9277,7 @@ function PushToBranchCard({ branches, onPush }) {
           onClick={() => handlePush(false)}
           disabled={!selectedBranchId || pushing}
           title="Copy all products; set stock to 0 on branch"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-success-strong)' : 'var(--c-faint)', border: '1.5px solid #86EFAC', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-success-strong)' : 'var(--c-faint)', border: '1.5px solid var(--c-success-soft)', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
         >
           Copy products (stock = 0)
         </button>
@@ -9285,7 +9285,7 @@ function PushToBranchCard({ branches, onPush }) {
           onClick={() => handlePush(true)}
           disabled={!selectedBranchId || pushing}
           title="Copy all products AND copy current stock counts"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'linear-gradient(135deg,var(--c-success-strong),#15803D)' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-faint)', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'linear-gradient(135deg,var(--c-success-strong),var(--c-success-strong))' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-faint)', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
         >
           {pushing ? 'Copying…' : 'Copy + bring stock'}
         </button>

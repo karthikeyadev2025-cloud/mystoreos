@@ -157,7 +157,7 @@ export default function FieldLoadOut() {
       </p>
 
       {vans.length === 0 || depots.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-warning-strong)', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A' }}>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-warning-strong)', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)' }}>
           You need at least one depot and one van before you can create a load-out.
           <div style={{ marginTop: 12 }}>
             <button onClick={() => navigate('/field/setup')} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
@@ -228,7 +228,7 @@ export default function FieldLoadOut() {
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
                       <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{describe(l)}</div>
                     </div>
-                    <button onClick={() => removeLine(l.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                    <button onClick={() => removeLine(l.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>
@@ -248,7 +248,7 @@ export default function FieldLoadOut() {
             ) : (
               <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {transfers.map(t => (
-                  <div key={t.id} style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 14, background: t.status === 'pending' ? '#FFFBEB' : 'var(--c-bg)' }}>
+                  <div key={t.id} style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 14, background: t.status === 'pending' ? 'var(--c-warning-soft)' : 'var(--c-bg)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>
@@ -267,7 +267,7 @@ export default function FieldLoadOut() {
                           <Check size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Confirm
                         </button>
                       ) : (
-                        <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: t.status === 'confirmed' ? '#047857' : 'var(--c-danger-strong)', background: t.status === 'confirmed' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: t.status === 'confirmed' ? 'var(--c-success-strong)' : 'var(--c-danger-strong)', background: t.status === 'confirmed' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
                           {t.status}
                         </span>
                       )}

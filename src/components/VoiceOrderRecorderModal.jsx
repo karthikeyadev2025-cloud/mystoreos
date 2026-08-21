@@ -438,7 +438,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
               disabled={analyzedItems.length === 0}
               style={{
                 flex: window.innerWidth < 480 ? 2 : 'none',
-                background: analyzedItems.length === 0 ? 'var(--c-faint)' : 'linear-gradient(135deg, var(--c-success-strong), #047857)',
+                background: analyzedItems.length === 0 ? 'var(--c-faint)' : 'linear-gradient(135deg, var(--c-success-strong), var(--c-success-strong))',
                 border: 'none',
                 color: 'var(--c-surface)',
                 padding: '12px 20px',

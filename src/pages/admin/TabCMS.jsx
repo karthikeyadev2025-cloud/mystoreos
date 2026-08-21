@@ -5,10 +5,10 @@ import { useSiteConfig } from '../../lib/siteConfig';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
-  input: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
-  textarea: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
+  textarea: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
   row: { marginBottom: '16px' },
   saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(79, 70, 229, 0.2)' }),
   sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
@@ -145,7 +145,7 @@ export default function TabCMS() {
     <div className="admin-tab-content" style={{ maxWidth: '760px' }}>
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#4F46E515", border: "1px solid #4F46E530", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#12457A15", border: "1px solid #12457A30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Globe size={22} color="var(--c-primary)" />
           </div>
           <div>
@@ -160,7 +160,7 @@ export default function TabCMS() {
         {announcements.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
             {announcements.map(a => (
-              <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', marginBottom: '8px' }}>
+              <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'var(--c-surface-2)', border: '1px solid var(--c-line)', borderRadius: '8px', marginBottom: '8px' }}>
                 <span style={S.badge(a.type)}>{a.type}</span>
                 <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1 }}>{a.text}</span>
                 <button onClick={clearAnnouncements} style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', display: 'flex' }}><X size={14} /></button>
@@ -174,7 +174,7 @@ export default function TabCMS() {
         </div>
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
           {ANN_TYPES.map(t => (
-            <button key={t} onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? 'var(--c-primary)' : '#E5E7EB'}`, background: annType === t ? 'rgba(79,70,229,0.08)' : 'transparent', color: annType === t ? 'var(--c-primary)' : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: annType === t ? 600 : 400 }}>
+            <button key={t} onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? 'var(--c-primary)' : 'var(--c-line)'}`, background: annType === t ? 'rgba(79,70,229,0.08)' : 'transparent', color: annType === t ? 'var(--c-primary)' : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: annType === t ? 600 : 400 }}>
               {t}
             </button>
           ))}
@@ -289,7 +289,7 @@ export default function TabCMS() {
 
       <div style={S.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-          <SectionHeader icon={CreditCard} title="Plan Names & Descriptions" sub="Edit plan display names and descriptions. Prices, discounts & cycles are managed in Settings → Subscription Pricing." color="#F43F5E" />
+          <SectionHeader icon={CreditCard} title="Plan Names & Descriptions" sub="Edit plan display names and descriptions. Prices, discounts & cycles are managed in Settings → Subscription Pricing." color="var(--c-danger)" />
           <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--c-primary)', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
             Preview <ExternalLink size={12} />
           </a>
@@ -307,7 +307,7 @@ export default function TabCMS() {
           ))}
         </div>
         {plans.map((plan, idx) => (
-          <div key={plan.id} style={{ background: '#F9FAFB', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
+          <div key={plan.id} style={{ background: 'var(--c-surface-2)', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid var(--c-line)' }}>
             <div style={{ fontSize: '12px', color: 'var(--c-primary)', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{plan.id}</div>
             <div style={S.row}>
               <label style={S.label}>Plan Name</label>

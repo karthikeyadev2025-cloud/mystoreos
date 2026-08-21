@@ -262,7 +262,7 @@ export default function FieldRoutes() {
           {openRoute?.id === r.id && (
             <div style={{ marginTop: 18, borderTop: '1px solid var(--c-line)', paddingTop: 18 }}>
               {missingGps > 0 && (
-                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <AlertTriangle size={14} />
                   {missingGps} outlet{missingGps === 1 ? ' has' : 's have'} no GPS location — they can&apos;t be sequenced and will be placed at the end of the run.
                 </div>
@@ -284,12 +284,12 @@ export default function FieldRoutes() {
                   </div>
 
                   {seqResult && (
-                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: '#047857', marginBottom: 6 }}>
+                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-success-strong)', marginBottom: 6 }}>
                         Proposed order · {seqResult.distanceKm} km
                         {seqResult.improvementKm > 0 && ` · saved ${seqResult.improvementKm} km`}
                       </div>
-                      <ol style={{ margin: '0 0 10px', paddingLeft: 18, fontSize: 12, color: '#065F46' }}>
+                      <ol style={{ margin: '0 0 10px', paddingLeft: 18, fontSize: 12, color: 'var(--c-success-strong)' }}>
                         {seqResult.sequenced.map(s => (
                           <li key={s.id} style={{ padding: '1px 0' }}>
                             {s.name}{s.latitude == null && <span style={{ color: 'var(--c-warning-strong)' }}> (no GPS)</span>}
@@ -321,7 +321,7 @@ export default function FieldRoutes() {
                           <MapPin size={9} />{s.latitude == null ? 'No GPS' : (s.address || 'Located')}
                         </div>
                       </div>
-                      <button onClick={() => dropStop(s.stopId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '3px 7px', cursor: 'pointer' }}>
+                      <button onClick={() => dropStop(s.stopId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '3px 7px', cursor: 'pointer' }}>
                         <X size={11} />
                       </button>
                     </div>

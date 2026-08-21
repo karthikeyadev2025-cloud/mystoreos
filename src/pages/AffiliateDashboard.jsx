@@ -66,8 +66,8 @@ export default function AffiliateDashboard() {
 
   const statusChip = (s) => ({
     pending: <span style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
-    approved: <span style={{ background: '#DCFCE7', color: '#15803D', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
-    paid: <span style={{ background: 'var(--c-success-soft)', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
+    approved: <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
+    paid: <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
   }[s] || <span style={{ color: 'var(--c-muted)', fontSize: 11 }}>{s}</span>);
 
   return (
@@ -101,7 +101,7 @@ export default function AffiliateDashboard() {
                   <button onClick={copyCode} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Copy size={13} /> Copy Code
                   </button>
-                  <button onClick={copyLink} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
+                  <button onClick={copyLink} style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Link size={13} /> Copy Link
                   </button>
                 </div>
@@ -119,7 +119,7 @@ export default function AffiliateDashboard() {
 
             {/* Stats Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 24 }}>
-              <StatCard icon={Users} label="Total Referred" value={stats?.totalReferred || 0} sub="Users who signed up via your link" color="#2563EB" />
+              <StatCard icon={Users} label="Total Referred" value={stats?.totalReferred || 0} sub="Users who signed up via your link" color="var(--c-primary)" />
               <StatCard icon={Clock} label="Pending Commission" value={`₹${stats?.pendingAmount || 0}`} sub="Awaiting admin approval" color="var(--c-accent-hover)" />
               <StatCard icon={IndianRupee} label="Approved Earnings" value={`₹${stats?.approvedAmount || 0}`} sub="Ready for payout" color="var(--c-success-strong)" />
             </div>

@@ -38,7 +38,7 @@ const getNext14Days = () => {
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending Confirmation', color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
-  confirmed: { label: 'Confirmed',            color: 'var(--c-info)', bg: '#DBEAFE' },
+  confirmed: { label: 'Confirmed',            color: 'var(--c-info)', bg: 'var(--c-primary-soft)' },
   completed: { label: 'Completed',            color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
   cancelled: { label: 'Cancelled',            color: 'var(--c-danger)', bg: 'var(--c-danger-soft)' },
 };
@@ -172,7 +172,7 @@ export default function ManageBooking() {
                   📅 Reschedule
                 </button>
                 <button onClick={handleCancel}
-                  style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-soft)', color: 'var(--c-danger)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                   ✕ Cancel Booking
                 </button>
               </div>
@@ -213,7 +213,7 @@ export default function ManageBooking() {
                 Select Time {loadingSlots && <span style={{ color: 'var(--c-faint)', fontWeight: 400 }}>(checking availability…)</span>}
               </div>
               {appt.provider_id && dayAvailability.onTimeOff ? (
-                <div style={{ textAlign: 'center', padding: 20, background: '#FFF7ED', borderRadius: 10, fontSize: 13, color: '#C2410C' }}>Staff is on leave this day</div>
+                <div style={{ textAlign: 'center', padding: 20, background: 'var(--c-orange-soft)', borderRadius: 10, fontSize: 13, color: 'var(--c-orange-strong)' }}>Staff is on leave this day</div>
               ) : appt.provider_id && !dayAvailability.isOpen ? (
                 <div style={{ textAlign: 'center', padding: 20, background: 'var(--c-bg)', borderRadius: 10, fontSize: 13, color: 'var(--c-faint)' }}>Not available this day</div>
               ) : (

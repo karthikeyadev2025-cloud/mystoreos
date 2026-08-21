@@ -131,9 +131,9 @@ const DesktopInventory = ({
 
   const alertConfig = {
     expired: { label: 'Expired', color: 'var(--c-danger)', bg: 'var(--c-danger-soft)', border: 'var(--c-danger-border)' },
-    expiring7: { label: 'Exp. in 7d', color: '#F97316', bg: '#FFF7ED', border: '#FFEDD5' },
-    expiring30: { label: 'Exp. in 30d', color: 'var(--c-warning)', bg: 'var(--c-warning-soft)', border: '#FDE68A' },
-    lowstock: { label: 'Low Stock', color: 'var(--c-primary)', bg: '#EFF6FF', border: '#BFDBFE' },
+    expiring7: { label: 'Exp. in 7d', color: 'var(--c-orange)', bg: 'var(--c-orange-soft)', border: 'var(--c-orange-soft)' },
+    expiring30: { label: 'Exp. in 30d', color: 'var(--c-warning)', bg: 'var(--c-warning-soft)', border: 'var(--c-accent-border)' },
+    lowstock: { label: 'Low Stock', color: 'var(--c-primary)', bg: 'var(--c-primary-soft)', border: 'var(--c-primary-border)' },
   };
 
   return (
@@ -160,12 +160,12 @@ const DesktopInventory = ({
           <button onClick={downloadTemplate} title="Download CSV template" style={{ background: 'var(--c-bg)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             Template
           </button>
-          <button onClick={() => csvInputRef.current?.click()} style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid #A7F3D0', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={() => csvInputRef.current?.click()} style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Upload size={14} /> Import CSV
           </button>
           <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={onCsvFileChange} style={{ display: 'none' }} />
           <button onClick={() => onShowBarcodeManager && onShowBarcodeManager()} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '10px 14px', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            Barcodes <span style={{ background: '#FBBF24', color: '#78350F', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
+            Barcodes <span style={{ background: 'var(--c-warning)', color: 'var(--c-warning-strong)', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '6px', marginLeft: '2px' }}>PRO</span>
           </button>
           <button onClick={() => setShowAddProductModal(true)} style={{ background: 'var(--c-primary)', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={16} /> Add Product
@@ -243,7 +243,7 @@ const DesktopInventory = ({
             </div>
           }
         >
-          <div style={{ marginBottom: '24px', background: '#FFF5F5', border: '1px solid var(--c-danger-soft)', borderRadius: '16px', padding: '20px' }}>
+          <div style={{ marginBottom: '24px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-soft)', borderRadius: '16px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Zap size={16} color="var(--c-muted)" /> Inventory Alert Center
@@ -252,7 +252,7 @@ const DesktopInventory = ({
                 </span>
               </h3>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, 'var(--c-danger)'], ['expiring7', `7d (${alertCounts.expiring7})`, '#F97316'], ['expiring30', `30d (${alertCounts.expiring30})`, 'var(--c-warning)'], ['lowstock', `Stock (${alertCounts.lowstock})`, 'var(--c-primary)']].map(([val, label, color]) => (
+                {[['all', 'All', null], ['expired', `Expired (${alertCounts.expired})`, 'var(--c-danger)'], ['expiring7', `7d (${alertCounts.expiring7})`, 'var(--c-orange)'], ['expiring30', `30d (${alertCounts.expiring30})`, 'var(--c-warning)'], ['lowstock', `Stock (${alertCounts.lowstock})`, 'var(--c-primary)']].map(([val, label, color]) => (
                   <button
                     key={val}
                     onClick={() => setAlertFilter(val)}
@@ -337,7 +337,7 @@ const DesktopInventory = ({
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '12px 0' }}>
-                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? 'var(--c-danger-soft)' : 'var(--c-success-soft)', color: isLowStock ? 'var(--c-danger)' : 'var(--c-success)', border: '1px solid ' + (isLowStock ? 'var(--c-danger-border)' : '#A7F3D0'), fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: isLowStock ? 'var(--c-danger-soft)' : 'var(--c-success-soft)', color: isLowStock ? 'var(--c-danger)' : 'var(--c-success)', border: '1px solid ' + (isLowStock ? 'var(--c-danger-border)' : 'var(--c-success-soft)'), fontWeight: 'bold' }}>
                       Stock: {p.stock || 0}
                     </span>
                     {p.reorderLevel !== undefined && (
@@ -349,7 +349,7 @@ const DesktopInventory = ({
                       const margin = Math.round((p.price - p.costPrice) / p.price * 100);
                       const color = margin >= 20 ? 'var(--c-success)' : margin >= 10 ? 'var(--c-warning)' : 'var(--c-danger)';
                       const bg = margin >= 20 ? 'var(--c-success-soft)' : margin >= 10 ? 'var(--c-warning-soft)' : 'var(--c-danger-soft)';
-                      const border = margin >= 20 ? '#A7F3D0' : margin >= 10 ? '#FDE68A' : 'var(--c-danger-border)';
+                      const border = margin >= 20 ? 'var(--c-success-soft)' : margin >= 10 ? 'var(--c-accent-border)' : 'var(--c-danger-border)';
                       return (
                         <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: bg, color, border: `1px solid ${border}`, fontWeight: 'bold' }}>
                           Margin: {margin}%
@@ -362,7 +362,7 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning)', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning)', border: '1px solid var(--c-accent-border)', fontWeight: 'bold' }}>
                         Exp Soon ({p.expiryDate})
                       </span>
                     )}
@@ -372,12 +372,12 @@ const DesktopInventory = ({
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 2 && daysLeft < 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning)', border: '1px solid #FDE68A', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning)', border: '1px solid var(--c-accent-border)', fontWeight: 'bold' }}>
                         Reorder in {daysLeft}d
                       </span>
                     )}
                     {daysLeft !== null && daysLeft >= 7 && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-success-soft)', color: 'var(--c-success)', border: '1px solid #A7F3D0' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'var(--c-success-soft)', color: 'var(--c-success)', border: '1px solid var(--c-success-soft)' }}>
                         Stock ~{daysLeft}d
                       </span>
                     )}
@@ -426,15 +426,15 @@ const DesktopInventory = ({
                     <button
                       onClick={() => onCopyToBranch(p)}
                       title="Copy this product to another branch (stock = 0)"
-                      style={{ background: '#F0FDF4', border: '1px solid #86EFAC', color: 'var(--c-success-strong)', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
                       📋 Copy to branch
                     </button>
                   )}
-                  <button onClick={() => handleOpenEditModal(p)} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => handleOpenEditModal(p)} style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary)', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Edit
                   </button>
-                  <button onClick={() => handleDeleteProduct(p.id)} style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: '#991B1B', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={() => handleDeleteProduct(p.id)} style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Delete
                   </button>
                 </div>
@@ -476,7 +476,7 @@ const DesktopInventory = ({
 
                 {/* Inline flash sale setter */}
                 {saleTarget === p.id && (
-                  <div style={{ marginTop: '10px', background: '#FFF5F5', border: '1px solid var(--c-danger-border)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ marginTop: '10px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-danger)', fontWeight: 'bold' }}>Set Flash Sale</p>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <select value={salePct} onChange={e => setSalePct(e.target.value)} style={{ flex: 1, padding: '5px 8px', background: 'var(--c-surface)', border: '1px solid var(--c-danger-border)', borderRadius: '6px', color: 'var(--c-ink)', fontSize: '12px', outline: 'none' }}>

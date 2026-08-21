@@ -234,7 +234,7 @@ const DesktopPOS = ({
                   const matchIdx = nameL.indexOf(q);
                   const name = p.name || '';
                   const highlighted = matchIdx !== -1
-                    ? <>{name.slice(0, matchIdx)}<mark style={{ background: '#FDE68A', borderRadius: 2, padding: '0 1px' }}>{name.slice(matchIdx, matchIdx + q.length)}</mark>{name.slice(matchIdx + q.length)}</>
+                    ? <>{name.slice(0, matchIdx)}<mark style={{ background: 'var(--c-accent-border)', borderRadius: 2, padding: '0 1px' }}>{name.slice(matchIdx, matchIdx + q.length)}</mark>{name.slice(matchIdx + q.length)}</>
                     : name;
                   const sale = flashSales[p.id];
                   const activeSale = sale && new Date(sale.expiresAt) > new Date();
@@ -354,8 +354,8 @@ const DesktopPOS = ({
           <div className="premium-glass pos-ai-warning" style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '32px' }}>🤖</span>
             <div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#991B1B', fontWeight: 'bold' }}>AI Inventory Warning</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: '#7F1D1D', lineHeight: '1.4' }}>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', color: 'var(--c-danger-strong)', fontWeight: 'bold' }}>AI Inventory Warning</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-danger-strong)', lineHeight: '1.4' }}>
                 Low stock on <b>{lowStockProducts.map(p => p.name).join(', ')}</b>. Based on your sales trend, you may run out soon.
               </p>
             </div>
@@ -399,12 +399,12 @@ const DesktopPOS = ({
             {dailyTarget > 0 ? (
               <>
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ flexShrink: 0 }}>
-                  <circle cx="40" cy="40" r="28" fill="none" stroke="#E2E8F0" strokeWidth="7" />
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#D9D3C7" strokeWidth="7" />
                   <circle cx="40" cy="40" r="28" fill="none" stroke={ringColor} strokeWidth="7"
                     strokeDasharray={CIRC} strokeDashoffset={ringOffset}
                     strokeLinecap="round" transform="rotate(-90 40 40)"
                     style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-                  <text x="40" y="45" textAnchor="middle" fill="#0F172A" fontSize="13" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif">{targetPctInt}%</text>
+                  <text x="40" y="45" textAnchor="middle" fill="#0B1F33" fontSize="13" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif">{targetPctInt}%</text>
                 </svg>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--c-ink)', marginBottom: '2px' }}>{motivation}</div>
@@ -487,7 +487,7 @@ const DesktopPOS = ({
               <input type="tel" placeholder="Mobile Number (Optional)" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
                 style={{ width: '100%', padding: '8px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
               {loyaltyEnabled && customerPhone && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid var(--c-primary-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'var(--c-violet-soft)', borderRadius: '6px', border: '1px solid var(--c-primary-border)' }}>
                   <span style={{ fontSize: '11px' }}>⭐</span>
                   <span style={{ fontSize: '11px', color: 'var(--c-primary)', fontWeight: '600' }}>
                     {customerLoyaltyPoints > 0 ? `${customerLoyaltyPoints} loyalty pts` : 'No loyalty pts yet'}
@@ -649,7 +649,7 @@ const DesktopPOS = ({
             </div>
           )}
           {loyaltyEnabled && customerLoyaltyPoints > 0 && (
-            <div style={{ background: '#F5F3FF', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ background: 'var(--c-violet-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--c-primary)' }}>⭐ Loyalty Points</span>
                 <span style={{ fontSize: '11px', color: 'var(--c-primary-light)', fontWeight: '700' }}>{customerLoyaltyPoints} pts</span>
@@ -690,7 +690,7 @@ const DesktopPOS = ({
               />
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-orange-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '10px', padding: '10px 14px' }}>
             <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--c-accent-hover)' }}>Final Payable</span>
             <span style={{ fontSize: '22px', fontWeight: '900', color: 'var(--c-accent-hover)', letterSpacing: '-0.02em' }}>₹{finalTotal}</span>
           </div>
@@ -715,7 +715,7 @@ const DesktopPOS = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {/* Primary: Generate & Share Bill */}
           <button onClick={sendWhatsAppBill} disabled={billItems.length === 0}
-            style={{ background: billingMode === 'estimate' ? 'linear-gradient(135deg,var(--c-accent-hover),var(--c-warning-strong))' : billingMode === 'challan' ? 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))' : 'linear-gradient(135deg,#22C55E,var(--c-success-strong))', color: 'var(--c-surface)', opacity: billItems.length ? 1 : 0.5, width: '100%', padding: '13px', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: billItems.length ? 'pointer' : 'not-allowed', boxShadow: billItems.length ? '0 4px 15px rgba(34,197,94,0.25)' : 'none', transition: 'all 0.2s' }}>
+            style={{ background: billingMode === 'estimate' ? 'linear-gradient(135deg,var(--c-accent-hover),var(--c-warning-strong))' : billingMode === 'challan' ? 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))' : 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))', color: 'var(--c-surface)', opacity: billItems.length ? 1 : 0.5, width: '100%', padding: '13px', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: billItems.length ? 'pointer' : 'not-allowed', boxShadow: billItems.length ? '0 4px 15px rgba(34,197,94,0.25)' : 'none', transition: 'all 0.2s' }}>
             <Share2 size={16} />
             {billingMode === 'estimate' ? (canShare ? '✓ Generate & Share Estimate' : '✓ Download Estimate PDF')
               : billingMode === 'challan' ? (canShare ? '✓ Generate & Share Challan' : '✓ Download Challan PDF')
@@ -741,7 +741,7 @@ const DesktopPOS = ({
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={onScanPopupClose}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-surface)', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-              <div style={{ background: 'var(--c-success-soft)', border: '1px solid #6EE7B7', borderRadius: '10px', padding: '6px 12px', fontSize: '12px', color: 'var(--c-success-strong)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '10px', padding: '6px 12px', fontSize: '12px', color: 'var(--c-success-strong)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 ✅ Barcode Matched
               </div>
               <button onClick={onScanPopupClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--c-faint)' }}><X size={18} /></button>

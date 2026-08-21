@@ -24,10 +24,10 @@ const ACTION_LABELS = {
 };
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
   input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
   th: { color: 'var(--c-ink-2)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
-  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #e5e7eb', verticalAlign: 'middle' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid var(--c-line)', verticalAlign: 'middle' },
 };
 
 function ActionBadge({ action }) {
@@ -151,7 +151,7 @@ export default function TabSupport() {
           tickets.length === 0 ? <p style={{ color: 'var(--c-faint)', fontSize: 13 }}>No {ticketFilter} tickets.</p> : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tickets.map(t => (
-                <div key={t.id} onClick={() => openAdminTicket(t)} style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <div key={t.id} onClick={() => openAdminTicket(t)} style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 12, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink)' }}>{t.subject}</div>
                     <div style={{ color: 'var(--c-muted)', fontSize: 12, marginTop: 2, textTransform: 'capitalize' }}>{t.name || 'User'} · {t.role || '—'} · {t.category} · {new Date(t.created_at).toLocaleDateString()}</div>
@@ -207,7 +207,7 @@ export default function TabSupport() {
           { icon: Trash2, label: 'Deletions', value: stats.deletes, color: 'var(--c-danger)' },
           { icon: Shield, label: 'Security', value: stats.security, color: 'var(--c-warning)' },
         ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} style={{ background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
+          <div key={label} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <div style={{ background: `${color}15`, borderRadius: '6px', padding: '6px', display: 'flex' }}><Icon size={14} color={color} /></div>
               <span style={{ color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>{label}</span>
@@ -240,7 +240,7 @@ export default function TabSupport() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <tr style={{ borderBottom: '1px solid var(--c-line)' }}>
                   <th style={S.th}>Timestamp</th>
                   <th style={S.th}>Action</th>
                   <th style={S.th}>Target</th>

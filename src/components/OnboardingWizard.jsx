@@ -12,13 +12,13 @@ const BIZ_TYPES = ['Kirana / Grocery', 'Supermarket', 'Medical / Pharmacy', 'Sal
 const emptyProd = () => ({ name: '', price: '', stock: '' });
 
 const S = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,var(--c-ink-surface),var(--c-primary),var(--c-ink-surface-2))', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' },
   card: { background: 'rgba(30,41,59,0.9)', backdropFilter: 'blur(20px)', padding: '36px 28px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: 480, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' },
   inp: { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' },
   lbl: { display: 'block', color: 'var(--c-line-strong)', fontSize: '12px', marginBottom: 5, fontWeight: 600 },
   row: { marginBottom: 14 },
   skip: { flex: '0 0 auto', padding: '12px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'var(--c-muted)', fontSize: '13px', cursor: 'pointer' },
-  next: { flex: 1, padding: '14px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' },
+  next: { flex: 1, padding: '14px', background: 'linear-gradient(135deg,var(--c-danger),var(--c-violet))', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' },
 };
 
 function ProgressBar({ step }) {
@@ -26,10 +26,10 @@ function ProgressBar({ step }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '28px' }}>
       {[1, 2, 3, 4].map((s, i) => (
         <div key={s} style={{ display: 'flex', alignItems: 'center', flex: s < 4 ? 1 : 'none' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, background: step >= s ? 'linear-gradient(135deg,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: step >= s ? 'var(--c-surface)' : 'var(--c-muted)', fontSize: '12px', fontWeight: 700, border: step === s ? '2px solid #f43f5e' : '2px solid transparent' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, background: step >= s ? 'linear-gradient(135deg,var(--c-danger),var(--c-violet))' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: step >= s ? 'var(--c-surface)' : 'var(--c-muted)', fontSize: '12px', fontWeight: 700, border: step === s ? '2px solid var(--c-danger)' : '2px solid transparent' }}>
             {step > s ? '✓' : s}
           </div>
-          {i < 3 && <div style={{ flex: 1, height: '2px', background: step > s ? 'linear-gradient(to right,#f43f5e,#8b5cf6)' : 'rgba(255,255,255,0.08)', margin: '0 4px' }} />}
+          {i < 3 && <div style={{ flex: 1, height: '2px', background: step > s ? 'linear-gradient(to right,var(--c-danger),var(--c-violet))' : 'rgba(255,255,255,0.08)', margin: '0 4px' }} />}
         </div>
       ))}
     </div>
@@ -248,7 +248,7 @@ export default function OnboardingWizard() {
             <CheckCircle size={68} color="var(--c-success)" style={{ margin: '0 auto 16px' }} />
             <h1 style={{ fontSize: '24px', color: 'var(--c-surface)', fontWeight: 900, margin: '0 0 10px' }}>Profile Submitted!</h1>
             <p style={{ color: 'var(--c-faint)', fontSize: '14px', lineHeight: 1.6, margin: '0 0 22px' }}>
-              Admin will approve within <strong style={{ color: '#fbbf24' }}>24 hours</strong>.<br />
+              Admin will approve within <strong style={{ color: 'var(--c-warning)' }}>24 hours</strong>.<br />
               You'll get a WhatsApp notification when approved.
             </p>
 
@@ -267,7 +267,7 @@ export default function OnboardingWizard() {
               💬 Open Support
             </a>
 
-            <button onClick={() => navigate('/waiting')} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#f43f5e,#8b5cf6)', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={() => navigate('/waiting')} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,var(--c-danger),var(--c-violet))', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}>
               Check My Application Status →
             </button>
           </div>

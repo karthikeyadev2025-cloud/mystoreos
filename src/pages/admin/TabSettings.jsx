@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
   label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
   input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%' },
   row: { marginBottom: '18px' },
@@ -133,7 +133,7 @@ export default function TabSettings() {
     <div className="admin-tab-content" style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#F59E0B15", border: "1px solid #F59E0B30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#E9A72C15", border: "1px solid #E9A72C30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Shield size={22} color="var(--c-warning)" />
           </div>
           <div>
@@ -303,7 +303,7 @@ export default function TabSettings() {
             </div>
 
             {/* Launch offer (first N users) */}
-            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
                 <input type="checkbox" checked={pricing.offer?.enabled ?? false}
                   onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, enabled: e.target.checked } }))} />
@@ -329,7 +329,7 @@ export default function TabSettings() {
                     style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
               </div>
-              <p style={{ color: '#a16207', fontSize: '11px', margin: '10px 0 0', lineHeight: 1.5 }}>
+              <p style={{ color: 'var(--c-warning-strong)', fontSize: '11px', margin: '10px 0 0', lineHeight: 1.5 }}>
                 Slots remaining auto-decrements on each successful quarterly/yearly payment; you can also adjust it here. When it hits 0 the extra offer stops automatically (cycle discounts still apply).
               </p>
             </div>
@@ -342,7 +342,7 @@ export default function TabSettings() {
                 razorpay-verify-payment for the payment_history record.
                 Change it here; no redeploy needed. */}
             <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
-              <div style={{ fontWeight: 700, fontSize: '13px', color: '#3730A3', marginBottom: '10px' }}>🏠 Add-ons</div>
+              <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--c-primary)', marginBottom: '10px' }}>🏠 Add-ons</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px', alignItems: 'end' }}>
                 <div>
                   <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Home Service Booking — ₹/month</label>

@@ -67,7 +67,7 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
           )}
           {rating ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontWeight: 600, color: 'var(--c-success-strong)' }}>
-              <Star size={11} fill="#059669" color="#059669" />{rating}
+              <Star size={11} fill="#15803D" color="#15803D" />{rating}
             </span>
           ) : (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontWeight: 600, color: 'var(--c-primary)' }}>
@@ -86,7 +86,7 @@ export default function MarketplaceShopCard({ shop, dist, onOpen, onWhatsApp }) 
             Order now
           </button>
           <button onClick={(e) => { e.stopPropagation(); onWhatsApp?.(); }} aria-label="WhatsApp order"
-            style={{ width: 36, flexShrink: 0, padding: '8px', background: 'rgba(37,211,102,0.12)', color: '#1FAD53', border: '1px solid rgba(37,211,102,0.3)', borderRadius: 9, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            style={{ width: 36, flexShrink: 0, padding: '8px', background: 'rgba(37,211,102,0.12)', color: 'var(--c-success)', border: '1px solid rgba(37,211,102,0.3)', borderRadius: 9, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <MessageCircle size={16} />
           </button>
         </div>

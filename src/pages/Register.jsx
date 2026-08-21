@@ -15,12 +15,12 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0D1117;
+    background: var(--c-ink-surface);
     padding: clamp(16px, 4vw, 32px);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
   .reg-card {
-    background: #161B22;
+    background: var(--c-ink-surface-2);
     border: 1px solid rgba(255,255,255,0.09);
     border-radius: 20px;
     padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px);
@@ -123,7 +123,7 @@ const BUSINESS_KINDS = [
     icon: '📅',
     label: 'Service Business',
     tagline: 'I sell time or appointments (Bookings-first)',
-    color: '#8B5CF6',
+    color: 'var(--c-violet)',
   },
 ];
 
@@ -460,7 +460,7 @@ const Register = () => {
                           onMouseDown={e => { e.preventDefault(); setShopCategory(s); setShowCatSuggestions(false); }}
                           style={{
                             padding: '5px 11px', borderRadius: 999, border: '1px solid rgba(139,92,246,0.4)',
-                            background: 'rgba(139,92,246,0.12)', color: '#a78bfa', fontSize: 11, fontWeight: 600,
+                            background: 'rgba(139,92,246,0.12)', color: 'var(--c-violet)', fontSize: 11, fontWeight: 600,
                             cursor: 'pointer',
                           }}
                         >
@@ -621,7 +621,7 @@ const Register = () => {
             border: '1px solid rgba(16,185,129,0.18)', borderRadius: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
             <div>
-              <div style={{ color: '#6EE7B7', fontSize: 11, fontWeight: 700, marginBottom: 1 }}>Safe & Secure</div>
+              <div style={{ color: 'var(--c-success-soft)', fontSize: 11, fontWeight: 700, marginBottom: 1 }}>Safe & Secure</div>
               <div style={{ color: 'rgba(255,255,255,0.28)', fontSize: 10.5 }}>256-bit SSL · Your data is private</div>
             </div>
           </div>

@@ -17,7 +17,7 @@ export function LockedFeature({ feature, compact = false, variant = 'block', onU
   const PLAN_COLOR = {
     'Starter Plan': 'var(--c-accent-hover)',
     'Pro Plan': 'var(--c-primary)',
-    'Enterprise Plan': '#7C3AED',
+    'Enterprise Plan': 'var(--c-violet)',
   };
   const color = PLAN_COLOR[label] || 'var(--c-primary)';
 
@@ -87,7 +87,7 @@ export function TrialExpiredOverlay({ planLabel, onUpgrade }) {
         </p>
         <button
           onClick={onUpgrade}
-          style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, var(--c-primary))', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '15px', fontWeight: '800', cursor: 'pointer', marginBottom: '14px', boxShadow: '0 4px 16px rgba(79,70,229,0.4)' }}
+          style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-violet), var(--c-primary))', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '15px', fontWeight: '800', cursor: 'pointer', marginBottom: '14px', boxShadow: '0 4px 16px rgba(79,70,229,0.4)' }}
         >
           ⚡ Choose a Plan →
         </button>

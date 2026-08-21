@@ -17,10 +17,10 @@
 
 export const T = {
   // Ground — near-black, cooled with blue so it reads as depth, not soot
-  void:        '#080B14',
-  voidLift:    '#0C1120',
-  surface:     '#111827',
-  surfaceLift: '#161F35',
+  void:        'var(--c-ink-surface)',
+  voidLift:    'var(--c-ink-surface)',
+  surface:     'var(--c-ink)',
+  surfaceLift: 'var(--c-ink-surface-2)',
 
   // Hairlines and edges
   edge:        'rgba(255,255,255,0.08)',
@@ -40,14 +40,14 @@ export const T = {
   brandGlow:   'rgba(99,102,241,0.28)',
 
   // Gold — money, totals, the bottom line. The second voice.
-  gold:        '#F5B942',
-  goldBright:  '#FCD34D',
+  gold:        'var(--c-warning)',
+  goldBright:  'var(--c-warning)',
   goldGlow:    'rgba(245,185,66,0.22)',
 
   // Semantics
-  green:       '#34D399',
+  green:       'var(--c-success)',
   greenGlow:   'rgba(52,211,153,0.18)',
-  rose:        '#FB7185',
+  rose:        'var(--c-danger)',
   roseGlow:    'rgba(251,113,133,0.18)',
 };
 

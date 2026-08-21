@@ -108,7 +108,7 @@ export default function FieldOrders() {
       {bookedCount > 0 && (
         <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: 16, marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#3730A3' }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-primary)' }}>
               {bookedCount} order{bookedCount === 1 ? '' : 's'} awaiting dispatch
             </div>
             <div style={{ fontSize: 12, color: 'var(--c-primary-hover)', marginTop: 2 }}>
@@ -175,7 +175,7 @@ export default function FieldOrders() {
                   <Send size={12} />{busy === o.id ? 'Releasing…' : 'Release'}
                 </button>
               ) : o.status === 'converted' ? (
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#047857', background: 'var(--c-success-soft)', padding: '5px 12px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--c-success-strong)', background: 'var(--c-success-soft)', padding: '5px 12px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                   <CheckCircle2 size={11} /> Dispatched
                 </span>
               ) : (

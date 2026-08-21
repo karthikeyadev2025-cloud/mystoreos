@@ -238,7 +238,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
                 </div>
               )}
               {o.status === 'dispatched' && o.dispatchedAt && (
-                <div style={{ fontSize: 11, color: '#1D4ED8', fontWeight: 700, marginTop: 3 }}>
+                <div style={{ fontSize: 11, color: 'var(--c-primary)', fontWeight: 700, marginTop: 3 }}>
                   📦 Dispatched {new Date(o.dispatchedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                 </div>
               )}
@@ -248,7 +248,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
                 fontSize: '10px', background: badge.bg, color: badge.color,
                 padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', textTransform: 'capitalize'
               }}>{badge.label}</span>
-              <h4 style={{ fontSize: '16px', margin: '4px 0 0 0', color: '#2563EB' }}>₹{o.total}</h4>
+              <h4 style={{ fontSize: '16px', margin: '4px 0 0 0', color: 'var(--c-primary)' }}>₹{o.total}</h4>
             </div>
           </div>
 
@@ -308,7 +308,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
               </div>
             ) : (
               <button onClick={() => onPostCredit && onPostCredit(o)}
-                style={{ width: '100%', marginTop: 8, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                style={{ width: '100%', marginTop: 8, background: 'var(--c-orange-soft)', color: 'var(--c-orange-strong)', border: '1px solid var(--c-orange-soft)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                 ₹ Add ₹{o.total} to credit ledger
               </button>
             )
@@ -327,7 +327,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
               `\n\nTotal: ₹${o.total}\nStatus: ${badge.label}` +
               (o.expectedDispatchDate ? `\nExpected dispatch: ${new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : '')
             )}`} target="_blank" rel="noreferrer"
-              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 8, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', textDecoration: 'none', boxSizing: 'border-box' }}>
+              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 8, background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', textDecoration: 'none', boxSizing: 'border-box' }}>
               💬 Share via WhatsApp
             </a>
           )}
@@ -1292,9 +1292,9 @@ const DistributorDashboard = () => {
   // wrong label. Proper lookup covering all four real states now.
   const STOCK_ORDER_BADGE = {
     pending:    { bg: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', label: 'Pending' },
-    accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
-    dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
-    delivered:  { bg: 'var(--c-success-soft)', color: '#047857', label: '✅ Delivered' },
+    accepted:   { bg: 'var(--c-success-soft)', color: 'var(--c-success-strong)', label: 'Accepted' },
+    dispatched: { bg: 'var(--c-primary-soft)', color: 'var(--c-primary)', label: '📦 Dispatched' },
+    delivered:  { bg: 'var(--c-success-soft)', color: 'var(--c-success-strong)', label: '✅ Delivered' },
     rejected:   { bg: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', label: 'Rejected' },
   };
 
@@ -1457,7 +1457,7 @@ const DistributorDashboard = () => {
             <button
               onClick={() => setShowUpgradePlanModal(true)}
               className="sidebar-nav-item"
-              style={{ color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', marginBottom: '8px' }}
+              style={{ color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', marginBottom: '8px' }}
             >
               <TrendingUp size={16} /> Upgrade Plan
               <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(217,119,6,0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold' }}>{(user.distributorPlanTier || 'basic_distributor').replace('_distributor', '').toUpperCase()}</span>
@@ -1475,17 +1475,17 @@ const DistributorDashboard = () => {
         {/* Main Content Pane */}
         <div className="fluid-dashboard-main">
           {/* Prominent Distributor Code Banner */}
-          <div style={{ background: 'linear-gradient(135deg, #1E1B4B, #312E81)', color: 'var(--c-surface)', borderRadius: '14px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 4px 15px rgba(49,46,129,0.25)' }}>
+          <div style={{ background: 'linear-gradient(135deg, var(--c-primary-hover), var(--c-primary))', color: 'var(--c-surface)', borderRadius: '14px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 4px 15px rgba(49,46,129,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Key size={22} style={{ color: 'var(--c-primary-light)' }} />
               </div>
               <div>
                 <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--c-primary-border)', fontWeight: 700 }}>Your Unique Distributor Code</div>
-                <div style={{ fontSize: '20px', fontWeight: 900, fontFamily: 'monospace', letterSpacing: '1.5px', color: '#FDE047' }}>
+                <div style={{ fontSize: '20px', fontWeight: 900, fontFamily: 'monospace', letterSpacing: '1.5px', color: 'var(--c-warning)' }}>
                   {user?.publicCode || user?.gstin || (user?.phone ? ('DIST-' + user.phone) : ('DIST-' + (user?.id || '').slice(0, 8).toUpperCase()))}
                 </div>
-                <div style={{ fontSize: '11px', color: '#A5B4FC' }}>Share this code with shopkeepers to link accounts or search your catalog</div>
+                <div style={{ fontSize: '11px', color: 'var(--c-primary-light)' }}>Share this code with shopkeepers to link accounts or search your catalog</div>
               </div>
             </div>
 
@@ -1537,7 +1537,7 @@ const DistributorDashboard = () => {
 
           {/* Shop limit upgrade banner */}
           {distCaps.maxShops !== -1 && shops.length > distCaps.maxShops && (
-            <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+            <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: '500' }}>
                 ⚠️ You have {shops.length} shops but your plan allows {distCaps.maxShops}. Upgrade to continue serving all shops.
               </p>
@@ -1557,11 +1557,11 @@ const DistributorDashboard = () => {
               out a legitimate paying distributor over a technical
               quirk rather than an actual plan violation. */}
           {distCaps.multiDevice && activeDeviceCount > distCaps.multiDevice && (
-            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-              <p style={{ margin: 0, fontSize: '13px', color: '#1D4ED8', fontWeight: '500' }}>
+            <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-primary)', fontWeight: '500' }}>
                 📱 You've been active on {activeDeviceCount} devices in the last 30 days — your plan includes {distCaps.multiDevice}. Consider upgrading for more.
               </p>
-              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#2563EB', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Upgrade Now
               </button>
             </div>
@@ -1571,9 +1571,9 @@ const DistributorDashboard = () => {
               a distributor reasonably reads as "my data is gone". Saying
               so plainly, with a retry, is far less alarming than silence. */}
           {loadFailed && (
-            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-danger-strong)' }}>Couldn&apos;t load your data</div>
                 <div style={{ fontSize: 12, color: 'var(--c-danger-strong)', marginTop: 2 }}>Your records are safe — this is a connection problem, not data loss.</div>
               </div>
               <button onClick={() => { setLoadFailed(false); loadData(); }}
@@ -1591,7 +1591,7 @@ const DistributorDashboard = () => {
             return (
               <div style={{ background: 'var(--c-danger-soft)', border: '2px solid var(--c-danger-border)', borderRadius: 14, padding: '16px', marginBottom: 18, boxShadow: '0 4px 14px rgba(239,68,68,0.15)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: '#991B1B', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--c-danger-strong)', display: 'flex', alignItems: 'center', gap: 8 }}>
                     ⚠️ INVENTORY ALERT: {outOfStockItems.length > 0 ? `${outOfStockItems.length} ITEMS OUT OF STOCK!` : ''} {lowStockItems.length > 0 ? `${lowStockItems.length} Items Low Stock` : ''}
                   </div>
                   <button onClick={() => setActiveTab('catalog')} style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
@@ -1600,13 +1600,13 @@ const DistributorDashboard = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {outOfStockItems.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
-                      <span style={{ fontWeight: 800, color: '#991B1B' }}>❌ {item.name} — STOCK ENDED (0 units)</span>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid var(--c-danger-border)', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                      <span style={{ fontWeight: 800, color: 'var(--c-danger-strong)' }}>❌ {item.name} — STOCK ENDED (0 units)</span>
                       <span style={{ color: 'var(--c-danger-strong)', fontWeight: 900 }}>OUT OF STOCK</span>
                     </div>
                   ))}
                   {lowStockItems.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid var(--c-accent-border)', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
                       <span style={{ fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ {item.name} — LOW STOCK ({item.stock} left, min: {item.min_stock || 10})</span>
                       <span style={{ color: 'var(--c-accent-hover)', fontWeight: 800 }}>Low Stock</span>
                     </div>
@@ -1663,8 +1663,8 @@ const DistributorDashboard = () => {
                   real data exists, so it can never clutter a live
                   account. */}
               {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
-                <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),#F5F3FF)', border: '1px solid var(--c-primary-border)', borderRadius: 14, padding: 20, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
+                <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),var(--c-violet-soft))', border: '1px solid var(--c-primary-border)', borderRadius: 14, padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-primary)', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
                   <p style={{ fontSize: 12, color: 'var(--c-primary-hover)', margin: '0 0 16px' }}>
                     Four steps to a working distribution business. Most take under a minute.
                   </p>
@@ -1676,7 +1676,7 @@ const DistributorDashboard = () => {
                   ].map(s => (
                     <button key={s.n}
                       onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
-                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid var(--c-primary-soft)', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
                       <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {s.n}
                       </span>
@@ -1715,7 +1715,7 @@ const DistributorDashboard = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                     <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: 0 }}>Receivables Aging</h3>
                     {aging.atRisk > 0 && (
-                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : '#CA8A04' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : 'var(--c-warning-strong)' }}>
                         ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
                       </span>
                     )}
@@ -1740,7 +1740,7 @@ const DistributorDashboard = () => {
                     ))}
                   </div>
                   {aging.atRiskPct >= 30 && (
-                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, fontSize: 12, color: 'var(--c-danger-strong)' }}>
                       Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
                     </div>
                   )}
@@ -1788,13 +1788,13 @@ const DistributorDashboard = () => {
                   {/* Gauge */}
                   <div style={{ position: 'relative', width: '160px', height: '160px', marginBottom: '24px' }}>
                     <svg width="160" height="160" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="60" cy="60" r="50" fill="transparent" stroke="#F1F5F9" strokeWidth="6" />
+                      <circle cx="60" cy="60" r="50" fill="transparent" stroke="#EFECE5" strokeWidth="6" />
                       <circle
                         cx="60"
                         cy="60"
                         r="50"
                         fill="transparent"
-                        stroke="#10B981"
+                        stroke="#22C55E"
                         strokeWidth="6"
                         strokeDasharray={2 * Math.PI * 50}
                         strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
@@ -1874,7 +1874,7 @@ const DistributorDashboard = () => {
                           </div>
                           <button 
                             onClick={() => markPaid(c.id)}
-                            style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                            style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                           >
                             Mark Fully Received
                           </button>
@@ -1962,7 +1962,7 @@ const DistributorDashboard = () => {
                         </div>
                         <div style={{ background: 'var(--c-bg)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--c-line)' }}>
                           <span style={{ fontSize: '12px', color: 'var(--c-ink-2)' }}>Total Outstanding Credit:</span>
-                          <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed}</span>
+                          <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)' }}>₹{owed}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                           <button
@@ -1980,7 +1980,7 @@ const DistributorDashboard = () => {
                               )}`}
                               target="_blank"
                               rel="noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}
+                              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}
                             >
                               💬 WA Reminder
                             </a>
@@ -2023,7 +2023,7 @@ const DistributorDashboard = () => {
                       Export Orders CSV
                     </button>
                   ) : (
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Lock size={11} /> Export Orders (Pro+)
                     </button>
                   )
@@ -2099,7 +2099,7 @@ const DistributorDashboard = () => {
                                   fontWeight: 'bold',
                                   textTransform: 'uppercase'
                                 }}>{badge.label}</span>
-                                <div style={{ fontSize: '14px', fontWeight: '800', color: '#2563EB', marginTop: '4px' }}>₹{o.total}</div>
+                                <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--c-primary)', marginTop: '4px' }}>₹{o.total}</div>
                               </div>
                             </div>
                           </div>
@@ -2115,14 +2115,14 @@ const DistributorDashboard = () => {
                       <div className="premium-glass" style={{ padding: '20px', position: 'sticky', top: '24px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--c-line)', paddingBottom: '14px', marginBottom: '16px' }}>
                           <div>
-                            <span style={{ fontSize: '10px', color: '#2563EB', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
+                            <span style={{ fontSize: '10px', color: 'var(--c-primary)', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
                             <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: 'var(--c-ink)' }}>{selectedOrder.shopName}</h3>
                             <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-ink-2)' }}>Order ID: #{selectedOrder.id.substring(0, 8)}</p>
                           </div>
                           <span style={{
                             fontSize: '10px',
-                            background: selectedOrder.status === 'pending' ? 'var(--c-warning-soft)' : selectedOrder.status === 'accepted' ? '#DCFCE7' : 'var(--c-danger-soft)',
-                            color: selectedOrder.status === 'pending' ? 'var(--c-warning-strong)' : selectedOrder.status === 'accepted' ? '#15803D' : 'var(--c-danger-strong)',
+                            background: selectedOrder.status === 'pending' ? 'var(--c-warning-soft)' : selectedOrder.status === 'accepted' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)',
+                            color: selectedOrder.status === 'pending' ? 'var(--c-warning-strong)' : selectedOrder.status === 'accepted' ? 'var(--c-success-strong)' : 'var(--c-danger-strong)',
                             padding: '3px 8px',
                             borderRadius: '10px',
                             fontWeight: 'bold',
@@ -2136,14 +2136,14 @@ const DistributorDashboard = () => {
                           <div style={{ maxHeight: '180px', overflowY: 'auto' }} className="custom-scroll">
                             {selectedOrder.items.map((item, idx) => (
                               <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-line)', fontSize: '13px' }}>
-                                <span style={{ color: 'var(--c-ink)' }}>{item.name} <strong style={{ color: '#2563EB' }}>x{item.qty}</strong></span>
+                                <span style={{ color: 'var(--c-ink)' }}>{item.name} <strong style={{ color: 'var(--c-primary)' }}>x{item.qty}</strong></span>
                                 <span style={{ fontWeight: '700', color: 'var(--c-ink)' }}>₹{item.price * item.qty}</span>
                               </div>
                             ))}
                           </div>
 
                           {selectedOrder.notes && (
-                            <div style={{ marginTop: 12, background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: 'var(--c-warning-strong)' }}>
+                            <div style={{ marginTop: 12, background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: 'var(--c-warning-strong)' }}>
                               💬 <strong>Shopkeeper Special Notes:</strong> "{selectedOrder.notes}"
                             </div>
                           )}
@@ -2204,8 +2204,8 @@ const DistributorDashboard = () => {
                         )}
 
                         {selectedOrder.status === 'dispatched' && selectedOrder.dispatchedAt && (
-                          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: 12, textAlign: 'center' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1D4ED8' }}>
+                          <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-primary)' }}>
                               📦 Dispatched {new Date(selectedOrder.dispatchedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
@@ -2235,7 +2235,7 @@ const DistributorDashboard = () => {
                           ) : (
                             <button
                               onClick={() => handlePostStockOrderCredit(selectedOrder)}
-                              style={{ width: '100%', marginTop: 12, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                              style={{ width: '100%', marginTop: 12, background: 'var(--c-orange-soft)', color: 'var(--c-orange-strong)', border: '1px solid var(--c-orange-soft)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                               ₹ Add ₹{selectedOrder.total} to credit ledger
                             </button>
@@ -2251,7 +2251,7 @@ const DistributorDashboard = () => {
                               selectedOrder.items.map(i => `• ${i.name} x${i.qty} — ₹${i.price * i.qty}`).join('\n') +
                               `\n\nTotal: ₹${selectedOrder.total}\nStatus: ${selBadge.label}`
                             )}`} target="_blank" rel="noreferrer"
-                              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 10, background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' }}>
+                              style={{ display: 'block', textAlign: 'center', width: '100%', marginTop: 10, background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' }}>
                               💬 Share via WhatsApp
                             </a>
                           );
@@ -2281,14 +2281,14 @@ const DistributorDashboard = () => {
                     </button>
                   ) : (
                     <button onClick={() => setShowUpgradePlanModal(true)}
-                      style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', color: 'var(--c-warning-strong)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Lock size={12} /> Bulk Import (Pro+)
                     </button>
                   )}
                   {wholesaleProducts.length > 0 && (
                     <>
                       <button onClick={() => setShowBarcodeManager(true)}
-                        style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FFEDD5', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-orange-soft)', color: 'var(--c-orange-strong)', border: '1px solid var(--c-orange-soft)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         🏷️ Barcodes &amp; Labels
                       </button>
                       <button onClick={handleGenerateCatalog}
@@ -2300,7 +2300,7 @@ const DistributorDashboard = () => {
                         🔗 Copy Web Catalog Link
                       </button>
                       <button onClick={handleShareCatalogWhatsApp}
-                        style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         💬 Share via WhatsApp
                       </button>
                     </>
@@ -2339,7 +2339,7 @@ const DistributorDashboard = () => {
                           📄 Vyapar Export Sample
                         </button>
                         <button type="button" onClick={() => downloadSampleCsv('tally')}
-                          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: '#0284C7', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-primary)', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                           📄 Tally Export Sample
                         </button>
                       </div>
@@ -2403,7 +2403,7 @@ const DistributorDashboard = () => {
                   </div>
                   <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>In-Stock SKUs</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#2563EB', marginTop: 2 }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-primary)', marginTop: 2 }}>
                       {wholesaleProducts.filter(p => Number(p.stock || 0) > 0).length} / {wholesaleProducts.length} SKUs
                     </div>
                   </div>
@@ -2446,19 +2446,19 @@ const DistributorDashboard = () => {
                     const isOutOfStock = Number(p.stock || 0) <= 0;
                     const isLowStock = Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10);
                     return (
-                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '190px', background: 'var(--c-surface)', border: `2px solid ${isOutOfStock ? 'var(--c-danger-border)' : isLowStock ? '#FDE68A' : 'var(--c-line)'}`, borderRadius: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '190px', background: 'var(--c-surface)', border: `2px solid ${isOutOfStock ? 'var(--c-danger-border)' : isLowStock ? 'var(--c-accent-border)' : 'var(--c-line)'}`, borderRadius: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         {p.image && (
                           <img src={p.image} alt={p.name} style={{ width: '100%', height: '110px', borderRadius: '8px', objectFit: 'cover', marginBottom: '8px', border: '1px solid var(--c-line)' }} />
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                          {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
+                          {p.category && <span style={{ fontSize: '9px', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid var(--c-primary-border)' }}>{p.category}</span>}
                           {isOutOfStock ? (
-                            <span style={{ fontSize: '9px', background: 'var(--c-danger-soft)', color: '#991B1B', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FECACA' }}>❌ OUT OF STOCK</span>
+                            <span style={{ fontSize: '9px', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid var(--c-danger-border)' }}>❌ OUT OF STOCK</span>
                           ) : isLowStock ? (
-                            <span style={{ fontSize: '9px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FDE68A' }}>⚠️ LOW STOCK</span>
+                            <span style={{ fontSize: '9px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid var(--c-accent-border)' }}>⚠️ LOW STOCK</span>
                           ) : (
-                            <span style={{ fontSize: '9px', background: '#F0FDF4', color: '#15803D', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #BBF7D0' }}>✅ IN STOCK</span>
+                            <span style={{ fontSize: '9px', background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid var(--c-success-soft)' }}>✅ IN STOCK</span>
                           )}
                         </div>
                         <h4 style={{ margin: '4px 0 4px 0', fontSize: '14px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{p.name}</h4>
@@ -2471,7 +2471,7 @@ const DistributorDashboard = () => {
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit Stock</button>
-                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                         </div>
                       </div>
                     </div>
@@ -2487,7 +2487,7 @@ const DistributorDashboard = () => {
           {activeTab === 'routeplanner' && (
             <div>
               {!hasDistCap(user, 'routePlanner') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '20px' }}>
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '20px' }}>
                   <Lock size={40} style={{ color: 'var(--c-accent-hover)', marginBottom: '16px' }} />
                   <h3 style={{ color: 'var(--c-warning-strong)', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
                   <p style={{ color: 'var(--c-warning-strong)', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
@@ -2524,7 +2524,7 @@ const DistributorDashboard = () => {
                     };
                     return (
                       <>
-                        <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           <span style={{ color: 'var(--c-primary)', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
                           <span style={{ color: 'var(--c-danger-strong)', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
@@ -2540,9 +2540,9 @@ const DistributorDashboard = () => {
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                                     <span style={{ fontSize: '10px', color: 'var(--c-ink-2)' }}>Stop #{idx + 1}</span>
-                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
+                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
                                     {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', fontWeight: 'bold' }}>Not visited 7d+</span>}
-                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
+                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
                                   <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-ink)' }}>{shop.name}</div>
                                   <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
@@ -2551,13 +2551,13 @@ const DistributorDashboard = () => {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                   <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)' }}>₹{owed.toLocaleString('en-IN')}</div>
                                     <div style={{ fontSize: '10px', color: 'var(--c-muted)' }}>outstanding</div>
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
-                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
-                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
-                                    <button onClick={() => markVisited(shop.id)} style={{ background: '#DCFCE7', color: '#15803D', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
+                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
+                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
+                                    <button onClick={() => markVisited(shop.id)} style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
                                   </div>
                                 </div>
                               </div>
@@ -2585,7 +2585,7 @@ const DistributorDashboard = () => {
               <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: 'var(--c-ink)' }}>📊 Sales Reports</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
+                  { label: 'Total Shops Served', value: shops.length, color: 'var(--c-primary)' },
                   { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: 'var(--c-success-strong)' },
                   { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: 'var(--c-danger-strong)' },
                   { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: 'var(--c-accent-hover)' },
@@ -2600,8 +2600,8 @@ const DistributorDashboard = () => {
               {!hasDistCap(user, 'advancedAnalytics') ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '20px' }}>
                   <TrendingUp size={40} style={{ color: 'var(--c-primary)', marginBottom: '16px' }} />
-                  <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
-                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
+                  <h3 style={{ color: 'var(--c-primary)', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
+                  <p style={{ color: 'var(--c-primary)', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
                   <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
@@ -2625,7 +2625,7 @@ const DistributorDashboard = () => {
                             <div style={{ width: '80px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
                               <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? 'var(--c-danger)' : 'var(--c-warning)', borderRadius: '3px' }} />
                             </div>
-                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
                           </div>
                         </div>
                       );
@@ -2688,12 +2688,12 @@ const DistributorDashboard = () => {
                       const csv = rows.map(r => r.join(',')).join('\n');
                       const a = document.createElement('a'); a.href = 'data:text/csv,' + encodeURIComponent(csv); a.download = 'distributor_tally.csv'; a.click();
                     }}
-                    style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
+                    style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
                   >
                     Tally Export CSV
                   </button>
                 ) : (
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Lock size={11} /> Tally Export (Pro+)
                   </button>
                 )}
@@ -2723,7 +2723,7 @@ const DistributorDashboard = () => {
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
               {/* Field Operations & Van Sales Command Hub */}
-              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: 'var(--c-surface)', boxShadow: '0 8px 24px rgba(15,23,42,0.15)' }}>
+              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, var(--c-primary-hover) 100%)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: 'var(--c-surface)', boxShadow: '0 8px 24px rgba(15,23,42,0.15)' }}>
                 <div style={{ marginBottom: '14px' }}>
                   <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     🚚 Field Distribution &amp; Van Sales Operations
@@ -2745,7 +2745,7 @@ const DistributorDashboard = () => {
 
                   <button onClick={() => navigate('/field/routes')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#0284C7', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🗺️</div>
+                    <div style={{ background: 'var(--c-primary)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🗺️</div>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-surface)' }}>Beat Routes &amp; Reps</div>
                       <div style={{ fontSize: '11px', color: 'var(--c-line-strong)', marginTop: '2px' }}>Assign routes &amp; field staff</div>
@@ -2833,7 +2833,7 @@ const DistributorDashboard = () => {
                 </div>
 
                 <button onClick={saveDistributorProfile} disabled={profileSaving}
-                  style={{ background: profileSaving ? '#A5B4FC' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  style={{ background: profileSaving ? 'var(--c-primary-light)' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
               </div>
@@ -2853,7 +2853,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Let your team log in and help manage orders, catalog, and collections.</p>
 
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                     <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -2891,7 +2891,7 @@ const DistributorDashboard = () => {
                               <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{s.phone}</div>
                             </div>
                             <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
-                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                           </div>
                         ))}
                       </div>
@@ -2913,7 +2913,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
 
                 {!hasDistCap(user, 'apiAccess') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                     <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -2921,10 +2921,10 @@ const DistributorDashboard = () => {
                 ) : (
                   <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     {newlyGeneratedKey && (
-                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 10, padding: 14, marginBottom: 16 }}>
                         <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ Copy this now — it won't be shown again:</p>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <code style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 12, wordBreak: 'break-all' }}>{newlyGeneratedKey}</code>
+                          <code style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-accent-border)', borderRadius: 6, padding: '8px 10px', fontSize: 12, wordBreak: 'break-all' }}>{newlyGeneratedKey}</code>
                           <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
                             style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Copy</button>
                         </div>
@@ -2950,7 +2950,7 @@ const DistributorDashboard = () => {
                         {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
                       </button>
                       {apiKeyInfo && (
-                        <button onClick={handleRevokeApiKey} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        <button onClick={handleRevokeApiKey} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                           Revoke
                         </button>
                       )}
@@ -2981,7 +2981,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Add your logo to invoices and reports sent to shops.</p>
 
                 {!hasDistCap(user, 'customBranding') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                     <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -2996,7 +2996,7 @@ const DistributorDashboard = () => {
                     <div>
                       <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 12 }} />
                       {logo && (
-                        <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                        <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                           Remove Logo
                         </button>
                       )}
@@ -3020,7 +3020,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Run multiple warehouses/locations under one distributor account.</p>
 
                 {!hasDistCap(user, 'multiBranch') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                     <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Multi-branch is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -3056,7 +3056,7 @@ const DistributorDashboard = () => {
                             </div>
                             <div style={{ display: 'flex', gap: 6 }}>
                               <button onClick={() => handleResetBranchPassword(b.id, b.name)} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Reset Password</button>
-                              <button onClick={() => handleDeleteBranch(b.id, b.name)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              <button onClick={() => handleDeleteBranch(b.id, b.name)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                             </div>
                           </div>
                         ))}
@@ -3078,7 +3078,7 @@ const DistributorDashboard = () => {
               <div style={{ marginTop: '24px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>⭐ Priority Support</h2>
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
                     <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -3164,7 +3164,7 @@ const DistributorDashboard = () => {
                         ))}
                       </ul>
                       {isCurrent ? (
-                        <div style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '10px', borderRadius: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold' }}>Current Plan</div>
+                        <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '10px', borderRadius: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold' }}>Current Plan</div>
                       ) : (
                         <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? 'var(--c-primary)' : 'var(--c-line-soft)', color: isPro ? 'var(--c-surface)' : 'var(--c-ink-2)', border: isPro ? 'none' : '1px solid var(--c-line)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
                           {plan.id === 'pro_distributor' ? 'Start Free Trial' : 'Upgrade'}
@@ -3314,13 +3314,13 @@ const DistributorDashboard = () => {
       <ToastContainer theme="light" position="top-center" />
       
       {/* Mobile Header */}
-      <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 50%, #312E81 100%)', padding: '18px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, var(--c-primary-hover) 50%, var(--c-primary) 100%)', padding: '18px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ background: 'linear-gradient(135deg, var(--c-primary-light), var(--c-primary))', color: 'var(--c-surface)', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px', boxShadow: '0 2px 8px rgba(99,102,241,0.4)' }}>M</div>
             <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--c-surface)', letterSpacing: '-0.3px' }}>FMCG Distributor</h1>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#93C5FD', marginTop: '3px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--c-primary-light)', marginTop: '3px' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isOnline ? 'var(--c-success)' : 'var(--c-warning)', display: 'inline-block', boxShadow: isOnline ? '0 0 8px var(--c-success)' : 'none' }}></span>
             <span>{user.name} • {isOnline ? 'Online Sync Ready' : 'Offline Mode'}</span>
           </div>
@@ -3402,8 +3402,8 @@ const DistributorDashboard = () => {
         <>
           <div style={{ padding: '16px' }}>
             {loadFailed && (
-              <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
+              <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-danger-strong)' }}>Couldn&apos;t load your data</div>
                 <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', margin: '2px 0 9px' }}>Your records are safe — this is a connection problem, not data loss.</div>
                 <button onClick={() => { setLoadFailed(false); loadData(); }}
                   style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
@@ -3428,7 +3428,7 @@ const DistributorDashboard = () => {
               </div>
               <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderTop: '3px solid var(--c-warning)', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
                 <div style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending Orders</div>
-                <div style={{ fontSize: '20px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : 'var(--c-ink)', marginTop: '4px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? 'var(--c-orange)' : 'var(--c-ink)', marginTop: '4px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
               </div>
             </div>
 
@@ -3443,29 +3443,29 @@ const DistributorDashboard = () => {
             </button>
 
             <button onClick={() => navigate('/distributor/purchases')}
-              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid #0EA5E9', borderRadius: 14, padding: '15px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid var(--c-cyan)', borderRadius: 14, padding: '15px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>📥 Purchases</div>
                 <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
               </div>
-              <span style={{ fontSize: 18, color: '#0EA5E9', fontWeight: 900 }}>→</span>
+              <span style={{ fontSize: 18, color: 'var(--c-cyan)', fontWeight: 900 }}>→</span>
             </button>
 
             <button onClick={() => navigate('/distributor/reports')}
-              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid var(--c-violet)', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>📊 Reports</div>
                 <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
               </div>
-              <span style={{ fontSize: 18, color: '#8B5CF6', fontWeight: 900 }}>→</span>
+              <span style={{ fontSize: 18, color: 'var(--c-violet)', fontWeight: 900 }}>→</span>
             </button>
 
               {/* Polished Setup Wizard for New Accounts */}
               {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
-                <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft) 0%, #F5F3FF 100%)', border: '1px solid var(--c-primary-border)', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
+                <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft) 0%, var(--c-violet-soft) 100%)', border: '1px solid var(--c-primary-border)', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '18px' }}>🚀</span>
-                    <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: 0 }}>Welcome — let&apos;s get you set up</h3>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-primary)', margin: 0 }}>Welcome — let&apos;s get you set up</h3>
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--c-primary-hover)', margin: '0 0 16px', lineHeight: 1.4 }}>
                     Four quick steps to activate your wholesale distribution business:
@@ -3478,7 +3478,7 @@ const DistributorDashboard = () => {
                   ].map(s => (
                     <button key={s.n}
                       onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
-                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid #E0E7FF', borderRadius: 12, padding: '12px 14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid var(--c-primary-soft)', borderRadius: 12, padding: '12px 14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                       <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, var(--c-primary-light), var(--c-primary))', color: 'var(--c-surface)', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(79,70,229,0.3)' }}>
                         {s.n}
                       </span>
@@ -3517,7 +3517,7 @@ const DistributorDashboard = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                     <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: 0 }}>Receivables Aging</h3>
                     {aging.atRisk > 0 && (
-                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : '#CA8A04' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : 'var(--c-warning-strong)' }}>
                         ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
                       </span>
                     )}
@@ -3542,7 +3542,7 @@ const DistributorDashboard = () => {
                     ))}
                   </div>
                   {aging.atRiskPct >= 30 && (
-                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, fontSize: 12, color: 'var(--c-danger-strong)' }}>
                       Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
                     </div>
                   )}
@@ -3583,13 +3583,13 @@ const DistributorDashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '16px 0' }}>
                 <div style={{ position: 'relative', width: '120px', height: '120px' }}>
                   <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle cx="60" cy="60" r="50" fill="transparent" stroke="#F1F5F9" strokeWidth="8" />
+                    <circle cx="60" cy="60" r="50" fill="transparent" stroke="#EFECE5" strokeWidth="8" />
                     <circle
                       cx="60"
                       cy="60"
                       r="50"
                       fill="transparent"
-                      stroke="#10B981"
+                      stroke="#22C55E"
                       strokeWidth="8"
                       strokeDasharray={2 * Math.PI * 50}
                       strokeDashoffset={2 * Math.PI * 50 * (1 - (totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) : 0))}
@@ -3609,11 +3609,11 @@ const DistributorDashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px', borderTop: '1px solid var(--c-line)', paddingTop: '16px' }}>
                 <div style={{ textAlign: 'left' }}>
                   <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: 0 }}>Total Received</p>
-                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#15803D', margin: 0 }}>₹{totalReceived}</p>
+                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--c-success-strong)', margin: 0 }}>₹{totalReceived}</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: 0 }}>Active Shops</p>
-                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563EB', margin: 0 }}>{shops.length}</p>
+                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--c-primary)', margin: 0 }}>{shops.length}</p>
                 </div>
               </div>
             </div>
@@ -3650,7 +3650,7 @@ const DistributorDashboard = () => {
                     {recordingPayment === c.id ? '...' : 'Record'}
                   </button>
                 </div>
-                <button onClick={() => markPaid(c.id)} style={{ width: '100%', background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={() => markPaid(c.id)} style={{ width: '100%', background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                   ✅ Mark Fully Received
                 </button>
               </div>
@@ -3689,7 +3689,7 @@ const DistributorDashboard = () => {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '12px', color: 'var(--c-muted)' }}>Total Owed</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)' }}>₹{owed}</div>
                   </div>
                   {/* Existed only in the desktop tree — mobile users
                       (the majority of this audience) had no way to
@@ -3761,7 +3761,7 @@ const DistributorDashboard = () => {
             )}
             {wholesaleProducts.length > 0 && (
               <>
-                <button onClick={() => setShowBarcodeManager(true)} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FFEDD5', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={() => setShowBarcodeManager(true)} style={{ background: 'var(--c-orange-soft)', color: 'var(--c-orange-strong)', border: '1px solid var(--c-orange-soft)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🏷️ Barcodes
                 </button>
                 <button onClick={handleGenerateCatalog} style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -3770,7 +3770,7 @@ const DistributorDashboard = () => {
                 <button onClick={handleCopyPublicCatalogLink} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🔗 Web Link
                 </button>
-                <button onClick={handleShareCatalogWhatsApp} style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={handleShareCatalogWhatsApp} style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   💬 WhatsApp
                 </button>
               </>
@@ -3806,16 +3806,16 @@ const DistributorDashboard = () => {
               {filtered.map(p => (
                 <div key={p.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
-                    {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
+                    {p.category && <span style={{ fontSize: '9px', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid var(--c-primary-border)' }}>{p.category}</span>}
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{p.name}</h4>
                   </div>
                   <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}{p.unit && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--c-muted)' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: 'var(--c-success-strong)' }}>₹{p.price}{p.unit && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--c-muted)' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
                     <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>Stock: {p.stock}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                     <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                    <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -3836,9 +3836,9 @@ const DistributorDashboard = () => {
               <div key={c.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderLeft: '4px solid var(--c-success-strong)', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--c-ink)' }}>{c.shopName}</h4>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#15803D' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-success-strong)' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
                 </div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#15803D' }}>+ ₹{c.amount}</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--c-success-strong)' }}>+ ₹{c.amount}</div>
               </div>
             ))
           )}
@@ -3978,7 +3978,7 @@ const DistributorDashboard = () => {
           {activeTab === 'routeplanner' && (
             <div>
               {!hasDistCap(user, 'routePlanner') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '20px' }}>
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '20px' }}>
                   <Lock size={40} style={{ color: 'var(--c-accent-hover)', marginBottom: '16px' }} />
                   <h3 style={{ color: 'var(--c-warning-strong)', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
                   <p style={{ color: 'var(--c-warning-strong)', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
@@ -4015,7 +4015,7 @@ const DistributorDashboard = () => {
                     };
                     return (
                       <>
-                        <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           <span style={{ color: 'var(--c-primary)', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
                           <span style={{ color: 'var(--c-danger-strong)', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
@@ -4031,9 +4031,9 @@ const DistributorDashboard = () => {
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                                     <span style={{ fontSize: '10px', color: 'var(--c-ink-2)' }}>Stop #{idx + 1}</span>
-                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
+                                    {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
                                     {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', fontWeight: 'bold' }}>Not visited 7d+</span>}
-                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
+                                    {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
                                   <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-ink)' }}>{shop.name}</div>
                                   <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
@@ -4042,13 +4042,13 @@ const DistributorDashboard = () => {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                   <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)' }}>₹{owed.toLocaleString('en-IN')}</div>
                                     <div style={{ fontSize: '10px', color: 'var(--c-muted)' }}>outstanding</div>
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
-                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
-                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
-                                    <button onClick={() => markVisited(shop.id)} style={{ background: '#DCFCE7', color: '#15803D', border: '1px solid #A5D6A7', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
+                                    {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
+                                    {shop.phone && <a href={`https://wa.me/91${shop.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi, I am visiting your shop today for collections. Outstanding: ₹${owed}`)}`} target="_blank" rel="noreferrer" style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>💬 WA</a>}
+                                    <button onClick={() => markVisited(shop.id)} style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>✓ Visited</button>
                                   </div>
                                 </div>
                               </div>
@@ -4071,7 +4071,7 @@ const DistributorDashboard = () => {
               <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: 'var(--c-ink)' }}>📊 Sales Reports</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
+                  { label: 'Total Shops Served', value: shops.length, color: 'var(--c-primary)' },
                   { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: 'var(--c-success-strong)' },
                   { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: 'var(--c-danger-strong)' },
                   { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: 'var(--c-accent-hover)' },
@@ -4086,8 +4086,8 @@ const DistributorDashboard = () => {
               {!hasDistCap(user, 'advancedAnalytics') ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '20px' }}>
                   <TrendingUp size={40} style={{ color: 'var(--c-primary)', marginBottom: '16px' }} />
-                  <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
-                  <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
+                  <h3 style={{ color: 'var(--c-primary)', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
+                  <p style={{ color: 'var(--c-primary)', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
                   <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
@@ -4111,7 +4111,7 @@ const DistributorDashboard = () => {
                             <div style={{ width: '80px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
                               <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? 'var(--c-danger)' : 'var(--c-warning)', borderRadius: '3px' }} />
                             </div>
-                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
                           </div>
                         </div>
                       );
@@ -4156,7 +4156,7 @@ const DistributorDashboard = () => {
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
               {/* Field Operations & Van Sales Command Hub (Mobile) */}
-              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '16px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 6px 20px rgba(15,23,42,0.15)' }}>
+              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, var(--c-primary-hover) 100%)', borderRadius: '16px', padding: '16px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 6px 20px rgba(15,23,42,0.15)' }}>
                 <div style={{ marginBottom: '12px' }}>
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     🚚 Field Distribution &amp; Van Sales
@@ -4178,7 +4178,7 @@ const DistributorDashboard = () => {
 
                   <button onClick={() => navigate('/field/routes')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div style={{ background: '#0284C7', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🗺️</div>
+                    <div style={{ background: 'var(--c-primary)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🗺️</div>
                     <div>
                       <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)' }}>Beat Routes</div>
                       <div style={{ fontSize: '10px', color: 'var(--c-line-strong)' }}>Assign routes</div>
@@ -4263,7 +4263,7 @@ const DistributorDashboard = () => {
                 </div>
 
                 <button onClick={saveDistributorProfile} disabled={profileSaving}
-                  style={{ background: profileSaving ? '#A5B4FC' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  style={{ background: profileSaving ? 'var(--c-primary-light)' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
               </div>
@@ -4276,7 +4276,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Let your team log in and help manage orders, catalog, and collections.</p>
 
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
                     <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
                     <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -4304,7 +4304,7 @@ const DistributorDashboard = () => {
                               <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{s.phone}</div>
                             </div>
                             <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
-                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                           </div>
                         ))}
                       </div>
@@ -4319,7 +4319,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
 
                 {!hasDistCap(user, 'apiAccess') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
                     <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
                     <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -4327,9 +4327,9 @@ const DistributorDashboard = () => {
                 ) : (
                   <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px' }}>
                     {newlyGeneratedKey && (
-                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 10, padding: 12, marginBottom: 14 }}>
                         <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ Copy this now — it won't be shown again:</p>
-                        <code style={{ display: 'block', background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 11, wordBreak: 'break-all', marginBottom: 8 }}>{newlyGeneratedKey}</code>
+                        <code style={{ display: 'block', background: 'var(--c-surface)', border: '1px solid var(--c-accent-border)', borderRadius: 6, padding: '8px 10px', fontSize: 11, wordBreak: 'break-all', marginBottom: 8 }}>{newlyGeneratedKey}</code>
                         <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
                           style={{ width: '100%', background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Copy Key</button>
                       </div>
@@ -4352,7 +4352,7 @@ const DistributorDashboard = () => {
                       {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
                     </button>
                     {apiKeyInfo && (
-                      <button onClick={handleRevokeApiKey} style={{ width: '100%', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      <button onClick={handleRevokeApiKey} style={{ width: '100%', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                         Revoke Key
                       </button>
                     )}
@@ -4366,7 +4366,7 @@ const DistributorDashboard = () => {
                 <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Add your logo to invoices and reports sent to shops.</p>
 
                 {!hasDistCap(user, 'customBranding') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
                     <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
                     <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -4380,7 +4380,7 @@ const DistributorDashboard = () => {
                     )}
                     <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 11 }} />
                     {logo && (
-                      <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                      <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                         Remove Logo
                       </button>
                     )}
@@ -4412,7 +4412,7 @@ const DistributorDashboard = () => {
               <div style={{ marginTop: '20px' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>⭐ Priority Support</h2>
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
                     <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
                     <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
                     <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
@@ -4454,7 +4454,7 @@ const DistributorDashboard = () => {
           <div style={{ fontSize: '20px' }}>✅</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>History</span>
         </button>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: ['routeplanner', 'analytics', 'settings'].includes(activeTab) ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setShowMoreMenu(true)}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: ['routeplanner', 'analytics', 'settings'].includes(activeTab) ? '#12457A' : '#5A6672', cursor: 'pointer' }} onClick={() => setShowMoreMenu(true)}>
           <MoreHorizontal size={20} style={{ margin: '0 auto' }} />
           <span style={{ fontSize: '10px', fontWeight: 'bold', display: 'block' }}>More</span>
         </button>

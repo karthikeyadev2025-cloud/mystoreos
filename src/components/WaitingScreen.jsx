@@ -8,7 +8,7 @@ const css = `
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-  .ws-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);padding:20px;font-family:'Plus Jakarta Sans',sans-serif}
+  .ws-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--c-ink-surface),var(--c-primary),var(--c-ink-surface-2));padding:20px;font-family:'Plus Jakarta Sans',sans-serif}
   .ws-card{background:rgba(30,41,59,0.85);backdrop-filter:blur(20px);padding:40px 32px;border-radius:28px;border:1px solid rgba(255,255,255,0.1);max-width:480px;width:100%;box-shadow:0 30px 60px rgba(0,0,0,0.5);animation:fadeIn 0.4s ease}
   @media(max-width:480px){.ws-page{padding:12px;align-items:flex-start;padding-top:24px}.ws-card{padding:28px 18px;border-radius:20px}}
 `;
@@ -96,7 +96,7 @@ export default function WaitingScreen() {
             </div>
             <h1 style={{ fontSize: '22px', color: 'var(--c-bg)', margin: '0 0 6px', fontWeight: 900 }}>Application Under Review</h1>
             <p style={{ color: 'var(--c-faint)', margin: 0, fontSize: '14px' }}>
-              <span style={{ color: '#fbbf24', fontWeight: 700 }}>{user?.name || 'Your business'}</span> is pending admin approval
+              <span style={{ color: 'var(--c-warning)', fontWeight: 700 }}>{user?.name || 'Your business'}</span> is pending admin approval
             </p>
           </div>
 
@@ -104,7 +104,7 @@ export default function WaitingScreen() {
 
           {/* Info box */}
           <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '12px', padding: '14px 16px', marginBottom: 20 }}>
-            <div style={{ color: '#fbbf24', fontSize: '13px', fontWeight: 700, marginBottom: 6 }}>What happens next?</div>
+            <div style={{ color: 'var(--c-warning)', fontSize: '13px', fontWeight: 700, marginBottom: 6 }}>What happens next?</div>
             <ul style={{ color: 'var(--c-faint)', fontSize: '12px', margin: 0, paddingLeft: '16px', lineHeight: '1.8' }}>
               <li>Admin reviews your registration details</li>
               <li>Usually approved within 24 hours</li>

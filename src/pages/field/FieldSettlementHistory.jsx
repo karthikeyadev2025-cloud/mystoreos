@@ -18,7 +18,7 @@ import { distributorIdOf } from '../../lib/fieldIdentity';
 
 const STATUS_LABEL = {
   pending: { l: 'Pending', c: 'var(--c-faint)' },
-  counted: { l: 'Counted', c: '#CA8A04' },
+  counted: { l: 'Counted', c: 'var(--c-warning-strong)' },
   closed: { l: 'Closed', c: 'var(--c-success-strong)' },
   variance_flagged: { l: 'Variance flagged', c: 'var(--c-danger-strong)' },
 };
@@ -158,7 +158,7 @@ export default function FieldSettlementHistory() {
             </div>
 
             {h.status === 'variance_flagged' && (
-              <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, fontSize: 11, color: '#991B1B', display: 'flex', gap: 6 }}>
+              <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, fontSize: 11, color: 'var(--c-danger-strong)', display: 'flex', gap: 6 }}>
                 <AlertTriangle size={13} style={{ flexShrink: 0, marginTop: 1 }} />
                 <span>
                   Cash {h.cashVariance < 0 ? 'short' : 'over'} by {inr(Math.abs(h.cashVariance))}

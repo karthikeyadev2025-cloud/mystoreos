@@ -6000,7 +6000,7 @@ export const api = {
       price: Number(plan.price) || 0,
       discount_percent: Number(plan.discount_percent) || 0,
       free_services: Number(plan.free_services) || 0,
-      color: plan.color || '#8B5CF6',
+      color: plan.color || 'var(--c-violet)',
       active: plan.active !== false,
       display_order: Number(plan.display_order) || 0,
       updated_at: new Date().toISOString(),

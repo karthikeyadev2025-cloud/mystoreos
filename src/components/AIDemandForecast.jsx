@@ -87,7 +87,7 @@ function reorderRec(product, forecastData) {
 const TIER_CONFIG = {
   trial:      { forecastDays: 0,  maxProducts: 0,  label: 'Not Available',  color: 'var(--c-muted)' },
   starter:    { forecastDays: 0,  maxProducts: 0,  label: 'Pro Plan',        color: 'var(--c-muted)' },
-  pro:        { forecastDays: 7,  maxProducts: 10, label: '7-Day Forecast',  color: '#8b5cf6' },
+  pro:        { forecastDays: 7,  maxProducts: 10, label: '7-Day Forecast',  color: 'var(--c-violet)' },
   enterprise: { forecastDays: 30, maxProducts: -1, label: '30-Day Forecast', color: 'var(--c-success)' },
 };
 
@@ -115,8 +115,8 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
   if (!hasAccess) {
     return (
       <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '16px', padding: '48px 32px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
-        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '1px solid #DDD6FE' }}>
-          <Brain size={32} color="#8b5cf6" />
+        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--c-violet-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '1px solid var(--c-violet-soft)' }}>
+          <Brain size={32} color="var(--c-violet)" />
         </div>
         <h3 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700, margin: '0 0 8px' }}>AI Demand Forecasting</h3>
         <p style={{ color: 'var(--c-ink-2)', fontSize: '14px', maxWidth: '480px', margin: '0 auto 20px', lineHeight: 1.6 }}>
@@ -130,15 +130,15 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
             { icon: '🔔', text: 'Low-stock alerts with days-left counter' },
             { icon: '📦', text: 'Smart reorder quantity suggestions' },
           ].map((f, i) => (
-            <div key={i} style={{ background: 'var(--c-surface)', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '12px 8px' }}>
+            <div key={i} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-violet-soft)', borderRadius: '10px', padding: '12px 8px' }}>
               <div style={{ fontSize: '20px', marginBottom: '6px' }}>{f.icon}</div>
-              <div style={{ color: '#7C3AED', fontSize: '11px', lineHeight: 1.4 }}>{f.text}</div>
+              <div style={{ color: 'var(--c-violet)', fontSize: '11px', lineHeight: 1.4 }}>{f.text}</div>
             </div>
           ))}
         </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '10px 20px' }}>
-          <Lock size={14} color="#7C3AED" />
-          <span style={{ color: '#7C3AED', fontSize: '13px', fontWeight: 600 }}>Available on Pro Plan (₹999/mo) and above</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--c-violet-soft)', border: '1px solid var(--c-violet-soft)', borderRadius: '10px', padding: '10px 20px' }}>
+          <Lock size={14} color="var(--c-violet)" />
+          <span style={{ color: 'var(--c-violet)', fontSize: '13px', fontWeight: 600 }}>Available on Pro Plan (₹999/mo) and above</span>
         </div>
       </div>
     );
@@ -166,10 +166,10 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
 
       {/* Urgent alerts */}
       {urgentItems.length > 0 && (
-        <div style={{ background: '#FFF5F5', border: '1px solid var(--c-danger-border)', borderRadius: '12px', padding: '16px 20px' }}>
+        <div style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: '12px', padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <AlertTriangle size={16} color="var(--c-danger)" />
-            <span style={{ color: '#991B1B', fontWeight: 700, fontSize: '14px' }}>Reorder Now — {urgentItems.length} item{urgentItems.length > 1 ? 's' : ''} at or below reorder point</span>
+            <span style={{ color: 'var(--c-danger-strong)', fontWeight: 700, fontSize: '14px' }}>Reorder Now — {urgentItems.length} item{urgentItems.length > 1 ? 's' : ''} at or below reorder point</span>
           </div>
           {urgentItems.map(item => (
             <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--c-surface)', borderRadius: '8px', padding: '10px 14px', marginBottom: '6px', flexWrap: 'wrap', gap: '8px', border: '1px solid var(--c-danger-border)' }}>
@@ -181,7 +181,7 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <span style={{ color: 'var(--c-muted)', fontSize: '11px' }}>~{item.rec.avgDaily}/day</span>
                 {item.rec.daysLeft !== null && <span style={{ color: 'var(--c-danger)', fontSize: '11px', fontWeight: 700 }}>⚠ {item.rec.daysLeft}d left</span>}
-                <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success)', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '6px', border: '1px solid #A7F3D0' }}>Order {item.rec.suggestedQty} units</span>
+                <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success)', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '6px', border: '1px solid var(--c-success-soft)' }}>Order {item.rec.suggestedQty} units</span>
               </div>
             </div>
           ))}
@@ -190,12 +190,12 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
 
       {/* Out-soon warnings */}
       {outSoonItems.length > 0 && (
-        <div style={{ background: '#FFF7ED', border: '1px solid #FFEDD5', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--c-orange-soft)', border: '1px solid var(--c-orange-soft)', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <AlertTriangle size={14} color="var(--c-warning)" />
-          <span style={{ color: '#C2410C', fontWeight: 700, fontSize: '13px' }}>Running Low:</span>
+          <span style={{ color: 'var(--c-orange-strong)', fontWeight: 700, fontSize: '13px' }}>Running Low:</span>
           {outSoonItems.map(item => (
-            <span key={item.id} style={{ background: 'var(--c-surface)', border: '1px solid #FFEDD5', borderRadius: '8px', padding: '4px 10px', color: 'var(--c-ink)', fontSize: '12px' }}>
-              {item.name} <span style={{ color: '#EA580C' }}>({item.rec.daysLeft}d)</span>
+            <span key={item.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-orange-soft)', borderRadius: '8px', padding: '4px 10px', color: 'var(--c-ink)', fontSize: '12px' }}>
+              {item.name} <span style={{ color: 'var(--c-orange)' }}>({item.rec.daysLeft}d)</span>
             </span>
           ))}
         </div>
@@ -241,7 +241,7 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
                   <Tooltip contentStyle={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: 11, color: 'var(--c-ink)' }} labelStyle={{ color: 'var(--c-muted)' }} formatter={v => [`${v} units`, 'Predicted']} />
                   <Bar dataKey="predicted" radius={[4,4,0,0]} maxBarSize={28}>
                     {item.forecast.map((_, i) => (
-                      <Cell key={i} fill={item.rec?.urgent ? '#ef4444' : tier.color} fillOpacity={0.55 + i * 0.03} />
+                      <Cell key={i} fill={item.rec?.urgent ? '#C2382B' : tier.color} fillOpacity={0.55 + i * 0.03} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -263,8 +263,8 @@ export default function AIDemandForecast({ orders = [], products = [], user }) {
       ))}
 
       {tierKey === 'pro' && productSales.length > 10 && (
-        <div style={{ textAlign: 'center', padding: '14px', background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: '12px' }}>
-          <span style={{ color: '#047857', fontSize: '13px' }}>
+        <div style={{ textAlign: 'center', padding: '14px', background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '12px' }}>
+          <span style={{ color: 'var(--c-success-strong)', fontSize: '13px' }}>
             Showing top 10 SKUs. <span style={{ color: 'var(--c-success)', fontWeight: 600 }}>Upgrade to Enterprise for all {productSales.length} SKUs + 30-day forecast.</span>
           </span>
         </div>

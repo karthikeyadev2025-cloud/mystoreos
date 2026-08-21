@@ -13,7 +13,7 @@
 // ── DESIGN TOKENS ───────────────────────────────────────────────────
 export const T = {
   // Neutrals
-  bg:         '#F4F5F7',
+  bg:         'var(--c-line-soft)',
   cardBg:     'var(--c-surface)',
   cardBorder: 'var(--c-line)',
   divider:    'var(--c-line-soft)',
@@ -25,15 +25,15 @@ export const T = {
   // Brand
   accent:     'var(--c-primary)',
   accentDark: 'var(--c-primary-hover)',
-  violet:     '#7C3AED',
+  violet:     'var(--c-violet)',
   accentSoft: 'var(--c-primary-soft)',
   // Semantics
   positive:   'var(--c-success)',
   negative:   'var(--c-danger)',
   warn:       'var(--c-warning)',
-  info:       '#06B6D4',
+  info:       'var(--c-cyan)',
   // Effects
-  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,#7C3AED 45%,var(--c-primary-hover) 100%)',
+  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,var(--c-violet) 45%,var(--c-primary-hover) 100%)',
   cardShadow:    '0 1px 2px rgba(15,23,42,0.04)',
   cardShadowLg:  '0 10px 30px -10px rgba(15,23,42,0.15)',
   focusRing:     '0 0 0 3px rgba(79,70,229,0.18)',

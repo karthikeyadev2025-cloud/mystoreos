@@ -4,12 +4,12 @@ import { toast } from 'react-toastify';
 import { Users, Clock, IndianRupee, TrendingUp } from 'lucide-react';
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   label: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' },
   val: { color: 'var(--c-ink)', fontSize: '26px', fontWeight: 700 },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
-  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #F3F4F6' },
-  inp: { width: '100%', background: 'var(--c-surface)', border: '1px solid #D1D5DB', color: 'var(--c-ink)', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid var(--c-line-soft)' },
+  inp: { width: '100%', background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink)', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none' },
   btn: (color) => ({ background: color, color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }),
 };
 
@@ -71,9 +71,9 @@ export default function TabAffiliate() {
   };
 
   const statusChip = (s) => ({
-    pending: <span style={{ background: '#FFF9DB', color: 'var(--c-warning)', border: '1px solid #FFE066', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
-    approved: <span style={{ background: '#E6FCF5', color: '#099268', border: '1px solid #C3FAE8', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
-    paid: <span style={{ background: '#E6FCF5', color: '#099268', border: '1px solid #C3FAE8', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
+    pending: <span style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning)', border: '1px solid var(--c-warning)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
+    approved: <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
+    paid: <span style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
   }[s] || <span style={{ color: 'var(--c-muted)', fontSize: 11 }}>{s}</span>);
 
   return (
@@ -95,7 +95,7 @@ export default function TabAffiliate() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         {[['overview','Referral Codes'],['attributions','Referral Attributions'],['create','Create Affiliate']].map(([id,lbl]) => (
           <button key={id} onClick={() => setActiveSubTab(id)}
-            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: '1px solid #E5E7EB', background: activeSubTab === id ? 'var(--c-primary)' : 'var(--c-surface)', color: activeSubTab === id ? 'var(--c-surface)' : 'var(--c-ink-2)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: '1px solid var(--c-line)', background: activeSubTab === id ? 'var(--c-primary)' : 'var(--c-surface)', color: activeSubTab === id ? 'var(--c-surface)' : 'var(--c-ink-2)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             {lbl}
           </button>
         ))}
@@ -115,7 +115,7 @@ export default function TabAffiliate() {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+                      <tr style={{ borderBottom: '2px solid var(--c-line)' }}>
                         {['Code','Owner','Role','Commission','Status','Action'].map(h => <th key={h} style={S.th}>{h}</th>)}
                       </tr>
                     </thead>
@@ -126,9 +126,9 @@ export default function TabAffiliate() {
                           <td style={S.td}><div style={{ fontWeight: 600 }}>{c.ownerName}</div><div style={{ color: 'var(--c-muted)', fontSize: 11 }}>{c.ownerPhone}</div></td>
                           <td style={S.td}><span style={{ color: 'var(--c-ink-2)', fontSize: 12 }}>{c.ownerRole}</span></td>
                           <td style={S.td}><span style={{ color: 'var(--c-success)', fontWeight: 700 }}>{c.commissionPct}%</span></td>
-                          <td style={S.td}>{c.isActive ? <span style={{ color: '#22C55E', fontSize: 12, fontWeight: 700 }}>● Active</span> : <span style={{ color: 'var(--c-danger)', fontSize: 12 }}>● Inactive</span>}</td>
+                          <td style={S.td}>{c.isActive ? <span style={{ color: 'var(--c-success)', fontSize: 12, fontWeight: 700 }}>● Active</span> : <span style={{ color: 'var(--c-danger)', fontSize: 12 }}>● Inactive</span>}</td>
                           <td style={S.td}>
-                            <button onClick={() => handleToggleCode(c.id, c.isActive)} style={{ background: 'var(--c-surface)', border: '1px solid #D1D5DB', color: 'var(--c-ink-2)', padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            <button onClick={() => handleToggleCode(c.id, c.isActive)} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                               {c.isActive ? 'Deactivate' : 'Activate'}
                             </button>
                           </td>
@@ -162,7 +162,7 @@ export default function TabAffiliate() {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+                      <tr style={{ borderBottom: '2px solid var(--c-line)' }}>
                         {['Code','Referred By','New User','Plan','Commission','Status','Action'].map(h => <th key={h} style={S.th}>{h}</th>)}
                       </tr>
                     </thead>
@@ -220,7 +220,7 @@ export default function TabAffiliate() {
       )}
 
       {/* SQL reminder */}
-      <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 10, padding: '14px 18px', marginTop: 20 }}>
+      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', borderRadius: 10, padding: '14px 18px', marginTop: 20 }}>
         <div style={{ color: 'var(--c-accent-hover)', fontWeight: 700, fontSize: 12, marginBottom: 6 }}>⚠️ Required: Run this SQL in Supabase SQL Editor once</div>
         <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: 11, color: 'var(--c-warning-strong)', whiteSpace: 'pre-wrap' }}>{`CREATE TABLE IF NOT EXISTS referral_codes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

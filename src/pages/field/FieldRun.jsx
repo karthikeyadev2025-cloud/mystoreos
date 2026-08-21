@@ -184,7 +184,7 @@ export default function FieldRun() {
       <h1 style={{ fontSize: 21, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 12px' }}>Today&apos;s Run</h1>
 
       {routes.length === 0 ? (
-        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
           No routes set up yet.
           <div style={{ marginTop: 10 }}>
             <button onClick={() => navigate('/field/routes')} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
@@ -265,7 +265,7 @@ export default function FieldRun() {
                     </button>
                     {stop.phone && (
                       <a href={`tel:${stop.phone}`}
-                        style={{ background: '#F0FDF4', color: '#15803D', border: '1px solid #A5D6A7', padding: '12px 14px', borderRadius: 10, display: 'flex', alignItems: 'center' }}>
+                        style={{ background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', border: '1px solid var(--c-success-soft)', padding: '12px 14px', borderRadius: 10, display: 'flex', alignItems: 'center' }}>
                         <Phone size={14} />
                       </a>
                     )}
@@ -327,7 +327,7 @@ export default function FieldRun() {
                           </div>
                         </div>
                         <button onClick={() => setCart(c => c.filter(x => x.productId !== l.productId))}
-                          style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                           <X size={12} />
                         </button>
                       </div>

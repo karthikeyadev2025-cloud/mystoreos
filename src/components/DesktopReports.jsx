@@ -155,12 +155,12 @@ const DesktopReports = ({
           {/* Margin gauge */}
           <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <BarChart2 size={18} color="#FBBF24" /> Net Margin Analytics
+              <BarChart2 size={18} color="var(--c-warning)" /> Net Margin Analytics
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="130" height="130" style={{ transform: 'rotate(-90deg)' }}>
-                  <circle cx="65" cy="65" r={radius} fill="transparent" stroke="#E2E8F0" strokeWidth="10" />
+                  <circle cx="65" cy="65" r={radius} fill="transparent" stroke="#D9D3C7" strokeWidth="10" />
                   <circle cx="65" cy="65" r={radius} fill="transparent" stroke={strokeColor} strokeWidth="10"
                     strokeDasharray={circumference} strokeDashoffset={strokeOffset} strokeLinecap="round"
                     style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }} />
@@ -190,11 +190,11 @@ const DesktopReports = ({
           </div>
 
           {/* Tally Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: 'var(--c-success-soft)' , minWidth: 0}}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-success-soft)', background: 'var(--c-success-soft)' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>Tally ERP / Prime Exporter</h3>
-                <p style={{ margin: 0, fontSize: '11px', color: '#047857', lineHeight: '1.4' }}>Generate double-entry bookkeeping ledgers. Download compliant Sales XML.</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-success-strong)', lineHeight: '1.4' }}>Generate double-entry bookkeeping ledgers. Download compliant Sales XML.</p>
               </div>
               <PlanGate feature="tallyExport" fallback={<LockedFeature feature="tallyExport" compact />}>
                 <button onClick={() => downloadTallyXML(
@@ -210,15 +210,15 @@ const DesktopReports = ({
           </div>
 
           {/* GSTR-1 */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #DDD6FE', background: '#F5F3FF' , minWidth: 0}}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-violet-soft)', background: 'var(--c-violet-soft)' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>GSTR-1 CSV Exporter</h3>
-                <p style={{ margin: 0, fontSize: '11px', color: '#5B21B6', lineHeight: '1.4' }}>GST-portal ready GSTR-1 CSV with CGST/SGST/IGST split for B2B and B2C.</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-violet-strong)', lineHeight: '1.4' }}>GST-portal ready GSTR-1 CSV with CGST/SGST/IGST split for B2B and B2C.</p>
               </div>
               <PlanGate feature="gst" fallback={<LockedFeature feature="gst" compact />}>
                 <button onClick={() => downloadGSTR1CSV(orders, user, new Date().toISOString().slice(0, 7))}
-                  style={{ background: '#8B5CF6', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                  style={{ background: 'var(--c-violet)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <FileSpreadsheet size={14} /> Export CSV
                 </button>
               </PlanGate>
@@ -226,11 +226,11 @@ const DesktopReports = ({
           </div>
 
           {/* Zoho CRM Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: 'var(--c-warning-soft)', position: 'relative' , minWidth: 0}}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-accent-border)', background: 'var(--c-warning-soft)', position: 'relative' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>Export to CRM</h3>
-                <p style={{ margin: 0, fontSize: '11px', color: '#78350F', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-warning-strong)', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
               </div>
               <button onClick={() => setCrmMenuOpen(o => !o)}
                 style={{ background: 'var(--c-warning)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
@@ -257,7 +257,7 @@ const DesktopReports = ({
         {/* Day Book ledger */}
         <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Book size={20} color="#FBBF24" /> Today's Retail Day Book
+            <Book size={20} color="var(--c-warning)" /> Today's Retail Day Book
           </h3>
           {ledgerItems.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--c-muted)' }}>
@@ -270,7 +270,7 @@ const DesktopReports = ({
                 <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-bg)', padding: '12px', borderRadius: '12px', border: '1px solid var(--c-line)' }}>
                   <div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? '#A7F3D0' : 'var(--c-danger-border)'}` }}>{item.category}</span>
+                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? 'var(--c-success-soft)' : 'var(--c-danger-border)'}` }}>{item.category}</span>
                       <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>{item.time}</span>
                     </div>
                     <p style={{ margin: '6px 0 0 0', fontWeight: '700', fontSize: '13px', color: 'var(--c-ink)' }}>{item.desc}</p>
@@ -301,15 +301,15 @@ const DesktopReports = ({
             <AreaChart data={revenueData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#12457A" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#12457A" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#EFECE5" />
               <XAxis dataKey="date" tick={AXIS} tickLine={false} interval={6} />
               <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
               <Tooltip contentStyle={TT_STYLE} formatter={v => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} />
-              <Area type="monotone" dataKey="revenue" stroke="#4F46E5" strokeWidth={2} fill="url(#revGrad)" dot={false} />
+              <Area type="monotone" dataKey="revenue" stroke="#12457A" strokeWidth={2} fill="url(#revGrad)" dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -326,11 +326,11 @@ const DesktopReports = ({
           ) : (
             <ResponsiveContainer width="100%" height={190}>
               <BarChart data={top10} margin={{ top: 4, right: 4, left: -20, bottom: 48 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#EFECE5" />
                 <XAxis dataKey="name" tick={{ ...AXIS, fontSize: 9 }} tickLine={false} angle={-40} textAnchor="end" interval={0} />
                 <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
                 <Tooltip contentStyle={TT_STYLE} formatter={v => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} />
-                <Bar dataKey="revenue" fill="#F59E0B" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="revenue" fill="#E9A72C" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -347,21 +347,21 @@ const DesktopReports = ({
             <AreaChart data={cashFlowData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="inGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#22C55E" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="outGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#C2382B" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#C2382B" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#EFECE5" />
               <XAxis dataKey="date" tick={AXIS} tickLine={false} interval={6} />
               <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
               <Tooltip contentStyle={TT_STYLE} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'cashIn' ? 'Cash In' : 'Cash Out']} />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: 'var(--c-muted)', paddingTop: '6px' }} />
-              <Area type="monotone" dataKey="cashIn" name="cashIn" stroke="#10B981" strokeWidth={2} fill="url(#inGrad)" dot={false} />
-              <Area type="monotone" dataKey="cashOut" name="cashOut" stroke="#EF4444" strokeWidth={2} fill="url(#outGrad)" dot={false} />
+              <Area type="monotone" dataKey="cashIn" name="cashIn" stroke="#22C55E" strokeWidth={2} fill="url(#inGrad)" dot={false} />
+              <Area type="monotone" dataKey="cashOut" name="cashOut" stroke="#C2382B" strokeWidth={2} fill="url(#outGrad)" dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -393,10 +393,10 @@ const DesktopReports = ({
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px' }}>
                   <span style={{ color: 'var(--c-muted)' }}>₹{thisWeekRev.toLocaleString('en-IN')} / ₹{weeklyTarget.toLocaleString('en-IN')}</span>
-                  <span style={{ color: weeklyPct >= 100 ? 'var(--c-success)' : '#FBBF24', fontWeight: '800' }}>{weeklyPct}%</span>
+                  <span style={{ color: weeklyPct >= 100 ? 'var(--c-success)' : 'var(--c-warning)', fontWeight: '800' }}>{weeklyPct}%</span>
                 </div>
                 <div style={{ height: '10px', background: 'var(--c-line)', borderRadius: '5px' }}>
-                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? 'var(--c-success)' : 'linear-gradient(90deg,var(--c-primary),#8B5CF6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? 'var(--c-success)' : 'linear-gradient(90deg,var(--c-primary),var(--c-violet))', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                 </div>
                 {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: 'var(--c-success)', fontWeight: 'bold' }}>Weekly target achieved</p>}
               </>
@@ -412,7 +412,7 @@ const DesktopReports = ({
                   <XAxis dataKey="name" tick={{ ...AXIS, fontSize: 9 }} tickLine={false} angle={-30} textAnchor="end" interval={0} />
                   <YAxis tick={{ ...AXIS, fontSize: 9 }} tickLine={false} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={TT_STYLE} formatter={v => [`${v}%`, 'Avg Margin']} />
-                  <Bar dataKey="margin" fill="#8B5CF6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="margin" fill="#4A7CAD" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -95,5 +95,77 @@ for (const f of FILES) {
   }
 }
 
-console.log(WRITE ? `\nAPPLIED — ${total} literals rebranded`
-                  : `\nDRY RUN — ${total} literals would change (use --write)`);
+console.log(WRITE ? `\npass 1 APPLIED — ${total} literals rebranded`
+                  : `\npass 1 DRY RUN — ${total} literals would change (use --write)`);
+
+/* ── Pass 2: the complement of theme-codemod ────────────────────────
+ * theme-codemod converts hex to tokens everywhere EXCEPT the lines and
+ * files where var() cannot resolve. Pass 1 above rebrands the six
+ * denylisted files. But risky LINES live in ordinary files too — a
+ * recharts <Area stroke="#4F46E5"> in DesktopReports.jsx, an SVG
+ * <stop stopColor=...> gradient — and those kept the OLD brand color.
+ * Correctly literal, wrongly indigo.
+ *
+ * This pass walks every file and rewrites old-palette hex only on the
+ * lines the codemod skipped, so protected contexts get the new brand
+ * without ever gaining a var().
+ *
+ * It also handles 8-digit hex (#10B981aa — color plus alpha), which the
+ * codemod leaves alone because a token cannot carry the alpha suffix.
+ * Here the first six digits are swapped and the alpha kept.
+ */
+import { readdirSync, statSync } from 'node:fs';
+import { join, extname } from 'node:path';
+
+const LINE_DENYLIST = [
+  /\bfill\s*=/, /\bstroke\s*=/, /\bfillStyle\b/, /\bstrokeStyle\b/,
+  /\bsetTextColor\b/, /\bsetFillColor\b/, /\bsetDrawColor\b/,
+  /StatusBar/, /theme[-_]?color/i, /stopColor/, /\bcolor\s*:\s*\[/,
+  /type\s*=\s*["']color["']/,
+];
+const PRESERVE = new Set([
+  '#25d366', '#128c7e', '#4285f4', '#34a853', '#ea4335', '#fbbc05', '#000000',
+]);
+
+const walk = (dir, out = []) => {
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) walk(p, out);
+    else if (['.js', '.jsx', '.css'].includes(extname(p))) out.push(p);
+  }
+  return out;
+};
+
+let pass2 = 0;
+for (const file of walk('src')) {
+  const rel = file.replace(/\\/g, '/');
+  if (rel === 'src/styles/tokens.css' || FILES.includes(rel)) continue;
+
+  const src = readFileSync(file, 'utf8');
+  let n = 0;
+
+  const out = src.split('\n').map((line) => {
+    const risky = LINE_DENYLIST.some((re) => re.test(line));
+
+    return line.replace(/#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?\b/g, (full, six, alpha) => {
+      const key = ('#' + six).toLowerCase();
+      if (PRESERVE.has(key)) return full;
+      // 6-digit on a safe line was already tokenised; nothing to do.
+      if (!risky && !alpha) return full;
+      const next = MAP['#' + six] || MAP[key];
+      if (!next) return full;
+      n++;
+      return next + (alpha || '');
+    });
+  }).join('\n');
+
+  if (n) {
+    pass2 += n;
+    console.log(`  ${String(n).padStart(4)}  ${rel}  (protected lines / alpha)`);
+    if (WRITE) writeFileSync(file, out);
+  }
+}
+
+console.log(WRITE ? `pass 2 APPLIED — ${pass2} literals rebranded`
+                  : `pass 2 DRY RUN — ${pass2} literals would change`);
+

@@ -65,12 +65,12 @@ export default function FieldDiagnostics() {
         <>
           <div style={{
             background: allOk ? 'var(--c-success-soft)' : 'var(--c-danger-soft)',
-            border: `1px solid ${allOk ? '#A7F3D0' : '#FECACA'}`,
+            border: `1px solid ${allOk ? 'var(--c-success-soft)' : 'var(--c-danger-border)'}`,
             borderRadius: 12, padding: 16, marginBottom: 16,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
             {allOk ? <CheckCircle2 size={20} color="var(--c-success-strong)" /> : <XCircle size={20} color="var(--c-danger-strong)" />}
-            <span style={{ fontSize: 14, fontWeight: 800, color: allOk ? '#047857' : '#991B1B' }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: allOk ? 'var(--c-success-strong)' : 'var(--c-danger-strong)' }}>
               {allOk ? 'Everything checked out — all phases are live.' : `${failCount} check${failCount === 1 ? '' : 's'} failed — see below.`}
             </span>
           </div>
@@ -82,7 +82,7 @@ export default function FieldDiagnostics() {
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0' }}>
                   {c.ok ? <CheckCircle2 size={14} color="var(--c-success-strong)" style={{ flexShrink: 0, marginTop: 1 }} /> : <XCircle size={14} color="var(--c-danger-strong)" style={{ flexShrink: 0, marginTop: 1 }} />}
                   <div>
-                    <div style={{ fontSize: 12, color: c.ok ? 'var(--c-ink)' : '#991B1B', fontWeight: c.ok ? 400 : 700 }}>{c.label}</div>
+                    <div style={{ fontSize: 12, color: c.ok ? 'var(--c-ink)' : 'var(--c-danger-strong)', fontWeight: c.ok ? 400 : 700 }}>{c.label}</div>
                     {!c.ok && <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', marginTop: 1, fontFamily: 'monospace' }}>{c.error}</div>}
                   </div>
                 </div>

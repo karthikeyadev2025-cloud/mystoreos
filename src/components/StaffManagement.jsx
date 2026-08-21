@@ -114,7 +114,7 @@ function TimeOffManager({ providerId }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {timeOff.map(t => (
-            <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, background: '#FFF7ED', borderRadius: 6, padding: '6px 10px' }}>
+            <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, background: 'var(--c-orange-soft)', borderRadius: 6, padding: '6px 10px' }}>
               <span>
                 {new Date(t.start_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                 {t.start_date !== t.end_date && ` → ${new Date(t.end_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
@@ -244,7 +244,7 @@ function ProviderCard({ provider, onEdit, onDelete, onToggle }) {
           <Edit2 size={13} />
         </button>
         <button onClick={() => onDelete(provider.id)} title="Delete"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: 'var(--c-danger-soft)', color: 'var(--c-danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Trash2 size={13} />
         </button>
       </div>

@@ -105,7 +105,7 @@ class ErrorBoundary extends Component {
                 borderRadius: '10px', padding: '12px', marginBottom: '20px', textAlign: 'left',
                 maxHeight: '120px', overflowY: 'auto',
               }}>
-                <p style={{ margin: 0, fontSize: '11px', color: '#f87171', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-danger)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                   {errorString}
                 </p>
               </div>
@@ -115,7 +115,7 @@ class ErrorBoundary extends Component {
               <button
                 onClick={this.handleRetry}
                 style={{
-                  background: 'linear-gradient(135deg, #7c3aed, var(--c-primary))', color: 'white',
+                  background: 'linear-gradient(135deg, var(--c-violet), var(--c-primary))', color: 'white',
                   border: 'none', padding: '12px 28px', borderRadius: '10px',
                   fontSize: '14px', fontWeight: '700', cursor: 'pointer',
                   transition: 'transform 0.2s, box-shadow 0.2s',

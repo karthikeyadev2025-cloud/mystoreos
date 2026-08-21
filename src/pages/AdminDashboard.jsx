@@ -43,7 +43,7 @@ const TABS = [
 ];
 
 const TabFallback = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#6B7280', fontSize: '14px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: 'var(--c-muted)', fontSize: '14px' }}>
     Loading tab...
   </div>
 );
@@ -114,10 +114,10 @@ export default function AdminDashboard() {
 
   const sidebar = (
     <div style={{
-      width: '260px', minWidth: '260px', background: 'var(--c-surface)', borderRight: '1px solid #E5E7EB',
+      width: '260px', minWidth: '260px', background: 'var(--c-surface)', borderRight: '1px solid var(--c-line)',
       display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
-      <div style={{ padding: '20px 16px', borderBottom: '1px solid #E5E7EB', background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)' }}>
+      <div style={{ padding: '20px 16px', borderBottom: '1px solid var(--c-line)', background: 'linear-gradient(135deg, var(--c-primary) 0%, var(--c-violet) 100%)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ color: 'var(--c-surface)', fontWeight: 800, fontSize: '15px', letterSpacing: '-0.01em' }}>MyStore OS</div>
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
           )}
         </div>
         <div style={{ marginTop: '12px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#FBBF24,var(--c-warning))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--c-warning),var(--c-warning))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
         })}
       </nav>
 
-      <div style={{ padding: '8px', borderTop: '1px solid #E5E7EB' }}>
+      <div style={{ padding: '8px', borderTop: '1px solid var(--c-line)' }}>
         <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: 'var(--c-danger)', fontSize: '13px', fontFamily: "'Sora', system-ui, sans-serif" }}>
           <LogOut size={15} />
           Sign Out
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F4F5F7', fontFamily: "'Sora', system-ui, sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--c-line-soft)', fontFamily: "'Sora', system-ui, sans-serif" }}>
       <style>{`
         ${ADMIN_GLOBAL_CSS}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
       )}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        <div style={{ background: 'var(--c-surface)', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '14px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 0 rgba(15,23,42,0.03)' }}>
+        <div style={{ background: 'var(--c-surface)', borderBottom: '1px solid var(--c-line)', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '14px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 0 rgba(15,23,42,0.03)' }}>
           <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', cursor: 'pointer', display: 'flex', width: 'auto', padding: '6px', borderRadius: 6 }}>
             <Menu size={16} />
           </button>
@@ -209,12 +209,12 @@ export default function AdminDashboard() {
           />
         </div>
 
-        <main style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px 12px' : '28px 32px', maxWidth: '1400px', width: '100%', margin: '0 auto', background: '#F4F5F7' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px 12px' : '28px 32px', maxWidth: '1400px', width: '100%', margin: '0 auto', background: 'var(--c-line-soft)' }}>
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--c-primary)', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
-                <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px', flex: 1 }}>
+                <div style={{ color: 'var(--c-danger)', fontWeight: 800, fontSize: '15px', flex: 1 }}>
                   ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
                 <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: 'var(--c-success)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', flexShrink: 0 }}>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {pendingApprovals.map(u => (
                   <div key={u.id} className='premium-glass-card premium-glass-card-hover' style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0 }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--c-primary),var(--c-accent-hover))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0 }}>
                       {(u.name || 'U')[0].toUpperCase()}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
         </main>
       </div>
 
-      <ToastContainer position="bottom-right" theme="light" toastStyle={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '10px' }} />
+      <ToastContainer position="bottom-right" theme="light" toastStyle={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px' }} />
     </div>
   );
 }

@@ -21,13 +21,13 @@ const DEFAULTS = {
 
 const PRESETS = [
   { name: 'Indigo Premium (Default)', primaryColor: 'var(--c-primary)', accentColor: 'var(--c-primary-light)', bgColor: 'var(--c-ink)' },
-  { name: 'Ocean Blue', primaryColor: 'var(--c-info)', accentColor: '#06b6d4', bgColor: '#0a1628' },
-  { name: 'Forest Green', primaryColor: 'var(--c-success)', accentColor: '#6ee7b7', bgColor: '#0a1f0a' },
-  { name: 'Amber Warm', primaryColor: 'var(--c-warning)', accentColor: '#fbbf24', bgColor: '#1a0f00' },
+  { name: 'Ocean Blue', primaryColor: 'var(--c-info)', accentColor: 'var(--c-cyan)', bgColor: 'var(--c-ink-surface)' },
+  { name: 'Forest Green', primaryColor: 'var(--c-success)', accentColor: 'var(--c-success-soft)', bgColor: 'var(--c-ink-surface-2)' },
+  { name: 'Amber Warm', primaryColor: 'var(--c-warning)', accentColor: 'var(--c-warning)', bgColor: 'var(--c-ink-surface-2)' },
 ];
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
   label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
   row: { marginBottom: '16px' },
   saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
@@ -111,8 +111,8 @@ export default function TabDesign() {
     <div className="admin-tab-content" style={{ maxWidth: '760px' }}>
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#7C3AED15", border: "1px solid #7C3AED30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Palette size={22} color="#7C3AED" />
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#12457A15", border: "1px solid #12457A30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Palette size={22} color="var(--c-violet)" />
           </div>
           <div>
             <h2 style={{ color: "var(--c-ink)", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Design & CSS</h2>

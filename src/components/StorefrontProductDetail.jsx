@@ -191,7 +191,7 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
 
           {/* Price block */}
           {originalPrice ? (
-            <div style={{ background: 'linear-gradient(135deg, var(--c-danger-soft), #FFF7ED)', border: '1px solid #FECACA', borderRadius: 12, padding: '12px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: 'linear-gradient(135deg, var(--c-danger-soft), var(--c-orange-soft))', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '12px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-0.03em' }}>₹{displayPrice}</span>

@@ -12,7 +12,7 @@
      #8B96A2  light slate     - muted / placeholder
      #E4E0D8  warm sand       - borders and rules
      #F7F5F0  warm cream      - page background
-     #22C55E  green           - success
+     var(--c-success)  green           - success
 
    Type: Bricolage Grotesque (display) / Manrope (body)
          JetBrains Mono (data) / Noto Sans Telugu (te-IN)
@@ -75,10 +75,56 @@
   --c-line:           #D9D3C7;   /* borders / dividers - see note above */
   --c-line-strong:    #C3BBAB;   /* table gridlines under load */
   --c-line-soft:      #EFECE5;
-  --c-surface:        var(--c-surface);   /* cards - stays white, see note above */
+  --c-surface:        #FFFFFF;   /* cards - stays white, see note above */
   --c-surface-2:      #FBFAF7;   /* subtle raised / striped rows */
   --c-bg:             #F7F5F0;   /* page background - the site's cream */
-  --c-ink-inverse:    var(--c-surface);   /* text on primary/ink surfaces */
+  --c-ink-inverse:    #FFFFFF;   /* text on primary/ink surfaces */
+
+
+  /* ---- Category / series colors ----
+     These carry meaning, not decoration: a service category, a
+     notification type, a chart series. Collapsing them all into navy
+     would erase distinctions the UI depends on. So the hues are kept
+     but pulled toward the brand — desaturated and darkened until they
+     sit on cream next to navy and amber without shouting. Each has a
+     soft variant for pill backgrounds and a strong one for text on
+     that pill (the soft shades are too light to read against). */
+  --c-violet:         #6B4E9E;   /* loyalty, membership, signup */
+  --c-violet-strong:  #4E3775;
+  --c-violet-soft:    #F1EBF9;
+  --c-orange:         #C4571F;   /* restock, expiry, low stock */
+  --c-orange-strong:  #8F3D12;
+  --c-orange-soft:    #FDEDE3;
+  --c-cyan:           #17708A;   /* CA / reports / secondary info */
+  --c-cyan-strong:    #0F4E60;
+  --c-cyan-soft:      #E3F0F4;
+  --c-rose:           #B03A5B;   /* feedback, ratings */
+  --c-rose-strong:    #822842;
+  --c-rose-soft:      #FBEAEF;
+
+  /* ---- Dark surfaces ----
+     Panels, gradient headers and the pre-auth screens. Navy rather
+     than the old indigo/near-black, so dark areas read as the same
+     brand as the light ones. */
+  --c-ink-surface:    #0B1F33;
+  --c-ink-surface-2:  #16293C;
+  --c-ink-surface-3:  #22384C;
+
+
+  /* ---- Aliases for src/App.css ----
+     App.css has referenced these seven names since before the rebrand
+     and nothing ever defined them, so every declaration using one has
+     been silently dropped by the browser (an undefined var() makes the
+     whole property invalid). Caught by tests/db/theme-integrity.test.mjs.
+     Defining them here activates that CSS for the first time — so if
+     something in the app shell looks different, this is why. */
+  --accent:        var(--c-primary);
+  --accent-bg:     var(--c-primary-soft);
+  --accent-border: var(--c-primary-border);
+  --border:        var(--c-line);
+  --shadow:        var(--sh-sm);
+  --social-bg:     var(--c-surface-2);
+  --text-h:        var(--c-ink);
 
   /* ---- Typography ---- */
   --font-display: 'Bricolage Grotesque', 'Manrope', system-ui, sans-serif;

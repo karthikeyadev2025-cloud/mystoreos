@@ -8,7 +8,7 @@ const EMPTY_PLAN = {
   discount_percent: 10, free_services: 0, color: '#4A7CAD', active: true,
 };
 
-const COLORS = ['#4A7CAD', '#EC4899', 'var(--c-success)', 'var(--c-warning)', 'var(--c-info)', 'var(--c-danger)'];
+const COLORS = ['#4A7CAD', 'var(--c-rose)', 'var(--c-success)', 'var(--c-warning)', 'var(--c-info)', 'var(--c-danger)'];
 
 function PlanCard({ plan, onEdit, onDelete, onIssue }) {
   return (
@@ -22,7 +22,7 @@ function PlanCard({ plan, onEdit, onDelete, onIssue }) {
           <button onClick={() => onEdit(plan)} title="Edit"
             style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--c-line)', background: 'var(--c-bg)', color: 'var(--c-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={13} /></button>
           <button onClick={() => onDelete(plan.id)} title="Delete"
-            style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--c-danger-soft)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={13} /></button>
+            style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--c-danger-soft)', background: 'var(--c-danger-soft)', color: 'var(--c-danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={13} /></button>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
@@ -228,7 +228,7 @@ export default function DesktopMembership({ shopId }) {
   return (
     <div style={{ padding: '28px 32px', maxWidth: 900, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,var(--c-warning),#F97316)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,var(--c-warning),var(--c-orange))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Award size={22} color="var(--c-surface)" />
         </div>
         <div>

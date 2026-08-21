@@ -6,7 +6,7 @@ import { MessageSquare, Star, Send } from 'lucide-react';
 const Stars = ({ n, size = 14 }) => (
   <div style={{ display: 'inline-flex', gap: 2 }}>
     {[1,2,3,4,5].map(i => (
-      <Star key={i} size={size} fill={i <= n ? '#F59E0B' : 'transparent'} stroke={i <= n ? '#F59E0B' : '#CBD5E1'} strokeWidth={2} />
+      <Star key={i} size={size} fill={i <= n ? '#E9A72C' : 'transparent'} stroke={i <= n ? '#E9A72C' : '#C3BBAB'} strokeWidth={2} />
     ))}
   </div>
 );
@@ -97,19 +97,19 @@ export default function DesktopFeedback({ shopId }) {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
-        <div style={{ background: 'var(--c-warning-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #F59E0B22' }}>
+        <div style={{ background: 'var(--c-warning-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #E9A72C22' }}>
           <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--c-warning)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            {avgRating} <Star size={18} fill="#F59E0B" stroke="#F59E0B" />
+            {avgRating} <Star size={18} fill="#E9A72C" stroke="#E9A72C" />
           </div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#F59E0Baa' }}>Average Rating</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#E9A72Caa' }}>Average Rating</div>
         </div>
-        <div style={{ background: 'var(--c-success-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #10B98122' }}>
+        <div style={{ background: 'var(--c-success-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #22C55E22' }}>
           <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--c-success)', letterSpacing: '-0.5px' }}>{positive}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#10B981aa' }}>Positive (4-5★)</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#22C55Eaa' }}>Positive (4-5★)</div>
         </div>
-        <div style={{ background: 'var(--c-danger-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #EF444422' }}>
+        <div style={{ background: 'var(--c-danger-soft)', borderRadius: 12, padding: '14px 18px', border: '1px solid #C2382B22' }}>
           <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--c-danger)', letterSpacing: '-0.5px' }}>{negative}</div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#EF4444aa' }}>Needs Attention (1-2★)</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#C2382Baa' }}>Needs Attention (1-2★)</div>
         </div>
       </div>
 

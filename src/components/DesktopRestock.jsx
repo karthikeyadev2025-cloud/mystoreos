@@ -7,9 +7,9 @@ import VoiceOrderInput from './VoiceOrderInput';
 // to anyone who works with both sides of this relationship.
 const STOCK_ORDER_BADGE = {
   pending:    { bg: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', label: 'Pending' },
-  accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
-  dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
-  delivered:  { bg: 'var(--c-success-soft)', color: '#047857', label: '✅ Delivered' },
+  accepted:   { bg: 'var(--c-success-soft)', color: 'var(--c-success-strong)', label: 'Accepted' },
+  dispatched: { bg: 'var(--c-primary-soft)', color: 'var(--c-primary)', label: '📦 Dispatched' },
+  delivered:  { bg: 'var(--c-success-soft)', color: 'var(--c-success-strong)', label: '✅ Delivered' },
   rejected:   { bg: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', label: 'Rejected' },
 };
 
@@ -35,7 +35,7 @@ const DesktopRestock = ({
   return (
     <>
     {/* AI Voice Order Recorder Top Banner for Desktop */}
-    <div style={{ background: 'linear-gradient(135deg, var(--c-ink), #1E1B4B)', border: '2px solid var(--c-primary-light)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: 'var(--c-surface)', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ background: 'linear-gradient(135deg, var(--c-ink), var(--c-primary-hover))', border: '2px solid var(--c-primary-light)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: 'var(--c-surface)', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid var(--c-primary-light)', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-primary-light)', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
           <Mic size={28} />
@@ -89,7 +89,7 @@ const DesktopRestock = ({
               return (
                 <div key={p.id} className="premium-glass" style={{ padding: '16px', borderRadius: '12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
-                    <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '9px', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>
                       {p.category}
                     </span>
                     <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: 'var(--c-ink)', fontWeight: '700' }}>{p.name}</h4>
@@ -99,9 +99,9 @@ const DesktopRestock = ({
                   <button 
                     onClick={() => handleRestockQtyChange(p.id, 1)} 
                     style={{ 
-                      background: inCartQty > 0 ? 'var(--c-success-soft)' : '#EFF6FF', 
-                      border: inCartQty > 0 ? '1px solid #A7F3D0' : '1px solid #BFDBFE', 
-                      color: inCartQty > 0 ? 'var(--c-success)' : '#1D4ED8', 
+                      background: inCartQty > 0 ? 'var(--c-success-soft)' : 'var(--c-primary-soft)', 
+                      border: inCartQty > 0 ? '1px solid var(--c-success-soft)' : '1px solid var(--c-primary-border)', 
+                      color: inCartQty > 0 ? 'var(--c-success)' : 'var(--c-primary)', 
                       width: '100%', 
                       padding: '8px', 
                       borderRadius: '8px', 
@@ -184,7 +184,7 @@ const DesktopRestock = ({
         {/* Low Stock Warning Card */}
         {lowStockList.length > 0 && (
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-soft)' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#991B1B', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--c-danger-strong)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ShieldAlert size={18} /> Critical Replenishments
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -244,12 +244,12 @@ const DesktopRestock = ({
                     </div>
                   )}
                   {o.status === 'dispatched' && o.dispatchedAt && (
-                    <div style={{ fontSize: 11, color: '#1D4ED8', fontWeight: 700, marginTop: 3 }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-primary)', fontWeight: 700, marginTop: 3 }}>
                       Dispatched {new Date(o.dispatchedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                     </div>
                   )}
                   {o.status === 'delivered' && o.deliveredAt && (
-                    <div style={{ fontSize: 11, color: '#047857', fontWeight: 700, marginTop: 3 }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-success-strong)', fontWeight: 700, marginTop: 3 }}>
                       Confirmed received {new Date(o.deliveredAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                     </div>
                   )}

@@ -20,7 +20,7 @@ const CATEGORY = {
   order:   { Icon: ShoppingCart, color: 'var(--c-primary)', bg: 'var(--c-primary-soft)' },
   booking: { Icon: Calendar,     color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
   credit:  { Icon: CreditCard,   color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
-  signup:  { Icon: UserPlus,     color: '#7C3AED', bg: '#F3E8FF' },
+  signup:  { Icon: UserPlus,     color: 'var(--c-violet)', bg: 'var(--c-violet-soft)' },
   info:    { Icon: Info,         color: 'var(--c-muted)', bg: 'var(--c-line-soft)' },
   // Was falling through to the generic grey 'info' style — completely
   // inadequate for an emergency alert. Red, unmissable, distinct from
@@ -33,7 +33,7 @@ const CATEGORY = {
   welcome:        { Icon: UserPlus, color: 'var(--c-success-strong)', bg: 'var(--c-success-soft)' },
   // New — payment confirmations (subscription upgrades, add-on
   // purchases) had nowhere to render distinctly before tonight.
-  payment:        { Icon: CreditCard, color: '#0891B2', bg: '#CFFAFE' },
+  payment:        { Icon: CreditCard, color: 'var(--c-cyan)', bg: 'var(--c-cyan-soft)' },
 };
 
 function relTime(iso) {

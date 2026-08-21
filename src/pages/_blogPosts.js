@@ -7,7 +7,7 @@ export const POSTS = {
   'ravi-kirana-store-savings': {
     title: "How Ravi's Kirana Store Saved ₹8,000/month with MyStore OS",
     description: "From scribbled credit registers to a clean digital ledger — Ravi's switch to MyStore OS cut paper, errors, and missed collections in one go.",
-    accent: '#34D399',
+    accent: 'var(--c-success)',
     location: 'Nagpur, Maharashtra',
     shopType: 'Kirana / Provision Store',
     savingsHighlight: '₹8,000/month',
@@ -42,7 +42,7 @@ export const POSTS = {
   'gst-filing-10-minutes': {
     title: 'GST Filing in 10 Minutes — How MyStore OS Helped 50 Shops',
     description: 'GSTR-1 export, HSN auto-fill, CA portal access — see how small retailers cut their monthly GST routine from a day to under an hour.',
-    accent: '#F5B942',
+    accent: 'var(--c-warning)',
     location: 'Across India',
     shopType: 'Retail — Grocery, Pharmacy, Stationery',
     savingsHighlight: 'Full day → 10 minutes',
@@ -60,7 +60,7 @@ export const POSTS = {
   'salon-booking-noshows': {
     title: 'A Hyderabad Salon Cut No-Shows to Almost Zero With Automatic Reminders',
     description: "Online booking plus WhatsApp reminders turned a front desk's biggest headache into a non-issue — see the exact numbers.",
-    accent: '#FB7185',
+    accent: 'var(--c-danger)',
     location: 'Hyderabad, Telangana',
     shopType: 'Salon & Beauty',
     savingsHighlight: 'No-shows: 18% → 2%',

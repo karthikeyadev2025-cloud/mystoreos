@@ -96,7 +96,7 @@ export default function Support() {
       {view === 'home' && (
         <>
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-            <button onClick={() => setView('chat')} style={{ flex: 1, minWidth: 150, background: 'linear-gradient(135deg,var(--c-primary),#7C3AED)', border: 'none', color: 'var(--c-surface)', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Bot size={18} /> Ask AI Assistant</button>
+            <button onClick={() => setView('chat')} style={{ flex: 1, minWidth: 150, background: 'linear-gradient(135deg,var(--c-primary),var(--c-violet))', border: 'none', color: 'var(--c-surface)', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Bot size={18} /> Ask AI Assistant</button>
             <button onClick={() => setView('new')} style={{ flex: 1, minWidth: 150, background: C.card, border: `1px solid ${C.border}`, color: 'var(--c-surface)', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Plus size={18} /> Raise a Ticket</button>
           </div>
 

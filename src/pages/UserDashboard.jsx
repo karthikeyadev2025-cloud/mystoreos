@@ -921,7 +921,7 @@ const UserDashboard = () => {
       ctx.fillRect(0, i, 240, 2);
     }
     
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = '#0B1F33';
     ctx.font = 'bold 16px Courier New, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('SCRATCH HERE', 120, 100);
@@ -1125,7 +1125,7 @@ const UserDashboard = () => {
     // viewed on a phone screen or in WhatsApp's PDF preview).
     const doc = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-    const themeColor = order.status === 'Returned' ? '#7c3aed' : order.status === 'Cancelled' ? '#64748b' : '#10b981';
+    const themeColor = order.status === 'Returned' ? '#12457A' : order.status === 'Cancelled' ? '#5A6672' : '#22C55E';
     const [tR, tG, tB] = [parseInt(themeColor.slice(1,3),16), parseInt(themeColor.slice(3,5),16), parseInt(themeColor.slice(5,7),16)];
 
     doc.setFillColor(tR, tG, tB);
@@ -1327,7 +1327,7 @@ const UserDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="dashboard-wrapper-flex" style={{ background: '#F4F5F7', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
+      <div className="dashboard-wrapper-flex" style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
         {/* Floating notification bell — only for logged-in customers.
             Absolute top-right so it doesn't disrupt the storefront's
@@ -1387,7 +1387,7 @@ const UserDashboard = () => {
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--c-primary)' }} 
                     />
                     {shopInfo.subscription && shopInfo.subscription !== 'trial' && (
-                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', padding: '2px 6px', borderRadius: '8px', fontSize: '8px', fontWeight: '800' }}>PRO</span>
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, var(--c-danger), var(--c-violet))', padding: '2px 6px', borderRadius: '8px', fontSize: '8px', fontWeight: '800' }}>PRO</span>
                     )}
                   </div>
                 ) : (
@@ -1395,7 +1395,7 @@ const UserDashboard = () => {
                 )}
                 <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0 }}>{shopInfo?.name}</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--c-muted)', marginTop: '4px' }}>
-                  <MapPin size={10} style={{ color: '#E11D48' }} />
+                  <MapPin size={10} style={{ color: 'var(--c-danger)' }} />
                   <span>
                     {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
                       `${calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id).toFixed(2)} km away`
@@ -1414,7 +1414,7 @@ const UserDashboard = () => {
                     style={{
                       marginTop: 12, width: '100%', padding: '10px 12px', borderRadius: 10,
                       border: 'none', color: 'var(--c-surface)',
-                      background: 'linear-gradient(135deg,#8B5CF6,var(--c-primary))',
+                      background: 'linear-gradient(135deg,var(--c-violet),var(--c-primary))',
                       fontWeight: 800, fontSize: 13, cursor: 'pointer',
                       boxShadow: '0 3px 10px rgba(139,92,246,0.35)',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -1434,7 +1434,7 @@ const UserDashboard = () => {
               <button
                 onClick={() => setShowWalkingMap(!showWalkingMap)}
                 className="sidebar-nav-item"
-                style={{ fontSize: '12px', background: 'rgba(139, 92, 246, 0.1)', color: '#c084fc', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}
+                style={{ fontSize: '12px', background: 'rgba(139, 92, 246, 0.1)', color: 'var(--c-violet)', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}
               >
                 <Navigation size={13} style={{ transform: showWalkingMap ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
                 {showWalkingMap ? 'Hide Route Map' : 'Show Walking Guide'}
@@ -1467,7 +1467,7 @@ const UserDashboard = () => {
                     <button 
                       onClick={handleLogout}
                       className="sidebar-nav-item"
-                      style={{ color: 'var(--c-danger)', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: '#FEF2FE', border: '1px solid var(--c-danger-border)' }}
+                      style={{ color: 'var(--c-danger)', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: 'var(--c-violet-soft)', border: '1px solid var(--c-danger-border)' }}
                     >
                       Logout
                     </button>
@@ -1489,11 +1489,11 @@ const UserDashboard = () => {
                   <div style={{ position: 'relative', height: '80px', background: 'var(--c-surface)', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', padding: '0 20px' }}>
                     <svg width="100%" height="40" style={{ position: 'absolute', top: '20px', left: 0, overflow: 'visible' }}>
                       <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="rgba(139, 92, 246, 0.25)" strokeWidth="3" />
-                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="#4F46E5" strokeWidth="3" strokeDasharray="6, 6" />
+                      <path d="M 50 20 Q 200 -10, 400 20" fill="none" stroke="#12457A" strokeWidth="3" strokeDasharray="6, 6" />
                     </svg>
                     <div style={{ position: 'absolute', top: '5px', left: '50px', fontSize: '20px', animation: 'walk-along-path 8s infinite linear', zIndex: 5 }}>🚶</div>
                     <div style={{ position: 'absolute', left: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>👤 <span style={{ fontSize: '11px', fontWeight: 'bold' }}>You</span></div>
-                    <div style={{ position: 'absolute', right: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>🏪 <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#E11D48' }}>{shopInfo.name}</span></div>
+                    <div style={{ position: 'absolute', right: '30px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>🏪 <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--c-danger)' }}>{shopInfo.name}</span></div>
                   </div>
                 </div>
               )}
@@ -1700,7 +1700,7 @@ const UserDashboard = () => {
                         {/* Dynamic payment options */}
                         {paymentMethod === 'upi' ? (
                           (shopInfo?.paymentQr || shopInfo?.upiId) ? (
-                            <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: '12px', padding: '14px', marginBottom: '16px', textAlign: 'center' }}>
+                            <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '12px', padding: '14px', marginBottom: '16px', textAlign: 'center' }}>
                               <h4 style={{ color: 'var(--c-success)', margin: '0 0 8px 0', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                 <CreditCard size={13} /> Scan QR to Pay
                               </h4>
@@ -1737,7 +1737,7 @@ const UserDashboard = () => {
                             </div>
                           )
                         ) : (
-                          <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', padding: '14px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
+                          <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', padding: '14px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
                             <h4 style={{ color: 'var(--c-primary)', margin: '0 0 4px 0', fontSize: '13px' }}>💵 Cash Counter Settlement</h4>
                             <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: 0, lineHeight: '1.4' }}>Pay with cash or card at the store counter. Click button below to notify merchant.</p>
                           </div>
@@ -1845,7 +1845,7 @@ const UserDashboard = () => {
                   <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                 </label>
                 <div>
-                  <div style={{ color: '#E11D48', fontSize: '11px', fontWeight: '800' }}>CONSUMER PORTAL</div>
+                  <div style={{ color: 'var(--c-danger)', fontSize: '11px', fontWeight: '800' }}>CONSUMER PORTAL</div>
                   <h3 style={{ fontSize: '15px', fontWeight: '800', margin: 0 }}>{user?.name || 'Guest User'}</h3>
                 </div>
               </div>
@@ -1893,7 +1893,7 @@ const UserDashboard = () => {
                   <div style={{ color: 'var(--c-ink-2)', fontWeight: 'bold' }}>{locationStatus}</div>
                   <button 
                     onClick={() => grabLiveLocation(false)} 
-                    style={{ width: '100%', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                    style={{ width: '100%', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: 'var(--c-danger)', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold', marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                   >
                     <Compass size={10} /> Refocus GPS
                   </button>
@@ -1903,7 +1903,7 @@ const UserDashboard = () => {
                   <button 
                     onClick={handleLogout}
                     className="sidebar-nav-item"
-                    style={{ color: 'var(--c-danger)', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: '#FEF2FE', border: '1px solid var(--c-danger-border)' }}
+                    style={{ color: 'var(--c-danger)', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', background: 'var(--c-violet-soft)', border: '1px solid var(--c-danger-border)' }}
                   >
                     Logout
                   </button>
@@ -1933,8 +1933,8 @@ const UserDashboard = () => {
                     {/* Coming-soon promo banners — shown to shoppers on the marketplace home */}
                     {(() => {
                       const banners = [
-                        { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,var(--c-primary),#7C3AED)' },
-                        { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,#B8860B,var(--c-accent-hover))' },
+                        { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,var(--c-primary),var(--c-violet))' },
+                        { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,var(--c-warning-strong),var(--c-accent-hover))' },
                       ].filter(b => b.on && b.title);
                       if (!banners.length) return null;
                       return (
@@ -1953,7 +1953,7 @@ const UserDashboard = () => {
                     })()}
                     {activeCartsList.length > 0 && (
                       <div className="glass" style={{ padding: '14px', marginBottom: '20px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                        <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#E11D48', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <h4 style={{ fontSize: '13px', fontWeight: '800', color: 'var(--c-danger)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <ShoppingCart size={13} /> Active Carts Pending Checkout
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -2000,7 +2000,7 @@ const UserDashboard = () => {
                     {/* Nearby search results */}
                     {nearbySearch.trim() && nearbySearchResults.length > 0 && (
                       <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-                        <p style={{ fontSize: '12px', color: '#60a5fa', fontWeight: '700', margin: '0 0 8px 0' }}>📦 Found in nearby shops:</p>
+                        <p style={{ fontSize: '12px', color: 'var(--c-primary-light)', fontWeight: '700', margin: '0 0 8px 0' }}>📦 Found in nearby shops:</p>
                         {nearbySearchResults.slice(0, 5).map(r => (
                           <div key={r.id} onClick={() => navigate(`/s/${r.shopId}?search=${encodeURIComponent(r.name)}`)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', borderRadius: '8px', cursor: 'pointer', background: 'var(--c-line-soft)', marginBottom: '4px' }}>
                             <span style={{ fontSize: '13px', color: 'var(--c-ink)' }}>{r.name}</span>
@@ -2105,7 +2105,7 @@ const UserDashboard = () => {
                         <div style={{ fontSize: '18px', fontWeight: '800', color: 'var(--c-primary)', marginTop: 'auto' }}>₹{res.price}</div>
                         <button 
                           onClick={() => navigate(`/s/${res.shopId}?search=${encodeURIComponent(res.name)}`)}
-                          style={{ padding: '8px 12px', fontSize: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#c084fc', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                          style={{ padding: '8px 12px', fontSize: '12px', background: 'rgba(139, 92, 246, 0.15)', color: 'var(--c-violet)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                         >
                           Visit Store 🏪
                         </button>
@@ -2127,13 +2127,13 @@ const UserDashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
                   <div className="glass" style={{ padding: '30px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
                     <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                      <QrCode size={30} style={{ color: '#E11D48' }} />
+                      <QrCode size={30} style={{ color: 'var(--c-danger)' }} />
                     </div>
                     <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)', marginBottom: '8px' }}>Scan Shop printed QR Poster</h3>
                     <p style={{ fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '20px', lineHeight: '1.4' }}>
                       Enable camera permission, hold the phone up to the shopkeeper's barcode poster to auto load their catalogue.
                     </p>
-                    <div style={{ background: '#090d16', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', position: 'relative', minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: 'var(--c-ink-surface)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', position: 'relative', minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {cameraScannerActive ? (
                         <div id="reader" style={{ width: '100%' }}></div>
                       ) : (
@@ -2164,7 +2164,7 @@ const UserDashboard = () => {
                         // cancelled one just by looking at the list.
                         const stColors = {
                           Cancelled: { color: 'var(--c-muted)', bg: 'rgba(100,116,139,0.15)', label: '❌ Cancelled' },
-                          Returned:  { color: '#7C3AED', bg: 'rgba(124,58,237,0.15)',  label: '↩️ Returned' },
+                          Returned:  { color: 'var(--c-violet)', bg: 'rgba(124,58,237,0.15)',  label: '↩️ Returned' },
                           Accepted:  { color: 'var(--c-primary)', bg: 'rgba(79,70,229,0.12)',   label: '✅ Accepted' },
                         };
                         const st = (order.status === 'Completed' || order.paymentVerified)
@@ -2280,7 +2280,7 @@ const UserDashboard = () => {
                     {myBookings.map(b => {
                       const stColors = {
                         pending: { color: 'var(--c-warning)', bg: 'var(--c-warning-soft)', label: 'Pending' },
-                        confirmed: { color: 'var(--c-info)', bg: '#DBEAFE', label: 'Confirmed' },
+                        confirmed: { color: 'var(--c-info)', bg: 'var(--c-primary-soft)', label: 'Confirmed' },
                         completed: { color: 'var(--c-success)', bg: 'var(--c-success-soft)', label: 'Completed' },
                         cancelled: { color: 'var(--c-danger)', bg: 'var(--c-danger-soft)', label: 'Cancelled' },
                       };
@@ -2298,7 +2298,7 @@ const UserDashboard = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>{b.service_name}</h4>
                               {isHome && (
-                                <span style={{ fontSize: 9, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
+                                <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--c-orange)', background: 'var(--c-orange-soft)', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
                               )}
                             </div>
                             <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: '4px 0 0 0' }}>
@@ -2352,12 +2352,12 @@ const UserDashboard = () => {
           const statusBanner = isCancelled
             ? { label: '❌ ORDER CANCELLED', color: 'var(--c-danger-strong)', bg: 'var(--c-danger-soft)' }
             : isReturned
-            ? { label: '↩️ RETURNED / REFUNDED', color: '#7C3AED', bg: '#F3E8FF' }
+            ? { label: '↩️ RETURNED / REFUNDED', color: 'var(--c-violet)', bg: 'var(--c-violet-soft)' }
             : isPaid
             ? { label: '💰 PAID & COMPLETE', color: 'var(--c-success-strong)', bg: 'var(--c-success-soft)' }
             : isAccepted
             ? { label: '✅ ACCEPTED BY SHOP', color: 'var(--c-primary)', bg: 'var(--c-primary-soft)' }
-            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: 'var(--c-accent-hover)', bg: '#FFFBEB' };
+            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: 'var(--c-accent-hover)', bg: 'var(--c-warning-soft)' };
           // Correct each line for its own item-level discount, then
           // reconcile any REMAINING gap (bill-level discount, round-off,
           // loyalty redemption — none stored per-line) into one visible
@@ -2506,7 +2506,7 @@ const UserDashboard = () => {
                 /* ── Step 1: login / signup form ── */
                 <>
                   <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,var(--c-primary),#7C3AED)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>🛒</div>
+                    <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,var(--c-primary),var(--c-violet))', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>🛒</div>
                     <h2 style={{ fontSize: '19px', fontWeight: '900', margin: '0 0 4px', color: 'var(--c-ink)' }}>Sign in to place order</h2>
                     <p style={{ fontSize: '12px', color: 'var(--c-muted)', margin: 0 }}>Your bills &amp; orders are saved to your account</p>
                   </div>
@@ -2620,7 +2620,7 @@ const UserDashboard = () => {
   // /s/<branchId> for a shop that's part of a multi-branch brand. Each
 
 return (
-    <div style={{ background: '#F4F5F7', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
         {detailProduct && (
           <StorefrontProductDetail product={detailProduct} cart={cart} updateQty={updateQty} onClose={() => setDetailProduct(null)} />
@@ -2657,7 +2657,7 @@ return (
           <div style={{ paddingBottom: '100px' }}>
             
             {/* Header & Hero Area */}
-            <div style={{ position: 'relative', overflow: 'clip', padding: '24px 16px', background: 'linear-gradient(135deg, #F4F5F7, var(--c-primary-soft))', borderBottom: '1px solid var(--c-line)' }}>
+            <div style={{ position: 'relative', overflow: 'clip', padding: '24px 16px', background: 'linear-gradient(135deg, var(--c-line-soft), var(--c-primary-soft))', borderBottom: '1px solid var(--c-line)' }}>
               
               {/* Back to Marketplace Trigger */}
               <button 
@@ -2692,7 +2692,7 @@ return (
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--c-primary)', boxShadow: '0 8px 24px rgba(79, 70, 229, 0.25)' }} 
                     />
                     {shopInfo?.subscription && shopInfo?.subscription !== 'trial' && (
-                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, #e11d48, #c084fc)', border: '2px solid var(--c-surface)', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
+                      <span style={{ position: 'absolute', bottom: -2, right: -2, background: 'linear-gradient(135deg, var(--c-danger), var(--c-violet))', border: '2px solid var(--c-surface)', padding: '3px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.5px' }}>
                         PRO
                       </span>
                     )}
@@ -2708,7 +2708,7 @@ return (
                 </h1>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: 'var(--c-muted)', marginBottom: '8px' }}>
-                  <MapPin size={13} style={{ color: '#E11D48' }} />
+                  <MapPin size={13} style={{ color: 'var(--c-danger)' }} />
                   <span>
                     GPS Location Locked • 
                     {calculateDistance(coords.latitude, coords.longitude, shopInfo?.latitude, shopInfo?.longitude, shopInfo?.id) !== null ? (
@@ -2721,7 +2721,7 @@ return (
 
               {/* Badges row */}
               <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
-                <span style={{ background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: '#E11D48', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
+                <span style={{ background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(244, 63, 94, 0.2)', color: 'var(--c-danger)', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
                   🏪 Scan & Shop
                 </span>
                 <span style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.2)', color: 'var(--c-success)', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
@@ -2744,7 +2744,7 @@ return (
                   style={{
                     marginTop: 14, width: '100%', maxWidth: 320, padding: '12px 16px',
                     borderRadius: 12, border: 'none', color: 'var(--c-surface)',
-                    background: 'linear-gradient(135deg,#8B5CF6,var(--c-primary))',
+                    background: 'linear-gradient(135deg,var(--c-violet),var(--c-primary))',
                     fontWeight: 800, fontSize: 14, cursor: 'pointer',
                     boxShadow: '0 4px 14px rgba(139,92,246,0.35)',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -2767,7 +2767,7 @@ return (
                     width: 'auto',
                     background: 'rgba(139, 92, 246, 0.15)',
                     border: '1px solid rgba(139, 92, 246, 0.3)',
-                    color: '#c084fc',
+                    color: 'var(--c-violet)',
                     padding: '8px 18px',
                     borderRadius: '20px',
                     fontSize: '12px',
@@ -2818,7 +2818,7 @@ return (
                       <path 
                         d="M 35 30 Q 130 5, 225 30" 
                         fill="none" 
-                        stroke="#4F46E5" 
+                        stroke="#12457A" 
                         strokeWidth="3" 
                         strokeDasharray="6, 6" 
                       />
@@ -2845,7 +2845,7 @@ return (
                     {/* Shop Anchor Point */}
                     <div style={{ position: 'absolute', right: '20px', bottom: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <span style={{ fontSize: '20px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>🏪</span>
-                      <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#E11D48', marginTop: '2px' }}>Shop</span>
+                      <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'var(--c-danger)', marginTop: '2px' }}>Shop</span>
                     </div>
                   </div>
 
@@ -3006,11 +3006,11 @@ return (
         <div style={{ paddingBottom: '100px' }}>
 
           {/* Modern Visual Header banner */}
-          <div style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #F4F5F7, var(--c-primary-soft))', borderBottom: '1px solid var(--c-line)', position: 'relative' }}>
+          <div style={{ padding: '24px 16px', background: 'linear-gradient(135deg, var(--c-line-soft), var(--c-primary-soft))', borderBottom: '1px solid var(--c-line)', position: 'relative' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <span style={{ color: '#E11D48', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ color: 'var(--c-danger)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   ✨ Consumer Portal
                 </span>
                 <h1 style={{ fontSize: '24px', fontWeight: '900', letterSpacing: '-0.5px', margin: '4px 0 0 0' }}>
@@ -3049,7 +3049,7 @@ return (
             {/* GPS Widget banner */}
             <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '16px', padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backdropFilter: 'blur(8px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPin size={16} style={{ color: '#E11D48' }} />
+                <MapPin size={16} style={{ color: 'var(--c-danger)' }} />
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--c-muted)', fontWeight: '700' }}>YOUR LOCATION COORDINATES</div>
                   <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--c-ink)' }}>
@@ -3059,7 +3059,7 @@ return (
               </div>
               <button 
                 onClick={() => grabLiveLocation(false)} 
-                style={{ width: 'auto', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.25)', color: '#E11D48', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ width: 'auto', background: 'rgba(79, 70, 229, 0.1)', border: '1px solid rgba(79, 70, 229, 0.25)', color: 'var(--c-danger)', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 <Compass size={12} /> Refocus GPS
               </button>
@@ -3105,8 +3105,8 @@ return (
                 {/* Coming-soon promo banners — shown to shoppers on the home page */}
                 {(() => {
                   const banners = [
-                    { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,var(--c-primary),#7C3AED)' },
-                    { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,#B8860B,var(--c-accent-hover))' },
+                    { on: siteCfg?.comingSoon1Active, title: siteCfg?.comingSoon1Title, sub: siteCfg?.comingSoon1Sub, grad: 'linear-gradient(135deg,var(--c-primary),var(--c-violet))' },
+                    { on: siteCfg?.comingSoon2Active, title: siteCfg?.comingSoon2Title, sub: siteCfg?.comingSoon2Sub, grad: 'linear-gradient(135deg,var(--c-warning-strong),var(--c-accent-hover))' },
                   ].filter(b => b.on && b.title);
                   if (!banners.length) return null;
                   return (
@@ -3127,7 +3127,7 @@ return (
                 {/* PERSISTENT MULTI-STORE CARTS NOTIFICATION OVERVIEW (Gaps fixed: Stateless cart) */}
                 {activeCartsList.length > 0 && (
                   <div style={{ background: 'linear-gradient(135deg, var(--c-danger-soft), var(--c-primary-soft))', border: '1px solid var(--c-danger-border)', borderRadius: '16px', padding: '14px', marginBottom: '16px' }}>
-                    <h4 style={{ fontSize: '12px', fontWeight: '800', color: '#E11D48', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <h4 style={{ fontSize: '12px', fontWeight: '800', color: 'var(--c-danger)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <ShoppingCart size={13} /> Active Shopping Carts Pending
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -3166,8 +3166,8 @@ return (
                   ))}
                 </div>
                 {nearbySearch.trim() && nearbySearchResults.length > 0 && (
-                  <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px', padding: '10px', marginBottom: '10px' }}>
-                    <p style={{ fontSize: '12px', color: '#60a5fa', fontWeight: '700', margin: '0 0 6px 0' }}>📦 Found in nearby shops:</p>
+                  <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '10px', marginBottom: '10px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--c-primary-light)', fontWeight: '700', margin: '0 0 6px 0' }}>📦 Found in nearby shops:</p>
                     {nearbySearchResults.slice(0, 5).map(r => (
                       <div key={r.id} onClick={() => navigate(`/s/${r.shopId}?search=${encodeURIComponent(r.name)}`)} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 8px', borderRadius: '6px', cursor: 'pointer', background: 'var(--c-surface)', border: '1px solid var(--c-line)', marginBottom: '3px' }}>
                         <span style={{ fontSize: '13px', color: 'var(--c-ink)' }}>{r.name}</span>
@@ -3240,8 +3240,8 @@ return (
                         key={p.id}
                         onClick={() => navigate(`/s/${p.shopId}?search=${encodeURIComponent(p.name)}`)}
                         style={{
-                          background: isPro ? 'linear-gradient(145deg, #FAF5FF, #F3E8FF)' : 'var(--c-surface)',
-                          border: isPro ? '1px solid #E9D5FF' : '1px solid var(--c-line)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                          background: isPro ? 'linear-gradient(145deg, var(--c-violet-soft), var(--c-violet-soft))' : 'var(--c-surface)',
+                          border: isPro ? '1px solid var(--c-violet-soft)' : '1px solid var(--c-line)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                           borderRadius: '16px',
                           padding: '14px',
                           display: 'flex',
@@ -3258,7 +3258,7 @@ return (
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-ink)' }}>{p.name}</span>
-                            {isPro && <span style={{ background: 'rgba(139,92,246,0.15)', color: '#c084fc', fontSize: '8px', fontWeight: '800', padding: '1px 5px', borderRadius: '6px' }}>PRO SHOP</span>}
+                            {isPro && <span style={{ background: 'rgba(139,92,246,0.15)', color: 'var(--c-violet)', fontSize: '8px', fontWeight: '800', padding: '1px 5px', borderRadius: '6px' }}>PRO SHOP</span>}
                           </div>
                           <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
                             Stocked at <strong style={{ color: 'var(--c-ink)' }}>{p.shop?.name || 'Partner Store'}</strong> 
@@ -3423,7 +3423,7 @@ return (
                           )}
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '3px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800',
                             background: order.status === 'Cancelled' ? 'rgba(100,116,139,0.15)' : order.status === 'Returned' ? 'rgba(124,58,237,0.15)' : (order.status === 'Completed' || order.paymentVerified) ? 'rgba(16,185,129,0.15)' : order.status === 'Accepted' ? 'rgba(79,70,229,0.12)' : 'rgba(245,158,11,0.15)',
-                            color: order.status === 'Cancelled' ? 'var(--c-muted)' : order.status === 'Returned' ? '#7C3AED' : (order.status === 'Completed' || order.paymentVerified) ? 'var(--c-success)' : order.status === 'Accepted' ? 'var(--c-primary)' : 'var(--c-warning)',
+                            color: order.status === 'Cancelled' ? 'var(--c-muted)' : order.status === 'Returned' ? 'var(--c-violet)' : (order.status === 'Completed' || order.paymentVerified) ? 'var(--c-success)' : order.status === 'Accepted' ? 'var(--c-primary)' : 'var(--c-warning)',
                             textTransform: 'uppercase', marginTop: '4px'
                           }}>
                             {order.status === 'Cancelled' ? '❌ Cancelled' : order.status === 'Returned' ? '↩️ Returned' : (order.status === 'Completed' || order.paymentVerified) ? '💰 Paid & Done' : order.status === 'Accepted' ? '✅ Accepted' : '⏳ Pending'}
@@ -3465,7 +3465,7 @@ return (
                     {myBookings.map(b => {
                       const stColors = {
                         pending: { color: 'var(--c-warning)', bg: 'var(--c-warning-soft)', label: 'Pending' },
-                        confirmed: { color: 'var(--c-info)', bg: '#DBEAFE', label: 'Confirmed' },
+                        confirmed: { color: 'var(--c-info)', bg: 'var(--c-primary-soft)', label: 'Confirmed' },
                         completed: { color: 'var(--c-success)', bg: 'var(--c-success-soft)', label: 'Completed' },
                         cancelled: { color: 'var(--c-danger)', bg: 'var(--c-danger-soft)', label: 'Cancelled' },
                       };
@@ -3480,7 +3480,7 @@ return (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <h3 style={{ fontSize: '14px', fontWeight: '800', margin: '0 0 3px 0', color: 'var(--c-ink)' }}>{b.service_name}</h3>
                               {isHome && (
-                                <span style={{ fontSize: 9, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
+                                <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--c-orange)', background: 'var(--c-orange-soft)', padding: '1px 7px', borderRadius: 999 }}>🏠 Home visit</span>
                               )}
                             </div>
                             <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
@@ -3570,12 +3570,12 @@ return (
           const statusBanner = isCancelled
             ? { label: '❌ ORDER CANCELLED', color: 'var(--c-danger-strong)', bg: 'var(--c-danger-soft)' }
             : isReturned
-            ? { label: '↩️ RETURNED / REFUNDED', color: '#7C3AED', bg: '#F3E8FF' }
+            ? { label: '↩️ RETURNED / REFUNDED', color: 'var(--c-violet)', bg: 'var(--c-violet-soft)' }
             : isPaid
             ? { label: '💰 PAID & COMPLETE', color: 'var(--c-success-strong)', bg: 'var(--c-success-soft)' }
             : isAccepted
             ? { label: '✅ ACCEPTED BY SHOP', color: 'var(--c-primary)', bg: 'var(--c-primary-soft)' }
-            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: 'var(--c-accent-hover)', bg: '#FFFBEB' };
+            : { label: '⏳ AWAITING SHOP CONFIRMATION', color: 'var(--c-accent-hover)', bg: 'var(--c-warning-soft)' };
           const correctedItems = (selectedOrder.items || []).map(item => {
             const raw = (item.price || 0) * (item.qty || 1);
             const disc = item.itemDiscount ? raw * (item.itemDiscount / 100) : 0;
@@ -3827,7 +3827,7 @@ return (
             {/* Dynamic Payment Method View */}
             {paymentMethod === 'upi' ? (
               (shopInfo?.paymentQr || shopInfo?.upiId) ? (
-                <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '16px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
                   <h4 style={{ color: 'var(--c-success)', margin: '0 0 10px 0', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     <CreditCard size={14} /> Scan or Tap to Pay UPI
                   </h4>
@@ -3904,7 +3904,7 @@ return (
                 </div>
               )
             ) : (
-              <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', padding: '16px', borderRadius: '16px', marginBottom: '16px', textAlign: 'center' }}>
+              <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', padding: '16px', borderRadius: '16px', marginBottom: '16px', textAlign: 'center' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>💵</div>
                 <h4 style={{ color: 'var(--c-primary)', margin: '0 0 6px 0', fontSize: '14px', fontWeight: '700' }}>
                   Settle Cash at Counter
@@ -3928,9 +3928,9 @@ return (
             </div>
 
             {/* WhatsApp confirmation buttons */}
-            <div style={{ background: 'var(--c-success-soft)', border: '1px solid #6EE7B7', borderRadius: '12px', padding: '10px 14px', marginBottom: '14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '12px', padding: '10px 14px', marginBottom: '14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ fontSize: 18, flexShrink: 0 }}>🔔</span>
-              <p style={{ margin: 0, fontSize: '12px', color: '#065F46', lineHeight: 1.5 }}>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-success-strong)', lineHeight: 1.5 }}>
                 The shopkeeper will get an <strong>instant alert</strong> with your name, mobile, and order details on WhatsApp.
               </p>
             </div>

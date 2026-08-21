@@ -3,16 +3,16 @@ import { Search, RefreshCw, Trash2, Key, UserCheck, UserX } from 'lucide-react';
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const ROLE_COLORS = { customer: 'var(--c-info)', shop: '#12457A', distributor: 'var(--c-success)', admin: 'var(--c-warning)', staff: '#4A7CAD', ca: '#06b6d4' };
+const ROLE_COLORS = { customer: 'var(--c-info)', shop: '#12457A', distributor: 'var(--c-success)', admin: 'var(--c-warning)', staff: '#4A7CAD', ca: 'var(--c-cyan)' };
 const ROLES = ['all', 'customer', 'shop', 'distributor', 'staff', 'ca', 'admin'];
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   badge: (role) => ({ background: `${ROLE_COLORS[role] || 'var(--c-muted)'}15`, color: ROLE_COLORS[role] || 'var(--c-muted)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, textTransform: 'capitalize' }),
   btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }),
-  input: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
-  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '12px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '12px', borderBottom: '1px solid var(--c-line-soft)', verticalAlign: 'middle' },
 };
 
 function ResetModal({ user, onClose }) {
@@ -32,13 +32,13 @@ function ResetModal({ user, onClose }) {
   };
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <form onSubmit={submit} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', width: '340px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+      <form onSubmit={submit} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '14px', padding: '24px', width: '340px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
         <h3 style={{ color: 'var(--c-ink)', fontWeight: 700, marginBottom: '8px' }}>Reset Password</h3>
         <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '14px' }}>Set new password for <b>{user.name}</b></p>
         <input value={pass} onChange={e => setPass(e.target.value)} type="password" placeholder="New password (min 6)" style={{ ...S.input, width: '100%', marginBottom: '14px' }} required />
         <div style={{ display: 'flex', gap: '10px' }}>
           <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
-          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid #D1D5DB', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
         </div>
       </form>
     </div>
@@ -134,7 +134,7 @@ export default function TabUsers() {
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
         {ROLES.map(r => (
-          <button key={r} onClick={() => { setFilterRole(r); setPage(0); }} style={{ padding: '6px 12px', borderRadius: '20px', border: `1px solid ${filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : '#E5E7EB'}`, background: filterRole === r ? `${ROLE_COLORS[r] || 'var(--c-primary)'}15` : 'var(--c-surface)', color: filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: filterRole === r ? 600 : 400, textTransform: 'capitalize', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+          <button key={r} onClick={() => { setFilterRole(r); setPage(0); }} style={{ padding: '6px 12px', borderRadius: '20px', border: `1px solid ${filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-line)'}`, background: filterRole === r ? `${ROLE_COLORS[r] || 'var(--c-primary)'}15` : 'var(--c-surface)', color: filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: filterRole === r ? 600 : 400, textTransform: 'capitalize', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             {r === 'all' ? `All (${users.length})` : `${r} (${roleCounts[r] || 0})`}
           </button>
         ))}
@@ -151,7 +151,7 @@ export default function TabUsers() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+              <tr style={{ borderBottom: '2px solid var(--c-line)' }}>
                 <th style={S.th}>User</th>
                 <th style={S.th}>Phone</th>
                 <th style={S.th}>Role</th>
@@ -199,7 +199,7 @@ export default function TabUsers() {
         </div>
 
         {totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--c-line)' }}>
             <span style={{ color: 'var(--c-muted)', fontSize: '12px' }}>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}</span>
             <div style={{ display: 'flex', gap: '6px' }}>
               <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} style={{ ...S.btn('var(--c-ink-2)'), padding: '6px 12px' }}>Previous</button>

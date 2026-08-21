@@ -9,10 +9,10 @@ const StatusBadge = ({ order }) => {
     return <span style={{ fontSize: 10, background: 'var(--c-line-soft)', color: 'var(--c-muted)', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}><X size={10}/> Cancelled</span>;
   }
   if (order.status === 'Returned') {
-    return <span style={{ fontSize: 10, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Returned</span>;
+    return <span style={{ fontSize: 10, background: 'var(--c-violet-soft)', color: 'var(--c-violet)', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Returned</span>;
   }
   if (order.refundAmount > 0) {
-    return <span style={{ fontSize: 10, background: '#FFF7ED', color: 'var(--c-accent-hover)', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Partial Return</span>;
+    return <span style={{ fontSize: 10, background: 'var(--c-orange-soft)', color: 'var(--c-accent-hover)', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}>↩️ Partial Return</span>;
   }
   if (order.paymentVerified || order.status === 'Completed') {
     return <span style={{ fontSize: 10, background: 'var(--c-success-soft)', color: 'var(--c-success-strong)', padding: '3px 8px', borderRadius: 6, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 3 }}><CheckCircle2 size={10}/> Paid</span>;
@@ -142,7 +142,7 @@ const DesktopBills = ({
             return (
               <div key={o.id}
                 onClick={() => setSelectedBill(o)}
-                style={{ padding: '14px 16px', borderRadius: '12px', border: `1.5px solid ${isSelected ? 'var(--c-primary)' : 'var(--c-line)'}`, background: isSelected ? '#F5F3FF' : 'var(--c-surface)', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(15,23,42,0.05)' }}
+                style={{ padding: '14px 16px', borderRadius: '12px', border: `1.5px solid ${isSelected ? 'var(--c-primary)' : 'var(--c-line)'}`, background: isSelected ? 'var(--c-violet-soft)' : 'var(--c-surface)', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(15,23,42,0.05)' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
@@ -204,7 +204,7 @@ const DesktopBills = ({
           return (
             <div style={{ background: 'var(--c-surface)', borderRadius: '16px', border: '1px solid var(--c-line)', overflow: 'hidden', boxShadow: '0 4px 16px rgba(15,23,42,0.08)' }}>
               {/* Header bar */}
-              <div style={{ background: selectedBill.status === 'Returned' ? 'linear-gradient(135deg,#7C3AED,#6D28D9)' : isPaid ? 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))' : selectedBill.status === 'Accepted' ? 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))' : 'linear-gradient(135deg,var(--c-warning),var(--c-accent-hover))', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: selectedBill.status === 'Returned' ? 'linear-gradient(135deg,var(--c-violet),var(--c-violet-strong))' : isPaid ? 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))' : selectedBill.status === 'Accepted' ? 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))' : 'linear-gradient(135deg,var(--c-warning),var(--c-accent-hover))', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-surface)' }}>{selectedBill.status === 'Returned' ? '↩️ RETURNED BILL' : receiptTitle}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>#{selectedBill.id.slice(0,8).toUpperCase()}</div>
@@ -275,28 +275,28 @@ const DesktopBills = ({
 
                 {/* Return Info Panel — shown when this bill has any returned items */}
                 {(selectedBill.returnedAt || selectedBill.refundAmount > 0) && (
-                  <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+                  <div style={{ background: 'var(--c-violet-soft)', border: '1px solid var(--c-violet-soft)', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                       <span style={{ fontSize: 13 }}>↩️</span>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#7C3AED' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-violet)' }}>
                         {selectedBill.status === 'Returned' ? 'This bill was fully returned' : 'Partial return on this bill'}
                       </span>
                     </div>
                     {selectedBill.returnedAt && (
-                      <div style={{ fontSize: 11, color: '#6D28D9', marginBottom: 4 }}>
+                      <div style={{ fontSize: 11, color: 'var(--c-violet-strong)', marginBottom: 4 }}>
                         Returned on {new Date(selectedBill.returnedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
                     {selectedBill.returnedItems?.length > 0 && (
-                      <div style={{ fontSize: 11, color: '#6D28D9', marginBottom: 4 }}>
+                      <div style={{ fontSize: 11, color: 'var(--c-violet-strong)', marginBottom: 4 }}>
                         Items: {selectedBill.returnedItems.map(it => `${it.name} x${it.returnQty}`).join(', ')}
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                      <span style={{ fontSize: 12, color: '#7C3AED', fontWeight: 700 }}>
+                      <span style={{ fontSize: 12, color: 'var(--c-violet)', fontWeight: 700 }}>
                         Refunded ({selectedBill.refundMode || 'cash'})
                       </span>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#7C3AED' }}>-₹{Number(selectedBill.refundAmount || 0).toFixed(2)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-violet)' }}>-₹{Number(selectedBill.refundAmount || 0).toFixed(2)}</span>
                     </div>
                   </div>
                 )}
@@ -386,7 +386,7 @@ const DesktopBills = ({
                     {selectedBill.status === 'Accepted' && (
                       <button
                         onClick={() => handleOpenReturnModal(selectedBill)}
-                        style={{ flex: 1, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', color: 'var(--c-danger-strong)', padding: '10px', borderRadius: '9px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        style={{ flex: 1, background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', padding: '10px', borderRadius: '9px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                       >
                         <CornerUpLeft size={14} /> Return
                       </button>

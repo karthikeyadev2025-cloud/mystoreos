@@ -61,7 +61,7 @@ export default function PushToggle({ userId }) {
 
   return (
     <div style={{ padding: 16, background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.04)' }}>
-      <div style={{ width: 40, height: 40, borderRadius: 10, background: subscribed ? 'var(--c-success-soft)' : 'var(--c-primary-soft)', border: `1px solid ${subscribed ? '#A7F3D0' : 'var(--c-primary-border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: 40, height: 40, borderRadius: 10, background: subscribed ? 'var(--c-success-soft)' : 'var(--c-primary-soft)', border: `1px solid ${subscribed ? 'var(--c-success-soft)' : 'var(--c-primary-border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {subscribed ? <Bell size={18} color="var(--c-success)" /> : <BellOff size={18} color="var(--c-primary)" />}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -78,7 +78,7 @@ export default function PushToggle({ userId }) {
         </div>
       </div>
       {permDenied ? (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--c-danger)', fontSize: 11, fontWeight: 700, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', padding: '5px 10px', borderRadius: 999 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--c-danger)', fontSize: 11, fontWeight: 700, background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', padding: '5px 10px', borderRadius: 999 }}>
           <AlertCircle size={12} /> Blocked
         </span>
       ) : subscribed ? (

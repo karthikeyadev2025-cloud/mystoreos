@@ -160,7 +160,7 @@ export default function PublicCatalog() {
         ))}
 
         <div style={{ marginTop: 24, textAlign: 'center', padding: 20, background: 'var(--c-primary-soft)', borderRadius: 12 }}>
-          <p style={{ fontSize: 13, color: '#3730A3', fontWeight: 700, margin: '0 0 10px' }}>
+          <p style={{ fontSize: 13, color: 'var(--c-primary)', fontWeight: 700, margin: '0 0 10px' }}>
             Want to order from {distributor.name}?
           </p>
           <button onClick={() => navigate(`/register?type=shop&distributor=${encodeURIComponent(code)}`)}

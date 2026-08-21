@@ -5,16 +5,16 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '20px' },
   sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '8px 12px', textAlign: 'left' },
-  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '10px 12px', borderBottom: '1px solid #F3F4F6' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '10px 12px', borderBottom: '1px solid var(--c-line-soft)' },
 };
 
-const CHART_STYLE = { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
+const CHART_STYLE = { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
 
-const HEAT_COLORS = ['#EFF6FF', '#DBEAFE', '#BFDBFE', '#93C5FD', '#60A5FA', 'var(--c-info)'];
+const HEAT_COLORS = ['var(--c-primary-soft)', 'var(--c-primary-soft)', 'var(--c-primary-border)', 'var(--c-primary-light)', 'var(--c-primary-light)', 'var(--c-info)'];
 
 export default function TabAnalytics() {
   const [growth, setGrowth] = useState([]);
@@ -65,7 +65,7 @@ export default function TabAnalytics() {
           <h2 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700 }}>Analytics</h2>
           <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>Growth trends, retention, and churn signals</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
           <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>
@@ -117,7 +117,7 @@ export default function TabAnalytics() {
           </div>
           {topShops.length === 0 ? <div style={{ color: 'var(--c-muted)', fontSize: '13px' }}>No order data yet</div> : (
             topShops.map((s, i) => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < topShops.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < topShops.length - 1 ? '1px solid var(--c-line-soft)' : 'none' }}>
                 <span style={{ color: 'var(--c-muted)', fontSize: '11px', width: '18px', flexShrink: 0 }}>#{i + 1}</span>
                 <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
                 <span style={{ color: 'var(--c-success)', fontWeight: 600, fontSize: '12px', flexShrink: 0 }}>₹{Number(s.total).toLocaleString()}</span>
@@ -133,7 +133,7 @@ export default function TabAnalytics() {
           </div>
           {topDists.length === 0 ? <div style={{ color: 'var(--c-muted)', fontSize: '13px' }}>No credit data yet</div> : (
             topDists.map((d, i) => (
-              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < topDists.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < topDists.length - 1 ? '1px solid var(--c-line-soft)' : 'none' }}>
                 <span style={{ color: 'var(--c-muted)', fontSize: '11px', width: '18px', flexShrink: 0 }}>#{i + 1}</span>
                 <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
                 <span style={{ color: 'var(--c-primary-light)', fontWeight: 600, fontSize: '12px', flexShrink: 0 }}>₹{Number(d.total).toLocaleString()}</span>
@@ -151,7 +151,7 @@ export default function TabAnalytics() {
           </div>
           {churnRisk.length === 0 ? <div style={{ color: 'var(--c-muted)', fontSize: '13px' }}>No expired trials</div> : (
             churnRisk.map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < churnRisk.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0', borderBottom: i < churnRisk.length - 1 ? '1px solid var(--c-line-soft)' : 'none' }}>
                 <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1 }}>{s.name}</span>
                 <span style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 }}>{s.days}d expired</span>
               </div>
@@ -205,7 +205,7 @@ export default function TabAnalytics() {
             { icon: '📦', title: 'Reorder Alerts', body: 'Reorder point = avgDaily × 3d lead time + 2d safety stock. Red URGENT badge when stock ≤ reorder point in shopkeeper Day Book.' },
             { icon: '🔒', title: 'Plan Gating', body: 'Trial & Starter: locked with upgrade CTA. Pro ₹999/mo: 7-day · top 10 SKUs. Enterprise ₹2499/mo: 30-day · all SKUs.' },
           ].map((item, i) => (
-            <div key={i} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div key={i} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '14px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
               <div style={{ fontSize: '18px', marginBottom: '6px' }}>{item.icon}</div>
               <div style={{ color: 'var(--c-ink)', fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{item.title}</div>
               <div style={{ color: 'var(--c-muted)', fontSize: '11px', lineHeight: 1.5 }}>{item.body}</div>
@@ -218,7 +218,7 @@ export default function TabAnalytics() {
             { label: 'Pro ₹999/mo', badge: '7-day · 10 SKUs', color: 'var(--c-primary)' },
             { label: 'Enterprise ₹2499/mo', badge: '30-day · All SKUs', color: 'var(--c-success)' },
           ].map((t, i) => (
-            <div key={i} style={{ background: 'var(--c-surface)', border: `1px solid #E5E7EB`, borderRadius: '8px', padding: '6px 14px', display: 'flex', gap: '8px', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div key={i} style={{ background: 'var(--c-surface)', border: `1px solid var(--c-line)`, borderRadius: '8px', padding: '6px 14px', display: 'flex', gap: '8px', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
               <span style={{ color: 'var(--c-muted)', fontSize: '12px' }}>{t.label}</span>
               <span style={{ color: t.color, fontWeight: 700, fontSize: '12px' }}>{t.badge}</span>
             </div>

@@ -242,7 +242,7 @@ export default function FieldReps() {
                   <button onClick={() => startEdit(rep)} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
                     <Pencil size={12} />
                   </button>
-                  <button onClick={() => remove(rep)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => remove(rep)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
                     <X size={12} />
                   </button>
                 </div>

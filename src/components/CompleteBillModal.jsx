@@ -58,7 +58,7 @@ export default function CompleteBillModal({ appointment, onClose, onDone }) {
         <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--c-ink)', marginBottom: 4 }}>Complete & Bill</div>
         <div style={{ fontSize: 13, color: 'var(--c-muted)', marginBottom: isHomeVisit ? 4 : 18 }}>{appointment.service_name} for {appointment.customer_name}</div>
         {isHomeVisit && (
-          <div style={{ fontSize: 12, color: '#EA580C', fontWeight: 600, marginBottom: 18, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--c-orange)', fontWeight: 600, marginBottom: 18, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
             🏠 Home visit — {appointment.customer_address}
           </div>
         )}

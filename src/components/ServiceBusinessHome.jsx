@@ -5,7 +5,7 @@ import CompleteBillModal from './CompleteBillModal';
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
-  confirmed: { label: 'Confirmed', color: 'var(--c-info)', bg: '#DBEAFE' },
+  confirmed: { label: 'Confirmed', color: 'var(--c-info)', bg: 'var(--c-primary-soft)' },
   completed: { label: 'Completed', color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
   cancelled: { label: 'Cancelled', color: 'var(--c-danger)', bg: 'var(--c-danger-soft)' },
 };
@@ -121,7 +121,7 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
           { label: "Today's Revenue", value: `₹${todaysRevenue.toLocaleString('en-IN')}`, color: 'var(--c-success)', bg: 'var(--c-success-soft)', icon: TrendingUp },
           { label: "Today's Appointments", value: todaysAppointments.length, color: 'var(--c-primary)', bg: 'var(--c-primary-soft)', icon: Calendar },
           { label: 'Pending Confirmation', value: pendingCount, color: 'var(--c-warning)', bg: 'var(--c-warning-soft)', icon: Clock },
-          { label: 'Completed Today', value: completedTodayCount, color: '#8B5CF6', bg: '#F3E8FF', icon: Users },
+          { label: 'Completed Today', value: completedTodayCount, color: 'var(--c-violet)', bg: 'var(--c-violet-soft)', icon: Users },
         ].map(s => (
           <div key={s.label} style={{ background: s.bg, borderRadius: 12, padding: '14px 16px', border: `1px solid ${s.color}22` }}>
             <s.icon size={16} color={s.color} style={{ marginBottom: 8 }} />
@@ -134,7 +134,7 @@ export default function ServiceBusinessHome({ shopId, shopName, orders = [], set
       {/* Quick actions */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
         <button onClick={() => setActiveTab('bookings')}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 18px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#8B5CF6,var(--c-primary-light))', color: 'var(--c-surface)', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 3px 10px rgba(139,92,246,0.3)' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 18px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,var(--c-violet),var(--c-primary-light))', color: 'var(--c-surface)', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 3px 10px rgba(139,92,246,0.3)' }}>
           <Calendar size={15} /> View All Bookings
         </button>
         <button onClick={() => setActiveTab('bookings')}

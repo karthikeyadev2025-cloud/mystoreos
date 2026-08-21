@@ -263,13 +263,13 @@ export default function Purchases() {
 
       {/* Supplier Payables Total Alert Banner */}
       {totalPayableDebt > 0 && (
-        <div style={{ background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)', border: '1px solid #FDBA74', borderRadius: 16, padding: 18, marginBottom: 20, boxShadow: '0 4px 14px rgba(234,88,12,0.1)' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-orange-soft) 0%, var(--c-orange-soft) 100%)', border: '1px solid var(--c-orange-soft)', borderRadius: 16, padding: 18, marginBottom: 20, boxShadow: '0 4px 14px rgba(234,88,12,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 11, color: '#9A3412', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Owed to Manufacturers / Suppliers</div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#C2410C', marginTop: 2 }}>₹{Math.round(totalPayableDebt).toLocaleString('en-IN')}</div>
+              <div style={{ fontSize: 11, color: 'var(--c-orange-strong)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Owed to Manufacturers / Suppliers</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-orange-strong)', marginTop: 2 }}>₹{Math.round(totalPayableDebt).toLocaleString('en-IN')}</div>
             </div>
-            <button onClick={() => setTab('owed')} style={{ background: '#EA580C', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(234,88,12,0.3)' }}>
+            <button onClick={() => setTab('owed')} style={{ background: 'var(--c-orange)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(234,88,12,0.3)' }}>
               View Payables List
             </button>
           </div>
@@ -439,7 +439,7 @@ export default function Purchases() {
                         <td style={{ padding: '12px 8px', textAlign: 'right', color: 'var(--c-ink-2)' }}>{item.gstPct}%</td>
                         <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: 'var(--c-ink)' }}>₹{item.lineTotal.toFixed(2)}</td>
                         <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                          <button onClick={() => removeLineItem(idx)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                          <button onClick={() => removeLineItem(idx)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                             <X size={14} />
                           </button>
                         </td>
@@ -479,7 +479,7 @@ export default function Purchases() {
               </div>
 
               <button onClick={handleSavePurchase} disabled={busy}
-                style={{ width: '100%', marginTop: 20, background: 'linear-gradient(135deg, var(--c-success-strong), #047857)', color: 'var(--c-surface)', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', boxShadow: '0 6px 20px rgba(5,150,105,0.3)' }}>
+                style={{ width: '100%', marginTop: 20, background: 'linear-gradient(135deg, var(--c-success-strong), var(--c-success-strong))', color: 'var(--c-surface)', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', boxShadow: '0 6px 20px rgba(5,150,105,0.3)' }}>
                 {busy ? 'Recording Purchase…' : 'Record Purchase & Increment Stock'}
               </button>
             </div>
@@ -502,7 +502,7 @@ export default function Purchases() {
             </div>
           ) : (
             balances.filter(b => b.outstanding > 0).map(b => (
-              <div key={b.supplierId} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderLeft: '5px solid #EA580C', borderRadius: 14, padding: 18, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+              <div key={b.supplierId} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderLeft: '5px solid var(--c-orange)', borderRadius: 14, padding: 18, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                 <div>
                   <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: 'var(--c-ink)' }}>{b.name}</h4>
                   <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 4 }}>
@@ -512,7 +512,7 @@ export default function Purchases() {
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#C2410C' }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--c-orange-strong)' }}>
                     ₹{Math.round(b.outstanding).toLocaleString('en-IN')}
                   </div>
                   <button onClick={() => { setPayModalSupplier(b); setPayModalAmount(String(Math.round(b.outstanding))); }}
@@ -551,7 +551,7 @@ export default function Purchases() {
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 17, fontWeight: 900, color: 'var(--c-ink)' }}>₹{Math.round(h.total).toLocaleString('en-IN')}</div>
                     {h.total - h.amountPaid > 0 && (
-                      <span style={{ fontSize: 10, background: '#FFEDD5', color: '#C2410C', padding: '2px 6px', borderRadius: 6, fontWeight: 800 }}>
+                      <span style={{ fontSize: 10, background: 'var(--c-orange-soft)', color: 'var(--c-orange-strong)', padding: '2px 6px', borderRadius: 6, fontWeight: 800 }}>
                         Due: ₹{Math.round(h.total - h.amountPaid).toLocaleString('en-IN')}
                       </span>
                     )}
@@ -576,9 +576,9 @@ export default function Purchases() {
               <button onClick={() => setPayModalSupplier(null)} style={{ background: 'var(--c-line-soft)', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }}>×</button>
             </div>
 
-            <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#9A3412' }}>{payModalSupplier.name}</div>
-              <div style={{ fontSize: 12, color: '#C2410C', marginTop: 2 }}>
+            <div style={{ background: 'var(--c-orange-soft)', border: '1px solid var(--c-orange-soft)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-orange-strong)' }}>{payModalSupplier.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--c-orange-strong)', marginTop: 2 }}>
                 Current Outstanding Debt: <strong>₹{Math.round(payModalSupplier.outstanding).toLocaleString('en-IN')}</strong>
               </div>
             </div>
@@ -604,7 +604,7 @@ export default function Purchases() {
             </div>
 
             <button onClick={handlePaySupplierSubmit} disabled={busy}
-              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success-strong), #047857)', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success-strong), var(--c-success-strong))', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}>
               {busy ? 'Recording Payment…' : 'Record Supplier Payment'}
             </button>
           </div>

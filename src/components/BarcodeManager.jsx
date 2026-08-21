@@ -191,7 +191,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
         </div>
 
         {/* Header */}
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg,var(--c-primary),#7C3AED)' }}>
+        <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg,var(--c-primary),var(--c-violet))' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--c-surface)' }}>
             <Layers size={22} />
             <div>
@@ -232,7 +232,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
               </div>
 
               {noBarcodeCount > 0 && (
-                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FCD34D', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: 'var(--c-warning-strong)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: 'var(--c-warning-strong)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Sparkles size={14} /> {noBarcodeCount} product{noBarcodeCount !== 1 ? 's' : ''} have no barcode — click "Generate" to create one.
                 </div>
               )}
@@ -312,7 +312,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                   <div style={{ fontSize: '12px', color: 'var(--c-muted)' }}>Scanned code</div>
                   <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 800, margin: '4px 0 14px' }}>{scanResult.code}</div>
                   {scanResult.product ? (
-                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid #6EE7B7', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: '10px', padding: '14px' }}>
                       <div style={{ color: 'var(--c-success-strong)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={16} /> Product found</div>
                       <div style={{ fontSize: '15px', fontWeight: 700, marginTop: '6px' }}>{scanResult.product.name}</div>
                       <div style={{ fontSize: '13px', color: 'var(--c-ink-2)', marginTop: '4px' }}>₹{scanResult.product.price} · Stock: {scanResult.product.stock}</div>
@@ -320,7 +320,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                       {scanResult.product.expiryDate && <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginTop: '2px' }}>Expiry: {scanResult.product.expiryDate}</div>}
                     </div>
                   ) : (
-                    <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FCD34D', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-warning)', borderRadius: '10px', padding: '14px' }}>
                       <div style={{ color: 'var(--c-warning-strong)', fontWeight: 800 }}>New barcode — not in inventory</div>
                       <button onClick={() => { onScanToAdd?.(scanResult.code); onClose(); }} style={{ marginTop: '10px', padding: '10px 16px', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
                         ➕ Add as new product
@@ -386,7 +386,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
               <button
                 onClick={handlePrint}
                 disabled={!selectedProducts.filter(p => p.barcode).length}
-                style={{ width: '100%', padding: '14px', background: selectedProducts.filter(p => p.barcode).length ? 'linear-gradient(135deg,var(--c-primary),#7C3AED)' : 'var(--c-line-strong)', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ width: '100%', padding: '14px', background: selectedProducts.filter(p => p.barcode).length ? 'linear-gradient(135deg,var(--c-primary),var(--c-violet))' : 'var(--c-line-strong)', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <Printer size={18} /> Print {selectedProducts.filter(p => p.barcode).length} Label{selectedProducts.filter(p => p.barcode).length !== 1 ? 's' : ''} ({labelFormat === 'a4' ? 'A4' : 'Thermal'})
               </button>

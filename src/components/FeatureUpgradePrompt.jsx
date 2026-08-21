@@ -19,13 +19,13 @@ export default function FeatureUpgradePrompt({ title, body, requiredPlan = 'Pro 
   const navigate = useNavigate();
   return (
     <div style={{
-      background: 'linear-gradient(135deg, var(--c-primary-soft) 0%, #F3E8FF 100%)',
+      background: 'linear-gradient(135deg, var(--c-primary-soft) 0%, var(--c-violet-soft) 100%)',
       border: '1px solid var(--c-primary-border)', borderRadius: 14, padding: '20px 22px',
       display: 'flex', alignItems: 'center', gap: 16,
     }}>
       <div style={{
         width: 44, height: 44, borderRadius: 12,
-        background: 'linear-gradient(135deg, var(--c-primary), #7C3AED)',
+        background: 'linear-gradient(135deg, var(--c-primary), var(--c-violet))',
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
       }}>
@@ -67,7 +67,7 @@ export function UpgradeChip({ requiredPlan = 'Pro', compact = false }) {
         display: 'inline-flex', alignItems: 'center', gap: 4,
         padding: compact ? '2px 7px' : '3px 8px',
         borderRadius: 999, fontSize: compact ? 9 : 10, fontWeight: 700,
-        background: 'linear-gradient(135deg, var(--c-primary), #7C3AED)', color: 'var(--c-surface)',
+        background: 'linear-gradient(135deg, var(--c-primary), var(--c-violet))', color: 'var(--c-surface)',
         border: 'none', cursor: 'pointer',
         boxShadow: '0 1px 3px rgba(79,70,229,0.3)', width: 'auto',
       }}

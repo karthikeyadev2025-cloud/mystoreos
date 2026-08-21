@@ -154,11 +154,11 @@ export default function FieldSettlement() {
       {settlement && (
         <>
           {settlement.status === 'closed' ? (
-            <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ background: 'var(--c-success-soft)', border: '1px solid var(--c-success-soft)', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
               <CheckCircle2 size={20} color="var(--c-success-strong)" />
               <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#047857' }}>Settlement closed</div>
-                {settlement.overrideReason && <div style={{ fontSize: 11, color: '#065F46', marginTop: 2 }}>Override: {settlement.overrideReason}</div>}
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-success-strong)' }}>Settlement closed</div>
+                {settlement.overrideReason && <div style={{ fontSize: 11, color: 'var(--c-success-strong)', marginTop: 2 }}>Override: {settlement.overrideReason}</div>}
               </div>
             </div>
           ) : (
@@ -221,12 +221,12 @@ export default function FieldSettlement() {
               </div>
 
               {blockedResult && (
-                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <AlertTriangle size={16} color="var(--c-warning-strong)" />
                     <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-warning-strong)' }}>Variance outside normal tolerance</span>
                   </div>
-                  <p style={{ fontSize: 12, color: '#78350F', margin: '0 0 10px' }}>
+                  <p style={{ fontSize: 12, color: 'var(--c-warning-strong)', margin: '0 0 10px' }}>
                     Cash {blockedResult.cash_variance > 0 ? '+' : ''}₹{blockedResult.cash_variance} · UPI {blockedResult.upi_variance > 0 ? '+' : ''}₹{blockedResult.upi_variance} · Stock variance value ₹{blockedResult.stock_variance_value}
                   </p>
                   <label style={S.label}>Reason (required to close)</label>

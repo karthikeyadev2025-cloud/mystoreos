@@ -11,9 +11,9 @@ function getSegment(c) {
   const allDates = c.orders.map(o => new Date(o.date));
   const lastDate = allDates.length ? new Date(Math.max(...allDates)) : null;
   const isNew = c.orders.every(o => new Date(o.date) >= monthStart);
-  if (thisMonthSpend >= 5000) return { label: 'VIP', color: 'var(--c-warning-strong)', bg: 'var(--c-warning-soft)', border: '#FDE68A' };
-  if (thisMonthOrders.length >= 3) return { label: '🔄 Regular', color: '#1D4ED8', bg: '#DBEAFE', border: '#BFDBFE' };
-  if (isNew && c.orders.length > 0) return { label: '🆕 New', color: '#047857', bg: 'var(--c-success-soft)', border: '#A7F3D0' };
+  if (thisMonthSpend >= 5000) return { label: 'VIP', color: 'var(--c-warning-strong)', bg: 'var(--c-warning-soft)', border: 'var(--c-accent-border)' };
+  if (thisMonthOrders.length >= 3) return { label: '🔄 Regular', color: 'var(--c-primary)', bg: 'var(--c-primary-soft)', border: 'var(--c-primary-border)' };
+  if (isNew && c.orders.length > 0) return { label: '🆕 New', color: 'var(--c-success-strong)', bg: 'var(--c-success-soft)', border: 'var(--c-success-soft)' };
   if (!lastDate || lastDate < thirtyAgo) return { label: '⚠️ At-risk', color: 'var(--c-danger-strong)', bg: 'var(--c-danger-soft)', border: 'var(--c-danger-border)' };
   return null;
 }
@@ -98,7 +98,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
           {vipCustomers.length > 0 && (
             <button
               onClick={() => setShowVipPanel(v => !v)}
-              style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid #FDE68A', padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid var(--c-accent-border)', padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <MessageSquare size={14} /> WhatsApp VIP ({vipCustomers.length})
             </button>
@@ -116,7 +116,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
       {/* VIP bulk-message panel */}
       {showVipPanel && vipCustomers.length > 0 && (
-        <div style={{ marginBottom: '20px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '16px' }}>
+        <div style={{ marginBottom: '20px', background: 'var(--c-warning-soft)', border: '1px solid var(--c-accent-border)', borderRadius: '12px', padding: '16px' }}>
           <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: 'var(--c-warning-strong)' }}>VIP Customers — Send WhatsApp</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {vipCustomers.map(c => (
@@ -200,9 +200,9 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
                     </div>
 
                     {pts > 0 && (
-                      <div style={{ background: '#F3E8FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '4px 10px', textAlign: 'center' }}>
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#7C3AED' }}>{pts}</p>
-                        <p style={{ margin: 0, fontSize: '9px', color: '#6D28D9' }}>pts</p>
+                      <div style={{ background: 'var(--c-violet-soft)', border: '1px solid var(--c-violet-soft)', borderRadius: '8px', padding: '4px 10px', textAlign: 'center' }}>
+                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: 'var(--c-violet)' }}>{pts}</p>
+                        <p style={{ margin: 0, fontSize: '9px', color: 'var(--c-violet-strong)' }}>pts</p>
                       </div>
                     )}
 
@@ -245,7 +245,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
                             <span style={{
                               fontSize: '9px', padding: '1px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase',
                               background: order.status === 'Accepted' ? 'var(--c-success-soft)' : 'var(--c-warning-soft)',
-                              color: order.status === 'Accepted' ? '#047857' : 'var(--c-warning-strong)',
+                              color: order.status === 'Accepted' ? 'var(--c-success-strong)' : 'var(--c-warning-strong)',
                             }}>
                               {order.status}
                             </span>

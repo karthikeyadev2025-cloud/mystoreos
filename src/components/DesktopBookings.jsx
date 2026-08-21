@@ -11,8 +11,8 @@ import { useAuth } from '../hooks/useAuth';
 import { getCurrentLocation, mapsUrl } from '../lib/geolocation';
 
 const SERVICE_CATEGORIES = [
-  { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
-  { id: 'beauty',   label: '💄 Beauty',        color: '#EC4899' },
+  { id: 'hair',     label: '✂️ Hair',          color: 'var(--c-violet)' },
+  { id: 'beauty',   label: '💄 Beauty',        color: 'var(--c-rose)' },
   { id: 'skincare', label: '🧴 Skincare',      color: 'var(--c-success)' },
   { id: 'nail',     label: '💅 Nails',         color: 'var(--c-warning)' },
   { id: 'spa',      label: '🧖 Spa / Massage', color: 'var(--c-info)' },
@@ -23,7 +23,7 @@ const SERVICE_CATEGORIES = [
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
-  confirmed: { label: 'Confirmed', color: 'var(--c-info)', bg: '#DBEAFE' },
+  confirmed: { label: 'Confirmed', color: 'var(--c-info)', bg: 'var(--c-primary-soft)' },
   completed: { label: 'Completed', color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
   cancelled: { label: 'Cancelled', color: 'var(--c-danger)', bg: 'var(--c-danger-soft)' },
 };
@@ -59,7 +59,7 @@ function ServiceCard({ service, onEdit, onDelete, onToggle }) {
           <Edit2 size={13} />
         </button>
         <button onClick={() => onDelete(service.id)} title="Delete"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: '#FFF5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-danger)' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: 'var(--c-danger-soft)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-danger)' }}>
           <Trash2 size={13} />
         </button>
       </div>
@@ -151,7 +151,7 @@ function HomeVisitSafetyPanel({ appt, onRefresh }) {
         </button>
       ) : (
         <button onClick={doSOS} disabled={busy}
-          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger-strong)', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
           🆘 Emergency
         </button>
       )}
@@ -181,7 +181,7 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
             </span>
           )}
           {appt.service_location === 'at_home' && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#EA580C', background: '#FFF7ED', padding: '1px 8px', borderRadius: 999 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-orange)', background: 'var(--c-orange-soft)', padding: '1px 8px', borderRadius: 999 }}>
               🏠 Home visit
             </span>
           )}
@@ -198,7 +198,7 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
         {/* Address is operationally critical for a home visit — shown as
             its own line, not tucked into notes, so staff can't miss it. */}
         {appt.service_location === 'at_home' && appt.customer_address && (
-          <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--c-orange)', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
             📍 {appt.customer_address}
             {appt.customer_lat != null && appt.customer_lng != null && (
               <a href={mapsUrl(appt.customer_lat, appt.customer_lng)} target="_blank" rel="noopener noreferrer"
@@ -233,7 +233,7 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
               <button onClick={() => onStatusChange(appt.id, 'confirmed')}
                 style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-info)', color: 'var(--c-surface)', cursor: 'pointer' }}>Confirm</button>
               <button onClick={() => onStatusChange(appt.id, 'cancelled')}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-soft)', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
             </>
           )}
           {appt.status === 'confirmed' && (
@@ -241,7 +241,7 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
               <button onClick={() => onCompleteWithBill(appt)}
                 style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-success)', color: 'var(--c-surface)', cursor: 'pointer' }}>✓ Done</button>
               <button onClick={() => onStatusChange(appt.id, 'cancelled')}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-soft)', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
             </>
           )}
         </div>
@@ -394,7 +394,7 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
           </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(145deg,#4F46E526,#4F46E50D)', border: '1px solid #4F46E540', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(145deg,#12457A26,#12457A0D)', border: '1px solid #12457A40', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ fontSize: 17 }}>🏠</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -660,7 +660,7 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: isRecurring ? 12 : 0 }}>
               <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} style={{ width: 16, height: 16 }} />
               <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>Make this a recurring booking</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '2px 8px', borderRadius: 999, marginLeft: 'auto' }}>Enterprise</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-violet)', background: 'var(--c-violet-soft)', padding: '2px 8px', borderRadius: 999, marginLeft: 'auto' }}>Enterprise</span>
             </label>
             {isRecurring && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
@@ -791,7 +791,7 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
     <div style={{ padding: '28px 32px', maxWidth: 860, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8B5CF6,var(--c-primary-light))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,var(--c-violet),var(--c-primary-light))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Scissors size={22} color="var(--c-surface)" />
         </div>
         <div>

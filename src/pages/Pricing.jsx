@@ -160,7 +160,7 @@ function PlanCard({ plan, idx, popular, onCta, cycle = 'monthly', pricing = null
 
   return (
     <div style={{
-      background: popular ? 'linear-gradient(160deg,#1e1b4b,var(--c-ink))' : 'rgba(255,255,255,0.03)',
+      background: popular ? 'linear-gradient(160deg,var(--c-primary-hover),var(--c-ink))' : 'rgba(255,255,255,0.03)',
       border: `1px solid ${ts.border}`,
       borderRadius: '20px',
       padding: '32px 28px',
@@ -419,7 +419,7 @@ export default function Pricing() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               <div style={{ fontSize: 38 }}>🏠</div>
               <div style={{ flex: 1, minWidth: 220 }}>
-                <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: '#a78bfa', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
+                <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: 'var(--c-violet)', background: 'rgba(139,92,246,0.2)', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>
                   ADD-ON — ANY PLAN, INCLUDING STARTER
                 </div>
                 <h3 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.5px' }}>Home Service Booking</h3>
@@ -431,7 +431,7 @@ export default function Pricing() {
                 <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-1px' }}>
                   ₹{pricing?.addons?.homeService ?? 199}<span style={{ fontSize: 14, fontWeight: 500, color: 'var(--c-faint)' }}>/mo</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 700 }}>Works on every plan, including Starter</div>
+                <div style={{ fontSize: 12, color: 'var(--c-violet)', fontWeight: 700 }}>Works on every plan, including Starter</div>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px,1fr))', gap: 10, paddingTop: 4, borderTop: '1px solid rgba(139,92,246,0.2)' }}>
@@ -444,7 +444,7 @@ export default function Pricing() {
                 'Same booking page customers already use',
               ].map(f => (
                 <div key={f} style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 13, color: 'var(--c-line-strong)' }}>
-                  <span style={{ color: '#a78bfa', fontWeight: 800, flexShrink: 0 }}>✓</span> {f}
+                  <span style={{ color: 'var(--c-violet)', fontWeight: 800, flexShrink: 0 }}>✓</span> {f}
                 </div>
               ))}
             </div>
@@ -464,7 +464,7 @@ export default function Pricing() {
                     <th style={{ ...S.th, textAlign: 'left', width: '40%' }}>Feature</th>
                     <th style={S.th}>Starter</th>
                     <th style={{ ...S.th, color: 'var(--c-primary-light)' }}>PRO</th>
-                    <th style={{ ...S.th, color: '#fbbf24' }}>Enterprise</th>
+                    <th style={{ ...S.th, color: 'var(--c-warning)' }}>Enterprise</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -424,9 +424,9 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               Select Time {loadingSlots && <span style={{ color: 'var(--c-faint)', fontWeight: 400 }}>(checking availability…)</span>}
             </div>
             {selectedProvider && dayAvailability.onTimeOff ? (
-              <div style={{ textAlign: 'center', padding: 24, background: '#FFF7ED', borderRadius: 10, border: '1px dashed #FDBA74' }}>
-                <div style={{ fontSize: 13, color: '#C2410C', fontWeight: 600 }}>{selectedProvider.name} is on leave this day</div>
-                <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4 }}>Please pick a different date</div>
+              <div style={{ textAlign: 'center', padding: 24, background: 'var(--c-orange-soft)', borderRadius: 10, border: '1px dashed var(--c-orange-soft)' }}>
+                <div style={{ fontSize: 13, color: 'var(--c-orange-strong)', fontWeight: 600 }}>{selectedProvider.name} is on leave this day</div>
+                <div style={{ fontSize: 12, color: 'var(--c-orange)', marginTop: 4 }}>Please pick a different date</div>
               </div>
             ) : selectedProvider && !dayAvailability.isOpen ? (
               <div style={{ textAlign: 'center', padding: 24, background: 'var(--c-bg)', borderRadius: 10, border: '1px dashed var(--c-line)' }}>
