@@ -5653,12 +5653,13 @@ export const api = {
   // for shops that haven't set any up.
   async getBookedSlots(shopId, date, providerId = null) {
     if (!isSupabaseConfigured) return [];
-    let q = supabase.from('appointments')
-      .select('appointment_time, duration_minutes')
-      .eq('appointment_date', date)
-      .not('status', 'in', '("cancelled")');
-    q = providerId ? q.eq('provider_id', providerId) : q.eq('shop_id', shopId).is('provider_id', null);
-    const { data, error } = await q;
+    // Goes through get_booked_slots() rather than reading the table.
+    // A direct select here only returned non-PII columns by convention —
+    // nothing stopped an authenticated caller asking for customer_phone.
+    // The RPC returns time and duration only. See P5.
+    const { data, error } = await supabase.rpc('get_booked_slots', {
+      p_shop_id: shopId, p_date: date, p_provider_id: providerId || null,
+    });
     if (error) return [];
     return (data || []).map(a => ({
       start: this._timeToMinutes(a.appointment_time),
@@ -5674,12 +5675,9 @@ export const api = {
     // See migration 20260705_appointments_privacy_fix.sql for the
     // matching column-level GRANT that makes this the only thing anon
     // can read from this table.
-    let q = supabase.from('appointments')
-      .select('id, appointment_time, duration_minutes')
-      .eq('appointment_date', date)
-      .not('status', 'in', '("cancelled")');
-    q = providerId ? q.eq('provider_id', providerId) : q.eq('shop_id', shopId).is('provider_id', null);
-    const { data, error } = await q;
+    const { data, error } = await supabase.rpc('get_booked_slots', {
+      p_shop_id: shopId, p_date: date, p_provider_id: providerId || null,
+    });
     if (error) return null; // fail open — don't block booking on a read error
 
     // Fetch the provider's buffer_minutes (if scoped to one) so this
