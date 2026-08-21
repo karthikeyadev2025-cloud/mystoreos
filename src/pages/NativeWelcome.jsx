@@ -34,7 +34,7 @@ export default function NativeWelcome() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        fontFamily: 'var(--font-sans)',
         cursor: 'pointer',
         opacity: show ? 1 : 0,
         transition: 'opacity 0.6s ease-out',

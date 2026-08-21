@@ -381,7 +381,7 @@ export default function FieldVanBilling() {
   // and the pricing page says exactly that.
   if (!caps.vanSales) {
     return (
-      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
         <button onClick={() => navigate('/field/setup')}
           style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Field Setup
@@ -401,7 +401,7 @@ export default function FieldVanBilling() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
-    <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", paddingBottom: 40 }}>
+    <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: 'var(--font-sans)', paddingBottom: 40 }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}

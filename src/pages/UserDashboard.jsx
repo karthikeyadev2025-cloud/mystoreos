@@ -1327,7 +1327,7 @@ const UserDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="dashboard-wrapper-flex" style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif", width: '100%' }}>
+      <div className="dashboard-wrapper-flex" style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "var(--font-sans), sans-serif", width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
         {/* Floating notification bell — only for logged-in customers.
             Absolute top-right so it doesn't disrupt the storefront's
@@ -2620,7 +2620,7 @@ const UserDashboard = () => {
   // /s/<branchId> for a shop that's part of a multi-branch brand. Each
 
 return (
-    <div style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink)', minHeight: '100vh', fontFamily: "var(--font-sans), sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
         {detailProduct && (
           <StorefrontProductDetail product={detailProduct} cart={cart} updateQty={updateQty} onClose={() => setDetailProduct(null)} />

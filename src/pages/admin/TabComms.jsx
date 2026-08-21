@@ -7,9 +7,9 @@ import { toast } from 'react-toastify';
 const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
-  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
-  textarea: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
-  sendBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(79, 70, 229, 0.2)' }),
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
+  textarea: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
+  sendBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(79, 70, 229, 0.2)' }),
   sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
   sectionSub: { color: 'var(--c-muted)', fontSize: '12px', marginBottom: '18px' },
 };
@@ -138,7 +138,7 @@ export default function TabComms() {
           </div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
             {ANN_TYPES.map(t => (
-              <button key={t} type="button" onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? ANN_TYPE_COLORS[t] : 'var(--c-line)'}`, background: annType === t ? `${ANN_TYPE_COLORS[t]}15` : 'transparent', color: annType === t ? ANN_TYPE_COLORS[t] : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: annType === t ? 600 : 400 }}>
+              <button key={t} type="button" onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? ANN_TYPE_COLORS[t] : 'var(--c-line)'}`, background: annType === t ? `${ANN_TYPE_COLORS[t]}15` : 'transparent', color: annType === t ? ANN_TYPE_COLORS[t] : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'var(--font-sans), sans-serif', fontWeight: annType === t ? 600 : 400 }}>
                 {t}
               </button>
             ))}
@@ -200,7 +200,7 @@ export default function TabComms() {
             <input value={waMessage} onChange={e => setWaMessage(e.target.value)} placeholder="Your message…" style={S.input} />
           </div>
         </div>
-        <button onClick={openWhatsApp} style={{ background: '#22C55E15', border: '1px solid rgba(16,185,129,0.3)', color: 'var(--c-success)', borderRadius: '8px', padding: '10px 18px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button onClick={openWhatsApp} style={{ background: '#22C55E15', border: '1px solid rgba(16,185,129,0.3)', color: 'var(--c-success)', borderRadius: '8px', padding: '10px 18px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Send size={14} />Open WhatsApp Web
         </button>
       </div>
@@ -228,7 +228,7 @@ export default function TabComms() {
           <textarea value={bulkMsg} onChange={e => setBulkMsg(e.target.value)} placeholder="Hello! This is a message from MyStore OS…" style={S.textarea} rows={3} />
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button onClick={previewBulk} disabled={busyBulk} style={{ background: 'rgba(79, 70, 229, 0.15)', border: '1px solid rgba(79, 70, 229, 0.3)', color: 'var(--c-primary)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', fontWeight: 600 }}>{busyBulk ? 'Counting...' : 'Preview Audience'}</button>
+          <button onClick={previewBulk} disabled={busyBulk} style={{ background: 'rgba(79, 70, 229, 0.15)', border: '1px solid rgba(79, 70, 229, 0.3)', color: 'var(--c-primary)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontSize: '13px', fontWeight: 600 }}>{busyBulk ? 'Counting...' : 'Preview Audience'}</button>
           {bulkStats && (
             <>
               <span style={{ color: 'var(--c-success)', fontSize: '13px', fontWeight: 600 }}>{bulkStats.count} users targeted</span>

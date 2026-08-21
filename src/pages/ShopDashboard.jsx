@@ -4529,7 +4529,7 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: 'var(--c-line-soft)', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: 'var(--c-ink)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: 'border-box' },
+    bg: { backgroundColor: 'var(--c-line-soft)', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: 'var(--c-ink)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' },
     header: { background: 'var(--c-ink)', padding: 'calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--c-ink)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', width: '100%', boxSizing: 'border-box', overflow: 'hidden', gap: '8px' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
     statBox: { backgroundColor: 'var(--c-surface)', border: '1px solid var(--c-line)', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
@@ -4834,7 +4834,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', fontFamily: 'var(--font-sans)' }}>
         <ToastContainer theme="dark" position="top-center" />
         {pdfShareBannerEl}
         {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
@@ -6029,7 +6029,7 @@ const ShopDashboard = () => {
             <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'var(--c-surface)', color: trialDaysLeft >= 5 ? 'var(--c-success-strong)' : trialDaysLeft >= 3 ? 'var(--c-accent-hover)' : 'var(--c-danger-strong)', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Upgrade →
             </button>
-            <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'var(--c-surface)', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>×</button>
+            <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'var(--c-surface)', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'var(--font-sans), sans-serif' }}>×</button>
           </div>
         </div>
       )}
@@ -7239,7 +7239,7 @@ const ShopDashboard = () => {
                         { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), shop.gstNumber || shop.gstin), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                         { label: '📊 Monthly Summary', action: () => { downloadCSV(generateMonthlySummaryCSV(orders.filter(o => o.status === 'completed')), `Summary_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                       ].map(item => (
-                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: 'var(--c-bg)', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: 'var(--c-bg)', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}
                           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
                           {item.label}
@@ -7353,7 +7353,7 @@ const ShopDashboard = () => {
 
               <button
                 onClick={() => setShowPlanSelectorModal(true)}
-                style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-light))', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-light))', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'var(--font-sans), sans-serif' }}
               >
                 {isOnTrial ? '⚡ Upgrade Plan Now' : '🔄 Change Plan'}
               </button>
@@ -9085,7 +9085,7 @@ function BranchesDashboard({ orders, branches }) {
   const maxRevenue = Math.max(1, ...perBranch.map(p => p.revenue));
 
   return (
-    <div style={{ padding: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ padding: 20, fontFamily: "var(--font-sans), sans-serif" }}>
       {/* Hero header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
         <div>

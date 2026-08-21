@@ -45,7 +45,7 @@ export default function FieldDiagnostics() {
   const failCount = results?.filter(r => !r.ok).length || 0;
 
   return (
-    <div style={{ padding: 20, maxWidth: 640, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: 20, maxWidth: 640, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       <button onClick={() => navigate('/field/setup')}
         style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup

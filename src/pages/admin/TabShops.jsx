@@ -41,7 +41,7 @@ const FILTERS = [
   { key: 'service_enterprise', label: '🏆 Svc Enterprise' },
 ];
 
-const font = { fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif' };
+const font = { fontFamily: 'var(--font-sans)' };
 const btn = (c = 'var(--c-primary)') => ({ ...font, height: 32, background: `${c}12`, border: `1px solid ${c}30`, color: c, borderRadius: 8, padding: '0 11px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' });
 const inp = { ...font, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: 8, color: 'var(--c-ink)', padding: '8px 12px', fontSize: 13, outline: 'none' };
 

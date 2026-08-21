@@ -274,7 +274,7 @@ function FAQ({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 0', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-bg)', fontSize: '15px', fontWeight: 600, textAlign: 'left', gap: '16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 0', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-bg)', fontSize: '15px', fontWeight: 600, textAlign: 'left', gap: '16px', fontFamily: 'var(--font-sans), sans-serif' }}>
         <span>{q}</span>
         {open ? <ChevronUp size={16} color="var(--c-muted)" /> : <ChevronDown size={16} color="var(--c-muted)" />}
       </button>

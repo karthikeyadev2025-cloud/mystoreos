@@ -31,7 +31,7 @@ export const SkeletonCard = ({ height = '120px', style }) => (
 export const DashboardSkeleton = () => (
   <div style={{
     minHeight: '100vh', background: 'var(--c-ink)', display: 'flex',
-    fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
+    fontFamily: 'var(--font-sans)',
   }}>
     <style>{shimmerStyle}</style>
     
@@ -119,7 +119,7 @@ export const DashboardSkeleton = () => (
 export const MobileSkeleton = () => (
   <div style={{
     minHeight: '100vh', background: 'var(--c-ink)', padding: '16px',
-    fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
+    fontFamily: 'var(--font-sans)',
   }}>
     <style>{shimmerStyle}</style>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>

@@ -3310,7 +3310,7 @@ const DistributorDashboard = () => {
 
   // ================= MOBILE RETAIL CLIENT INTERFACE =================
   return (
-    <div style={{ backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', minHeight: '100vh', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', minHeight: '100vh', paddingBottom: '80px', fontFamily: 'var(--font-sans)' }}>
       <ToastContainer theme="light" position="top-center" />
       
       {/* Mobile Header */}

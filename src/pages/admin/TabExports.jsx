@@ -5,8 +5,8 @@ import { toast } from 'react-toastify';
 
 const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
-  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '9px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
-  dlBtn: (busy, color = 'var(--c-primary)') => ({ background: busy ? 'var(--c-line-soft)' : `${color}10`, border: `1px solid ${busy ? 'var(--c-line-strong)' : color + '30'}`, color: busy ? 'var(--c-muted)' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '9px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none' },
+  dlBtn: (busy, color = 'var(--c-primary)') => ({ background: busy ? 'var(--c-line-soft)' : `${color}10`, border: `1px solid ${busy ? 'var(--c-line-strong)' : color + '30'}`, color: busy ? 'var(--c-muted)' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
 };
 
 function downloadCSV(csv, filename) {
@@ -139,7 +139,7 @@ export default function TabExports() {
             <input type="date" value={dateRange.end} onChange={e => setDateRange(r => ({ ...r, end: e.target.value }))} style={S.input} />
           </div>
           {(dateRange.start || dateRange.end) && (
-            <button onClick={() => setDateRange({ start: '', end: '' })} style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', marginTop: '16px', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Clear</button>
+            <button onClick={() => setDateRange({ start: '', end: '' })} style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', marginTop: '16px', fontSize: '12px', fontFamily: 'var(--font-sans), sans-serif' }}>Clear</button>
           )}
         </div>
       </ExportCard>

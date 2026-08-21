@@ -34,7 +34,7 @@ export default function WaitingApproval() {
   const isDistributor = user?.role === 'distributor';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--c-ink-surface), var(--c-primary), var(--c-ink-surface-2))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--c-ink-surface), var(--c-primary), var(--c-ink-surface-2))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'var(--font-sans), sans-serif' }}>
       <div style={{ background: 'rgba(30,41,59,0.9)', backdropFilter: 'blur(20px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '48px 36px', maxWidth: 480, width: '100%', textAlign: 'center' }}>
 
         <div style={{ fontSize: 64, marginBottom: 24 }}>⏳</div>

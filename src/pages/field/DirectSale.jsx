@@ -499,7 +499,7 @@ export default function DirectSale() {
   };
 
   return (
-    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: 'var(--c-ink)' }}>
+    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: 'var(--font-sans)', color: 'var(--c-ink)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       {/* Top Header */}

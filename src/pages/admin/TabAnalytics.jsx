@@ -65,7 +65,7 @@ export default function TabAnalytics() {
           <h2 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700 }}>Analytics</h2>
           <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>Growth trends, retention, and churn signals</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
           <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>

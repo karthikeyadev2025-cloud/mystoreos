@@ -130,7 +130,7 @@ export default function FieldSetup() {
   // actually be Pro+ in the product.
   if (!caps.fieldDistribution) {
     return (
-      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
         <button onClick={() => navigate('/distributor')}
           style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Back to Dashboard
@@ -153,7 +153,7 @@ export default function FieldSetup() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/distributor')}

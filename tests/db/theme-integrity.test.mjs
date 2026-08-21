@@ -90,7 +90,40 @@ for (const f of files) {
 }
 check('no var() where the cascade cannot reach', leaks.length === 0, leaks.slice(0, 5).join('; '));
 
-// ── 5. brand colors preserved ───────────────────────────────────────
+// ── 5. the old typeface is actually gone ────────────────────────────
+// The palette swap originally shipped alongside a font change that did
+// nothing: index.html carried a universal selector
+// *{font-family:'Plus Jakarta Sans'} plus several !important rules and
+// 117 hardcoded references, so every new font token was overridden and
+// the app still rendered in the old face while Manrope was downloaded
+// from a CDN and used by nothing. Colors were verifiable at a glance;
+// typography was not, which is exactly why it needs a test.
+const OLD_FACES = ['Plus Jakarta Sans'];
+const fontOffenders = [];
+for (const f of [...files, 'index.html']) {
+  let body = '';
+  try { body = readFileSync(f, 'utf8'); } catch { continue; }
+  for (const face of OLD_FACES) {
+    // A mention inside a comment is fine; a font-family declaration is not.
+    const re = new RegExp(`font-?[fF]amily[^;\\n]*${face}`);
+    if (re.test(body)) fontOffenders.push(`${face} in ${f}`);
+  }
+}
+check('no font-family still names a retired typeface',
+      fontOffenders.length === 0, fontOffenders.slice(0, 5).join('; '));
+
+// Fonts must be self-hosted: this ships in a Capacitor wrapper where a
+// CDN fetch is a round trip on first paint and fails offline.
+const html = readFileSync('index.html', 'utf8');
+check('no CDN font links (fonts are self-hosted)',
+      !/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html));
+
+const mainJsx = readFileSync('src/main.jsx', 'utf8');
+for (const pkg of ['manrope', 'bricolage-grotesque', 'jetbrains-mono', 'noto-sans-telugu']) {
+  check(`${pkg} imported in main.jsx`, mainJsx.includes(pkg));
+}
+
+// ── 6. brand colors preserved ───────────────────────────────────────
 const all = files.map((f) => readFileSync(f, 'utf8')).join('\n');
 check('WhatsApp green preserved', /#25[dD]366/.test(all));
 check('Google blue preserved',    /#4285[fF]4/.test(all));

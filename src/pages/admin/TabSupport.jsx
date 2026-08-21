@@ -25,7 +25,7 @@ const ACTION_LABELS = {
 
 const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
-  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none' },
   th: { color: 'var(--c-ink-2)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
   td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid var(--c-line)', verticalAlign: 'middle' },
 };
@@ -195,7 +195,7 @@ export default function TabSupport() {
           </div>
         </div>
         </div>
-        <button onClick={load} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+        <button onClick={load} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif' }}>
           <RefreshCw size={13} />Refresh
         </button>
       </div>
@@ -226,10 +226,10 @@ export default function TabSupport() {
           <select value={filterAction} onChange={e => setFilterAction(e.target.value)} style={{ ...S.input, cursor: 'pointer', minWidth: '160px' }}>
             {uniqueActions.map(a => <option key={a} value={a}>{a === 'all' ? 'All Actions' : ACTION_LABELS[a] || a}</option>)}
           </select>
-          <button onClick={exportAuditCSV} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-info)', color: 'var(--c-info)', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={exportAuditCSV} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-info)', color: 'var(--c-info)', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Download size={13} />Export
           </button>
-          <button onClick={clearLog} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-danger)', color: 'var(--c-danger)', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={clearLog} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-danger)', color: 'var(--c-danger)', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={13} />Clear
           </button>
         </div>

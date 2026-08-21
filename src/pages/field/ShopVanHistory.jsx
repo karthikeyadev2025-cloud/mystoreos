@@ -76,7 +76,7 @@ export default function ShopVanHistory() {
   const items = tab === 'purchases' ? data.purchases : data.returns;
 
   return (
-    <div style={{ padding: 20, maxWidth: 600, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: 20, maxWidth: 600, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/shop')}

@@ -15,7 +15,7 @@ const DEFAULTS = {
   successColor: 'var(--c-success)',
   warningColor: 'var(--c-warning)',
   borderRadius: '12px',
-  fontFamily: 'Plus Jakarta Sans',
+  fontFamily: 'var(--font-sans)',
   customCSS: '',
 };
 
@@ -30,7 +30,7 @@ const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
   label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
   row: { marginBottom: '16px' },
-  saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
   sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
   sectionSub: { color: 'var(--c-muted)', fontSize: '12px', marginBottom: '20px' },
 };
@@ -129,7 +129,7 @@ export default function TabDesign() {
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
           {PRESETS.map(p => (
-            <button key={p.name} onClick={() => applyPreset(p)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--c-line)', background: 'var(--c-bg)', color: 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <button key={p.name} onClick={() => applyPreset(p)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--c-line)', background: 'var(--c-bg)', color: 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>
               <span style={{ display: 'flex', gap: '3px' }}>
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.primaryColor }} />
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.accentColor }} />
@@ -168,7 +168,7 @@ export default function TabDesign() {
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={saveTheme} disabled={busy.theme} style={S.saveBtn(busy.theme)}><Save size={14} />{busy.theme ? 'Applying...' : 'Apply Theme'}</button>
-          <button onClick={resetTheme} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}><RotateCcw size={14} />Reset Defaults</button>
+          <button onClick={resetTheme} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}><RotateCcw size={14} />Reset Defaults</button>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ export default function TabDesign() {
         />
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
           <button onClick={saveCSS} disabled={busy.css} style={S.saveBtn(busy.css)}><Code size={14} />{busy.css ? 'Injecting...' : 'Inject CSS'}</button>
-          {customCSS && <button onClick={() => { setCustomCSS(''); updateConfigs({ customCSS: '' }); }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'var(--c-danger)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>Clear CSS</button>}
+          {customCSS && <button onClick={() => { setCustomCSS(''); updateConfigs({ customCSS: '' }); }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'var(--c-danger)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontSize: '13px' }}>Clear CSS</button>}
         </div>
       </div>
     </div>

@@ -22,7 +22,7 @@ export default function MLogo({ size = 34, radius = 9, style = {} }) {
       fontSize: Math.round(size * 0.42),
       letterSpacing: '-0.03em',
       flexShrink: 0,
-      fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+      fontFamily: 'var(--font-sans)',
       boxShadow: `0 0 ${Math.round(size * 0.5)}px rgba(79, 70, 229, 0.25)`,
       userSelect: 'none',
       ...style,

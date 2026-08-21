@@ -29,7 +29,7 @@ const CSS = `
 *, *::before, *::after { box-sizing: border-box; }
 .lp-root {
   min-height: 100vh; width: 100%; display: flex;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   background: var(--c-ink-surface); overflow-x: hidden;
 }
 .lp-brand {
@@ -59,7 +59,7 @@ const CSS = `
   width: 100%; padding: 12px 14px;
   background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
   border-radius: 9px; color: var(--c-surface); font-size: 14px;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   transition: border-color .18s, box-shadow .18s; outline: none;
 }
 .lp-input:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
@@ -67,7 +67,7 @@ const CSS = `
 .lp-btn {
   width: 100%; padding: 13px; background: var(--c-primary); color: var(--c-surface); border: none;
   border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   display: flex; align-items: center; justify-content: center; gap: 8px;
   transition: filter .15s, transform .1s; box-shadow: 0 0 24px rgba(79,70,229,0.4);
 }
@@ -457,7 +457,7 @@ export default function Login() {
                     type="button"
                     onClick={handleGoogle}
                     disabled={googleLoading}
-                    style={{ position: 'relative', width: '100%', padding: 12, background: 'rgba(255,255,255,0.78)', color: 'var(--c-ink-2)', border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: googleLoading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+                    style={{ position: 'relative', width: '100%', padding: 12, background: 'rgba(255,255,255,0.78)', color: 'var(--c-ink-2)', border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: googleLoading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: 'var(--font-sans)' }}>
                     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                       <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
                       <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>

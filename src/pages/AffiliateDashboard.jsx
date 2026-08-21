@@ -71,7 +71,7 @@ export default function AffiliateDashboard() {
   }[s] || <span style={{ color: 'var(--c-muted)', fontSize: 11 }}>{s}</span>);
 
   return (
-    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: 'var(--c-bg)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: 'var(--c-bg)', fontFamily: 'var(--font-sans), sans-serif' }}>
       <ToastContainer position="top-right" theme="light" />
 
       {/* Header */}

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const INK  = 'var(--c-ink)'; // obsidian — exact demo token
 const GOLD = 'var(--c-primary)'; // indigo — exact demo token (was gold)
 const BRD  = 'rgba(255,255,255,0.08)';
-const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
+const FONT = 'var(--font-sans)';
 
 const NAV_ITEMS = [
   { id:'home',      Icon:Home,      label:'POS / Home',   badge:false },

@@ -11,8 +11,8 @@ const TIERS = ['basic_distributor', 'pro_distributor', 'enterprise_distributor']
 const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   badge: (tier) => ({ background: `${TIER_COLORS[tier] || 'var(--c-muted)'}15`, color: TIER_COLORS[tier] || 'var(--c-muted)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 }),
-  btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }),
-  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }),
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none' },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
   td: { color: 'var(--c-ink)', fontSize: '13px', padding: '12px', borderBottom: '1px solid var(--c-line-soft)', verticalAlign: 'middle' },
 };
@@ -36,7 +36,7 @@ function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
         <h3 style={{ color: 'var(--c-ink)', fontWeight: 700, marginBottom: '8px' }}>Change Distributor Plan</h3>
         <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '16px' }}><b>{dist.name}</b></p>
         {TIERS.map(t => (
-          <button key={t} onClick={() => setTier(t)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${tier === t ? TIER_COLORS[t] : 'var(--c-line)'}`, background: tier === t ? `${TIER_COLORS[t]}15` : 'transparent', color: tier === t ? TIER_COLORS[t] : 'var(--c-ink-2)', cursor: 'pointer', marginBottom: '8px', fontFamily: 'Plus Jakarta Sans, sans-serif', textAlign: 'left' }}>
+          <button key={t} onClick={() => setTier(t)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${tier === t ? TIER_COLORS[t] : 'var(--c-line)'}`, background: tier === t ? `${TIER_COLORS[t]}15` : 'transparent', color: tier === t ? TIER_COLORS[t] : 'var(--c-ink-2)', cursor: 'pointer', marginBottom: '8px', fontFamily: 'var(--font-sans), sans-serif', textAlign: 'left' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: TIER_COLORS[t] }} />
               {TIER_LABELS[t]}
@@ -45,8 +45,8 @@ function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
           </button>
         ))}
         <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-          <button onClick={save} disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? 'Saving...' : 'Apply'}</button>
-          <button onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button onClick={save} disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600 }}>{busy ? 'Saving...' : 'Apply'}</button>
+          <button onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>Cancel</button>
         </div>
       </div>
     </div>
@@ -75,8 +75,8 @@ function ResetModal({ dist, onClose, onDone }) {
         <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '14px' }}><b>{dist.name}</b></p>
         <input value={pass} onChange={e => setPass(e.target.value)} type="password" placeholder="New password" style={{ ...S.input, width: '100%', marginBottom: '14px' }} required />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
-          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
+          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>Cancel</button>
         </div>
       </form>
     </div>
@@ -190,7 +190,7 @@ export default function TabDistributors() {
         {['all', ...TIERS].map(t => {
           const count = t === 'all' ? distributors.length : distributors.filter(d => (d.distributorPlanTier || 'basic_distributor') === t).length;
           return (
-            <button key={t} onClick={() => setFilterTier(t)} style={{ padding: '12px', borderRadius: '10px', border: `1px solid ${filterTier === t ? (TIER_COLORS[t] || 'var(--c-primary)') : 'var(--c-line)'}`, background: filterTier === t ? `${TIER_COLORS[t] || 'var(--c-primary)'}15` : 'var(--c-surface)', cursor: 'pointer', textAlign: 'left', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <button key={t} onClick={() => setFilterTier(t)} style={{ padding: '12px', borderRadius: '10px', border: `1px solid ${filterTier === t ? (TIER_COLORS[t] || 'var(--c-primary)') : 'var(--c-line)'}`, background: filterTier === t ? `${TIER_COLORS[t] || 'var(--c-primary)'}15` : 'var(--c-surface)', cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font-sans), sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
               <div style={{ color: TIER_COLORS[t] || 'var(--c-ink)', fontWeight: 700, fontSize: '20px' }}>{count}</div>
               <div style={{ color: 'var(--c-muted)', fontSize: '11px', textTransform: t === 'all' ? 'capitalize' : 'none' }}>{t === 'all' ? 'All Distributors' : TIER_LABELS[t]}</div>
             </button>

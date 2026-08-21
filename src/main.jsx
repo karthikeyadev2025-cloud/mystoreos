@@ -1,12 +1,24 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Self-hosted fonts (Plus Jakarta Sans + JetBrains Mono) for consistent typography
-import '@fontsource/plus-jakarta-sans/400.css'
-import '@fontsource/plus-jakarta-sans/500.css'
-import '@fontsource/plus-jakarta-sans/600.css'
-import '@fontsource/plus-jakarta-sans/700.css'
-import '@fontsource/plus-jakarta-sans/800.css'
+// Self-hosted brand fonts, matching heynikki.in. Self-hosted rather than
+// loaded from Google's CDN: this ships inside a Capacitor Android wrapper,
+// where a CDN font fetch is a network round trip on first paint and simply
+// fails when the device is offline. Plus Jakarta Sans was the old face and
+// is gone — leaving it imported would have precached ~350 kB of fonts the
+// app never renders.
+import '@fontsource/manrope/400.css'
+import '@fontsource/manrope/500.css'
+import '@fontsource/manrope/600.css'
+import '@fontsource/manrope/700.css'
+import '@fontsource/manrope/800.css'
+import '@fontsource-variable/bricolage-grotesque'
 import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/500.css'
+import '@fontsource/jetbrains-mono/700.css'
+// Telugu coverage — Manrope has none, so te-IN copy would otherwise fall
+// back to whatever the OS ships.
+import '@fontsource/noto-sans-telugu/400.css'
+import '@fontsource/noto-sans-telugu/600.css'
 import './styles/tokens.css'
 import './index.css'
 import App from './App.jsx'

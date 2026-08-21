@@ -179,7 +179,7 @@ export default function FieldRoutes() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading routes…</div>;
 
   return (
-    <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}

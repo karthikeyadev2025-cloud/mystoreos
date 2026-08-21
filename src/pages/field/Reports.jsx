@@ -77,7 +77,7 @@ export default function Reports() {
 
   if (!caps.advancedAnalytics) {
     return (
-      <div style={{ padding: 24, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div style={{ padding: 24, maxWidth: 560, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
         <button onClick={() => navigate('/distributor')}
           style={{ background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
           <ArrowLeft size={16} /> Back to Dashboard
@@ -96,7 +96,7 @@ export default function Reports() {
   if (loading) return <div style={{ padding: 60, textAlign: 'center', color: 'var(--c-muted)', fontWeight: 'bold' }}>Loading Financial &amp; GST Reports…</div>;
 
   return (
-    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: 'var(--c-ink)' }}>
+    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: 'var(--font-sans)', color: 'var(--c-ink)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/distributor')}

@@ -65,7 +65,7 @@ export default function PublicCatalog() {
     }, {});
 
   const S = {
-    wrap: { minHeight: '100vh', background: 'var(--c-bg)', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
+    wrap: { minHeight: '100vh', background: 'var(--c-bg)', fontFamily: 'var(--font-sans)' },
     header: { background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', padding: '28px 20px' },
     body: { padding: '20px', maxWidth: 720, margin: '0 auto' },
     card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 14, marginBottom: 10, display: 'flex', gap: 12, alignItems: 'center' },

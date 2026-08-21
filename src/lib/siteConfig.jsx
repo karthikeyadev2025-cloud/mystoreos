@@ -19,7 +19,7 @@ const DEFAULTS = {
   successColor: 'var(--c-success)',
   warningColor: 'var(--c-warning)',
   // Typography
-  fontFamily: 'Plus Jakarta Sans',
+  fontFamily: 'var(--font-sans)',
   borderRadius: '12px',
   // Feature flags
   maintenanceMode: false,

@@ -46,7 +46,7 @@ export default function AuthReset() {
 
   const box = { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', background: 'var(--c-ink-surface)', padding: 24,
-    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" };
+    fontFamily: 'var(--font-sans)' };
   const input = { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.06)',
     border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: 9, color: 'var(--c-surface)', fontSize: 14, outline: 'none' };
   const btn = { width: '100%', padding: 13, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none',

@@ -9,8 +9,8 @@ const ROLES = ['all', 'customer', 'shop', 'distributor', 'staff', 'ca', 'admin']
 const S = {
   card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   badge: (role) => ({ background: `${ROLE_COLORS[role] || 'var(--c-muted)'}15`, color: ROLE_COLORS[role] || 'var(--c-muted)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, textTransform: 'capitalize' }),
-  btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }),
-  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }),
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'var(--font-sans), sans-serif', outline: 'none' },
   th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
   td: { color: 'var(--c-ink)', fontSize: '13px', padding: '12px', borderBottom: '1px solid var(--c-line-soft)', verticalAlign: 'middle' },
 };
@@ -37,8 +37,8 @@ function ResetModal({ user, onClose }) {
         <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '14px' }}>Set new password for <b>{user.name}</b></p>
         <input value={pass} onChange={e => setPass(e.target.value)} type="password" placeholder="New password (min 6)" style={{ ...S.input, width: '100%', marginBottom: '14px' }} required />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
-          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
+          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>Cancel</button>
         </div>
       </form>
     </div>
@@ -134,7 +134,7 @@ export default function TabUsers() {
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
         {ROLES.map(r => (
-          <button key={r} onClick={() => { setFilterRole(r); setPage(0); }} style={{ padding: '6px 12px', borderRadius: '20px', border: `1px solid ${filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-line)'}`, background: filterRole === r ? `${ROLE_COLORS[r] || 'var(--c-primary)'}15` : 'var(--c-surface)', color: filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: filterRole === r ? 600 : 400, textTransform: 'capitalize', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+          <button key={r} onClick={() => { setFilterRole(r); setPage(0); }} style={{ padding: '6px 12px', borderRadius: '20px', border: `1px solid ${filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-line)'}`, background: filterRole === r ? `${ROLE_COLORS[r] || 'var(--c-primary)'}15` : 'var(--c-surface)', color: filterRole === r ? (ROLE_COLORS[r] || 'var(--c-primary)') : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif', fontWeight: filterRole === r ? 600 : 400, textTransform: 'capitalize', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             {r === 'all' ? `All (${users.length})` : `${r} (${roleCounts[r] || 0})`}
           </button>
         ))}

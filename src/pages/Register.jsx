@@ -17,7 +17,7 @@ const CSS = `
     justify-content: center;
     background: var(--c-ink-surface);
     padding: clamp(16px, 4vw, 32px);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans);
   }
   .reg-card {
     background: var(--c-ink-surface-2);
@@ -36,7 +36,7 @@ const CSS = `
     border-radius: 9px;
     color: var(--c-surface);
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans);
     transition: border-color .18s, box-shadow .18s;
     outline: none;
   }
@@ -63,7 +63,7 @@ const CSS = `
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,7 +84,7 @@ const CSS = `
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans);
     text-align: center;
     transition: all .15s;
     display: flex;
@@ -352,7 +352,7 @@ const Register = () => {
           <button onClick={() => navigate('/')} style={{
             background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            fontSize: 13, padding: 0, marginBottom: 24, fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif",
+            fontSize: 13, padding: 0, marginBottom: 24, fontFamily: 'var(--font-sans)',
             fontWeight: 500,
           }}>
             <ArrowLeft size={14}/> Back to Home

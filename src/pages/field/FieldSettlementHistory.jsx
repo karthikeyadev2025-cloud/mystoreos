@@ -78,7 +78,7 @@ export default function FieldSettlementHistory() {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 720, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ padding: 20, maxWidth: 720, margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/settlement')}

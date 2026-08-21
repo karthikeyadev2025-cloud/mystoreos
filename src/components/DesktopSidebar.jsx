@@ -1,7 +1,7 @@
 import { Home, Package, Receipt, Users, Wallet, Book, Truck, BarChart2, Settings, Plus, LogOut, Building2, Scissors, CreditCard, Star, Sparkles } from 'lucide-react';
 import { isServiceBusinessKind } from '../lib/businessKind';
 
-const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
+const FONT = 'var(--font-sans)';
 
 // Real tabs (ids match ShopDashboard's activeTab exactly)
 // retailOnly = irrelevant for pure service shops (spas, salons, clinics,

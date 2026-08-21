@@ -45,7 +45,7 @@ const C = {
   warning: 'var(--c-warning)',
 };
 
-const font = "'Plus Jakarta Sans', system-ui, sans-serif";
+const font = 'var(--font-sans)';
 
 export default function ZohoStyleShell({ shopName = 'My Shop', shopCode = '', onExit }) {
   const [active, setActive] = useState('home');

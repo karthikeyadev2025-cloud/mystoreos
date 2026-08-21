@@ -173,7 +173,7 @@ export default function FieldRun() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
-    <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", paddingBottom: 40 }}>
+    <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: 'var(--font-sans)', paddingBottom: 40 }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}

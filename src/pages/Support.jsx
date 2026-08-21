@@ -86,7 +86,7 @@ export default function Support() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '20px', maxWidth: 720, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: "var(--font-sans), sans-serif", padding: '20px', maxWidth: 720, margin: '0 auto' }}>
       <ToastContainer position="top-center" theme="dark" />
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <button onClick={() => view === 'home' ? navigate(-1) : setView('home')} style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex' }}><ArrowLeft size={18} /></button>

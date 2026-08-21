@@ -128,7 +128,7 @@ export default function TabAffiliate() {
                           <td style={S.td}><span style={{ color: 'var(--c-success)', fontWeight: 700 }}>{c.commissionPct}%</span></td>
                           <td style={S.td}>{c.isActive ? <span style={{ color: 'var(--c-success)', fontSize: 12, fontWeight: 700 }}>● Active</span> : <span style={{ color: 'var(--c-danger)', fontSize: 12 }}>● Inactive</span>}</td>
                           <td style={S.td}>
-                            <button onClick={() => handleToggleCode(c.id, c.isActive)} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            <button onClick={() => handleToggleCode(c.id, c.isActive)} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>
                               {c.isActive ? 'Deactivate' : 'Activate'}
                             </button>
                           </td>

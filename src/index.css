@@ -128,7 +128,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 body, #root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   background: var(--c-line-soft);
   color: var(--c-ink-surface-2);
   -webkit-font-smoothing: antialiased;
@@ -408,7 +408,7 @@ body, #root {
   cursor: pointer !important;
   transition: all 0.18s ease !important;
   min-height: 72px !important;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
 }
 .premium-btn:hover {
@@ -483,7 +483,7 @@ body, #root {
 .enterprise-main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .enterprise-main textarea,
 .enterprise-main select {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   font-size: 13px !important;
   color: var(--c-ink) !important;
   background: var(--c-surface) !important;
@@ -662,7 +662,7 @@ input[type=number] { -moz-appearance: textfield; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -798,7 +798,7 @@ input[type=number] { -moz-appearance: textfield; }
   width: 100% !important;
   margin-bottom: 2px !important;
   font-size: 13px !important;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
 }
 
 .sidebar-nav-item:hover {
