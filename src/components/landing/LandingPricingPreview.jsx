@@ -49,8 +49,8 @@ export default function LandingPricingPreview({ plans, servicePlans, distPlans, 
   };
 
   return (
-    <section id="pricing" style={{ padding: 'clamp(56px,7vw,90px) clamp(16px,5vw,24px)', background: 'var(--c-bg)', borderTop: '1px solid var(--c-line)' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <section id="pricing" style={{ padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)', background: 'var(--c-bg)', borderTop: '1px solid var(--c-line)' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-accent-text)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 10 }}>Pricing</div>
           <h2 style={{ margin: 0, fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-1px' }}>Simple, Honest Pricing</h2>

@@ -14,7 +14,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
       // conversion moment gets the strongest value contrast available.
       // A uniformly light page has no rhythm and nothing to land on.
       background: 'var(--c-ink-surface)',
-      padding: 'clamp(72px,9vw,112px) clamp(20px,5vw,48px)',
+      padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
       position: 'relative',
       overflow: 'hidden',
     }}>
@@ -24,7 +24,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
         width: 1, background: 'transparent', pointerEvents: 'none',
       }} />
 
-      <div style={{ maxWidth: 780, margin: '0 auto', position: 'relative' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative' }}>
         <span className="lx-eyebrow" style={{ color: 'var(--c-accent)' }}>
           Closing balance
         </span>

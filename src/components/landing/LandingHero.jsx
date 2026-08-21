@@ -126,7 +126,7 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
         WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 100%)',
       }} />
 
-      <div style={{ maxWidth: 1120, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* The brand lockup that used to sit here has been removed. The
             sticky nav carries the same logo and wordmark 40px above it,

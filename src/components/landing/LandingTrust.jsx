@@ -20,9 +20,9 @@ export default function LandingTrust() {
     <section style={{
       background: T.voidLift,
       borderTop: `1px solid ${T.edge}`,
-      padding: 'clamp(64px,8vw,96px) clamp(20px,5vw,48px)',
+      padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 880, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <span className="lx-eyebrow">Trust</span>
         <h2 className="lx-title" style={{ fontSize: 'clamp(25px,3.6vw,38px)', maxWidth: '20ch', marginBottom: 42 }}>
           Your books, kept properly.

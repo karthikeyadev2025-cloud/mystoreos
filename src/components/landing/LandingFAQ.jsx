@@ -14,13 +14,13 @@ export default function LandingFAQ({ faq = [] }) {
       borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <span className="lx-eyebrow">Questions</span>
         <h2 className="lx-title" style={{ fontSize: 'clamp(27px,4vw,42px)', marginBottom: 40 }}>
           Before you sign up.
         </h2>
 
-        <div style={{ borderTop: `2px solid ${T.text}` }}>
+        <div style={{ borderTop: `2px solid ${T.text}`, maxWidth: 820 }}>
           {faq.map((item, i) => {
             const isOpen = open === i;
             return (

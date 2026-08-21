@@ -99,7 +99,7 @@ export default function LandingFeatures() {
       borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
 
         <span className="lx-eyebrow">What you get</span>
         <h2 className="lx-title" style={{ fontSize: 'clamp(27px,4vw,42px)', maxWidth: '18ch' }}>

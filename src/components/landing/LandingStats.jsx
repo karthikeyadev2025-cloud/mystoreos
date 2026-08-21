@@ -15,9 +15,9 @@ export default function LandingStats({ stats = {} }) {
     <section style={{
       background: T.voidLift,
       borderTop: `1px solid ${T.edge}`,
-      padding: 'clamp(48px,6vw,72px) clamp(20px,5vw,48px)',
+      padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <span className="lx-eyebrow" style={{ display: 'block', marginBottom: 22 }}>
           On the books
         </span>

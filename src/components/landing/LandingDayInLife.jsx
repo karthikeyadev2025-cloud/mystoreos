@@ -43,7 +43,7 @@ export default function LandingDayInLife() {
       borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
 
         <span className="lx-eyebrow">A day, posted</span>
         <h2 className="lx-title" style={{ fontSize: 'clamp(27px,4vw,42px)', maxWidth: '16ch' }}>
@@ -55,7 +55,7 @@ export default function LandingDayInLife() {
 
         {/* Track tabs */}
         <div style={{
-          display: 'flex', gap: 26, borderBottom: `1px solid ${T.edge}`, marginBottom: 30,
+          display: 'flex', gap: 26, borderBottom: `1px solid ${T.edge}`, marginBottom: 30, maxWidth: 840,
         }}>
           {TRACKS.map(t => (
             <button
@@ -70,7 +70,7 @@ export default function LandingDayInLife() {
         </div>
 
         {/* The day */}
-        <div>
+        <div style={{ maxWidth: 840 }}>
           {current.day.map(([time, title, body], i) => (
             <div
               key={`${track}-${time}`}

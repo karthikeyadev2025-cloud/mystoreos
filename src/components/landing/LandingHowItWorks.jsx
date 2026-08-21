@@ -24,12 +24,13 @@ export default function LandingHowItWorks({ navigate: nav }) {
       borderTop: `1px solid ${T.edge}`,
       padding: 'clamp(64px,8vw,104px) clamp(20px,5vw,48px)',
     }}>
-      <div style={{ maxWidth: 780, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <span className="lx-eyebrow">Getting started</span>
         <h2 className="lx-title" style={{ fontSize: 'clamp(27px,4vw,42px)', maxWidth: '16ch', marginBottom: 44 }}>
           Open the book, start posting.
         </h2>
 
+        <div style={{ maxWidth: 800 }}>
         {STEPS.map(([title, body], i) => (
           <div
             key={title}
@@ -60,6 +61,7 @@ export default function LandingHowItWorks({ navigate: nav }) {
           <button className="lx-btn lx-btn-primary" onClick={() => navigate('/register')}>
             Start free for 15 days
           </button>
+        </div>
         </div>
       </div>
 
