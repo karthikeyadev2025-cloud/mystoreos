@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { useI18n } from '../lib/i18n';
 import { api } from '../lib/api';
 import { isServiceCategory } from '../lib/businessKind';
@@ -22,9 +22,47 @@ import 'react-toastify/dist/ReactToastify.css';
 import { sharePdfNative, isNativeApp } from '../lib/capacitorInit';
 // html5-qrcode and jsPDF are loaded on-demand, not on initial page load
 import Barcode from 'react-barcode';
-import BarcodeManager from '../components/BarcodeManager';
+
+/* ── Lazily-loaded tab bodies ─────────────────────────────────────────
+ * These twelve components were static imports, so opening the POS
+ * screen also downloaded Settings, Bookings, Reports, Membership and
+ * the rest — roughly 320 kB of source a shop owner may never open in a
+ * session. Every one of them renders behind an `activeTab === '...'`
+ * guard, so nothing mounts until its tab is selected and lazy loading
+ * costs nothing at the point of use.
+ *
+ * lazyTab() pairs React.lazy with its own Suspense boundary so the ~15
+ * render sites in this 9,000-line file stay EXACTLY as they were. The
+ * alternative — wrapping each site by hand — is a lot of edits to JSX
+ * that has no test coverage, and a missed boundary throws at runtime
+ * rather than at build time.
+ *
+ * Deliberately NOT lazy: DesktopPOS and DesktopInventory. They are the
+ * default view for a retail shop, so deferring them would add a chunk
+ * fetch to the first screen every user sees — the opposite of the point.
+ */
+const TabFallback = () => (
+  <div style={{
+    padding: '40px', textAlign: 'center',
+    color: 'var(--c-faint)', fontSize: '13px',
+  }}>
+    Loading…
+  </div>
+);
+
+const lazyTab = (loader) => {
+  const Loaded = lazy(loader);
+  const Wrapped = (props) => (
+    <Suspense fallback={<TabFallback />}>
+      <Loaded {...props} />
+    </Suspense>
+  );
+  return Wrapped;
+};
+
+const BarcodeManager = lazyTab(() => import('../components/BarcodeManager'));
 import VoiceOrderInput from '../components/VoiceOrderInput';
-import VoiceOrderRecorderModal from '../components/VoiceOrderRecorderModal';
+const VoiceOrderRecorderModal = lazyTab(() => import('../components/VoiceOrderRecorderModal'));
 import { buildUpiUri, canTapToPay } from '../lib/upi';
 import { localDateStr } from '../lib/dateUtils';
 import { validateImageFile } from '../lib/fileValidation';
@@ -41,17 +79,17 @@ import MobileDashboard from '../components/MobileDashboard';
 import DesktopInventory from '../components/DesktopInventory';
 import ProductImageUploader from '../components/ProductImageUploader';
 import DesktopBills from '../components/DesktopBills';
-import DesktopCredit from '../components/DesktopCredit';
-import DesktopRestock from '../components/DesktopRestock';
-import DesktopReports from '../components/DesktopReports';
-import DesktopBookings from '../components/DesktopBookings';
+const DesktopCredit = lazyTab(() => import('../components/DesktopCredit'));
+const DesktopRestock = lazyTab(() => import('../components/DesktopRestock'));
+const DesktopReports = lazyTab(() => import('../components/DesktopReports'));
+const DesktopBookings = lazyTab(() => import('../components/DesktopBookings'));
 import ServiceBusinessHome from '../components/ServiceBusinessHome';
-import DesktopMembership from '../components/DesktopMembership';
-import DesktopFeedback from '../components/DesktopFeedback';
-import DesktopSettings from '../components/DesktopSettings';
-import BranchesManager from '../components/BranchesManager';
-import DesktopCustomers from '../components/DesktopCustomers';
-import DesktopExpenses from '../components/DesktopExpenses';
+const DesktopMembership = lazyTab(() => import('../components/DesktopMembership'));
+const DesktopFeedback = lazyTab(() => import('../components/DesktopFeedback'));
+const DesktopSettings = lazyTab(() => import('../components/DesktopSettings'));
+const BranchesManager = lazyTab(() => import('../components/BranchesManager'));
+const DesktopCustomers = lazyTab(() => import('../components/DesktopCustomers'));
+const DesktopExpenses = lazyTab(() => import('../components/DesktopExpenses'));
 
 const DEFAULT_ANNOUNCE = { active: false, text: '', type: 'info' };
 

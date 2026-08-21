@@ -24,8 +24,12 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
 const ok = [], bad = [];
+// The detail line explains a FAILURE, so only print it on failure —
+// otherwise a passing check appends the text describing what would have
+// been wrong, which reads as though the test both passed and found the
+// problem it was looking for.
 const check = (n, c, d = '') =>
-  (c ? ok : bad).push(`${c ? 'PASS' : 'FAIL'}  ${n}${d ? '\n        ' + d : ''}`);
+  (c ? ok : bad).push(`${c ? 'PASS' : 'FAIL'}  ${n}${!c && d ? '\n        ' + d : ''}`);
 
 const TOKENS = 'src/styles/tokens.css';
 const css = readFileSync(TOKENS, 'utf8');
