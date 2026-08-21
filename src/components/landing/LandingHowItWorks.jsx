@@ -38,7 +38,9 @@ export default function LandingHowItWorks({ navigate: nav }) {
           >
             <span className="lx-fig" style={{
               fontSize: 'clamp(26px,3.4vw,34px)', fontWeight: 700,
-              color: T.edge, lineHeight: 1, letterSpacing: '-0.02em',
+              // Was T.edge — the hairline colour — set at 34px. A rule and a
+              // numeral are not the same job; it measured 1.37:1.
+              color: T.textFaint, lineHeight: 1, letterSpacing: '-0.02em',
             }}>
               {String(i + 1).padStart(2, '0')}
             </span>

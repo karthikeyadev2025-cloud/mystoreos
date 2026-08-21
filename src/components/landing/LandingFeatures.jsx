@@ -19,7 +19,7 @@ import { api } from '../../lib/api';
 
 const EVERY = [
   ['Storefront & marketplace', 'Your own public page. Customers find you, order, or book.',              'All plans',  Store,      'var(--c-primary-light)'],
-  ['Thermal & A4 printing',    '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans',  Printer,    'var(--c-success)'],
+  ['Thermal & A4 printing',    '58mm and 80mm thermal receipts, plus standard A4 invoices.',            'All plans',  Printer,    'var(--c-success-strong)'],
   ['Instant alerts',           'New order or booking pings your phone — even with the app closed.',     'All plans',  Bell,       'var(--c-warning)'],
   ['Live analytics',           'Revenue, top lines, staff performance. One dashboard, always current.', 'All plans',  BarChart3,  'var(--c-cyan)'],
   ['No machine to buy',        'No POS terminal, no computer, nothing to install. Your own phone is the full billing counter.', 'All plans', Smartphone, 'var(--c-warning)'],
@@ -30,14 +30,14 @@ const RETAIL = [
   ['GST invoicing',         'GSTIN-compliant bills in seconds. GSTR-1 and GSTR-3B export built in.',     'Enterprise', ReceiptIndianRupee, 'var(--c-primary-light)'],
   ['Stock & expiry',        'Reorder points, batch numbers, and expiry warnings before you eat a loss.', 'Pro',        PackageSearch,      'var(--c-danger)'],
   ['Udhaar ledger',         'Customer balances live. Automatic WhatsApp reminders. Supplier book too.',  'All plans',  BookUser,           'var(--c-warning)'],
-  ['Distributor orders',    'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans',  Truck,              'var(--c-success)'],
+  ['Distributor orders',    'Connect to FMCG distributors. Place stock orders, track deliveries.',       'All plans',  Truck,              'var(--c-success-strong)'],
   ['Loyalty & flash sales', 'Reward regulars automatically. Run time-boxed offers on your storefront.',  'Pro',        Gift,               'var(--c-rose)'],
   ['CA portal & Tally',     'Give your accountant direct access. One-click Tally export.',               'Enterprise', FileSpreadsheet,    'var(--c-cyan)'],
   ['Voice billing',         'Say "two Parle-G" and it\u2019s on the bill. No typing, both hands free at the counter.', 'All plans', Mic, 'var(--c-violet)'],
 ];
 
 const DISTRIBUTOR = [
-  ['Van sales, fully offline',  'Bill a shop on the spot with no signal at all. Syncs the moment the van is back in range.', 'Enterprise', Truck,        'var(--c-success)'],
+  ['Van sales, fully offline',  'Bill a shop on the spot with no signal at all. Syncs the moment the van is back in range.', 'Enterprise', Truck,        'var(--c-success-strong)'],
   ['Route planning',            'Plan a rep\u2019s beat once. The app orders the stops so less time is spent driving.',       'Pro',        Route,        'var(--c-primary-light)'],
   ['Purchases & payables',      'Record what you buy from manufacturers. Real cost, real margin, what you owe them.',       'All plans',  IndianRupee,  'var(--c-warning)'],
   ['Barcode scanning',          'Scan a product to bill it or find it in seconds \u2014 no more scrolling a long list.',    'All plans',  ScanBarcode,  'var(--c-cyan)'],
@@ -45,7 +45,7 @@ const DISTRIBUTOR = [
 ];
 
 const SERVICES = (addonPrice) => [
-  ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro',        CalendarCheck,     'var(--c-success)'],
+  ['Online booking',       'Customers book from your public page. Double-booking blocked automatically.', 'Pro',        CalendarCheck,     'var(--c-success-strong)'],
   ['Staff scheduling',     'Assign services to specific staff. Per-person hours and time off.',           'Pro',        UsersRound,        'var(--c-primary-light)'],
   ['Automatic reminders',  'WhatsApp and SMS, 24 hours and 1 hour before. No-shows drop sharply.',        'Pro',        MessageSquareDot,  'var(--c-warning)'],
   ['Self-service changes', 'Customers reschedule or cancel by link. No phone calls.',                     'Pro',        Link2,             'var(--c-cyan)'],
@@ -56,9 +56,9 @@ const SERVICES = (addonPrice) => [
 ];
 
 const PLAN_TONE = {
-  'All plans':  { fg: 'var(--c-success)', bg: 'rgba(52,211,153,0.12)' },
+  'All plans':  { fg: 'var(--c-success-strong)', bg: 'var(--c-success-soft)' },
   'Pro':        { fg: 'var(--c-primary)', bg: 'var(--c-primary-soft)' },
-  'Enterprise': { fg: 'var(--c-warning)', bg: 'var(--c-accent-soft)' },
+  'Enterprise': { fg: 'var(--c-accent-text)', bg: 'var(--c-accent-soft)' },
 };
 // Add-on badges carry a live price ("Add-on ₹199/mo") rather than a
 // fixed tier name, so they can't be exact-matched against PLAN_TONE's

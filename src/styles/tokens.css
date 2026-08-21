@@ -52,11 +52,20 @@
      accented, nothing is. */
   --c-accent:         #E9A72C;
   --c-accent-hover:   #D0901A;
+  /* Amber is a FILL. As text it measures 2.09:1 on white — unreadable at
+     any size. Anything that needs to say "money" in words uses this
+     instead: same hue, 5.29:1 on cream, 5.23:1 on --c-accent-soft. */
+  --c-accent-text:    #8A5D00;
+  /* Display-size amber. WCAG needs only 3:1 at 24px+, so a headline can
+     carry a richer gold than body copy can. --c-accent-text at #8A5D00
+     is correct for 13px labels and reads olive-brown at 60px next to
+     navy; this is 3.62:1 and still looks like gold. Large text ONLY. */
+  --c-accent-display: #AD7500;
   --c-accent-soft:    #FDF3E0;
   --c-accent-border:  #F3D9A4;
 
   --c-success:        #22C55E;
-  --c-success-strong: #15803D;   /* text on success-soft */
+  --c-success-strong: #137A38;   /* text on success-soft or white - AA */
   --c-success-soft:   #ECFDF3;
   --c-warning:        #E9A72C;
   --c-warning-strong: #92610A;   /* text on warning-soft */
@@ -71,7 +80,12 @@
   --c-ink:            #0B1F33;   /* primary text */
   --c-ink-2:          #33414F;   /* secondary text */
   --c-muted:          #5A6672;   /* tertiary / labels */
-  --c-faint:          #8B96A2;   /* placeholder / hints */
+  /* Was #8B96A2, straight from heynikki.in. Measured on this app's cream
+     it gives 2.76:1 — it fails WCAG AA everywhere it is used as text, and
+     it was used as text in 31 places on the landing page alone. Darkened
+     to 4.75:1. The gap to --c-muted narrows, which is the correct trade:
+     a third grey that cannot be read is not a third grey. */
+  --c-faint:          #646E7B;   /* placeholder / hints - AA on cream */
   --c-line:           #D9D3C7;   /* borders / dividers - see note above */
   --c-line-strong:    #C3BBAB;   /* table gridlines under load */
   --c-line-soft:      #EFECE5;

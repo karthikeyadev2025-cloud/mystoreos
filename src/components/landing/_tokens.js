@@ -48,7 +48,10 @@ export const T = {
   text:        'var(--c-ink)',
   textSoft:    'var(--c-muted)',
   textFaint:   'var(--c-faint)',
-  textGhost:   'var(--c-line-strong)',
+  // On the dark page this was a barely-there tint used for step numbers
+  // and column heads. Ported literally it became a border colour used as
+  // text at 1.75:1. It is a real, readable grey now.
+  textGhost:   'var(--c-faint)',
 
   // Brand — navy carries the structure
   brand:       'var(--c-primary)',
@@ -57,7 +60,10 @@ export const T = {
   brandGlow:   'rgba(18, 69, 122, 0.10)',
 
   // Amber — money, totals, the bottom line. The second voice.
+  // Amber as a FILL. For amber-coloured TEXT use goldText — plain amber
+  // measures 2.09:1 on white and cannot be read at any size.
   gold:        'var(--c-accent)',
+  goldText:    'var(--c-accent-text)',
   goldBright:  'var(--c-accent-hover)',
   goldGlow:    'rgba(233, 167, 44, 0.14)',
 

@@ -13,10 +13,10 @@ import { T, F } from './_tokens';
 // void, a warm gold glow under the total, rows posting in one by one.
 
 const RETAIL_ROWS = [
-  ['Toor dal 1kg',     '2', '136'],
-  ['Sunflower oil 1L', '1', '142'],
-  ['Parle-G 200g',     '5', '150'],
-  ['Detergent 500g',   '1', '95'],
+  ['Toor dal 1kg',   '2', '136'],
+  ['Sunflower oil', '1', '142'],
+  ['Parle-G 200g',   '5', '150'],
+  ['Soap bar',       '1', '95'],
 ];
 
 const SERVICE_ROWS = [
@@ -128,20 +128,12 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
 
       <div style={{ maxWidth: 1120, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
-        {/* ── Logo + wordmark ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 30 }}>
-          <MLogo size={44} radius={12} />
-          <div>
-            <div style={{
-              fontFamily: F.display, fontSize: 19, fontWeight: 800,
-              letterSpacing: '-0.02em', color: T.text, lineHeight: 1.1,
-            }}>{config.siteName || 'MyStore OS'}</div>
-            <div style={{
-              fontFamily: F.mono, fontSize: 9.5, letterSpacing: '0.14em',
-              textTransform: 'uppercase', color: T.textFaint, marginTop: 2,
-            }}>Billing &amp; Bookings</div>
-          </div>
-        </div>
+        {/* The brand lockup that used to sit here has been removed. The
+            sticky nav carries the same logo and wordmark 40px above it,
+            so this was the identical mark twice in one screenful — the
+            second one occupying the most valuable space on the page,
+            directly above the headline, and saying nothing new. The
+            headline now starts higher and reads sooner. */}
 
         <div className="lx-hero-grid">
           {/* ── Left: the pitch ── */}
@@ -151,18 +143,22 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
             </span>
 
             <h1 className="lx-title" style={{
-              fontSize: 'clamp(36px,5.4vw,62px)', margin: '0 0 20px', maxWidth: '13ch',
+              fontSize: 'clamp(36px,5.4vw,60px)', margin: '0 0 20px', maxWidth: '16ch',
             }}>
               {lines.map((line, i) => (
                 <span key={i} className="lx-post" style={{
                   display: 'block',
                   animationDelay: `${80 + i * 90}ms`,
-                  ...(i === lines.length - 1 ? {
-                    background: `linear-gradient(120deg, ${T.brandBright}, ${T.goldBright})`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  } : { color: T.text }),
+                  // Was a navy-to-amber gradient text fill. Two problems on a
+                  // light ground: the amber end sits at 1.92:1 on cream, so
+                  // the tail of the phrase faded out; and gradient text is
+                  // INVISIBLE to contrast checking — WebkitTextFillColor is
+                  // transparent, so an automated audit reports it as passing
+                  // while a reader cannot make out the last word.
+                  // Solid display gold instead: emphatic, measurable, 3.62:1.
+                  ...(i === lines.length - 1
+                    ? { color: 'var(--c-accent-display)' }
+                    : { color: T.text }),
                 }}>{line}</span>
               ))}
             </h1>
@@ -247,11 +243,11 @@ export default function LandingHero({ hero = {}, navigate: nav, config = {} }) {
               }}>
                 <span style={{
                   fontFamily: F.mono, fontSize: 10.5, fontWeight: 700,
-                  letterSpacing: '0.14em', textTransform: 'uppercase', color: T.gold,
+                  letterSpacing: '0.14em', textTransform: 'uppercase', color: T.goldText,
                 }}>Day total</span>
                 <span className="lx-fig" style={{
                   fontSize: 'clamp(21px,2.6vw,27px)', fontWeight: 700,
-                  color: T.goldBright, letterSpacing: '-0.02em',
+                  color: T.goldText, letterSpacing: '-0.02em',
                   textShadow: `0 0 28px ${T.goldGlow}`,
                 }}>₹3,673</span>
               </div>

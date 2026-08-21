@@ -21,7 +21,8 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:db": "node tests/db/p4-authorization.test.mjs && node tests/db/p4-injection.test.mjs && node tests/db/pricing.test.mjs && node tests/db/p6-rls-gaps.test.mjs",
-    "test:theme": "node tests/db/theme-integrity.test.mjs"
+    "test:theme": "node tests/db/theme-integrity.test.mjs",
+    "test:contrast": "playwright test tests/visual/contrast.spec.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.0",

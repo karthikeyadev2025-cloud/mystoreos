@@ -25,7 +25,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
       }} />
 
       <div style={{ maxWidth: 780, margin: '0 auto', position: 'relative' }}>
-        <span className="lx-eyebrow" style={{ color: T.brandBright }}>
+        <span className="lx-eyebrow" style={{ color: 'var(--c-accent)' }}>
           Closing balance
         </span>
 
@@ -39,7 +39,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
 
         <p style={{
           fontFamily: F.body, fontSize: 'clamp(15px,1.8vw,17px)',
-          color: 'rgba(255,255,255,0.62)', lineHeight: 1.7,
+          color: 'rgba(255,255,255,0.82)', lineHeight: 1.7,
           margin: '18px 0 32px', maxWidth: 480,
         }}>
           Fifteen days, every feature unlocked, no card. If it doesn&apos;t save you
@@ -58,8 +58,8 @@ export default function LandingFinalCTA({ navigate: nav }) {
             className="lx-btn"
             onClick={() => navigate('/login')}
             style={{
-              background: 'transparent', color: 'rgba(255,255,255,0.8)',
-              borderColor: 'rgba(255,255,255,0.24)',
+              background: 'transparent', color: 'rgba(255,255,255,0.92)',
+              borderColor: 'rgba(255,255,255,0.35)',
             }}
           >
             Sign in
@@ -67,7 +67,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
         </div>
 
         <p style={{
-          fontFamily: F.mono, fontSize: 11, color: 'rgba(255,255,255,0.38)',
+          fontFamily: F.mono, fontSize: 11, color: 'rgba(255,255,255,0.72)',
           letterSpacing: '0.03em', margin: 0,
         }}>
           Works offline · Export everything, any time · Cancel whenever
