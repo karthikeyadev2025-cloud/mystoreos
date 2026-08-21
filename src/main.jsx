@@ -3,22 +3,31 @@ import { createRoot } from 'react-dom/client'
 // Self-hosted brand fonts, matching heynikki.in. Self-hosted rather than
 // loaded from Google's CDN: this ships inside a Capacitor Android wrapper,
 // where a CDN font fetch is a network round trip on first paint and simply
-// fails when the device is offline. Plus Jakarta Sans was the old face and
-// is gone — leaving it imported would have precached ~350 kB of fonts the
-// app never renders.
-import '@fontsource/manrope/400.css'
-import '@fontsource/manrope/500.css'
-import '@fontsource/manrope/600.css'
-import '@fontsource/manrope/700.css'
-import '@fontsource/manrope/800.css'
-import '@fontsource-variable/bricolage-grotesque'
-import '@fontsource/jetbrains-mono/400.css'
-import '@fontsource/jetbrains-mono/500.css'
-import '@fontsource/jetbrains-mono/700.css'
+// fails when the device is offline.
+//
+// LATIN SUBSETS ONLY, deliberately. The bare '@fontsource/manrope/400.css'
+// entrypoint pulls every subset the family ships — vietnamese, greek,
+// cyrillic, latin-ext, latin — in both .woff and .woff2. Importing all of
+// them added ~690 kB to the PWA precache, which every user downloads on
+// install. This app serves Indian retailers; nobody here renders Cyrillic.
+// Telugu is the one non-latin script that matters and is imported
+// explicitly below.
+import '@fontsource/manrope/latin-400.css'
+import '@fontsource/manrope/latin-500.css'
+import '@fontsource/manrope/latin-600.css'
+import '@fontsource/manrope/latin-700.css'
+import '@fontsource/manrope/latin-800.css'
+import '@fontsource/jetbrains-mono/latin-400.css'
+import '@fontsource/jetbrains-mono/latin-500.css'
+import '@fontsource/jetbrains-mono/latin-700.css'
 // Telugu coverage — Manrope has none, so te-IN copy would otherwise fall
-// back to whatever the OS ships.
-import '@fontsource/noto-sans-telugu/400.css'
-import '@fontsource/noto-sans-telugu/600.css'
+// back to whatever the OS happens to ship.
+import '@fontsource/noto-sans-telugu/telugu-400.css'
+import '@fontsource/noto-sans-telugu/telugu-600.css'
+// Bricolage Grotesque (display face) has no per-subset entrypoint, so its
+// @font-face is declared by hand in styles/fonts.css against the latin
+// file only.
+import './styles/fonts.css'
 import './styles/tokens.css'
 import './index.css'
 import App from './App.jsx'

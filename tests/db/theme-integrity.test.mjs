@@ -118,10 +118,41 @@ const html = readFileSync('index.html', 'utf8');
 check('no CDN font links (fonts are self-hosted)',
       !/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html));
 
-const mainJsx = readFileSync('src/main.jsx', 'utf8');
-for (const pkg of ['manrope', 'bricolage-grotesque', 'jetbrains-mono', 'noto-sans-telugu']) {
-  check(`${pkg} imported in main.jsx`, mainJsx.includes(pkg));
+// Each family must actually be loaded somewhere. Bricolage arrives via a
+// hand-written @font-face in styles/fonts.css rather than an @fontsource
+// entrypoint (variable fonts have no per-subset import), so check the
+// whole font-loading surface, not just main.jsx.
+const fontSurface = ['src/main.jsx', 'src/styles/fonts.css']
+  .map((f) => readFileSync(f, 'utf8')).join('\n');
+for (const family of ['manrope', 'bricolage-grotesque', 'jetbrains-mono', 'noto-sans-telugu']) {
+  check(`${family} is loaded`, fontSurface.toLowerCase().includes(family));
 }
+
+// Latin subsets only. A bare '@fontsource/<family>/400.css' pulls
+// vietnamese, greek, cyrillic and latin-ext too — ~690 kB of extra
+// precache for an app serving Indian retailers. Telugu is the one
+// non-latin script that is wanted, and is imported by name.
+const mainJsx = readFileSync('src/main.jsx', 'utf8');
+// Only real import lines — the comment above them names the bad pattern
+// on purpose, and matching that would be a false positive.
+const wideImports = mainJsx.split('\n')
+  .filter((l) => /^\s*import\s/.test(l))
+  .filter((l) => /@fontsource\/[a-z-]+\/\d+\.css/.test(l))
+  .map((l) => l.trim());
+check('no all-subset @fontsource imports', wideImports.length === 0,
+      wideImports.slice(0, 4).join(', '));
+
+// The display face has to be used, or it is bytes for nothing — which is
+// what shipped first: --font-display was referenced only by .ds-h-section,
+// which no component uses.
+check('display face is applied to something real',
+      /h1,\s*h2,\s*h3\s*\{[^}]*--font-display/.test(css),
+      'nothing outside .ds-h-section references --font-display');
+
+// woff2 only in the precache; the .woff twins are dead weight there.
+const viteConfig = readFileSync('vite.config.js', 'utf8');
+const glob = viteConfig.match(/globPatterns:\s*\[([^\]]*)\]/)?.[1] ?? '';
+check('precache glob excludes .woff', !/[,{]woff[,}]/.test(glob), glob.trim());
 
 // ── 6. brand colors preserved ───────────────────────────────────────
 const all = files.map((f) => readFileSync(f, 'utf8')).join('\n');

@@ -50,7 +50,13 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: null,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
+        // woff deliberately excluded. @fontsource ships a .woff twin of
+        // every .woff2 as a fallback for browsers predating 2016. No
+        // browser that can run this app will ever request one, but
+        // workbox precaches by file extension, not by what gets fetched
+        // — so including them made every user download a second full
+        // copy of every typeface on install.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff2}'],
         maximumFileSizeToCacheInBytes: 4_000_000,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/auth/, /^\/supabase/],

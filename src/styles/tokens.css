@@ -173,6 +173,22 @@
   --header-h: 64px;
 }
 
+
+/* The display face applies to real headings. Before this rule
+   --font-display was referenced only by .ds-h-section, which no component
+   uses — so Bricolage Grotesque was being downloaded and rendered
+   nowhere. Scoped to h1-h3 rather than pushed through all 56 components:
+   a display face belongs on headings, and the app sets most of its type
+   through inline styles that inherit --font-sans, which is correct.
+
+   h4-h6 are left on the body face on purpose. At small sizes Bricolage's
+   tighter apertures cost more legibility than the character is worth,
+   and in this app h4 is often a table or card sub-label. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
 /* Telugu copy picks up Noto Sans Telugu automatically. Manrope has no
    Telugu coverage, so without this the browser falls back to whatever
    the OS happens to ship - which is how Telugu ends up rendering at a
