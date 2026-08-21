@@ -24,7 +24,7 @@ export const POSTS = {
   'paper-ledger-to-digital': {
     title: "From Paper Ledger to Digital: A Wholesale Distributor's Story",
     description: 'How a South Indian FMCG distributor moved 200+ shops onto a single dashboard — and recovered ₹3 lakh in stuck dues in the first month.',
-    accent: '#818CF8',
+    accent: 'var(--c-primary-light)',
     location: 'Coimbatore, Tamil Nadu',
     shopType: 'FMCG Wholesale Distribution',
     savingsHighlight: '₹3 lakh recovered (month 1)',

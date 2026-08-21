@@ -77,7 +77,7 @@ export default function AuthCallback() {
       <MLogo size={48} radius={13} />
       {!error ? (
         <>
-          <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, marginTop: 20 }}>
+          <div style={{ color: 'var(--c-surface)', fontSize: 18, fontWeight: 700, marginTop: 20 }}>
             Finishing sign-in…
           </div>
           <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 6 }}>
@@ -86,11 +86,11 @@ export default function AuthCallback() {
         </>
       ) : (
         <>
-          <div style={{ color: '#FCA5A5', fontSize: 15, fontWeight: 600, marginTop: 20, textAlign: 'center', maxWidth: 360 }}>
+          <div style={{ color: 'var(--c-danger-border)', fontSize: 15, fontWeight: 600, marginTop: 20, textAlign: 'center', maxWidth: 360 }}>
             {error}
           </div>
           <button onClick={() => navigate('/login', { replace: true })}
-            style={{ marginTop: 20, padding: '10px 20px', background: '#4F46E5', color: '#fff',
+            style={{ marginTop: 20, padding: '10px 20px', background: 'var(--c-primary)', color: 'var(--c-surface)',
               border: 'none', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
             Back to login
           </button>

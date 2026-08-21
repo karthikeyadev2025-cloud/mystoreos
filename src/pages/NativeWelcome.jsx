@@ -27,8 +27,8 @@ export default function NativeWelcome() {
         inset: 0,
         width: '100vw',
         height: '100vh',
-        background: '#0F172A',
-        backgroundImage: 'radial-gradient(circle at 50% 30%, #312E81 0%, #1E1B4B 40%, #0F172A 100%)',
+        background: 'var(--c-ink)',
+        backgroundImage: 'radial-gradient(circle at 50% 30%, #312E81 0%, #1E1B4B 40%, var(--c-ink) 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -69,7 +69,7 @@ export default function NativeWelcome() {
         display: 'none',
         width: 110,
         height: 110,
-        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+        background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)',
         borderRadius: 26,
         alignItems: 'center',
         justifyContent: 'center',
@@ -80,7 +80,7 @@ export default function NativeWelcome() {
         <span style={{
           fontSize: 64,
           fontWeight: 900,
-          color: '#FFFFFF',
+          color: 'var(--c-surface)',
           lineHeight: 1,
         }}>M</span>
       </div>
@@ -93,7 +93,7 @@ export default function NativeWelcome() {
         textAlign: 'center',
         lineHeight: 1.2,
         marginBottom: 10,
-        color: '#FFFFFF',
+        color: 'var(--c-surface)',
         letterSpacing: '-0.5px',
       }}>
         Welcome to <span style={{ color: '#A5B4FC' }}>MyStore OS</span>
@@ -107,7 +107,7 @@ export default function NativeWelcome() {
         marginBottom: 44,
         maxWidth: 300,
         lineHeight: 1.5,
-        color: '#CBD5E1',
+        color: 'var(--c-line-strong)',
       }}>
         Bill faster. Track smarter.<br/>
         India's #1 retail operating system.
@@ -115,7 +115,7 @@ export default function NativeWelcome() {
       
       {/* CTA button */}
       <div style={{
-        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+        background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)',
         borderRadius: 14,
         padding: '14px 32px',
         display: 'flex',
@@ -123,11 +123,11 @@ export default function NativeWelcome() {
         gap: 10,
         fontSize: 15,
         fontWeight: 700,
-        color: '#FFFFFF',
+        color: 'var(--c-surface)',
         boxShadow: '0 10px 30px rgba(79, 70, 229, 0.4)',
       }}>
-        <span style={{ color: '#FFFFFF' }}>Tap to Sign In</span>
-        <span style={{ color: '#FFFFFF', fontSize: 18 }}>→</span>
+        <span style={{ color: 'var(--c-surface)' }}>Tap to Sign In</span>
+        <span style={{ color: 'var(--c-surface)', fontSize: 18 }}>→</span>
       </div>
       
       {/* Loading dots */}
@@ -136,9 +136,9 @@ export default function NativeWelcome() {
         display: 'flex',
         gap: 6,
       }}>
-        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out infinite' }} />
-        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out 0.2s infinite' }} />
-        <span style={{ width: 6, height: 6, borderRadius: 3, background: '#6366F1', animation: 'pulse 1.4s ease-in-out 0.4s infinite' }} />
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--c-primary-light)', animation: 'pulse 1.4s ease-in-out infinite' }} />
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--c-primary-light)', animation: 'pulse 1.4s ease-in-out 0.2s infinite' }} />
+        <span style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--c-primary-light)', animation: 'pulse 1.4s ease-in-out 0.4s infinite' }} />
       </div>
       
       {/* Bottom branding - EXPLICIT */}
@@ -149,7 +149,7 @@ export default function NativeWelcome() {
         right: 0,
         textAlign: 'center',
         fontSize: 11,
-        color: '#94A3B8',
+        color: 'var(--c-faint)',
         letterSpacing: '0.5px',
       }}>
         An innovation by Nikki Tech Labs

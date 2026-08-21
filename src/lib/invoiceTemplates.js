@@ -86,13 +86,13 @@ function shell(bodyHtml, { widthMm = 210, paperFormat = 'a4', isDuplicate = fals
   if (isDuplicate && !isThermal) {
     content = `
       <div class="invoice-copy original-copy">
-        <div style="background:#0F172A;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
+        <div style="background:#0B1F33;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
           ORIGINAL FOR RECIPIENT
         </div>
         ${bodyHtml}
       </div>
       <div style="page-break-before: always; margin-top: 15px;" class="invoice-copy duplicate-copy">
-        <div style="background:#334155;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
+        <div style="background:#33414F;color:#FFF;font-size:10px;font-weight:800;letter-spacing:1px;text-align:center;padding:3px;text-transform:uppercase;margin-bottom:8px;border-radius:4px;">
           DUPLICATE FOR SUPPLIER / TRANSPORTER
         </div>
         ${bodyHtml}
@@ -110,7 +110,7 @@ function shell(bodyHtml, { widthMm = 210, paperFormat = 'a4', isDuplicate = fals
   html, body { margin: 0; padding: 0; background: #fff; }
   body {
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    color: #0F172A;
+    color: #0B1F33;
     width: ${printBodyWidth};
     max-width: 100%;
     margin: 0 auto;
@@ -153,48 +153,48 @@ function renderClassic(data, widthMm) {
   const { subtotal, total } = computeTotals(data);
   const rows = (data.items || []).map((it, i) => `
     <tr>
-      <td style="padding:7px 6px;border-bottom:1px solid #EEF0F3;">${i + 1}</td>
-      <td style="padding:7px 6px;border-bottom:1px solid #EEF0F3;">${esc(it.name)}</td>
-      <td style="padding:7px 6px;border-bottom:1px solid #EEF0F3;text-align:center;">${int(it.qty)}</td>
-      <td style="padding:7px 6px;border-bottom:1px solid #EEF0F3;text-align:right;">${money(it.rate)}</td>
-      <td style="padding:7px 6px;border-bottom:1px solid #EEF0F3;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
+      <td style="padding:7px 6px;border-bottom:1px solid #EFECE5;">${i + 1}</td>
+      <td style="padding:7px 6px;border-bottom:1px solid #EFECE5;">${esc(it.name)}</td>
+      <td style="padding:7px 6px;border-bottom:1px solid #EFECE5;text-align:center;">${int(it.qty)}</td>
+      <td style="padding:7px 6px;border-bottom:1px solid #EFECE5;text-align:right;">${money(it.rate)}</td>
+      <td style="padding:7px 6px;border-bottom:1px solid #EFECE5;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
     </tr>`).join('');
 
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '10px 8px'};">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F172A;padding-bottom:14px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0B1F33;padding-bottom:14px;margin-bottom:16px;">
         <div>
           <div style="font-size:19px;font-weight:800;">${esc(data.shopName || 'Shop')}</div>
-          ${data.shopAddress ? `<div style="font-size:11px;color:#64748B;margin-top:2px;">${esc(data.shopAddress)}</div>` : ''}
-          ${data.shopPhone ? `<div style="font-size:11px;color:#64748B;">${esc(data.shopPhone)}</div>` : ''}
+          ${data.shopAddress ? `<div style="font-size:11px;color:#5A6672;margin-top:2px;">${esc(data.shopAddress)}</div>` : ''}
+          ${data.shopPhone ? `<div style="font-size:11px;color:#5A6672;">${esc(data.shopPhone)}</div>` : ''}
         </div>
         <div style="text-align:right;">
-          <div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:0.06em;">Invoice</div>
+          <div style="font-size:11px;color:#5A6672;text-transform:uppercase;letter-spacing:0.06em;">Invoice</div>
           <div style="font-size:14px;font-weight:700;">${esc(data.billNo || '')}</div>
-          <div style="font-size:11px;color:#64748B;">${esc(data.dateStr || '')}</div>
+          <div style="font-size:11px;color:#5A6672;">${esc(data.dateStr || '')}</div>
         </div>
       </div>
       ${data.customerName ? `<div style="margin-bottom:14px;font-size:12px;"><b>Bill to:</b> ${esc(data.customerName)} ${data.customerPhone ? `· ${esc(data.customerPhone)}` : ''}</div>` : ''}
       <table>
-        <thead><tr style="background:#F8FAFC;">
-          <th style="padding:7px 6px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748B;">#</th>
-          <th style="padding:7px 6px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748B;">Item</th>
-          <th style="padding:7px 6px;text-align:center;font-size:10px;text-transform:uppercase;color:#64748B;">Qty</th>
-          <th style="padding:7px 6px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748B;">Rate</th>
-          <th style="padding:7px 6px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748B;">Amount</th>
+        <thead><tr style="background:#F7F5F0;">
+          <th style="padding:7px 6px;text-align:left;font-size:10px;text-transform:uppercase;color:#5A6672;">#</th>
+          <th style="padding:7px 6px;text-align:left;font-size:10px;text-transform:uppercase;color:#5A6672;">Item</th>
+          <th style="padding:7px 6px;text-align:center;font-size:10px;text-transform:uppercase;color:#5A6672;">Qty</th>
+          <th style="padding:7px 6px;text-align:right;font-size:10px;text-transform:uppercase;color:#5A6672;">Rate</th>
+          <th style="padding:7px 6px;text-align:right;font-size:10px;text-transform:uppercase;color:#5A6672;">Amount</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
         <div style="width:220px;">
-          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#64748B;"><span>Subtotal</span><span>₹${money(subtotal)}</span></div>
-          ${data.discountAmount ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#DC2626;"><span>Discount</span><span>-₹${money(data.discountAmount)}</span></div>` : ''}
-          ${data.roundOff ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#64748B;"><span>Round off</span><span>${data.roundOff > 0 ? '+' : ''}₹${money(data.roundOff)}</span></div>` : ''}
-          <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid #0F172A;font-size:16px;font-weight:800;"><span>Total</span><span>₹${money(total)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#5A6672;"><span>Subtotal</span><span>₹${money(subtotal)}</span></div>
+          ${data.discountAmount ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#9B2C22;"><span>Discount</span><span>-₹${money(data.discountAmount)}</span></div>` : ''}
+          ${data.roundOff ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:#5A6672;"><span>Round off</span><span>${data.roundOff > 0 ? '+' : ''}₹${money(data.roundOff)}</span></div>` : ''}
+          <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid #0B1F33;font-size:16px;font-weight:800;"><span>Total</span><span>₹${money(total)}</span></div>
         </div>
       </div>
-      ${data.paymentMode ? `<div style="margin-top:14px;font-size:11px;color:#64748B;">Payment: ${esc(data.paymentMode)}</div>` : ''}
-      ${data.footerNote ? `<div style="margin-top:20px;text-align:center;font-size:11px;color:#94A3B8;">${esc(data.footerNote)}</div>` : ''}
+      ${data.paymentMode ? `<div style="margin-top:14px;font-size:11px;color:#5A6672;">Payment: ${esc(data.paymentMode)}</div>` : ''}
+      ${data.footerNote ? `<div style="margin-top:20px;text-align:center;font-size:11px;color:#8B96A2;">${esc(data.footerNote)}</div>` : ''}
     </div>`;
   return shell(body, { widthMm });
 }
@@ -340,23 +340,23 @@ function renderGstTax(data, widthMm) {
 
   const rows = items.map((it, i) => `
     <tr>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;">${i + 1}</td>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;">${esc(it.name)}</td>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${esc(it.hsn || '-')}</td>
-      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.jars != null ? int(it.jars) : ''}</td>` : ''}
-      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.boxes != null ? int(it.boxes) : ''}</td>` : ''}
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${int(it.qty)}</td>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:right;">${money(it.rate)}</td>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:center;">${it.gstPct || 0}%</td>
-      <td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;">${i + 1}</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;">${esc(it.name)}</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:center;">${esc(it.hsn || '-')}</td>
+      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:center;">${it.jars != null ? int(it.jars) : ''}</td>` : ''}
+      ${hasJarsBoxes ? `<td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:center;">${it.boxes != null ? int(it.boxes) : ''}</td>` : ''}
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:center;">${int(it.qty)}</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:right;">${money(it.rate)}</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:center;">${it.gstPct || 0}%</td>
+      <td style="padding:6px;border-bottom:1px solid #D9D3C7;text-align:right;font-weight:600;">${money((Number(it.rate) || 0) * (Number(it.qty) || 0))}</td>
     </tr>`).join('');
 
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '8px'};">
-      <div style="text-align:center;border-bottom:2px solid #0F172A;padding-bottom:10px;margin-bottom:14px;">
+      <div style="text-align:center;border-bottom:2px solid #0B1F33;padding-bottom:10px;margin-bottom:14px;">
         <div style="font-size:19px;font-weight:800;">${esc(data.shopName || 'Shop')}</div>
-        ${data.shopAddress ? `<div style="font-size:11px;color:#64748B;">${esc(data.shopAddress)}</div>` : ''}
-        ${data.shopGSTIN ? `<div style="font-size:11px;color:#64748B;">GSTIN: ${esc(data.shopGSTIN)}</div>` : ''}
+        ${data.shopAddress ? `<div style="font-size:11px;color:#5A6672;">${esc(data.shopAddress)}</div>` : ''}
+        ${data.shopGSTIN ? `<div style="font-size:11px;color:#5A6672;">GSTIN: ${esc(data.shopGSTIN)}</div>` : ''}
         <div style="font-size:13px;font-weight:700;margin-top:6px;letter-spacing:0.06em;">TAX INVOICE</div>
       </div>
       <table style="margin-bottom:12px;"><tr>
@@ -364,16 +364,16 @@ function renderGstTax(data, widthMm) {
         <td style="font-size:11px;text-align:right;">${data.customerName ? `<b>Bill to:</b> ${esc(data.customerName)}<br/>${esc(data.customerPhone || '')}` : ''}</td>
       </tr></table>
       <table>
-        <thead><tr style="background:#F8FAFC;">
-          <th style="padding:6px;text-align:left;font-size:9.5px;color:#64748B;">#</th>
-          <th style="padding:6px;text-align:left;font-size:9.5px;color:#64748B;">Item</th>
-          <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">HSN</th>
-          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Jars</th>' : ''}
-          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Boxes</th>' : ''}
-          <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">Qty</th>
-          <th style="padding:6px;text-align:right;font-size:9.5px;color:#64748B;">Rate</th>
-          <th style="padding:6px;text-align:center;font-size:9.5px;color:#64748B;">GST</th>
-          <th style="padding:6px;text-align:right;font-size:9.5px;color:#64748B;">Amount</th>
+        <thead><tr style="background:#F7F5F0;">
+          <th style="padding:6px;text-align:left;font-size:9.5px;color:#5A6672;">#</th>
+          <th style="padding:6px;text-align:left;font-size:9.5px;color:#5A6672;">Item</th>
+          <th style="padding:6px;text-align:center;font-size:9.5px;color:#5A6672;">HSN</th>
+          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#5A6672;">Jars</th>' : ''}
+          ${hasJarsBoxes ? '<th style="padding:6px;text-align:center;font-size:9.5px;color:#5A6672;">Boxes</th>' : ''}
+          <th style="padding:6px;text-align:center;font-size:9.5px;color:#5A6672;">Qty</th>
+          <th style="padding:6px;text-align:right;font-size:9.5px;color:#5A6672;">Rate</th>
+          <th style="padding:6px;text-align:center;font-size:9.5px;color:#5A6672;">GST</th>
+          <th style="padding:6px;text-align:right;font-size:9.5px;color:#5A6672;">Amount</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -383,11 +383,11 @@ function renderGstTax(data, widthMm) {
           <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>CGST</span><span>₹${money(cgst)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>SGST</span><span>₹${money(sgst)}</span></div>
           ${data.roundOff ? `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Round off</span><span>${data.roundOff > 0 ? '+' : ''}₹${money(data.roundOff)}</span></div>` : ''}
-          <div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:6px;border-top:2px solid #0F172A;font-size:15px;font-weight:800;"><span>Total</span><span>₹${money(total)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:6px;border-top:2px solid #0B1F33;font-size:15px;font-weight:800;"><span>Total</span><span>₹${money(total)}</span></div>
         </div>
       </div>
       <div style="margin-top:14px;font-size:11px;">${esc(amountInWordsLine(total))}</div>
-      <div style="margin-top:24px;font-size:10px;color:#94A3B8;text-align:center;">Computer-generated invoice. No signature required.</div>
+      <div style="margin-top:24px;font-size:10px;color:#8B96A2;text-align:center;">Computer-generated invoice. No signature required.</div>
     </div>`;
   return shell(body, { widthMm });
 }
@@ -404,12 +404,12 @@ function renderMinimal(data, widthMm) {
   const body = `
     <div style="padding:${widthMm === 210 ? '0' : '6px'};">
       <div style="text-align:center;font-weight:800;font-size:14px;">${esc(data.shopName || 'Shop')}</div>
-      <div style="text-align:center;font-size:10px;color:#64748B;">${esc(data.dateStr || '')} · ${esc(data.billNo || '')}</div>
+      <div style="text-align:center;font-size:10px;color:#5A6672;">${esc(data.dateStr || '')} · ${esc(data.billNo || '')}</div>
       <div style="border-top:1px dashed #999;margin:8px 0;"></div>
       ${rows}
       <div style="border-top:1px dashed #999;margin:8px 0;"></div>
       <div style="display:flex;justify-content:space-between;font-weight:800;font-size:13px;"><span>TOTAL</span><span>₹${money(total)}</span></div>
-      ${data.footerNote ? `<div style="text-align:center;margin-top:10px;font-size:10px;color:#94A3B8;">${esc(data.footerNote)}</div>` : ''}
+      ${data.footerNote ? `<div style="text-align:center;margin-top:10px;font-size:10px;color:#8B96A2;">${esc(data.footerNote)}</div>` : ''}
     </div>`;
   return shell(body, { widthMm });
 }
@@ -418,7 +418,7 @@ function renderMinimal(data, widthMm) {
 function renderModern(data, widthMm) {
   const { subtotal, total } = computeTotals(data);
   const items = data.items || [];
-  const accent = data.accentColor || '#4F46E5';
+  const accent = data.accentColor || '#12457A';
   const rows = items.map((it, i) => `
     <tr>
       <td style="padding:8px 6px;${i % 2 ? `background:${accent}08;` : ''}">${esc(it.name)}</td>
@@ -448,11 +448,11 @@ function renderModern(data, widthMm) {
       </table>
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
         <div style="width:220px;background:${accent}0D;border-radius:8px;padding:12px 16px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748B;"><span>Subtotal</span><span>₹${money(subtotal)}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#5A6672;"><span>Subtotal</span><span>₹${money(subtotal)}</span></div>
           <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:17px;font-weight:800;color:${accent};"><span>Total</span><span>₹${money(total)}</span></div>
         </div>
       </div>
-      ${data.footerNote ? `<div style="text-align:center;margin-top:20px;font-size:11px;color:#94A3B8;">${esc(data.footerNote)}</div>` : ''}
+      ${data.footerNote ? `<div style="text-align:center;margin-top:20px;font-size:11px;color:#8B96A2;">${esc(data.footerNote)}</div>` : ''}
     </div>`;
   return shell(body, { widthMm });
 }
@@ -490,15 +490,15 @@ function renderCatalog(data, widthMm) {
 
   const sections = categoryNames.map(cat => `
     <div style="margin-bottom:24px;">
-      <div style="font-size:13px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #4F46E5;padding-bottom:6px;margin-bottom:12px;">${esc(cat)}</div>
+      <div style="font-size:13px;font-weight:800;color:#12457A;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #12457A;padding-bottom:6px;margin-bottom:12px;">${esc(cat)}</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
         ${groups[cat].map(p => `
-          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;background:#FAFBFC;display:flex;gap:12px;align-items:center;">
-            ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid #E2E8F0;" />` : ''}
+          <div style="border:1px solid #D9D3C7;border-radius:10px;padding:12px 14px;background:#FAFBFC;display:flex;gap:12px;align-items:center;">
+            ${p.image ? `<img src="${esc(p.image)}" alt="" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid #D9D3C7;" />` : ''}
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px;">${esc(p.name)}</div>
-              ${p.sku ? `<div style="font-size:10px;color:#94A3B8;margin-bottom:4px;">Code: ${esc(p.sku)}</div>` : ''}
-              <div style="font-size:14px;font-weight:800;color:#059669;">${unitLabel(p)}</div>
+              <div style="font-size:13px;font-weight:700;color:#0B1F33;margin-bottom:4px;">${esc(p.name)}</div>
+              ${p.sku ? `<div style="font-size:10px;color:#8B96A2;margin-bottom:4px;">Code: ${esc(p.sku)}</div>` : ''}
+              <div style="font-size:14px;font-weight:800;color:#15803D;">${unitLabel(p)}</div>
             </div>
           </div>
         `).join('')}
@@ -510,19 +510,19 @@ function renderCatalog(data, widthMm) {
 <html><head><meta charset="utf-8"><title>Wholesale Catalog</title></head>
 <body style="margin:0;font-family:'Inter',Arial,sans-serif;background:#fff;">
   <div style="max-width:${widthMm === 210 ? '760px' : '480px'};margin:0 auto;padding:32px 24px;">
-    <div style="text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #4F46E5;">
+    <div style="text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #12457A;">
       ${data.logoUrl ? `<img src="${esc(data.logoUrl)}" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:10px;" />` : ''}
-      <div style="font-size:26px;font-weight:900;color:#0F172A;letter-spacing:-0.02em;">${esc(data.distributorName || 'Wholesale Distributor')}</div>
-      <div style="font-size:13px;font-weight:700;color:#4F46E5;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Wholesale Product Catalog</div>
-      ${data.distributorAddress ? `<div style="font-size:12px;color:#64748B;margin-top:8px;">${esc(data.distributorAddress)}</div>` : ''}
-      ${data.distributorPhone ? `<div style="font-size:12px;color:#64748B;">📞 ${esc(data.distributorPhone)}</div>` : ''}
+      <div style="font-size:26px;font-weight:900;color:#0B1F33;letter-spacing:-0.02em;">${esc(data.distributorName || 'Wholesale Distributor')}</div>
+      <div style="font-size:13px;font-weight:700;color:#12457A;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Wholesale Product Catalog</div>
+      ${data.distributorAddress ? `<div style="font-size:12px;color:#5A6672;margin-top:8px;">${esc(data.distributorAddress)}</div>` : ''}
+      ${data.distributorPhone ? `<div style="font-size:12px;color:#5A6672;">📞 ${esc(data.distributorPhone)}</div>` : ''}
     </div>
 
     ${products.length === 0
-      ? '<p style="text-align:center;color:#94A3B8;padding:40px 0;">No products published yet.</p>'
+      ? '<p style="text-align:center;color:#8B96A2;padding:40px 0;">No products published yet.</p>'
       : sections}
 
-    <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #E2E8F0;color:#94A3B8;font-size:11px;">
+    <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #D9D3C7;color:#8B96A2;font-size:11px;">
       Generated ${esc(data.generatedDate || '')} · Contact us to place your order
     </div>
   </div>
@@ -533,78 +533,78 @@ function renderPartyStatement(data, widthMm = 210) {
   const isThermal = widthMm !== 210;
   const txs = data.transactions || [];
   const rowsHtml = txs.map(t => `
-    <tr style="border-bottom:1px solid #E2E8F0;">
-      <td style="padding:8px 10px;font-size:12px;color:#334155;">${esc(t.date)}</td>
-      <td style="padding:8px 10px;font-size:12px;font-family:monospace;color:#475569;">${esc(t.refNo || '-')}</td>
-      <td style="padding:8px 10px;font-size:12px;"><span style="background:${t.type === 'Payment' || t.type === 'Credit Note' ? '#DCFCE7' : '#EEF2FF'};color:${t.type === 'Payment' || t.type === 'Credit Note' ? '#15803D' : '#4F46E5'};padding:2px 6px;border-radius:4px;font-weight:700;font-size:10px;">${esc(t.type)}</span></td>
-      <td style="padding:8px 10px;font-size:12px;color:#0F172A;">${esc(t.description)}</td>
-      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#0F172A;font-weight:600;">${t.debit ? '₹' + money(t.debit) : '-'}</td>
-      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#059669;font-weight:600;">${t.credit ? '₹' + money(t.credit) : '-'}</td>
-      <td style="padding:8px 10px;font-size:12px;text-align:right;font-weight:800;color:${t.balance > 0 ? '#DC2626' : '#059669'};">₹${money(t.balance)}</td>
+    <tr style="border-bottom:1px solid #D9D3C7;">
+      <td style="padding:8px 10px;font-size:12px;color:#33414F;">${esc(t.date)}</td>
+      <td style="padding:8px 10px;font-size:12px;font-family:monospace;color:#33414F;">${esc(t.refNo || '-')}</td>
+      <td style="padding:8px 10px;font-size:12px;"><span style="background:${t.type === 'Payment' || t.type === 'Credit Note' ? '#DCFCE7' : '#E8EFF6'};color:${t.type === 'Payment' || t.type === 'Credit Note' ? '#15803D' : '#12457A'};padding:2px 6px;border-radius:4px;font-weight:700;font-size:10px;">${esc(t.type)}</span></td>
+      <td style="padding:8px 10px;font-size:12px;color:#0B1F33;">${esc(t.description)}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#0B1F33;font-weight:600;">${t.debit ? '₹' + money(t.debit) : '-'}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;color:#15803D;font-weight:600;">${t.credit ? '₹' + money(t.credit) : '-'}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;font-weight:800;color:${t.balance > 0 ? '#9B2C22' : '#15803D'};">₹${money(t.balance)}</td>
     </tr>
   `).join('');
 
   return shell(`
     <div style="padding:${isThermal ? '10px' : '20px'};">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F172A;padding-bottom:16px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0B1F33;padding-bottom:16px;margin-bottom:20px;">
         <div>
           ${data.logoUrl ? `<img src="${esc(data.logoUrl)}" alt="" style="height:48px;margin-bottom:8px;" />` : ''}
-          <div style="font-size:20px;font-weight:900;color:#0F172A;letter-spacing:-0.01em;">${esc(data.distributorName || 'Distributor')}</div>
-          ${data.distributorAddress ? `<div style="font-size:11px;color:#64748B;margin-top:2px;">${esc(data.distributorAddress)}</div>` : ''}
-          ${data.distributorPhone ? `<div style="font-size:11px;color:#64748B;">Phone: ${esc(data.distributorPhone)}</div>` : ''}
-          ${data.distributorGSTIN ? `<div style="font-size:11px;font-weight:700;color:#475569;">GSTIN: ${esc(data.distributorGSTIN)}</div>` : ''}
+          <div style="font-size:20px;font-weight:900;color:#0B1F33;letter-spacing:-0.01em;">${esc(data.distributorName || 'Distributor')}</div>
+          ${data.distributorAddress ? `<div style="font-size:11px;color:#5A6672;margin-top:2px;">${esc(data.distributorAddress)}</div>` : ''}
+          ${data.distributorPhone ? `<div style="font-size:11px;color:#5A6672;">Phone: ${esc(data.distributorPhone)}</div>` : ''}
+          ${data.distributorGSTIN ? `<div style="font-size:11px;font-weight:700;color:#33414F;">GSTIN: ${esc(data.distributorGSTIN)}</div>` : ''}
         </div>
         <div style="text-align:right;">
-          <div style="font-size:18px;font-weight:900;color:#4F46E5;text-transform:uppercase;letter-spacing:0.05em;">Party Ledger Statement</div>
-          <div style="font-size:11px;color:#64748B;margin-top:4px;">Date Generated: ${esc(data.statementDate)}</div>
+          <div style="font-size:18px;font-weight:900;color:#12457A;text-transform:uppercase;letter-spacing:0.05em;">Party Ledger Statement</div>
+          <div style="font-size:11px;color:#5A6672;margin-top:4px;">Date Generated: ${esc(data.statementDate)}</div>
         </div>
       </div>
 
-      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#F7F5F0;border:1px solid #D9D3C7;border-radius:8px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div style="font-size:10px;text-transform:uppercase;font-weight:800;color:#64748B;letter-spacing:0.05em;">Statement For (Retailer / Party)</div>
-          <div style="font-size:16px;font-weight:800;color:#0F172A;margin-top:2px;">${esc(data.partyName)}</div>
-          ${data.partyPhone ? `<div style="font-size:11px;color:#64748B;">Phone: ${esc(data.partyPhone)}</div>` : ''}
-          ${data.partyAddress ? `<div style="font-size:11px;color:#64748B;">${esc(data.partyAddress)}</div>` : ''}
+          <div style="font-size:10px;text-transform:uppercase;font-weight:800;color:#5A6672;letter-spacing:0.05em;">Statement For (Retailer / Party)</div>
+          <div style="font-size:16px;font-weight:800;color:#0B1F33;margin-top:2px;">${esc(data.partyName)}</div>
+          ${data.partyPhone ? `<div style="font-size:11px;color:#5A6672;">Phone: ${esc(data.partyPhone)}</div>` : ''}
+          ${data.partyAddress ? `<div style="font-size:11px;color:#5A6672;">${esc(data.partyAddress)}</div>` : ''}
         </div>
         <div style="display:flex;gap:20px;text-align:right;">
           <div>
-            <div style="font-size:10px;color:#64748B;font-weight:700;">TOTAL BILLED</div>
-            <div style="font-size:14px;font-weight:800;color:#0F172A;">₹${money(data.totalBilled)}</div>
+            <div style="font-size:10px;color:#5A6672;font-weight:700;">TOTAL BILLED</div>
+            <div style="font-size:14px;font-weight:800;color:#0B1F33;">₹${money(data.totalBilled)}</div>
           </div>
           <div>
-            <div style="font-size:10px;color:#64748B;font-weight:700;">TOTAL RECEIVED</div>
-            <div style="font-size:14px;font-weight:800;color:#059669;">₹${money(data.totalPaid)}</div>
+            <div style="font-size:10px;color:#5A6672;font-weight:700;">TOTAL RECEIVED</div>
+            <div style="font-size:14px;font-weight:800;color:#15803D;">₹${money(data.totalPaid)}</div>
           </div>
           <div>
-            <div style="font-size:10px;color:#64748B;font-weight:700;">NET DUE</div>
-            <div style="font-size:16px;font-weight:900;color:${data.closingBalance > 0 ? '#DC2626' : '#059669'};">₹${money(data.closingBalance)}</div>
+            <div style="font-size:10px;color:#5A6672;font-weight:700;">NET DUE</div>
+            <div style="font-size:16px;font-weight:900;color:${data.closingBalance > 0 ? '#9B2C22' : '#15803D'};">₹${money(data.closingBalance)}</div>
           </div>
         </div>
       </div>
 
       <table style="width:100%;margin-bottom:24px;">
         <thead>
-          <tr style="background:#F1F5F9;border-top:1px solid #CBD5E1;border-bottom:2px solid #CBD5E1;text-align:left;">
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">DATE</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">REF NO</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">TYPE</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;">PARTICULARS</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">DEBIT (₹)</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">CREDIT (₹)</th>
-            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#475569;text-align:right;">BALANCE (₹)</th>
+          <tr style="background:#EFECE5;border-top:1px solid #C3BBAB;border-bottom:2px solid #C3BBAB;text-align:left;">
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;">DATE</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;">REF NO</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;">TYPE</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;">PARTICULARS</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;text-align:right;">DEBIT (₹)</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;text-align:right;">CREDIT (₹)</th>
+            <th style="padding:8px 10px;font-size:11px;font-weight:800;color:#33414F;text-align:right;">BALANCE (₹)</th>
           </tr>
         </thead>
         <tbody>
-          ${txs.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">No transactions found for this party.</td></tr>' : rowsHtml}
+          ${txs.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:20px;color:#8B96A2;">No transactions found for this party.</td></tr>' : rowsHtml}
         </tbody>
       </table>
 
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;padding-top:16px;border-top:1px solid #E2E8F0;">
-        <div style="font-size:11px;color:#94A3B8;">This is a computer-generated statement of accounts.</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;padding-top:16px;border-top:1px solid #D9D3C7;">
+        <div style="font-size:11px;color:#8B96A2;">This is a computer-generated statement of accounts.</div>
         <div style="text-align:center;width:180px;">
-          <div style="border-bottom:1px solid #94A3B8;height:35px;margin-bottom:4px;"></div>
-          <div style="font-size:11px;font-weight:700;color:#475569;">Authorized Signatory</div>
+          <div style="border-bottom:1px solid #8B96A2;height:35px;margin-bottom:4px;"></div>
+          <div style="font-size:11px;font-weight:700;color:#33414F;">Authorized Signatory</div>
         </div>
       </div>
     </div>

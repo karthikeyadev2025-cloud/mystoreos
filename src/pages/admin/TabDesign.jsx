@@ -5,34 +5,34 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const DEFAULTS = {
-  primaryColor: '#4F46E5',
-  accentColor: '#818CF8',
-  bgColor: '#0f172a',
+  primaryColor: 'var(--c-primary)',
+  accentColor: 'var(--c-primary-light)',
+  bgColor: 'var(--c-ink)',
   cardBg: 'rgba(255,255,255,0.03)',
   cardBorder: 'rgba(255,255,255,0.06)',
-  textColor: '#f8fafc',
-  mutedColor: '#94a3b8',
-  successColor: '#10b981',
-  warningColor: '#f59e0b',
+  textColor: 'var(--c-bg)',
+  mutedColor: 'var(--c-faint)',
+  successColor: 'var(--c-success)',
+  warningColor: 'var(--c-warning)',
   borderRadius: '12px',
   fontFamily: 'Plus Jakarta Sans',
   customCSS: '',
 };
 
 const PRESETS = [
-  { name: 'Indigo Premium (Default)', primaryColor: '#4F46E5', accentColor: '#818CF8', bgColor: '#0f172a' },
-  { name: 'Ocean Blue', primaryColor: '#3b82f6', accentColor: '#06b6d4', bgColor: '#0a1628' },
-  { name: 'Forest Green', primaryColor: '#10b981', accentColor: '#6ee7b7', bgColor: '#0a1f0a' },
-  { name: 'Amber Warm', primaryColor: '#f59e0b', accentColor: '#fbbf24', bgColor: '#1a0f00' },
+  { name: 'Indigo Premium (Default)', primaryColor: 'var(--c-primary)', accentColor: 'var(--c-primary-light)', bgColor: 'var(--c-ink)' },
+  { name: 'Ocean Blue', primaryColor: 'var(--c-info)', accentColor: '#06b6d4', bgColor: '#0a1628' },
+  { name: 'Forest Green', primaryColor: 'var(--c-success)', accentColor: '#6ee7b7', bgColor: '#0a1f0a' },
+  { name: 'Amber Warm', primaryColor: 'var(--c-warning)', accentColor: '#fbbf24', bgColor: '#1a0f00' },
 ];
 
 const S = {
-  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
-  label: { color: '#475569', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
+  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', maxWidth: '100%' },
+  label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
   row: { marginBottom: '16px' },
-  saveBtn: (busy) => ({ background: busy ? '#94a3b8' : '#4f46e5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
-  sectionTitle: { color: '#0f172a', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
-  sectionSub: { color: '#64748b', fontSize: '12px', marginBottom: '20px' },
+  saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
+  sectionSub: { color: 'var(--c-muted)', fontSize: '12px', marginBottom: '20px' },
 };
 
 function ColorRow({ label, value, onChange }) {
@@ -41,9 +41,9 @@ function ColorRow({ label, value, onChange }) {
       <label style={{ ...S.label, minWidth: '120px', flex: '0 1 160px', marginBottom: 0 }}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 160px', minWidth: 0 }}>
         <input type="color" value={value.startsWith('#') ? value : '#000000'} onChange={e => onChange(e.target.value)}
-          style={{ width: '36px', height: '36px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'none', cursor: 'pointer', padding: '2px', flexShrink: 0 }} />
+          style={{ width: '36px', height: '36px', borderRadius: '6px', border: '1px solid var(--c-line)', background: 'none', cursor: 'pointer', padding: '2px', flexShrink: 0 }} />
         <input type="text" value={value} onChange={e => onChange(e.target.value)}
-          style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', flex: 1, minWidth: 0, width: '100%', boxSizing: 'border-box' }} />
+          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', flex: 1, minWidth: 0, width: '100%', boxSizing: 'border-box' }} />
       </div>
     </div>
   );
@@ -115,21 +115,21 @@ export default function TabDesign() {
             <Palette size={22} color="#7C3AED" />
           </div>
           <div>
-            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Design & CSS</h2>
-            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Global design tokens, brand colors, and custom stylesheets</p>
+            <h2 style={{ color: "var(--c-ink)", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Design & CSS</h2>
+            <p style={{ color: "var(--c-muted)", fontSize: 13, margin: "4px 0 0 0" }}>Global design tokens, brand colors, and custom stylesheets</p>
           </div>
         </div>
-        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Customize platform colors, typography, and inject custom CSS</p>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>Customize platform colors, typography, and inject custom CSS</p>
       </div>
 
       <div style={S.card}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
-          <div style={{ background: 'rgba(79, 70, 229, 0.1)', borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Palette size={18} color="#4f46e5" /></div>
+          <div style={{ background: 'rgba(79, 70, 229, 0.1)', borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Palette size={18} color="var(--c-primary)" /></div>
           <div><div style={S.sectionTitle}>Color Presets</div><div style={S.sectionSub}>Quick-apply a color scheme</div></div>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
           {PRESETS.map(p => (
-            <button key={p.name} onClick={() => applyPreset(p)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <button key={p.name} onClick={() => applyPreset(p)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--c-line)', background: 'var(--c-bg)', color: 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               <span style={{ display: 'flex', gap: '3px' }}>
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.primaryColor }} />
                 <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: p.accentColor }} />
@@ -153,39 +153,39 @@ export default function TabDesign() {
         <div style={{ marginBottom: '16px', marginTop: '8px' }}>
           <label style={S.label}>Card Background (supports rgba)</label>
           <input value={theme.cardBg} onChange={e => setTheme(t => ({ ...t, cardBg: e.target.value }))}
-            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+            style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
         </div>
         <div style={{ marginBottom: '16px' }}>
           <label style={S.label}>Card Border (supports rgba)</label>
           <input value={theme.cardBorder} onChange={e => setTheme(t => ({ ...t, cardBorder: e.target.value }))}
-            style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+            style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={S.label}>Border Radius</label>
           <input value={theme.borderRadius} onChange={e => setTheme(t => ({ ...t, borderRadius: e.target.value }))}
-            placeholder="12px" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', maxWidth: '200px', boxSizing: 'border-box' }} />
+            placeholder="12px" style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', maxWidth: '200px', boxSizing: 'border-box' }} />
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={saveTheme} disabled={busy.theme} style={S.saveBtn(busy.theme)}><Save size={14} />{busy.theme ? 'Applying...' : 'Apply Theme'}</button>
-          <button onClick={resetTheme} style={{ background: '#ffffff', border: '1px solid #e2e8f0', color: '#475569', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}><RotateCcw size={14} />Reset Defaults</button>
+          <button onClick={resetTheme} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}><RotateCcw size={14} />Reset Defaults</button>
         </div>
       </div>
 
       <div style={S.card}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
-          <div style={{ background: 'rgba(79, 70, 229, 0.1)', borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Code size={18} color="#4f46e5" /></div>
+          <div style={{ background: 'rgba(79, 70, 229, 0.1)', borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Code size={18} color="var(--c-primary)" /></div>
           <div><div style={S.sectionTitle}>Custom CSS</div><div style={S.sectionSub}>Injected into {'<head>'} on every page — use for advanced overrides</div></div>
         </div>
         <textarea
           value={customCSS}
           onChange={e => setCustomCSS(e.target.value)}
           placeholder={`/* Custom CSS injected globally */\n.glass { backdrop-filter: blur(20px); }\n.card { border-radius: 16px; }`}
-          style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '14px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', minHeight: '200px', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box' }}
+          style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '14px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', width: '100%', minHeight: '200px', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
           <button onClick={saveCSS} disabled={busy.css} style={S.saveBtn(busy.css)}><Code size={14} />{busy.css ? 'Injecting...' : 'Inject CSS'}</button>
-          {customCSS && <button onClick={() => { setCustomCSS(''); updateConfigs({ customCSS: '' }); }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>Clear CSS</button>}
+          {customCSS && <button onClick={() => { setCustomCSS(''); updateConfigs({ customCSS: '' }); }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: 'var(--c-danger)', borderRadius: '8px', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>Clear CSS</button>}
         </div>
       </div>
     </div>

@@ -165,7 +165,7 @@ export default function AlternativeComparison() {
             border: '1px solid rgba(255,255,255,0.08)',
             padding: '10px 16px',
             borderRadius: '12px',
-            color: '#94a3b8',
+            color: 'var(--c-faint)',
             fontSize: '14px',
             width: 'auto',
             transition: 'all 0.2s'
@@ -197,7 +197,7 @@ export default function AlternativeComparison() {
         {/* Brand Header */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
           <MLogo size={42} radius={10} />
-          <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '1px', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '1px', background: 'linear-gradient(to right, var(--c-surface), var(--c-faint))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             MYSTORE <span style={{ color: '#fbbf24' }}>OS</span>
           </span>
         </div>
@@ -208,7 +208,7 @@ export default function AlternativeComparison() {
           fontWeight: 800,
           lineHeight: 1.15,
           marginBottom: '16px',
-          background: 'linear-gradient(135deg, #f8fafc 40%, #818CF8 100%)',
+          background: 'linear-gradient(135deg, var(--c-bg) 40%, var(--c-primary-light) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent'
         }}>
@@ -226,7 +226,7 @@ export default function AlternativeComparison() {
         </p>
         <p style={{
           fontSize: '15px',
-          color: '#94a3b8',
+          color: 'var(--c-faint)',
           lineHeight: 1.6,
           maxWidth: '620px',
           margin: '0 auto 40px'
@@ -252,41 +252,41 @@ export default function AlternativeComparison() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                  <th style={{ padding: '12px 8px', color: '#64748b', fontWeight: 600, textAlign: 'left' }}>Feature Matrix</th>
+                  <th style={{ padding: '12px 8px', color: 'var(--c-muted)', fontWeight: 600, textAlign: 'left' }}>Feature Matrix</th>
                   <th style={{ padding: '12px 8px', color: '#f43f5e', fontWeight: 600, textAlign: 'center' }}>{data.name}</th>
-                  <th style={{ padding: '12px 8px', color: '#10b981', fontWeight: 600, textAlign: 'center', background: 'rgba(16,185,129,0.04)', borderRadius: '12px 12px 0 0' }}>MyStore OS</th>
+                  <th style={{ padding: '12px 8px', color: 'var(--c-success)', fontWeight: 600, textAlign: 'center', background: 'rgba(16,185,129,0.04)', borderRadius: '12px 12px 0 0' }}>MyStore OS</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>Device Portability</td>
-                  <td style={{ padding: '14px 8px', color: '#94a3b8', textAlign: 'center' }}>{data.device}</td>
-                  <td style={{ padding: '14px 8px', color: '#fff', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>📱 Any Mobile or Tablet</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>Device Portability</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-faint)', textAlign: 'center' }}>{data.device}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-surface)', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>📱 Any Mobile or Tablet</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>Yearly Cost (Subscription)</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>Yearly Cost (Subscription)</td>
                   <td style={{ padding: '14px 8px', color: '#f43f5e', textAlign: 'center', fontWeight: 500 }}>{data.tco}</td>
-                  <td style={{ padding: '14px 8px', color: '#10b981', textAlign: 'center', fontWeight: 700, background: 'rgba(16,185,129,0.04)' }}>🎉 Free Tier Available</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-success)', textAlign: 'center', fontWeight: 700, background: 'rgba(16,185,129,0.04)' }}>🎉 Free Tier Available</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>Training & Learning Curve</td>
-                  <td style={{ padding: '14px 8px', color: '#94a3b8', textAlign: 'center' }}>{data.learning}</td>
-                  <td style={{ padding: '14px 8px', color: '#fff', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>⚡ 30 seconds (Zero training)</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>Training & Learning Curve</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-faint)', textAlign: 'center' }}>{data.learning}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-surface)', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>⚡ 30 seconds (Zero training)</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>WhatsApp Invoicing</td>
-                  <td style={{ padding: '14px 8px', color: '#94a3b8', textAlign: 'center' }}>{data.whatsapp}</td>
-                  <td style={{ padding: '14px 8px', color: '#fff', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>✅ 1-Click WhatsApp sharing</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>WhatsApp Invoicing</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-faint)', textAlign: 'center' }}>{data.whatsapp}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-surface)', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>✅ 1-Click WhatsApp sharing</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>UPI Code Integration</td>
-                  <td style={{ padding: '14px 8px', color: '#94a3b8', textAlign: 'center' }}>{data.upi}</td>
-                  <td style={{ padding: '14px 8px', color: '#fff', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>✅ Dynamic QR on mobile screen</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>UPI Code Integration</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-faint)', textAlign: 'center' }}>{data.upi}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-surface)', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)' }}>✅ Dynamic QR on mobile screen</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '14px 8px', fontWeight: 500, color: '#e2e8f0' }}>Offline Database Ledger</td>
-                  <td style={{ padding: '14px 8px', color: '#94a3b8', textAlign: 'center' }}>{data.offlineLedger}</td>
-                  <td style={{ padding: '14px 8px', color: '#fff', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)', borderRadius: '0 0 12px 12px' }}>✅ Fully functional offline storage</td>
+                  <td style={{ padding: '14px 8px', fontWeight: 500, color: 'var(--c-line)' }}>Offline Database Ledger</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-faint)', textAlign: 'center' }}>{data.offlineLedger}</td>
+                  <td style={{ padding: '14px 8px', color: 'var(--c-surface)', textAlign: 'center', fontWeight: 600, background: 'rgba(16,185,129,0.04)', borderRadius: '0 0 12px 12px' }}>✅ Fully functional offline storage</td>
                 </tr>
               </tbody>
             </table>
@@ -302,13 +302,13 @@ export default function AlternativeComparison() {
             padding: '24px',
             textAlign: 'left'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#10b981', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--c-success)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Star size={18} fill="#10b981" /> Why Retailers Love MyStore OS over {data.name}
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {data.pros.map((pro, index) => (
-                <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: '#e2e8f0', lineHeight: 1.4 }}>
-                  <Check size={16} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <li key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: 'var(--c-line)', lineHeight: 1.4 }}>
+                  <Check size={16} color="var(--c-success)" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span>{pro}</span>
                 </li>
               ))}
@@ -331,7 +331,7 @@ export default function AlternativeComparison() {
           <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
             <Landmark size={18} /> FMCG Wholesale & Distributor Integration
           </h3>
-          <p style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+          <p style={{ fontSize: '13px', color: 'var(--c-line-strong)', lineHeight: 1.5, margin: 0 }}>
             Unlike generic software like {data.name}, MyStore OS has built-in features optimised for wholesale markets and FMCG distributors across India.
             Manage bulk dispatch notes, track supplier credit ledger balances, and print receipt PDFs in 6 regional languages.
           </p>
@@ -342,34 +342,34 @@ export default function AlternativeComparison() {
 
         {/* AI Answer Engine / Meta SEO FAQs (PAA Optimization) */}
         <div style={{ textAlign: 'left', marginBottom: '48px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#fff', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: 'var(--c-surface)', textAlign: 'center' }}>
             ❓ Frequently Asked Questions
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '14px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: 600, color: '#f8fafc', marginBottom: '6px' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--c-bg)', marginBottom: '6px' }}>
                 Is MyStore OS really free compared to {data.name}?
               </h4>
-              <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', lineHeight: 1.5, margin: 0 }}>
                 Yes! While {data.name} locks you down into expensive yearly subscriptions, MyStore OS features a completely free standard level package that covers full digital invoice generations, basic day book journals, and catalog creation. No strings attached!
               </p>
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '14px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: 600, color: '#f8fafc', marginBottom: '6px' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--c-bg)', marginBottom: '6px' }}>
                 Can I migrate my items and inventory lists from {data.name} to MyStore OS?
               </h4>
-              <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', lineHeight: 1.5, margin: 0 }}>
                 Absolutely. You can import your entire products catalogue list seamlessly using a standard Excel or CSV sheet, or scan barcodes straight from your items to build a catalog instantly on your smartphone screen under a minute!
               </p>
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '16px', borderRadius: '14px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: 600, color: '#f8fafc', marginBottom: '6px' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--c-bg)', marginBottom: '6px' }}>
                 How does offline ledger storage work inside MyStore OS?
               </h4>
-              <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', lineHeight: 1.5, margin: 0 }}>
                 MyStore OS uses a state-of-the-art secure local database. If you lose your internet connection inside a basement shop or Chilli Yard depot, your bills are saved immediately on your local device. The moment your phone connects to the internet again, it safely pushes and backs up your transactions to Supabase clouds.
               </p>
             </div>
@@ -387,16 +387,16 @@ export default function AlternativeComparison() {
           alignItems: 'center',
           gap: '16px'
         }}>
-          <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', margin: 0 }}>
+          <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--c-surface)', margin: 0 }}>
             Ditch {data.name} Today!
           </h3>
-          <p style={{ fontSize: '14px', color: '#cbd5e1', maxWidth: '400px', margin: 0 }}>
+          <p style={{ fontSize: '14px', color: 'var(--c-line-strong)', maxWidth: '400px', margin: 0 }}>
             Join thousands of smart micro-retailers who have transitioned their shops into streamlined pocket powerhouses.
           </p>
           <button
             onClick={() => navigate('/register')}
             style={{
-              background: 'linear-gradient(135deg, #818CF8, #4F46E5)',
+              background: 'linear-gradient(135deg, var(--c-primary-light), var(--c-primary))',
               color: 'white',
               border: 'none',
               padding: '14px 28px',

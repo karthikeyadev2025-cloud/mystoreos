@@ -34,19 +34,19 @@ function WorkingHoursEditor({ hours, onChange }) {
         return (
           <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button type="button" onClick={() => toggleDay(d.key)}
-              style={{ width: 60, padding: '6px 4px', borderRadius: 6, border: '1px solid', borderColor: dayHours ? '#10B981' : '#E2E8F0', background: dayHours ? '#D1FAE5' : '#F8FAFC', color: dayHours ? '#10B981' : '#94A3B8', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+              style={{ width: 60, padding: '6px 4px', borderRadius: 6, border: '1px solid', borderColor: dayHours ? 'var(--c-success)' : 'var(--c-line)', background: dayHours ? 'var(--c-success-soft)' : 'var(--c-bg)', color: dayHours ? 'var(--c-success)' : 'var(--c-faint)', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
               {d.label}
             </button>
             {dayHours ? (
               <div style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 1 }}>
                 <input type="time" value={dayHours.start} onChange={e => setTime(d.key, 'start', e.target.value)}
-                  style={{ padding: '5px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
-                <span style={{ color: '#94A3B8', fontSize: 12 }}>to</span>
+                  style={{ padding: '5px 8px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+                <span style={{ color: 'var(--c-faint)', fontSize: 12 }}>to</span>
                 <input type="time" value={dayHours.end} onChange={e => setTime(d.key, 'end', e.target.value)}
-                  style={{ padding: '5px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+                  style={{ padding: '5px 8px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
               </div>
             ) : (
-              <span style={{ fontSize: 12, color: '#CBD5E1', fontStyle: 'italic' }}>Closed</span>
+              <span style={{ fontSize: 12, color: 'var(--c-line-strong)', fontStyle: 'italic' }}>Closed</span>
             )}
           </div>
         );
@@ -86,31 +86,31 @@ function TimeOffManager({ providerId }) {
   if (!providerId) return null; // only available once the provider is saved
 
   return (
-    <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
+    <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <label style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Time Off / Vacation</label>
+        <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)' }}>Time Off / Vacation</label>
         <button type="button" onClick={() => setShowForm(s => !s)}
-          style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5', background: 'none', border: 'none', cursor: 'pointer' }}>
+          style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
           {showForm ? 'Cancel' : '+ Add'}
         </button>
       </div>
       {showForm && (
-        <div style={{ background: '#F8FAFC', borderRadius: 8, padding: 12, marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ background: 'var(--c-bg)', borderRadius: 8, padding: 12, marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-              style={{ padding: '6px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+              style={{ padding: '6px 8px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
-              style={{ padding: '6px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+              style={{ padding: '6px 8px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
           </div>
           <input value={reason} onChange={e => setReason(e.target.value)} placeholder="Reason (optional) — e.g. Vacation"
-            style={{ padding: '6px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
-          <button type="button" onClick={add} style={{ padding: '7px', borderRadius: 6, border: 'none', background: '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            style={{ padding: '6px 8px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+          <button type="button" onClick={add} style={{ padding: '7px', borderRadius: 6, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
             Save Time Off
           </button>
         </div>
       )}
       {timeOff.length === 0 ? (
-        <div style={{ fontSize: 11, color: '#CBD5E1' }}>No time off scheduled</div>
+        <div style={{ fontSize: 11, color: 'var(--c-line-strong)' }}>No time off scheduled</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {timeOff.map(t => (
@@ -118,9 +118,9 @@ function TimeOffManager({ providerId }) {
               <span>
                 {new Date(t.start_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                 {t.start_date !== t.end_date && ` → ${new Date(t.end_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
-                {t.reason && <span style={{ color: '#94A3B8' }}> · {t.reason}</span>}
+                {t.reason && <span style={{ color: 'var(--c-faint)' }}> · {t.reason}</span>}
               </span>
-              <button type="button" onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: 11 }}>✕</button>
+              <button type="button" onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', color: 'var(--c-danger)', cursor: 'pointer', fontSize: 11 }}>✕</button>
             </div>
           ))}
         </div>
@@ -146,28 +146,28 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
   };
 
   return (
-    <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ fontWeight: 700, fontSize: 15 }}>{provider?.id ? 'Edit Staff Member' : 'Add Staff Member'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Name *</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Name *</label>
           <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Priya"
-            style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Title</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Title</label>
           <input value={form.title || ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Senior Stylist"
-            style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
         </div>
       </div>
       <div>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Phone (optional)</label>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Phone (optional)</label>
         <input value={form.phone || ''} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="10-digit mobile"
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
       </div>
 
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>
           Buffer Time Between Appointments
           {!features.canConfigureBufferTime && <UpgradeChip requiredPlan="Pro" />}
         </label>
@@ -175,7 +175,7 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
           value={form.buffer_minutes || 0}
           onChange={e => setForm(p => ({ ...p, buffer_minutes: Number(e.target.value) }))}
           disabled={!features.canConfigureBufferTime}
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: features.canConfigureBufferTime ? '#fff' : '#F8FAFC', outline: 'none', cursor: features.canConfigureBufferTime ? 'pointer' : 'not-allowed', opacity: features.canConfigureBufferTime ? 1 : 0.65 }}>
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, background: features.canConfigureBufferTime ? 'var(--c-surface)' : 'var(--c-bg)', outline: 'none', cursor: features.canConfigureBufferTime ? 'pointer' : 'not-allowed', opacity: features.canConfigureBufferTime ? 1 : 0.65 }}>
           <option value={0}>No buffer — back-to-back bookings allowed</option>
           <option value={5}>5 minutes</option>
           <option value={10}>10 minutes</option>
@@ -183,7 +183,7 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
           <option value={20}>20 minutes</option>
           <option value={30}>30 minutes</option>
         </select>
-        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>
+        <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--c-faint)' }}>
           {features.canConfigureBufferTime
             ? 'Extra time reserved after each appointment for cleanup/prep before the next one can be booked.'
             : `Upgrade to ${features.labelFor('serviceBufferTime')} to configure buffer time between bookings.`}
@@ -191,14 +191,14 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
       </div>
 
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 8 }}>
           Weekly Working Hours
           {!features.canConfigureProviderHours && <UpgradeChip requiredPlan="Pro" />}
         </label>
         {features.canConfigureProviderHours ? (
           <WorkingHoursEditor hours={form.working_hours} onChange={wh => setForm(p => ({ ...p, working_hours: wh }))} />
         ) : (
-          <div style={{ padding: 12, background: '#F8FAFC', border: '1px dashed #CBD5E1', borderRadius: 8, fontSize: 12, color: '#64748B' }}>
+          <div style={{ padding: 12, background: 'var(--c-bg)', border: '1px dashed var(--c-line-strong)', borderRadius: 8, fontSize: 12, color: 'var(--c-muted)' }}>
             Per-staff working hours are on {features.labelFor('serviceProviderHours')}. All staff share the shop's default hours on your current plan.
           </div>
         )}
@@ -207,9 +207,9 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
       {provider?.id && <TimeOffManager providerId={provider.id} />}
 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
-        <button onClick={onCancel} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+        <button onClick={onCancel} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-surface)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
         <button onClick={save} disabled={saving}
-          style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#4F46E5', color: '#fff', fontSize: 13, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+          style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 13, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}>
           {saving ? 'Saving…' : (provider?.id ? 'Save Changes' : 'Add Staff Member')}
         </button>
       </div>
@@ -220,31 +220,31 @@ function ProviderForm({ provider, shopId, onSave, onCancel }) {
 function ProviderCard({ provider, onEdit, onDelete, onToggle }) {
   const workingDays = Object.entries(provider.working_hours || {}).filter(([, v]) => v).length;
   return (
-    <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-      <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <User size={18} color="#4F46E5" />
+    <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--c-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <User size={18} color="var(--c-primary)" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{provider.name}</span>
-          {!provider.active && <span style={{ fontSize: 10, color: '#94A3B8', background: '#F1F5F9', padding: '1px 7px', borderRadius: 999 }}>Inactive</span>}
+          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink)' }}>{provider.name}</span>
+          {!provider.active && <span style={{ fontSize: 10, color: 'var(--c-faint)', background: 'var(--c-line-soft)', padding: '1px 7px', borderRadius: 999 }}>Inactive</span>}
         </div>
-        <div style={{ fontSize: 12, color: '#64748B' }}>
+        <div style={{ fontSize: 12, color: 'var(--c-muted)' }}>
           {provider.title || 'Staff Member'} · Works {workingDays} day{workingDays !== 1 ? 's' : ''}/week
           {provider.buffer_minutes > 0 && ` · ${provider.buffer_minutes} min buffer`}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
         <button onClick={() => onToggle(provider)} title={provider.active ? 'Deactivate' : 'Activate'}
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: provider.active ? '#10B981' : '#94A3B8' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: provider.active ? 'var(--c-success)' : 'var(--c-faint)' }}>
           {provider.active ? '✓' : '✕'}
         </button>
         <button onClick={() => onEdit(provider)} title="Edit"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#4F46E5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-bg)', color: 'var(--c-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Edit2 size={13} />
         </button>
         <button onClick={() => onDelete(provider.id)} title="Delete"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Trash2 size={13} />
         </button>
       </div>
@@ -281,11 +281,11 @@ export default function StaffManagement({ shopId }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--c-muted)' }}>
           Add staff members customers can choose when booking. Each person can have their own working hours.
         </p>
         <button onClick={() => { setEditingProvider(null); setShowForm(true); }}
-          style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
           <Plus size={15} /> Add Staff
         </button>
       </div>
@@ -302,9 +302,9 @@ export default function StaffManagement({ shopId }) {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>Loading…</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--c-faint)' }}>Loading…</div>
       ) : providers.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8' }}>
+        <div style={{ textAlign: 'center', padding: 60, color: 'var(--c-faint)' }}>
           <User size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
           <div style={{ fontWeight: 600, fontSize: 14 }}>No staff members added yet</div>
           <div style={{ fontSize: 12, marginTop: 6 }}>

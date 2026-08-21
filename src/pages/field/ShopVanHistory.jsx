@@ -68,10 +68,10 @@ export default function ShopVanHistory() {
   }, [shopId]);
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16, marginBottom: 10 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 16, marginBottom: 10 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   const items = tab === 'purchases' ? data.purchases : data.returns;
 
@@ -80,32 +80,32 @@ export default function ShopVanHistory() {
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/shop')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Back to Dashboard
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>My Van Purchases</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>My Van Purchases</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 20px' }}>
         Everything you've bought or returned directly from a distributor's van.
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <button onClick={() => setTab('purchases')}
           style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            border: `1px solid ${tab === 'purchases' ? '#4F46E5' : '#E2E8F0'}`,
-            background: tab === 'purchases' ? '#EEF2FF' : '#fff', color: tab === 'purchases' ? '#4338CA' : '#64748B' }}>
+            border: `1px solid ${tab === 'purchases' ? 'var(--c-primary)' : 'var(--c-line)'}`,
+            background: tab === 'purchases' ? 'var(--c-primary-soft)' : 'var(--c-surface)', color: tab === 'purchases' ? 'var(--c-primary-hover)' : 'var(--c-muted)' }}>
           <ShoppingBag size={14} /> Purchases ({data.purchases.length})
         </button>
         <button onClick={() => setTab('returns')}
           style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            border: `1px solid ${tab === 'returns' ? '#DC2626' : '#E2E8F0'}`,
-            background: tab === 'returns' ? '#FEF2F2' : '#fff', color: tab === 'returns' ? '#B91C1C' : '#64748B' }}>
+            border: `1px solid ${tab === 'returns' ? 'var(--c-danger-strong)' : 'var(--c-line)'}`,
+            background: tab === 'returns' ? 'var(--c-danger-soft)' : 'var(--c-surface)', color: tab === 'returns' ? 'var(--c-danger-strong)' : 'var(--c-muted)' }}>
           <RotateCcw size={14} /> Returns ({data.returns.length})
         </button>
       </div>
 
       {items.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: '#94A3B8', padding: 40 }}>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-faint)', padding: 40 }}>
           <Receipt size={28} style={{ opacity: 0.4, marginBottom: 8 }} />
           <p style={{ margin: 0, fontSize: 13 }}>No {tab} yet.</p>
         </div>
@@ -113,21 +113,21 @@ export default function ShopVanHistory() {
         <div key={item.id} style={S.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{item.ref}</div>
-              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>{item.ref}</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
                 {item.distributorName} · {new Date(item.issuedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </div>
               {tab === 'returns' && (
-                <div style={{ fontSize: 11, color: '#B91C1C', marginTop: 2, textTransform: 'capitalize' }}>{item.reason?.replace('_', ' ')}</div>
+                <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', marginTop: 2, textTransform: 'capitalize' }}>{item.reason?.replace('_', ' ')}</div>
               )}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: tab === 'returns' ? '#B91C1C' : '#059669', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: tab === 'returns' ? 'var(--c-danger-strong)' : 'var(--c-success-strong)', whiteSpace: 'nowrap' }}>
               {tab === 'returns' ? '+' : ''}₹{item.total.toLocaleString('en-IN')}
             </div>
           </div>
-          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #F1F5F9' }}>
+          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--c-line-soft)' }}>
             {item.lines.map((l, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', padding: '2px 0' }}>
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--c-ink-2)', padding: '2px 0' }}>
                 <span>{l.name} × {l.qty}</span>
                 <span>₹{(l.qty * l.rate).toLocaleString('en-IN')}</span>
               </div>
@@ -135,14 +135,14 @@ export default function ShopVanHistory() {
           </div>
           {tab === 'purchases' && (
             <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-faint)', textTransform: 'uppercase' }}>
                 Paid via {item.paymentMode}
               </span>
               {item.receivedAt ? (
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#059669' }}>✅ In your stock</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-success-strong)' }}>✅ In your stock</span>
               ) : (
                 <button onClick={() => receiveIntoStock(item)} disabled={busy === item.id}
-                  style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '5px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
                   📦 {busy === item.id ? 'Adding…' : 'Add to my stock'}
                 </button>
               )}

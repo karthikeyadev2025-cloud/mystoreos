@@ -14,26 +14,26 @@
 export const T = {
   // Neutrals
   bg:         '#F4F5F7',
-  cardBg:     '#FFFFFF',
-  cardBorder: '#E2E8F0',
-  divider:    '#F1F5F9',
+  cardBg:     'var(--c-surface)',
+  cardBorder: 'var(--c-line)',
+  divider:    'var(--c-line-soft)',
   // Ink scale
-  ink:        '#0F172A',
-  inkMuted:   '#475569',
-  inkFaint:   '#94A3B8',
-  inkGhost:   '#CBD5E1',
+  ink:        'var(--c-ink)',
+  inkMuted:   'var(--c-ink-2)',
+  inkFaint:   'var(--c-faint)',
+  inkGhost:   'var(--c-line-strong)',
   // Brand
-  accent:     '#4F46E5',
-  accentDark: '#4338CA',
+  accent:     'var(--c-primary)',
+  accentDark: 'var(--c-primary-hover)',
   violet:     '#7C3AED',
-  accentSoft: '#EEF2FF',
+  accentSoft: 'var(--c-primary-soft)',
   // Semantics
-  positive:   '#10B981',
-  negative:   '#EF4444',
-  warn:       '#F59E0B',
+  positive:   'var(--c-success)',
+  negative:   'var(--c-danger)',
+  warn:       'var(--c-warning)',
   info:       '#06B6D4',
   // Effects
-  heroGradient:  'linear-gradient(135deg,#4F46E5 0%,#7C3AED 45%,#4338CA 100%)',
+  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,#7C3AED 45%,var(--c-primary-hover) 100%)',
   cardShadow:    '0 1px 2px rgba(15,23,42,0.04)',
   cardShadowLg:  '0 10px 30px -10px rgba(15,23,42,0.15)',
   focusRing:     '0 0 0 3px rgba(79,70,229,0.18)',
@@ -62,7 +62,7 @@ export const sx = {
   // the "here's the flagship number" strip, not decoration.
   hero: {
     background: T.heroGradient, borderRadius: 20, padding: '28px 32px',
-    marginBottom: 20, color: '#fff', position: 'relative', overflow: 'hidden',
+    marginBottom: 20, color: 'var(--c-surface)', position: 'relative', overflow: 'hidden',
     boxShadow: '0 10px 30px -10px rgba(79,70,229,0.5)',
   },
   heroGlow: {
@@ -139,7 +139,7 @@ export const sx = {
     width: 'auto',
   },
   btnPrimary: {
-    background: T.accent, color: '#fff', border: `1px solid ${T.accent}`,
+    background: T.accent, color: 'var(--c-surface)', border: `1px solid ${T.accent}`,
   },
   btnDanger: {
     background: 'rgba(239,68,68,0.1)', color: T.negative,

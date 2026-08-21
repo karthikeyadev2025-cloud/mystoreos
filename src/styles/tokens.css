@@ -1,40 +1,90 @@
 /* ============================================================
    MyStore OS — Design Tokens (single source of truth)
-   Every spacing, color, font-size, radius, and shadow used in
-   the app should come from here. This is what makes the UI
-   feel consistent and "designed" instead of ad-hoc.
+
+   Palette and typography derived from heynikki.in, so the whole
+   K2 family reads as one brand.
+
+   Extracted from the live site (2026-08-21):
+     #12457A  brand navy      - CTAs, primary surfaces, theme-color
+     #E9A72C  amber           - accent, highlights
+     #0B1F33  deep navy ink   - primary text
+     #5A6672  slate           - secondary text
+     #8B96A2  light slate     - muted / placeholder
+     #E4E0D8  warm sand       - borders and rules
+     #F7F5F0  warm cream      - page background
+     #22C55E  green           - success
+
+   Type: Bricolage Grotesque (display) / Manrope (body)
+         JetBrains Mono (data) / Noto Sans Telugu (te-IN)
+
+   TWO DELIBERATE DEVIATIONS from the landing page, both for
+   legibility in dense data UI. The marketing site sets large type
+   over lots of whitespace; this app sets 13px table rows at high
+   density, and a straight port fails there:
+
+   1. --c-line is #D9D3C7, one step darker than the site's #E4E0D8.
+      On a marketing page that sand rule separates airy sections.
+      In a billing table with 12 columns it falls to roughly 1.3:1
+      against the cream background and the grid visually dissolves.
+
+   2. --c-bg is #F7F5F0 (the site's cream) but --c-surface stays
+      pure white rather than going cream too. Cards, tables and
+      inputs need to lift off the page; cream-on-cream removes the
+      only cue separating a data surface from the page.
+
+   Everything else is the site's value, unchanged.
    ============================================================ */
 
 :root {
   /* Pin form controls / UA widgets to light so inputs without an explicit
      background never render dark-on-dark (the invisible-text bug). */
   color-scheme: light;
+
   /* ---- Brand & semantic colors ---- */
-  --c-primary:        #4F46E5;   /* indigo — brand primary */
-  --c-primary-hover:  #4338CA;
-  --c-primary-soft:   #EEF2FF;   /* tinted background */
-  --c-primary-border: #C7D2FE;
+  --c-primary:        #12457A;   /* Hey Nikki navy - brand primary */
+  --c-primary-hover:  #0D3560;
+  --c-primary-light:  #4A7CAD;   /* lighter navy - secondary chart series */
+  --c-primary-soft:   #E8EFF6;   /* tinted background */
+  --c-primary-border: #B9CEE2;
 
-  --c-success:        #10B981;
-  --c-success-soft:   #ECFDF5;
-  --c-warning:        #F59E0B;
-  --c-warning-soft:   #FEF3C7;
-  --c-danger:         #EF4444;
-  --c-danger-soft:    #FEF2F2;
+  /* Amber is the site's one accent. Used sparingly: highlights,
+     "most popular" markers. Not a second primary - if everything is
+     accented, nothing is. */
+  --c-accent:         #E9A72C;
+  --c-accent-hover:   #D0901A;
+  --c-accent-soft:    #FDF3E0;
+  --c-accent-border:  #F3D9A4;
 
-  /* ---- Neutrals (slate scale) ---- */
-  --c-ink:            #0F172A;   /* primary text */
-  --c-ink-2:          #334155;   /* secondary text */
-  --c-muted:          #64748B;   /* tertiary / labels */
-  --c-faint:          #94A3B8;   /* placeholder / hints */
-  --c-line:           #E2E8F0;   /* borders / dividers */
-  --c-line-soft:      #F1F5F9;
-  --c-surface:        #FFFFFF;   /* cards */
-  --c-bg:             #F8FAFC;   /* page background */
+  --c-success:        #22C55E;
+  --c-success-strong: #15803D;   /* text on success-soft */
+  --c-success-soft:   #ECFDF3;
+  --c-warning:        #E9A72C;
+  --c-warning-strong: #92610A;   /* text on warning-soft */
+  --c-warning-soft:   #FDF3E0;
+  --c-danger:         #C2382B;   /* warm red - sits with sand, still reads danger */
+  --c-danger-strong:  #9B2C22;
+  --c-danger-soft:    #FDF1EF;
+  --c-danger-border:  #EBB4AD;
+  --c-info:           #12457A;
+
+  /* ---- Neutrals (warm navy-slate scale) ---- */
+  --c-ink:            #0B1F33;   /* primary text */
+  --c-ink-2:          #33414F;   /* secondary text */
+  --c-muted:          #5A6672;   /* tertiary / labels */
+  --c-faint:          #8B96A2;   /* placeholder / hints */
+  --c-line:           #D9D3C7;   /* borders / dividers - see note above */
+  --c-line-strong:    #C3BBAB;   /* table gridlines under load */
+  --c-line-soft:      #EFECE5;
+  --c-surface:        var(--c-surface);   /* cards - stays white, see note above */
+  --c-surface-2:      #FBFAF7;   /* subtle raised / striped rows */
+  --c-bg:             #F7F5F0;   /* page background - the site's cream */
+  --c-ink-inverse:    var(--c-surface);   /* text on primary/ink surfaces */
 
   /* ---- Typography ---- */
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: 'Bricolage Grotesque', 'Manrope', system-ui, sans-serif;
+  --font-sans:    'Manrope', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  --font-telugu:  'Noto Sans Telugu', 'Manrope', system-ui, sans-serif;
 
   --fs-xs:   11px;
   --fs-sm:   13px;
@@ -68,14 +118,20 @@
   --r-pill: 999px;
 
   /* ---- Shadows ---- */
-  --sh-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --sh-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --sh-lg: 0 10px 30px rgba(15, 23, 42, 0.10);
+  --sh-sm: 0 1px 2px rgba(11, 31, 51, 0.06);
+  --sh-md: 0 4px 12px rgba(11, 31, 51, 0.08);
+  --sh-lg: 0 10px 30px rgba(11, 31, 51, 0.10);
 
   /* ---- Layout ---- */
   --container-max: 1280px;
   --header-h: 64px;
 }
+
+/* Telugu copy picks up Noto Sans Telugu automatically. Manrope has no
+   Telugu coverage, so without this the browser falls back to whatever
+   the OS happens to ship - which is how Telugu ends up rendering at a
+   different weight and size to the English beside it. */
+:lang(te) { font-family: var(--font-telugu); }
 
 /* ============================================================
    Reusable component classes — apply these instead of
@@ -91,14 +147,14 @@
   padding: var(--s-5);
 }
 
-/* Section heading */
+/* Section heading - display face, used with restraint */
 .ds-h-section {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
   color: var(--c-ink);
   margin: 0 0 var(--s-4);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 /* Label */
@@ -110,6 +166,13 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: var(--s-2);
+}
+
+/* Money and counts line up only in a tabular face. */
+.ds-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 /* Inputs */
@@ -149,12 +212,14 @@
   white-space: nowrap;
 }
 .ds-btn:active { transform: translateY(1px); }
-.ds-btn-primary { background: var(--c-primary); color: #fff; }
+.ds-btn-primary { background: var(--c-primary); color: var(--c-ink-inverse); }
 .ds-btn-primary:hover { background: var(--c-primary-hover); }
 .ds-btn-secondary { background: var(--c-surface); color: var(--c-ink-2); border-color: var(--c-line); }
 .ds-btn-secondary:hover { background: var(--c-line-soft); }
-.ds-btn-success { background: var(--c-success); color: #fff; }
+.ds-btn-success { background: var(--c-success); color: var(--c-ink-inverse); }
 .ds-btn-ghost { background: var(--c-primary-soft); color: var(--c-primary); }
+.ds-btn-accent { background: var(--c-accent); color: var(--c-ink); }
+.ds-btn-accent:hover { background: var(--c-accent-hover); }
 
 /* Badge / pill */
 .ds-badge {
@@ -167,9 +232,9 @@
   border-radius: var(--r-pill);
   letter-spacing: 0.02em;
 }
-.ds-badge-success { background: var(--c-success-soft); color: var(--c-success); }
-.ds-badge-warning { background: var(--c-warning-soft); color: #92400E; }
-.ds-badge-pro { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; }
+.ds-badge-success { background: var(--c-success-soft); color: var(--c-success-strong); }
+.ds-badge-warning { background: var(--c-warning-soft); color: var(--c-warning-strong); }
+.ds-badge-pro { background: var(--c-accent); color: var(--c-ink); }
 
 /* Stack & row helpers */
 .ds-stack-2 > * + * { margin-top: var(--s-2); }
@@ -190,7 +255,7 @@
 
 /* ---- Layer 3: universal interaction polish ---- */
 /* Token buttons get hover + press feedback */
-.ds-btn-primary:hover { box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
+.ds-btn-primary:hover { box-shadow: 0 4px 12px rgba(18, 69, 122, 0.25); }
 .ds-btn-secondary:hover { border-color: var(--c-primary-border); }
 
 /* Accessible focus ring for keyboard users (doesn't show on mouse click) */
@@ -227,4 +292,14 @@ input:focus, select:focus, textarea:focus { outline: none; }
 }
 @media (max-width: 900px) {
   .settings-masonry { column-count: 1; }
+}
+
+/* Respect reduced-motion across every transition defined above. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

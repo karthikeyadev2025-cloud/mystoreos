@@ -58,14 +58,14 @@ const CSS = `
 .lp-input {
   width: 100%; padding: 12px 14px;
   background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 9px; color: #fff; font-size: 14px;
+  border-radius: 9px; color: var(--c-surface); font-size: 14px;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   transition: border-color .18s, box-shadow .18s; outline: none;
 }
-.lp-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
+.lp-input:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
 .lp-input::placeholder { color: rgba(255,255,255,0.3); }
 .lp-btn {
-  width: 100%; padding: 13px; background: #4F46E5; color: #fff; border: none;
+  width: 100%; padding: 13px; background: var(--c-primary); color: var(--c-surface); border: none;
   border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -276,14 +276,14 @@ export default function Login() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
             <MLogo size={48} radius={13} />
             <div>
-              <div style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-.02em' }}>MyStore OS</div>
+              <div style={{ color: 'var(--c-surface)', fontWeight: 800, fontSize: 20, letterSpacing: '-.02em' }}>MyStore OS</div>
               <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, fontWeight: 700, letterSpacing: '.08em' }}>ENTERPRISE PLATFORM</div>
             </div>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(26px,3vw,36px)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-.025em', marginBottom: 14, maxWidth: 460 }}>
+          <h1 style={{ fontSize: 'clamp(26px,3vw,36px)', fontWeight: 800, color: 'var(--c-surface)', lineHeight: 1.15, letterSpacing: '-.025em', marginBottom: 14, maxWidth: 460 }}>
             India's Most Powerful<br/>
-            <span style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Retail Operating System
             </span>
           </h1>
@@ -294,7 +294,7 @@ export default function Login() {
           <div style={{ marginBottom: 40 }}>
             {FEATURES.map((f, i) => (
               <div key={i} className="lp-feat">
-                <CheckCircle size={15} color="#10B981" strokeWidth={2.5} style={{ flexShrink: 0 }}/>
+                <CheckCircle size={15} color="var(--c-success)" strokeWidth={2.5} style={{ flexShrink: 0 }}/>
                 <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13.5 }}>{f}</span>
               </div>
             ))}
@@ -303,14 +303,14 @@ export default function Login() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
             {METRICS.map(({ val, label }) => (
               <div key={label} className="lp-metric">
-                <div style={{ fontFamily: "'JetBrains Mono','Courier New',monospace", fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{val}</div>
+                <div style={{ fontFamily: "'JetBrains Mono','Courier New',monospace", fontSize: 20, fontWeight: 800, color: 'var(--c-surface)', marginBottom: 4 }}>{val}</div>
                 <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11 }}>{label}</div>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 28 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--c-success)', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
             <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>All systems operational · 99.97% uptime</span>
           </div>
         </div>
@@ -323,16 +323,16 @@ export default function Login() {
           {/* Mobile logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}>
             <MLogo size={36} radius={10} />
-            <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
+            <span style={{ color: 'var(--c-surface)', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
           </div>
 
           {!showForgot ? (
             <>
               <div style={{ marginBottom: 28, textAlign: 'center' }}>
                 <div style={{ width: 52, height: 52, background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                  <ShieldCheck size={24} color="#4F46E5" strokeWidth={2}/>
+                  <ShieldCheck size={24} color="var(--c-primary)" strokeWidth={2}/>
                 </div>
-                <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
+                <h2 style={{ color: 'var(--c-surface)', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
                   Welcome back
                 </h2>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Sign in to your merchant account</p>
@@ -346,8 +346,8 @@ export default function Login() {
                 {['password', 'otp'].map(m => (
                   <button key={m} type="button" onClick={() => switchLoginMode(m)}
                     style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                      background: loginMode === m ? '#4F46E5' : 'transparent',
-                      color: loginMode === m ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
+                      background: loginMode === m ? 'var(--c-primary)' : 'transparent',
+                      color: loginMode === m ? 'var(--c-surface)' : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
                     {m === 'password' ? 'Password' : 'Login with OTP'}
                   </button>
                 ))}
@@ -370,7 +370,7 @@ export default function Login() {
                     style={{ paddingRight: 42 }}/>
                   <button type="button" onClick={() => setShowPw(v => !v)}
                     style={{ position: 'absolute', right: 10, bottom: 7, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, width: 28, height: 28, color: 'rgba(255,255,255,0.85)', cursor: 'pointer', lineHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s, color .15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = 'var(--c-surface)'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
                     {showPw ? <EyeOff size={16}/> : <Eye size={16}/>}
                   </button>
@@ -386,13 +386,13 @@ export default function Login() {
 
                 <div style={{ textAlign: 'right', marginBottom: 20 }}>
                   <button type="button" onClick={() => { setShowForgot(true); setErr(''); }}
-                    style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     Forgot password?
                   </button>
                 </div>
 
                 {err && (
-                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
+                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: 'var(--c-danger-border)', fontSize: 12.5 }}>
                     {err}
                   </div>
                 )}
@@ -412,7 +412,7 @@ export default function Login() {
                           onChange={e => { setPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setErr(''); }} />
                       </div>
                       {err && (
-                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
+                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: 'var(--c-danger-border)', fontSize: 12.5 }}>
                           {err}
                         </div>
                       )}
@@ -429,11 +429,11 @@ export default function Login() {
                           value={otpLoginCode} onChange={e => setOtpLoginCode(e.target.value.replace(/\D/g, '').slice(0, 6))} />
                         <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>
                           Sent to +91 {phone}. <button type="button" onClick={() => { setOtpLoginStep('idle'); resetRecaptcha(); }}
-                            style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11.5 }}>Change / Resend</button>
+                            style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11.5 }}>Change / Resend</button>
                         </div>
                       </div>
                       {err && (
-                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#FCA5A5', fontSize: 12.5 }}>
+                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: 'var(--c-danger-border)', fontSize: 12.5 }}>
                           {err}
                         </div>
                       )}
@@ -457,7 +457,7 @@ export default function Login() {
                     type="button"
                     onClick={handleGoogle}
                     disabled={googleLoading}
-                    style={{ position: 'relative', width: '100%', padding: 12, background: 'rgba(255,255,255,0.78)', color: '#475569', border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: googleLoading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+                    style={{ position: 'relative', width: '100%', padding: 12, background: 'rgba(255,255,255,0.78)', color: 'var(--c-ink-2)', border: 'none', borderRadius: 9, fontSize: 14.5, fontWeight: 700, cursor: googleLoading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
                     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                       <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
                       <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
@@ -472,11 +472,11 @@ export default function Login() {
               <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>New to MyStore OS? </span>
                 <button onClick={() => navigate('/register')}
-                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create account →</button>
+                  style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Create account →</button>
               </div>
 
               <div style={{ marginTop: 32, padding: '14px 16px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, display: 'flex', gap: 10 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', display: 'inline-block', marginTop: 5, flexShrink: 0, animation: 'pulse 2s infinite' }}/>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--c-success)', display: 'inline-block', marginTop: 5, flexShrink: 0, animation: 'pulse 2s infinite' }}/>
                 <div>
                   <div style={{ color: '#6EE7B7', fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>Protected & Encrypted</div>
                   <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>256-bit SSL · RBI-compliant data storage</div>
@@ -486,7 +486,7 @@ export default function Login() {
           ) : (
             <>
               <div style={{ marginBottom: 28, textAlign: 'center' }}>
-                <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Reset Password</h2>
+                <h2 style={{ color: 'var(--c-surface)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Reset Password</h2>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
                   {forgotOtpStep === 'idle' && 'Enter your registered mobile number'}
                   {forgotOtpStep === 'sent' && `Code sent to +91 ${forgotPhone}`}
@@ -495,7 +495,7 @@ export default function Login() {
               </div>
 
               {err && (
-                <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
+                <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: 'var(--c-danger-border)', fontSize: 12.5 }}>
                   {err}
                 </div>
               )}
@@ -526,7 +526,7 @@ export default function Login() {
                   </button>
                   <div style={{ textAlign: 'center', marginTop: 12 }}>
                     <button type="button" onClick={() => { setForgotOtpStep('idle'); resetRecaptcha(); }}
-                      style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>Change number / Resend</button>
+                      style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>Change number / Resend</button>
                   </div>
                 </form>
               )}
@@ -547,7 +547,7 @@ export default function Login() {
               <div id="firebase-recaptcha-container"></div>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
                 <button onClick={closeForgot}
-                  style={{ background: 'none', border: 'none', color: '#818CF8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
+                  style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back to login</button>
               </div>
             </>
           )}

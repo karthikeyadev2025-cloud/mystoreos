@@ -170,31 +170,31 @@ export default function FieldRoutes() {
   const missingGps = stops.filter(s => s.latitude == null).length;
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
-    input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
-    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
+    input: { width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
+    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading routes…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading routes…</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Routes &amp; Beats</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 24px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>Routes &amp; Beats</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 24px' }}>
         Pick which outlets belong to a beat, then let the sequencer work out the driving order.
       </p>
 
       {/* ─── NEW ROUTE ─────────────────────────────────────────── */}
       <div style={S.card}>
-        <h2 style={S.h2}><RouteIcon size={18} color="#4F46E5" /> New Route</h2>
+        <h2 style={S.h2}><RouteIcon size={18} color="var(--c-primary)" /> New Route</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr auto', gap: 12, alignItems: 'end', margin: '16px 0 12px' }}>
           <div>
             <label style={S.label}>Route name</label>
@@ -207,7 +207,7 @@ export default function FieldRoutes() {
               {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
           </div>
-          <button onClick={addRoute} disabled={busy} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          <button onClick={addRoute} disabled={busy} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             <Plus size={13} style={{ verticalAlign: -2, marginRight: 4 }} />Create
           </button>
         </div>
@@ -218,9 +218,9 @@ export default function FieldRoutes() {
               <button key={d.v} onClick={() => toggleDay(d.v)}
                 style={{
                   padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                  border: `1px solid ${newDays.includes(d.v) ? '#4F46E5' : '#E2E8F0'}`,
-                  background: newDays.includes(d.v) ? '#EEF2FF' : '#fff',
-                  color: newDays.includes(d.v) ? '#4338CA' : '#64748B',
+                  border: `1px solid ${newDays.includes(d.v) ? 'var(--c-primary)' : 'var(--c-line)'}`,
+                  background: newDays.includes(d.v) ? 'var(--c-primary-soft)' : 'var(--c-surface)',
+                  color: newDays.includes(d.v) ? 'var(--c-primary-hover)' : 'var(--c-muted)',
                 }}>{d.l}</button>
             ))}
           </div>
@@ -229,13 +229,13 @@ export default function FieldRoutes() {
 
       {/* ─── ROUTE LIST ────────────────────────────────────────── */}
       {routes.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: '#94A3B8' }}>No routes yet — create your first beat above.</div>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-faint)' }}>No routes yet — create your first beat above.</div>
       ) : routes.map(r => (
         <div key={r.id} style={S.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A' }}>{r.name}</div>
-              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-ink)' }}>{r.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
                 {r.stopCount} outlet{r.stopCount === 1 ? '' : 's'}
                 {r.warehouseName && ` · from ${r.warehouseName}`}
                 {r.weekdays.length > 0 && ` · ${r.weekdays.map(d => DAYS.find(x => x.v === d)?.l).filter(Boolean).join(', ')}`}
@@ -244,25 +244,25 @@ export default function FieldRoutes() {
                   nothing wrote to it, so any rep could pick any route.
                   This actually assigns it. */}
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, color: '#94A3B8' }}>Assigned to:</span>
+                <span style={{ fontSize: 11, color: 'var(--c-faint)' }}>Assigned to:</span>
                 <select value={r.assignedRepId || ''} disabled={assignBusy === r.id}
                   onChange={e => assignRep(r.id, e.target.value || null)}
-                  style={{ fontSize: 12, border: '1px solid #E2E8F0', borderRadius: 6, padding: '3px 8px', color: r.assignedRepId ? '#0F172A' : '#94A3B8' }}>
+                  style={{ fontSize: 12, border: '1px solid var(--c-line)', borderRadius: 6, padding: '3px 8px', color: r.assignedRepId ? 'var(--c-ink)' : 'var(--c-faint)' }}>
                   <option value="">Anyone (unassigned)</option>
                   {fieldReps.map(rep => <option key={rep.userId} value={rep.userId}>{rep.name}</option>)}
                 </select>
               </div>
             </div>
             <button onClick={() => openRoute?.id === r.id ? setOpenRoute(null) : openStops(r)}
-              style={{ background: openRoute?.id === r.id ? '#EEF2FF' : '#F1F5F9', color: openRoute?.id === r.id ? '#4338CA' : '#334155', border: '1px solid #E2E8F0', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              style={{ background: openRoute?.id === r.id ? 'var(--c-primary-soft)' : 'var(--c-line-soft)', color: openRoute?.id === r.id ? 'var(--c-primary-hover)' : 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
               {openRoute?.id === r.id ? 'Close' : 'Plan Outlets'}
             </button>
           </div>
 
           {openRoute?.id === r.id && (
-            <div style={{ marginTop: 18, borderTop: '1px solid #E2E8F0', paddingTop: 18 }}>
+            <div style={{ marginTop: 18, borderTop: '1px solid var(--c-line)', paddingTop: 18 }}>
               {missingGps > 0 && (
-                <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <AlertTriangle size={14} />
                   {missingGps} outlet{missingGps === 1 ? ' has' : 's have'} no GPS location — they can&apos;t be sequenced and will be placed at the end of the run.
                 </div>
@@ -272,19 +272,19 @@ export default function FieldRoutes() {
                 {/* Current stops */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-ink-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       On this route ({stops.length})
                     </span>
                     {stops.length >= 2 && (
                       <button onClick={runSequencer}
-                        style={{ background: '#059669', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, fontWeight: 700, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                        style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '6px 12px', borderRadius: 6, fontWeight: 700, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                         <Zap size={11} /> Sequence
                       </button>
                     )}
                   </div>
 
                   {seqResult && (
-                    <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 8, padding: 12, marginBottom: 12 }}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: '#047857', marginBottom: 6 }}>
                         Proposed order · {seqResult.distanceKm} km
                         {seqResult.improvementKm > 0 && ` · saved ${seqResult.improvementKm} km`}
@@ -292,17 +292,17 @@ export default function FieldRoutes() {
                       <ol style={{ margin: '0 0 10px', paddingLeft: 18, fontSize: 12, color: '#065F46' }}>
                         {seqResult.sequenced.map(s => (
                           <li key={s.id} style={{ padding: '1px 0' }}>
-                            {s.name}{s.latitude == null && <span style={{ color: '#B45309' }}> (no GPS)</span>}
+                            {s.name}{s.latitude == null && <span style={{ color: 'var(--c-warning-strong)' }}> (no GPS)</span>}
                           </li>
                         ))}
                       </ol>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button onClick={acceptSequence} disabled={busy}
-                          style={{ background: '#059669', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '7px 14px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                           Save this order
                         </button>
                         <button onClick={() => setSeqResult(null)}
-                          style={{ background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', padding: '7px 14px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                          style={{ background: 'transparent', color: 'var(--c-muted)', border: '1px solid var(--c-line)', padding: '7px 14px', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                           Discard
                         </button>
                       </div>
@@ -310,18 +310,18 @@ export default function FieldRoutes() {
                   )}
 
                   {stops.length === 0 ? (
-                    <p style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: '16px 0' }}>No outlets yet — add some from the right.</p>
+                    <p style={{ fontSize: 12, color: 'var(--c-faint)', textAlign: 'center', padding: '16px 0' }}>No outlets yet — add some from the right.</p>
                   ) : stops.map((s, i) => (
-                    <div key={s.stopId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                    <div key={s.stopId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>
-                          <span style={{ color: '#94A3B8', marginRight: 6 }}>{i + 1}.</span>{s.name}
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink)' }}>
+                          <span style={{ color: 'var(--c-faint)', marginRight: 6 }}>{i + 1}.</span>{s.name}
                         </div>
-                        <div style={{ fontSize: 10, color: s.latitude == null ? '#B45309' : '#64748B', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <div style={{ fontSize: 10, color: s.latitude == null ? 'var(--c-warning-strong)' : 'var(--c-muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
                           <MapPin size={9} />{s.latitude == null ? 'No GPS' : (s.address || 'Located')}
                         </div>
                       </div>
-                      <button onClick={() => dropStop(s.stopId)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '3px 7px', cursor: 'pointer' }}>
+                      <button onClick={() => dropStop(s.stopId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '3px 7px', cursor: 'pointer' }}>
                         <X size={11} />
                       </button>
                     </div>
@@ -330,26 +330,26 @@ export default function FieldRoutes() {
 
                 {/* Available shops */}
                 <div>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-ink-2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Available outlets ({available.length})
                   </span>
                   <input value={shopFilter} onChange={e => setShopFilter(e.target.value)} placeholder="Search…"
                     style={{ ...S.input, margin: '10px 0' }} />
                   <div style={{ maxHeight: 320, overflowY: 'auto' }}>
                     {available.length === 0 ? (
-                      <p style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: '16px 0' }}>
+                      <p style={{ fontSize: 12, color: 'var(--c-faint)', textAlign: 'center', padding: '16px 0' }}>
                         {shops.length === 0 ? 'No linked shops yet.' : 'All linked outlets are on this route.'}
                       </p>
                     ) : available.map(s => (
-                      <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                      <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>{s.name}</div>
-                          <div style={{ fontSize: 10, color: s.latitude == null ? '#B45309' : '#64748B' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink)' }}>{s.name}</div>
+                          <div style={{ fontSize: 10, color: s.latitude == null ? 'var(--c-warning-strong)' : 'var(--c-muted)' }}>
                             {s.latitude == null ? 'No GPS' : (s.address || 'Located')}
                           </div>
                         </div>
                         <button onClick={() => addShop(s.id)} disabled={busy}
-                          style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 6, padding: '3px 9px', cursor: 'pointer', fontWeight: 700, fontSize: 11 }}>
+                          style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', borderRadius: 6, padding: '3px 9px', cursor: 'pointer', fontWeight: 700, fontSize: 11 }}>
                           <Plus size={11} />
                         </button>
                       </div>

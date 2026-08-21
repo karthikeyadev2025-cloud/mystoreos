@@ -34,14 +34,14 @@ const CSS = `
     background: rgba(255,255,255,0.06);
     border: 1.5px solid rgba(255,255,255,0.12);
     border-radius: 9px;
-    color: #fff;
+    color: var(--c-surface);
     font-size: 14px;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     transition: border-color .18s, box-shadow .18s;
     outline: none;
   }
   .reg-input:focus {
-    border-color: #4F46E5;
+    border-color: var(--c-primary);
     box-shadow: 0 0 0 3px rgba(79,70,229,0.18);
   }
   .reg-input::placeholder { color: rgba(255,255,255,0.28); }
@@ -56,8 +56,8 @@ const CSS = `
   .reg-submit {
     width: 100%;
     padding: 14px;
-    background: #4F46E5;
-    color: #fff;
+    background: var(--c-primary);
+    color: var(--c-surface);
     border: none;
     border-radius: 10px;
     font-size: 15px;
@@ -95,7 +95,7 @@ const CSS = `
   .reg-type-btn.active {
     background: rgba(79,70,229,0.15);
     border-color: rgba(79,70,229,0.4);
-    color: #fff;
+    color: var(--c-surface);
   }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   .fade-in { animation: fadeIn .3s ease both; }
@@ -116,7 +116,7 @@ const BUSINESS_KINDS = [
     icon: '🛍️',
     label: 'Retailer',
     tagline: 'I sell products (walk-in customers, POS-first)',
-    color: '#10B981',
+    color: 'var(--c-success)',
   },
   {
     value: 'service',
@@ -363,9 +363,9 @@ const Register = () => {
             <div style={{ width: 52, height: 52, background: 'rgba(79,70,229,0.15)',
               border: '1px solid rgba(79,70,229,0.3)', borderRadius: 14,
               display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-              <Zap size={24} color="#4F46E5" strokeWidth={2}/>
+              <Zap size={24} color="var(--c-primary)" strokeWidth={2}/>
             </div>
-            <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
+            <h1 style={{ color: 'var(--c-surface)', fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 6 }}>
               {businessType === 'customer' ? 'Create Shopper Account' : 'Start Your Free Trial'}
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>
@@ -376,7 +376,7 @@ const Register = () => {
           <form onSubmit={otpStep === 'idle' ? sendOtp : handleRegister}>
             <div id="firebase-recaptcha-container"></div>
             {claimMode && (
-              <div style={{ background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', borderRadius: 12, padding: '14px 16px', marginBottom: 18, boxShadow: '0 6px 16px rgba(79,70,229,.25)' }}>
+              <div style={{ background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', borderRadius: 12, padding: '14px 16px', marginBottom: 18, boxShadow: '0 6px 16px rgba(79,70,229,.25)' }}>
                 <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 4 }}>📲 Claim your bills</div>
                 <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.9)', lineHeight: 1.45 }}>
                   Create your free account with <b>{claimPhone}</b> and every bill sent to this number — from any MyStore shop — will appear in your purchase history automatically, even bills sent before today.
@@ -426,7 +426,7 @@ const Register = () => {
                     </button>
                   ))}
                 </div>
-                <p style={{ margin: '8px 2px 0', fontSize: 10.5, color: '#94a3b8', lineHeight: 1.4 }}>
+                <p style={{ margin: '8px 2px 0', fontSize: 10.5, color: 'var(--c-faint)', lineHeight: 1.4 }}>
                   ⚠️ You can't change this later without contacting support.
                 </p>
               </div>
@@ -481,7 +481,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#F8FAFC', border: '1.5px solid #E2E8F0', color: '#475569', padding: '12px', borderRadius: '10px', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 12 }}
+                  style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'var(--c-bg)', border: '1.5px solid var(--c-line)', color: 'var(--c-ink-2)', padding: '12px', borderRadius: '10px', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 12 }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -525,16 +525,16 @@ const Register = () => {
                 maxLength={10}
                 inputMode="numeric"
                 readOnly={claimMode || otpStep === 'sent'}
-                style={(claimMode || otpStep === 'sent') ? { background: '#F1F5F9', cursor: 'not-allowed' } : undefined}
+                style={(claimMode || otpStep === 'sent') ? { background: 'var(--c-line-soft)', cursor: 'not-allowed' } : undefined}
               />
               {claimMode && (
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5 }}>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 5 }}>
                   Locked — registering with the number your bill was sent to.
                 </div>
               )}
               {otpStep === 'sent' && (
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5 }}>
-                  Code sent to this number. <button type="button" onClick={changePhoneNumber} style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Change number</button>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 5 }}>
+                  Code sent to this number. <button type="button" onClick={changePhoneNumber} style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Change number</button>
                 </div>
               )}
             </div>
@@ -556,8 +556,8 @@ const Register = () => {
                   autoFocus
                   style={{ letterSpacing: 4, fontSize: 18, textAlign: 'center' }}
                 />
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 5, textAlign: 'center' }}>
-                  Didn't get it? <button type="button" onClick={resendOtp} style={{ background: 'none', border: 'none', color: '#818CF8', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Resend code</button>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 5, textAlign: 'center' }}>
+                  Didn't get it? <button type="button" onClick={resendOtp} style={{ background: 'none', border: 'none', color: 'var(--c-primary-light)', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: 11 }}>Resend code</button>
                 </div>
               </div>
             )}
@@ -573,7 +573,7 @@ const Register = () => {
                   onChange={e => otpStep === 'idle' && setPass(e.target.value)}
                   placeholder="Min 4 characters"
                   readOnly={otpStep === 'sent'}
-                  style={{ paddingRight: 44, ...(otpStep === 'sent' ? { background: '#F1F5F9', cursor: 'not-allowed' } : {}) }}
+                  style={{ paddingRight: 44, ...(otpStep === 'sent' ? { background: 'var(--c-line-soft)', cursor: 'not-allowed' } : {}) }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
                   position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
@@ -582,7 +582,7 @@ const Register = () => {
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 0,
                   transition: 'background .15s, color .15s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = 'var(--c-surface)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
                   {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
                 </button>
@@ -590,7 +590,7 @@ const Register = () => {
             </div>
 
             {registrationClosed && (
-              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '12px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 13, textAlign: 'center' }}>
+              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '12px 14px', marginBottom: 14, color: 'var(--c-danger-border)', fontSize: 13, textAlign: 'center' }}>
                 New registrations are temporarily closed. Please check back later.
               </div>
             )}
@@ -611,7 +611,7 @@ const Register = () => {
           <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 13, marginTop: 20 }}>
             Already have an account?{' '}
             <button onClick={() => navigate('/login')} style={{
-              background: 'none', border: 'none', color: '#818CF8',
+              background: 'none', border: 'none', color: 'var(--c-primary-light)',
               fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>Sign in →</button>
           </p>

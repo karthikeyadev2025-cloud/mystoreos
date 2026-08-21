@@ -130,37 +130,37 @@ export default function FieldLoadOut() {
     : `${l.qtyBase} ${l.unit || 'units'}`;
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
-    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    input: { width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
+    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 1100, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
       <button onClick={() => navigate('/field/stock')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 16, padding: '0 0 0 16px' }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 16, padding: '0 0 0 16px' }}>
         Stock Overview →
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Van Load-Out</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 24px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>Van Load-Out</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 24px' }}>
         Build the morning load, then confirm once the van is physically loaded. Stock only moves on confirmation.
       </p>
 
       {vans.length === 0 || depots.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: '#B45309', background: '#FEF3C7', border: '1px solid #FDE68A' }}>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-warning-strong)', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A' }}>
           You need at least one depot and one van before you can create a load-out.
           <div style={{ marginTop: 12 }}>
-            <button onClick={() => navigate('/field/setup')} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => navigate('/field/setup')} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
               Go to Field Setup
             </button>
           </div>
@@ -168,7 +168,7 @@ export default function FieldLoadOut() {
       ) : (
         <>
           <div style={{ ...S.card, marginBottom: 20 }}>
-            <h2 style={S.h2}><Truck size={18} color="#059669" /> New Load-Out</h2>
+            <h2 style={S.h2}><Truck size={18} color="var(--c-success-strong)" /> New Load-Out</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, margin: '16px 0' }}>
               <div>
@@ -187,7 +187,7 @@ export default function FieldLoadOut() {
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 16 }}>
+            <div style={{ borderTop: '1px solid var(--c-line)', paddingTop: 16 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto auto', gap: 10, alignItems: 'end' }}>
                 <div>
                   <label style={S.label}>Product</label>
@@ -209,12 +209,12 @@ export default function FieldLoadOut() {
                     <option value="base">{selectedProduct?.unit || 'Units'}</option>
                   </select>
                 </div>
-                <button onClick={addLine} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                <button onClick={addLine} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                   <Plus size={13} style={{ verticalAlign: -2 }} />
                 </button>
               </div>
               {canUseBoxes && pickInBoxes && pickQty > 0 && (
-                <p style={{ fontSize: 11, color: '#059669', margin: '6px 0 0', fontWeight: 600 }}>
+                <p style={{ fontSize: 11, color: 'var(--c-success-strong)', margin: '6px 0 0', fontWeight: 600 }}>
                   = {parseFloat(pickQty) * selectedProduct.packSize} {selectedProduct.unit || 'units'}
                 </p>
               )}
@@ -223,18 +223,18 @@ export default function FieldLoadOut() {
             {lines.length > 0 && (
               <div style={{ marginTop: 16 }}>
                 {lines.map(l => (
-                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.productName}</div>
-                      <div style={{ fontSize: 11, color: '#64748B' }}>{describe(l)}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{describe(l)}</div>
                     </div>
-                    <button onClick={() => removeLine(l.productId)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                    <button onClick={() => removeLine(l.productId)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>
                 ))}
                 <button onClick={submitLoad} disabled={busy || !fromId || !toId}
-                  style={{ width: '100%', marginTop: 10, background: (!fromId || !toId) ? '#CBD5E1' : '#059669', color: '#fff', border: 'none', padding: 12, borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: (!fromId || !toId) ? 'default' : 'pointer' }}>
+                  style={{ width: '100%', marginTop: 10, background: (!fromId || !toId) ? 'var(--c-line-strong)' : 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: 12, borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: (!fromId || !toId) ? 'default' : 'pointer' }}>
                   {busy ? 'Creating…' : `Create Load-Out (${lines.length} product${lines.length === 1 ? '' : 's'})`}
                 </button>
               </div>
@@ -242,32 +242,32 @@ export default function FieldLoadOut() {
           </div>
 
           <div style={S.card}>
-            <h2 style={S.h2}><Clock size={18} color="#4F46E5" /> Recent Transfers</h2>
+            <h2 style={S.h2}><Clock size={18} color="var(--c-primary)" /> Recent Transfers</h2>
             {transfers.length === 0 ? (
-              <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>No transfers yet.</p>
+              <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>No transfers yet.</p>
             ) : (
               <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {transfers.map(t => (
-                  <div key={t.id} style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 14, background: t.status === 'pending' ? '#FFFBEB' : '#F8FAFC' }}>
+                  <div key={t.id} style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 14, background: t.status === 'pending' ? '#FFFBEB' : 'var(--c-bg)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>
                           {t.fromName} → {t.toName}
                         </div>
-                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
                           {t.lines.length} product{t.lines.length === 1 ? '' : 's'} · {new Date(t.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </div>
-                        <div style={{ fontSize: 11, color: '#475569', marginTop: 6 }}>
+                        <div style={{ fontSize: 11, color: 'var(--c-ink-2)', marginTop: 6 }}>
                           {t.lines.map(l => `${l.productName} × ${l.qtyBase}`).join(' · ')}
                         </div>
                       </div>
                       {t.status === 'pending' ? (
                         <button onClick={() => confirm(t.id)} disabled={busy}
-                          style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                           <Check size={12} style={{ verticalAlign: -2, marginRight: 4 }} />Confirm
                         </button>
                       ) : (
-                        <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: t.status === 'confirmed' ? '#047857' : '#B91C1C', background: t.status === 'confirmed' ? '#D1FAE5' : '#FEE2E2', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: t.status === 'confirmed' ? '#047857' : 'var(--c-danger-strong)', background: t.status === 'confirmed' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
                           {t.status}
                         </span>
                       )}

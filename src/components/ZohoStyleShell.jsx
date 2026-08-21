@@ -29,20 +29,20 @@ const NAV = [
 ];
 
 const C = {
-  sidebar: '#0F172A',
-  sidebarText: '#94A3B8',
-  sidebarActive: '#4F46E5',
-  canvas: '#F8FAFC',
-  surface: '#FFFFFF',
-  line: '#E2E8F0',
-  ink: '#0F172A',
-  ink2: '#334155',
-  muted: '#64748B',
-  faint: '#94A3B8',
-  primary: '#4F46E5',
-  success: '#10B981',
-  danger: '#EF4444',
-  warning: '#F59E0B',
+  sidebar: 'var(--c-ink)',
+  sidebarText: 'var(--c-faint)',
+  sidebarActive: 'var(--c-primary)',
+  canvas: 'var(--c-bg)',
+  surface: 'var(--c-surface)',
+  line: 'var(--c-line)',
+  ink: 'var(--c-ink)',
+  ink2: 'var(--c-ink-2)',
+  muted: 'var(--c-muted)',
+  faint: 'var(--c-faint)',
+  primary: 'var(--c-primary)',
+  success: 'var(--c-success)',
+  danger: 'var(--c-danger)',
+  warning: 'var(--c-warning)',
 };
 
 const font = "'Plus Jakarta Sans', system-ui, sans-serif";
@@ -56,9 +56,9 @@ export default function ZohoStyleShell({ shopName = 'My Shop', shopCode = '', on
       <aside style={{ width: 240, background: C.sidebar, display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
         <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 16 }}>M</div>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontWeight: 800, fontSize: 16 }}>M</div>
             <div>
-              <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, lineHeight: 1.1 }}>MyStore OS</div>
+              <div style={{ color: 'var(--c-surface)', fontWeight: 700, fontSize: 14, lineHeight: 1.1 }}>MyStore OS</div>
               <div style={{ color: C.sidebarText, fontSize: 11 }}>Enterprise</div>
             </div>
           </div>
@@ -76,10 +76,10 @@ export default function ZohoStyleShell({ shopName = 'My Shop', shopCode = '', on
                   borderRadius: 8, textAlign: 'left', fontFamily: font, fontSize: 13.5,
                   fontWeight: on ? 700 : 500,
                   background: on ? C.sidebarActive : 'transparent',
-                  color: on ? '#fff' : C.sidebarText,
+                  color: on ? 'var(--c-surface)' : C.sidebarText,
                   transition: 'background 0.15s, color 0.15s',
                 }}
-                onMouseEnter={e => { if (!on) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#E2E8F0'; } }}
+                onMouseEnter={e => { if (!on) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'var(--c-line)'; } }}
                 onMouseLeave={e => { if (!on) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.sidebarText; } }}
               >
                 <Icon size={17} strokeWidth={2} />
@@ -91,11 +91,11 @@ export default function ZohoStyleShell({ shopName = 'My Shop', shopCode = '', on
 
         <div style={{ padding: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#1E293B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--c-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontSize: 12, fontWeight: 700 }}>
               {shopName.slice(0, 2).toUpperCase()}
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{shopName}</div>
+              <div style={{ color: 'var(--c-surface)', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{shopName}</div>
               <div style={{ color: C.faint, fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace" }}>{shopCode}</div>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function ZohoStyleShell({ shopName = 'My Shop', shopCode = '', on
             <input placeholder="Search customers, invoices, items…" style={{ border: 'none', background: 'transparent', outline: 'none', fontFamily: font, fontSize: 13, color: C.ink, width: '100%' }} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 7, background: C.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontFamily: font, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            <button style={{ display: 'flex', alignItems: 'center', gap: 7, background: C.primary, color: 'var(--c-surface)', border: 'none', borderRadius: 8, padding: '9px 16px', fontFamily: font, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
               <Plus size={15} /> New Bill
             </button>
             <Bell size={18} color={C.muted} style={{ cursor: 'pointer' }} />

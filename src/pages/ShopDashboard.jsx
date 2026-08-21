@@ -79,19 +79,19 @@ function ReferAndEarnCard({ userId, userName }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
         <span style={{ fontSize: 22 }}>🔗</span>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 15, color: '#4F46E5' }}>Refer & Earn</div>
-          <div style={{ fontSize: 11, color: '#64748B' }}>Share your code — earn 20% commission when referrals subscribe</div>
+          <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--c-primary)' }}>Refer & Earn</div>
+          <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>Share your code — earn 20% commission when referrals subscribe</div>
         </div>
       </div>
-      {loading ? <div style={{ color: '#64748B', fontSize: 12 }}>Generating your code...</div> : (
+      {loading ? <div style={{ color: 'var(--c-muted)', fontSize: 12 }}>Generating your code...</div> : (
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ background: '#0F172A', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#A78BFA', letterSpacing: 3, flexShrink: 0 }}>
+          <div style={{ background: 'var(--c-ink)', border: '2px solid rgba(139,92,246,0.4)', borderRadius: 10, padding: '8px 18px', fontFamily: 'monospace', fontSize: 20, fontWeight: 900, color: '#A78BFA', letterSpacing: 3, flexShrink: 0 }}>
             {code?.code || '—'}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <button onClick={() => copy(code?.code)} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#A78BFA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📋 Copy Code</button>
             <button onClick={() => copy(link)} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60A5FA', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>🔗 Copy Link</button>
-            <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25D366,#128C7E)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📲 Share on WhatsApp</button>
+            <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25D366,#128C7E)', border: 'none', color: 'var(--c-surface)', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>📲 Share on WhatsApp</button>
           </div>
         </div>
       )}
@@ -4455,7 +4455,7 @@ const ShopDashboard = () => {
         }
       },
       prefill: { name: user.name, contact: user.phone },
-      theme: { color: "#4F46E5" }
+      theme: { color: "var(--c-primary)" }
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
@@ -4463,10 +4463,10 @@ const ShopDashboard = () => {
 
   const getAnnounceColor = () => {
     switch(announceConfig.type) {
-      case 'warning': return '#4F46E5';
+      case 'warning': return 'var(--c-primary)';
       case 'success': return '#22C55E';
-      case 'error': return '#EF4444';
-      default: return '#3B82F6';
+      case 'error': return 'var(--c-danger)';
+      default: return 'var(--c-info)';
     }
   };
 
@@ -4484,15 +4484,15 @@ const ShopDashboard = () => {
             return (
               <button key={c} onClick={() => setBillingCycle(c)}
                 style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
-                  background: billingCycle === c ? '#4F46E5' : 'transparent', color: billingCycle === c ? '#fff' : '#94A3B8', position: 'relative' }}>
+                  background: billingCycle === c ? 'var(--c-primary)' : 'transparent', color: billingCycle === c ? 'var(--c-surface)' : 'var(--c-faint)', position: 'relative' }}>
                 {cycleLabel[c]}
-                {disc > 0 && <span style={{ marginLeft: 5, fontSize: '10px', color: billingCycle === c ? '#fff' : '#10B981', fontWeight: 800 }}>-{disc}%</span>}
+                {disc > 0 && <span style={{ marginLeft: 5, fontSize: '10px', color: billingCycle === c ? 'var(--c-surface)' : 'var(--c-success)', fontWeight: 800 }}>-{disc}%</span>}
               </button>
             );
           })}
         </div>
         {offerOn && billingCycle !== 'monthly' && (
-          <div style={{ marginTop: '10px', color: '#10B981', fontSize: '12px', fontWeight: 700 }}>
+          <div style={{ marginTop: '10px', color: 'var(--c-success)', fontSize: '12px', fontWeight: 700 }}>
             🎉 Launch offer: extra {pricing.offer.percent}% OFF — only {pricing.offer.remaining} slots left!
           </div>
         )}
@@ -4506,8 +4506,8 @@ const ShopDashboard = () => {
     if (!pr || !pr.final) {
       return (
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-          <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{plan.price}</span>
-          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>/ month</span>
+          <span style={{ fontSize: '32px', fontWeight: '800', color: 'var(--c-surface)' }}>₹{plan.price}</span>
+          <span style={{ fontSize: '12px', color: 'var(--c-line-strong)' }}>/ month</span>
         </div>
       );
     }
@@ -4515,12 +4515,12 @@ const ShopDashboard = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
-          {showStrike && <span style={{ fontSize: '16px', color: '#94A3B8', textDecoration: 'line-through' }}>₹{pr.base}</span>}
-          <span style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>₹{pr.final}</span>
-          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{cycleSuffix[billingCycle]}</span>
+          {showStrike && <span style={{ fontSize: '16px', color: 'var(--c-faint)', textDecoration: 'line-through' }}>₹{pr.base}</span>}
+          <span style={{ fontSize: '32px', fontWeight: '800', color: 'var(--c-surface)' }}>₹{pr.final}</span>
+          <span style={{ fontSize: '12px', color: 'var(--c-line-strong)' }}>{cycleSuffix[billingCycle]}</span>
         </div>
         {billingCycle !== 'monthly' && (
-          <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 700 }}>
+          <span style={{ fontSize: '11px', color: 'var(--c-success)', fontWeight: 700 }}>
             {pr.offerOn ? `Save ${pr.cycleDisc + pr.offerPercent}% total — launch offer` : pr.cycleDisc > 0 ? `Save ${pr.cycleDisc}% vs monthly` : ''}
           </span>
         )}
@@ -4529,24 +4529,24 @@ const ShopDashboard = () => {
   };
 
   const styles = {
-    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: '#0F172A', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: 'border-box' },
-    header: { background: '#0F172A', padding: 'calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1E293B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', width: '100%', boxSizing: 'border-box', overflow: 'hidden', gap: '8px' },
+    bg: { backgroundColor: '#F4F5F7', minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden', color: 'var(--c-ink)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: 'border-box' },
+    header: { background: 'var(--c-ink)', padding: 'calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--c-ink)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', width: '100%', boxSizing: 'border-box', overflow: 'hidden', gap: '8px' },
     statRow: { display: 'flex', gap: '8px', padding: '12px', overflowX: 'auto' },
-    statBox: { backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    statNum: { fontSize: '22px', fontWeight: '800', color: '#0F172A', fontFamily: "'JetBrains Mono', monospace", margin: 0 },
-    statLabel: { fontSize: '11px', color: '#64748B', fontWeight: '600', margin: 0 },
-    searchBar: { margin: '12px', display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', border: '1.5px solid #E2E8F0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', borderRadius: '8px', padding: '0 12px' },
+    statBox: { backgroundColor: 'var(--c-surface)', border: '1px solid var(--c-line)', flex: 1, minWidth: '80px', padding: '12px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    statNum: { fontSize: '22px', fontWeight: '800', color: 'var(--c-ink)', fontFamily: "'JetBrains Mono', monospace", margin: 0 },
+    statLabel: { fontSize: '11px', color: 'var(--c-muted)', fontWeight: '600', margin: 0 },
+    searchBar: { margin: '12px', display: 'flex', alignItems: 'center', backgroundColor: 'var(--c-surface)', border: '1.5px solid var(--c-line)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', borderRadius: '8px', padding: '0 12px' },
     grid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '0 12px' },
-    gridBtn: { backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    gridIcon: { color: '#4F46E5' },
-    gridTitle: { fontSize: '12px', fontWeight: '700', color: '#0F172A', margin: 0 },
-    gridSub: { fontSize: '10px', color: '#64748B', margin: 0 },
-    section: { margin: '16px 12px', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    sectionHeader: { backgroundColor: '#F8FAFC', padding: '12px', fontSize: '14px', fontWeight: 'bold', color: '#0F172A', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' },
+    gridBtn: { backgroundColor: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    gridIcon: { color: 'var(--c-primary)' },
+    gridTitle: { fontSize: '12px', fontWeight: '700', color: 'var(--c-ink)', margin: 0 },
+    gridSub: { fontSize: '10px', color: 'var(--c-muted)', margin: 0 },
+    section: { margin: '16px 12px', backgroundColor: 'var(--c-surface)', borderRadius: '12px', border: '1px solid var(--c-line)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    sectionHeader: { backgroundColor: 'var(--c-bg)', padding: '12px', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-ink)', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', gap: '8px' },
     whatsappBtn: { backgroundColor: '#22C55E', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' },
-    upiBtn: { backgroundColor: '#4F46E5', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
-    prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #E2E8F0' },
-    orderCard: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', margin: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    upiBtn: { backgroundColor: 'var(--c-primary)', color: 'white', width: '100%', padding: '14px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' },
+    prodItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--c-line)' },
+    orderCard: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', margin: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
     navBtn: { textAlign: 'center', cursor: 'pointer', minWidth: '44px', maxWidth: '60px', flex: '1 1 0', flexShrink: 0, padding: '2px 2px' }
   };
 
@@ -4583,7 +4583,7 @@ const ShopDashboard = () => {
         borderRadius: 8,
         border: '1px solid rgba(255,255,255,0.25)',
         background: 'rgba(255,255,255,0.15)',
-        color: '#fff',
+        color: 'var(--c-surface)',
         fontSize: 12,
         fontWeight: 700,
         cursor: 'pointer',
@@ -4596,7 +4596,7 @@ const ShopDashboard = () => {
       }}
     >
       {visibleBranches.map(b => (
-        <option key={b.id} value={b.id} style={{ color: '#0F172A' }}>
+        <option key={b.id} value={b.id} style={{ color: 'var(--c-ink)' }}>
           {b.name}{!b.parentShopId ? ' (Main)' : ''}
         </option>
       ))}
@@ -4632,11 +4632,11 @@ const ShopDashboard = () => {
 
   const importFromMainEl = (canImportFromMain || canPushToABranch) ? (
     canImportFromMain ? (
-    <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, flexShrink: 0 }}>📦</div>
+    <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),#F5F3FF)', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: 14, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontSize: 18, flexShrink: 0 }}>📦</div>
       <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Copy all products from Main Shop</div>
-        <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, lineHeight: 1.45 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>Copy all products from Main Shop</div>
+        <div style={{ fontSize: 11.5, color: 'var(--c-muted)', marginTop: 2, lineHeight: 1.45 }}>
           Copies every product from the main shop into this branch. Products already here are skipped — safe to run again after adding new items to main.
         </div>
       </div>
@@ -4644,14 +4644,14 @@ const ShopDashboard = () => {
         <button
           onClick={() => handleImportFromMain({ copyStock: false })}
           title="Copy all products; set stock to 0 on this branch"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#FFFFFF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'var(--c-surface)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
           Copy products (stock = 0)
         </button>
         <button
           onClick={() => handleImportFromMain({ copyStock: true })}
           title="Copy all products AND copy current stock counts from main"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
           Copy + bring stock
         </button>
@@ -4697,37 +4697,37 @@ const ShopDashboard = () => {
     if (!data.isAllScope || !data.branchBreakdown?.length) return null;
     const totalMonth = data.branchBreakdown.reduce((s, b) => s + b.monthRevenue, 0) || 1;
     return (
-      <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, marginBottom: 16 }}>
-        <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>📊 Per-Branch Performance</h3>
-        <p style={{ margin: '0 0 12px', fontSize: 11.5, color: '#64748B' }}>
+      <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800, color: 'var(--c-ink)' }}>📊 Per-Branch Performance</h3>
+        <p style={{ margin: '0 0 12px', fontSize: 11.5, color: 'var(--c-muted)' }}>
           Today's bills · today's revenue · this month total · share of monthly revenue
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {data.branchBreakdown.map((b, idx) => {
             const sharePct = Math.round((b.monthRevenue / totalMonth) * 100);
             return (
-              <div key={b.branchId} style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 10, background: idx === 0 ? '#F0FDF4' : '#FFFFFF' }}>
+              <div key={b.branchId} style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 10, background: idx === 0 ? '#F0FDF4' : 'var(--c-surface)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{b.branchName}</span>
-                  {b.isMain && <span style={{ fontSize: 9.5, background: '#4F46E5', color: '#fff', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-ink)' }}>{b.branchName}</span>
+                  {b.isMain && <span style={{ fontSize: 9.5, background: 'var(--c-primary)', color: 'var(--c-surface)', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
                   {idx === 0 && data.branchBreakdown.length > 1 && (
-                    <span style={{ fontSize: 9.5, background: '#16A34A', color: '#fff', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>🏆 TOP</span>
+                    <span style={{ fontSize: 9.5, background: 'var(--c-success-strong)', color: 'var(--c-surface)', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>🏆 TOP</span>
                   )}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8, fontSize: 11.5 }}>
                   <div>
-                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>TODAY</div>
-                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{b.todayBills} bills · ₹{Math.round(b.todayRevenue).toLocaleString('en-IN')}</div>
+                    <div style={{ color: 'var(--c-muted)', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>TODAY</div>
+                    <div style={{ color: 'var(--c-ink)', fontWeight: 700 }}>{b.todayBills} bills · ₹{Math.round(b.todayRevenue).toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>THIS MONTH</div>
-                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{b.monthBills} bills · ₹{Math.round(b.monthRevenue).toLocaleString('en-IN')}</div>
+                    <div style={{ color: 'var(--c-muted)', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>THIS MONTH</div>
+                    <div style={{ color: 'var(--c-ink)', fontWeight: 700 }}>{b.monthBills} bills · ₹{Math.round(b.monthRevenue).toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ color: '#64748B', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>SHARE</div>
-                    <div style={{ color: '#0F172A', fontWeight: 700 }}>{sharePct}%</div>
-                    <div style={{ marginTop: 4, background: '#E2E8F0', height: 4, borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ background: '#4F46E5', height: '100%', width: `${sharePct}%`, transition: 'width .35s' }} />
+                    <div style={{ color: 'var(--c-muted)', fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3 }}>SHARE</div>
+                    <div style={{ color: 'var(--c-ink)', fontWeight: 700 }}>{sharePct}%</div>
+                    <div style={{ marginTop: 4, background: 'var(--c-line)', height: 4, borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ background: 'var(--c-primary)', height: '100%', width: `${sharePct}%`, transition: 'width .35s' }} />
                     </div>
                   </div>
                 </div>
@@ -4759,9 +4759,9 @@ const ShopDashboard = () => {
       <div style={{
         maxWidth: 720,
         margin: '0 auto 10px',
-        background: '#FFFFFF',
+        background: 'var(--c-surface)',
         border: '1px solid #BBF7D0',
-        borderLeft: '4px solid #10B981',
+        borderLeft: '4px solid var(--c-success)',
         borderRadius: 14,
         padding: '12px 14px',
         display: 'flex',
@@ -4771,15 +4771,15 @@ const ShopDashboard = () => {
         pointerEvents: 'auto',
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             📎 Send PDF receipt too?
             {queuedAfterCurrent > 0 && (
-              <span style={{ fontSize: 10.5, background: '#FEF3C7', color: '#92400E', padding: '1px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>
+              <span style={{ fontSize: 10.5, background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', padding: '1px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>
                 +{queuedAfterCurrent} more {queuedAfterCurrent === 1 ? 'bill' : 'bills'} waiting
               </span>
             )}
           </div>
-          <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
+          <div style={{ fontSize: 11.5, color: 'var(--c-muted)', marginTop: 2 }}>
             Text bill went to {pdfShareBanner.customerPhone} · the customer's chat is at the top of your WhatsApp recents
           </div>
         </div>
@@ -4799,8 +4799,8 @@ const ShopDashboard = () => {
           }}
           style={{
             flexShrink: 0,
-            background: 'linear-gradient(135deg,#10B981,#059669)',
-            color: '#fff',
+            background: 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))',
+            color: 'var(--c-surface)',
             border: 'none',
             padding: '10px 14px',
             borderRadius: 10,
@@ -4821,7 +4821,7 @@ const ShopDashboard = () => {
             flexShrink: 0,
             background: 'transparent',
             border: 'none',
-            color: '#94A3B8',
+            color: 'var(--c-faint)',
             cursor: 'pointer',
             padding: 6,
             fontSize: 18,
@@ -4834,7 +4834,7 @@ const ShopDashboard = () => {
 
   if (!isMobile) {
     return (
-      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <div className="enterprise-wrapper" style={{ display: 'flex', alignItems: 'flex-start', minHeight: '100vh', paddingLeft: '240px', backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <ToastContainer theme="dark" position="top-center" />
         {pdfShareBannerEl}
         {/* Hidden, always-mounted QR canvas used by downloadQrPoster /
@@ -4848,27 +4848,27 @@ const ShopDashboard = () => {
             would populate it was never being rendered at all, hence
             "QR code not ready yet" firing every time on desktop. */}
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
-          <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="#0F172A" bgColor="#FFFFFF" />
+          <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="var(--c-ink)" bgColor="var(--c-surface)" />
         </div>
         {isExpired && isOwner && (
           <TrialExpiredOverlay planLabel={planLabel} onUpgrade={() => setShowPlanSelectorModal(true)} />
         )}
         {deviceLimitExceeded && isOwner && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-            <div style={{ maxWidth: '440px', width: '100%', background: 'linear-gradient(135deg, #1E293B, #0F172A)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '20px', padding: '36px', textAlign: 'center' }}>
+            <div style={{ maxWidth: '440px', width: '100%', background: 'linear-gradient(135deg, var(--c-ink), var(--c-ink))', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '20px', padding: '36px', textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '14px' }}>📱</div>
               <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '800', color: 'white' }}>Device Limit Reached</h2>
-              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#94A3B8', lineHeight: '1.6' }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--c-faint)', lineHeight: '1.6' }}>
                 Your <b style={{ color: 'white' }}>{planLabel}</b> allows up to <b style={{ color: '#FBBF24' }}>{capabilities?.maxDevices ?? 1} active device{(capabilities?.maxDevices ?? 1) > 1 ? 's' : ''}</b>.
                 You have {activeSessions.length} device{activeSessions.length !== 1 ? 's' : ''} logged in.
               </p>
-              <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: '#64748B' }}>
+              <p style={{ margin: '0 0 24px 0', fontSize: '12px', color: 'var(--c-muted)' }}>
                 Sign out from your other devices, or force this device in by revoking all other sessions.
               </p>
-              <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, #EF4444, #B91C1C)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
+              <button onClick={forceRevokeOthers} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-danger), var(--c-danger-strong))', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginBottom: '10px' }}>
                 Use This Device (Revoke Others)
               </button>
-              <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+              <button onClick={() => setShowPlanSelectorModal(true)} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-light))', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
                 Upgrade for More Devices →
               </button>
             </div>
@@ -4877,9 +4877,9 @@ const ShopDashboard = () => {
 
         {/* GLOBAL ANNOUNCEMENT BANNER */}
         {announceConfig.active && announceConfig.text && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 60 }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: getAnnounceColor(), color: 'var(--c-surface)', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 60 }}>
             <div style={{ flex: 1 }}>{announceConfig.text}</div>
-            <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
+            <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: 'var(--c-surface)', cursor: 'pointer', padding: '4px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
           </div>
         )}
 
@@ -5273,10 +5273,10 @@ const ShopDashboard = () => {
         {/* Global Modals for Desktop */}
         {showPaymentQrModal && (paymentQr || upiId) && (
           <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-            <div onClick={e => e.stopPropagation()} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
-              <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{shop.name}</h2>
-              <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
-              <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '24px', padding: '32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+              <h2 style={{ color: 'var(--c-surface)', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{shop.name}</h2>
+              <p style={{ color: 'var(--c-faint)', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
+              <div style={{ background: 'var(--c-surface)', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
                 {paymentQr ? (
                   <img src={paymentQr} alt="Payment QR" style={{ width: '240px', height: '240px', objectFit: 'contain' }} />
                 ) : (
@@ -5288,10 +5288,10 @@ const ShopDashboard = () => {
               </div>
               <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
-                <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
-                <span style={{ fontSize: '9px', color: '#64748B' }}> • mystoreos.in</span>
+                <span style={{ fontSize: '10px', color: 'var(--c-primary)', fontWeight: '700' }}>MyStore OS</span>
+                <span style={{ fontSize: '9px', color: 'var(--c-muted)' }}> • mystoreos.in</span>
               </div>
-              <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
+              <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--c-surface)', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
                 Close
               </button>
             </div>
@@ -5300,44 +5300,44 @@ const ShopDashboard = () => {
 
         {showScanner && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ width: '100%', maxWidth: '400px', background: 'var(--c-surface)', borderRadius: '12px', overflow: 'hidden' }}>
               <div id="reader" style={{ width: '100%' }}></div>
-              <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+              <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: 'var(--c-danger)', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
             </div>
           </div>
         )}
 
         {showReturnModal && returnOrder && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, padding: '20px' }}>
-            <div style={{ background: '#1E293B', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #EF4444' }}>
-              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#fff', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ background: 'var(--c-ink)', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid var(--c-danger)' }}>
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-surface)', display: 'flex', justifyContent: 'space-between' }}>
                 Process Sales Return
-                <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#94A3B8' }}>✕</span>
+                <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: 'var(--c-faint)' }}>✕</span>
               </h2>
-              <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
                 {returnOrder.items.map(item => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '12px', borderRadius: '8px', border: '1px solid #334155' }}>
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-ink)', padding: '12px', borderRadius: '8px', border: '1px solid var(--c-ink-2)' }}>
                     <div>
                       <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold' }}>{item.name}</p>
                       <p style={{ margin: 0, fontSize: '12px', color: '#FBBF24' }}>₹{item.price} x {item.qty}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
+                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: 'var(--c-ink-2)', color: 'var(--c-surface)', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>-</button>
                       <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{returnItemsState[item.id] || 0}</span>
-                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, (prev[item.id] || 0) + 1)}))} style={{ background: '#334155', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>+</button>
+                      <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, (prev[item.id] || 0) + 1)}))} style={{ background: 'var(--c-ink-2)', color: 'var(--c-surface)', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer' }}>+</button>
                     </div>
                   </div>
                 ))}
               </div>
               
               <div style={{ marginTop: '16px' }}>
-                <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
+                <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
                   {[['cash','💵','Cash'],['upi','📱','UPI'],['card','💳','Card'],['store_credit','🎟️','Credit']].map(([key, icon, label]) => (
                     <button key={key} onClick={() => setReturnRefundMode(key)}
-                      style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid #EF4444' : '1px solid #334155', background: returnRefundMode === key ? 'rgba(239,68,68,0.15)' : '#0F172A', color: returnRefundMode === key ? '#EF4444' : '#94A3B8', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
+                      style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid var(--c-danger)' : '1px solid var(--c-ink-2)', background: returnRefundMode === key ? 'rgba(239,68,68,0.15)' : 'var(--c-ink)', color: returnRefundMode === key ? 'var(--c-danger)' : 'var(--c-faint)', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
                       {icon}<br />{label}
                     </button>
                   ))}
@@ -5345,11 +5345,11 @@ const ShopDashboard = () => {
               </div>
 
               <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: 'var(--c-danger)' }}>
                   <span>Total Refund:</span>
                   <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * (returnItemsState[item.id] || 0)), 0).toFixed(2)}</span>
                 </div>
-                <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+                <button onClick={handleProcessReturn} style={{ background: 'var(--c-danger)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
                   Confirm Return &amp; Notify Customer
                 </button>
               </div>
@@ -5359,21 +5359,21 @@ const ShopDashboard = () => {
 
         {showAdminPinModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: '#1E293B', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid #EF4444', textAlign: 'center' }}>
-              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#EF4444' }}>Admin Authorization Required</h2>
-              <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+            <div style={{ background: 'var(--c-ink)', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '2px solid var(--c-danger)', textAlign: 'center' }}>
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-danger)' }}>Admin Authorization Required</h2>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', marginBottom: '24px' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
               
               <input 
                 type="password" 
                 placeholder="Enter Admin PIN" 
                 value={adminPinInput} 
                 onChange={e => setAdminPinInput(e.target.value)} 
-                style={{ padding: '16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
+                style={{ padding: '16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px' }} 
               />
               
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: '#94A3B8', border: '1px solid #334155', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+                <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'transparent', color: 'var(--c-faint)', border: '1px solid var(--c-ink-2)', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: 'var(--c-danger)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
               </div>
             </div>
           </div>
@@ -5398,80 +5398,80 @@ const ShopDashboard = () => {
 
         {showAddProductModal && (
           <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: '#1E293B', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
-              <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: 'bold', color: '#fff' }}>📦 Add Product to Inventory</h2>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--c-ink)', width: '100%', maxWidth: '560px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+              <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: 'bold', color: 'var(--c-surface)' }}>📦 Add Product to Inventory</h2>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                  <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                  <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
               </div>
 
               {/* Label Discount % — for barcode price label printing */}
               <div style={{ marginBottom: '16px', background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '10px', padding: '12px 14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#818CF8', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(shown on barcode price label)</span></label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-primary-light)', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: 'var(--c-muted)', fontSize: '11px' }}>(shown on barcode price label)</span></label>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   {[0, 5, 10, 15, 20, 25, 50].map(d => (
                     <button key={d} type="button" onClick={() => setNewProdDiscountPct(String(d))}
-                      style={{ flex: 1, padding: '6px 2px', background: parseInt(newProdDiscountPct) === d ? '#4F46E5' : 'rgba(79,70,229,0.1)', color: parseInt(newProdDiscountPct) === d ? '#fff' : '#818CF8', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '6px 2px', background: parseInt(newProdDiscountPct) === d ? 'var(--c-primary)' : 'rgba(79,70,229,0.1)', color: parseInt(newProdDiscountPct) === d ? 'var(--c-surface)' : 'var(--c-primary-light)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                       {d === 0 ? 'None' : `${d}%`}
                     </button>
                   ))}
                   <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
-                    style={{ width: '52px', padding: '6px 8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', color: '#fff', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
-                  <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+                    style={{ width: '52px', padding: '6px 8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '6px', color: 'var(--c-surface)', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                  <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>%</span>
                 </div>
                 {parseInt(newProdDiscountPct) > 0 && newProdPrice && (
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ textDecoration: 'line-through', color: '#64748B' }}>₹{newProdPrice}</span>
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--c-success)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ textDecoration: 'line-through', color: 'var(--c-muted)' }}>₹{newProdPrice}</span>
                     <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(newProdPrice) * (1 - parseInt(newProdDiscountPct) / 100))}</span>
-                    <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
-                    <span style={{ color: '#64748B', fontSize: '11px' }}>will print on label</span>
+                    <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
+                    <span style={{ color: 'var(--c-muted)', fontSize: '11px' }}>will print on label</span>
                   </div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                  <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                  <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                  <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                  <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                  <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                  <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-                <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+                <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-muted)' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
               </div>
-              <div style={{ marginBottom: '16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ marginBottom: '16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', padding: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: newProdVariantPrices.length ? '12px' : 0 }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>💰 Different price per variant?</p>
-                    <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748B' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-surface)', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--c-muted)' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
                   </div>
                   {newProdVariantPrices.length === 0 && (
                     <button type="button" onClick={() => setNewProdVariantPrices([{ name: '', price: '' }])}
-                      style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       + Add Pricing
                     </button>
                   )}
@@ -5480,40 +5480,40 @@ const ShopDashboard = () => {
                   <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
                     <input type="text" value={v.name} placeholder="e.g. 20kg"
                       onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
-                      style={{ flex: 2, padding: '9px 12px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                      style={{ flex: 2, padding: '9px 12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} />
                     <div style={{ flex: 1, position: 'relative' }}>
-                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#64748B', fontSize: 13 }}>₹</span>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--c-muted)', fontSize: 13 }}>₹</span>
                       <input type="number" value={v.price} placeholder="Price"
                         onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
-                        style={{ width: '100%', padding: '9px 12px 9px 22px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px', boxSizing: 'border-box' }} />
+                        style={{ width: '100%', padding: '9px 12px 9px 22px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px', boxSizing: 'border-box' }} />
                     </div>
                     <button type="button" onClick={() => setNewProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
-                      style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid #EF4444', color: '#FCA5A5', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
+                      style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid var(--c-danger)', color: 'var(--c-danger-border)', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
                   </div>
                 ))}
                 {newProdVariantPrices.length > 0 && (
                   <button type="button" onClick={() => setNewProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
-                    style={{ background: 'transparent', border: '1px dashed #475569', color: '#94A3B8', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                    style={{ background: 'transparent', border: '1px dashed var(--c-ink-2)', color: 'var(--c-faint)', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
                     + Add another variant price
                   </button>
                 )}
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
-                <select value={newProdUnit || shopDefaultUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+                <select value={newProdUnit || shopDefaultUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }}>
                   {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
                 </select>
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>Default for your shop type: <b style={{ color: '#94A3B8' }}>{shopDefaultUnit}</b></p>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-muted)' }}>Default for your shop type: <b style={{ color: 'var(--c-faint)' }}>{shopDefaultUnit}</b></p>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                  <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
-                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#64748B' }}>4, 6 or 8 digits only (optional)</p>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                  <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-muted)' }}>4, 6 or 8 digits only (optional)</p>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                  <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                  <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }}>
                     <option value="0">0% (Exempt)</option>
                     <option value="3">3%</option>
                     <option value="5">5%</option>
@@ -5525,24 +5525,24 @@ const ShopDashboard = () => {
               </div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#64748B' }}>(for storefront filters)</span></label>
-                  <input list="new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: 'var(--c-muted)' }}>(for storefront filters)</span></label>
+                  <input list="new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px', boxSizing: 'border-box' }} />
                   <datalist id="new-prod-cat-list">
                     {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
                   </datalist>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: '#64748B' }}>(optional)</span></label>
-                  <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: 'var(--c-muted)' }}>(optional)</span></label>
+                  <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#0F172A', border: '1px solid #334155', borderRadius: '10px', color: '#fff', fontSize: '15px' }} />
+                  <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '15px' }} />
                 </div>
                 {scannedBarcode && (
-                  <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ background: 'var(--c-surface)', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
                     <Barcode value={scannedBarcode} height={40} width={2} fontSize={14} />
                   </div>
                 )}
@@ -5551,15 +5551,15 @@ const ShopDashboard = () => {
                 <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} dark />
               </div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '11px 13px' }}>
-                <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+                <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: 'var(--c-primary)' }} />
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#E2E8F0' }}>⭐ Feature on storefront</div>
-                  <div style={{ fontSize: '11px', color: '#94A3B8' }}>Show this product in the Featured row at the top of your store.</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-line)' }}>⭐ Feature on storefront</div>
+                  <div style={{ fontSize: '11px', color: 'var(--c-faint)' }}>Show this product in the Featured row at the top of your store.</div>
                 </div>
               </label>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-                <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#94A3B8', border: '1px solid #334155', padding: '14px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleSaveProduct} style={{ flex: 1, background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
+                <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: 'var(--c-faint)', border: '1px solid var(--c-ink-2)', padding: '14px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
           </div>
@@ -5582,7 +5582,7 @@ const ShopDashboard = () => {
           overflowY: 'auto'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+            background: 'linear-gradient(135deg, var(--c-ink), var(--c-ink))',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
             width: '100%',
@@ -5604,7 +5604,7 @@ const ShopDashboard = () => {
                 right: '20px',
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#CBD5E1',
+                color: 'var(--c-line-strong)',
                 borderRadius: '50%',
                 width: '36px',
                 height: '36px',
@@ -5622,7 +5622,7 @@ const ShopDashboard = () => {
             {/* Header */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <span style={{
-                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                background: 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))',
                 color: 'white',
                 fontSize: '11px',
                 fontWeight: 'bold',
@@ -5635,10 +5635,10 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #FFFFFF, #94A3B8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, var(--c-surface), var(--c-faint))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'var(--c-surface)' }}>
                 Select Your Business Growth Plan
               </h2>
-              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
                 {isServiceBusiness
                   ? 'Unlock staff scheduling, automated reminders, and recurring bookings as your service business grows.'
                   : 'Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.'}
@@ -5662,7 +5662,7 @@ const ShopDashboard = () => {
                     key={plan.id}
                     style={{
                       background: isPopular ? 'linear-gradient(180deg, rgba(79, 70, 229, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
-                      border: isPopular ? '2px solid #4F46E5' : '1px solid rgba(255, 255, 255, 0.06)',
+                      border: isPopular ? '2px solid var(--c-primary)' : '1px solid rgba(255, 255, 255, 0.06)',
                       borderRadius: '20px',
                       padding: '24px',
                       display: 'flex',
@@ -5678,7 +5678,7 @@ const ShopDashboard = () => {
                         top: '-12px',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                        background: 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))',
                         color: 'white',
                         fontSize: '9px',
                         fontWeight: '800',
@@ -5692,8 +5692,8 @@ const ShopDashboard = () => {
                     )}
 
                     <div>
-                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#CBD5E1', minHeight: '32px' }}>{plan.description}</p>
+                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--c-surface)' }}>{plan.name}</h4>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--c-line-strong)', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
                     {renderPlanPrice(plan)}
@@ -5704,8 +5704,8 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
                       {plan.features?.map((feat, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <span style={{ color: '#10B981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
-                          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{feat}</span>
+                          <span style={{ color: 'var(--c-success)', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: 'var(--c-line-strong)' }}>{feat}</span>
                         </div>
                       ))}
                     </div>
@@ -5717,7 +5717,7 @@ const ShopDashboard = () => {
                           width: '100%',
                           background: 'rgba(255, 255, 255, 0.05)',
                           border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#94A3B8',
+                          color: 'var(--c-faint)',
                           padding: '12px',
                           borderRadius: '10px',
                           fontSize: '13px',
@@ -5732,8 +5732,8 @@ const ShopDashboard = () => {
                         onClick={() => handleSubscribe(plan)}
                         style={{
                           width: '100%',
-                          background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
-                          color: isPopular ? 'white' : '#0F172A',
+                          background: isPopular ? 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))' : 'white',
+                          color: isPopular ? 'white' : 'var(--c-ink)',
                           border: 'none',
                           padding: '12px',
                           borderRadius: '10px',
@@ -5752,7 +5752,7 @@ const ShopDashboard = () => {
               })}
             </div>
             
-            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--c-muted)' }}>
               🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
             </div>
           </div>
@@ -5770,89 +5770,89 @@ const ShopDashboard = () => {
       {/* EDIT PRODUCT MODAL — Desktop */}
       {showEditProductModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '600px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '600px', borderRadius: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 'bold', color: '#0F172A' }}>✏️ Edit Product Details</h2>
-              <span onClick={() => setShowEditProductModal(false)} style={{ cursor: 'pointer', color: '#64748B', fontSize: '22px', lineHeight: 1 }}>✕</span>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 'bold', color: 'var(--c-ink)' }}>✏️ Edit Product Details</h2>
+              <span onClick={() => setShowEditProductModal(false)} style={{ cursor: 'pointer', color: 'var(--c-muted)', fontSize: '22px', lineHeight: 1 }}>✕</span>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
 
             {/* Label Discount % */}
-            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+            <div style={{ marginBottom: '16px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-primary)', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: 'var(--c-muted)', fontSize: '11px' }}>(for barcode price label)</span></label>
               <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {[0, 5, 10, 15, 20, 25, 50].map(d => (
                   <button key={d} type="button" onClick={() => setEditProdDiscountPct(String(d))}
-                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(editProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? 'var(--c-primary)' : 'var(--c-surface)', color: parseInt(editProdDiscountPct) === d ? 'var(--c-surface)' : 'var(--c-primary)', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
                 <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
-                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
-                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>%</span>
               </div>
               {parseInt(editProdDiscountPct) > 0 && editProdPrice && (
-                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{editProdPrice}</span>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--c-success-strong)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'var(--c-faint)' }}>₹{editProdPrice}</span>
                   <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(editProdPrice) * (1 - parseInt(editProdDiscountPct) / 100))}</span>
-                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
-                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                  <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
+                  <span style={{ color: 'var(--c-faint)', fontSize: '11px' }}>will print on label</span>
                 </div>
               )}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
             </div>
 
-            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '14px' }}>
+            <div style={{ marginBottom: '16px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editProdVariantPrices.length ? '12px' : 0 }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-ink)', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
                 </div>
                 {editProdVariantPrices.length === 0 && (
                   <button type="button" onClick={() => setEditProdVariantPrices([{ name: '', price: '' }])}
-                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '7px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     + Add Pricing
                   </button>
                 )}
@@ -5861,41 +5861,41 @@ const ShopDashboard = () => {
                 <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
                   <input type="text" value={v.name} placeholder="e.g. 20kg"
                     onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
-                    style={{ flex: 2, padding: '9px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px' }} />
+                    style={{ flex: 2, padding: '9px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px' }} />
                   <div style={{ flex: 1, position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--c-faint)', fontSize: 13 }}>₹</span>
                     <input type="number" value={v.price} placeholder="Price"
                       onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
-                      style={{ width: '100%', padding: '9px 12px 9px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '13px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '9px 12px 9px 22px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '13px', boxSizing: 'border-box' }} />
                   </div>
                   <button type="button" onClick={() => setEditProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
-                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
+                    style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', width: 32, height: 32, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 14 }}>✕</button>
                 </div>
               ))}
               {editProdVariantPrices.length > 0 && (
                 <button type="button" onClick={() => setEditProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
-                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  style={{ background: 'transparent', border: '1px dashed var(--c-line-strong)', color: 'var(--c-muted)', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
                   + Add another variant price
                 </button>
               )}
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
-              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                 {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </select>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -5908,23 +5908,23 @@ const ShopDashboard = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(storefront filters)</span></label>
-                <input list="edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(storefront filters)</span></label>
+                <input list="edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                 <datalist id="edit-prod-cat-list">
                   {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
                 </datalist>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
-                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>SKU / Internal Code <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(optional)</span></label>
+                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
-              <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ width: '100%', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+              <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ width: '100%', padding: '10px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               {editProdBarcode && (
-                <div style={{ background: '#fff', padding: '12px', borderRadius: '8px', marginTop: '10px', display: 'flex', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                <div style={{ background: 'var(--c-surface)', padding: '12px', borderRadius: '8px', marginTop: '10px', display: 'flex', justifyContent: 'center', border: '1px solid var(--c-line)' }}>
                   <Barcode value={editProdBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
@@ -5934,17 +5934,17 @@ const ShopDashboard = () => {
               <ProductImageUploader images={editProdImages} onChange={setEditProdImages} userId={user.id} />
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '11px 13px' }}>
-              <input type="checkbox" checked={editProdFeatured} onChange={(e) => setEditProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '8px', padding: '11px 13px' }}>
+              <input type="checkbox" checked={editProdFeatured} onChange={(e) => setEditProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: 'var(--c-primary)' }} />
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>⭐ Feature on storefront</div>
-                <div style={{ fontSize: '11px', color: '#64748B' }}>Show this product in the Featured row at the top of your store.</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-ink)' }}>⭐ Feature on storefront</div>
+                <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>Show this product in the Featured row at the top of your store.</div>
               </div>
             </label>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={handleUpdateProduct} style={{ flex: 1, background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
-              <button onClick={() => setShowEditProductModal(false)} style={{ flex: 1, background: 'transparent', color: '#64748B', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleUpdateProduct} style={{ flex: 1, background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-hover))', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
+              <button onClick={() => setShowEditProductModal(false)} style={{ flex: 1, background: 'transparent', color: 'var(--c-muted)', border: '1px solid var(--c-line)', padding: '12px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
             </div>
           </div>
         </div>
@@ -5967,27 +5967,27 @@ const ShopDashboard = () => {
           settings screen, producing a poster with a blank QR box when
           clicked from anywhere else. */}
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
-        <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="#0F172A" bgColor="#FFFFFF" />
+        <QRCodeCanvas ref={posterQrRef} value={getShopUrl()} size={1024} level="H" includeMargin={false} fgColor="var(--c-ink)" bgColor="var(--c-surface)" />
       </div>
       
       {/* GLOBAL ANNOUNCEMENT BANNER */}
       {announceConfig.active && announceConfig.text && (
-        <div style={{ background: getAnnounceColor(), color: '#fff', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ background: getAnnounceColor(), color: 'var(--c-surface)', padding: '10px 16px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>{announceConfig.text}</div>
-          <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
+          <button onClick={() => setAnnounceConfig({...announceConfig, active: false})} style={{ background: 'transparent', border: 'none', color: 'var(--c-surface)', cursor: 'pointer', padding: '4px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
         </div>
       )}
       
       {/* Header */}
       <div style={styles.header}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--c-surface)' }}>
             <div style={{ width: 12, height: 12, background: 'white', borderRadius: '50%' }}></div>
             MyStore Pro
           </h2>
-          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.9, color: 'var(--c-line-strong)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             {currentBranch?.name || shop.name}
-            {shop?.publicCode && <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#818CF8', fontWeight: 700 }}>· {shop.publicCode}</span>}
+            {shop?.publicCode && <span style={{ fontFamily: 'monospace', fontSize: '11px', color: 'var(--c-primary-light)', fontWeight: 700 }}>· {shop.publicCode}</span>}
             {branchSwitcherEl}
           </p>
           <span style={{ display: 'inline-block', marginTop: '4px', background: isOpenNow ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: isOpenNow ? '#4ADE80' : '#F87171', border: `1px solid ${isOpenNow ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}`, borderRadius: '10px', padding: '2px 8px', fontSize: '10px', fontWeight: 700 }}>
@@ -6020,22 +6020,22 @@ const ShopDashboard = () => {
       </div>
 
       {isOwner && isViewingMain && isOnTrial && !trialBannerDismissed && (
-        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,#16A34A,#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,#D97706,#B45309)' : 'linear-gradient(90deg,#DC2626,#B91C1C)', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
+        <div style={{ background: trialDaysLeft >= 5 ? 'linear-gradient(90deg,var(--c-success-strong),#15803D)' : trialDaysLeft >= 3 ? 'linear-gradient(90deg,var(--c-accent-hover),var(--c-warning-strong))' : 'linear-gradient(90deg,var(--c-danger-strong),var(--c-danger-strong))', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-surface)' }}>
             ⏰ {trialDaysLeft === 0 ? 'Trial ends today!' : `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left in your free trial`}
             {trialDaysLeft <= 3 && <span style={{ marginLeft: '8px', opacity: 0.9, fontWeight: 400, fontSize: '12px' }}>— Upgrade to keep your data & features</span>}
           </span>
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: '#fff', color: trialDaysLeft >= 5 ? '#16A34A' : trialDaysLeft >= 3 ? '#D97706' : '#DC2626', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'var(--c-surface)', color: trialDaysLeft >= 5 ? 'var(--c-success-strong)' : trialDaysLeft >= 3 ? 'var(--c-accent-hover)' : 'var(--c-danger-strong)', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Upgrade →
             </button>
-            <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>×</button>
+            <button onClick={() => { sessionStorage.setItem(`mystore_trial_banner_dismissed_${user.id}`, '1'); setTrialBannerDismissed(true); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'var(--c-surface)', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>×</button>
           </div>
         </div>
       )}
 
       {activeTab === 'dashboard' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <ServiceBusinessHome
             shopId={targetShopId}
             shopName={shop.name}
@@ -6056,7 +6056,7 @@ const ShopDashboard = () => {
           {(pendingOrders > 0 || products.filter(p => p.stock < (p.reorderLevel || 10)).length > 0) && (
             <div style={{ display: 'flex', gap: '8px', padding: '10px 12px 0', overflowX: 'auto', flexWrap: 'nowrap' }}>
               {pendingOrders > 0 && (
-                <button onClick={() => setActiveTab('bills')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => setActiveTab('bills')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid #FCD34D', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                   <Receipt size={13} /> {pendingOrders} new {pendingOrders === 1 ? 'order' : 'orders'} →
                 </button>
               )}
@@ -6064,7 +6064,7 @@ const ShopDashboard = () => {
                 const low = products.filter(p => p.stock < (p.reorderLevel || 10));
                 if (!low.length) return null;
                 return (
-                  <button onClick={() => setActiveTab('products')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                  <button onClick={() => setActiveTab('products')} style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-danger-soft)', color: '#991B1B', border: '1px solid var(--c-danger-border)', borderRadius: '999px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                     ⚠ {low.length} low stock →
                   </button>
                 );
@@ -6139,7 +6139,7 @@ const ShopDashboard = () => {
       {activeTab === 'bills' && (
         <div style={{paddingBottom: 40}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Online Orders & Bills</h2>
+            <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Online Orders & Bills</h2>
             
             {/* Glassmorphic Sub-tab toggle */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -6148,7 +6148,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'sales' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'sales' ? '#22C55E' : '#94A3B8',
+                  color: billsSubTab === 'sales' ? '#22C55E' : 'var(--c-faint)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -6159,7 +6159,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
                   background: billsSubTab === 'drafts' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: billsSubTab === 'drafts' ? '#FBBF24' : '#94A3B8',
+                  color: billsSubTab === 'drafts' ? '#FBBF24' : 'var(--c-faint)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -6187,29 +6187,29 @@ const ShopDashboard = () => {
             });
 
             if (filteredOrders.length === 0) {
-              return <p style={{padding: 40, textAlign:'center', color:'#94A3B8'}}>No {billsSubTab === 'sales' ? 'sales invoices' : 'drafts'} found.</p>;
+              return <p style={{padding: 40, textAlign:'center', color:'var(--c-faint)'}}>No {billsSubTab === 'sales' ? 'sales invoices' : 'drafts'} found.</p>;
             }
 
             return filteredOrders.map(o => {
               const { type, name, phone, staffName } = decodeOrderUserId(o.userId);
               
               // Custom borders/accents for draft cards
-              let cardBorder = '1px solid #334155';
-              let cardBg = 'linear-gradient(145deg, #1E293B, #0F172A)';
+              let cardBorder = '1px solid var(--c-ink-2)';
+              let cardBg = 'linear-gradient(145deg, var(--c-ink), var(--c-ink))';
               let badgeText = '';
               let badgeColor = '';
               
               if (billsSubTab === 'drafts') {
                 if (type === 'estimate') {
                   cardBorder = '1px solid rgba(245,158,11,0.4)';
-                  cardBg = 'linear-gradient(145deg, #241D13, #0F172A)';
+                  cardBg = 'linear-gradient(145deg, #241D13, var(--c-ink))';
                   badgeText = 'Draft Estimate';
-                  badgeColor = '#4F46E5';
+                  badgeColor = 'var(--c-primary)';
                 } else if (type === 'challan') {
                   cardBorder = '1px solid rgba(59,130,246,0.4)';
-                  cardBg = 'linear-gradient(145deg, #131C2D, #0F172A)';
+                  cardBg = 'linear-gradient(145deg, #131C2D, var(--c-ink))';
                   badgeText = 'Delivery Challan';
-                  badgeColor = '#3B82F6';
+                  badgeColor = 'var(--c-info)';
                 }
               }
 
@@ -6217,10 +6217,10 @@ const ShopDashboard = () => {
                 <div key={o.id} style={{ ...styles.orderCard, border: cardBorder, background: cardBg }}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:12, alignItems: 'center'}}>
                     <div>
-                      <span style={{fontWeight:'bold', fontSize: '15px', color: '#fff'}}>{name}</span>
-                      {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8'}}>Ph: {phone}</p>}
-                      {staffName && <p style={{margin: '2px 0 0 0', fontSize: '10px', color: '#818CF8'}}>👤 Billed by: {staffName}</p>}
-                      {o._branchName && <p style={{margin: '4px 0 0 0', fontSize: '10px', color: '#fff', background: '#4F46E5', display: 'inline-block', padding: '2px 7px', borderRadius: 5, fontWeight: 700}}>🏪 {o._branchName}</p>}
+                      <span style={{fontWeight:'bold', fontSize: '15px', color: 'var(--c-surface)'}}>{name}</span>
+                      {phone && <p style={{margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-faint)'}}>Ph: {phone}</p>}
+                      {staffName && <p style={{margin: '2px 0 0 0', fontSize: '10px', color: 'var(--c-primary-light)'}}>👤 Billed by: {staffName}</p>}
+                      {o._branchName && <p style={{margin: '4px 0 0 0', fontSize: '10px', color: 'var(--c-surface)', background: 'var(--c-primary)', display: 'inline-block', padding: '2px 7px', borderRadius: 5, fontWeight: 700}}>🏪 {o._branchName}</p>}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                       {badgeText && (
@@ -6228,7 +6228,7 @@ const ShopDashboard = () => {
                           {badgeText}
                         </span>
                       )}
-                      <span style={{color: o.status === 'Pending' ? '#EF4444' : '#22C55E', fontWeight:'bold', fontSize: 13}}>
+                      <span style={{color: o.status === 'Pending' ? 'var(--c-danger)' : '#22C55E', fontWeight:'bold', fontSize: 13}}>
                         {o.status === 'Pending' ? '⚠️ Pending' : '✅ Accepted'}
                       </span>
                     </div>
@@ -6236,7 +6236,7 @@ const ShopDashboard = () => {
                   
                   <div style={{background:'rgba(0,0,0,0.2)', padding:12, borderRadius:8, marginBottom:12}}>
                     {o.items.map((item, idx) => (
-                      <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'#94A3B8'}}>
+                      <div key={idx} style={{display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:4, color:'var(--c-faint)'}}>
                         <span>{item.qty}x {item.name} {item.selectedVariant ? `(${item.selectedVariant})` : ''}</span>
                         <span>₹{item.price * item.qty}</span>
                       </div>
@@ -6246,35 +6246,35 @@ const ShopDashboard = () => {
                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'8px'}}>
                     <span style={{fontSize:18, fontWeight:'bold', color:'#FBBF24'}}>₹{o.total}</span>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <button onClick={() => setSelectedOrder(o)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
+                      <button onClick={() => setSelectedOrder(o)} style={{background:'var(--c-info)', color:'white', border:'none', padding:'8px 16px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0}}>
                         View Receipt
                       </button>
                       
                       {billsSubTab === 'drafts' && type === 'estimate' && (
-                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #FBBF24, #D97706)', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => handleConvertEstimateToBill(o)} style={{background:'linear-gradient(135deg, #FBBF24, var(--c-accent-hover))', color:'#000', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ⚡ Convert to Bill
                         </button>
                       )}
 
                       {o.status === 'Pending' && (
                         <>
-                          <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,#22C55E,#16A34A)', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                          <button onClick={() => acceptOrder(o.id)} style={{background:'linear-gradient(135deg,#22C55E,var(--c-success-strong))', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
                             ✅ Accept &amp; Notify
                           </button>
-                          <button onClick={() => openCancelModal(o)} style={{background:'#FEF2F2', color:'#EF4444', border:'1px solid #FCA5A5', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                          <button onClick={() => openCancelModal(o)} style={{background:'var(--c-danger-soft)', color:'var(--c-danger)', border:'1px solid var(--c-danger-border)', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
                             ✕ Cancel
                           </button>
                         </>
                       )}
                       
                       {o.status === 'Accepted' && !o.paymentVerified && (
-                        <button onClick={() => verifyOrderPayment(o.id)} style={{background:'linear-gradient(135deg,#4F46E5,#4338CA)', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
+                        <button onClick={() => verifyOrderPayment(o.id)} style={{background:'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', width: 'auto', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4}}>
                           💰 Verify Payment
                         </button>
                       )}
 
                       {o.status === 'Accepted' && (
-                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'#EF4444', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
+                        <button onClick={() => handleOpenReturnModal(o)} style={{background:'var(--c-danger)', color:'white', border:'none', padding:'8px 14px', borderRadius:8, fontWeight:'bold', cursor:'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', width: 'auto', flexShrink: 0}}>
                           ↩️ Return
                         </button>
                       )}
@@ -6296,7 +6296,7 @@ const ShopDashboard = () => {
 
         return (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: '#fff', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', overflowY: 'auto', maxHeight: '90vh' }}>
+            <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '320px', borderRadius: '4px', padding: '24px', color: '#000', fontFamily: 'monospace', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', overflowY: 'auto', maxHeight: '90vh' }}>
               <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '12px', marginBottom: '12px' }}>
                 <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', textTransform: 'uppercase' }}>{shop.name}</h2>
                 <p style={{ margin: 0, fontSize: '12px' }}>Ph: {shop.phone}</p>
@@ -6333,7 +6333,7 @@ const ShopDashboard = () => {
                             <span style={{ flex: 1, minWidth: 0 }}>
                               {item.qty}x {item.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
                               {iDisc > 0 && (
-                                <span style={{ display: 'block', fontSize: 10, color: '#16A34A', fontWeight: 'bold', marginTop: 1 }}>
+                                <span style={{ display: 'block', fontSize: 10, color: 'var(--c-success-strong)', fontWeight: 'bold', marginTop: 1 }}>
                                   ↓ {iDisc}% off — saved ₹{iDiscAmt}
                                 </span>
                               )}
@@ -6342,21 +6342,21 @@ const ShopDashboard = () => {
                               {iDiscAmt > 0 && (
                                 <span style={{ display: 'block', fontSize: 10, color: '#888', textDecoration: 'line-through' }}>₹{lineBase}</span>
                               )}
-                              <span style={{ fontWeight: iDiscAmt > 0 ? 'bold' : 'normal', color: iDiscAmt > 0 ? '#16A34A' : '#000' }}>₹{lineTotal}</span>
+                              <span style={{ fontWeight: iDiscAmt > 0 ? 'bold' : 'normal', color: iDiscAmt > 0 ? 'var(--c-success-strong)' : '#000' }}>₹{lineTotal}</span>
                             </span>
                           </div>
                         );
                       })}
                       {/* Bill-level discount line (separate from item-level) */}
                       {selectedOrder.discountAmount > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginTop: 6, color: '#16A34A', fontWeight: 'bold' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginTop: 6, color: 'var(--c-success-strong)', fontWeight: 'bold' }}>
                           <span>Bill Discount</span>
                           <span>−₹{selectedOrder.discountAmount}</span>
                         </div>
                       )}
                       {/* Total customer savings — banner */}
                       {(totalItemSavings + (selectedOrder.discountAmount || 0)) > 0 && (
-                        <div style={{ marginTop: 8, background: '#DCFCE7', border: '1px dashed #16A34A', padding: '6px 10px', borderRadius: 4, textAlign: 'center', fontSize: 11, fontWeight: 'bold', color: '#15803D' }}>
+                        <div style={{ marginTop: 8, background: '#DCFCE7', border: '1px dashed var(--c-success-strong)', padding: '6px 10px', borderRadius: 4, textAlign: 'center', fontSize: 11, fontWeight: 'bold', color: '#15803D' }}>
                           🎉 YOU SAVED ₹{totalItemSavings + (selectedOrder.discountAmount || 0)} ON THIS BILL
                         </div>
                       )}
@@ -6411,7 +6411,7 @@ const ShopDashboard = () => {
               {selectedOrder.paymentMethod && (
                 <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
                   <span style={{ color: '#555' }}>Payment</span>
-                  <span style={{ fontWeight: 'bold', color: selectedOrder.paymentMethod === 'Cash' ? '#10B981' : selectedOrder.paymentMethod === 'UPI' ? '#4F46E5' : selectedOrder.paymentMethod === 'Card' ? '#3B82F6' : '#EF4444' }}>
+                  <span style={{ fontWeight: 'bold', color: selectedOrder.paymentMethod === 'Cash' ? 'var(--c-success)' : selectedOrder.paymentMethod === 'UPI' ? 'var(--c-primary)' : selectedOrder.paymentMethod === 'Card' ? 'var(--c-info)' : 'var(--c-danger)' }}>
                     {{ Cash: '💵 Cash', UPI: '📱 UPI', Card: '💳 Card', Credit: '📒 Credit' }[selectedOrder.paymentMethod] || selectedOrder.paymentMethod}
                   </span>
                 </div>
@@ -6429,8 +6429,8 @@ const ShopDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-                <button onClick={() => printReceiptPDF(selectedOrder)} style={{ flex: 1, background: '#000', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>🖨️ Print / Share</button>
-                <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: '#EF4444', color: '#fff', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
+                <button onClick={() => printReceiptPDF(selectedOrder)} style={{ flex: 1, background: '#000', color: 'var(--c-surface)', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>🖨️ Print / Share</button>
+                <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: 'var(--c-danger)', color: 'var(--c-surface)', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Close</button>
               </div>
             </div>
           </div>
@@ -6441,12 +6441,12 @@ const ShopDashboard = () => {
       {activeTab === 'products' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Inventory</h2>
-            <button onClick={() => setShowAddProductModal(true)} style={{background:'#3B82F6', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
+            <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Inventory</h2>
+            <button onClick={() => setShowAddProductModal(true)} style={{background:'var(--c-info)', color:'white', border:'none', padding:'8px 12px', borderRadius:8, fontWeight:'bold', cursor:'pointer'}}>+ Add New</button>
           </div>
           
           {products.length === 0 && (
-            <p style={{ padding: 20, textAlign: 'center', color: dataLoadFailed ? '#B91C1C' : '#94A3B8' }}>
+            <p style={{ padding: 20, textAlign: 'center', color: dataLoadFailed ? 'var(--c-danger-strong)' : 'var(--c-faint)' }}>
               {dataLoadFailed
                 ? "Couldn't load your inventory — this is a connection problem, not lost data. Refresh to retry."
                 : 'No products in inventory.'}
@@ -6460,60 +6460,60 @@ const ShopDashboard = () => {
               const isLowStock = p.stock < (p.reorderLevel || 10);
               
               return (
-                <div key={p.id} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                <div key={p.id} style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#fff' }}>{p.name}</h3>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: 'var(--c-surface)' }}>{p.name}</h3>
                       {p.batchNumber && (
-                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8' }}>Batch: {p.batchNumber}</p>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Batch: {p.batchNumber}</p>
                       )}
                     </div>
-                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4F46E5' }}>₹{p.price}</span>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--c-primary)' }}>₹{p.price}</span>
                   </div>
 
                   {/* Stock & Reorder Info */}
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '8px 0' }}>
-                    <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: isLowStock ? '#EF4444' : '#10B981', border: '1px solid ' + (isLowStock ? '#EF4444' : '#10B981'), fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: isLowStock ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: isLowStock ? 'var(--c-danger)' : 'var(--c-success)', border: '1px solid ' + (isLowStock ? 'var(--c-danger)' : 'var(--c-success)'), fontWeight: 'bold' }}>
                       Stock: {p.stock || 0} {isLowStock && ' (Low Stock)'}
                     </span>
                     {p.reorderLevel !== undefined && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#94A3B8' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: 'var(--c-faint)' }}>
                         Min Stock Alert: {p.reorderLevel}
                       </span>
                     )}
                     {expStatus.status === 'expired' && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: '#EF4444', border: '1px solid #EF4444', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(239,68,68,0.2)', color: 'var(--c-danger)', border: '1px solid var(--c-danger)', fontWeight: 'bold' }}>
                         {expStatus.text} ({p.expiryDate})
                       </span>
                     )}
                     {expStatus.status === 'near' && (
-                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#4F46E5', border: '1px solid #F59E0B', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: 'var(--c-primary)', border: '1px solid var(--c-warning)', fontWeight: 'bold' }}>
                         {expStatus.text} ({p.expiryDate})
                       </span>
                     )}
                     {p.variants && (
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         {p.variants.split(',').map((v, vidx) => (
-                          <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: '#334155', color: '#CBD5E1' }}>
+                          <span key={vidx} style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: 'var(--c-ink-2)', color: 'var(--c-line-strong)' }}>
                             {v.trim()}
                           </span>
                         ))}
                       </div>
                     )}
                     {p.category && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(79,70,229,0.15)', color: '#818CF8', fontWeight: '700' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(79,70,229,0.15)', color: 'var(--c-primary-light)', fontWeight: '700' }}>
                         🏷️ {p.category}
                       </span>
                     )}
                     {p.sku && (
-                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(148,163,184,0.15)', color: '#94A3B8', fontWeight: '600', fontFamily: 'monospace' }}>
+                      <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: 'rgba(148,163,184,0.15)', color: 'var(--c-faint)', fontWeight: '600', fontFamily: 'monospace' }}>
                         SKU: {p.sku}
                       </span>
                     )}
                   </div>
 
                   {p.barcode && (
-                    <div style={{ background: '#fff', padding: '6px', borderRadius: '8px', display: 'inline-block', marginTop: '4px', marginBottom: '8px' }}>
+                    <div style={{ background: 'var(--c-surface)', padding: '6px', borderRadius: '8px', display: 'inline-block', marginTop: '4px', marginBottom: '8px' }}>
                       <Barcode value={p.barcode} height={20} width={1.2} fontSize={10} margin={0} displayValue={true} />
                     </div>
                   )}
@@ -6522,9 +6522,9 @@ const ShopDashboard = () => {
                     <button 
                       onClick={() => handleOneClickRestock(p)} 
                       style={{ 
-                        background: isLowStock ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(255,255,255,0.05)', 
+                        background: isLowStock ? 'linear-gradient(135deg, var(--c-warning), var(--c-accent-hover))' : 'rgba(255,255,255,0.05)', 
                         border: isLowStock ? 'none' : '1px solid rgba(255,255,255,0.15)', 
-                        color: isLowStock ? '#000' : '#fff', 
+                        color: isLowStock ? '#000' : 'var(--c-surface)', 
                         padding: '6px 12px', 
                         borderRadius: '6px', 
                         fontSize: '12px', 
@@ -6537,13 +6537,13 @@ const ShopDashboard = () => {
                     </button>
                     <button 
                       onClick={() => handleOpenEditModal(p)} 
-                      style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ background: 'var(--c-info)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                     >
                       ✏️ Edit
                     </button>
                     <button 
                       onClick={() => handleDeleteProduct(p.id)} 
-                      style={{ background: '#EF4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ background: 'var(--c-danger)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                     >
                       🗑️ Delete
                     </button>
@@ -6559,7 +6559,7 @@ const ShopDashboard = () => {
       {activeTab === 'credit' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Credit Book (బకాయిలు)</h2>
+            <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Credit Book (బకాయిలు)</h2>
             
             {/* Toggle Payable vs Receivable */}
             <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -6568,7 +6568,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'payable' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: creditTabSub === 'payable' ? '#EF4444' : '#94A3B8',
+                  color: creditTabSub === 'payable' ? 'var(--c-danger)' : 'var(--c-faint)',
                   transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
@@ -6579,7 +6579,7 @@ const ShopDashboard = () => {
                 style={{
                   flex: 1, minWidth: 0, padding: '10px 8px', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer',
                   background: creditTabSub === 'receivable' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: creditTabSub === 'receivable' ? '#10B981' : '#94A3B8',
+                  color: creditTabSub === 'receivable' ? 'var(--c-success)' : 'var(--c-faint)',
                   transition: 'all 0.2s', lineHeight: 1.3, whiteSpace: 'normal', textAlign: 'center'
                 }}
               >
@@ -6591,30 +6591,30 @@ const ShopDashboard = () => {
           <div style={{ padding: '16px' }}>
             {creditTabSub === 'payable' ? (
               <>
-                <div style={{ background: '#1E293B', border: '1px solid #EF4444', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-danger)', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#EF4444', fontWeight: 'bold' }}>TOTAL SUPPLIER OUTSTANDING</p>
-                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{payable}</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-danger)', fontWeight: 'bold' }}>TOTAL SUPPLIER OUTSTANDING</p>
+                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: 'var(--c-surface)' }}>₹{payable}</h3>
                   </div>
-                  <Wallet size={32} color="#EF4444" opacity={0.5} />
+                  <Wallet size={32} color="var(--c-danger)" opacity={0.5} />
                 </div>
 
-                <h3 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
-                {credits.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px'}}>No distributor credit records found.</p>}
+                <h3 style={{ fontSize: '14px', color: 'var(--c-faint)', marginBottom: '12px' }}>Recent Deliveries / Credits</h3>
+                {credits.length === 0 && <p style={{color:'var(--c-faint)', fontSize: '13px'}}>No distributor credit records found.</p>}
                 
                 {credits.map(c => (
-                  <div key={c.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                  <div key={c.id} style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{c.distName || 'Distributor'}</span>
-                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : '#EF4444' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '15px', color: 'var(--c-surface)' }}>{c.distName || 'Distributor'}</span>
+                      <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : 'var(--c-danger)' }}>
                         {c.paid ? '✅ Settled' : '⏳ Unpaid'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94A3B8', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '12px' }}>
                       <span>{new Date(c.date).toLocaleDateString()}</span>
                       <span>Invoice: #{c.id.split('_')[1]}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--c-ink-2)', paddingTop: '12px' }}>
                       <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
                       {!c.paid && (
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -6623,10 +6623,10 @@ const ShopDashboard = () => {
                             const ref = encodeURIComponent('Credit-' + (c.id || '').slice(0, 8));
                             const note = encodeURIComponent(`Payment to ${c.distName || 'Distributor'}`);
                             window.open(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(c.distName || shop.name)}&am=${c.amount}&tn=${note}&tr=${ref}&cu=INR`, '_blank');
-                          }} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                          }} style={{ background: 'var(--c-info)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             Pay UPI
                           </button>
-                          <button onClick={() => handleSettleSupplierCredit(c.id)} style={{ background: '#10B981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                          <button onClick={() => handleSettleSupplierCredit(c.id)} style={{ background: 'var(--c-success)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                             ✅ Settle & Generate Note
                           </button>
                         </div>
@@ -6637,50 +6637,50 @@ const ShopDashboard = () => {
               </>
             ) : (
               <>
-                <div style={{ background: '#1E293B', border: '1px solid #10B981', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-success)', borderRadius: '12px', padding: '20px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#10B981', fontWeight: 'bold' }}>TOTAL CUSTOMER OUTSTANDING</p>
-                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: '#fff' }}>₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)}</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-success)', fontWeight: 'bold' }}>TOTAL CUSTOMER OUTSTANDING</p>
+                    <h3 style={{ margin: '4px 0 0 0', fontSize: '24px', color: 'var(--c-surface)' }}>₹{customerCredits.filter(c => !c.paid).reduce((sum, c) => sum + c.amount, 0)}</h3>
                   </div>
-                  <Wallet size={32} color="#10B981" opacity={0.5} />
+                  <Wallet size={32} color="var(--c-success)" opacity={0.5} />
                 </div>
 
                 {/* Add New Customer Credit Form */}
-                <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-                  <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Log New Customer Credit / Debt</h3>
+                <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                  <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Log New Customer Credit / Debt</h3>
                   <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <input 
                         type="text" value={custCreditName} onChange={e => setCustCreditName(e.target.value)} 
                         placeholder="Customer Name" 
-                        style={{ flex: 1, padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ flex: 1, padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} 
                       />
                       <input 
                         type="tel" value={custCreditPhone} onChange={e => setCustCreditPhone(e.target.value)} 
                         placeholder="Mobile (Optional)" 
-                        style={{ width: '130px', padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ width: '130px', padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} 
                       />
                     </div>
                     <input 
                       type="text" value={custCreditDesc} onChange={e => setCustCreditDesc(e.target.value)} 
                       placeholder="Reason (e.g. Milk & Eggs)" 
-                      style={{ padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                      style={{ padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} 
                     />
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <input 
                         type="number" value={custCreditAmount} onChange={e => setCustCreditAmount(e.target.value)} 
                         placeholder="Outstanding Amount (₹)" 
-                        style={{ flex: 1, padding: '10px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} 
+                        style={{ flex: 1, padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} 
                       />
-                      <button onClick={handleAddCustomerCredit} style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                      <button onClick={handleAddCustomerCredit} style={{ background: 'var(--c-success)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                         + Add Debt
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Customer Outstanding Book</h3>
-                {customerCredits.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px'}}>No customer debt records logged yet.</p>}
+                <h3 style={{ fontSize: '14px', color: 'var(--c-faint)', marginBottom: '12px' }}>Customer Outstanding Book</h3>
+                {customerCredits.length === 0 && <p style={{color:'var(--c-faint)', fontSize: '13px'}}>No customer debt records logged yet.</p>}
                 
                 {customerCredits.map(c => {
                   const parts = c.desc.split(':');
@@ -6689,34 +6689,34 @@ const ShopDashboard = () => {
                   const custDesc = parts[3] || 'Credit Purchase';
                   
                   return (
-                    <div key={c.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
+                    <div key={c.id} style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <div>
-                          <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>{custName}</span>
-                          {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#94A3B8' }}>Ph: {custPhone}</p>}
+                          <span style={{ fontWeight: 'bold', fontSize: '15px', color: 'var(--c-surface)' }}>{custName}</span>
+                          {custPhone && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Ph: {custPhone}</p>}
                         </div>
-                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : '#4F46E5' }}>
+                        <span style={{ fontWeight: 'bold', color: c.paid ? '#22C55E' : 'var(--c-primary)' }}>
                           {c.paid ? '✅ Settled' : '⏳ Pending'}
                         </span>
                       </div>
                       
-                      <div style={{ fontSize: '12px', color: '#CBD5E1', marginBottom: '12px', background: 'rgba(0,0,0,0.15)', padding: '8px 12px', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--c-line-strong)', marginBottom: '12px', background: 'rgba(0,0,0,0.15)', padding: '8px 12px', borderRadius: '6px' }}>
                         <b>Remarks:</b> {custDesc}
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94A3B8', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '12px' }}>
                         <span>Logged: {new Date(c.date).toLocaleDateString()}</span>
                         <span>Reference: #{c.id.split('_')[1]}</span>
                       </div>
                       
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--c-ink-2)', paddingTop: '12px' }}>
                         <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#FBBF24' }}>₹{c.amount}</span>
                         {!c.paid && (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={() => sendCustomerCreditReminder(c)} style={{ background: '#25D366', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                               💬 Remind
                             </button>
-                            <button onClick={() => handleSettleCustomerCredit(c.id)} style={{ background: '#10B981', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                            <button onClick={() => handleSettleCustomerCredit(c.id)} style={{ background: 'var(--c-success)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
                               ✅ Settle
                             </button>
                           </div>
@@ -6733,21 +6733,21 @@ const ShopDashboard = () => {
 
       {/* BOOKINGS TAB */}
       {activeTab === 'bookings' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <DesktopBookings shopId={targetShopId} shopName={shop.name} sysSettings={sysSettings} onAddonPurchased={loadData} />
         </div>
       )}
 
       {/* MEMBERSHIP TAB */}
       {isOwner && activeTab === 'membership' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <DesktopMembership shopId={targetShopId} />
         </div>
       )}
 
       {/* FEEDBACK TAB */}
       {isOwner && activeTab === 'feedback' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <DesktopFeedback shopId={targetShopId} />
         </div>
       )}
@@ -6761,14 +6761,14 @@ const ShopDashboard = () => {
           mobile elsewhere in this same file (Membership, Feedback,
           Bookings all do the same). */}
       {isOwner && activeTab === 'customers' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <DesktopCustomers orders={orders} targetShopId={targetShopId} />
         </div>
       )}
 
       {/* EXPENSES TAB — same gap as Customers above, same fix. */}
       {isOwner && activeTab === 'expenses' && (
-        <div style={{ paddingBottom: 80, background: '#F8FAFC', minHeight: '100vh' }}>
+        <div style={{ paddingBottom: 80, background: 'var(--c-bg)', minHeight: '100vh' }}>
           <DesktopExpenses targetShopId={targetShopId} orders={orders} />
         </div>
       )}
@@ -6777,24 +6777,24 @@ const ShopDashboard = () => {
       {activeTab === 'restock' && (
         <div style={{ paddingBottom: 80 }}>
           <div style={{ background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D' }}>
-            <h2 style={{ margin: 0, fontSize: 18, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Truck size={20} color="#3B82F6" /> Supply & Wholesale Restock
+            <h2 style={{ margin: 0, fontSize: 18, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Truck size={20} color="var(--c-info)" /> Supply & Wholesale Restock
             </h2>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8' }}>Order wholesale goods on credit directly from FMCG Distributors.</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-faint)' }}>Order wholesale goods on credit directly from FMCG Distributors.</p>
           </div>
           
           <div style={{ padding: '16px' }}>
             {/* AI Voice Order Recorder Header Banner */}
-            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', border: '2px solid #6366F1', borderRadius: '16px', padding: '20px', marginBottom: '20px', color: '#FFFFFF', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ background: 'linear-gradient(135deg, var(--c-ink), #1E1B4B)', border: '2px solid var(--c-primary-light)', borderRadius: '16px', padding: '20px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 8px 25px rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid #818CF8', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818CF8', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
+                <div style={{ background: 'rgba(99,102,241,0.2)', border: '2px solid var(--c-primary-light)', borderRadius: '50%', width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-primary-light)', boxShadow: '0 0 20px rgba(129,140,248,0.4)', flexShrink: 0 }}>
                   <Mic size={28} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: 8 }}>
                     🎙️ AI Voice Stock Order Assistant
                   </div>
-                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#C7D2FE' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--c-primary-border)' }}>
                     Speak your full order continuously (e.g. <i>"Chikki 2 jars, Biscuit 10 cases, Red Label Tea 5 boxes"</i>). AI parses products, quantities &amp; pack sizes for re-verification!
                   </p>
                 </div>
@@ -6802,7 +6802,7 @@ const ShopDashboard = () => {
 
               <button
                 onClick={() => setShowVoiceRecorderModal(true)}
-                style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFFFFF', border: 'none', padding: '12px 24px', borderRadius: '12px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', whiteSpace: 'nowrap' }}
+                style={{ background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'var(--c-surface)', border: 'none', padding: '12px 24px', borderRadius: '12px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', whiteSpace: 'nowrap' }}
               >
                 🎙️ Tap to Speak Whole Order
               </button>
@@ -6810,12 +6810,12 @@ const ShopDashboard = () => {
             {/* AI low stock indicator list */}
             {products.filter(p => p.stock < 10).length > 0 && (
               <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#EF4444', fontWeight: 'bold' }}>⚠️ CRITICAL LOW STOCK</h3>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--c-danger)', fontWeight: 'bold' }}>⚠️ CRITICAL LOW STOCK</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {products.filter(p => p.stock < 10).map(p => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                      <span style={{ color: '#CBD5E1' }}>{p.name}</span>
-                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Only {p.stock} left!</span>
+                      <span style={{ color: 'var(--c-line-strong)' }}>{p.name}</span>
+                      <span style={{ color: 'var(--c-danger)', fontWeight: 'bold' }}>Only {p.stock} left!</span>
                     </div>
                   ))}
                 </div>
@@ -6823,31 +6823,31 @@ const ShopDashboard = () => {
             )}
 
             {/* Restock Basket Panel */}
-            <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '2px solid #334155', borderRadius: '16px', padding: '18px', marginBottom: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '2px solid var(--c-ink-2)', borderRadius: '16px', padding: '18px', marginBottom: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
               
               {/* Cart Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#FFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     🛒 Restock Basket ({Object.keys(restockCart).length} SKUs)
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>Order FMCG supplies directly from your distributor</span>
+                  <span style={{ fontSize: '11px', color: 'var(--c-faint)' }}>Order FMCG supplies directly from your distributor</span>
                 </div>
 
                 <button
                   onClick={() => setShowVoiceRecorderModal(true)}
-                  style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
+                  style={{ background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'var(--c-surface)', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
                 >
                   🎙️ AI Voice Order
                 </button>
               </div>
 
               {Object.keys(restockCart).length === 0 ? (
-                <div style={{ background: '#0F172A', border: '2px dashed #334155', borderRadius: '12px', padding: '24px 16px', textAlign: 'center' }}>
-                  <p style={{ color: '#94A3B8', fontSize: '13px', margin: '0 0 14px' }}>Your restock basket is empty. Record full voice order below or add bulk products from the catalog.</p>
+                <div style={{ background: 'var(--c-ink)', border: '2px dashed var(--c-ink-2)', borderRadius: '12px', padding: '24px 16px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--c-faint)', fontSize: '13px', margin: '0 0 14px' }}>Your restock basket is empty. Record full voice order below or add bulk products from the catalog.</p>
                   <button
                     onClick={() => setShowVoiceRecorderModal(true)}
-                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', width: '100%' }}
+                    style={{ background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '14px', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', width: '100%' }}
                   >
                     🎙️ Tap to Speak &amp; Order Supplies by Voice
                   </button>
@@ -6862,20 +6862,20 @@ const ShopDashboard = () => {
                       const lineTotal = prod.price * qty;
 
                       return (
-                        <div key={prodId} style={{ background: '#0F172A', border: '1px solid #334155', borderRadius: '12px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                        <div key={prodId} style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                           <div>
-                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#FFF' }}>{prod.name}</div>
-                            <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                            <div style={{ fontSize: '14px', fontWeight: '800', color: 'var(--c-surface)' }}>{prod.name}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--c-faint)' }}>
                               ₹{prod.price} / unit {prod.packSize ? `· (${prod.packSize}/box)` : ''}
                             </div>
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             {/* Quantity Stepper */}
-                            <div style={{ display: 'flex', alignItems: 'center', background: '#1E293B', border: '1px solid #475569', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', overflow: 'hidden' }}>
                               <button
                                 onClick={() => handleRestockQtyChange(prodId, -1)}
-                                style={{ background: '#334155', border: 'none', color: '#FFF', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ background: 'var(--c-ink-2)', border: 'none', color: 'var(--c-surface)', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                               >
                                 -
                               </button>
@@ -6887,11 +6887,11 @@ const ShopDashboard = () => {
                                   const diff = val - qty;
                                   if (diff !== 0) handleRestockQtyChange(prodId, diff);
                                 }}
-                                style={{ width: 44, textAlign: 'center', background: 'transparent', border: 'none', color: '#FFF', fontWeight: 800, fontSize: 13, outline: 'none' }}
+                                style={{ width: 44, textAlign: 'center', background: 'transparent', border: 'none', color: 'var(--c-surface)', fontWeight: 800, fontSize: 13, outline: 'none' }}
                               />
                               <button
                                 onClick={() => handleRestockQtyChange(prodId, 1)}
-                                style={{ background: '#334155', border: 'none', color: '#FFF', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ background: 'var(--c-ink-2)', border: 'none', color: 'var(--c-surface)', width: 32, height: 32, fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                               >
                                 +
                               </button>
@@ -6903,7 +6903,7 @@ const ShopDashboard = () => {
 
                             <button
                               onClick={() => handleRestockQtyChange(prodId, -qty)}
-                              style={{ background: 'rgba(239,68,68,0.15)', border: 'none', color: '#EF4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              style={{ background: 'rgba(239,68,68,0.15)', border: 'none', color: 'var(--c-danger)', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
                               title="Remove item"
                             >
                               <X size={16} />
@@ -6916,7 +6916,7 @@ const ShopDashboard = () => {
 
                   {/* Special Order Notes input */}
                   <div style={{ marginBottom: 14 }}>
-                    <label style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', display: 'block', marginBottom: 4 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--c-line-strong)', display: 'block', marginBottom: 4 }}>
                       📝 Special Order Notes / Delivery Instructions for Distributor:
                     </label>
                     <input
@@ -6924,15 +6924,15 @@ const ShopDashboard = () => {
                       value={restockNotes}
                       onChange={e => setRestockNotes(e.target.value)}
                       placeholder="e.g. Urgent delivery before 4 PM, call on arrival..."
-                      style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '10px 12px', color: '#FFF', fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: 8, padding: '10px 12px', color: 'var(--c-surface)', fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
                     />
                   </div>
 
                   {/* Cart Summary & Order Action */}
-                  <div style={{ borderTop: '1px solid #334155', paddingTop: '14px' }}>
+                  <div style={{ borderTop: '1px solid var(--c-ink-2)', paddingTop: '14px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                       <div>
-                        <div style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 700 }}>Total Basket Amount</div>
+                        <div style={{ fontSize: '11px', color: 'var(--c-faint)', textTransform: 'uppercase', fontWeight: 700 }}>Total Basket Amount</div>
                         <div style={{ fontSize: '20px', fontWeight: '900', color: '#FBBF24' }}>
                           ₹{Object.entries(restockCart).reduce((sum, [prodId, qty]) => {
                             const prod = wholesaleCatalog.find(p => p.id === prodId);
@@ -6943,7 +6943,7 @@ const ShopDashboard = () => {
 
                       <button
                         onClick={() => setShowVoiceRecorderModal(true)}
-                        style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', color: '#10B981', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                        style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid var(--c-success)', color: 'var(--c-success)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                       >
                         🎙️ Record More Items
                       </button>
@@ -6951,7 +6951,7 @@ const ShopDashboard = () => {
 
                     <button
                       onClick={handlePlaceRestockOrder}
-                      style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, #16A34A)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', boxShadow: '0 6px 20px rgba(34,197,94,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      style={{ width: '100%', background: 'linear-gradient(135deg, #22C55E, var(--c-success-strong))', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', fontSize: '15px', boxShadow: '0 6px 20px rgba(34,197,94,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       🚀 Submit Stock Order to Distributor
                     </button>
@@ -6962,21 +6962,21 @@ const ShopDashboard = () => {
 
             {/* Wholesale Catalog List & Search Bar with Voice Order */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', margin: 0 }}>📦 FMCG Wholesale Catalog ({wholesaleCatalog.length})</h3>
+              <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--c-faint)', margin: 0 }}>📦 FMCG Wholesale Catalog ({wholesaleCatalog.length})</h3>
               
               {wholesaleCatalog.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
                   <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? 0 : 220 }}>
-                    <Search size={14} style={{ position: 'absolute', left: 10, top: 11, color: '#818CF8' }} />
+                    <Search size={14} style={{ position: 'absolute', left: 10, top: 11, color: 'var(--c-primary-light)' }} />
                     <input
                       type="text"
                       value={wholesaleSearchQuery}
                       onChange={e => setWholesaleSearchQuery(e.target.value)}
                       placeholder="Fast search catalog name, SKU..."
-                      style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#FFF', padding: '6px 28px 6px 30px', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                      style={{ width: '100%', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', padding: '6px 28px 6px 30px', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
                     />
                     {wholesaleSearchQuery && (
-                      <button onClick={() => setWholesaleSearchQuery('')} style={{ position: 'absolute', right: 8, top: 7, background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}>
+                      <button onClick={() => setWholesaleSearchQuery('')} style={{ position: 'absolute', right: 8, top: 7, background: 'none', border: 'none', color: 'var(--c-faint)', cursor: 'pointer' }}>
                         <X size={14} />
                       </button>
                     )}
@@ -6991,8 +6991,8 @@ const ShopDashboard = () => {
 
             {wholesaleCatalog.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 8px' }}>
-                <p style={{ color: '#fff', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>No linked distributors yet</p>
-                <p style={{ color: '#94A3B8', fontSize: '12.5px', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ color: 'var(--c-surface)', fontSize: '14px', fontWeight: 700, margin: '0 0 6px' }}>No linked distributors yet</p>
+                <p style={{ color: 'var(--c-faint)', fontSize: '12.5px', margin: 0, lineHeight: 1.5 }}>
                   You'll only see products from distributors you've connected with — go to Settings and enter a distributor's code (starts with "DST-") to start ordering.
                 </p>
               </div>
@@ -7003,13 +7003,13 @@ const ShopDashboard = () => {
                   const q = wholesaleSearchQuery.toLowerCase().trim();
                   return p.name?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q);
                 }).map(p => (
-                  <div key={p.id} style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={p.id} style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: '#3B82F6', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
-                      <h4 style={{ margin: '6px 0 2px 0', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>{p.name}</h4>
-                      <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Wholesale Price: <span style={{ color: '#22C55E', fontWeight: 'bold' }}>₹{p.price}</span></p>
+                      <span style={{ fontSize: '9px', background: 'rgba(59,130,246,0.15)', color: 'var(--c-info)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>{p.category}</span>
+                      <h4 style={{ margin: '6px 0 2px 0', fontSize: '14px', color: 'var(--c-surface)', fontWeight: 'bold' }}>{p.name}</h4>
+                      <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Wholesale Price: <span style={{ color: '#22C55E', fontWeight: 'bold' }}>₹{p.price}</span></p>
                     </div>
-                    <button onClick={() => handleRestockQtyChange(p.id, 1)} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    <button onClick={() => handleRestockQtyChange(p.id, 1)} style={{ background: 'var(--c-info)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                       + Add Bulk
                     </button>
                   </div>
@@ -7021,40 +7021,40 @@ const ShopDashboard = () => {
                 loaded but never shown anywhere on mobile either. A shop
                 placing an order here had no way to check its status,
                 see a dispatch date, or confirm they'd received it. */}
-            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#94A3B8', margin: '24px 0 12px' }}>📋 My Stock Orders</h3>
+            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--c-faint)', margin: '24px 0 12px' }}>📋 My Stock Orders</h3>
             {stockOrders.length === 0 ? (
-              <p style={{ color: '#94A3B8', fontSize: '13px' }}>No stock orders placed yet.</p>
+              <p style={{ color: 'var(--c-faint)', fontSize: '13px' }}>No stock orders placed yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {stockOrders.map(o => {
                   const MOBILE_BADGE = {
-                    pending:    { bg: 'rgba(245,158,11,0.15)', color: '#F59E0B', label: 'Pending' },
+                    pending:    { bg: 'rgba(245,158,11,0.15)', color: 'var(--c-warning)', label: 'Pending' },
                     accepted:   { bg: 'rgba(34,197,94,0.15)',  color: '#22C55E', label: 'Accepted' },
-                    dispatched: { bg: 'rgba(59,130,246,0.15)', color: '#3B82F6', label: '📦 Dispatched' },
-                    delivered:  { bg: 'rgba(16,185,129,0.15)', color: '#10B981', label: '✅ Delivered' },
-                    rejected:   { bg: 'rgba(239,68,68,0.15)',  color: '#EF4444', label: 'Rejected' },
+                    dispatched: { bg: 'rgba(59,130,246,0.15)', color: 'var(--c-info)', label: '📦 Dispatched' },
+                    delivered:  { bg: 'rgba(16,185,129,0.15)', color: 'var(--c-success)', label: '✅ Delivered' },
+                    rejected:   { bg: 'rgba(239,68,68,0.15)',  color: 'var(--c-danger)', label: 'Rejected' },
                   };
                   const badge = MOBILE_BADGE[o.status] || MOBILE_BADGE.pending;
                   return (
-                    <div key={o.id} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '14px' }}>
+                    <div key={o.id} style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '14px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>#{(o.id || '').slice(0, 8).toUpperCase()}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-surface)' }}>#{(o.id || '').slice(0, 8).toUpperCase()}</span>
                             <span style={{ fontSize: 10, background: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>{badge.label}</span>
                           </div>
-                          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>
+                          <div style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 3 }}>
                             {new Date(o.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} · ₹{o.total}
                           </div>
                           {o.status === 'accepted' && o.expectedDispatchDate && (
-                            <div style={{ fontSize: 11, color: '#818CF8', fontWeight: 700, marginTop: 3 }}>
+                            <div style={{ fontSize: 11, color: 'var(--c-primary-light)', fontWeight: 700, marginTop: 3 }}>
                               🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                             </div>
                           )}
                         </div>
                         {o.status === 'dispatched' && (
                           <button onClick={() => handleMarkStockOrderDelivered(o.id)}
-                            style={{ background: '#10B981', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+                            style={{ background: 'var(--c-success)', color: 'var(--c-surface)', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
                             ✅ Confirm
                           </button>
                         )}
@@ -7066,12 +7066,12 @@ const ShopDashboard = () => {
                             delivery. */}
                         {o.status === 'delivered' && !o.receivedAt && (
                           <button onClick={() => handleReceiveStockOrder(o.id)}
-                            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
+                            style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '7px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', width: 'auto', flexShrink: 0 }}>
                             📦 Add to Stock
                           </button>
                         )}
                         {o.status === 'delivered' && o.receivedAt && (
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#059669', flexShrink: 0 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-success-strong)', flexShrink: 0 }}>
                             ✅ In stock
                           </span>
                         )}
@@ -7104,13 +7104,13 @@ const ShopDashboard = () => {
         const displayPercent = Math.min(100, Math.max(0, Math.abs(marginPercent)));
         const strokeOffset = circumference - (displayPercent / 100) * circumference;
         const isLoss = netProfit < 0;
-        const strokeColor = isLoss ? '#EF4444' : '#10B981';
+        const strokeColor = isLoss ? 'var(--c-danger)' : 'var(--c-success)';
 
         return (
           <div style={{paddingBottom: 80}}>
             <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
-              <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Retail Day Book & Reports</h2>
-              <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
+              <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Retail Day Book & Reports</h2>
+              <p style={{margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-faint)'}}>Today's profitability, Cash-In vs Cash-Out ledger.</p>
             </div>
             
             <div style={{ padding: '16px' }}>
@@ -7118,7 +7118,7 @@ const ShopDashboard = () => {
               {reportsBreakdownEl}
               
               {/* Profit & Loss Margin Gauge */}
-              <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #334155', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-ink-2)', borderRadius: '16px', padding: '24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '16px' }}>
                 
                 {/* Circular Gauge */}
                 <div style={{ position: 'relative', width: '130px', height: '130px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -7143,7 +7143,7 @@ const ShopDashboard = () => {
                     <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: strokeColor }}>
                       {isLoss ? '-' : '+'}{displayPercent}%
                     </h4>
-                    <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                    <p style={{ margin: 0, fontSize: '10px', color: 'var(--c-faint)', textTransform: 'uppercase', fontWeight: 'bold' }}>
                       {isLoss ? 'Loss Margin' : 'Net Margin'}
                     </p>
                   </div>
@@ -7151,18 +7151,18 @@ const ShopDashboard = () => {
 
                 {/* Margins Data Summary */}
                 <div style={{ flex: 1, minWidth: '150px' }}>
-                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? '#FCA5A5' : '#A7F3D0' }}>
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: isLoss ? 'var(--c-danger-border)' : '#A7F3D0' }}>
                     {isLoss ? '🔴 Loss Today: ' : '🟢 Profit Today: '} ₹{Math.abs(netProfit)}
                   </h3>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                      <span style={{ color: '#CBD5E1' }}>Total Cash In Today:</span>
-                      <span style={{ color: '#10B981', fontWeight: 'bold' }}>₹{cashIn}</span>
+                      <span style={{ color: 'var(--c-line-strong)' }}>Total Cash In Today:</span>
+                      <span style={{ color: 'var(--c-success)', fontWeight: 'bold' }}>₹{cashIn}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                      <span style={{ color: '#CBD5E1' }}>Total Cash Out Today:</span>
-                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>₹{cashOut}</span>
+                      <span style={{ color: 'var(--c-line-strong)' }}>Total Cash Out Today:</span>
+                      <span style={{ color: 'var(--c-danger)', fontWeight: 'bold' }}>₹{cashOut}</span>
                     </div>
                   </div>
                 </div>
@@ -7189,17 +7189,17 @@ const ShopDashboard = () => {
                 const totalProfit = totalIncome - totalExpenses;
                 const margin = totalIncome > 0 ? Math.round((totalProfit / totalIncome) * 100) : 0;
                 return (
-                  <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
-                    <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>📊 6-Month Cash Flow</h3>
+                  <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+                    <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-surface)' }}>📊 6-Month Cash Flow</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '14px' }}>
                       {[
-                        { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: '#10B981' },
-                        { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: '#EF4444' },
-                        { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? '#10B981' : '#EF4444' },
-                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? '#10B981' : margin >= 0 ? '#4F46E5' : '#EF4444' },
+                        { label: 'This Month Income', value: `₹${thisMonth.income.toLocaleString('en-IN')}`, color: 'var(--c-success)' },
+                        { label: 'This Month Expenses', value: `₹${thisMonth.expenses.toLocaleString('en-IN')}`, color: 'var(--c-danger)' },
+                        { label: 'Net Profit (6m)', value: `₹${totalProfit.toLocaleString('en-IN')}`, color: totalProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)' },
+                        { label: 'Profit Margin (6m)', value: `${margin}%`, color: margin >= 20 ? 'var(--c-success)' : margin >= 0 ? 'var(--c-primary)' : 'var(--c-danger)' },
                       ].map(c => (
                         <div key={c.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 12px' }}>
-                          <div style={{ fontSize: '10px', color: '#64748B', marginBottom: '2px' }}>{c.label}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--c-muted)', marginBottom: '2px' }}>{c.label}</div>
                           <div style={{ fontSize: '15px', fontWeight: '800', color: c.color }}>{c.value}</div>
                         </div>
                       ))}
@@ -7207,9 +7207,9 @@ const ShopDashboard = () => {
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={cashFlowMonths} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barGap={2}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                        <XAxis dataKey="label" tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
-                        <Tooltip contentStyle={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
+                        <XAxis dataKey="label" tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => v > 999 ? `${(v/1000).toFixed(0)}k` : v} />
+                        <Tooltip contentStyle={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', fontSize: '11px' }} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'income' ? 'Income' : 'Expenses']} />
                         <Bar dataKey="income" fill="#10B981" radius={[3, 3, 0, 0]} />
                         <Bar dataKey="expenses" fill="#EF4444" radius={[3, 3, 0, 0]} />
                       </BarChart>
@@ -7219,27 +7219,27 @@ const ShopDashboard = () => {
               })()}
 
               {/* TALLY EXPORT PANEL */}
-              <div style={{ background: 'linear-gradient(145deg, #1E293B, #0F172A)', border: '1px solid #10B981', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: 'linear-gradient(145deg, var(--c-ink), var(--c-ink))', border: '1px solid var(--c-success)', borderRadius: '16px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#10B981' }}>📊 Tally ERP / Prime Export</h3>
-                  <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Export Tally XML, GSTR-1 CSV, or Monthly Summary for your CA.</p>
+                  <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-success)' }}>📊 Tally ERP / Prime Export</h3>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Export Tally XML, GSTR-1 CSV, or Monthly Summary for your CA.</p>
                 </div>
                 <div style={{ position: 'relative' }}>
                   <button
                     onClick={() => setTallyMenuOpen(v => !v)}
-                    style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    style={{ background: 'var(--c-success)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                   >
                     📥 Export ▾
                   </button>
                   {tallyMenuOpen && (
-                    <div style={{ position: 'absolute', right: 0, top: '44px', background: '#1E293B', border: '1px solid #334155', borderRadius: '10px', zIndex: 200, minWidth: '200px', overflow: 'hidden' }}
+                    <div style={{ position: 'absolute', right: 0, top: '44px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '10px', zIndex: 200, minWidth: '200px', overflow: 'hidden' }}
                       onMouseLeave={() => setTallyMenuOpen(false)}>
                       {[
                         { label: '📥 Tally XML', action: () => { downloadTallyXML(orders.filter(o => o.status === 'completed'), shop.name); setTallyMenuOpen(false); } },
                         { label: '📋 GSTR-1 CSV', action: () => { downloadCSV(generateGSTR1CSV(orders.filter(o => o.status === 'completed'), shop.gstNumber || shop.gstin), `GSTR1_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                         { label: '📊 Monthly Summary', action: () => { downloadCSV(generateMonthlySummaryCSV(orders.filter(o => o.status === 'completed')), `Summary_${new Date().toISOString().slice(0,10)}.csv`); setTallyMenuOpen(false); } },
                       ].map(item => (
-                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: '#F8FAFC', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                        <button key={item.label} onClick={item.action} style={{ display: 'block', width: '100%', background: 'none', border: 'none', color: 'var(--c-bg)', padding: '12px 16px', textAlign: 'left', fontSize: '13px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
                           {item.label}
@@ -7251,27 +7251,27 @@ const ShopDashboard = () => {
               </div>
 
               {/* Day Book Transactions List */}
-              <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '16px', padding: '16px' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '16px', padding: '16px' }}>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   📖 Today's Retail Day Book Ledger
                 </h3>
                 
                 {ledgerItems.length === 0 ? (
-                  <p style={{ color: '#94A3B8', fontSize: '13px', textAlign: 'center', padding: '24px 0', margin: 0 }}>No transactions logged today yet.</p>
+                  <p style={{ color: 'var(--c-faint)', fontSize: '13px', textAlign: 'center', padding: '24px 0', margin: 0 }}>No transactions logged today yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {ledgerItems.map((item, idx) => (
-                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0F172A', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D' }}>
+                      <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-ink)', padding: '12px', borderRadius: '10px', border: '1px solid #2A2F3D' }}>
                         <div>
                           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                            <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                            <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase' }}>
                               {item.category}
                             </span>
-                            <span style={{ fontSize: '11px', color: '#94A3B8' }}>{item.time}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--c-faint)' }}>{item.time}</span>
                           </div>
-                          <p style={{ margin: '6px 0 0 0', fontWeight: 'bold', fontSize: '13px', color: '#fff' }}>{item.desc}</p>
+                          <p style={{ margin: '6px 0 0 0', fontWeight: 'bold', fontSize: '13px', color: 'var(--c-surface)' }}>{item.desc}</p>
                         </div>
-                        <span style={{ fontWeight: 'bold', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', fontSize: '15px' }}>
+                        <span style={{ fontWeight: 'bold', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', fontSize: '15px' }}>
                           {item.type === 'Cash In' ? '+' : '-'}₹{item.amount}
                         </span>
                       </div>
@@ -7289,7 +7289,7 @@ const ShopDashboard = () => {
       {isOwner && activeTab === 'profile' && (
         <div style={{paddingBottom: 80}}>
           <div style={{background: '#1E222D', padding: '16px', borderBottom: '1px solid #2A2F3D'}}>
-            <h2 style={{margin:0, fontSize: 18, color: '#fff'}}>Shop Profile & Payments</h2>
+            <h2 style={{margin:0, fontSize: 18, color: 'var(--c-surface)'}}>Shop Profile & Payments</h2>
           </div>
           <div style={{ padding: '16px' }}>
 
@@ -7318,32 +7318,32 @@ const ShopDashboard = () => {
             {/* SaaS Subscription Info Card — main shop only */}
             {isViewingMain && <div style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9))', border: `1px solid ${isOnTrial ? 'rgba(245,158,11,0.4)' : 'rgba(139,92,246,0.3)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: `0 8px 32px ${isOnTrial ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.1)'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
-                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#FBBF24' : '#10B981', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>⚡ Subscription</h3>
+                <span style={{ background: isOnTrial ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)', color: isOnTrial ? '#FBBF24' : 'var(--c-success)', fontSize: '11px', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
                   {isOnTrial ? `Trial — ${trialDaysLeft}d left` : 'Active'}
                 </span>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PLAN</div>
-                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>{planLabel}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '4px', fontWeight: 600 }}>PLAN</div>
+                  <div style={{ fontSize: '14px', color: 'var(--c-bg)', fontWeight: 700 }}>{planLabel}</div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? '#EF4444' : isOnTrial && trialDaysLeft <= 4 ? '#4F46E5' : '#10B981' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '4px', fontWeight: 600 }}>{isOnTrial ? 'DAYS LEFT' : 'RENEWS IN'}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: isOnTrial && trialDaysLeft <= 2 ? 'var(--c-danger)' : isOnTrial && trialDaysLeft <= 4 ? 'var(--c-primary)' : 'var(--c-success)' }}>
                     {isOnTrial ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''}` : paidDaysLeft !== null ? `${paidDaysLeft}d` : '—'}
                   </div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PRODUCTS</div>
-                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '4px', fontWeight: 600 }}>PRODUCTS</div>
+                  <div style={{ fontSize: '14px', color: 'var(--c-bg)', fontWeight: 700 }}>
                     {products.length}{(capabilities?.maxProducts ?? 200) === -1 ? ' / ∞' : ` / ${capabilities?.maxProducts ?? 200}`}
                   </div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontWeight: 600 }}>PRICE</div>
-                  <div style={{ fontSize: '14px', color: '#F8FAFC', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginBottom: '4px', fontWeight: 600 }}>PRICE</div>
+                  <div style={{ fontSize: '14px', color: 'var(--c-bg)', fontWeight: 700 }}>
                     {plans?.find(p => p.id === (user.subscriptionTier || user.subscription))
                       ? `₹${plans.find(p => p.id === (user.subscriptionTier || user.subscription)).price}/mo`
                       : isOnTrial ? 'Free' : '—'}
@@ -7353,35 +7353,35 @@ const ShopDashboard = () => {
 
               <button
                 onClick={() => setShowPlanSelectorModal(true)}
-                style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #818CF8)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-light))', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
               >
                 {isOnTrial ? '⚡ Upgrade Plan Now' : '🔄 Change Plan'}
               </button>
             </div>}
 
             {/* Logo Upload Section */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🖼️ Shop Logo</h3>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginBottom: '16px', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🖼️ Shop Logo</h3>
               {logo ? (
-                <img src={logo} alt="Shop Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #3B82F6', marginBottom: '12px' }} />
+                <img src={logo} alt="Shop Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--c-info)', marginBottom: '12px' }} />
               ) : (
-                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#0F172A', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>No Logo</div>
+                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--c-ink)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-faint)' }}>No Logo</div>
               )}
-              <input type="file" accept="image/*" onChange={handleMobileLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: '#94A3B8' }} />
+              <input type="file" accept="image/*" onChange={handleMobileLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: '12px', color: 'var(--c-faint)' }} />
               {logo && (
-                <button onClick={handleLogoRemove} style={{ marginTop: '10px', background: 'rgba(239,68,68,0.15)', border: '1px solid #EF4444', color: '#FCA5A5', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}>
+                <button onClick={handleLogoRemove} style={{ marginTop: '10px', background: 'rgba(239,68,68,0.15)', border: '1px solid var(--c-danger)', color: 'var(--c-danger-border)', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}>
                   Remove Logo
                 </button>
               )}
             </div>
 
             {/* ── ACCOUNT DETAILS ── */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Account Details</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Update your shop name or mobile number</p>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>👤 Account Details</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>Update your shop name or mobile number</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '5px', fontWeight: '700' }}>
                     {user.role === 'distributor' ? 'COMPANY NAME' : 'SHOP / YOUR NAME'}
                   </label>
                   <input
@@ -7389,43 +7389,43 @@ const ShopDashboard = () => {
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
                     placeholder={user.name}
-                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   />
-                  <p style={{ fontSize: '11px', color: '#475569', margin: '3px 0 0' }}>Current: {user.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: '3px 0 0' }}>Current: {user.name}</p>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>MOBILE NUMBER (LOGIN ID)</label>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '5px', fontWeight: '700' }}>MOBILE NUMBER (LOGIN ID)</label>
                   <input
                     type="tel"
                     value={editPhone}
                     onChange={e => setEditPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
                     placeholder={user.phone}
                     maxLength={10}
-                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   />
-                  <p style={{ fontSize: '11px', color: '#475569', margin: '3px 0 0' }}>Current: {user.phone}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: '3px 0 0' }}>Current: {user.phone}</p>
                 </div>
               </div>
               <button
                 onClick={handleSaveAccountDetails}
                 disabled={profileSaving}
-                style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
+                style={{ width: '100%', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
               >
                 {profileSaving ? '⏳ Saving…' : '✅ Save Account Details'}
               </button>
             </div>
 
             {/* ── CHANGE PASSWORD / PIN ── */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 🔐 {user.role === 'staff' ? 'Change PIN' : 'Change Password'}
               </h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 {user.role === 'staff' ? 'Update your 4-digit login PIN' : 'Set a new secure password'}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '5px', fontWeight: '700' }}>
                     NEW {user.role === 'staff' ? 'PIN' : 'PASSWORD'}
                   </label>
                   <input
@@ -7435,11 +7435,11 @@ const ShopDashboard = () => {
                     placeholder={user.role === 'staff' ? '4-digit PIN' : 'Min 4 characters'}
                     maxLength={user.role === 'staff' ? 4 : undefined}
                     inputMode={user.role === 'staff' ? 'numeric' : 'text'}
-                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
+                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '5px', fontWeight: '700' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '5px', fontWeight: '700' }}>
                     CONFIRM {user.role === 'staff' ? 'PIN' : 'PASSWORD'}
                   </label>
                   <input
@@ -7449,10 +7449,10 @@ const ShopDashboard = () => {
                     placeholder={`Re-enter ${user.role === 'staff' ? 'PIN' : 'password'}`}
                     maxLength={user.role === 'staff' ? 4 : undefined}
                     inputMode={user.role === 'staff' ? 'numeric' : 'text'}
-                    style={{ width: '100%', padding: '11px 14px', background: '#0F172A', border: `1px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? '#EF4444' : confirmPassword && newPassword && confirmPassword === newPassword ? '#22C55E' : '#334155'}`, borderRadius: '9px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
+                    style={{ width: '100%', padding: '11px 14px', background: 'var(--c-ink)', border: `1px solid ${confirmPassword && newPassword && confirmPassword !== newPassword ? 'var(--c-danger)' : confirmPassword && newPassword && confirmPassword === newPassword ? '#22C55E' : 'var(--c-ink-2)'}`, borderRadius: '9px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', letterSpacing: '0.15em' }}
                   />
                   {confirmPassword && newPassword && (
-                    <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? '#22C55E' : '#EF4444', fontWeight: '600' }}>
+                    <p style={{ fontSize: '11px', marginTop: '4px', color: confirmPassword === newPassword ? '#22C55E' : 'var(--c-danger)', fontWeight: '600' }}>
                       {confirmPassword === newPassword ? '✓ Match' : '✗ Do not match'}
                     </p>
                   )}
@@ -7461,84 +7461,84 @@ const ShopDashboard = () => {
               <button
                 onClick={handleChangePassword}
                 disabled={profileSaving || !newPassword || newPassword !== confirmPassword}
-                style={{ width: '100%', background: (newPassword && newPassword === confirmPassword) ? '#10B981' : '#334155', color: '#fff', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: (newPassword && newPassword === confirmPassword) ? 'pointer' : 'not-allowed' }}
+                style={{ width: '100%', background: (newPassword && newPassword === confirmPassword) ? 'var(--c-success)' : 'var(--c-ink-2)', color: 'var(--c-surface)', border: 'none', padding: '12px', borderRadius: '9px', fontWeight: '700', fontSize: '14px', cursor: (newPassword && newPassword === confirmPassword) ? 'pointer' : 'not-allowed' }}
               >
                 {profileSaving ? '⏳ Updating…' : `🔐 Update ${user.role === 'staff' ? 'PIN' : 'Password'}`}
               </button>
             </div>
 
             {/* GST & Tax Compliance Section */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🏛️ GST & Compliance Setup</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Configure these details to generate formal B2B and B2C GST invoices for your customers.</p>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🏛️ GST & Compliance Setup</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>Configure these details to generate formal B2B and B2C GST invoices for your customers.</p>
               
               <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                 <div style={{ flex: 2 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
-                  <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Shop GSTIN</label>
+                  <input type="text" value={gstin} onChange={e => setGstin(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
-                  <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>State Code</label>
+                  <input type="text" value={stateCode} onChange={e => setStateCode(e.target.value)} placeholder="e.g. 29" style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} />
                 </div>
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoice)</label>
-                <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={3} style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', resize: 'vertical' }}></textarea>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Business Address (printed on invoice)</label>
+                <textarea value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Enter full shop address..." rows={3} style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px', resize: 'vertical' }}></textarea>
               </div>
 
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Business Info
               </button>
             </div>
 
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>💳 Setup UPI Payments</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--c-surface)' }}>💳 Setup UPI Payments</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Enter your shop's UPI ID (PhonePe, GPay, Paytm) below. When customers order online, their payment app will automatically open with your UPI ID and the exact bill amount.
               </p>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '8px', fontWeight: 'bold' }}>Your UPI ID</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '8px', fontWeight: 'bold' }}>Your UPI ID</label>
                 <input 
                   type="text" value={upiId} onChange={e => setUpiId(e.target.value)} 
                   placeholder="e.g. 9876543210@ybl" 
-                  style={{ width: '100%', padding: '14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} 
+                  style={{ width: '100%', padding: '14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} 
                 />
               </div>
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Payment Settings
               </button>
             </div>
 
             {/* Payment QR Scanner Upload */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>📱 Payment QR Scanner</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: 'var(--c-surface)' }}>📱 Payment QR Scanner</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Upload your GPay / PhonePe / Paytm QR code image. Customers will see this QR to pay you instantly. You can take a photo of your existing QR or upload from gallery.
               </p>
               {paymentQr ? (
                 <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22C55E', background: '#fff', padding: '8px' }} />
+                  <img src={paymentQr} alt="Payment QR" style={{ width: '200px', height: '200px', objectFit: 'contain', borderRadius: '12px', border: '2px solid #22C55E', background: 'var(--c-surface)', padding: '8px' }} />
                   <p style={{ fontSize: '11px', color: '#22C55E', marginTop: '8px', fontWeight: 'bold' }}>✅ Payment QR Active</p>
-                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid #EF4444', color: '#EF4444', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
+                  <button onClick={() => setPaymentQr('')} style={{ background: 'transparent', border: '1px solid var(--c-danger)', color: 'var(--c-danger)', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', marginTop: '8px' }}>
                     Remove QR
                   </button>
                 </div>
               ) : (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: '150px', height: '150px', borderRadius: '12px', background: '#0F172A', margin: '0 auto 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', border: '2px dashed #334155' }}>
+                  <div style={{ width: '150px', height: '150px', borderRadius: '12px', background: 'var(--c-ink)', margin: '0 auto 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--c-faint)', border: '2px dashed var(--c-ink-2)' }}>
                     <Camera size={32} style={{ marginBottom: '8px' }} />
                     <span style={{ fontSize: '12px' }}>No QR uploaded</span>
                   </div>
                 </div>
               )}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <label style={{ flex: 1, background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: 'var(--c-info)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   📁 Upload from Gallery
                   <input type="file" accept="image/*" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
-                <label style={{ flex: 1, background: '#4F46E5', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
+                <label style={{ flex: 1, background: 'var(--c-primary)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' }}>
                   📷 Take Photo
                   <input type="file" accept="image/*" capture="environment" onChange={handlePaymentQrUpload} style={{ display: 'none' }} />
                 </label>
@@ -7546,18 +7546,18 @@ const ShopDashboard = () => {
             </div>
 
             {/* Shop Photos Section */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  📸 Shop Photos <span style={{ fontSize: '13px', color: '#64748B' }}>{shopPhotos.length}/6</span>
+                <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  📸 Shop Photos <span style={{ fontSize: '13px', color: 'var(--c-muted)' }}>{shopPhotos.length}/6</span>
                 </h3>
                 <a href={getShopUrl()} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: '11px', color: '#818CF8', fontWeight: '700', textDecoration: 'none', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', padding: '4px 10px', borderRadius: '8px' }}>
+                  style={{ fontSize: '11px', color: 'var(--c-primary-light)', fontWeight: '700', textDecoration: 'none', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)', padding: '4px 10px', borderRadius: '8px' }}>
                   👁 View Storefront
                 </a>
               </div>
               <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
-                <p style={{ margin: 0, fontSize: '12px', color: '#818CF8', lineHeight: '1.5' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-primary-light)', lineHeight: '1.5' }}>
                   📸 These photos show as a <strong>scrolling carousel</strong> on your public store page. Customers see them when they open your shop link. First photo is the cover.
                 </p>
               </div>
@@ -7568,143 +7568,143 @@ const ShopDashboard = () => {
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', padding: '2px 6px' }}>
                       <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '700' }}>{idx === 0 ? '🌟 Cover' : `#${idx+1}`}</span>
                     </div>
-                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
+                    <button onClick={() => removeShopPhoto(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239,68,68,0.9)', color: 'var(--c-surface)', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '12px', cursor: 'pointer', lineHeight: '20px', padding: 0 }}>×</button>
                   </div>
                 ))}
                 {shopPhotos.length < 6 && (
-                  <label style={{ height: '80px', border: '2px dashed #334155', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: '4px' }}>
+                  <label style={{ height: '80px', border: '2px dashed var(--c-ink-2)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: '4px' }}>
                     <span style={{ fontSize: '20px' }}>➕</span>
-                    <span style={{ fontSize: '10px', color: '#64748B', fontWeight: '600' }}>Add</span>
+                    <span style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '600' }}>Add</span>
                     <input type="file" accept="image/*" multiple onChange={handleShopPhotoUpload} style={{ display: 'none' }} />
                   </label>
                 )}
               </div>
               {shopPhotos.length === 0 && (
-                <p style={{ fontSize: '12px', color: '#64748B', textAlign: 'center', margin: 0 }}>No photos yet — add up to 6 photos</p>
+                <p style={{ fontSize: '12px', color: 'var(--c-muted)', textAlign: 'center', margin: 0 }}>No photos yet — add up to 6 photos</p>
               )}
             </div>
 
             {/* Shop GPS Location Capture */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Shop Geolocation</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>📍 Shop Geolocation</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Lock your store GPS coordinates so nearby customers can discover your store and order online directly!
               </p>
               
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>Latitude</label>
-                  <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '4px' }}>Latitude</label>
+                  <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="e.g. 16.3067" style={{ width: '100%', padding: '10px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>Longitude</label>
-                  <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }} />
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '4px' }}>Longitude</label>
+                  <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="e.g. 80.4365" style={{ width: '100%', padding: '10px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }} />
                 </div>
               </div>
               
-              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #6D28D9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
+              <button onClick={handleGrabLocation} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), #6D28D9)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px' }}>
                 🛰️ Auto-Grab Live Shop Coordinates
               </button>
               
-              <button onClick={handleSaveProfile} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveProfile} style={{ width: '100%', background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Commit Coordinates to System
               </button>
             </div>
 
             {/* Shop Visibility — admin-controlled premium feature (coming soon) */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>👁️ Shop Visibility</h3>
-                <span style={{ background: 'linear-gradient(135deg,#F59E0B,#D97706)', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
+                <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--c-surface)' }}>👁️ Shop Visibility</h3>
+                <span style={{ background: 'linear-gradient(135deg,var(--c-warning),var(--c-accent-hover))', color: 'var(--c-surface)', fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>COMING SOON</span>
               </div>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '14px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '14px', lineHeight: 1.5 }}>
                 Get your shop featured in the public customer search and storefront so nearby shoppers can discover you. This is a premium visibility add-on launching soon.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', opacity: 0.5, pointerEvents: 'none' }}>
-                <span style={{ color: '#E2E8F0', fontSize: '14px', fontWeight: 600 }}>Featured in customer search</span>
-                <div style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', background: '#475569', flexShrink: 0 }}>
-                  <span style={{ position: 'absolute', top: '3px', left: '3px', width: '24px', height: '24px', borderRadius: '50%', background: '#fff' }} />
+                <span style={{ color: 'var(--c-line)', fontSize: '14px', fontWeight: 600 }}>Featured in customer search</span>
+                <div style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', background: 'var(--c-ink-2)', flexShrink: 0 }}>
+                  <span style={{ position: 'absolute', top: '3px', left: '3px', width: '24px', height: '24px', borderRadius: '50%', background: 'var(--c-surface)' }} />
                 </div>
               </div>
             </div>
 
             {/* Shop Timings */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🕒 Shop Timings</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🕒 Shop Timings</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Set opening and closing times. An "Open Now" badge shows on your dashboard based on these.
               </p>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Opens at</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Opens at</label>
                   <select value={openingHour} onChange={e => setOpeningHour(Number(e.target.value))}
-                    style={{ width: '100%', padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    style={{ width: '100%', padding: '12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }}>
                     {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Closes at</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Closes at</label>
                   <select value={closingHour} onChange={e => setClosingHour(Number(e.target.value))}
-                    style={{ width: '100%', padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }}>
+                    style={{ width: '100%', padding: '12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }}>
                     {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{i === 0 ? '12 AM' : i < 12 ? `${i} AM` : i === 12 ? '12 PM' : `${i - 12} PM`}</option>)}
                   </select>
                 </div>
               </div>
-              <button onClick={handleSaveShopHours} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveShopHours} style={{ width: '100%', background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Shop Timings
               </button>
             </div>
 
             {/* Promotional Banner */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🎉 Promotional Offer Banner</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🎉 Promotional Offer Banner</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Show a promotional banner on your storefront. Turn it on and set your offer text.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '14px' }}>
-                <span style={{ color: '#E2E8F0', fontSize: '14px', fontWeight: 600 }}>
+                <span style={{ color: 'var(--c-line)', fontSize: '14px', fontWeight: 600 }}>
                   {shopBanner?.active ? 'Banner is showing' : 'Banner is off'}
                 </span>
                 <button
                   onClick={() => setShopBanner({ ...(shopBanner || {}), active: !(shopBanner?.active) })}
                   style={{ position: 'relative', width: '52px', height: '30px', borderRadius: '15px', border: 'none',
-                    cursor: 'pointer', background: shopBanner?.active ? '#16A34A' : '#475569', transition: 'background .2s', flexShrink: 0 }}
+                    cursor: 'pointer', background: shopBanner?.active ? 'var(--c-success-strong)' : 'var(--c-ink-2)', transition: 'background .2s', flexShrink: 0 }}
                   aria-label="Toggle promotional banner">
                   <span style={{ position: 'absolute', top: '3px', left: shopBanner?.active ? '25px' : '3px',
-                    width: '24px', height: '24px', borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
+                    width: '24px', height: '24px', borderRadius: '50%', background: 'var(--c-surface)', transition: 'left .2s' }} />
                 </button>
               </div>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Banner Title</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Banner Title</label>
                 <input type="text" value={shopBanner?.title || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), title: e.target.value })}
-                  placeholder="e.g. Diwali Sale!" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="e.g. Diwali Sale!" style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} />
               </div>
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Subtitle</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Subtitle</label>
                 <input type="text" value={shopBanner?.subtitle || ''} onChange={e => setShopBanner({ ...(shopBanner || {}), subtitle: e.target.value })}
-                  placeholder="e.g. Up to 20% off on all items" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="e.g. Up to 20% off on all items" style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} />
               </div>
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94A3B8', marginBottom: '6px', fontWeight: 'bold' }}>Discount %</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: 'bold' }}>Discount %</label>
                 <input type="number" min="0" max="100" value={shopBanner?.discountPercent || 0} onChange={e => setShopBanner({ ...(shopBanner || {}), discountPercent: Number(e.target.value) })}
-                  placeholder="0" style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px' }} />
+                  placeholder="0" style={{ width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px' }} />
               </div>
-              <button onClick={handleSaveShopBanner} style={{ width: '100%', background: '#16A34A', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={handleSaveShopBanner} style={{ width: '100%', background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                 💾 Save Promotional Banner
               </button>
             </div>
 
             {/* My Accountant (CA) */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🧾 My Accountant (CA)</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🧾 My Accountant (CA)</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Assign your Chartered Accountant by their mobile number. Only the CA you assign can view your sales books and file your GST returns.
               </p>
               {myCA ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', padding: '14px' }}>
                   <div>
-                    <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{myCA.name}</div>
-                    <div style={{ color: '#94A3B8', fontSize: '12px' }}>{myCA.phone}</div>
+                    <div style={{ color: 'var(--c-surface)', fontSize: '14px', fontWeight: 700 }}>{myCA.name}</div>
+                    <div style={{ color: 'var(--c-faint)', fontSize: '12px' }}>{myCA.phone}</div>
                   </div>
                   <button onClick={handleRemoveCA} disabled={caBusy}
                     style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
@@ -7715,9 +7715,9 @@ const ShopDashboard = () => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="tel" inputMode="numeric" maxLength={10} value={caPhoneInput} onChange={e => setCaPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="CA's 10-digit mobile number"
-                    style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
                   <button onClick={handleAssignCA} disabled={caBusy}
-                    style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     {caBusy ? '...' : 'Assign'}
                   </button>
                 </div>
@@ -7725,25 +7725,25 @@ const ShopDashboard = () => {
             </div>
 
             {/* My Distributors (mutual code linking) */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#fff' }}>🚚 My Distributors</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '14px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🚚 My Distributors</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '14px' }}>
                 Link with your distributors so they can supply you. Share your shop code, or add a distributor using their code.
               </p>
               <button onClick={() => navigate('/shop/van-purchases')}
-                style={{ background: '#0F172A', border: '1px solid #334155', color: '#93C5FD', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: '14px' }}>
+                style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', color: '#93C5FD', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: '14px' }}>
                 🧾 View purchases &amp; returns from distributor vans
               </button>
 
               {/* Own shop code */}
               {user?.publicCode && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
                   <div>
-                    <div style={{ color: '#94A3B8', fontSize: '11px' }}>Your shop code</div>
-                    <div style={{ color: '#fff', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
+                    <div style={{ color: 'var(--c-faint)', fontSize: '11px' }}>Your shop code</div>
+                    <div style={{ color: 'var(--c-surface)', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
                   </div>
                   <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); toast.success('Code copied!'); }}
-                    style={{ background: '#334155', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'var(--c-ink-2)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     Copy
                   </button>
                 </div>
@@ -7753,9 +7753,9 @@ const ShopDashboard = () => {
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                 <input type="text" value={distCodeInput} onChange={e => setDistCodeInput(e.target.value.toUpperCase())}
                   placeholder="Enter distributor code (DST-XXXXXX)"
-                  style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                  style={{ flex: 1, minWidth: 0, padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                 <button onClick={handleLinkDistributor} disabled={distLinkBusy}
-                  style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                   {distLinkBusy ? '...' : 'Add'}
                 </button>
               </div>
@@ -7764,10 +7764,10 @@ const ShopDashboard = () => {
               {myDistributors.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {myDistributors.map(d => (
-                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '12px' }}>
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', padding: '12px' }}>
                       <div>
-                        <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
-                        <div style={{ color: '#94A3B8', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
+                        <div style={{ color: 'var(--c-surface)', fontSize: '14px', fontWeight: 700 }}>{d.name}</div>
+                        <div style={{ color: 'var(--c-faint)', fontSize: '12px', fontFamily: 'monospace' }}>{d.publicCode}</div>
                       </div>
                       <button onClick={() => handleUnlinkDistributor(d.id)}
                         style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
@@ -7777,26 +7777,26 @@ const ShopDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <p style={{ color: '#64748B', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
+                <p style={{ color: 'var(--c-muted)', fontSize: '12px', textAlign: 'center', margin: '4px 0' }}>No distributors linked yet.</p>
               )}
             </div>
 
             {/* Shop Link & QR */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#fff' }}>🔗 Your Printable Shop QR Poster</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px', textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🔗 Your Printable Shop QR Poster</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>
                 Generate and download a high-contrast printable poster. Stick it on your shop wall so customers can scan, order, and pay instantly!
               </p>
-              <div className="qr-code-holder" style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px' }}>
+              <div className="qr-code-holder" style={{ background: 'var(--c-surface)', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '16px' }}>
                 <QRCodeSVG value={getShopUrl()} size={140} />
               </div>
-              <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#3B82F6', wordBreak: 'break-all' }}>{getShopUrl()}</p>
+              <p style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-info)', wordBreak: 'break-all' }}>{getShopUrl()}</p>
               
               <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#fff', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPng} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-info), #2563EB)', color: 'var(--c-surface)', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖼️ Download QR Code (PNG)
                 </button>
-                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #FBBF24, #D97706)', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={downloadQrPoster} style={{ width: '100%', background: 'linear-gradient(135deg, #FBBF24, var(--c-accent-hover))', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🖨️ Download Printable QR Poster (PDF)
                 </button>
                 <button onClick={handleShareShop} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -7806,8 +7806,8 @@ const ShopDashboard = () => {
             </div>
 
             {/* LANGUAGE SELECTOR CARD */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff' }}>🌐 Language / భాష / भाषा</h3>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: 'var(--c-surface)' }}>🌐 Language / భాష / भाषा</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                 {[
                   { code: 'en', label: 'English', native: 'English' },
@@ -7822,9 +7822,9 @@ const ShopDashboard = () => {
                     key={code}
                     onClick={() => setLocale(code)}
                     style={{
-                      padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? '#3B82F6' : '#334155'}`,
+                      padding: '10px 8px', borderRadius: '8px', border: `1px solid ${locale === code ? 'var(--c-info)' : 'var(--c-ink-2)'}`,
                       background: locale === code ? 'rgba(59,130,246,0.15)' : 'transparent',
-                      color: locale === code ? '#60A5FA' : '#94A3B8',
+                      color: locale === code ? '#60A5FA' : 'var(--c-faint)',
                       fontSize: '12px', fontWeight: locale === code ? 700 : 400, cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'
                     }}
@@ -7837,12 +7837,12 @@ const ShopDashboard = () => {
             </div>
 
             {/* PRINT SETTINGS CARD */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>🖨️ Print Settings</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>Set your printer type once — all PDFs will use the right size automatically.</p>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>🖨️ Print Settings</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px', lineHeight: '1.5' }}>Set your printer type once — all PDFs will use the right size automatically.</p>
 
               {/* Paper type */}
-              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>PAPER / PRINTER TYPE</label>
+              <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: '700' }}>PAPER / PRINTER TYPE</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '14px' }}>
                 {[
                   { key: 'a4',        icon: '📄', label: 'A4',        sub: '210mm' },
@@ -7850,10 +7850,10 @@ const ShopDashboard = () => {
                   { key: 'thermal58', icon: '🧾', label: '58mm',      sub: 'Mini roll' },
                 ].map(o => (
                   <button key={o.key} onClick={() => setPrintFormat(o.key)}
-                    style={{ padding: '10px 4px', border: printFormat === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printFormat === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '10px', cursor: 'pointer', textAlign: 'center' }}>
+                    style={{ padding: '10px 4px', border: printFormat === o.key ? '2px solid var(--c-primary)' : '1px solid var(--c-ink-2)', background: printFormat === o.key ? 'rgba(79,70,229,0.2)' : 'var(--c-ink)', borderRadius: '10px', cursor: 'pointer', textAlign: 'center' }}>
                     <div style={{ fontSize: '20px', marginBottom: '4px' }}>{o.icon}</div>
-                    <div style={{ fontSize: '11px', fontWeight: '800', color: printFormat === o.key ? '#818CF8' : '#fff' }}>{o.label}</div>
-                    <div style={{ fontSize: '9px', color: '#64748B', marginTop: '2px' }}>{o.sub}</div>
+                    <div style={{ fontSize: '11px', fontWeight: '800', color: printFormat === o.key ? 'var(--c-primary-light)' : 'var(--c-surface)' }}>{o.label}</div>
+                    <div style={{ fontSize: '9px', color: 'var(--c-muted)', marginTop: '2px' }}>{o.sub}</div>
                   </button>
                 ))}
               </div>
@@ -7863,32 +7863,32 @@ const ShopDashboard = () => {
                   missing here entirely: desktop got the picker but
                   mobile shop owners (likely the majority of users)
                   had no way to select anything but the default. */}
-              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>INVOICE TEMPLATE</label>
+              <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: '700' }}>INVOICE TEMPLATE</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '8px', marginBottom: '14px' }}>
                 {INVOICE_TEMPLATES.map(t => {
                   const ICONS = { classic: '🧾', wholesale: '📋', gst_tax: '📑', minimal: '⚡', modern: '✨' };
                   const active = printTemplate === t.id;
                   return (
                     <button key={t.id} onClick={() => setPrintTemplate(t.id)}
-                      style={{ padding: '10px 8px', border: active ? '2px solid #4F46E5' : '1px solid #334155', background: active ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '10px', cursor: 'pointer', textAlign: 'left' }}>
+                      style={{ padding: '10px 8px', border: active ? '2px solid var(--c-primary)' : '1px solid var(--c-ink-2)', background: active ? 'rgba(79,70,229,0.2)' : 'var(--c-ink)', borderRadius: '10px', cursor: 'pointer', textAlign: 'left' }}>
                       <div style={{ fontSize: '16px', marginBottom: '3px' }}>{ICONS[t.id] || '🧾'}</div>
-                      <div style={{ fontSize: '11px', fontWeight: '800', color: active ? '#818CF8' : '#fff' }}>{t.name}</div>
+                      <div style={{ fontSize: '11px', fontWeight: '800', color: active ? 'var(--c-primary-light)' : 'var(--c-surface)' }}>{t.name}</div>
                     </button>
                   );
                 })}
               </div>
               {printTemplate === 'wholesale' && (
-                <p style={{ fontSize: '10.5px', color: '#64748B', margin: '-8px 0 14px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '10.5px', color: 'var(--c-muted)', margin: '-8px 0 14px', lineHeight: 1.5 }}>
                   Shows each item's internal code from the product's SKU field.
                 </p>
               )}
 
               {/* Font size */}
-              <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>FONT SIZE</label>
+              <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: '700' }}>FONT SIZE</label>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                 {[{ key: 'normal', label: 'Normal' }, { key: 'large', label: 'Large' }].map(o => (
                   <button key={o.key} onClick={() => setPrintFontSize(o.key)}
-                    style={{ flex: 1, padding: '10px', border: printFontSize === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printFontSize === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', color: printFontSize === o.key ? '#818CF8' : '#fff' }}>
+                    style={{ flex: 1, padding: '10px', border: printFontSize === o.key ? '2px solid var(--c-primary)' : '1px solid var(--c-ink-2)', background: printFontSize === o.key ? 'rgba(79,70,229,0.2)' : 'var(--c-ink)', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', color: printFontSize === o.key ? 'var(--c-primary-light)' : 'var(--c-surface)' }}>
                     {o.label}
                   </button>
                 ))}
@@ -7897,22 +7897,22 @@ const ShopDashboard = () => {
               {/* Logo + Copies */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>LOGO ON BILL</label>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: '700' }}>LOGO ON BILL</label>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     {[{ key: true, label: 'Show' }, { key: false, label: 'Hide' }].map(o => (
                       <button key={String(o.key)} onClick={() => setPrintShowLogo(o.key)}
-                        style={{ flex: 1, padding: '8px 4px', border: printShowLogo === o.key ? '2px solid #4F46E5' : '1px solid #334155', background: printShowLogo === o.key ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '700', color: printShowLogo === o.key ? '#818CF8' : '#94A3B8' }}>
+                        style={{ flex: 1, padding: '8px 4px', border: printShowLogo === o.key ? '2px solid var(--c-primary)' : '1px solid var(--c-ink-2)', background: printShowLogo === o.key ? 'rgba(79,70,229,0.2)' : 'var(--c-ink)', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '700', color: printShowLogo === o.key ? 'var(--c-primary-light)' : 'var(--c-faint)' }}>
                         {o.label}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#64748B', marginBottom: '8px', fontWeight: '700' }}>COPIES</label>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: '700' }}>COPIES</label>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     {[1, 2, 3].map(n => (
                       <button key={n} onClick={() => setPrintCopies(n)}
-                        style={{ flex: 1, padding: '8px 4px', border: printCopies === n ? '2px solid #4F46E5' : '1px solid #334155', background: printCopies === n ? 'rgba(79,70,229,0.2)' : '#0F172A', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '800', color: printCopies === n ? '#818CF8' : '#94A3B8' }}>
+                        style={{ flex: 1, padding: '8px 4px', border: printCopies === n ? '2px solid var(--c-primary)' : '1px solid var(--c-ink-2)', background: printCopies === n ? 'rgba(79,70,229,0.2)' : 'var(--c-ink)', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '800', color: printCopies === n ? 'var(--c-primary-light)' : 'var(--c-faint)' }}>
                         {n}
                       </button>
                     ))}
@@ -7922,7 +7922,7 @@ const ShopDashboard = () => {
 
               {/* Summary */}
               <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
-                <p style={{ margin: 0, fontSize: '12px', color: '#818CF8', fontWeight: '600' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-primary-light)', fontWeight: '600' }}>
                   {printFormat === 'a4' ? '📄 A4' : printFormat === 'thermal80' ? '🖨️ 80mm Thermal' : '🧾 58mm Thermal'}
                   {' · '}{(INVOICE_TEMPLATES.find(t => t.id === printTemplate)?.name) || 'Classic'}
                   {' · '}{printFontSize === 'large' ? 'Large' : 'Normal'} font
@@ -7932,75 +7932,75 @@ const ShopDashboard = () => {
               </div>
 
               <button onClick={handleTestPrint}
-                style={{ width: '100%', background: 'transparent', color: '#818CF8', border: '2px solid #4F46E5', padding: '11px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', marginBottom: '8px' }}>
+                style={{ width: '100%', background: 'transparent', color: 'var(--c-primary-light)', border: '2px solid var(--c-primary)', padding: '11px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', marginBottom: '8px' }}>
                 🧪 Print Test Receipt
               </button>
               <button onClick={handleSavePrintSettings}
-                style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                style={{ width: '100%', background: 'var(--c-primary)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                 🖨️ Save Print Settings
               </button>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '8px 0 0 0', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: 'var(--c-muted)', margin: '8px 0 0 0', textAlign: 'center' }}>
                 Test print uses the options above (even unsaved) — if either edge mark is cut off, pick a different paper size.
               </p>
             </div>
 
             {/* STAFF MANAGEMENT CARD inside Settings */}
-            <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>👥 Staff Management (సహాయకులు)</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
+            <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>👥 Staff Management (సహాయకులు)</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>Add helpers who can scan and bill, but cannot see your analytics/reports.</p>
               
               {hasFeature('staffAccounts') ? (
-              <div style={{ background: '#0F172A', border: '1px solid #334155', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#fff' }}>➕ Add New Staff Member</h4>
+              <div style={{ background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--c-surface)' }}>➕ Add New Staff Member</h4>
                 <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
                   <input
                     type="text" value={newStaffName} onChange={e => setNewStaffName(e.target.value)}
                     placeholder="Staff Name (e.g. Raju Helper)"
-                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
+                    style={{ width: '100%', padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }}
                   />
                   <input
                     type="tel" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)}
                     placeholder="Staff Mobile Number (login ID)"
-                    style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
+                    style={{ width: '100%', padding: '10px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)', fontSize: '13px' }}
                   />
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '6px', fontWeight: '700' }}>🔐 Set 4-digit PIN (you choose, share with staff)</label>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--c-faint)', marginBottom: '6px', fontWeight: '700' }}>🔐 Set 4-digit PIN (you choose, share with staff)</label>
                     <input
                       type="password" value={newStaffPin} onChange={e => setNewStaffPin(e.target.value.replace(/\D/g,'').slice(0,4))}
                       placeholder="e.g. 5678" inputMode="numeric" maxLength={4}
-                      style={{ width: '100%', padding: '10px 14px', background: '#1E293B', border: `1px solid ${newStaffPin.length === 4 ? '#22C55E' : '#334155'}`, borderRadius: '8px', color: '#fff', fontSize: '18px', letterSpacing: '0.4em', outline: 'none' }}
+                      style={{ width: '100%', padding: '10px 14px', background: 'var(--c-ink)', border: `1px solid ${newStaffPin.length === 4 ? '#22C55E' : 'var(--c-ink-2)'}`, borderRadius: '8px', color: 'var(--c-surface)', fontSize: '18px', letterSpacing: '0.4em', outline: 'none' }}
                     />
                     {newStaffPin.length === 4 && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#22C55E' }}>✓ PIN set — share this with the staff member</p>}
                   </div>
-                  <button onClick={handleAddStaff} style={{ width: '100%', background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                  <button onClick={handleAddStaff} style={{ width: '100%', background: 'var(--c-info)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                     + Add Staff Member
                   </button>
                 </div>
               </div>
               ) : (
-              <div style={{ background: '#0F172A', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+              <div style={{ background: 'var(--c-ink)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
                 <div style={{ fontSize: '13px', color: '#FBBF24', fontWeight: 700, marginBottom: '6px' }}>🔒 Staff accounts are a PRO feature</div>
-                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
-                <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--c-faint)', margin: '0 0 12px' }}>Upgrade to PRO to add staff helpers who can scan and bill for you.</p>
+                <button onClick={() => setShowPlanSelectorModal(true)} style={{ background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
                   Upgrade to PRO →
                 </button>
               </div>
               )}
 
-              <h4 style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '12px' }}>Active Staff Members</h4>
-              {staffList.length === 0 && <p style={{color:'#94A3B8', fontSize: '13px', margin: 0}}>No staff added yet.</p>}
+              <h4 style={{ fontSize: '14px', color: 'var(--c-faint)', marginBottom: '12px' }}>Active Staff Members</h4>
+              {staffList.length === 0 && <p style={{color:'var(--c-faint)', fontSize: '13px', margin: 0}}>No staff added yet.</p>}
               {staffList.map(s => (
                 <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px', marginBottom: '8px' }}>
                   <div>
-                    <h5 style={{ margin: 0, fontSize: '13px', color: '#fff' }}>{s.name}</h5>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Ph: {s.phone}</p>
+                    <h5 style={{ margin: 0, fontSize: '13px', color: 'var(--c-surface)' }}>{s.name}</h5>
+                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Ph: {s.phone}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ background: s.status === 'disabled' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: s.status === 'disabled' ? '#EF4444' : '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${s.status === 'disabled' ? '#EF4444' : '#22C55E'}`, fontWeight: 'bold' }}>
+                    <span style={{ background: s.status === 'disabled' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)', color: s.status === 'disabled' ? 'var(--c-danger)' : '#22C55E', fontSize: '10px', padding: '4px 8px', borderRadius: '12px', border: `1px solid ${s.status === 'disabled' ? 'var(--c-danger)' : '#22C55E'}`, fontWeight: 'bold' }}>
                       {s.status === 'disabled' ? '● Disabled' : '● Active'}
                     </span>
                     {s.status !== 'disabled' && (
-                      <button onClick={() => handleDeleteStaff(s.id, s.name)} style={{ background: 'none', border: '1px solid #EF4444', color: '#EF4444', borderRadius: '6px', padding: '4px 8px', fontSize: '10px', cursor: 'pointer', fontWeight: 600 }}>
+                      <button onClick={() => handleDeleteStaff(s.id, s.name)} style={{ background: 'none', border: '1px solid var(--c-danger)', color: 'var(--c-danger)', borderRadius: '6px', padding: '4px 8px', fontSize: '10px', cursor: 'pointer', fontWeight: 600 }}>
                         Remove
                       </button>
                     )}
@@ -8013,18 +8013,18 @@ const ShopDashboard = () => {
           {/* DANGER ZONE — Reset Test Data (mobile) — main shop only */}
           {isOwner && isViewingMain && (
             <div style={{ background: '#1E0E0E', border: '1.5px solid #7F1D1D', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#FCA5A5', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
-              <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
-              <div style={{ background: '#0F172A', border: '1px solid #7F1D1D', borderRadius: '10px', padding: '14px' }}>
-                <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Reset Test Data</div>
-                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 6px', lineHeight: '1.5' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', color: 'var(--c-danger-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Danger Zone</h3>
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)', marginBottom: '16px' }}>Irreversible actions — use with care.</p>
+              <div style={{ background: 'var(--c-ink)', border: '1px solid #7F1D1D', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-surface)', marginBottom: '6px' }}>Reset Test Data</div>
+                <p style={{ fontSize: '12px', color: 'var(--c-faint)', margin: '0 0 6px', lineHeight: '1.5' }}>
                   Deletes all bills, estimates, challans, credit ledger, and stock orders. Invoice numbers restart at #0001.
                 </p>
-                <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 14px' }}>
+                <p style={{ fontSize: '11px', color: 'var(--c-muted)', margin: '0 0 14px' }}>
                   ✅ Kept: products, customers, staff, logo, QR &amp; settings.
                 </p>
                 <button onClick={handleResetTestData}
-                  style={{ width: '100%', background: '#7F1D1D', border: 'none', color: '#fff', padding: '12px', borderRadius: '9px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ width: '100%', background: '#7F1D1D', border: 'none', color: 'var(--c-surface)', padding: '12px', borderRadius: '9px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
                   🗑️ Reset Now
                 </button>
               </div>
@@ -8036,9 +8036,9 @@ const ShopDashboard = () => {
       {/* PAYMENT QR DISPLAY MODAL */}
       {showPaymentQrModal && (paymentQr || upiId) && (
         <div onClick={() => setShowPaymentQrModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <h2 style={{ color: '#fff', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
-          <p style={{ color: '#94A3B8', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
-          <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+          <h2 style={{ color: 'var(--c-surface)', fontSize: '20px', marginBottom: '8px', fontWeight: 800 }}>{user.name}</h2>
+          <p style={{ color: 'var(--c-faint)', fontSize: '14px', marginBottom: '20px' }}>Scan to Pay • ₹{billTotal > 0 ? billTotal : '0'}</p>
+          <div style={{ background: 'var(--c-surface)', padding: '16px', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             {paymentQr ? (
               <img src={paymentQr} alt="Payment QR" style={{ width: '260px', height: '260px', objectFit: 'contain' }} />
             ) : (
@@ -8050,10 +8050,10 @@ const ShopDashboard = () => {
           </div>
           <p style={{ color: '#22C55E', fontSize: '12px', marginTop: '16px', fontWeight: 'bold' }}>GPay • PhonePe • Paytm • Any UPI App</p>
               <div style={{ textAlign: 'center', marginTop: '8px', padding: '4px 10px', background: 'rgba(79,70,229,0.08)', borderRadius: '8px', display: 'inline-block' }}>
-                <span style={{ fontSize: '10px', color: '#4F46E5', fontWeight: '700' }}>MyStore OS</span>
-                <span style={{ fontSize: '9px', color: '#64748B' }}> • mystoreos.in</span>
+                <span style={{ fontSize: '10px', color: 'var(--c-primary)', fontWeight: '700' }}>MyStore OS</span>
+                <span style={{ fontSize: '9px', color: 'var(--c-muted)' }}> • mystoreos.in</span>
               </div>
-          <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={() => setShowPaymentQrModal(false)} style={{ marginTop: '24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--c-surface)', padding: '12px 32px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}>
             Close
           </button>
         </div>
@@ -8062,9 +8062,9 @@ const ShopDashboard = () => {
       {/* SCANNER MODAL */}
       {showScanner && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', maxWidth: '400px', background: 'var(--c-surface)', borderRadius: '12px', overflow: 'hidden' }}>
             <div id="reader" style={{ width: '100%' }}></div>
-            <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: '#EF4444', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
+            <button onClick={() => setShowScanner(false)} style={{ width: '100%', padding: '16px', background: 'var(--c-danger)', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Cancel Scan</button>
           </div>
         </div>
       )}
@@ -8072,16 +8072,16 @@ const ShopDashboard = () => {
       {/* STAFF MODAL */}
       {showStaffModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px' }}>
-          <div style={{ background: '#1E293B', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #334155' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
+          <div style={{ background: 'var(--c-ink)', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid var(--c-ink-2)' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', display: 'flex', justifyContent: 'space-between', color: 'var(--c-surface)' }}>
               Add Staff Member
-              <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: '#94A3B8' }}>✕</span>
+              <span onClick={() => setShowStaffModal(false)} style={{ cursor: 'pointer', color: 'var(--c-faint)' }}>✕</span>
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <input type="text" placeholder="Staff Name" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} style={{ padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-              <input type="tel" placeholder="Staff Phone (Login ID)" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} style={{ padding: '12px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-              <p style={{ fontSize: '12px', color: '#94A3B8' }}>* Default PIN will be 1234. Staff can change it later.</p>
-              <button onClick={handleAddStaff} style={{ background: '#3B82F6', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Add Staff</button>
+              <input type="text" placeholder="Staff Name" value={newStaffName} onChange={e => setNewStaffName(e.target.value)} style={{ padding: '12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)' }} />
+              <input type="tel" placeholder="Staff Phone (Login ID)" value={newStaffPhone} onChange={e => setNewStaffPhone(e.target.value)} style={{ padding: '12px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: '8px', color: 'var(--c-surface)' }} />
+              <p style={{ fontSize: '12px', color: 'var(--c-faint)' }}>* Default PIN will be 1234. Staff can change it later.</p>
+              <button onClick={handleAddStaff} style={{ background: 'var(--c-info)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Add Staff</button>
             </div>
           </div>
         </div>
@@ -8090,35 +8090,35 @@ const ShopDashboard = () => {
       {/* RETURN MODAL */}
       {showReturnModal && returnOrder && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#0F172A', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '400px', borderRadius: '16px', padding: '24px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-ink)', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
               Process Sales Return
-              <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: '#64748B' }}>✕</span>
+              <span onClick={() => setShowReturnModal(false)} style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>✕</span>
             </h2>
-            <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
+            <p style={{ fontSize: '13px', color: 'var(--c-muted)', marginBottom: '16px' }}>Select the quantity to return for each item in Order #{returnOrder.id.substring(0,8)}</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '40vh', overflowY: 'auto', paddingRight: '4px' }}>
               {returnOrder.items.map(item => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--c-line)' }}>
                   <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: '#0F172A' }}>{item.name}</p>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#D97706', fontWeight: 'bold' }}>₹{item.price} x {item.qty}</p>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: 'var(--c-ink)' }}>{item.name}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-accent-hover)', fontWeight: 'bold' }}>₹{item.price} x {item.qty}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
-                    <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center', color: '#0F172A' }}>{returnItemsState[item.id]}</span>
-                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, prev[item.id] + 1)}))} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.max(0, prev[item.id] - 1)}))} style={{ background: 'var(--c-line)', color: 'var(--c-ink)', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                    <span style={{ fontSize: '14px', fontWeight: 'bold', width: '20px', textAlign: 'center', color: 'var(--c-ink)' }}>{returnItemsState[item.id]}</span>
+                    <button onClick={() => setReturnItemsState(prev => ({...prev, [item.id]: Math.min(item.qty, prev[item.id] + 1)}))} style={{ background: 'var(--c-line)', color: 'var(--c-ink)', border: 'none', width: '28px', height: '28px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
                   </div>
                 </div>
               ))}
             </div>
             
             <div style={{ marginTop: '16px' }}>
-              <p style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
+              <p style={{ fontSize: '12px', color: 'var(--c-muted)', marginBottom: '8px', fontWeight: 'bold' }}>Refund Mode</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
                 {[['cash','💵','Cash'],['upi','📱','UPI'],['card','💳','Card'],['store_credit','🎟️','Credit']].map(([key, icon, label]) => (
                   <button key={key} onClick={() => setReturnRefundMode(key)}
-                    style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid #EF4444' : '1px solid #E2E8F0', background: returnRefundMode === key ? '#FEF2F2' : '#F8FAFC', color: returnRefundMode === key ? '#EF4444' : '#64748B', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
+                    style={{ padding: '8px 4px', borderRadius: '8px', border: returnRefundMode === key ? '2px solid var(--c-danger)' : '1px solid var(--c-line)', background: returnRefundMode === key ? 'var(--c-danger-soft)' : 'var(--c-bg)', color: returnRefundMode === key ? 'var(--c-danger)' : 'var(--c-muted)', fontSize: '10px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' }}>
                     {icon}<br />{label}
                   </button>
                 ))}
@@ -8126,11 +8126,11 @@ const ShopDashboard = () => {
             </div>
 
             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: '#EF4444' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', color: 'var(--c-danger)' }}>
                 <span>Total Refund:</span>
                 <span>₹{returnOrder.items.reduce((sum, item) => sum + (item.price * returnItemsState[item.id]), 0).toFixed(2)}</span>
               </div>
-              <button onClick={handleProcessReturn} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+              <button onClick={handleProcessReturn} style={{ background: 'var(--c-danger)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
                 Confirm Return &amp; Notify Customer
               </button>
             </div>
@@ -8141,21 +8141,21 @@ const ShopDashboard = () => {
       {/* ADMIN PIN MODAL */}
       {showAdminPinModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1150, padding: '20px', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#EF4444', fontWeight: 'bold' }}>Admin Authorization Required</h2>
-            <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '24px', lineHeight: '1.5' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '350px', borderRadius: '16px', padding: '30px', border: '1px solid #E5E7EB', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', textAlign: 'center' }}>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: 'var(--c-danger)', fontWeight: 'bold' }}>Admin Authorization Required</h2>
+            <p style={{ fontSize: '13px', color: 'var(--c-muted)', marginBottom: '24px', lineHeight: '1.5' }}>This action is restricted. Please ask the shop owner to enter their Admin PIN to proceed.</p>
             
             <input 
               type="password" 
               placeholder="PIN" 
               value={adminPinInput} 
               onChange={e => setAdminPinInput(e.target.value)} 
-              style={{ padding: '16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px', outline: 'none' }} 
+              style={{ padding: '16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '20px', width: '100%', textAlign: 'center', letterSpacing: '8px', marginBottom: '16px', outline: 'none' }} 
             />
             
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: '#FFFFFF', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
+              <button onClick={() => { setShowAdminPinModal(false); setAdminPinInput(''); setPendingAction(null); }} style={{ flex: 1, background: 'var(--c-surface)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleAdminPinSubmit} style={{ flex: 1, background: 'var(--c-danger)', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Authorize</button>
             </div>
           </div>
         </div>
@@ -8164,86 +8164,86 @@ const ShopDashboard = () => {
       {/* ADD PRODUCT MODAL */}
       {showAddProductModal && !showScanner && (
         <div onClick={() => setShowAddProductModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>📦 Add Product to Inventory</h2>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: 'var(--c-ink)' }}>📦 Add Product to Inventory</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
             </div>
             
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                <input type="number" value={newProdCostPrice} onChange={e => setNewProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
 
             {/* Label Discount % */}
-            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+            <div style={{ marginBottom: '16px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-primary)', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: 'var(--c-muted)', fontSize: '11px' }}>(for barcode price label)</span></label>
               <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {[0, 5, 10, 15, 20, 25, 50].map(d => (
                   <button key={d} type="button" onClick={() => setNewProdDiscountPct(String(d))}
-                    style={{ padding: '6px 8px', background: parseInt(newProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(newProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    style={{ padding: '6px 8px', background: parseInt(newProdDiscountPct) === d ? 'var(--c-primary)' : 'var(--c-surface)', color: parseInt(newProdDiscountPct) === d ? 'var(--c-surface)' : 'var(--c-primary)', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
                 <input type="number" min="0" max="99" value={newProdDiscountPct} onChange={e => setNewProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
-                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
-                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>%</span>
               </div>
               {parseInt(newProdDiscountPct) > 0 && newProdPrice && (
-                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{newProdPrice}</span>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--c-success-strong)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'var(--c-faint)' }}>₹{newProdPrice}</span>
                   <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(newProdPrice) * (1 - parseInt(newProdDiscountPct) / 100))}</span>
-                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
-                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                  <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{newProdDiscountPct}% OFF</span>
+                  <span style={{ color: 'var(--c-faint)', fontSize: '11px' }}>will print on label</span>
                 </div>
               )}
             </div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                <input type="number" value={newProdReorder} onChange={e => setNewProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                <input type="text" value={newProdBatch} onChange={e => setNewProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                <input type="date" value={newProdExpiry} onChange={e => setNewProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-              <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+              <input type="text" value={newProdVariants} onChange={e => setNewProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
             </div>
 
-            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
+            <div style={{ marginBottom: '16px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: newProdVariantPrices.length ? '12px' : 0 }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-ink)', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
                 </div>
                 {newProdVariantPrices.length === 0 && (
                   <button type="button" onClick={() => setNewProdVariantPrices([{ name: '', price: '' }])}
-                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     + Add
                   </button>
                 )}
@@ -8252,20 +8252,20 @@ const ShopDashboard = () => {
                 <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
                   <input type="text" value={v.name} placeholder="e.g. 20kg"
                     onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
-                    style={{ flex: 2, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px' }} />
+                    style={{ flex: 2, padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px' }} />
                   <div style={{ flex: 1, position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--c-faint)', fontSize: 13 }}>₹</span>
                     <input type="number" value={v.price} placeholder="Price"
                       onChange={e => setNewProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
-                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                   </div>
                   <button type="button" onClick={() => setNewProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
-                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
+                    style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
                 </div>
               ))}
               {newProdVariantPrices.length > 0 && (
                 <button type="button" onClick={() => setNewProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
-                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  style={{ background: 'transparent', border: '1px dashed var(--c-line-strong)', color: 'var(--c-muted)', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
                   + Add another variant price
                 </button>
               )}
@@ -8273,13 +8273,13 @@ const ShopDashboard = () => {
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -8292,26 +8292,26 @@ const ShopDashboard = () => {
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(filters)</span></label>
-                <input list="m-new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(filters)</span></label>
+                <input list="m-new-prod-cat-list" type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px', boxSizing: 'border-box' }} />
                 <datalist id="m-new-prod-cat-list">
                   {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
                 </datalist>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
-                <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(optional)</span></label>
+                <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-                <button onClick={() => setShowScanner(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
+                <input type="text" value={scannedBarcode} onChange={e => setScannedBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+                <button onClick={() => setShowScanner(true)} style={{ background: 'var(--c-primary)', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
               </div>
               {scannedBarcode && (
-                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                <div style={{ background: 'var(--c-surface)', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid var(--c-line)' }}>
                   <Barcode value={scannedBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
@@ -8320,16 +8320,16 @@ const ShopDashboard = () => {
             <div style={{ marginBottom: '16px' }}>
               <ProductImageUploader images={newProdImages} onChange={setNewProdImages} userId={user.id} />
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '11px 13px' }}>
-              <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '11px 13px' }}>
+              <input type="checkbox" checked={newProdFeatured} onChange={(e) => setNewProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: 'var(--c-primary)' }} />
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>⭐ Feature on storefront</div>
-                <div style={{ fontSize: '11px', color: '#64748B' }}>Show this product in the Featured row at the top of your store.</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-ink)' }}>⭐ Feature on storefront</div>
+                <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>Show this product in the Featured row at the top of your store.</div>
               </div>
             </label>
 
-            <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
-            <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleSaveProduct} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success), var(--c-success-strong))', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Product</button>
+            <button onClick={() => { setShowAddProductModal(false); setNewProdImage(''); }} style={{ width: '100%', background: 'transparent', color: 'var(--c-muted)', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -8337,86 +8337,86 @@ const ShopDashboard = () => {
       {/* EDIT PRODUCT MODAL */}
       {showEditProductModal && !showScanner && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', bottom: 0, background: 'rgba(15, 23, 42, 0.4)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>✏️ Edit Product Details</h2>
+          <div style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', maxHeight: '90vh', overflowY: 'auto', borderTop: '1px solid #E5E7EB', boxShadow: '0 -10px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: 'var(--c-ink)' }}>✏️ Edit Product Details</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={editProdName} onChange={e => setEditProdName(e.target.value)} placeholder="e.g. Parle-G Biscuit" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
             </div>
             
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={editProdPrice} onChange={e => setEditProdPrice(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
-                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Cost Price (₹)</label>
+                <input type="number" value={editProdCostPrice} onChange={e => setEditProdCostPrice(e.target.value)} placeholder="e.g. 8" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
-                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Stock Qty</label>
+                <input type="number" value={editProdStock} onChange={e => setEditProdStock(e.target.value)} placeholder="e.g. 100" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
-                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Min Stock Alert</label>
+                <input type="number" value={editProdReorder} onChange={e => setEditProdReorder(e.target.value)} placeholder="e.g. 10" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
 
             {/* Label Discount % */}
-            <div style={{ marginBottom: '16px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '12px 14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#4F46E5', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: '#64748B', fontSize: '11px' }}>(for barcode price label)</span></label>
+            <div style={{ marginBottom: '16px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '12px 14px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-primary)', marginBottom: '8px', fontWeight: '700' }}>🏷️ Label Discount % <span style={{ fontWeight: 400, color: 'var(--c-muted)', fontSize: '11px' }}>(for barcode price label)</span></label>
               <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {[0, 5, 10, 15, 20, 25, 50].map(d => (
                   <button key={d} type="button" onClick={() => setEditProdDiscountPct(String(d))}
-                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? '#4F46E5' : '#fff', color: parseInt(editProdDiscountPct) === d ? '#fff' : '#4F46E5', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                    style={{ padding: '6px 8px', background: parseInt(editProdDiscountPct) === d ? 'var(--c-primary)' : 'var(--c-surface)', color: parseInt(editProdDiscountPct) === d ? 'var(--c-surface)' : 'var(--c-primary)', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                     {d === 0 ? 'None' : `${d}%`}
                   </button>
                 ))}
                 <input type="number" min="0" max="99" value={editProdDiscountPct} onChange={e => setEditProdDiscountPct(e.target.value === '' ? '' : String(Math.max(0, Math.min(99, parseInt(e.target.value) || 0))))}
-                  style={{ width: '52px', padding: '6px 8px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
-                <span style={{ fontSize: '11px', color: '#64748B' }}>%</span>
+                  style={{ width: '52px', padding: '6px 8px', border: '1px solid var(--c-primary-border)', borderRadius: '6px', fontSize: '12px', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>%</span>
               </div>
               {parseInt(editProdDiscountPct) > 0 && editProdPrice && (
-                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  <span style={{ textDecoration: 'line-through', color: '#94A3B8' }}>₹{editProdPrice}</span>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--c-success-strong)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', color: 'var(--c-faint)' }}>₹{editProdPrice}</span>
                   <span style={{ fontWeight: '800' }}>→ ₹{Math.round(Number(editProdPrice) * (1 - parseInt(editProdDiscountPct) / 100))}</span>
-                  <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
-                  <span style={{ color: '#94A3B8', fontSize: '11px' }}>will print on label</span>
+                  <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: '800', padding: '1px 5px', borderRadius: '4px' }}>{editProdDiscountPct}% OFF</span>
+                  <span style={{ color: 'var(--c-faint)', fontSize: '11px' }}>will print on label</span>
                 </div>
               )}
             </div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
-                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Batch Number</label>
+                <input type="text" value={editProdBatch} onChange={e => setEditProdBatch(e.target.value)} placeholder="e.g. B-901" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
-                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Expiry Date</label>
+                <input type="date" value={editProdExpiry} onChange={e => setEditProdExpiry(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
-              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Variants (comma-separated)</label>
+              <input type="text" value={editProdVariants} onChange={e => setEditProdVariants(e.target.value)} placeholder="e.g. Red, Blue, Green or Small, Medium" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Just labels, all variants share the price above — e.g. T-shirt colours.</p>
             </div>
 
-            <div style={{ marginBottom: '16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
+            <div style={{ marginBottom: '16px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editProdVariantPrices.length ? '12px' : 0 }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#0F172A', fontWeight: 'bold' }}>💰 Different price per variant?</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-ink)', fontWeight: 'bold' }}>💰 Different price per variant?</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>e.g. Rice Bag — 5kg ₹350, 20kg ₹1300</p>
                 </div>
                 {editProdVariantPrices.length === 0 && (
                   <button type="button" onClick={() => setEditProdVariantPrices([{ name: '', price: '' }])}
-                    style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     + Add
                   </button>
                 )}
@@ -8425,41 +8425,41 @@ const ShopDashboard = () => {
                 <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
                   <input type="text" value={v.name} placeholder="e.g. 20kg"
                     onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, name: e.target.value } : row))}
-                    style={{ flex: 2, padding: '10px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px' }} />
+                    style={{ flex: 2, padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px' }} />
                   <div style={{ flex: 1, position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: 13 }}>₹</span>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--c-faint)', fontSize: 13 }}>₹</span>
                     <input type="number" value={v.price} placeholder="Price"
                       onChange={e => setEditProdVariantPrices(prev => prev.map((row, i) => i === idx ? { ...row, price: e.target.value } : row))}
-                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '10px 12px 10px 22px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                   </div>
                   <button type="button" onClick={() => setEditProdVariantPrices(prev => prev.filter((_, i) => i !== idx))}
-                    style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
+                    style={{ background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger-strong)', width: 36, height: 36, borderRadius: '8px', cursor: 'pointer', flexShrink: 0, fontSize: 15 }}>✕</button>
                 </div>
               ))}
               {editProdVariantPrices.length > 0 && (
                 <button type="button" onClick={() => setEditProdVariantPrices(prev => [...prev, { name: '', price: '' }])}
-                  style={{ background: 'transparent', border: '1px dashed #CBD5E1', color: '#64748B', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+                  style={{ background: 'transparent', border: '1px dashed var(--c-line-strong)', color: 'var(--c-muted)', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
                   + Add another variant price
                 </button>
               )}
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
-              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Selling Unit</label>
+              <select value={editProdUnit || shopDefaultUnit} onChange={e => setEditProdUnit(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }}>
                 {unitOptions.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </select>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
-                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>4, 6 or 8 digits only (optional)</p>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>HSN / SAC Code</label>
+                <input type="text" inputMode="numeric" value={editProdHsnCode} onChange={e => setEditProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>4, 6 or 8 digits only (optional)</p>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
-                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate (%)</label>
+                <select value={editProdGstRate} onChange={e => setEditProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -8472,26 +8472,26 @@ const ShopDashboard = () => {
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: '#94A3B8' }}>(filters)</span></label>
-                <input list="m-edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Category <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(filters)</span></label>
+                <input list="m-edit-prod-cat-list" type="text" value={editProdCategory} onChange={e => setEditProdCategory(e.target.value)} placeholder="e.g. Snacks" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px', boxSizing: 'border-box' }} />
                 <datalist id="m-edit-prod-cat-list">
                   {categorySuggestionsFor(shopCategory).map(c => <option key={c} value={c} />)}
                 </datalist>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: '#94A3B8' }}>(optional)</span></label>
-                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>SKU <span style={{ fontWeight: 400, color: 'var(--c-faint)' }}>(optional)</span></label>
+                <input type="text" value={editProdSku} onChange={e => setEditProdSku(e.target.value)} placeholder="e.g. RICE-5KG-01" style={{ width: '100%', padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Barcode (Optional)</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
-                <button onClick={() => setShowScanner(true)} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
+                <input type="text" value={editProdBarcode} onChange={e => setEditProdBarcode(e.target.value)} placeholder="Scan or type barcode" style={{ flex: 1, padding: '12px 16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
+                <button onClick={() => setShowScanner(true)} style={{ background: 'var(--c-primary)', color: 'white', border: 'none', padding: '0 20px', borderRadius: '10px', cursor: 'pointer' }}><BarcodeIcon size={24} /></button>
               </div>
               {editProdBarcode && (
-                <div style={{ background: '#fff', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                <div style={{ background: 'var(--c-surface)', padding: '12px', borderRadius: '12px', marginTop: '12px', display: 'flex', justifyContent: 'center', border: '1px solid var(--c-line)' }}>
                   <Barcode value={editProdBarcode} height={40} width={2} fontSize={14} />
                 </div>
               )}
@@ -8501,36 +8501,36 @@ const ShopDashboard = () => {
               <ProductImageUploader images={editProdImages} onChange={setEditProdImages} userId={user.id} />
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '11px 13px' }}>
-              <input type="checkbox" checked={editProdFeatured} onChange={(e) => setEditProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: '#4F46E5' }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', cursor: 'pointer', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '11px 13px' }}>
+              <input type="checkbox" checked={editProdFeatured} onChange={(e) => setEditProdFeatured(e.target.checked)} style={{ width: '17px', height: '17px', accentColor: 'var(--c-primary)' }} />
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>⭐ Feature on storefront</div>
-                <div style={{ fontSize: '11px', color: '#64748B' }}>Show this product in the Featured row at the top of your store.</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--c-ink)' }}>⭐ Feature on storefront</div>
+                <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>Show this product in the Featured row at the top of your store.</div>
               </div>
             </label>
 
-            <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
-            <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleUpdateProduct} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-hover))', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Update Product</button>
+            <button onClick={() => setShowEditProductModal(false)} style={{ width: '100%', background: 'transparent', color: 'var(--c-muted)', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
 
       {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', background: '#FFFFFF', padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px', borderTop: '1px solid #E2E8F0', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', overflow: 'hidden' }}>
-        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: (activeTab === 'home' || activeTab === 'dashboard') ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab(isServiceBusiness ? 'dashboard' : 'home')}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', background: 'var(--c-surface)', padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px)) 8px', borderTop: '1px solid var(--c-line)', zIndex: 100, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box', overflow: 'hidden' }}>
+        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: (activeTab === 'home' || activeTab === 'dashboard') ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab(isServiceBusiness ? 'dashboard' : 'home')}>
           <Home size={18} style={{ margin: '0 auto 2px auto' }} />
           <p style={{ fontSize: '9px', margin: 0 }}>{isServiceBusiness ? 'Dashboard' : 'Home'}</p>
         </button>
 
         {isServiceBusiness && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'home' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('home')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'home' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('home')}>
             <IndianRupee size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Sales</p>
           </button>
         )}
 
         {hasMultipleBranches && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'branches' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('branches')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'branches' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('branches')}>
             <Building2 size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Branches</p>
           </button>
@@ -8546,47 +8546,47 @@ const ShopDashboard = () => {
             three at all, so a service business on mobile saw all
             three regardless. Matching desktop's exact gating here. */}
         {isOwner && !isServiceBusiness && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'products' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('products')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'products' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('products')}>
             <Package size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Products</p>
           </button>
         )}
         
-        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bills' ? '#4F46E5' : '#64748B', position: 'relative' }} onClick={() => setActiveTab('bills')}>
+        <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bills' ? 'var(--c-primary)' : 'var(--c-muted)', position: 'relative' }} onClick={() => setActiveTab('bills')}>
           <Receipt size={18} style={{ margin: '0 auto 2px auto' }} />
           <p style={{ fontSize: '9px', margin: 0 }}>Bills</p>
-          {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'#EF4444', width:10, height:10, borderRadius:'50%'}}></span>}
+          {pendingOrders > 0 && <span style={{position:'absolute', top:-4, right:'20%', background:'var(--c-danger)', width:10, height:10, borderRadius:'50%'}}></span>}
         </button>
 
         {isOwner && !isServiceBusiness && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'credit' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('credit')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'credit' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('credit')}>
             <Wallet size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Credit</p>
           </button>
         )}
 
         {isServiceBusiness && canBookings && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bookings' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('bookings')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'bookings' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('bookings')}>
             <Scissors size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Bookings</p>
           </button>
         )}
 
         {isOwner && !isServiceBusiness && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'restock' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('restock')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'restock' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('restock')}>
             <Truck size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Restock</p>
           </button>
         )}
         
         {isOwner && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'reports' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('reports')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'reports' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('reports')}>
             <Book size={18} style={{ margin: '0 auto 2px auto' }} />
             <p style={{ fontSize: '9px', margin: 0 }}>Reports</p>
           </button>
         )}
         {isOwner && (
-          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'profile' ? '#4F46E5' : '#64748B' }} onClick={() => setActiveTab('profile')}>
+          <button type="button" style={{...styles.navBtn, background: 'none', border: 'none', font: 'inherit', color: activeTab === 'profile' ? 'var(--c-primary)' : 'var(--c-muted)' }} onClick={() => setActiveTab('profile')}>
             <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚙️</span>
             <p style={{ fontSize: '9px', margin: 0 }}>Settings</p>
           </button>
@@ -8606,8 +8606,8 @@ const ShopDashboard = () => {
           reachable, not restyling the whole bottom nav tonight. */}
       {showMoreMenu && (
         <div onClick={() => setShowMoreMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
-            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 2, margin: '4px auto 12px auto' }} />
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
+            <div style={{ width: 36, height: 4, background: 'var(--c-line)', borderRadius: 2, margin: '4px auto 12px auto' }} />
             {[
               { id: 'customers', Icon: Users, label: 'Customers' },
               { id: 'expenses', Icon: Wallet, label: 'Expenses' },
@@ -8615,7 +8615,7 @@ const ShopDashboard = () => {
               { id: 'feedback', Icon: Star, label: 'Feedback' },
             ].map(({ id, Icon, label }) => (
               <button key={id} type="button" onClick={() => { setActiveTab(id); setShowMoreMenu(false); }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? '#4F46E5' : '#1E293B', cursor: 'pointer' }}>
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? 'var(--c-primary)' : 'var(--c-ink)', cursor: 'pointer' }}>
                 <Icon size={20} />
                 {label}
               </button>
@@ -8641,7 +8641,7 @@ const ShopDashboard = () => {
           overflowY: 'auto'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+            background: 'linear-gradient(135deg, var(--c-ink), var(--c-ink))',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
             width: '100%',
@@ -8663,7 +8663,7 @@ const ShopDashboard = () => {
                 right: '20px',
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#CBD5E1',
+                color: 'var(--c-line-strong)',
                 borderRadius: '50%',
                 width: '36px',
                 height: '36px',
@@ -8681,7 +8681,7 @@ const ShopDashboard = () => {
             {/* Header */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <span style={{
-                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                background: 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))',
                 color: 'white',
                 fontSize: '11px',
                 fontWeight: 'bold',
@@ -8694,10 +8694,10 @@ const ShopDashboard = () => {
               }}>
                 MyStore OS SaaS pricing
               </span>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, #FFFFFF, #94A3B8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: '#fff' }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: '800', margin: '0 0 8px 0', background: 'linear-gradient(to right, var(--c-surface), var(--c-faint))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'var(--c-surface)' }}>
                 Select Your Business Growth Plan
               </h2>
-              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <p style={{ fontSize: '13px', color: 'var(--c-faint)', margin: 0, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
                 {isServiceBusiness
                   ? 'Unlock staff scheduling, automated reminders, and recurring bookings as your service business grows.'
                   : 'Unlock high-fidelity retail tools: barcode compliance, direct GST invoicing, CA Ledger access, and multi-staff lock-outs.'}
@@ -8721,7 +8721,7 @@ const ShopDashboard = () => {
                     key={plan.id}
                     style={{
                       background: isPopular ? 'linear-gradient(180deg, rgba(79, 70, 229, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%)' : 'rgba(30, 41, 59, 0.25)',
-                      border: isPopular ? '2px solid #4F46E5' : '1px solid rgba(255, 255, 255, 0.06)',
+                      border: isPopular ? '2px solid var(--c-primary)' : '1px solid rgba(255, 255, 255, 0.06)',
                       borderRadius: '20px',
                       padding: '24px',
                       display: 'flex',
@@ -8737,7 +8737,7 @@ const ShopDashboard = () => {
                         top: '-12px',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                        background: 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))',
                         color: 'white',
                         fontSize: '9px',
                         fontWeight: '800',
@@ -8751,8 +8751,8 @@ const ShopDashboard = () => {
                     )}
 
                     <div>
-                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>{plan.name}</h4>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#CBD5E1', minHeight: '32px' }}>{plan.description}</p>
+                      <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--c-surface)' }}>{plan.name}</h4>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--c-line-strong)', minHeight: '32px' }}>{plan.description}</p>
                     </div>
 
                     {renderPlanPrice(plan)}
@@ -8763,8 +8763,8 @@ const ShopDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
                       {plan.features?.map((feat, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <span style={{ color: '#10B981', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
-                          <span style={{ fontSize: '12px', color: '#CBD5E1' }}>{feat}</span>
+                          <span style={{ color: 'var(--c-success)', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          <span style={{ fontSize: '12px', color: 'var(--c-line-strong)' }}>{feat}</span>
                         </div>
                       ))}
                     </div>
@@ -8776,7 +8776,7 @@ const ShopDashboard = () => {
                           width: '100%',
                           background: 'rgba(255, 255, 255, 0.05)',
                           border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#94A3B8',
+                          color: 'var(--c-faint)',
                           padding: '12px',
                           borderRadius: '10px',
                           fontSize: '13px',
@@ -8791,8 +8791,8 @@ const ShopDashboard = () => {
                         onClick={() => handleSubscribe(plan)}
                         style={{
                           width: '100%',
-                          background: isPopular ? 'linear-gradient(90deg, #4F46E5, #818CF8)' : 'white',
-                          color: isPopular ? 'white' : '#0F172A',
+                          background: isPopular ? 'linear-gradient(90deg, var(--c-primary), var(--c-primary-light))' : 'white',
+                          color: isPopular ? 'white' : 'var(--c-ink)',
                           border: 'none',
                           padding: '12px',
                           borderRadius: '10px',
@@ -8811,7 +8811,7 @@ const ShopDashboard = () => {
               })}
             </div>
             
-            <div style={{ textAlign: 'center', fontSize: '11px', color: '#64748B' }}>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--c-muted)' }}>
               🔒 Secure, encrypted transactions powered by Razorpay PG. Cancel or downgrade anytime instantly.
             </div>
           </div>
@@ -8831,24 +8831,24 @@ const ShopDashboard = () => {
         const decoded = decodeOrderUserId(cancelTargetOrder.userId);
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
-            <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '420px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+            <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '420px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--c-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <span style={{ fontSize: '20px' }}>❌</span>
                 </div>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#0F172A' }}>Cancel This Order?</h2>
-                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94A3B8' }}>
+                  <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: 'var(--c-ink)' }}>Cancel This Order?</h2>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--c-faint)' }}>
                     {decoded.name || 'Walk-in'} · ₹{cancelTargetOrder.total} · #{cancelTargetOrder.id.slice(0,8).toUpperCase()}
                   </p>
                 </div>
               </div>
 
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: '#92400E' }}>
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px', color: 'var(--c-warning-strong)' }}>
                 This order hasn't been accepted yet — no payment has been taken and no stock has moved. The customer will be notified that their order was cancelled.
               </div>
 
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: '600' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: '600' }}>
                 Reason (optional, shown to customer)
               </label>
               <input
@@ -8856,19 +8856,19 @@ const ShopDashboard = () => {
                 value={cancelReason}
                 onChange={e => setCancelReason(e.target.value)}
                 placeholder="e.g. Item out of stock, shop closing early…"
-                style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #E2E8F0', borderRadius: '9px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', marginBottom: '20px' }}
+                style={{ width: '100%', padding: '11px 14px', border: '1.5px solid var(--c-line)', borderRadius: '9px', fontSize: '14px', color: 'var(--c-ink)', outline: 'none', boxSizing: 'border-box', marginBottom: '20px' }}
               />
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => { setShowCancelModal(false); setCancelTargetOrder(null); }}
-                  style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#475569', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                  style={{ flex: 1, padding: '12px', background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink-2)', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
                 >
                   Keep Order
                 </button>
                 <button
                   onClick={confirmCancelOrder}
-                  style={{ flex: 1.4, padding: '12px', background: 'linear-gradient(135deg,#EF4444,#DC2626)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}
+                  style={{ flex: 1.4, padding: '12px', background: 'linear-gradient(135deg,var(--c-danger),var(--c-danger-strong))', border: 'none', borderRadius: '10px', color: 'var(--c-surface)', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}
                 >
                   ❌ Yes, Cancel &amp; Notify
                 </button>
@@ -8881,18 +8881,18 @@ const ShopDashboard = () => {
       {/* RESET TEST DATA MODAL — Danger Zone confirmation */}
       {showResetTestDataModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '20px' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '440px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '440px', borderRadius: '18px', padding: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1.5px solid #FECACA' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--c-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ fontSize: '22px' }}>⚠️</span>
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0F172A' }}>Reset Test Data?</h2>
-                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94A3B8' }}>This cannot be undone.</p>
+                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)' }}>Reset Test Data?</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--c-faint)' }}>This cannot be undone.</p>
               </div>
             </div>
 
-            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
               <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#7F1D1D', fontWeight: '700' }}>This will permanently delete:</p>
               <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: '#991B1B', lineHeight: '1.7' }}>
                 <li>All {orders.length} bill{orders.length === 1 ? '' : 's'}, estimates &amp; challans</li>
@@ -8902,8 +8902,8 @@ const ShopDashboard = () => {
               </ul>
             </div>
 
-            <p style={{ fontSize: '12px', color: '#475569', marginBottom: '6px' }}>
-              Type your shop name <strong style={{ color: '#0F172A' }}>{user.name}</strong> to confirm:
+            <p style={{ fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px' }}>
+              Type your shop name <strong style={{ color: 'var(--c-ink)' }}>{user.name}</strong> to confirm:
             </p>
             <input
               type="text"
@@ -8911,14 +8911,14 @@ const ShopDashboard = () => {
               onChange={e => setResetConfirmInput(e.target.value)}
               placeholder={user.name}
               autoFocus
-              style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${resetConfirmInput && resetConfirmInput.trim() !== user.name.trim() ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '9px', fontSize: '14px', color: '#0F172A', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }}
+              style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${resetConfirmInput && resetConfirmInput.trim() !== user.name.trim() ? 'var(--c-danger-border)' : 'var(--c-line)'}`, borderRadius: '9px', fontSize: '14px', color: 'var(--c-ink)', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }}
             />
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={() => { setShowResetTestDataModal(false); setResetConfirmInput(''); }}
                 disabled={resetInProgress}
-                style={{ flex: 1, padding: '12px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#475569', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink-2)', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}
               >
                 Cancel
               </button>
@@ -8927,8 +8927,8 @@ const ShopDashboard = () => {
                 disabled={resetInProgress || resetConfirmInput.trim() !== user.name.trim()}
                 style={{
                   flex: 1.4, padding: '12px',
-                  background: (resetInProgress || resetConfirmInput.trim() !== user.name.trim()) ? '#FCA5A5' : 'linear-gradient(135deg,#DC2626,#B91C1C)',
-                  border: 'none', borderRadius: '10px', color: '#fff', fontWeight: '800', fontSize: '13px',
+                  background: (resetInProgress || resetConfirmInput.trim() !== user.name.trim()) ? 'var(--c-danger-border)' : 'linear-gradient(135deg,var(--c-danger-strong),var(--c-danger-strong))',
+                  border: 'none', borderRadius: '10px', color: 'var(--c-surface)', fontWeight: '800', fontSize: '13px',
                   cursor: (resetInProgress || resetConfirmInput.trim() !== user.name.trim()) ? 'not-allowed' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                 }}
@@ -8945,25 +8945,25 @@ const ShopDashboard = () => {
         const otherBranches = visibleBranches.filter(b => b.id !== targetShopId);
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-            <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-              <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 22, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+              <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 📋 Copy to Branch
               </h3>
-              <p style={{ margin: '0 0 16px', fontSize: 12.5, color: '#64748B', lineHeight: 1.5 }}>
+              <p style={{ margin: '0 0 16px', fontSize: 12.5, color: 'var(--c-muted)', lineHeight: 1.5 }}>
                 Copying <b>"{copyToBranchModal.productName}"</b> to another branch. Stock will be set to 0 — set the opening stock in the branch after copying.
               </p>
 
               {otherBranches.length === 1 ? (
-                <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#0F172A', fontWeight: 700 }}>
+                <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 9, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: 'var(--c-ink)', fontWeight: 700 }}>
                   → {otherBranches[0].name}
                 </div>
               ) : (
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6, letterSpacing: 0.3 }}>SELECT BRANCH</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 6, letterSpacing: 0.3 }}>SELECT BRANCH</label>
                   <select
                     value={copyToBranchTarget}
                     onChange={e => setCopyToBranchTarget(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E2E8F0', borderRadius: 9, fontSize: 13, color: '#0F172A', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--c-line)', borderRadius: 9, fontSize: 13, color: 'var(--c-ink)', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   >
                     <option value="">— Pick a branch —</option>
                     {otherBranches.map(b => (
@@ -8977,14 +8977,14 @@ const ShopDashboard = () => {
                 <button
                   onClick={() => setCopyToBranchModal(null)}
                   disabled={copyToBranchLoading}
-                  style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={executeCopyToBranch}
                   disabled={!copyToBranchTarget || copyToBranchLoading}
-                  style={{ flex: 2, background: (!copyToBranchTarget || copyToBranchLoading) ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: (!copyToBranchTarget || copyToBranchLoading) ? 'not-allowed' : 'pointer' }}
+                  style={{ flex: 2, background: (!copyToBranchTarget || copyToBranchLoading) ? 'var(--c-faint)' : 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: (!copyToBranchTarget || copyToBranchLoading) ? 'not-allowed' : 'pointer' }}
                 >
                   {copyToBranchLoading ? 'Copying…' : 'Copy to branch →'}
                 </button>
@@ -9017,7 +9017,7 @@ function BranchesDashboard({ orders, branches }) {
   const [range, setRange] = useState('today');
   const [metric, setMetric] = useState('revenue');
 
-  const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#EF4444', '#84CC16'];
+  const COLORS = ['var(--c-primary)', 'var(--c-success)', 'var(--c-warning)', '#EC4899', '#06B6D4', '#8B5CF6', 'var(--c-danger)', '#84CC16'];
   const branchColor = (i) => COLORS[i % COLORS.length];
 
   const now = new Date();
@@ -9067,9 +9067,9 @@ function BranchesDashboard({ orders, branches }) {
 
   const pillBtn = (active) => ({
     padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-    border: '1px solid ' + (active ? '#4F46E5' : '#E2E8F0'),
-    background: active ? '#4F46E5' : '#FFFFFF',
-    color: active ? '#FFFFFF' : '#475569',
+    border: '1px solid ' + (active ? 'var(--c-primary)' : 'var(--c-line)'),
+    background: active ? 'var(--c-primary)' : 'var(--c-surface)',
+    color: active ? 'var(--c-surface)' : 'var(--c-ink-2)',
     transition: 'all 0.15s',
   });
 
@@ -9089,8 +9089,8 @@ function BranchesDashboard({ orders, branches }) {
       {/* Hero header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: '#0F172A' }}>🏪 All Branches Overview</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B' }}>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: 'var(--c-ink)' }}>🏪 All Branches Overview</h1>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--c-muted)' }}>
             Live combined view across {branches.length} branches. Pick any branch below to manage it.
           </p>
         </div>
@@ -9103,16 +9103,16 @@ function BranchesDashboard({ orders, branches }) {
 
       {/* Headline KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', padding: 18, borderRadius: 12, border: '1px solid #C7D2FE' }}>
-          <div style={{ fontSize: 11, color: '#4338CA', fontWeight: 700, marginBottom: 4 }}>TOTAL REVENUE</div>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft), #E0E7FF)', padding: 18, borderRadius: 12, border: '1px solid var(--c-primary-border)' }}>
+          <div style={{ fontSize: 11, color: 'var(--c-primary-hover)', fontWeight: 700, marginBottom: 4 }}>TOTAL REVENUE</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: '#312E81' }}>{fmtINR(totalRevenue)}</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', padding: 18, borderRadius: 12, border: '1px solid #6EE7B7' }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-success-soft), var(--c-success-soft))', padding: 18, borderRadius: 12, border: '1px solid #6EE7B7' }}>
           <div style={{ fontSize: 11, color: '#047857', fontWeight: 700, marginBottom: 4 }}>BILLS</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: '#064E3B' }}>{totalCount}</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)', padding: 18, borderRadius: 12, border: '1px solid #FBBF24' }}>
-          <div style={{ fontSize: 11, color: '#92400E', fontWeight: 700, marginBottom: 4 }}>AVG BILL</div>
+        <div style={{ background: 'linear-gradient(135deg, var(--c-warning-soft), #FDE68A)', padding: 18, borderRadius: 12, border: '1px solid #FBBF24' }}>
+          <div style={{ fontSize: 11, color: 'var(--c-warning-strong)', fontWeight: 700, marginBottom: 4 }}>AVG BILL</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: '#78350F' }}>{fmtINR(avgBillAll)}</div>
         </div>
         <div style={{ background: 'linear-gradient(135deg, #FCE7F3, #FBCFE8)', padding: 18, borderRadius: 12, border: '1px solid #F9A8D4' }}>
@@ -9140,14 +9140,14 @@ function BranchesDashboard({ orders, branches }) {
       )}
 
       {/* Per-branch cards — clickable to drill into that branch */}
-      <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: '8px 0 12px' }}>Branches</h2>
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-ink)', margin: '8px 0 12px' }}>Branches</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12, marginBottom: 20 }}>
         {perBranch.map(p => {
           const sharePct = totalRevenue ? Math.round((p.revenue / totalRevenue) * 100) : 0;
           const barPct = (p.revenue / maxRevenue) * 100;
           return (
             <div key={p.id} style={{
-              background: '#FFFFFF', border: `2px solid ${p.color}33`, borderRadius: 12, padding: 16,
+              background: 'var(--c-surface)', border: `2px solid ${p.color}33`, borderRadius: 12, padding: 16,
               cursor: 'pointer', transition: 'all 0.15s',
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
@@ -9155,7 +9155,7 @@ function BranchesDashboard({ orders, branches }) {
               onClick={() => goToBranch(p.id, p.parentShopId)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <span style={{ width: 12, height: 12, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-ink)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                 {sharePct > 0 && (
                   <span style={{ background: p.color + '22', color: p.color, fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
                     {sharePct}%
@@ -9164,18 +9164,18 @@ function BranchesDashboard({ orders, branches }) {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>REVENUE</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{fmtINR(p.revenue)}</div>
+                  <div style={{ fontSize: 10, color: 'var(--c-faint)', fontWeight: 700 }}>REVENUE</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-ink)' }}>{fmtINR(p.revenue)}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>BILLS</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{p.count}</div>
+                  <div style={{ fontSize: 10, color: 'var(--c-faint)', fontWeight: 700 }}>BILLS</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-ink)' }}>{p.count}</div>
                 </div>
               </div>
-              <div style={{ height: 8, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{ height: 8, background: 'var(--c-line-soft)', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
                 <div style={{ width: `${barPct}%`, height: '100%', background: p.color, transition: 'width 0.4s' }} />
               </div>
-              <div style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, textAlign: 'right' }}>
+              <div style={{ fontSize: 11, color: 'var(--c-primary)', fontWeight: 700, textAlign: 'right' }}>
                 Open branch →
               </div>
             </div>
@@ -9184,10 +9184,10 @@ function BranchesDashboard({ orders, branches }) {
       </div>
 
       {/* Recent activity — last 10 bills across all branches */}
-      <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: '20px 0 12px' }}>Recent Activity</h2>
-      <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-ink)', margin: '20px 0 12px' }}>Recent Activity</h2>
+      <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, overflow: 'hidden' }}>
         {recentBills.length === 0 ? (
-          <div style={{ padding: 24, textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--c-faint)', fontSize: 13 }}>
             No bills in this period across any branch.
           </div>
         ) : recentBills.map((o, idx) => {
@@ -9197,24 +9197,24 @@ function BranchesDashboard({ orders, branches }) {
           const timeStr = t.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
           const dateStr = t.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
           return (
-            <div key={o.id} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: idx === recentBills.length - 1 ? 'none' : '1px solid #F1F5F9' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: branchObj?.color || '#94A3B8', flexShrink: 0 }} />
+            <div key={o.id} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: idx === recentBills.length - 1 ? 'none' : '1px solid var(--c-line-soft)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: branchObj?.color || 'var(--c-faint)', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {o._branchName || 'Unknown branch'}
                 </div>
-                <div style={{ fontSize: 11, color: '#64748B' }}>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
                   {timeStr} · {dateStr} · {(o.items || []).length} items
                 </div>
               </div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{fmtINR(total)}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-ink)' }}>{fmtINR(total)}</div>
             </div>
           );
         })}
       </div>
 
       {/* Help footer */}
-      <div style={{ marginTop: 16, padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 12, color: '#475569' }}>
+      <div style={{ marginTop: 16, padding: 12, background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 10, fontSize: 12, color: 'var(--c-ink-2)' }}>
         💡 Click any branch card above to switch to that branch and start billing, manage products, or view detailed reports.
       </div>
     </div>
@@ -9246,10 +9246,10 @@ function PushToBranchCard({ branches, onPush }) {
   return (
     <div style={{ background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', border: '1px solid #86EFAC', borderRadius: 12, padding: 14, marginBottom: 14 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-        <div style={{ width: 36, height: 36, borderRadius: 9, background: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, flexShrink: 0 }}>🏪</div>
+        <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--c-success-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-surface)', fontSize: 18, flexShrink: 0 }}>🏪</div>
         <div style={{ flex: 1, minWidth: 180 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Copy catalogue to a branch</div>
-          <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>Copy catalogue to a branch</div>
+          <div style={{ fontSize: 11.5, color: 'var(--c-muted)', marginTop: 2, lineHeight: 1.45 }}>
             Copies all products from this main shop to the selected branch. Products already in the branch are skipped — safe to run again after adding new items here.
           </div>
         </div>
@@ -9261,7 +9261,7 @@ function PushToBranchCard({ branches, onPush }) {
             value={selectedBranchId}
             onChange={e => setSelectedBranchId(e.target.value)}
             disabled={pushing}
-            style={{ flex: 1, minWidth: 160, padding: '8px 12px', border: '1.5px solid #86EFAC', borderRadius: 8, fontSize: 13, color: '#0F172A', outline: 'none', fontFamily: 'inherit', background: '#fff', cursor: 'pointer' }}
+            style={{ flex: 1, minWidth: 160, padding: '8px 12px', border: '1.5px solid #86EFAC', borderRadius: 8, fontSize: 13, color: 'var(--c-ink)', outline: 'none', fontFamily: 'inherit', background: 'var(--c-surface)', cursor: 'pointer' }}
           >
             <option value="">— Select branch —</option>
             {branches.map(b => (
@@ -9269,7 +9269,7 @@ function PushToBranchCard({ branches, onPush }) {
             ))}
           </select>
         ) : (
-          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', border: '1px solid #86EFAC', borderRadius: 8, fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
+          <div style={{ flex: 1, padding: '8px 12px', background: 'var(--c-surface)', border: '1px solid #86EFAC', borderRadius: 8, fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>
             → {branches[0]?.name}
           </div>
         )}
@@ -9277,7 +9277,7 @@ function PushToBranchCard({ branches, onPush }) {
           onClick={() => handlePush(false)}
           disabled={!selectedBranchId || pushing}
           title="Copy all products; set stock to 0 on branch"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? '#fff' : '#E2E8F0', color: selectedBranchId && !pushing ? '#16A34A' : '#94A3B8', border: '1.5px solid #86EFAC', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-success-strong)' : 'var(--c-faint)', border: '1.5px solid #86EFAC', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
         >
           Copy products (stock = 0)
         </button>
@@ -9285,7 +9285,7 @@ function PushToBranchCard({ branches, onPush }) {
           onClick={() => handlePush(true)}
           disabled={!selectedBranchId || pushing}
           title="Copy all products AND copy current stock counts"
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'linear-gradient(135deg,#16A34A,#15803D)' : '#E2E8F0', color: selectedBranchId && !pushing ? '#fff' : '#94A3B8', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: selectedBranchId && !pushing ? 'linear-gradient(135deg,var(--c-success-strong),#15803D)' : 'var(--c-line)', color: selectedBranchId && !pushing ? 'var(--c-surface)' : 'var(--c-faint)', border: 'none', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: selectedBranchId && !pushing ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
         >
           {pushing ? 'Copying…' : 'Copy + bring stock'}
         </button>

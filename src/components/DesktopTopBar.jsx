@@ -2,8 +2,8 @@ import { Home, Package, Receipt, Wallet, Truck, Book, BarChart2, Settings, Users
 import NotificationCenter from './NotificationCenter';
 import { toast } from 'react-toastify';
 
-const INK  = '#0F172A'; // obsidian — exact demo token
-const GOLD = '#4F46E5'; // indigo — exact demo token (was gold)
+const INK  = 'var(--c-ink)'; // obsidian — exact demo token
+const GOLD = 'var(--c-primary)'; // indigo — exact demo token (was gold)
 const BRD  = 'rgba(255,255,255,0.08)';
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif";
 
@@ -34,7 +34,7 @@ const DesktopTopBar = ({
         <div style={{ display:'flex', alignItems:'center', gap:10, flexShrink:0 }}>
           <div style={{ width:32, height:32, background:GOLD, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:15, color:INK, letterSpacing:-1 }}>M</div>
           <div>
-            <div style={{ color:'#fff', fontWeight:800, fontSize:14, lineHeight:1 }}>MyStore OS</div>
+            <div style={{ color:'var(--c-surface)', fontWeight:800, fontSize:14, lineHeight:1 }}>MyStore OS</div>
             <div style={{ color:'rgba(255,255,255,0.4)', fontSize:9, fontWeight:700, letterSpacing:'0.1em' }}>ENTERPRISE</div>
           </div>
         </div>
@@ -44,7 +44,7 @@ const DesktopTopBar = ({
           <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'rgba(255,255,255,0.3)', fontSize:14, pointerEvents:'none' }}>🔍</span>
           <input
             placeholder="Search products, customers, bills…"
-            style={{ width:'100%', padding:'7px 10px 7px 32px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:7, color:'#fff', fontSize:12, fontFamily:FONT, outline:'none', boxSizing:'border-box' }}
+            style={{ width:'100%', padding:'7px 10px 7px 32px', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:7, color:'var(--c-surface)', fontSize:12, fontFamily:FONT, outline:'none', boxSizing:'border-box' }}
           />
         </div>
 
@@ -53,7 +53,7 @@ const DesktopTopBar = ({
           {/* Sync indicator */}
           {syncStatus && (
             <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:10, color:'rgba(255,255,255,0.38)' }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:syncStatus.isOnline?'#059669':'#F59E0B', flexShrink:0 }} />
+              <div style={{ width:6, height:6, borderRadius:'50%', background:syncStatus.isOnline?'var(--c-success-strong)':'var(--c-warning)', flexShrink:0 }} />
               {syncStatus.isOnline ? (syncStatus.pendingCount>0?'Syncing…':'Synced') : 'Offline'}
             </div>
           )}
@@ -77,7 +77,7 @@ const DesktopTopBar = ({
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'5px 10px 5px 5px', borderRadius:8, background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer' }}>
             <div style={{ width:26, height:26, background:GOLD, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:800, color:INK }}>{(userName||'S').slice(0,2).toUpperCase()}</div>
             <div>
-              <div style={{ color:'#fff', fontSize:11, fontWeight:700, lineHeight:1 }}>{userName||'Shop'}</div>
+              <div style={{ color:'var(--c-surface)', fontSize:11, fontWeight:700, lineHeight:1 }}>{userName||'Shop'}</div>
               <div style={{ color:'rgba(255,255,255,0.4)', fontSize:9 }}>{publicCode ? publicCode : 'Owner'}</div>
             </div>
           </div>
@@ -89,28 +89,28 @@ const DesktopTopBar = ({
       </div>
 
       {/* ── Module tabs ── */}
-      <div style={{ background:'#fff', borderBottom:'1.5px solid #E2E8F0', display:'flex', alignItems:'stretch', padding:'0 16px', gap:2, height:46, boxShadow:'0 2px 8px rgba(14,27,51,0.05)' }}>
+      <div style={{ background:'var(--c-surface)', borderBottom:'1.5px solid var(--c-line)', display:'flex', alignItems:'stretch', padding:'0 16px', gap:2, height:46, boxShadow:'0 2px 8px rgba(14,27,51,0.05)' }}>
         {NAV_ITEMS.map(({ id, Icon, label, badge, ownerOnly }) => {
           if (ownerOnly && !isOwner) return null;
           const active = activeTab === id;
           return (
             <button key={id} onClick={() => setActiveTab(id)}
-              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'#0F172A':' #6473A0', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
-              onMouseEnter={e => { if(!active) e.currentTarget.style.color='#4F46E5'; }}
-              onMouseLeave={e => { if(!active) e.currentTarget.style.color='#64748B'; }}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'0 14px', border:'none', background:'transparent', color:active?'var(--c-ink)':' #6473A0', fontSize:12, fontWeight:active?700:500, fontFamily:FONT, cursor:'pointer', position:'relative', transition:'color 0.15s', whiteSpace:'nowrap' }}
+              onMouseEnter={e => { if(!active) e.currentTarget.style.color='var(--c-primary)'; }}
+              onMouseLeave={e => { if(!active) e.currentTarget.style.color='var(--c-muted)'; }}
             >
               <Icon size={14} color={active?GOLD:'currentColor'} style={{ flexShrink:0 }} />
               {label}
               {badge && pendingOrders > 0 && (
-                <span style={{ background:'#E53E3E', color:'#fff', borderRadius:10, padding:'1px 5px', fontSize:9, fontWeight:800, marginLeft:2 }}>{pendingOrders}</span>
+                <span style={{ background:'#E53E3E', color:'var(--c-surface)', borderRadius:10, padding:'1px 5px', fontSize:9, fontWeight:800, marginLeft:2 }}>{pendingOrders}</span>
               )}
-              {active && <div style={{ position:'absolute', bottom:0, left:8, right:8, height:2.5, borderRadius:'2px 2px 0 0', background:'#0F172A' }} />}
+              {active && <div style={{ position:'absolute', bottom:0, left:8, right:8, height:2.5, borderRadius:'2px 2px 0 0', background:'var(--c-ink)' }} />}
             </button>
           );
         })}
         {/* New Bill CTA */}
         <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:6, paddingRight:4 }}>
-          <button onClick={() => setActiveTab('home')} style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 14px', borderRadius:7, border:'none', background:'#4F46E5', color:'#fff', fontSize:11, fontWeight:700, fontFamily:FONT, cursor:'pointer', transition:'all 0.15s' }}>
+          <button onClick={() => setActiveTab('home')} style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 14px', borderRadius:7, border:'none', background:'var(--c-primary)', color:'var(--c-surface)', fontSize:11, fontWeight:700, fontFamily:FONT, cursor:'pointer', transition:'all 0.15s' }}>
             + New Bill
           </button>
         </div>

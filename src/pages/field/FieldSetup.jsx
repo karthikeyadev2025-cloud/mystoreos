@@ -18,7 +18,7 @@ import { distributorIdOf } from '../../lib/fieldIdentity';
 import { getDistCaps } from '../../lib/features';
 
 const TYPE_LABEL = { main: 'Depot', van: 'Van', quarantine: 'Quarantine Bay' };
-const TYPE_COLOR = { main: '#4F46E5', van: '#059669', quarantine: '#DC2626' };
+const TYPE_COLOR = { main: 'var(--c-primary)', van: 'var(--c-success-strong)', quarantine: 'var(--c-danger-strong)' };
 
 export default function FieldSetup() {
   const { user } = useAuth();
@@ -112,15 +112,15 @@ export default function FieldSetup() {
   const depots = warehouses.filter(w => w.type === 'main');
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-    input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
-    primary: { background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' },
-    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    input: { width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
+    primary: { background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' },
+    h2: { fontSize: 17, fontWeight: 800, margin: 0, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 },
   };
 
   if (loading) {
-    return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading field setup…</div>;
+    return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading field setup…</div>;
   }
 
   // Tier gate. Enforced HERE at the module entry point rather than on
@@ -132,19 +132,19 @@ export default function FieldSetup() {
     return (
       <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <button onClick={() => navigate('/distributor')}
-          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+          style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Back to Dashboard
         </button>
         <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
-          <Truck size={30} color="#B45309" style={{ marginBottom: 10 }} />
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Field Distribution is a Pro feature</h2>
+          <Truck size={30} color="var(--c-warning-strong)" style={{ marginBottom: 10 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-warning-strong)', margin: '0 0 6px' }}>Field Distribution is a Pro feature</h2>
           <p style={{ fontSize: 13, color: '#78350F', margin: '0 0 16px', lineHeight: 1.6 }}>
             Run routes and beats, book presale orders from the field, track your team live,
             and reconcile stock and cash at day&apos;s end. Van sales with offline billing is
             available on Enterprise.
           </p>
           <button onClick={() => navigate('/distributor')}
-            style={{ background: '#B45309', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+            style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
             View Upgrade Options
           </button>
         </div>
@@ -157,56 +157,56 @@ export default function FieldSetup() {
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/distributor')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Back to Dashboard
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Field Setup</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 24px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>Field Setup</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 24px' }}>
         Depots hold your main stock. Each van is its own moving sub-warehouse with an independent stock ledger and invoice series.
       </p>
 
       <button onClick={() => navigate('/field/diagnostics')}
-        style={{ background: '#FFFBEB', color: '#92400E', border: '1px solid #FDE68A', padding: '9px 16px', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', marginBottom: 16 }}>
+        style={{ background: '#FFFBEB', color: 'var(--c-warning-strong)', border: '1px solid #FDE68A', padding: '9px 16px', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', marginBottom: 16 }}>
         🩺 Run Field Diagnostics
       </button>
 
       {vehicles.length > 0 && (
         <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/field/loadout')}
-            style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Truck size={15} /> Van Load-Out
           </button>
           <button onClick={() => navigate('/field/run')}
-            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={15} /> Today's Run
           </button>
           <button onClick={() => navigate('/field/activity')}
-            style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <MapPin size={15} /> Field Activity
           </button>
           <button onClick={() => navigate('/field/reps')}
-            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={15} /> Field Reps
           </button>
           <button onClick={() => navigate('/field/settlement')}
-            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Scale size={15} /> EOD Settlement
           </button>
           <button onClick={() => navigate('/field/billing')}
-            style={{ background: '#059669', color: '#fff', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Truck size={15} /> Van Billing
           </button>
           <button onClick={() => navigate('/field/orders')}
-            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={15} /> Booked Orders
           </button>
           <button onClick={() => navigate('/field/routes')}
-            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Map size={15} /> Routes & Beats
           </button>
           <button onClick={() => navigate('/field/stock')}
-            style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+            style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '11px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Package size={15} /> Stock Overview
           </button>
         </div>
@@ -214,8 +214,8 @@ export default function FieldSetup() {
 
       {/* ─── DEPOTS ─────────────────────────────────────────────── */}
       <div style={{ ...S.card, marginBottom: 20 }}>
-        <h2 style={S.h2}><Warehouse size={18} color="#4F46E5" /> Depots &amp; Bays</h2>
-        <p style={{ fontSize: 12, color: '#64748B', margin: '4px 0 16px' }}>
+        <h2 style={S.h2}><Warehouse size={18} color="var(--c-primary)" /> Depots &amp; Bays</h2>
+        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: '4px 0 16px' }}>
           Your physical stock locations. A quarantine bay holds damaged or expired returns so they can never be reloaded onto a van.
         </p>
 
@@ -241,16 +241,16 @@ export default function FieldSetup() {
         </div>
 
         {warehouses.length === 0 ? (
-          <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>
+          <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>
             No locations yet — add your main depot to get started.
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {warehouses.map(w => (
-              <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+              <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8 }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{w.name}</div>
-                  {w.address && <div style={{ fontSize: 11, color: '#64748B' }}>{w.address}</div>}
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{w.name}</div>
+                  {w.address && <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{w.address}</div>}
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: TYPE_COLOR[w.type], background: `${TYPE_COLOR[w.type]}14`, border: `1px solid ${TYPE_COLOR[w.type]}33`, padding: '3px 10px', borderRadius: 20 }}>
                   {TYPE_LABEL[w.type]}
@@ -263,8 +263,8 @@ export default function FieldSetup() {
 
       {/* ─── VANS ───────────────────────────────────────────────── */}
       <div style={S.card}>
-        <h2 style={S.h2}><Truck size={18} color="#059669" /> Vans</h2>
-        <p style={{ fontSize: 12, color: '#64748B', margin: '4px 0 16px' }}>
+        <h2 style={S.h2}><Truck size={18} color="var(--c-success-strong)" /> Vans</h2>
+        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: '4px 0 16px' }}>
           Adding a van also creates its stock ledger and its own invoice series (e.g. <code>INV-V04-00001</code>), so it can bill with no network connection without ever clashing with another van.
         </p>
 
@@ -288,26 +288,26 @@ export default function FieldSetup() {
               {depots.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           </div>
-          <button onClick={addVehicle} disabled={busy} style={{ ...S.primary, background: '#059669', width: isMobile ? '100%' : 'auto' }}>
+          <button onClick={addVehicle} disabled={busy} style={{ ...S.primary, background: 'var(--c-success-strong)', width: isMobile ? '100%' : 'auto' }}>
             <Plus size={13} style={{ verticalAlign: -2, marginRight: 4 }} />Add Van
           </button>
         </div>
 
         {vehicles.length === 0 ? (
-          <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>
+          <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '16px 0' }}>
             No vans yet. Add a depot first, then register your vans.
           </p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
             {vehicles.map(v => (
-              <div key={v.id} style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 14, background: '#F8FAFC' }}>
+              <div key={v.id} style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 14, background: 'var(--c-bg)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 15, fontWeight: 900, color: '#059669' }}>{v.code}</span>
-                  <Package size={14} color="#94A3B8" />
+                  <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--c-success-strong)' }}>{v.code}</span>
+                  <Package size={14} color="var(--c-faint)" />
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{v.warehouseName}</div>
-                {v.registrationNo && <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{v.registrationNo}</div>}
-                <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 8, fontFamily: 'monospace' }}>INV-{v.code}-•••••</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{v.warehouseName}</div>
+                {v.registrationNo && <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{v.registrationNo}</div>}
+                <div style={{ fontSize: 10, color: 'var(--c-faint)', marginTop: 8, fontFamily: 'monospace' }}>INV-{v.code}-•••••</div>
               </div>
             ))}
           </div>

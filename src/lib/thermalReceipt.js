@@ -93,9 +93,9 @@ export function buildThermalReceiptHtml(data, widthMm) {
 
   // Totals
   parts.push(totalsRow('Subtotal', `Rs. ${money(data.subtotal)}`));
-  if (data.itemSavings > 0)     parts.push(totalsRow('Item Discounts', `-Rs. ${money(data.itemSavings)}`, { color: '#16a34a' }));
-  if (data.billDiscount > 0)    parts.push(totalsRow('Bill Discount', `-Rs. ${money(data.billDiscount)}`, { color: '#16a34a' }));
-  if (data.loyaltyRedeemed > 0) parts.push(totalsRow('Loyalty Redeemed', `-Rs. ${money(data.loyaltyRedeemed)}`, { color: '#8b5cf6' }));
+  if (data.itemSavings > 0)     parts.push(totalsRow('Item Discounts', `-Rs. ${money(data.itemSavings)}`, { color: '#15803D' }));
+  if (data.billDiscount > 0)    parts.push(totalsRow('Bill Discount', `-Rs. ${money(data.billDiscount)}`, { color: '#15803D' }));
+  if (data.loyaltyRedeemed > 0) parts.push(totalsRow('Loyalty Redeemed', `-Rs. ${money(data.loyaltyRedeemed)}`, { color: '#4A7CAD' }));
   if (data.roundOff && Number(data.roundOff) !== 0) {
     const r = Number(data.roundOff);
     parts.push(totalsRow('Round Off', `${r > 0 ? '+' : ''}Rs. ${money(r)}`));

@@ -269,31 +269,31 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
-      <div style={{ background: '#FFFFFF', borderRadius: 20, padding: 24, maxWidth: 640, width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 20, padding: 24, maxWidth: 640, width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
               🎙️ AI Voice Order Analyzer
             </h3>
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--c-muted)' }}>
               Speak your order item by item (e.g. <i>"Chikki 2 jars, Biscuit 10 cases, Red Label Tea 5 boxes"</i>)
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-muted)' }}>
             <X size={22} />
           </button>
         </div>
 
         {/* Language Selection Bar */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14, background: '#F1F5F9', padding: 4, borderRadius: 10 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, background: 'var(--c-line-soft)', padding: 4, borderRadius: 10 }}>
           <button
             onClick={() => setVoiceLang('te-IN')}
             style={{
               flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
-              background: voiceLang === 'te-IN' ? '#4F46E5' : 'transparent',
-              color: voiceLang === 'te-IN' ? '#FFFFFF' : '#475569',
+              background: voiceLang === 'te-IN' ? 'var(--c-primary)' : 'transparent',
+              color: voiceLang === 'te-IN' ? 'var(--c-surface)' : 'var(--c-ink-2)',
               fontWeight: 800, fontSize: 13, cursor: 'pointer'
             }}
           >
@@ -303,8 +303,8 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
             onClick={() => setVoiceLang('en-IN')}
             style={{
               flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
-              background: voiceLang === 'en-IN' ? '#4F46E5' : 'transparent',
-              color: voiceLang === 'en-IN' ? '#FFFFFF' : '#475569',
+              background: voiceLang === 'en-IN' ? 'var(--c-primary)' : 'transparent',
+              color: voiceLang === 'en-IN' ? 'var(--c-surface)' : 'var(--c-ink-2)',
               fontWeight: 800, fontSize: 13, cursor: 'pointer'
             }}
           >
@@ -313,16 +313,16 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
         </div>
 
         {/* Voice Recorder Control Box */}
-        <div style={{ background: recording ? '#FEF2F2' : '#F8FAFC', border: `2px solid ${recording ? '#EF4444' : '#E2E8F0'}`, borderRadius: 16, padding: 20, textAlign: 'center', marginBottom: 20 }}>
+        <div style={{ background: recording ? 'var(--c-danger-soft)' : 'var(--c-bg)', border: `2px solid ${recording ? 'var(--c-danger)' : 'var(--c-line)'}`, borderRadius: 16, padding: 20, textAlign: 'center', marginBottom: 20 }}>
           <button
             onClick={toggleRecording}
             style={{
               width: 72,
               height: 72,
               borderRadius: '50%',
-              background: recording ? 'linear-gradient(135deg, #DC2626, #B91C1C)' : 'linear-gradient(135deg, #4F46E5, #4338CA)',
+              background: recording ? 'linear-gradient(135deg, var(--c-danger-strong), var(--c-danger-strong))' : 'linear-gradient(135deg, var(--c-primary), var(--c-primary-hover))',
               border: 'none',
-              color: '#FFFFFF',
+              color: 'var(--c-surface)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -335,16 +335,16 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
             {recording ? <MicOff size={32} /> : <Mic size={32} />}
           </button>
           
-          <div style={{ fontSize: 14, fontWeight: 800, color: recording ? '#DC2626' : '#0F172A' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: recording ? 'var(--c-danger-strong)' : 'var(--c-ink)' }}>
             {recording ? `🎙️ Recording Speech... (${recordingTime}s)` : 'Tap Microphone to Speak Order'}
           </div>
-          <p style={{ fontSize: 11, color: '#64748B', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 11, color: 'var(--c-muted)', margin: '4px 0 0' }}>
             {recording ? 'Speak continuously. Items and quantities will be analyzed live below.' : 'Supports English, Hindi & Telugu item names and quantities.'}
           </p>
 
           {/* Realtime Live Transcript / Manual Fallback Input */}
           <div style={{ marginTop: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 4, textAlign: 'left' }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', display: 'block', marginBottom: 4, textAlign: 'left' }}>
               💬 Live Transcript / Type Order (e.g. <i>"Chikki 2 jars, Biscuit 10 cases"</i>):
             </label>
             <input
@@ -355,7 +355,7 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
                 analyzeVoiceText(e.target.value);
               }}
               placeholder="Speak using microphone above, or type items here..."
-              style={{ width: '100%', padding: '10px 12px', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, fontSize: 13, color: '#0F172A', outline: 'none', boxSizing: 'border-box', fontWeight: 600 }}
+              style={{ width: '100%', padding: '10px 12px', background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', borderRadius: 8, fontSize: 13, color: 'var(--c-ink)', outline: 'none', boxSizing: 'border-box', fontWeight: 600 }}
             />
           </div>
         </div>
@@ -363,25 +363,25 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
         {/* AI Analyzed Items Re-verification Table */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
-            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>
+            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: 'var(--c-ink)' }}>
               📋 AI Matched Products ({analyzedItems.length} items)
             </h4>
             {analyzedItems.length > 0 && (
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#059669', background: '#D1FAE5', padding: '2px 8px', borderRadius: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-success-strong)', background: 'var(--c-success-soft)', padding: '2px 8px', borderRadius: 6 }}>
                 ✓ Re-verify &amp; Confirm Quantities
               </span>
             )}
           </div>
 
           {analyzedItems.length === 0 ? (
-            <div style={{ border: '2px dashed #E2E8F0', borderRadius: 12, padding: 30, textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
+            <div style={{ border: '2px dashed var(--c-line)', borderRadius: 12, padding: 30, textAlign: 'center', color: 'var(--c-faint)', fontSize: 13 }}>
               No items matched yet. Tap the microphone button above and speak your order!
             </div>
           ) : (
-            <div style={{ border: '1px solid #E2E8F0', borderRadius: 12, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div style={{ border: '1px solid var(--c-line)', borderRadius: 12, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
               <table style={{ width: '100%', minWidth: 500, borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', textTransform: 'uppercase', fontSize: 10, color: '#64748B' }}>
+                  <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-line)', textTransform: 'uppercase', fontSize: 10, color: 'var(--c-muted)' }}>
                     <th style={{ padding: '10px 12px', textAlign: 'left' }}>Product</th>
                     <th style={{ padding: '10px 12px', textAlign: 'center' }}>Pack Size</th>
                     <th style={{ padding: '10px 12px', textAlign: 'center' }}>Boxes / Qty</th>
@@ -391,26 +391,26 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
                 </thead>
                 <tbody>
                   {analyzedItems.map(item => (
-                    <tr key={item.productId} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '10px 12px', fontWeight: 700, color: '#0F172A' }}>
+                    <tr key={item.productId} style={{ borderBottom: '1px solid var(--c-line-soft)' }}>
+                      <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--c-ink)' }}>
                         {item.name}
-                        <div style={{ fontSize: 10, color: '#64748B', fontWeight: 500 }}>Spoken: "{item.spokenPhrase}"</div>
+                        <div style={{ fontSize: 10, color: 'var(--c-muted)', fontWeight: 500 }}>Spoken: "{item.spokenPhrase}"</div>
                       </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569', fontSize: 11 }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--c-ink-2)', fontSize: 11 }}>
                         {item.packSize} per box
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 8, padding: '4px 8px' }}>
-                          <button onClick={() => handleQtyChange(item.productId, -1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: '#4F46E5', minWidth: 28, minHeight: 28 }}>-</button>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--c-line-soft)', border: '1px solid var(--c-line-strong)', borderRadius: 8, padding: '4px 8px' }}>
+                          <button onClick={() => handleQtyChange(item.productId, -1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: 'var(--c-primary)', minWidth: 28, minHeight: 28 }}>-</button>
                           <span style={{ fontWeight: 800 }}>{item.qty} units</span>
-                          <button onClick={() => handleQtyChange(item.productId, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: '#4F46E5', minWidth: 28, minHeight: 28 }}>+</button>
+                          <button onClick={() => handleQtyChange(item.productId, 1)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 16, color: 'var(--c-primary)', minWidth: 28, minHeight: 28 }}>+</button>
                         </div>
                       </td>
-                      <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: '#059669' }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 800, color: 'var(--c-success-strong)' }}>
                         ₹{(item.qty * item.price).toLocaleString('en-IN')}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <button onClick={() => handleRemoveItem(item.productId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#EF4444', padding: 6 }}>
+                        <button onClick={() => handleRemoveItem(item.productId)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--c-danger)', padding: 6 }}>
                           <Trash2 size={18} />
                         </button>
                       </td>
@@ -423,14 +423,14 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
         </div>
 
         {/* Footer Summary & Confirm Action */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #F1F5F9', paddingTop: 16, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid var(--c-line-soft)', paddingTop: 16, flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>Total Billed</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{grandTotal.toLocaleString('en-IN')}</div>
+            <div style={{ fontSize: 11, color: 'var(--c-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Billed</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)' }}>₹{grandTotal.toLocaleString('en-IN')}</div>
           </div>
 
           <div style={{ display: 'flex', gap: 10, width: window.innerWidth < 480 ? '100%' : 'auto' }}>
-            <button onClick={onClose} style={{ flex: window.innerWidth < 480 ? 1 : 'none', background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '12px 18px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', minHeight: 44 }}>
+            <button onClick={onClose} style={{ flex: window.innerWidth < 480 ? 1 : 'none', background: 'var(--c-line-soft)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', padding: '12px 18px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', minHeight: 44 }}>
               Cancel
             </button>
             <button
@@ -438,9 +438,9 @@ export default function VoiceOrderRecorderModal({ wholesaleCatalog = [], onConfi
               disabled={analyzedItems.length === 0}
               style={{
                 flex: window.innerWidth < 480 ? 2 : 'none',
-                background: analyzedItems.length === 0 ? '#94A3B8' : 'linear-gradient(135deg, #059669, #047857)',
+                background: analyzedItems.length === 0 ? 'var(--c-faint)' : 'linear-gradient(135deg, var(--c-success-strong), #047857)',
                 border: 'none',
-                color: '#FFFFFF',
+                color: 'var(--c-surface)',
                 padding: '12px 20px',
                 borderRadius: 10,
                 fontWeight: 900,

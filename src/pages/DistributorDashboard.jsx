@@ -222,7 +222,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
   const [dateInput, setDateInput] = useState('');
 
   return (
-    <div style={{ background: '#FFFFFF', border: selected ? '1px solid #4F46E5' : '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+    <div style={{ background: 'var(--c-surface)', border: selected ? '1px solid var(--c-primary)' : '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
       <div style={{ display: 'flex', gap: 10 }}>
         {o.status === 'accepted' && (
           <input type="checkbox" checked={selected} onChange={onToggleSelect} style={{ width: 16, height: 16, marginTop: 3, flexShrink: 0 }} />
@@ -230,10 +230,10 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <div>
-              <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{o.shopName}</h4>
-              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
+              <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--c-ink)' }}>{o.shopName}</h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-muted)' }}>{new Date(o.date).toLocaleDateString()} {new Date(o.date).toLocaleTimeString()}</p>
               {o.status === 'accepted' && o.expectedDispatchDate && (
-                <div style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, marginTop: 3 }}>
+                <div style={{ fontSize: 11, color: 'var(--c-primary)', fontWeight: 700, marginTop: 3 }}>
                   🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                 </div>
               )}
@@ -252,9 +252,9 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: '8px 0', margin: '8px 0' }}>
+          <div style={{ borderTop: '1px solid var(--c-line)', borderBottom: '1px solid var(--c-line)', padding: '8px 0', margin: '8px 0' }}>
             {o.items.map((item, idx) => (
-              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#475569', margin: '4px 0' }}>
+              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--c-ink-2)', margin: '4px 0' }}>
                 <span>{item.name}</span>
                 <span>x{item.qty} (₹{item.price * item.qty})</span>
               </div>
@@ -263,15 +263,15 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
 
           {o.status === 'pending' && (
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Expected dispatch date (optional)</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Expected dispatch date (optional)</label>
               <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)}
                 min={new Date().toISOString().slice(0, 10)}
-                style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }} />
+                style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }} />
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => onAccept(dateInput)} style={{ flex: 1, background: '#16A34A', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                <button onClick={() => onAccept(dateInput)} style={{ flex: 1, background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                   Accept & Credit
                 </button>
-                <button onClick={onReject} style={{ flex: 1, background: '#DC2626', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+                <button onClick={onReject} style={{ flex: 1, background: 'var(--c-danger-strong)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
                   Reject
                 </button>
               </div>
@@ -279,7 +279,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
           )}
 
           {o.status === 'accepted' && (
-            <button onClick={onDispatch} style={{ width: '100%', marginTop: 10, background: '#4F46E5', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+            <button onClick={onDispatch} style={{ width: '100%', marginTop: 10, background: 'var(--c-primary)', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               📦 Mark as Dispatched
             </button>
           )}
@@ -289,7 +289,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
               invoice now; pending orders can't since they might still
               be rejected. */}
           {o.status !== 'pending' && (
-            <button onClick={() => downloadStockOrderInvoice(o, distributor, distributorCatalog)} style={{ width: '100%', marginTop: 8, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
+            <button onClick={() => downloadStockOrderInvoice(o, distributor, distributorCatalog)} style={{ width: '100%', marginTop: 8, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}>
               🧾 Download Invoice
             </button>
           )}
@@ -303,7 +303,7 @@ function StockOrderCard({ order: o, badge, selected, onToggleSelect, onAccept, o
               middle. */}
           {o.status === 'delivered' && o.shopId && (
             o.creditPostedId ? (
-              <div style={{ marginTop: 8, textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#059669' }}>
+              <div style={{ marginTop: 8, textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'var(--c-success-strong)' }}>
                 ✅ On credit ledger
               </div>
             ) : (
@@ -1291,11 +1291,11 @@ const DistributorDashboard = () => {
   // treated a 'dispatched' order the same as 'rejected' — wrong colour,
   // wrong label. Proper lookup covering all four real states now.
   const STOCK_ORDER_BADGE = {
-    pending:    { bg: '#FEF3C7', color: '#B45309', label: 'Pending' },
+    pending:    { bg: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', label: 'Pending' },
     accepted:   { bg: '#DCFCE7', color: '#15803D', label: 'Accepted' },
     dispatched: { bg: '#DBEAFE', color: '#1D4ED8', label: '📦 Dispatched' },
-    delivered:  { bg: '#D1FAE5', color: '#047857', label: '✅ Delivered' },
-    rejected:   { bg: '#FEE2E2', color: '#B91C1C', label: 'Rejected' },
+    delivered:  { bg: 'var(--c-success-soft)', color: '#047857', label: '✅ Delivered' },
+    rejected:   { bg: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', label: 'Rejected' },
   };
 
   const handleDistSubscribe = async (plan) => {
@@ -1357,7 +1357,7 @@ const DistributorDashboard = () => {
         }
       },
       prefill: { name: user.name, contact: user.phone || '' },
-      theme: { color: "#4F46E5" }
+      theme: { color: "var(--c-primary)" }
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
@@ -1383,32 +1383,32 @@ const DistributorDashboard = () => {
     const notifications = getNotifications();
     
     return (
-      <div className="dashboard-wrapper-flex" style={{ background: '#F8FAFC', color: '#0F172A', minHeight: '100vh', width: '100%' }}>
+      <div className="dashboard-wrapper-flex" style={{ background: 'var(--c-bg)', color: 'var(--c-ink)', minHeight: '100vh', width: '100%' }}>
         <ToastContainer theme="light" position="top-center" />
 
         {/* Desktop Sticky Left Sidebar */}
-        <div className="desktop-glass-sidebar dark-sidebar" style={{ background: '#0F172A', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="desktop-glass-sidebar dark-sidebar" style={{ background: 'var(--c-ink)', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
           {/* Logo & Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingLeft: '8px' }}>
-            <div style={{ background: '#4F46E5', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 800, color: '#fff' }}>M</div>
+            <div style={{ background: 'var(--c-primary)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 800, color: 'var(--c-surface)' }}>M</div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: '#FFFFFF' }}>FMCG Supply</h2>
-              <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
+              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px', color: 'var(--c-surface)' }}>FMCG Supply</h2>
+              <span style={{ fontSize: '10px', color: 'var(--c-faint)', fontWeight: 'bold' }}>DISTRIBUTOR CONSOLE</span>
             </div>
           </div>
 
           {/* User Profile */}
-          <div style={{ background: '#1E293B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
-            <div style={{ fontSize: '11px', color: '#94A3B8' }}>Welcome back,</div>
-            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFFFFF' }}>{user.name}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: isOnline ? '#16a34a' : '#d97706', marginTop: '4px', fontWeight: 'bold' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#16a34a' : '#d97706', display: 'inline-block' }}></span>
+          <div style={{ background: 'var(--c-ink)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '12px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--c-faint)' }}>Welcome back,</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--c-surface)' }}>{user.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: isOnline ? 'var(--c-success-strong)' : 'var(--c-accent-hover)', marginTop: '4px', fontWeight: 'bold' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? 'var(--c-success-strong)' : 'var(--c-accent-hover)', display: 'inline-block' }}></span>
               {isOnline ? (pendingCount > 0 ? `${pendingCount} pending sync` : 'Online') : 'Offline mode'}
             </div>
           </div>
 
           {/* Sidebar Tabs Nav Menu */}
-          <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>Menu Navigation</div>
+          <div style={{ fontSize: '10px', color: 'var(--c-faint)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', paddingLeft: '8px' }}>Menu Navigation</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
             {[
               { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -1430,9 +1430,9 @@ const DistributorDashboard = () => {
                 >
                   <Icon size={16} />
                   <span style={{ flex: 1 }}>{tab.label}</span>
-                  {tab.locked && <Lock size={11} style={{ color: '#d97706' }} />}
+                  {tab.locked && <Lock size={11} style={{ color: 'var(--c-accent-hover)' }} />}
                   {!tab.locked && tab.badge > 0 && (
-                    <span style={{ background: '#EF4444', color: '#fff', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
+                    <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', borderRadius: '10px', padding: '2px 6px', fontSize: '9px', fontWeight: 'bold' }}>{tab.badge}</span>
                   )}
                 </button>
               );
@@ -1444,20 +1444,20 @@ const DistributorDashboard = () => {
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               className="sidebar-nav-item"
-              style={{ fontSize: '13px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '12px', color: '#E2E8F0' }}
+              style={{ fontSize: '13px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '12px', color: 'var(--c-line)' }}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Bell size={16} style={{ color: '#d97706' }} /> Alerts Log
+                <Bell size={16} style={{ color: 'var(--c-accent-hover)' }} /> Alerts Log
               </span>
               {notifications.length > 0 && (
-                <span style={{ background: '#4F46E5', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>{notifications.length}</span>
+                <span style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>{notifications.length}</span>
               )}
             </button>
 
             <button
               onClick={() => setShowUpgradePlanModal(true)}
               className="sidebar-nav-item"
-              style={{ color: '#B45309', display: 'flex', alignItems: 'center', gap: '12px', background: '#FEF3C7', border: '1px solid #FDE68A', marginBottom: '8px' }}
+              style={{ color: 'var(--c-warning-strong)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', marginBottom: '8px' }}
             >
               <TrendingUp size={16} /> Upgrade Plan
               <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(217,119,6,0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold' }}>{(user.distributorPlanTier || 'basic_distributor').replace('_distributor', '').toUpperCase()}</span>
@@ -1465,7 +1465,7 @@ const DistributorDashboard = () => {
             <button
               onClick={handleLogout}
               className="sidebar-nav-item"
-              style={{ color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '12px', background: '#FEE2E2', border: '1px solid #FCA5A5' }}
+              style={{ color: 'var(--c-danger-strong)', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)' }}
             >
               <LogOut size={16} /> Logout
             </button>
@@ -1475,13 +1475,13 @@ const DistributorDashboard = () => {
         {/* Main Content Pane */}
         <div className="fluid-dashboard-main">
           {/* Prominent Distributor Code Banner */}
-          <div style={{ background: 'linear-gradient(135deg, #1E1B4B, #312E81)', color: '#FFFFFF', borderRadius: '14px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 4px 15px rgba(49,46,129,0.25)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1E1B4B, #312E81)', color: 'var(--c-surface)', borderRadius: '14px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 4px 15px rgba(49,46,129,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Key size={22} style={{ color: '#818CF8' }} />
+                <Key size={22} style={{ color: 'var(--c-primary-light)' }} />
               </div>
               <div>
-                <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#C7D2FE', fontWeight: 700 }}>Your Unique Distributor Code</div>
+                <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--c-primary-border)', fontWeight: 700 }}>Your Unique Distributor Code</div>
                 <div style={{ fontSize: '20px', fontWeight: 900, fontFamily: 'monospace', letterSpacing: '1.5px', color: '#FDE047' }}>
                   {user?.publicCode || user?.gstin || (user?.phone ? ('DIST-' + user.phone) : ('DIST-' + (user?.id || '').slice(0, 8).toUpperCase()))}
                 </div>
@@ -1496,13 +1496,13 @@ const DistributorDashboard = () => {
                   navigator.clipboard?.writeText(code);
                   toast.success('Distributor Code copied!');
                 }}
-                style={{ background: '#4F46E5', color: '#FFFFFF', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
                 <Copy size={15} /> Copy Code
               </button>
               <button
                 onClick={handleCopyPublicCatalogLink}
-                style={{ background: '#059669', color: '#FFFFFF', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
                 <Share2 size={15} /> Share Web Catalog Link
               </button>
@@ -1511,22 +1511,22 @@ const DistributorDashboard = () => {
           
           {/* Notifications Banner Overlay inside Desktop view */}
           {showNotifications && (
-            <div className="premium-glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#0F172A' }}><Bell size={15} style={{ color: '#d97706' }} /> Notifications & Activity Stream</h3>
-                <button onClick={() => setShowNotifications(false)} style={{ background: '#F1F5F9', border: 'none', color: '#475569', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', width: 'auto', flexShrink: 0 }}>Dismiss</button>
+            <div className="premium-glass" style={{ padding: '16px', marginBottom: '20px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid var(--c-line)', paddingBottom: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--c-ink)' }}><Bell size={15} style={{ color: 'var(--c-accent-hover)' }} /> Notifications & Activity Stream</h3>
+                <button onClick={() => setShowNotifications(false)} style={{ background: 'var(--c-line-soft)', border: 'none', color: 'var(--c-ink-2)', fontSize: '11px', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', width: 'auto', flexShrink: 0 }}>Dismiss</button>
               </div>
               {notifications.length === 0 ? (
-                <p style={{ fontSize: '12px', color: '#64748B', textAlign: 'center', margin: 0 }}>No recent business events.</p>
+                <p style={{ fontSize: '12px', color: 'var(--c-muted)', textAlign: 'center', margin: 0 }}>No recent business events.</p>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
                   {notifications.map(n => (
-                    <div key={n.id} style={{ display: 'flex', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '10px' }}>
+                    <div key={n.id} style={{ display: 'flex', gap: '10px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '8px', padding: '10px' }}>
                       <span style={{ fontSize: '16px' }}>{n.emoji}</span>
                       <div>
-                        <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: '#0F172A', fontWeight: 'bold' }}>{n.title}</h4>
-                        <p style={{ margin: 0, fontSize: '11px', color: '#475569', lineHeight: 1.3 }}>{n.text}</p>
-                        <span style={{ fontSize: '9px', color: '#64748B', display: 'block', marginTop: '4px' }}>{new Date(n.date).toLocaleString()}</span>
+                        <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{n.title}</h4>
+                        <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-ink-2)', lineHeight: 1.3 }}>{n.text}</p>
+                        <span style={{ fontSize: '9px', color: 'var(--c-muted)', display: 'block', marginTop: '4px' }}>{new Date(n.date).toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
@@ -1537,11 +1537,11 @@ const DistributorDashboard = () => {
 
           {/* Shop limit upgrade banner */}
           {distCaps.maxShops !== -1 && shops.length > distCaps.maxShops && (
-            <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-              <p style={{ margin: 0, fontSize: '13px', color: '#B45309', fontWeight: '500' }}>
+            <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: '500' }}>
                 ⚠️ You have {shops.length} shops but your plan allows {distCaps.maxShops}. Upgrade to continue serving all shops.
               </p>
-              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#D97706', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-accent-hover)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Upgrade Now
               </button>
             </div>
@@ -1561,7 +1561,7 @@ const DistributorDashboard = () => {
               <p style={{ margin: 0, fontSize: '13px', color: '#1D4ED8', fontWeight: '500' }}>
                 📱 You've been active on {activeDeviceCount} devices in the last 30 days — your plan includes {distCaps.multiDevice}. Consider upgrading for more.
               </p>
-              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#2563EB', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#2563EB', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Upgrade Now
               </button>
             </div>
@@ -1571,13 +1571,13 @@ const DistributorDashboard = () => {
               a distributor reasonably reads as "my data is gone". Saying
               so plainly, with a retry, is far less alarming than silence. */}
           {loadFailed && (
-            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
-                <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 2 }}>Your records are safe — this is a connection problem, not data loss.</div>
+                <div style={{ fontSize: 12, color: 'var(--c-danger-strong)', marginTop: 2 }}>Your records are safe — this is a connection problem, not data loss.</div>
               </div>
               <button onClick={() => { setLoadFailed(false); loadData(); }}
-                style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Retry
               </button>
             </div>
@@ -1589,26 +1589,26 @@ const DistributorDashboard = () => {
             const lowStockItems = wholesaleProducts.filter(p => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10));
             if (outOfStockItems.length === 0 && lowStockItems.length === 0) return null;
             return (
-              <div style={{ background: '#FEF2F2', border: '2px solid #FCA5A5', borderRadius: 14, padding: '16px', marginBottom: 18, boxShadow: '0 4px 14px rgba(239,68,68,0.15)' }}>
+              <div style={{ background: 'var(--c-danger-soft)', border: '2px solid var(--c-danger-border)', borderRadius: 14, padding: '16px', marginBottom: 18, boxShadow: '0 4px 14px rgba(239,68,68,0.15)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                   <div style={{ fontSize: 15, fontWeight: 900, color: '#991B1B', display: 'flex', alignItems: 'center', gap: 8 }}>
                     ⚠️ INVENTORY ALERT: {outOfStockItems.length > 0 ? `${outOfStockItems.length} ITEMS OUT OF STOCK!` : ''} {lowStockItems.length > 0 ? `${lowStockItems.length} Items Low Stock` : ''}
                   </div>
-                  <button onClick={() => setActiveTab('catalog')} style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                  <button onClick={() => setActiveTab('catalog')} style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                     📦 Manage Stock
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {outOfStockItems.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: '#FFFFFF', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
                       <span style={{ fontWeight: 800, color: '#991B1B' }}>❌ {item.name} — STOCK ENDED (0 units)</span>
-                      <span style={{ color: '#DC2626', fontWeight: 900 }}>OUT OF STOCK</span>
+                      <span style={{ color: 'var(--c-danger-strong)', fontWeight: 900 }}>OUT OF STOCK</span>
                     </div>
                   ))}
                   {lowStockItems.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: '#FFFFFF', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
-                      <span style={{ fontWeight: 700, color: '#B45309' }}>⚠️ {item.name} — LOW STOCK ({item.stock} left, min: {item.min_stock || 10})</span>
-                      <span style={{ color: '#D97706', fontWeight: 800 }}>Low Stock</span>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', fontSize: 13 }}>
+                      <span style={{ fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ {item.name} — LOW STOCK ({item.stock} left, min: {item.min_stock || 10})</span>
+                      <span style={{ color: 'var(--c-accent-hover)', fontWeight: 800 }}>Low Stock</span>
                     </div>
                   ))}
                 </div>
@@ -1623,7 +1623,7 @@ const DistributorDashboard = () => {
           {activeTab === 'dashboard' && (
             <>
             <button onClick={() => navigate('/distributor/new-sale')}
-              style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', borderRadius: 12, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>🛒 New Sale</div>
                 <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
@@ -1631,20 +1631,20 @@ const DistributorDashboard = () => {
               <span style={{ fontSize: 20 }}>→</span>
             </button>
             <button onClick={() => navigate('/distributor/purchases')}
-              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800 }}>📥 Purchases</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
               </div>
-              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+              <span style={{ fontSize: 18, color: 'var(--c-faint)' }}>→</span>
             </button>
             <button onClick={() => navigate('/distributor/reports')}
-              style={{ width: '100%', background: '#fff', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '13px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left' }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800 }}>📊 Reports</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
               </div>
-              <span style={{ fontSize: 18, color: '#94A3B8' }}>→</span>
+              <span style={{ fontSize: 18, color: 'var(--c-faint)' }}>→</span>
             </button>
 
               {/* ── ENTERPRISE INTELLIGENCE ──────────────────────────
@@ -1663,9 +1663,9 @@ const DistributorDashboard = () => {
                   real data exists, so it can never clutter a live
                   account. */}
               {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
-                <div style={{ background: 'linear-gradient(135deg,#EEF2FF,#F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 14, padding: 20, marginBottom: 16 }}>
+                <div style={{ background: 'linear-gradient(135deg,var(--c-primary-soft),#F5F3FF)', border: '1px solid var(--c-primary-border)', borderRadius: 14, padding: 20, marginBottom: 16 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: '0 0 4px' }}>Welcome — let&apos;s get you set up</h3>
-                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px' }}>
+                  <p style={{ fontSize: 12, color: 'var(--c-primary-hover)', margin: '0 0 16px' }}>
                     Four steps to a working distribution business. Most take under a minute.
                   </p>
                   {[
@@ -1676,15 +1676,15 @@ const DistributorDashboard = () => {
                   ].map(s => (
                     <button key={s.n}
                       onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
-                      style={{ width: '100%', textAlign: 'left', background: '#fff', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid #E0E7FF', borderRadius: 10, padding: '11px 14px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {s.n}
                       </span>
                       <span style={{ flex: 1 }}>
-                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
-                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>{s.t}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: 'var(--c-muted)', marginTop: 1 }}>{s.d}</span>
                       </span>
-                      <span style={{ color: '#94A3B8', fontSize: 16 }}>→</span>
+                      <span style={{ color: 'var(--c-faint)', fontSize: 16 }}>→</span>
                     </button>
                   ))}
                 </div>
@@ -1694,16 +1694,16 @@ const DistributorDashboard = () => {
                   never show a business shrinking. Last 30 days vs the 30
                   before it can. */}
               {(trend.current > 0 || trend.previous > 0) && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? '#059669' : '#DC2626' }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? 'var(--c-success-strong)' : 'var(--c-danger-strong)' }}>
                       {trend.changePct >= 0 ? '▲' : '▼'} {Math.abs(trend.changePct)}%
                     </div>
-                    <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-faint)' }}>
                       vs ₹{Math.round(trend.previous).toLocaleString('en-IN')} prior 30
                     </div>
                   </div>
@@ -1711,18 +1711,18 @@ const DistributorDashboard = () => {
               )}
 
               {aging.total > 0 && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 18, marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0 }}>Receivables Aging</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: 0 }}>Receivables Aging</h3>
                     {aging.atRisk > 0 && (
-                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? '#DC2626' : '#CA8A04' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : '#CA8A04' }}>
                         ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
                       </span>
                     )}
                   </div>
                   {/* Proportional bar — the shape of the book is the
                       insight; a total alone can't show it. */}
-                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: '#F1F5F9' }}>
+                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: 'var(--c-line-soft)' }}>
                     {aging.buckets.map(b => b.amount > 0 && (
                       <div key={b.label} title={`${b.label}: ₹${Math.round(b.amount).toLocaleString('en-IN')}`}
                         style={{ width: `${(b.amount / aging.total) * 100}%`, background: b.tone }} />
@@ -1731,16 +1731,16 @@ const DistributorDashboard = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 10 }}>
                     {aging.buckets.map(b => (
                       <div key={b.label} style={{ borderLeft: `3px solid ${b.tone}`, paddingLeft: 10 }}>
-                        <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : '#CBD5E1' }}>
+                        <div style={{ fontSize: 10, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : 'var(--c-line-strong)' }}>
                           ₹{Math.round(b.amount).toLocaleString('en-IN')}
                         </div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
+                        <div style={{ fontSize: 10, color: 'var(--c-faint)' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
                       </div>
                     ))}
                   </div>
                   {aging.atRiskPct >= 30 && (
-                    <div style={{ marginTop: 12, padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
                       Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
                     </div>
                   )}
@@ -1748,24 +1748,24 @@ const DistributorDashboard = () => {
               )}
 
               {atRiskShops.length > 0 && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 4px' }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 4px' }}>
                     Accounts Going Quiet ({atRiskShops.length})
                   </h3>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px' }}>
+                  <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: '0 0 12px' }}>
                     Ranked by revenue at stake — a shop rarely says it's leaving, it just stops ordering.
                   </p>
                   {atRiskShops.slice(0, 5).map(sh => (
-                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #F1F5F9', gap: 10 }}>
+                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--c-line-soft)', gap: 10 }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{sh.name}</div>
-                        <div style={{ fontSize: 11, color: sh.neverOrdered ? '#B45309' : '#64748B' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{sh.name}</div>
+                        <div style={{ fontSize: 11, color: sh.neverOrdered ? 'var(--c-warning-strong)' : 'var(--c-muted)' }}>
                           {sh.neverOrdered ? 'Linked but never ordered' : `No order in ${sh.daysQuiet} days`}
                           {sh.lifetimeValue > 0 && ` · ₹${Math.round(sh.lifetimeValue).toLocaleString('en-IN')} lifetime`}
                         </div>
                       </div>
                       {sh.phone && (
-                        <a href={`tel:${sh.phone}`} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                        <a href={`tel:${sh.phone}`} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                           Call
                         </a>
                       )}
@@ -1781,9 +1781,9 @@ const DistributorDashboard = () => {
             <div className="responsive-split-grid" style={{ width: '100%' }}>
               {/* Left Column: Stats overview + Circular Collection Guage */}
               <div>
-                <div className="premium-glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                  <span style={{ fontSize: '13px', color: '#475569', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Active Market Outstanding</span>
-                  <h2 style={{ fontSize: '48px', fontWeight: '900', color: '#DC2626', margin: '10px 0 20px 0', letterSpacing: '-1px' }}>₹{totalOutstanding}</h2>
+                <div className="premium-glass" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--c-ink-2)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Active Market Outstanding</span>
+                  <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'var(--c-danger-strong)', margin: '10px 0 20px 0', letterSpacing: '-1px' }}>₹{totalOutstanding}</h2>
                   
                   {/* Gauge */}
                   <div style={{ position: 'relative', width: '160px', height: '160px', marginBottom: '24px' }}>
@@ -1803,28 +1803,28 @@ const DistributorDashboard = () => {
                       />
                     </svg>
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                      <span style={{ fontSize: '28px', fontWeight: '900', color: '#0F172A' }}>
+                      <span style={{ fontSize: '28px', fontWeight: '900', color: 'var(--c-ink)' }}>
                         {Math.round(totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) * 100 : 0)}%
                       </span>
-                      <span style={{ fontSize: '10px', color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' }}>Collected</span>
+                      <span style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: 'bold', textTransform: 'uppercase' }}>Collected</span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%', borderTop: '1px solid #E2E8F0', paddingTop: '20px', gap: '16px' }}>
-                    <div style={{ borderRight: '1px solid #E2E8F0', paddingRight: '16px' }}>
-                      <div style={{ fontSize: '11px', color: '#475569', textTransform: 'uppercase', fontWeight: 'bold' }}>Revenue Collected</div>
-                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#059669', marginTop: '4px' }}>₹{totalReceived}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%', borderTop: '1px solid var(--c-line)', paddingTop: '20px', gap: '16px' }}>
+                    <div style={{ borderRight: '1px solid var(--c-line)', paddingRight: '16px' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--c-ink-2)', textTransform: 'uppercase', fontWeight: 'bold' }}>Revenue Collected</div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--c-success-strong)', marginTop: '4px' }}>₹{totalReceived}</div>
                     </div>
                     <div style={{ paddingLeft: '16px' }}>
-                      <div style={{ fontSize: '11px', color: '#475569', textTransform: 'uppercase', fontWeight: 'bold' }}>Linked Retailers</div>
-                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', marginTop: '4px' }}>{shops.length} shops</div>
+                      <div style={{ fontSize: '11px', color: 'var(--c-ink-2)', textTransform: 'uppercase', fontWeight: 'bold' }}>Linked Retailers</div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--c-ink)', marginTop: '4px' }}>{shops.length} shops</div>
                     </div>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => setShowModal(true)} 
-                  style={{ width: '100%', background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
+                  style={{ width: '100%', background: 'var(--c-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(79, 70, 229, 0.2)' }}
                 >
                   <Plus size={18} /> + Supply Wholesale Stock (Extend Credit)
                 </button>
@@ -1832,13 +1832,13 @@ const DistributorDashboard = () => {
 
               {/* Right Column: Pending Collection Ledgers */}
               <div>
-                <div className="premium-glass" style={{ padding: '20px', minHeight: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '800', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: '#0F172A' }}>
+                <div className="premium-glass" style={{ padding: '20px', minHeight: '100%', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '800', borderBottom: '1px solid var(--c-line)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--c-ink)' }}>
                     Outstanding Credit Balances ({pendingCredits.length})
                   </h3>
                   
                   {pendingCredits.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px 10px', color: '#64748B' }}>
+                    <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--c-muted)' }}>
                       
                       <p style={{ margin: '12px 0 0 0', fontSize: '13px' }}>All store credits have been fully cleared!</p>
                     </div>
@@ -1847,28 +1847,28 @@ const DistributorDashboard = () => {
                       {pendingCredits.map(c => {
                         const outstanding = c.amount - (c.paidSoFar || 0);
                         return (
-                        <div key={c.id} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px' }}>
+                        <div key={c.id} style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '14px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                             <div>
-                              <h4 style={{ fontSize: '14px', margin: 0, color: '#0F172A', fontWeight: 'bold' }}>{c.shopName}</h4>
-                              <span style={{ fontSize: '11px', color: '#64748B' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</span>
+                              <h4 style={{ fontSize: '14px', margin: 0, color: 'var(--c-ink)', fontWeight: 'bold' }}>{c.shopName}</h4>
+                              <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</span>
                               {c.paidSoFar > 0 && (
-                                <div style={{ fontSize: 11, color: '#16A34A', fontWeight: 700, marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: 'var(--c-success-strong)', fontWeight: 700, marginTop: 2 }}>
                                   ✓ ₹{c.paidSoFar} paid so far
                                 </div>
                               )}
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#DC2626' }}>₹{outstanding}</span>
-                              {c.paidSoFar > 0 && <div style={{ fontSize: 10, color: '#94A3B8' }}>of ₹{c.amount}</div>}
+                              <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--c-danger-strong)' }}>₹{outstanding}</span>
+                              {c.paidSoFar > 0 && <div style={{ fontSize: 10, color: 'var(--c-faint)' }}>of ₹{c.amount}</div>}
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                             <input type="number" placeholder="Partial amount" value={paymentInputs[c.id] || ''}
                               onChange={e => setPaymentInputs(prev => ({ ...prev, [c.id]: e.target.value }))}
-                              style={{ flex: 1, minWidth: 0, padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }} />
+                              style={{ flex: 1, minWidth: 0, padding: '8px 10px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }} />
                             <button onClick={() => handleRecordPayment(c.id)} disabled={recordingPayment === c.id}
-                              style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+                              style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary-hover)', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
                               {recordingPayment === c.id ? '...' : 'Record'}
                             </button>
                           </div>
@@ -1892,10 +1892,10 @@ const DistributorDashboard = () => {
           {activeTab === 'shops' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Your Retail Shops &amp; Customers ({shopsTotal})</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)' }}>Your Retail Shops &amp; Customers ({shopsTotal})</h2>
                 <button 
                   onClick={() => setShowBulkCustModal(true)}
-                  style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   📥 Bulk Import CSV
                 </button>
@@ -1909,24 +1909,24 @@ const DistributorDashboard = () => {
               <div style={{ position: 'relative', marginBottom: '16px' }}>
                 <input type="text" value={shopSearch} onChange={e => setShopSearch(e.target.value)}
                   placeholder="Search shops by name…"
-                  style={{ width: '100%', padding: '10px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
-                {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: '#94A3B8' }}>Searching…</span>}
+                  style={{ width: '100%', padding: '10px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: 'var(--c-faint)' }}>Searching…</span>}
               </div>
               {!shopSearch && shopsTotal > shops.length && (
-                <p style={{ fontSize: 11, color: '#94A3B8', margin: '-10px 0 14px' }}>
+                <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: '-10px 0 14px' }}>
                   Showing {shops.length} of {shopsTotal} — search above to find a specific shop.
                 </p>
               )}
 
-              <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
                 {user?.publicCode && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '12px' }}>
                     <div>
-                      <div style={{ color: '#64748B', fontSize: '11px' }}>Your distributor code (share with shops)</div>
-                      <div style={{ color: '#0F172A', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
+                      <div style={{ color: 'var(--c-muted)', fontSize: '11px' }}>Your distributor code (share with shops)</div>
+                      <div style={{ color: 'var(--c-ink)', fontSize: '16px', fontWeight: 800, letterSpacing: '1px', fontFamily: 'monospace' }}>{user.publicCode}</div>
                     </div>
                     <button onClick={() => { navigator.clipboard?.writeText(user.publicCode); toast.success('Code copied!'); }}
-                      style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                      style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                       Copy
                     </button>
                   </div>
@@ -1934,15 +1934,15 @@ const DistributorDashboard = () => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={shopCodeInput} onChange={e => setShopCodeInput(e.target.value.toUpperCase())}
                     placeholder="Add a shop by code (SHP-XXXXXX)"
-                    style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                    style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                   <button onClick={handleLinkShop} disabled={shopLinkBusy}
-                    style={{ background: '#16a34a', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'var(--c-success-strong)', color: 'white', border: 'none', padding: '11px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', flexShrink: 0 }}>
                     {shopLinkBusy ? '...' : 'Add'}
                   </button>
                 </div>
               </div>
               {shops.length === 0 ? (
-                <p style={{ color: '#64748B', textAlign: 'center', lineHeight: 1.6, padding: '20px' }}>
+                <p style={{ color: 'var(--c-muted)', textAlign: 'center', lineHeight: 1.6, padding: '20px' }}>
                   No shops yet. Shops appear here once they place a wholesale order from your catalog.
                   Publish products in your Wholesale Catalog so nearby shops can find and order from you.
                 </p>
@@ -1952,22 +1952,22 @@ const DistributorDashboard = () => {
                     const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
                     const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
                     return (
-                      <div key={shop.id} className="premium-glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                      <div key={shop.id} className="premium-glass" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'transform 0.2s', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#FFFFFF' }}>🏪</div>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--c-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--c-surface)' }}>🏪</div>
                           <div>
-                            <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>{shop.name}</h4>
-                            <p style={{ margin: 0, fontSize: '12px', color: '#64748B' }}>{shop.phone}</p>
+                            <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{shop.name}</h4>
+                            <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-muted)' }}>{shop.phone}</p>
                           </div>
                         </div>
-                        <div style={{ background: '#F8FAFC', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E2E8F0' }}>
-                          <span style={{ fontSize: '12px', color: '#475569' }}>Total Outstanding Credit:</span>
-                          <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed}</span>
+                        <div style={{ background: 'var(--c-bg)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--c-line)' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--c-ink-2)' }}>Total Outstanding Credit:</span>
+                          <span style={{ fontSize: '15px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                           <button
                             onClick={() => downloadPartyStatement(shop, credits, stockOrders, user)}
-                            style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                            style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line-strong)', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                           >
                             🧾 Statement
                           </button>
@@ -1998,7 +1998,7 @@ const DistributorDashboard = () => {
           {activeTab === 'orders' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: 12 }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>📥 Incoming Restock Orders ({stockOrders.length})</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)' }}>📥 Incoming Restock Orders ({stockOrders.length})</h2>
                 {/* Bulk Order CSV Export — explicitly promised on the
                     pricing page's Pro tier as its own distinct line
                     item ("Bulk order CSV export"), separate from the
@@ -2019,11 +2019,11 @@ const DistributorDashboard = () => {
                       a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
                       a.download = `stock_orders_${new Date().toISOString().slice(0, 10)}.csv`;
                       a.click();
-                    }} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                    }} style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
                       Export Orders CSV
                     </button>
                   ) : (
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Lock size={11} /> Export Orders (Pro+)
                     </button>
                   )
@@ -2031,8 +2031,8 @@ const DistributorDashboard = () => {
               </div>
               
               {stockOrders.length === 0 ? (
-                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                  <ShoppingBag size={48} style={{ color: '#E2E8F0', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
+                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                  <ShoppingBag size={48} style={{ color: 'var(--c-line)', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
                   <p style={{ margin: 0 }}>No wholesale stock orders received yet from retailers.</p>
                 </div>
               ) : (
@@ -2043,10 +2043,10 @@ const DistributorDashboard = () => {
                         accepted order is ticked. This is the actual
                         "route is full, send it all" action. */}
                     {selectedForDispatch.size > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#4338CA' }}>{selectedForDispatch.size} order{selectedForDispatch.size === 1 ? '' : 's'} selected</span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-primary-hover)' }}>{selectedForDispatch.size} order{selectedForDispatch.size === 1 ? '' : 's'} selected</span>
                         <button onClick={() => handleDispatchSelected()} disabled={dispatching}
-                          style={{ background: dispatching ? '#94A3B8' : '#4F46E5', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
+                          style={{ background: dispatching ? 'var(--c-faint)' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
                           {dispatching ? 'Dispatching…' : `📦 Dispatch Selected (${selectedForDispatch.size})`}
                         </button>
                       </div>
@@ -2062,8 +2062,8 @@ const DistributorDashboard = () => {
                           style={{ 
                             padding: '14px 16px', 
                             cursor: 'pointer', 
-                            border: selectedOrder?.id === o.id ? '2px solid #4F46E5' : '1px solid #E2E8F0',
-                            background: selectedOrder?.id === o.id ? '#EEF2FF' : '#FFFFFF',
+                            border: selectedOrder?.id === o.id ? '2px solid var(--c-primary)' : '1px solid var(--c-line)',
+                            background: selectedOrder?.id === o.id ? 'var(--c-primary-soft)' : 'var(--c-surface)',
                             transition: 'all 0.2s',
                             boxShadow: '0 1px 2px rgba(15,23,42,0.06)',
                             display: 'flex', alignItems: 'center', gap: 12,
@@ -2081,10 +2081,10 @@ const DistributorDashboard = () => {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
-                                <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{o.shopName}</h4>
-                                <span style={{ fontSize: '11px', color: '#475569' }}>{new Date(o.date).toLocaleDateString()}</span>
+                                <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{o.shopName}</h4>
+                                <span style={{ fontSize: '11px', color: 'var(--c-ink-2)' }}>{new Date(o.date).toLocaleDateString()}</span>
                                 {o.status === 'accepted' && o.expectedDispatchDate && (
-                                  <div style={{ fontSize: 10, color: '#4F46E5', fontWeight: 700, marginTop: 2 }}>
+                                  <div style={{ fontSize: 10, color: 'var(--c-primary)', fontWeight: 700, marginTop: 2 }}>
                                     🕓 Expected: {new Date(o.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                   </div>
                                 )}
@@ -2112,17 +2112,17 @@ const DistributorDashboard = () => {
                   {/* Right Column: Order Details Split panel */}
                   <div>
                     {selectedOrder ? (
-                      <div className="premium-glass" style={{ padding: '20px', position: 'sticky', top: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '16px' }}>
+                      <div className="premium-glass" style={{ padding: '20px', position: 'sticky', top: '24px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--c-line)', paddingBottom: '14px', marginBottom: '16px' }}>
                           <div>
                             <span style={{ fontSize: '10px', color: '#2563EB', fontWeight: 'bold', textTransform: 'uppercase' }}>Selected Voucher</span>
-                            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: '#0F172A' }}>{selectedOrder.shopName}</h3>
-                            <p style={{ margin: 0, fontSize: '11px', color: '#475569' }}>Order ID: #{selectedOrder.id.substring(0, 8)}</p>
+                            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '2px 0 0 0', color: 'var(--c-ink)' }}>{selectedOrder.shopName}</h3>
+                            <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-ink-2)' }}>Order ID: #{selectedOrder.id.substring(0, 8)}</p>
                           </div>
                           <span style={{
                             fontSize: '10px',
-                            background: selectedOrder.status === 'pending' ? '#FEF3C7' : selectedOrder.status === 'accepted' ? '#DCFCE7' : '#FEE2E2',
-                            color: selectedOrder.status === 'pending' ? '#B45309' : selectedOrder.status === 'accepted' ? '#15803D' : '#B91C1C',
+                            background: selectedOrder.status === 'pending' ? 'var(--c-warning-soft)' : selectedOrder.status === 'accepted' ? '#DCFCE7' : 'var(--c-danger-soft)',
+                            color: selectedOrder.status === 'pending' ? 'var(--c-warning-strong)' : selectedOrder.status === 'accepted' ? '#15803D' : 'var(--c-danger-strong)',
                             padding: '3px 8px',
                             borderRadius: '10px',
                             fontWeight: 'bold',
@@ -2131,25 +2131,25 @@ const DistributorDashboard = () => {
                         </div>
 
                         {/* Items list */}
-                        <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '12px', marginBottom: '20px', border: '1px solid #E2E8F0' }}>
-                          <span style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Itemized Ledger</span>
+                        <div style={{ background: 'var(--c-bg)', borderRadius: '10px', padding: '12px', marginBottom: '20px', border: '1px solid var(--c-line)' }}>
+                          <span style={{ fontSize: '10px', color: 'var(--c-ink-2)', fontWeight: 'bold', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Itemized Ledger</span>
                           <div style={{ maxHeight: '180px', overflowY: 'auto' }} className="custom-scroll">
                             {selectedOrder.items.map((item, idx) => (
-                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                                <span style={{ color: '#0F172A' }}>{item.name} <strong style={{ color: '#2563EB' }}>x{item.qty}</strong></span>
-                                <span style={{ fontWeight: '700', color: '#0F172A' }}>₹{item.price * item.qty}</span>
+                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--c-line)', fontSize: '13px' }}>
+                                <span style={{ color: 'var(--c-ink)' }}>{item.name} <strong style={{ color: '#2563EB' }}>x{item.qty}</strong></span>
+                                <span style={{ fontWeight: '700', color: 'var(--c-ink)' }}>₹{item.price * item.qty}</span>
                               </div>
                             ))}
                           </div>
 
                           {selectedOrder.notes && (
-                            <div style={{ marginTop: 12, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#92400E' }}>
+                            <div style={{ marginTop: 12, background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: 'var(--c-warning-strong)' }}>
                               💬 <strong>Shopkeeper Special Notes:</strong> "{selectedOrder.notes}"
                             </div>
                           )}
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '900', color: '#0F172A', borderTop: '2px dashed #E2E8F0', paddingTop: '14px', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '900', color: 'var(--c-ink)', borderTop: '2px dashed var(--c-line)', paddingTop: '14px', marginBottom: '20px' }}>
                           <span>Order Total Value:</span>
                           <span>₹{selectedOrder.total}</span>
                         </div>
@@ -2162,21 +2162,21 @@ const DistributorDashboard = () => {
                                 while being honest about when their route
                                 to that area will actually go out. */}
                             <div style={{ marginBottom: 12 }}>
-                              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Expected dispatch date (optional)</label>
+                              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Expected dispatch date (optional)</label>
                               <input type="date" value={dispatchDateInput} onChange={e => setDispatchDateInput(e.target.value)}
                                 min={new Date().toISOString().slice(0, 10)}
-                                style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                                style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
                               <button 
                                 onClick={() => handleUpdateStockOrder(selectedOrder.id, 'accepted', dispatchDateInput)}
-                                style={{ flex: 1, background: '#10B981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
+                                style={{ flex: 1, background: 'var(--c-success)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)' }}
                               >
                                 Accept & Ship Credit
                               </button>
                               <button 
                                 onClick={() => handleUpdateStockOrder(selectedOrder.id, 'rejected')}
-                                style={{ flex: 1, background: '#EF4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+                                style={{ flex: 1, background: 'var(--c-danger)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
                               >
                                 Reject Order
                               </button>
@@ -2187,17 +2187,17 @@ const DistributorDashboard = () => {
                         {selectedOrder.status === 'accepted' && (
                           <div>
                             {selectedOrder.expectedDispatchDate && (
-                              <p style={{ fontSize: 12, color: '#4F46E5', fontWeight: 700, marginBottom: 10 }}>
+                              <p style={{ fontSize: 12, color: 'var(--c-primary)', fontWeight: 700, marginBottom: 10 }}>
                                 🕓 Expected dispatch: {new Date(selectedOrder.expectedDispatchDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                               </p>
                             )}
                             <button
                               onClick={() => handleDispatchSelected(selectedOrder.id)}
-                              style={{ width: '100%', background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(79,70,229,0.25)' }}
+                              style={{ width: '100%', background: 'var(--c-primary)', color: 'white', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(79,70,229,0.25)' }}
                             >
                               📦 Mark as Dispatched
                             </button>
-                            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, textAlign: 'center' }}>
+                            <p style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 8, textAlign: 'center' }}>
                               Tip: tick multiple accepted orders in the list on the left to dispatch a whole route together.
                             </p>
                           </div>
@@ -2219,7 +2219,7 @@ const DistributorDashboard = () => {
                         {selectedOrder.status !== 'pending' && (
                           <button
                             onClick={() => downloadStockOrderInvoice(selectedOrder, user, wholesaleProducts)}
-                            style={{ width: '100%', marginTop: 12, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                            style={{ width: '100%', marginTop: 12, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '12px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
                           >
                             🧾 Download Invoice
                           </button>
@@ -2229,7 +2229,7 @@ const DistributorDashboard = () => {
                             left re-typing amounts by hand. */}
                         {selectedOrder.status === 'delivered' && selectedOrder.shopId && (
                           selectedOrder.creditPostedId ? (
-                            <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#059669' }}>
+                            <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'var(--c-success-strong)' }}>
                               ✅ On credit ledger
                             </div>
                           ) : (
@@ -2258,7 +2258,7 @@ const DistributorDashboard = () => {
                         })()}
                       </div>
                     ) : (
-                      <div className="premium-glass" style={{ padding: '30px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                      <div className="premium-glass" style={{ padding: '30px', textAlign: 'center', color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
                         Select an order from the ledger to manage its fulfillment.
                       </div>
                     )}
@@ -2272,16 +2272,16 @@ const DistributorDashboard = () => {
           {activeTab === 'catalog' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: 12 }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)' }}>Distributor Wholesale Catalog ({wholesaleProducts.length})</h2>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                   {hasDistCap(user, 'bulkOrderCSV') ? (
                     <button onClick={() => setShowBulkImport(true)}
-                      style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                       Bulk Import CSV
                     </button>
                   ) : (
                     <button onClick={() => setShowUpgradePlanModal(true)}
-                      style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Lock size={12} /> Bulk Import (Pro+)
                     </button>
                   )}
@@ -2292,11 +2292,11 @@ const DistributorDashboard = () => {
                         🏷️ Barcodes &amp; Labels
                       </button>
                       <button onClick={handleGenerateCatalog}
-                        style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         📄 Generate Catalog
                       </button>
                       <button onClick={handleCopyPublicCatalogLink}
-                        style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>
                         🔗 Copy Web Catalog Link
                       </button>
                       <button onClick={handleShareCatalogWhatsApp}
@@ -2307,7 +2307,7 @@ const DistributorDashboard = () => {
                   )}
                   <button 
                     onClick={openAddProduct}
-                    style={{ background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
+                    style={{ background: 'var(--c-primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 'bold', width: 'auto', border: 'none', cursor: 'pointer' }}
                   >
                     <Plus size={16} /> Publish Wholesale Product
                   </button>
@@ -2316,75 +2316,75 @@ const DistributorDashboard = () => {
 
               {showBulkImport && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, maxWidth: 620, width: '100%', maxHeight: '88vh', overflowY: 'auto', border: '1px solid #E2E8F0', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+                  <div style={{ background: 'var(--c-surface)', borderRadius: 20, padding: 24, maxWidth: 620, width: '100%', maxHeight: '88vh', overflowY: 'auto', border: '1px solid var(--c-line)', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0F172A' }}>Bulk Import Products from Other Software</h3>
-                      <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }} style={{ background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 16 }}>×</button>
+                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: 'var(--c-ink)' }}>Bulk Import Products from Other Software</h3>
+                      <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }} style={{ background: 'var(--c-line-soft)', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 16 }}>×</button>
                     </div>
                     
-                    <p style={{ margin: '0 0 14px', fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>
+                    <p style={{ margin: '0 0 14px', fontSize: 13, color: 'var(--c-muted)', lineHeight: 1.5 }}>
                       Directly import CSV files exported from <strong>Vyapar, Tally, Marg ERP, Busy, Zoho Books, or Excel</strong>. Automatic header matching supported!
                     </p>
 
                     {/* Download Sample CSV Templates */}
-                    <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: '#475569', marginBottom: 8, textTransform: 'uppercase' }}>📥 Download Sample CSV Format Templates:</div>
+                    <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-ink-2)', marginBottom: 8, textTransform: 'uppercase' }}>📥 Download Sample CSV Format Templates:</div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <button type="button" onClick={() => downloadSampleCsv('standard')}
-                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#4F46E5', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-primary)', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                           📄 Standard Template
                         </button>
                         <button type="button" onClick={() => downloadSampleCsv('vyapar')}
-                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#059669', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: 'var(--c-success-strong)', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                           📄 Vyapar Export Sample
                         </button>
                         <button type="button" onClick={() => downloadSampleCsv('tally')}
-                          style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', color: '#0284C7', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line-strong)', color: '#0284C7', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                           📄 Tally Export Sample
                         </button>
                       </div>
                     </div>
 
                     <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: '#334155', marginBottom: 6 }}>Upload CSV File</label>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--c-ink-2)', marginBottom: 6 }}>Upload CSV File</label>
                       <input type="file" accept=".csv,text/csv" onChange={handleCsvFileSelect}
-                        style={{ width: '100%', padding: 10, border: '1px solid #CBD5E1', borderRadius: 10, fontSize: 13, background: '#FFFFFF', boxSizing: 'border-box' }} />
+                        style={{ width: '100%', padding: 10, border: '1px solid var(--c-line-strong)', borderRadius: 10, fontSize: 13, background: 'var(--c-surface)', boxSizing: 'border-box' }} />
                     </div>
 
                     {bulkImportRows.length > 0 && (
                       <>
-                        <p style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>
+                        <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 8px' }}>
                           Preview — {bulkImportRows.length} product{bulkImportRows.length === 1 ? '' : 's'} ready to import:
                         </p>
-                        <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid #CBD5E1', borderRadius: 12, marginBottom: 16, background: '#FFFFFF' }}>
+                        <div style={{ maxHeight: 240, overflowY: 'auto', border: '1px solid var(--c-line-strong)', borderRadius: 12, marginBottom: 16, background: 'var(--c-surface)' }}>
                           {bulkImportRows.slice(0, 50).map((r, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', fontSize: 12, borderBottom: '1px solid #F1F5F9' }}>
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', fontSize: 12, borderBottom: '1px solid var(--c-line-soft)' }}>
                               <div>
-                                <div style={{ fontWeight: 800, color: '#0F172A' }}>{r.name}</div>
-                                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                                <div style={{ fontWeight: 800, color: 'var(--c-ink)' }}>{r.name}</div>
+                                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
                                   {r.category && <span>Category: {r.category} · </span>}
                                   {r.sku && <span>SKU: {r.sku} · </span>}
                                   {r.hsnCode && <span>HSN: {r.hsnCode} · </span>}
                                   {r.gstRate > 0 && <span>GST: {r.gstRate}%</span>}
                                 </div>
                               </div>
-                              <div style={{ textAlign: 'right', fontWeight: 900, color: '#4F46E5' }}>
-                                ₹{r.price} <span style={{ color: '#64748B', fontSize: 11, fontWeight: 'normal' }}>({r.stock} in stock)</span>
+                              <div style={{ textAlign: 'right', fontWeight: 900, color: 'var(--c-primary)' }}>
+                                ₹{r.price} <span style={{ color: 'var(--c-muted)', fontSize: 11, fontWeight: 'normal' }}>({r.stock} in stock)</span>
                               </div>
                             </div>
                           ))}
-                          {bulkImportRows.length > 50 && <div style={{ padding: 10, fontSize: 11, color: '#64748B', textAlign: 'center', fontWeight: 'bold' }}>+ {bulkImportRows.length - 50} more products…</div>}
+                          {bulkImportRows.length > 50 && <div style={{ padding: 10, fontSize: 11, color: 'var(--c-muted)', textAlign: 'center', fontWeight: 'bold' }}>+ {bulkImportRows.length - 50} more products…</div>}
                         </div>
                       </>
                     )}
 
                     <div style={{ display: 'flex', gap: 10 }}>
                       <button onClick={handleConfirmBulkImport} disabled={bulkImportRows.length === 0 || bulkImporting}
-                        style={{ flex: 1, background: bulkImportRows.length === 0 ? '#CBD5E1' : 'linear-gradient(135deg, #4F46E5, #4338CA)', color: '#fff', border: 'none', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: bulkImportRows.length === 0 ? 'default' : 'pointer', boxShadow: bulkImportRows.length === 0 ? 'none' : '0 4px 14px rgba(79,70,229,0.3)' }}>
+                        style={{ flex: 1, background: bulkImportRows.length === 0 ? 'var(--c-line-strong)' : 'linear-gradient(135deg, var(--c-primary), var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: bulkImportRows.length === 0 ? 'default' : 'pointer', boxShadow: bulkImportRows.length === 0 ? 'none' : '0 4px 14px rgba(79,70,229,0.3)' }}>
                         {bulkImporting ? 'Importing Products…' : `Import ${bulkImportRows.length || ''} Products to Catalog`}
                       </button>
                       <button onClick={() => { setShowBulkImport(false); setBulkImportRows([]); }}
-                        style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                        style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
                         Cancel
                       </button>
                     </div>
@@ -2395,27 +2395,27 @@ const DistributorDashboard = () => {
               {/* Inventory Control & Stock Valuation Summary Bar */}
               {wholesaleProducts.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 18 }}>
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Total Stock Value</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#059669', marginTop: 2 }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Stock Value</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-success-strong)', marginTop: 2 }}>
                       ₹{wholesaleProducts.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0).toLocaleString('en-IN')}
                     </div>
                   </div>
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>In-Stock SKUs</div>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>In-Stock SKUs</div>
                     <div style={{ fontSize: 18, fontWeight: 900, color: '#2563EB', marginTop: 2 }}>
                       {wholesaleProducts.filter(p => Number(p.stock || 0) > 0).length} / {wholesaleProducts.length} SKUs
                     </div>
                   </div>
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Low Stock Items</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#D97706', marginTop: 2 }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Low Stock Items</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-accent-hover)', marginTop: 2 }}>
                       {wholesaleProducts.filter(p => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10)).length} Items
                     </div>
                   </div>
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Out of Stock</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#DC2626', marginTop: 2 }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Out of Stock</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-danger-strong)', marginTop: 2 }}>
                       {wholesaleProducts.filter(p => Number(p.stock || 0) <= 0).length} Items
                     </div>
                   </div>
@@ -2426,19 +2426,19 @@ const DistributorDashboard = () => {
               {wholesaleProducts.length > 0 && (
                 <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
                   placeholder="Search your catalog by product name, category, or SKU…"
-                  style={{ width: '100%', padding: '12px 14px', border: '1px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '12px 14px', border: '1px solid var(--c-line-strong)', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
               )}
 
               {wholesaleProducts.length === 0 ? (
-                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                  <Layers size={48} style={{ color: '#E2E8F0', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
+                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                  <Layers size={48} style={{ color: 'var(--c-line)', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
                   <p style={{ margin: 0 }}>No products published in the distributor catalog.</p>
                 </div>
               ) : (() => {
                 const q = catalogSearch.trim().toLowerCase();
                 const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q)) : wholesaleProducts;
                 if (filtered.length === 0) {
-                  return <p style={{ color: '#64748B', textAlign: 'center', padding: '24px' }}>No products match "{catalogSearch}".</p>;
+                  return <p style={{ color: 'var(--c-muted)', textAlign: 'center', padding: '24px' }}>No products match "{catalogSearch}".</p>;
                 }
                 return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
@@ -2446,32 +2446,32 @@ const DistributorDashboard = () => {
                     const isOutOfStock = Number(p.stock || 0) <= 0;
                     const isLowStock = Number(p.stock || 0) > 0 && Number(p.stock || 0) <= Number(p.min_stock || 10);
                     return (
-                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '190px', background: '#FFFFFF', border: `2px solid ${isOutOfStock ? '#FCA5A5' : isLowStock ? '#FDE68A' : '#E2E8F0'}`, borderRadius: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div key={p.id} className="premium-glass" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '190px', background: 'var(--c-surface)', border: `2px solid ${isOutOfStock ? 'var(--c-danger-border)' : isLowStock ? '#FDE68A' : 'var(--c-line)'}`, borderRadius: 14, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
                         {p.image && (
-                          <img src={p.image} alt={p.name} style={{ width: '100%', height: '110px', borderRadius: '8px', objectFit: 'cover', marginBottom: '8px', border: '1px solid #E2E8F0' }} />
+                          <img src={p.image} alt={p.name} style={{ width: '100%', height: '110px', borderRadius: '8px', objectFit: 'cover', marginBottom: '8px', border: '1px solid var(--c-line)' }} />
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                           {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
                           {isOutOfStock ? (
-                            <span style={{ fontSize: '9px', background: '#FEF2F2', color: '#991B1B', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FECACA' }}>❌ OUT OF STOCK</span>
+                            <span style={{ fontSize: '9px', background: 'var(--c-danger-soft)', color: '#991B1B', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FECACA' }}>❌ OUT OF STOCK</span>
                           ) : isLowStock ? (
-                            <span style={{ fontSize: '9px', background: '#FEF3C7', color: '#B45309', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FDE68A' }}>⚠️ LOW STOCK</span>
+                            <span style={{ fontSize: '9px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #FDE68A' }}>⚠️ LOW STOCK</span>
                           ) : (
                             <span style={{ fontSize: '9px', background: '#F0FDF4', color: '#15803D', padding: '2px 6px', borderRadius: '6px', fontWeight: 900, border: '1px solid #BBF7D0' }}>✅ IN STOCK</span>
                           )}
                         </div>
-                        <h4 style={{ margin: '4px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
-                        {p.sku && <div style={{ fontSize: 11, color: '#64748B' }}>SKU: {p.sku} {p.hsn_code ? `· HSN: ${p.hsn_code}` : ''}</div>}
+                        <h4 style={{ margin: '4px 0 4px 0', fontSize: '14px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{p.name}</h4>
+                        {p.sku && <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>SKU: {p.sku} {p.hsn_code ? `· HSN: ${p.hsn_code}` : ''}</div>}
                       </div>
                       <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginTop: '10px', marginBottom: '10px' }}>
-                          <span style={{ fontSize: '18px', fontWeight: '900', color: '#059669' }}>₹{p.price}{p.unit && <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
-                          <span style={{ fontSize: '12px', color: isOutOfStock ? '#DC2626' : isLowStock ? '#D97706' : '#0F172A', fontWeight: '800' }}>Stock: {p.stock} units</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid var(--c-line)', paddingTop: '10px', marginTop: '10px', marginBottom: '10px' }}>
+                          <span style={{ fontSize: '18px', fontWeight: '900', color: 'var(--c-success-strong)' }}>₹{p.price}{p.unit && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-muted)' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
+                          <span style={{ fontSize: '12px', color: isOutOfStock ? 'var(--c-danger-strong)' : isLowStock ? 'var(--c-accent-hover)' : 'var(--c-ink)', fontWeight: '800' }}>Stock: {p.stock} units</span>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit Stock</button>
-                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                          <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '7px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Edit Stock</button>
+                          <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                         </div>
                       </div>
                     </div>
@@ -2487,17 +2487,17 @@ const DistributorDashboard = () => {
           {activeTab === 'routeplanner' && (
             <div>
               {!hasDistCap(user, 'routePlanner') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '20px' }}>
-                  <Lock size={40} style={{ color: '#D97706', marginBottom: '16px' }} />
-                  <h3 style={{ color: '#B45309', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
-                  <p style={{ color: '#B45309', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '20px' }}>
+                  <Lock size={40} style={{ color: 'var(--c-accent-hover)', marginBottom: '16px' }} />
+                  <h3 style={{ color: 'var(--c-warning-strong)', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
+                  <p style={{ color: 'var(--c-warning-strong)', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#0F172A' }}>🗺️ Route Planner</h2>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: 'var(--c-ink)' }}>🗺️ Route Planner</h2>
                   {(() => {
                     const today = new Date();
                     const sevenAgo = new Date(today); sevenAgo.setDate(today.getDate() - 7);
@@ -2525,8 +2525,8 @@ const DistributorDashboard = () => {
                     return (
                       <>
                         <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                          <span style={{ color: '#4F46E5', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
-                          <span style={{ color: '#B91C1C', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
+                          <span style={{ color: 'var(--c-primary)', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
+                          <span style={{ color: 'var(--c-danger-strong)', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           {routeShops.map((shop, idx) => {
@@ -2536,23 +2536,23 @@ const DistributorDashboard = () => {
                             const notVisited7 = !lastVisit || lastVisit < sevenAgo;
                             const shopDist = distanceKm(user.latitude, user.longitude, shop.latitude, shop.longitude);
                             return (
-                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? 'var(--c-danger)' : owed > 0 ? 'var(--c-warning)' : 'var(--c-success)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                                    <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
+                                    <span style={{ fontSize: '10px', color: 'var(--c-ink-2)' }}>Stop #{idx + 1}</span>
                                     {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
-                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#FEF3C7', color: '#B45309', fontWeight: 'bold' }}>Not visited 7d+</span>}
+                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', fontWeight: 'bold' }}>Not visited 7d+</span>}
                                     {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
-                                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{shop.name}</div>
-                                  <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-ink)' }}>{shop.name}</div>
+                                  <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
                                     {shop.phone || 'No phone'} · Last: {lastVisit ? lastVisit.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Never'}
                                   </div>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                   <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
-                                    <div style={{ fontSize: '10px', color: '#64748B' }}>outstanding</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '10px', color: 'var(--c-muted)' }}>outstanding</div>
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
@@ -2582,33 +2582,33 @@ const DistributorDashboard = () => {
                   for reporting. These 4 totals are now shown to every
                   tier; only the ranking/breakdown sections below stay
                   Pro+. */}
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Sales Reports</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: 'var(--c-ink)' }}>📊 Sales Reports</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
                   { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
-                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
-                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
-                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
+                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: 'var(--c-success-strong)' },
+                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: 'var(--c-danger-strong)' },
+                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: 'var(--c-accent-hover)' },
                 ].map((stat, i) => (
-                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
-                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--c-ink-2)', marginTop: '4px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
 
               {!hasDistCap(user, 'advancedAnalytics') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
-                  <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '20px' }}>
+                  <TrendingUp size={40} style={{ color: 'var(--c-primary)', marginBottom: '16px' }} />
                   <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
                   <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
+                  <h3 style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {shops.sort((a, b) => {
                       const aO = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
@@ -2619,13 +2619,13 @@ const DistributorDashboard = () => {
                       const total = credits.filter(c => c.toShopId === shop.id).reduce((s, c) => s + c.amount, 0);
                       const pct = total > 0 ? Math.round((owed / total) * 100) : 0;
                       return (
-                        <div key={shop.id} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                          <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
+                        <div key={shop.id} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                          <span style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#EF4444' : '#F59E0B', borderRadius: '3px' }} />
+                            <div style={{ width: '80px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? 'var(--c-danger)' : 'var(--c-warning)', borderRadius: '3px' }} />
                             </div>
-                            <span style={{ color: owed > 0 ? '#DC2626' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
                           </div>
                         </div>
                       );
@@ -2637,7 +2637,7 @@ const DistributorDashboard = () => {
                       products, GMV trends") but was genuinely missing.
                       Computed from stock order line items already
                       loaded — no new data fetching needed. */}
-                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
+                  <h3 style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
                   {(() => {
                     const productTotals = {};
                     stockOrders.forEach(o => {
@@ -2652,19 +2652,19 @@ const DistributorDashboard = () => {
                       .sort((a, b) => b[1].qty - a[1].qty)
                       .slice(0, 5);
                     if (topProducts.length === 0) {
-                      return <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
+                      return <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
                     }
                     const maxQty = topProducts[0][1].qty;
                     return (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {topProducts.map(([name, stats]) => (
-                          <div key={name} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                            <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{name}</span>
+                          <div key={name} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                            <span style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: '500' }}>{name}</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
-                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: '#4F46E5', borderRadius: '3px' }} />
+                              <div style={{ width: '80px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
+                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: 'var(--c-primary)', borderRadius: '3px' }} />
                               </div>
-                              <span style={{ color: '#0F172A', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty} units</span>
+                              <span style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty} units</span>
                             </div>
                           </div>
                         ))}
@@ -2680,7 +2680,7 @@ const DistributorDashboard = () => {
           {activeTab === 'history' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A' }}>Collection History & Settled Invoices</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)' }}>Collection History & Settled Invoices</h2>
                 {hasDistCap(user, 'tallyExport') ? (
                   <button
                     onClick={() => {
@@ -2693,26 +2693,26 @@ const DistributorDashboard = () => {
                     Tally Export CSV
                   </button>
                 ) : (
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#B45309', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', color: 'var(--c-warning-strong)', padding: '8px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Lock size={11} /> Tally Export (Pro+)
                   </button>
                 )}
               </div>
               
               {credits.filter(c => c.paid).length === 0 ? (
-                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: '#64748B', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                  <History size={48} style={{ color: '#E2E8F0', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
+                <div className="premium-glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                  <History size={48} style={{ color: 'var(--c-line)', marginBottom: '12px', display: 'block', margin: '0 auto 12px' }} />
                   <p style={{ margin: 0 }}>No history of paid collections recorded yet.</p>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
                   {credits.filter(c => c.paid).map(c => (
-                    <div key={c.id} className="premium-glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid #10B981', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <div key={c.id} className="premium-glass" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid var(--c-success)', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                       <div>
-                        <h4 style={{ margin: 0, fontSize: '15px', color: '#0F172A', fontWeight: 'bold' }}>{c.shopName}</h4>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#475569' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
+                        <h4 style={{ margin: 0, fontSize: '15px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{c.shopName}</h4>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--c-ink-2)' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
                       </div>
-                      <div style={{ fontSize: '16px', fontWeight: '900', color: '#059669' }}>+ ₹{c.amount}</div>
+                      <div style={{ fontSize: '16px', fontWeight: '900', color: 'var(--c-success-strong)' }}>+ ₹{c.amount}</div>
                     </div>
                   ))}
                 </div>
@@ -2723,12 +2723,12 @@ const DistributorDashboard = () => {
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
               {/* Field Operations & Van Sales Command Hub */}
-              <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(15,23,42,0.15)' }}>
+              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '20px', marginBottom: '24px', color: 'var(--c-surface)', boxShadow: '0 8px 24px rgba(15,23,42,0.15)' }}>
                 <div style={{ marginBottom: '14px' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     🚚 Field Distribution &amp; Van Sales Operations
                   </h3>
-                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94A3B8' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--c-faint)' }}>
                     Manage delivery vans, beat routes, presale orders, and end-of-day cash settlement.
                   </p>
                 </div>
@@ -2736,10 +2736,10 @@ const DistributorDashboard = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <button onClick={() => navigate('/field/setup')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#4F46E5', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🚚</div>
+                    <div style={{ background: 'var(--c-primary)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🚚</div>
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Depots &amp; Delivery Vans</div>
-                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Setup warehouses &amp; vehicle series</div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-surface)' }}>Depots &amp; Delivery Vans</div>
+                      <div style={{ fontSize: '11px', color: 'var(--c-line-strong)', marginTop: '2px' }}>Setup warehouses &amp; vehicle series</div>
                     </div>
                   </button>
 
@@ -2747,35 +2747,35 @@ const DistributorDashboard = () => {
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <div style={{ background: '#0284C7', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🗺️</div>
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Beat Routes &amp; Reps</div>
-                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Assign routes &amp; field staff</div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-surface)' }}>Beat Routes &amp; Reps</div>
+                      <div style={{ fontSize: '11px', color: 'var(--c-line-strong)', marginTop: '2px' }}>Assign routes &amp; field staff</div>
                     </div>
                   </button>
 
                   <button onClick={() => navigate('/field/orders')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#D97706', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>📋</div>
+                    <div style={{ background: 'var(--c-accent-hover)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>📋</div>
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Presale &amp; Van Orders</div>
-                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Dispatch orders to delivery vans</div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-surface)' }}>Presale &amp; Van Orders</div>
+                      <div style={{ fontSize: '11px', color: 'var(--c-line-strong)', marginTop: '2px' }}>Dispatch orders to delivery vans</div>
                     </div>
                   </button>
 
                   <button onClick={() => navigate('/field/settlement')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', cursor: 'pointer', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#059669', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>💰</div>
+                    <div style={{ background: 'var(--c-success-strong)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>💰</div>
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Day-End Settlement</div>
-                      <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '2px' }}>Reconcile driver cash &amp; returns</div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--c-surface)' }}>Day-End Settlement</div>
+                      <div style={{ fontSize: '11px', color: 'var(--c-line-strong)', marginTop: '2px' }}>Reconcile driver cash &amp; returns</div>
                     </div>
                   </button>
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Settings size={20} color="#64748B" /> Business Profile & GST
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Settings size={20} color="var(--c-muted)" /> Business Profile & GST
                 </h2>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--c-muted)' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
               </div>
 
               {/* Real background push — the distributor dashboard had
@@ -2787,53 +2787,53 @@ const DistributorDashboard = () => {
                 <PushToggle userId={user.id} />
               </div>
 
-              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Name</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Business Name</label>
                   <input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. FMCG Supply Co."
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>GSTIN</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>GSTIN</label>
                     <input value={profileForm.gstin} onChange={e => setProfileForm(p => ({ ...p, gstin: e.target.value.toUpperCase() }))} placeholder="e.g. 29ABCDE1234F2Z5" maxLength={15}
-                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>State Code</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>State Code</label>
                     <input value={profileForm.stateCode} onChange={e => setProfileForm(p => ({ ...p, stateCode: e.target.value }))} placeholder="e.g. 29"
-                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
                   <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Warehouse Location</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Warehouse Location</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <button type="button" onClick={handleGrabDistributorLocation}
-                      style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
                       📍 {profileForm.latitude ? 'Update Location' : 'Set My Location'}
                     </button>
-                    {profileForm.latitude && <span style={{ fontSize: 12, color: '#16A34A', fontWeight: 600 }}>✓ Location set</span>}
+                    {profileForm.latitude && <span style={{ fontSize: 12, color: 'var(--c-success-strong)', fontWeight: 600 }}>✓ Location set</span>}
                   </div>
-                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Used by Route Planner to sort stops by actual distance from your warehouse — save your profile after setting this.</p>
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Used by Route Planner to sort stops by actual distance from your warehouse — save your profile after setting this.</p>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>UPI ID for Collections</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>UPI ID for Collections</label>
                   <input value={profileForm.upiId} onChange={e => setProfileForm(p => ({ ...p, upiId: e.target.value }))} placeholder="e.g. yourname@okhdfcbank"
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
-                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Shops paying down their credit can send to this UPI.</p>
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Shops paying down their credit can send to this UPI.</p>
                 </div>
 
                 <button onClick={saveDistributorProfile} disabled={profileSaving}
-                  style={{ background: profileSaving ? '#A5B4FC' : '#4F46E5', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  style={{ background: profileSaving ? '#A5B4FC' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
               </div>
@@ -2847,26 +2847,26 @@ const DistributorDashboard = () => {
                   capability flag that was already defined in
                   DIST_PLAN_CAPS but never actually referenced anywhere. */}
               <div style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Users size={20} color="#64748B" /> Staff Accounts
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Users size={20} color="var(--c-muted)" /> Staff Accounts
                 </h2>
-                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Let your team log in and help manage orders, catalog, and collections.</p>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Let your team log in and help manage orders, catalog, and collections.</p>
 
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
-                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
                       <input value={staffName} onChange={e => setStaffName(e.target.value)} placeholder="Staff name"
-                        style={{ flex: 1, minWidth: 140, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                        style={{ flex: 1, minWidth: 140, padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                       <input value={staffPhone} onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone" inputMode="numeric"
-                        style={{ width: 140, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                        style={{ width: 140, padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                       <select value={staffRole} onChange={e => setStaffRole(e.target.value)}
-                        style={{ width: 170, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', background: '#FFFFFF', boxSizing: 'border-box' }}>
+                        style={{ width: 170, padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', background: 'var(--c-surface)', boxSizing: 'border-box' }}>
                         <option value="billing">💳 Billing Cashier</option>
                         <option value="van_driver">🚚 Van Driver / Rep</option>
                         <option value="inventory">📦 Warehouse Mgr</option>
@@ -2874,24 +2874,24 @@ const DistributorDashboard = () => {
                         <option value="supervisor">👑 Supervisor</option>
                       </select>
                       <button onClick={handleAddDistStaff} disabled={addingStaff}
-                        style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
+                        style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
                         {addingStaff ? 'Adding…' : '+ Add Staff'}
                       </button>
                     </div>
-                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 16px' }}>New staff log in with their phone number and default PIN <strong>1234</strong> — they should change it after their first login.</p>
+                    <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: '0 0 16px' }}>New staff log in with their phone number and default PIN <strong>1234</strong> — they should change it after their first login.</p>
 
                     {distStaff.length === 0 ? (
-                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No staff added yet.</p>
+                      <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No staff added yet.</p>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {distStaff.map(s => (
-                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8 }}>
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{s.name}</div>
-                              <div style={{ fontSize: 11, color: '#64748B' }}>{s.phone}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{s.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{s.phone}</div>
                             </div>
                             <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
-                              style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                           </div>
                         ))}
                       </div>
@@ -2907,61 +2907,61 @@ const DistributorDashboard = () => {
                   hash, never in plaintext, same principle as a
                   password. */}
               <div style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Lock size={20} color="#64748B" /> API Access
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Lock size={20} color="var(--c-muted)" /> API Access
                 </h2>
-                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
 
                 {!hasDistCap(user, 'apiAccess') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
-                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     {newlyGeneratedKey && (
-                      <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 14, marginBottom: 16 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#92400E' }}>⚠️ Copy this now — it won't be shown again:</p>
+                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                        <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ Copy this now — it won't be shown again:</p>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <code style={{ flex: 1, background: '#fff', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 12, wordBreak: 'break-all' }}>{newlyGeneratedKey}</code>
+                          <code style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 12, wordBreak: 'break-all' }}>{newlyGeneratedKey}</code>
                           <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
-                            style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Copy</button>
+                            style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Copy</button>
                         </div>
                       </div>
                     )}
 
                     {apiKeyInfo ? (
                       <div style={{ marginBottom: 16 }}>
-                        <div style={{ fontSize: 13, color: '#0F172A', marginBottom: 4 }}>Active key: <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ fontSize: 13, color: 'var(--c-ink)', marginBottom: 4 }}>Active key: <code style={{ background: 'var(--c-line-soft)', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
+                        <div style={{ fontSize: 11, color: 'var(--c-faint)' }}>
                           Created {new Date(apiKeyInfo.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                           {apiKeyInfo.lastUsedAt && ` · Last used ${new Date(apiKeyInfo.lastUsedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
                           {!apiKeyInfo.lastUsedAt && ' · Never used yet'}
                         </div>
                       </div>
                     ) : (
-                      <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>No active API key.</p>
+                      <p style={{ fontSize: 13, color: 'var(--c-faint)', marginBottom: 16 }}>No active API key.</p>
                     )}
 
                     <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                       <button onClick={handleGenerateApiKey} disabled={generatingKey}
-                        style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                         {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
                       </button>
                       {apiKeyInfo && (
-                        <button onClick={handleRevokeApiKey} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        <button onClick={handleRevokeApiKey} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '10px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                           Revoke
                         </button>
                       )}
                     </div>
 
-                    <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 14 }}>
-                      <p style={{ fontSize: 11, fontWeight: 700, color: '#475569', margin: '0 0 8px', textTransform: 'uppercase' }}>Quick reference</p>
-                      <code style={{ display: 'block', background: '#0F172A', color: '#E2E8F0', padding: '10px 12px', borderRadius: 8, fontSize: 11, marginBottom: 6, overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                    <div style={{ borderTop: '1px solid var(--c-line)', paddingTop: 14 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', margin: '0 0 8px', textTransform: 'uppercase' }}>Quick reference</p>
+                      <code style={{ display: 'block', background: 'var(--c-ink)', color: 'var(--c-line)', padding: '10px 12px', borderRadius: 8, fontSize: 11, marginBottom: 6, overflowX: 'auto', whiteSpace: 'nowrap' }}>
                         curl -H "X-API-Key: YOUR_KEY" "https://zdertmpzervgjicuwsfz.supabase.co/functions/v1/distributor-api?resource=orders"
                       </code>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: 0 }}>Available resources: <code>orders</code>, <code>catalog</code>, <code>credits</code></p>
+                      <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: 0 }}>Available resources: <code>orders</code>, <code>catalog</code>, <code>credits</code></p>
                     </div>
                   </div>
                 )}
@@ -2975,33 +2975,33 @@ const DistributorDashboard = () => {
                   template. Reuses the exact same proven mechanism
                   already working for shop logos. */}
               <div style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   🖼️ Custom Branded Reports
                 </h2>
-                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Add your logo to invoices and reports sent to shops.</p>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Add your logo to invoices and reports sent to shops.</p>
 
                 {!hasDistCap(user, 'customBranding') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
-                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', textAlign: 'center' }}>
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', textAlign: 'center' }}>
                     {logo ? (
-                      <img src={logo} alt="Distributor Logo" style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5', marginBottom: 12 }} />
+                      <img src={logo} alt="Distributor Logo" style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--c-primary)', marginBottom: 12 }} />
                     ) : (
-                      <div style={{ width: 100, height: 100, borderRadius: '50%', background: '#F1F5F9', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 12 }}>No Logo</div>
+                      <div style={{ width: 100, height: 100, borderRadius: '50%', background: 'var(--c-line-soft)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-faint)', fontSize: 12 }}>No Logo</div>
                     )}
                     <div>
                       <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 12 }} />
                       {logo && (
-                        <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                        <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                           Remove Logo
                         </button>
                       )}
                     </div>
-                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 12 }}>Appears on every invoice generated from Orders.</p>
+                    <p style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 12 }}>Appears on every invoice generated from Orders.</p>
                   </div>
                 )}
               </div>
@@ -3014,55 +3014,55 @@ const DistributorDashboard = () => {
                   and untested — see the api.js functions' own
                   comments for the full safety analysis. */}
               <div style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   🏢 Multi-Branch
                 </h2>
-                <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Run multiple warehouses/locations under one distributor account.</p>
+                <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Run multiple warehouses/locations under one distributor account.</p>
 
                 {!hasDistCap(user, 'multiBranch') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
-                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Multi-branch is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Multi-branch is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Add a Branch</p>
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', margin: '0 0 10px', textTransform: 'uppercase' }}>Add a Branch</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                       <input value={branchName} onChange={e => setBranchName(e.target.value)} placeholder="Branch name (e.g. North Warehouse)"
-                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                        style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
                       <input value={branchPhone} onChange={e => setBranchPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit login phone" inputMode="numeric"
-                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                        style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
                       <input value={branchPassword} onChange={e => setBranchPassword(e.target.value)} placeholder="Login password" type="text"
-                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                        style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
                       <input value={branchAddress} onChange={e => setBranchAddress(e.target.value)} placeholder="Address (optional)"
-                        style={{ padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                        style={{ padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
                     </div>
                     <button onClick={handleCreateBranch} disabled={creatingBranch}
-                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: 20 }}>
+                      style={{ width: '100%', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: 20 }}>
                       {creatingBranch ? 'Creating…' : '+ Add Branch'}
                     </button>
 
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Your Branches ({distBranches.filter(b => b.id !== user.id).length})</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', margin: '0 0 10px', textTransform: 'uppercase' }}>Your Branches ({distBranches.filter(b => b.id !== user.id).length})</p>
                     {distBranches.filter(b => b.id !== user.id).length === 0 ? (
-                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No branches yet — add one above.</p>
+                      <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No branches yet — add one above.</p>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {distBranches.filter(b => b.id !== user.id).map(b => (
-                          <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                          <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8 }}>
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{b.name}</div>
-                              <div style={{ fontSize: 11, color: '#64748B' }}>{b.phone}{b.businessAddress ? ` · ${b.businessAddress}` : ''}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{b.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{b.phone}{b.businessAddress ? ` · ${b.businessAddress}` : ''}</div>
                             </div>
                             <div style={{ display: 'flex', gap: 6 }}>
-                              <button onClick={() => handleResetBranchPassword(b.id, b.name)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Reset Password</button>
-                              <button onClick={() => handleDeleteBranch(b.id, b.name)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              <button onClick={() => handleResetBranchPassword(b.id, b.name)} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Reset Password</button>
+                              <button onClick={() => handleDeleteBranch(b.id, b.name)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
-                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 14 }}>Each branch logs in independently with its own phone/password and manages its own catalog, orders, and credits.</p>
+                    <p style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 14 }}>Each branch logs in independently with its own phone/password and manages its own catalog, orders, and credits.</p>
                   </div>
                 )}
               </div>
@@ -3076,17 +3076,17 @@ const DistributorDashboard = () => {
                   Enterprise distributors using the same genuine
                   support channel already used elsewhere in the app. */}
               <div style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>⭐ Priority Support</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>⭐ Priority Support</h2>
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <Lock size={28} style={{ color: '#B45309', marginBottom: '8px' }} />
-                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#92400E', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+                    <Lock size={28} style={{ color: 'var(--c-warning-strong)', marginBottom: '8px' }} />
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
-                    <p style={{ margin: '0 0 12px', fontSize: 13, color: '#64748B' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
-                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'inline-block', background: '#4F46E5', color: '#fff', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                  <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                    <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--c-muted)' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
+                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'inline-block', background: 'var(--c-primary)', color: 'var(--c-surface)', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
                       ✉️ adexosindia@gmail.com
                     </a>
                   </div>
@@ -3100,13 +3100,13 @@ const DistributorDashboard = () => {
         {/* Upgrade Plan Modal */}
         {showUpgradePlanModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div className="premium-glass" style={{ width: '100%', maxWidth: '760px', padding: '32px', background: '#FFFFFF', border: '1px solid #E2E8F0', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <div className="premium-glass" style={{ width: '100%', maxWidth: '760px', padding: '32px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#0F172A' }}>Distributor Subscription Plans</h2>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>15-day free trial on Pro Distributor plan</p>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: 'var(--c-ink)' }}>Distributor Subscription Plans</h2>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-muted)' }}>15-day free trial on Pro Distributor plan</p>
                 </div>
-                <button onClick={() => setShowUpgradePlanModal(false)} style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Close</button>
+                <button onClick={() => setShowUpgradePlanModal(false)} style={{ background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Close</button>
               </div>
               {pricing && (() => {
                 const cycles = ['monthly', 'quarterly', 'yearly'].filter(c => pricing.enabledCycles?.[c]);
@@ -3115,18 +3115,18 @@ const DistributorDashboard = () => {
                 const offerOn = !!pricing.offer?.enabled && Number(pricing.offer?.remaining) > 0 && Number(pricing.offer?.percent) > 0;
                 return (
                   <div style={{ textAlign: 'center', marginBottom: 18 }}>
-                    <div style={{ display: 'inline-flex', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 10, padding: 4, gap: 4 }}>
+                    <div style={{ display: 'inline-flex', background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', borderRadius: 10, padding: 4, gap: 4 }}>
                       {cycles.map(c => {
                         const d = c !== 'monthly' ? Number(pricing.discounts?.[c]) || 0 : 0;
                         return (
-                          <button key={c} onClick={() => setDistCycle(c)} style={{ background: distCycle === c ? '#4F46E5' : 'transparent', border: 'none', color: distCycle === c ? '#fff' : '#64748B', padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                            {lbl[c]}{d > 0 && <span style={{ marginLeft: 5, fontSize: 10, color: distCycle === c ? '#fff' : '#16a34a', fontWeight: 800 }}>-{d}%</span>}
+                          <button key={c} onClick={() => setDistCycle(c)} style={{ background: distCycle === c ? 'var(--c-primary)' : 'transparent', border: 'none', color: distCycle === c ? 'var(--c-surface)' : 'var(--c-muted)', padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                            {lbl[c]}{d > 0 && <span style={{ marginLeft: 5, fontSize: 10, color: distCycle === c ? 'var(--c-surface)' : 'var(--c-success-strong)', fontWeight: 800 }}>-{d}%</span>}
                           </button>
                         );
                       })}
                     </div>
                     {offerOn && distCycle !== 'monthly' && (
-                      <div style={{ marginTop: 10, color: '#16a34a', fontSize: 12, fontWeight: 700 }}>🎉 Launch offer: extra {pricing.offer.percent}% OFF — {pricing.offer.remaining} slots left!</div>
+                      <div style={{ marginTop: 10, color: 'var(--c-success-strong)', fontSize: 12, fontWeight: 700 }}>🎉 Launch offer: extra {pricing.offer.percent}% OFF — {pricing.offer.remaining} slots left!</div>
                     )}
                   </div>
                 );
@@ -3136,9 +3136,9 @@ const DistributorDashboard = () => {
                   const isCurrent = (user.distributorPlanTier || 'basic_distributor') === plan.id;
                   const isPro = plan.id === 'pro_distributor';
                   return (
-                    <div key={plan.id} style={{ background: isPro ? '#EEF2FF' : '#FFFFFF', border: `1px solid ${isPro ? '#C7D2FE' : '#E2E8F0'}`, borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                      {isPro && <div style={{ position: 'absolute', top: -12, right: 20, background: '#4F46E5', color: '#fff', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', fontWeight: 800 }}>RECOMMENDED</div>}
-                      <div style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{plan.name}</div>
+                    <div key={plan.id} style={{ background: isPro ? 'var(--c-primary-soft)' : 'var(--c-surface)', border: `1px solid ${isPro ? 'var(--c-primary-border)' : 'var(--c-line)'}`, borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                      {isPro && <div style={{ position: 'absolute', top: -12, right: 20, background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', fontWeight: 800 }}>RECOMMENDED</div>}
+                      <div style={{ fontSize: '10px', color: 'var(--c-ink-2)', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{plan.name}</div>
                       {(() => {
                         const cs = { monthly: '/mo', quarterly: '/3mo', yearly: '/yr' };
                         const pr = pricing ? api.computePrice(pricing, plan.id, distCycle) : null;
@@ -3146,27 +3146,27 @@ const DistributorDashboard = () => {
                           return (
                             <div>
                               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: 18, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 700 }}>₹{pr.base}</span>
-                                <span style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A' }}>₹{pr.final}</span>
-                                <span style={{ fontSize: '13px', color: '#64748B' }}>{cs[distCycle]}</span>
+                                <span style={{ fontSize: 18, color: 'var(--c-faint)', textDecoration: 'line-through', fontWeight: 700 }}>₹{pr.base}</span>
+                                <span style={{ fontSize: '32px', fontWeight: 900, color: 'var(--c-ink)' }}>₹{pr.final}</span>
+                                <span style={{ fontSize: '13px', color: 'var(--c-muted)' }}>{cs[distCycle]}</span>
                               </div>
                             </div>
                           );
                         }
-                        return <div style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A' }}>₹{pr?.final || plan.price}<span style={{ fontSize: '13px', color: '#64748B' }}>{cs[distCycle]}</span></div>;
+                        return <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--c-ink)' }}>₹{pr?.final || plan.price}<span style={{ fontSize: '13px', color: 'var(--c-muted)' }}>{cs[distCycle]}</span></div>;
                       })()}
-                      <p style={{ fontSize: '12px', color: '#475569', margin: '8px 0 16px 0' }}>{plan.description}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--c-ink-2)', margin: '8px 0 16px 0' }}>{plan.description}</p>
                       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {(plan.features || []).map((f, i) => (
-                          <li key={i} style={{ fontSize: '12px', color: '#0F172A', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-                            <span style={{ color: '#10B981', marginTop: '1px' }}>✓</span>{f}
+                          <li key={i} style={{ fontSize: '12px', color: 'var(--c-ink)', display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                            <span style={{ color: 'var(--c-success)', marginTop: '1px' }}>✓</span>{f}
                           </li>
                         ))}
                       </ul>
                       {isCurrent ? (
                         <div style={{ background: '#DCFCE7', border: '1px solid #A5D6A7', color: '#15803D', padding: '10px', borderRadius: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold' }}>Current Plan</div>
                       ) : (
-                        <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? '#4F46E5' : '#F1F5F9', color: isPro ? '#FFFFFF' : '#475569', border: isPro ? 'none' : '1px solid #E2E8F0', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
+                        <button onClick={() => handleDistSubscribe(plan)} style={{ background: isPro ? 'var(--c-primary)' : 'var(--c-line-soft)', color: isPro ? 'var(--c-surface)' : 'var(--c-ink-2)', border: isPro ? 'none' : '1px solid var(--c-line)', padding: '10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
                           {plan.id === 'pro_distributor' ? 'Start Free Trial' : 'Upgrade'}
                         </button>
                       )}
@@ -3182,30 +3182,30 @@ const DistributorDashboard = () => {
         {/* Supply Stock / Add Credit Modal */}
         {showModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="premium-glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
+            <div className="premium-glass" style={{ width: '100%', maxWidth: '460px', padding: '24px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
               
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 'bold' }}>Select Shop</label>
-                <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px', fontWeight: 'bold' }}>Select Shop</label>
+                <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }}>
                   <option value="">-- Choose Shop --</option>
                   {shops.map(s => <option key={s.id} value={s.id}>{s.name} ({s.phone})</option>)}
                 </select>
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 'bold' }}>Bill Amount (₹)</label>
-                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px', fontWeight: 'bold' }}>Bill Amount (₹)</label>
+                <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px', fontWeight: 'bold' }}>Description / Items Supply</label>
-                <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. FMCG Stock / Atta packets" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '15px' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px', fontWeight: 'bold' }}>Description / Items Supply</label>
+                <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. FMCG Stock / Atta packets" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '15px' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleGiveCredit} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>Save Entry</button>
-                <button onClick={() => setShowModal(false)} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleGiveCredit} style={{ flex: 1, background: 'var(--c-primary)', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>Save Entry</button>
+                <button onClick={() => setShowModal(false)} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
           </div>
@@ -3214,65 +3214,65 @@ const DistributorDashboard = () => {
         {/* Add Wholesale Product Modal (Desktop) */}
         {showCatalogModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box' }}>
-            <div className="premium-glass" style={{ width: '100%', maxWidth: '480px', maxHeight: '88vh', overflowY: 'auto', padding: '24px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '20px', boxShadow: '0 20px 45px -10px rgba(0,0,0,0.2)', boxSizing: 'border-box' }}>
+            <div className="premium-glass" style={{ width: '100%', maxWidth: '480px', maxHeight: '88vh', overflowY: 'auto', padding: '24px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '20px', boxShadow: '0 20px 45px -10px rgba(0,0,0,0.2)', boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: 0 }}>{editingProductId ? 'Edit Product' : 'Publish Wholesale Product'}</h2>
-                <button onClick={closeCatalogModal} style={{ background: '#F1F5F9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)', margin: 0 }}>{editingProductId ? 'Edit Product' : 'Publish Wholesale Product'}</h2>
+                <button onClick={closeCatalogModal} style={{ background: 'var(--c-line-soft)', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', color: 'var(--c-ink-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
               </div>
 
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Rice Bag (25kg)" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+                <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Rice Bag (25kg)" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Wholesale Price (₹)</label>
-                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Wholesale Price (₹)</label>
+                  <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Available Stock</label>
-                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Available Stock</label>
+                  <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
-                <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
+                <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps — whatever fits your catalog" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Sold Per (unit)</label>
-                <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Sold Per (unit)</label>
+                <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                   <option value="">Not specified</option>
                   {ALL_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
                 </select>
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>The price above is per this unit — e.g. ₹150 per jar, ₹1,200 per case.</p>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>The price above is per this unit — e.g. ₹150 per jar, ₹1,200 per case.</p>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Jars/Units per Box (optional)</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Jars/Units per Box (optional)</label>
                 <input type="number" min="1" value={newProdPackSize} onChange={e => setNewProdPackSize(e.target.value)} placeholder="e.g. 8"
-                  style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
-                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>If shops order this by the box, set how many {newProdUnit ? (ALL_UNITS.find(u => u.value === newProdUnit)?.label.split(' ')[0].toLowerCase() + 's') : 'units'} come in one box. Your invoice will show Jars × Boxes = total Qty, matching your printed billbook format.</p>
+                  style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>If shops order this by the box, set how many {newProdUnit ? (ALL_UNITS.find(u => u.value === newProdUnit)?.label.split(' ')[0].toLowerCase() + 's') : 'units'} come in one box. Your invoice will show Jars × Boxes = total Qty, matching your printed billbook format.</p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Code (optional)</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Code (optional)</label>
                   <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. 269"
-                    style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN Code (optional)</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>HSN Code (optional)</label>
                   <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8}
-                    style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate</label>
-                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate</label>
+                <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                   <option value="0">0% (Exempt)</option>
                   <option value="3">3%</option>
                   <option value="5">5%</option>
@@ -3283,11 +3283,11 @@ const DistributorDashboard = () => {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Image (optional)</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Image (optional)</label>
                 {newProdImage ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#F8FAFC', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                    <img src={newProdImage} alt="" style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #CBD5E1' }} />
-                    <button type="button" onClick={() => setNewProdImage('')} style={{ background: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-bg)', padding: '10px', borderRadius: '8px', border: '1px solid var(--c-line)' }}>
+                    <img src={newProdImage} alt="" style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid var(--c-line-strong)' }} />
+                    <button type="button" onClick={() => setNewProdImage('')} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                       Remove Image
                     </button>
                   </div>
@@ -3297,8 +3297,8 @@ const DistributorDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: '#4F46E5', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
-                <button onClick={closeCatalogModal} style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAddWholesaleProduct} style={{ flex: 1, background: 'var(--c-primary)', color: 'white', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: 'pointer' }}>{editingProductId ? 'Update Product' : 'Publish Product'}</button>
+                <button onClick={closeCatalogModal} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '12px', borderRadius: '10px', fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </div>
           </div>
@@ -3310,18 +3310,18 @@ const DistributorDashboard = () => {
 
   // ================= MOBILE RETAIL CLIENT INTERFACE =================
   return (
-    <div style={{ backgroundColor: '#F8FAFC', color: '#0F172A', minHeight: '100vh', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+    <div style={{ backgroundColor: 'var(--c-bg)', color: 'var(--c-ink)', minHeight: '100vh', paddingBottom: '80px', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
       
       {/* Mobile Header */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%)', padding: '18px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 50%, #312E81 100%)', padding: '18px 16px', position: 'sticky', top: 0, zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(15,23,42,0.15)' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px', boxShadow: '0 2px 8px rgba(99,102,241,0.4)' }}>M</div>
-            <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#fff', letterSpacing: '-0.3px' }}>FMCG Distributor</h1>
+            <div style={{ background: 'linear-gradient(135deg, var(--c-primary-light), var(--c-primary))', color: 'var(--c-surface)', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '14px', boxShadow: '0 2px 8px rgba(99,102,241,0.4)' }}>M</div>
+            <h1 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--c-surface)', letterSpacing: '-0.3px' }}>FMCG Distributor</h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#93C5FD', marginTop: '3px' }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isOnline ? '#10B981' : '#F59E0B', display: 'inline-block', boxShadow: isOnline ? '0 0 8px #10B981' : 'none' }}></span>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isOnline ? 'var(--c-success)' : 'var(--c-warning)', display: 'inline-block', boxShadow: isOnline ? '0 0 8px var(--c-success)' : 'none' }}></span>
             <span>{user.name} • {isOnline ? 'Online Sync Ready' : 'Offline Mode'}</span>
           </div>
         </div>
@@ -3352,8 +3352,8 @@ const DistributorDashboard = () => {
                 position: 'absolute', 
                 top: '-6px', 
                 right: '-6px', 
-                background: '#EF4444', 
-                color: '#fff', 
+                background: 'var(--c-danger)', 
+                color: 'var(--c-surface)', 
                 borderRadius: '50%', 
                 padding: '2px 6px', 
                 fontSize: '10px', 
@@ -3370,23 +3370,23 @@ const DistributorDashboard = () => {
 
       {/* Notifications Drawer Overlay */}
       {showNotifications && (
-        <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid #E2E8F0', paddingBottom: '8px' }}>
-            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>🔔 Live Notifications</h3>
-            <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: '#475569', fontSize: '13px', cursor: 'pointer', width: 'auto' }}>Close</button>
+        <div style={{ position: 'fixed', top: '70px', right: '16px', width: '320px', maxHeight: '450px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '16px', zIndex: 1000, padding: '16px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--c-line)', paddingBottom: '8px' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>🔔 Live Notifications</h3>
+            <button onClick={() => setShowNotifications(false)} style={{ background: 'transparent', border: 'none', color: 'var(--c-ink-2)', fontSize: '13px', cursor: 'pointer', width: 'auto' }}>Close</button>
           </div>
           {getNotifications().length === 0 ? (
-            <p style={{ fontSize: '12px', color: '#64748B', textAlign: 'center', padding: '20px 0' }}>No recent notifications.</p>
+            <p style={{ fontSize: '12px', color: 'var(--c-muted)', textAlign: 'center', padding: '20px 0' }}>No recent notifications.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {getNotifications().map(n => (
-                <div key={n.id} style={{ display: 'flex', gap: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '10px' }}>
+                <div key={n.id} style={{ display: 'flex', gap: '10px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '8px', padding: '10px' }}>
                   <span style={{ fontSize: '18px' }}>{n.emoji}</span>
                   <div style={{ textAlign: 'left' }}>
-                    <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: '#0F172A', fontWeight: 'bold' }}>{n.title}</h4>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#475569', lineHeight: 1.3 }}>{n.text}</p>
+                    <h4 style={{ margin: '0 0 2px 0', fontSize: '12px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{n.title}</h4>
+                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-ink-2)', lineHeight: 1.3 }}>{n.text}</p>
                     {n.date && (
-                      <span style={{ fontSize: '9px', color: '#64748B', display: 'block', marginTop: '4px' }}>
+                      <span style={{ fontSize: '9px', color: 'var(--c-muted)', display: 'block', marginTop: '4px' }}>
                         {new Date(n.date).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     )}
@@ -3402,11 +3402,11 @@ const DistributorDashboard = () => {
         <>
           <div style={{ padding: '16px' }}>
             {loadFailed && (
-              <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
+              <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: '13px 15px', marginBottom: 14 }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>Couldn&apos;t load your data</div>
-                <div style={{ fontSize: 11, color: '#B91C1C', margin: '2px 0 9px' }}>Your records are safe — this is a connection problem, not data loss.</div>
+                <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', margin: '2px 0 9px' }}>Your records are safe — this is a connection problem, not data loss.</div>
                 <button onClick={() => { setLoadFailed(false); loadData(); }}
-                  style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                   Retry
                 </button>
               </div>
@@ -3414,27 +3414,27 @@ const DistributorDashboard = () => {
             
             {/* MOBILE KPI METRICS SUMMARY GRID — Polished 3D elevation */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #EF4444', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Outstanding</div>
-                <div style={{ fontSize: '20px', fontWeight: '900', color: totalOutstanding > 0 ? '#DC2626' : '#059669', marginTop: '4px' }}>₹{totalOutstanding}</div>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderTop: '3px solid var(--c-danger)', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Outstanding</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: totalOutstanding > 0 ? 'var(--c-danger-strong)' : 'var(--c-success-strong)', marginTop: '4px' }}>₹{totalOutstanding}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #10B981', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Linked Shops</div>
-                <div style={{ fontSize: '20px', fontWeight: '900', color: '#0F172A', marginTop: '4px' }}>{shops.length}</div>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderTop: '3px solid var(--c-success)', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Linked Shops</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--c-ink)', marginTop: '4px' }}>{shops.length}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #6366F1', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Catalog SKUs</div>
-                <div style={{ fontSize: '20px', fontWeight: '900', color: '#0F172A', marginTop: '4px' }}>{wholesaleProducts.length}</div>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderTop: '3px solid var(--c-primary-light)', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Catalog SKUs</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--c-ink)', marginTop: '4px' }}>{wholesaleProducts.length}</div>
               </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderTop: '3px solid #F59E0B', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
-                <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending Orders</div>
-                <div style={{ fontSize: '20px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : '#0F172A', marginTop: '4px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderTop: '3px solid var(--c-warning)', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--c-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending Orders</div>
+                <div style={{ fontSize: '20px', fontWeight: '900', color: stockOrders.filter(o => o.status === 'pending').length > 0 ? '#EA580C' : 'var(--c-ink)', marginTop: '4px' }}>{stockOrders.filter(o => o.status === 'pending').length}</div>
               </div>
             </div>
 
             {/* MOBILE Action Buttons — Elevated Gradients */}
             <button onClick={() => navigate('/distributor/new-sale')}
-              style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #4338CA 100%)', color: '#fff', border: 'none', borderRadius: 14, padding: '16px 20px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 8px 24px -4px rgba(79, 70, 229, 0.35)' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 50%, var(--c-primary-hover) 100%)', color: 'var(--c-surface)', border: 'none', borderRadius: 14, padding: '16px 20px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 8px 24px -4px rgba(79, 70, 229, 0.35)' }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.2px' }}>🛒 New Sale</div>
                 <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>Counter or phone order — invoice &amp; dispatch</div>
@@ -3443,31 +3443,31 @@ const DistributorDashboard = () => {
             </button>
 
             <button onClick={() => navigate('/distributor/purchases')}
-              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #0EA5E9', borderRadius: 14, padding: '15px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid #0EA5E9', borderRadius: 14, padding: '15px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>📥 Purchases</div>
-                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
+                <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>Record supplier bills — stock in, see what you owe</div>
               </div>
               <span style={{ fontSize: 18, color: '#0EA5E9', fontWeight: 900 }}>→</span>
             </button>
 
             <button onClick={() => navigate('/distributor/reports')}
-              style={{ width: '100%', background: '#FFFFFF', color: '#0F172A', border: '1px solid #E2E8F0', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
+              style={{ width: '100%', background: 'var(--c-surface)', color: 'var(--c-ink)', border: '1px solid var(--c-line)', borderLeft: '4px solid #8B5CF6', borderRadius: 14, padding: '15px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', boxShadow: '0 4px 12px rgba(15,23,42,0.04)' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>📊 Reports</div>
-                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
+                <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>Profit &amp; loss, GST liability, stock value</div>
               </div>
               <span style={{ fontSize: 18, color: '#8B5CF6', fontWeight: 900 }}>→</span>
             </button>
 
               {/* Polished Setup Wizard for New Accounts */}
               {dataLoaded && shops.length === 0 && wholesaleProducts.length === 0 && stockOrders.length === 0 && (
-                <div style={{ background: 'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)', border: '1px solid #C7D2FE', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
+                <div style={{ background: 'linear-gradient(135deg, var(--c-primary-soft) 0%, #F5F3FF 100%)', border: '1px solid var(--c-primary-border)', borderRadius: 16, padding: 22, marginBottom: 16, boxShadow: '0 6px 20px -4px rgba(99,102,241,0.12)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '18px' }}>🚀</span>
                     <h3 style={{ fontSize: 16, fontWeight: 900, color: '#3730A3', margin: 0 }}>Welcome — let&apos;s get you set up</h3>
                   </div>
-                  <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 16px', lineHeight: 1.4 }}>
+                  <p style={{ fontSize: 12, color: 'var(--c-primary-hover)', margin: '0 0 16px', lineHeight: 1.4 }}>
                     Four quick steps to activate your wholesale distribution business:
                   </p>
                   {[
@@ -3478,15 +3478,15 @@ const DistributorDashboard = () => {
                   ].map(s => (
                     <button key={s.n}
                       onClick={() => (s.to ? navigate(s.to) : setActiveTab(s.tab))}
-                      style={{ width: '100%', textAlign: 'left', background: '#FFFFFF', border: '1px solid #E0E7FF', borderRadius: 12, padding: '12px 14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                      <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(79,70,229,0.3)' }}>
+                      style={{ width: '100%', textAlign: 'left', background: 'var(--c-surface)', border: '1px solid #E0E7FF', borderRadius: 12, padding: '12px 14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, var(--c-primary-light), var(--c-primary))', color: 'var(--c-surface)', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(79,70,229,0.3)' }}>
                         {s.n}
                       </span>
                       <span style={{ flex: 1 }}>
-                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{s.t}</span>
-                        <span style={{ display: 'block', fontSize: 11, color: '#64748B', marginTop: 1 }}>{s.d}</span>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: 'var(--c-ink)' }}>{s.t}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: 'var(--c-muted)', marginTop: 1 }}>{s.d}</span>
                       </span>
-                      <span style={{ color: '#4F46E5', fontSize: 16, fontWeight: 900 }}>→</span>
+                      <span style={{ color: 'var(--c-primary)', fontSize: 16, fontWeight: 900 }}>→</span>
                     </button>
                   ))}
                 </div>
@@ -3496,16 +3496,16 @@ const DistributorDashboard = () => {
                   never show a business shrinking. Last 30 days vs the 30
                   before it can. */}
               {(trend.current > 0 || trend.previous > 0) && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: '14px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div>
-                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#0F172A' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Last 30 days</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)' }}>₹{Math.round(trend.current).toLocaleString('en-IN')}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? '#059669' : '#DC2626' }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: trend.changePct >= 0 ? 'var(--c-success-strong)' : 'var(--c-danger-strong)' }}>
                       {trend.changePct >= 0 ? '▲' : '▼'} {Math.abs(trend.changePct)}%
                     </div>
-                    <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                    <div style={{ fontSize: 11, color: 'var(--c-faint)' }}>
                       vs ₹{Math.round(trend.previous).toLocaleString('en-IN')} prior 30
                     </div>
                   </div>
@@ -3513,18 +3513,18 @@ const DistributorDashboard = () => {
               )}
 
               {aging.total > 0 && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 18, marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: 0 }}>Receivables Aging</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: 0 }}>Receivables Aging</h3>
                     {aging.atRisk > 0 && (
-                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? '#DC2626' : '#CA8A04' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: aging.atRiskPct >= 30 ? 'var(--c-danger-strong)' : '#CA8A04' }}>
                         ₹{Math.round(aging.atRisk).toLocaleString('en-IN')} past 60 days · {aging.atRiskPct}% of book
                       </span>
                     )}
                   </div>
                   {/* Proportional bar — the shape of the book is the
                       insight; a total alone can't show it. */}
-                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: '#F1F5F9' }}>
+                  <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 12, background: 'var(--c-line-soft)' }}>
                     {aging.buckets.map(b => b.amount > 0 && (
                       <div key={b.label} title={`${b.label}: ₹${Math.round(b.amount).toLocaleString('en-IN')}`}
                         style={{ width: `${(b.amount / aging.total) * 100}%`, background: b.tone }} />
@@ -3533,16 +3533,16 @@ const DistributorDashboard = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 10 }}>
                     {aging.buckets.map(b => (
                       <div key={b.label} style={{ borderLeft: `3px solid ${b.tone}`, paddingLeft: 10 }}>
-                        <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : '#CBD5E1' }}>
+                        <div style={{ fontSize: 10, color: 'var(--c-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{b.label}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: b.amount > 0 ? b.tone : 'var(--c-line-strong)' }}>
                           ₹{Math.round(b.amount).toLocaleString('en-IN')}
                         </div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
+                        <div style={{ fontSize: 10, color: 'var(--c-faint)' }}>{b.count} account{b.count === 1 ? '' : 's'}</div>
                       </div>
                     ))}
                   </div>
                   {aging.atRiskPct >= 30 && (
-                    <div style={{ marginTop: 12, padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
+                    <div style={{ marginTop: 12, padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, fontSize: 12, color: '#991B1B' }}>
                       Over a third of your book is past 60 days. Debt this old is often unrecoverable — worth chasing before it ages further.
                     </div>
                   )}
@@ -3550,24 +3550,24 @@ const DistributorDashboard = () => {
               )}
 
               {atRiskShops.length > 0 && (
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 4px' }}>
+                <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 4px' }}>
                     Accounts Going Quiet ({atRiskShops.length})
                   </h3>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px' }}>
+                  <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: '0 0 12px' }}>
                     Ranked by revenue at stake — a shop rarely says it's leaving, it just stops ordering.
                   </p>
                   {atRiskShops.slice(0, 5).map(sh => (
-                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #F1F5F9', gap: 10 }}>
+                    <div key={sh.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--c-line-soft)', gap: 10 }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{sh.name}</div>
-                        <div style={{ fontSize: 11, color: sh.neverOrdered ? '#B45309' : '#64748B' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{sh.name}</div>
+                        <div style={{ fontSize: 11, color: sh.neverOrdered ? 'var(--c-warning-strong)' : 'var(--c-muted)' }}>
                           {sh.neverOrdered ? 'Linked but never ordered' : `No order in ${sh.daysQuiet} days`}
                           {sh.lifetimeValue > 0 && ` · ₹${Math.round(sh.lifetimeValue).toLocaleString('en-IN')} lifetime`}
                         </div>
                       </div>
                       {sh.phone && (
-                        <a href={`tel:${sh.phone}`} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                        <a href={`tel:${sh.phone}`} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                           Call
                         </a>
                       )}
@@ -3575,9 +3575,9 @@ const DistributorDashboard = () => {
                   ))}
                 </div>
               )}
-            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <p style={{ fontSize: '14px', color: '#475569', margin: 0 }}>Total Market Outstanding</p>
-              <h2 style={{ fontSize: '42px', fontWeight: 900, color: '#DC2626', margin: '8px 0' }}>₹{totalOutstanding}</h2>
+            <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <p style={{ fontSize: '14px', color: 'var(--c-ink-2)', margin: 0 }}>Total Market Outstanding</p>
+              <h2 style={{ fontSize: '42px', fontWeight: 900, color: 'var(--c-danger-strong)', margin: '8px 0' }}>₹{totalOutstanding}</h2>
               
               {/* Circular SVG Collection progress gauge */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '16px 0' }}>
@@ -3598,55 +3598,55 @@ const DistributorDashboard = () => {
                     />
                   </svg>
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#0F172A' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--c-ink)' }}>
                       {Math.round(totalOutstanding + totalReceived > 0 ? (totalReceived / (totalOutstanding + totalReceived)) * 100 : 0)}%
                     </span>
-                    <span style={{ fontSize: '10px', color: '#64748B' }}>Collected</span>
+                    <span style={{ fontSize: '10px', color: 'var(--c-muted)' }}>Collected</span>
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px', borderTop: '1px solid var(--c-line)', paddingTop: '16px' }}>
                 <div style={{ textAlign: 'left' }}>
-                  <p style={{ fontSize: '11px', color: '#475569', margin: 0 }}>Total Received</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: 0 }}>Total Received</p>
                   <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#15803D', margin: 0 }}>₹{totalReceived}</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: '11px', color: '#475569', margin: 0 }}>Active Shops</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-ink-2)', margin: 0 }}>Active Shops</p>
                   <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#2563EB', margin: 0 }}>{shops.length}</p>
                 </div>
               </div>
             </div>
 
-            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
+            <button onClick={() => setShowModal(true)} style={{ width: '100%', background: 'var(--c-primary)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 800, cursor: 'pointer', marginBottom: '24px', boxShadow: '0 4px 15px rgba(79,70,229,0.2)' }}>
               + Supply Stock (Give Credit)
             </button>
 
-            <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}>Pending Market Collection</h3>
-            {pendingCredits.length === 0 && <p style={{ color: '#64748B', textAlign: 'center' }}>No outstanding balances!</p>}
+            <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: 'var(--c-ink)' }}>Pending Market Collection</h3>
+            {pendingCredits.length === 0 && <p style={{ color: 'var(--c-muted)', textAlign: 'center' }}>No outstanding balances!</p>}
             
             {pendingCredits.map(c => {
               const outstanding = c.amount - (c.paidSoFar || 0);
               return (
-              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <div key={c.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div>
-                    <h4 style={{ fontSize: '16px', margin: 0, color: '#0F172A' }}>{c.shopName}</h4>
-                    <p style={{ fontSize: '12px', color: '#475569', margin: '4px 0 0 0' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</p>
-                    {c.paidSoFar > 0 && <p style={{ fontSize: 11, color: '#16A34A', fontWeight: 700, margin: '2px 0 0 0' }}>✓ ₹{c.paidSoFar} paid so far</p>}
+                    <h4 style={{ fontSize: '16px', margin: 0, color: 'var(--c-ink)' }}>{c.shopName}</h4>
+                    <p style={{ fontSize: '12px', color: 'var(--c-ink-2)', margin: '4px 0 0 0' }}>{new Date(c.date).toLocaleDateString()} • {c.desc}</p>
+                    {c.paidSoFar > 0 && <p style={{ fontSize: 11, color: 'var(--c-success-strong)', fontWeight: 700, margin: '2px 0 0 0' }}>✓ ₹{c.paidSoFar} paid so far</p>}
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <h4 style={{ fontSize: '18px', margin: 0, color: '#DC2626' }}>₹{outstanding}</h4>
-                    {c.paidSoFar > 0 ? <span style={{ fontSize: 10, color: '#94A3B8' }}>of ₹{c.amount}</span> :
-                      <span style={{ fontSize: '10px', background: '#FEE2E2', color: '#B91C1C', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Unpaid</span>}
+                    <h4 style={{ fontSize: '18px', margin: 0, color: 'var(--c-danger-strong)' }}>₹{outstanding}</h4>
+                    {c.paidSoFar > 0 ? <span style={{ fontSize: 10, color: 'var(--c-faint)' }}>of ₹{c.amount}</span> :
+                      <span style={{ fontSize: '10px', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Unpaid</span>}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                   <input type="number" placeholder="Partial amount" value={paymentInputs[c.id] || ''}
                     onChange={e => setPaymentInputs(prev => ({ ...prev, [c.id]: e.target.value }))}
-                    style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
+                    style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
                   <button onClick={() => handleRecordPayment(c.id)} disabled={recordingPayment === c.id}
-                    style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', color: 'var(--c-primary-hover)', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
                     {recordingPayment === c.id ? '...' : 'Record'}
                   </button>
                 </div>
@@ -3663,40 +3663,40 @@ const DistributorDashboard = () => {
       {/* Shops Tab */}
       {activeTab === 'shops' && (
         <div style={{padding: 20}}>
-          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 4px 0', color: '#0F172A'}}>My Shops ({shopsTotal})</h2>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 4px 0', color: 'var(--c-ink)'}}>My Shops ({shopsTotal})</h2>
           <div style={{ position: 'relative', marginBottom: '14px' }}>
             <input type="text" value={shopSearch} onChange={e => setShopSearch(e.target.value)}
               placeholder="Search shops by name…"
-              style={{ width: '100%', padding: '10px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
-            {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: '#94A3B8' }}>Searching…</span>}
+              style={{ width: '100%', padding: '10px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+            {shopSearchBusy && <span style={{ position: 'absolute', right: 12, top: 10, fontSize: 11, color: 'var(--c-faint)' }}>Searching…</span>}
           </div>
           {!shopSearch && shopsTotal > shops.length && (
-            <p style={{ fontSize: 11, color: '#94A3B8', margin: '-8px 0 12px' }}>
+            <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: '-8px 0 12px' }}>
               Showing {shops.length} of {shopsTotal} — search above to find a specific shop.
             </p>
           )}
           {shops.length === 0 ? (
-            <p style={{color: '#64748B', textAlign: 'center'}}>No shops available.</p>
+            <p style={{color: 'var(--c-muted)', textAlign: 'center'}}>No shops available.</p>
           ) : (
             shops.map(shop => {
               const shopCredits = credits.filter(c => c.toShopId === shop.id && !c.paid);
               const owed = shopCredits.reduce((a, b) => a + b.amount, 0);
               return (
-                <div key={shop.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <div key={shop.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{shop.name}</h4>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748B' }}>{shop.phone}</p>
+                    <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--c-ink)' }}>{shop.name}</h4>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-muted)' }}>{shop.phone}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '12px', color: '#64748B' }}>Total Owed</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--c-muted)' }}>Total Owed</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed}</div>
                   </div>
                   {/* Existed only in the desktop tree — mobile users
                       (the majority of this audience) had no way to
                       generate a party statement at all. */}
                   <button
                     onClick={() => downloadPartyStatement(shop, credits, stockOrders, user)}
-                    style={{ marginTop: '8px', width: '100%', background: '#F1F5F9', color: '#334155', border: '1px solid #CBD5E1', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                    style={{ marginTop: '8px', width: '100%', background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line-strong)', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                   >
                     🧾 Statement
                   </button>
@@ -3710,18 +3710,18 @@ const DistributorDashboard = () => {
       {/* Stock Orders Tab */}
       {activeTab === 'orders' && (
         <div style={{ padding: 20 }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}>📥 Incoming Restock Orders</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: 'var(--c-ink)' }}>📥 Incoming Restock Orders</h2>
           {selectedForDispatch.size > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#4338CA' }}>{selectedForDispatch.size} selected</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-primary-hover)' }}>{selectedForDispatch.size} selected</span>
               <button onClick={() => handleDispatchSelected()} disabled={dispatching}
-                style={{ background: dispatching ? '#94A3B8' : '#4F46E5', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
+                style={{ background: dispatching ? 'var(--c-faint)' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: dispatching ? 'wait' : 'pointer', width: 'auto' }}>
                 {dispatching ? 'Dispatching…' : `📦 Dispatch (${selectedForDispatch.size})`}
               </button>
             </div>
           )}
           {stockOrders.length === 0 ? (
-            <p style={{ color: '#64748B', textAlign: 'center' }}>No stock orders received.</p>
+            <p style={{ color: 'var(--c-muted)', textAlign: 'center' }}>No stock orders received.</p>
           ) : (
             stockOrders.map(o => (
               <StockOrderCard
@@ -3747,15 +3747,15 @@ const DistributorDashboard = () => {
       {activeTab === 'catalog' && (
         <div style={{ padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: '#0F172A' }}>Wholesale Catalog ({wholesaleProducts.length})</h2>
-            <button onClick={openAddProduct} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--c-ink)' }}>Wholesale Catalog ({wholesaleProducts.length})</h2>
+            <button onClick={openAddProduct} style={{ background: 'var(--c-primary)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
               + Add Product
             </button>
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             {hasDistCap(user, 'bulkOrderCSV') && (
-              <button onClick={() => setShowBulkImport(true)} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={() => setShowBulkImport(true)} style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                 📥 Bulk CSV
               </button>
             )}
@@ -3764,10 +3764,10 @@ const DistributorDashboard = () => {
                 <button onClick={() => setShowBarcodeManager(true)} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FFEDD5', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🏷️ Barcodes
                 </button>
-                <button onClick={handleGenerateCatalog} style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={handleGenerateCatalog} style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   📄 PDF Catalog
                 </button>
-                <button onClick={handleCopyPublicCatalogLink} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={handleCopyPublicCatalogLink} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                   🔗 Web Link
                 </button>
                 <button onClick={handleShareCatalogWhatsApp} style={{ background: '#E8F5E9', color: '#2E7D32', border: '1px solid #A5D6A7', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -3782,7 +3782,7 @@ const DistributorDashboard = () => {
               screen well) — pointing there rather than cramming a
               lesser version of the same UI in here. */}
           {hasDistCap(user, 'bulkOrderCSV') && (
-            <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 16, textAlign: 'center' }}>
+            <p style={{ fontSize: 12, color: 'var(--c-faint)', marginBottom: 16, textAlign: 'center' }}>
               Have a product list to import? Bulk CSV import is available on the desktop dashboard.
             </p>
           )}
@@ -3790,32 +3790,32 @@ const DistributorDashboard = () => {
           {wholesaleProducts.length > 0 && (
             <input type="text" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)}
               placeholder="Search your catalog…"
-              style={{ width: '100%', padding: '10px 14px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--c-line)', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', boxSizing: 'border-box' }} />
           )}
 
           {wholesaleProducts.length === 0 ? (
-            <p style={{ color: '#64748B', textAlign: 'center' }}>No wholesale products published yet.</p>
+            <p style={{ color: 'var(--c-muted)', textAlign: 'center' }}>No wholesale products published yet.</p>
           ) : (() => {
             const q = catalogSearch.trim().toLowerCase();
             const filtered = q ? wholesaleProducts.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)) : wholesaleProducts;
             if (filtered.length === 0) {
-              return <p style={{ color: '#64748B', textAlign: 'center' }}>No products match "{catalogSearch}".</p>;
+              return <p style={{ color: 'var(--c-muted)', textAlign: 'center' }}>No products match "{catalogSearch}".</p>;
             }
             return (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {filtered.map(p => (
-                <div key={p.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                <div key={p.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                   <div>
                     {p.category && <span style={{ fontSize: '9px', background: '#EFF6FF', color: '#1D4ED8', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 'bold', border: '1px solid #BFDBFE' }}>{p.category}</span>}
-                    <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: '#0F172A', fontWeight: 'bold' }}>{p.name}</h4>
+                    <h4 style={{ margin: '8px 0 4px 0', fontSize: '14px', color: 'var(--c-ink)', fontWeight: 'bold' }}>{p.name}</h4>
                   </div>
                   <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}{p.unit && <span style={{ fontSize: 10, fontWeight: 600, color: '#64748B' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
-                    <span style={{ fontSize: '11px', color: '#64748B' }}>Stock: {p.stock}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '900', color: '#15803D' }}>₹{p.price}{p.unit && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--c-muted)' }}> / {UNIT_SUFFIX[p.unit] || p.unit}</span>}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>Stock: {p.stock}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                    <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                    <button onClick={() => openEditProduct(p)} style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => handleDeleteWholesaleProduct(p.id)} style={{ flex: 1, background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                   </div>
                 </div>
               ))}
@@ -3828,14 +3828,14 @@ const DistributorDashboard = () => {
       {/* History Tab */}
       {activeTab === 'history' && (
         <div style={{padding: 20}}>
-          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A'}}>✅ Collection History</h2>
+          <h2 style={{fontSize: '18px', fontWeight: 800, margin: '0 0 16px 0', color: 'var(--c-ink)'}}>✅ Collection History</h2>
           {credits.filter(c => c.paid).length === 0 ? (
-            <p style={{color: '#64748B', textAlign: 'center'}}>No history of paid collections.</p>
+            <p style={{color: 'var(--c-muted)', textAlign: 'center'}}>No history of paid collections.</p>
           ) : (
             credits.filter(c => c.paid).map(c => (
-              <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: '4px solid #16A34A', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <div key={c.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderLeft: '4px solid var(--c-success-strong)', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 <div>
-                  <h4 style={{ margin: 0, fontSize: '16px', color: '#0F172A' }}>{c.shopName}</h4>
+                  <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--c-ink)' }}>{c.shopName}</h4>
                   <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#15803D' }}>{c.desc} • {new Date(c.date).toLocaleDateString()}</p>
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#15803D' }}>+ ₹{c.amount}</div>
@@ -3848,29 +3848,29 @@ const DistributorDashboard = () => {
       {/* Add Credit Modal */}
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', border: '1px solid #E2E8F0' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
+          <div style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '24px 24px 0 0', padding: '24px', border: '1px solid var(--c-line)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 20px 0' }}>Supply Stock on Credit</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Select Shop</label>
-              <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} style={{ width: '100%', padding: '16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px' }}>Select Shop</label>
+              <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} style={{ width: '100%', padding: '16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', color: 'var(--c-ink)', fontSize: '16px' }}>
                 <option value="">-- Choose Shop --</option>
                 {shops.map(s => <option key={s.id} value={s.id}>{s.name} ({s.phone})</option>)}
               </select>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Bill Amount (₹)</label>
-              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000" style={{ width: '100%', padding: '16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '16px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px' }}>Bill Amount (₹)</label>
+              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g. 5000" style={{ width: '100%', padding: '16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', color: 'var(--c-ink)', fontSize: '16px' }} />
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '8px' }}>Description (Optional)</label>
-              <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. 2 Cartons ITC Cigarettes" style={{ width: '100%', padding: '16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', color: '#0F172A', fontSize: '16px' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '8px' }}>Description (Optional)</label>
+              <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. 2 Cartons ITC Cigarettes" style={{ width: '100%', padding: '16px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', color: 'var(--c-ink)', fontSize: '16px' }} />
             </div>
 
-            <button onClick={handleGiveCredit} style={{ width: '100%', background: '#4F46E5', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Credit Entry</button>
-            <button onClick={() => setShowModal(false)} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleGiveCredit} style={{ width: '100%', background: 'var(--c-primary)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>Save Credit Entry</button>
+            <button onClick={() => setShowModal(false)} style={{ width: '100%', background: 'transparent', color: 'var(--c-muted)', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '14px', marginTop: '8px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -3878,63 +3878,63 @@ const DistributorDashboard = () => {
       {/* Add Wholesale Product Modal (Mobile) */}
       {showCatalogModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)', zIndex: 1100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0', boxSizing: 'border-box' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: '20px 20px 32px 20px', border: '1px solid #E2E8F0', boxSizing: 'border-box', boxShadow: '0 -10px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', position: 'sticky', top: 0, background: '#FFFFFF', zIndex: 10, paddingBottom: 8, borderBottom: '1px solid #F1F5F9' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#0F172A', margin: 0 }}>{editingProductId ? 'Edit Product' : 'Publish Wholesale Product'}</h2>
-              <button onClick={closeCatalogModal} style={{ background: '#F1F5F9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: '20px 20px 32px 20px', border: '1px solid var(--c-line)', boxSizing: 'border-box', boxShadow: '0 -10px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', position: 'sticky', top: 0, background: 'var(--c-surface)', zIndex: 10, paddingBottom: 8, borderBottom: '1px solid var(--c-line-soft)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--c-ink)', margin: 0 }}>{editingProductId ? 'Edit Product' : 'Publish Wholesale Product'}</h2>
+              <button onClick={closeCatalogModal} style={{ background: 'var(--c-line-soft)', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', color: 'var(--c-ink-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             </div>
             
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
-              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Carton (100 packets)" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Name</label>
+              <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} placeholder="e.g. Parle-G Carton (100 packets)" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
-                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Price (₹)</label>
+                <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} placeholder="850" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Bulk Stock Qty</label>
-                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Bulk Stock Qty</label>
+                <input type="number" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} placeholder="50" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
-              <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps" style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Category</label>
+              <input type="text" value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)} placeholder="e.g. Biscuits, Atta, Soaps" style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Sold Per (unit)</label>
-              <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Sold Per (unit)</label>
+              <select value={newProdUnit} onChange={e => setNewProdUnit(e.target.value)} style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                 <option value="">Not specified</option>
                 {ALL_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </select>
             </div>
 
             <div style={{ marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Jars/Units per Box (optional)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Jars/Units per Box (optional)</label>
               <input type="number" min="1" value={newProdPackSize} onChange={e => setNewProdPackSize(e.target.value)} placeholder="e.g. 8"
-                style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: '14px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Code</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Code</label>
                 <input type="text" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. 269"
-                  style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>HSN Code</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>HSN Code</label>
                 <input type="text" inputMode="numeric" value={newProdHsnCode} onChange={e => setNewProdHsnCode(e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 1905" maxLength={8}
-                  style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate</label>
-              <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '14px', boxSizing: 'border-box' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>GST Rate</label>
+              <select value={newProdGstRate} onChange={e => setNewProdGstRate(e.target.value)} style={{ width: '100%', padding: '12px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '14px', boxSizing: 'border-box' }}>
                 <option value="0">0% (Exempt)</option>
                 <option value="3">3%</option>
                 <option value="5">5%</option>
@@ -3945,11 +3945,11 @@ const DistributorDashboard = () => {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#475569', marginBottom: '6px', fontWeight: 'bold' }}>Product Image (optional)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--c-ink-2)', marginBottom: '6px', fontWeight: 'bold' }}>Product Image (optional)</label>
               {newProdImage ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#F8FAFC', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                  <img src={newProdImage} alt="" style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #CBD5E1' }} />
-                  <button type="button" onClick={() => setNewProdImage('')} style={{ background: '#FEE2E2', color: '#DC2626', border: '1px solid #FCA5A5', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--c-bg)', padding: '10px', borderRadius: '8px', border: '1px solid var(--c-line)' }}>
+                  <img src={newProdImage} alt="" style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover', border: '1px solid var(--c-line-strong)' }} />
+                  <button type="button" onClick={() => setNewProdImage('')} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid var(--c-danger-border)', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Remove Image
                   </button>
                 </div>
@@ -3958,10 +3958,10 @@ const DistributorDashboard = () => {
               )}
             </div>
 
-            <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: 'linear-gradient(135deg, #4F46E5, #4338CA)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(79,70,229,0.3)' }}>
+            <button onClick={handleAddWholesaleProduct} style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-hover))', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(79,70,229,0.3)' }}>
               {editingProductId ? 'Update Product' : 'Publish Product'}
             </button>
-            <button onClick={closeCatalogModal} style={{ width: '100%', background: 'transparent', color: '#64748B', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '14px', marginTop: '6px', cursor: 'pointer' }}>
+            <button onClick={closeCatalogModal} style={{ width: '100%', background: 'transparent', color: 'var(--c-muted)', border: 'none', padding: '12px', borderRadius: '12px', fontSize: '14px', marginTop: '6px', cursor: 'pointer' }}>
               Cancel
             </button>
           </div>
@@ -3978,17 +3978,17 @@ const DistributorDashboard = () => {
           {activeTab === 'routeplanner' && (
             <div>
               {!hasDistCap(user, 'routePlanner') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '20px' }}>
-                  <Lock size={40} style={{ color: '#D97706', marginBottom: '16px' }} />
-                  <h3 style={{ color: '#B45309', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
-                  <p style={{ color: '#B45309', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#F59E0B', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '20px' }}>
+                  <Lock size={40} style={{ color: 'var(--c-accent-hover)', marginBottom: '16px' }} />
+                  <h3 style={{ color: 'var(--c-warning-strong)', margin: '0 0 8px 0', fontWeight: '800' }}>Route Planner — Pro Distributor Feature</h3>
+                  <p style={{ color: 'var(--c-warning-strong)', fontSize: '13px', margin: '0 0 24px 0' }}>Optimise your daily delivery route based on outstanding credit and shop distance.</p>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: '#0F172A' }}>🗺️ Route Planner</h2>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '8px', color: 'var(--c-ink)' }}>🗺️ Route Planner</h2>
                   {(() => {
                     const today = new Date();
                     const sevenAgo = new Date(today); sevenAgo.setDate(today.getDate() - 7);
@@ -4016,8 +4016,8 @@ const DistributorDashboard = () => {
                     return (
                       <>
                         <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '12px 18px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                          <span style={{ color: '#4F46E5', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
-                          <span style={{ color: '#B91C1C', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
+                          <span style={{ color: 'var(--c-primary)', fontSize: '14px', fontWeight: '700' }}>Today's Route: {routeShops.length} shops</span>
+                          <span style={{ color: 'var(--c-danger-strong)', fontSize: '14px', fontWeight: '700' }}>₹{totalToCollect.toLocaleString('en-IN')} to collect</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           {routeShops.map((shop, idx) => {
@@ -4027,23 +4027,23 @@ const DistributorDashboard = () => {
                             const notVisited7 = !lastVisit || lastVisit < sevenAgo;
                             const shopDist = distanceKm(user.latitude, user.longitude, shop.latitude, shop.longitude);
                             return (
-                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? '#EF4444' : owed > 0 ? '#F59E0B' : '#10B981'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                              <div key={shop.id} className="premium-glass" style={{ padding: '14px 18px', borderLeft: `4px solid ${owed > 5000 ? 'var(--c-danger)' : owed > 0 ? 'var(--c-warning)' : 'var(--c-success)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                                 <div style={{ flex: 1, minWidth: '140px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                                    <span style={{ fontSize: '10px', color: '#475569' }}>Stop #{idx + 1}</span>
+                                    <span style={{ fontSize: '10px', color: 'var(--c-ink-2)' }}>Stop #{idx + 1}</span>
                                     {shopDist != null && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#F0FDF4', color: '#15803D', fontWeight: 'bold' }}>📍 {shopDist < 1 ? `${Math.round(shopDist * 1000)}m` : `${shopDist.toFixed(1)}km`}</span>}
-                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#FEF3C7', color: '#B45309', fontWeight: 'bold' }}>Not visited 7d+</span>}
+                                    {notVisited7 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', fontWeight: 'bold' }}>Not visited 7d+</span>}
                                     {pendingOrders > 0 && <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 'bold' }}>{pendingOrders} pending</span>}
                                   </div>
-                                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{shop.name}</div>
-                                  <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-ink)' }}>{shop.name}</div>
+                                  <div style={{ fontSize: '11px', color: 'var(--c-muted)' }}>
                                     {shop.phone || 'No phone'} · Last: {lastVisit ? lastVisit.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Never'}
                                   </div>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                                   <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? '#DC2626' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
-                                    <div style={{ fontSize: '10px', color: '#64748B' }}>outstanding</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '800', color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D' }}>₹{owed.toLocaleString('en-IN')}</div>
+                                    <div style={{ fontSize: '10px', color: 'var(--c-muted)' }}>outstanding</div>
                                   </div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     {shop.phone && <a href={`tel:${shop.phone}`} style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>📞 Call</a>}
@@ -4068,33 +4068,33 @@ const DistributorDashboard = () => {
             <div>
               {/* Basic Sales Reports — same restructure as desktop:
                   shown to every tier now, only rankings below stay Pro+. */}
-              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: '#0F172A' }}>📊 Sales Reports</h2>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', color: 'var(--c-ink)' }}>📊 Sales Reports</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
                   { label: 'Total Shops Served', value: shops.length, color: '#2563EB' },
-                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: '#059669' },
-                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: '#DC2626' },
-                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: '#D97706' },
+                  { label: 'Total GMV Issued', value: `₹${credits.reduce((s, c) => s + c.amount, 0)}`, color: 'var(--c-success-strong)' },
+                  { label: 'Outstanding Balance', value: `₹${totalOutstanding}`, color: 'var(--c-danger-strong)' },
+                  { label: 'Collection Rate', value: `${credits.length > 0 ? Math.round((credits.filter(c => c.paid).length / credits.length) * 100) : 0}%`, color: 'var(--c-accent-hover)' },
                 ].map((stat, i) => (
-                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+                  <div key={i} className="premium-glass" style={{ padding: '20px', textAlign: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                     <div style={{ fontSize: '24px', fontWeight: '900', color: stat.color }}>{stat.value}</div>
-                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>{stat.label}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--c-ink-2)', marginTop: '4px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
 
               {!hasDistCap(user, 'advancedAnalytics') ? (
-                <div style={{ textAlign: 'center', padding: '60px 24px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '20px' }}>
-                  <TrendingUp size={40} style={{ color: '#4F46E5', marginBottom: '16px' }} />
+                <div style={{ textAlign: 'center', padding: '60px 24px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '20px' }}>
+                  <TrendingUp size={40} style={{ color: 'var(--c-primary)', marginBottom: '16px' }} />
                   <h3 style={{ color: '#3730A3', margin: '0 0 8px 0', fontWeight: '800' }}>Advanced Analytics — Pro Distributor Feature</h3>
                   <p style={{ color: '#3730A3', fontSize: '13px', margin: '0 0 24px 0' }}>Top shops, top products, and detailed breakdowns.</p>
-                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+                  <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
                     Upgrade to Pro Distributor
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
+                  <h3 style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>Top Shops by Outstanding Credit</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {shops.sort((a, b) => {
                       const aO = credits.filter(c => c.toShopId === a.id && !c.paid).reduce((s, c) => s + c.amount, 0);
@@ -4105,20 +4105,20 @@ const DistributorDashboard = () => {
                       const total = credits.filter(c => c.toShopId === shop.id).reduce((s, c) => s + c.amount, 0);
                       const pct = total > 0 ? Math.round((owed / total) * 100) : 0;
                       return (
-                        <div key={shop.id} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                          <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
+                        <div key={shop.id} className="premium-glass" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)' }}>
+                          <span style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: '500' }}>{shop.name}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ width: '80px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? '#EF4444' : '#F59E0B', borderRadius: '3px' }} />
+                            <div style={{ width: '80px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: owed > 5000 ? 'var(--c-danger)' : 'var(--c-warning)', borderRadius: '3px' }} />
                             </div>
-                            <span style={{ color: owed > 0 ? '#DC2626' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
+                            <span style={{ color: owed > 0 ? 'var(--c-danger-strong)' : '#15803D', fontSize: '13px', fontWeight: 'bold' }}>₹{owed}</span>
                           </div>
                         </div>
                       );
                     })}
                   </div>
 
-                  <h3 style={{ color: '#0F172A', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
+                  <h3 style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: 'bold', margin: '24px 0 12px' }}>Top Products by Order Volume</h3>
                   {(() => {
                     const productTotals = {};
                     stockOrders.forEach(o => {
@@ -4129,18 +4129,18 @@ const DistributorDashboard = () => {
                       });
                     });
                     const topProducts = Object.entries(productTotals).sort((a, b) => b[1].qty - a[1].qty).slice(0, 5);
-                    if (topProducts.length === 0) return <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
+                    if (topProducts.length === 0) return <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No orders yet to analyze.</p>;
                     const maxQty = topProducts[0][1].qty;
                     return (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {topProducts.map(([name, stats]) => (
-                          <div key={name} style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10 }}>
-                            <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: '500' }}>{name}</span>
+                          <div key={name} style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 10 }}>
+                            <span style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: '500' }}>{name}</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <div style={{ width: '60px', height: '6px', background: '#F1F5F9', borderRadius: '3px' }}>
-                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: '#4F46E5', borderRadius: '3px' }} />
+                              <div style={{ width: '60px', height: '6px', background: 'var(--c-line-soft)', borderRadius: '3px' }}>
+                                <div style={{ width: `${(stats.qty / maxQty) * 100}%`, height: '100%', background: 'var(--c-primary)', borderRadius: '3px' }} />
                               </div>
-                              <span style={{ color: '#0F172A', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty}</span>
+                              <span style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 'bold' }}>{stats.qty}</span>
                             </div>
                           </div>
                         ))}
@@ -4156,12 +4156,12 @@ const DistributorDashboard = () => {
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '720px' }}>
               {/* Field Operations & Van Sales Command Hub (Mobile) */}
-              <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '16px', marginBottom: '20px', color: '#FFFFFF', boxShadow: '0 6px 20px rgba(15,23,42,0.15)' }}>
+              <div style={{ background: 'linear-gradient(135deg, var(--c-ink) 0%, #1E1B4B 100%)', borderRadius: '16px', padding: '16px', marginBottom: '20px', color: 'var(--c-surface)', boxShadow: '0 6px 20px rgba(15,23,42,0.15)' }}>
                 <div style={{ marginBottom: '12px' }}>
-                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: 'var(--c-surface)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     🚚 Field Distribution &amp; Van Sales
                   </h3>
-                  <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#94A3B8' }}>
+                  <p style={{ margin: '3px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>
                     Manage delivery vans, beat routes, presale orders, and settlement.
                   </p>
                 </div>
@@ -4169,10 +4169,10 @@ const DistributorDashboard = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <button onClick={() => navigate('/field/setup')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div style={{ background: '#4F46E5', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🚚</div>
+                    <div style={{ background: 'var(--c-primary)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🚚</div>
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Depots &amp; Vans</div>
-                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Setup vehicles</div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)' }}>Depots &amp; Vans</div>
+                      <div style={{ fontSize: '10px', color: 'var(--c-line-strong)' }}>Setup vehicles</div>
                     </div>
                   </button>
 
@@ -4180,35 +4180,35 @@ const DistributorDashboard = () => {
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <div style={{ background: '#0284C7', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🗺️</div>
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Beat Routes</div>
-                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Assign routes</div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)' }}>Beat Routes</div>
+                      <div style={{ fontSize: '10px', color: 'var(--c-line-strong)' }}>Assign routes</div>
                     </div>
                   </button>
 
                   <button onClick={() => navigate('/field/orders')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div style={{ background: '#D97706', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>📋</div>
+                    <div style={{ background: 'var(--c-accent-hover)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>📋</div>
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Van Orders</div>
-                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Dispatch stock</div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)' }}>Van Orders</div>
+                      <div style={{ fontSize: '10px', color: 'var(--c-line-strong)' }}>Dispatch stock</div>
                     </div>
                   </button>
 
                   <button onClick={() => navigate('/field/settlement')}
                     style={{ textAlign: 'left', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div style={{ background: '#059669', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>💰</div>
+                    <div style={{ background: 'var(--c-success-strong)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>💰</div>
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Settlement</div>
-                      <div style={{ fontSize: '10px', color: '#CBD5E1' }}>Reconcile cash</div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)' }}>Settlement</div>
+                      <div style={{ fontSize: '10px', color: 'var(--c-line-strong)' }}>Reconcile cash</div>
                     </div>
                   </button>
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Settings size={20} color="#64748B" /> Business Profile & GST
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Settings size={20} color="var(--c-muted)" /> Business Profile & GST
                 </h2>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--c-muted)' }}>Used on your wholesale invoices and credit records. Keep your GSTIN and address accurate for compliant billing.</p>
               </div>
 
               {/* Real background push — the distributor dashboard had
@@ -4220,50 +4220,50 @@ const DistributorDashboard = () => {
                 <PushToggle userId={user.id} />
               </div>
 
-              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="premium-glass" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 1px 2px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Name</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Business Name</label>
                   <input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. FMCG Supply Co."
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>GSTIN</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>GSTIN</label>
                     <input value={profileForm.gstin} onChange={e => setProfileForm(p => ({ ...p, gstin: e.target.value.toUpperCase() }))} placeholder="e.g. 29ABCDE1234F2Z5" maxLength={15}
-                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box', fontFamily: 'monospace', letterSpacing: '0.5px' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>State Code</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>State Code</label>
                     <input value={profileForm.stateCode} onChange={e => setProfileForm(p => ({ ...p, stateCode: e.target.value }))} placeholder="e.g. 29"
-                      style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Business Address (printed on invoices)</label>
                   <textarea value={profileForm.businessAddress} onChange={e => setProfileForm(p => ({ ...p, businessAddress: e.target.value }))} placeholder="Warehouse / office address" rows={3}
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Warehouse Location</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>Warehouse Location</label>
                   <button type="button" onClick={handleGrabDistributorLocation}
-                    style={{ width: '100%', background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', marginBottom: 6 }}>
+                    style={{ width: '100%', background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', marginBottom: 6 }}>
                     📍 {profileForm.latitude ? 'Update Location' : 'Set My Location'} {profileForm.latitude && '✓'}
                   </button>
-                  <p style={{ margin: 0, fontSize: '11px', color: '#94A3B8' }}>Used by Route Planner to sort stops by real distance — save your profile after setting this.</p>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-faint)' }}>Used by Route Planner to sort stops by real distance — save your profile after setting this.</p>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>UPI ID for Collections</label>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: '6px' }}>UPI ID for Collections</label>
                   <input value={profileForm.upiId} onChange={e => setProfileForm(p => ({ ...p, upiId: e.target.value }))} placeholder="e.g. yourname@okhdfcbank"
-                    style={{ width: '100%', padding: '11px 13px', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', background: '#FFFFFF', fontSize: '14px', boxSizing: 'border-box' }} />
-                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#94A3B8' }}>Shops paying down their credit can send to this UPI.</p>
+                    style={{ width: '100%', padding: '11px 13px', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', background: 'var(--c-surface)', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--c-faint)' }}>Shops paying down their credit can send to this UPI.</p>
                 </div>
 
                 <button onClick={saveDistributorProfile} disabled={profileSaving}
-                  style={{ background: profileSaving ? '#A5B4FC' : '#4F46E5', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
+                  style={{ background: profileSaving ? '#A5B4FC' : 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', padding: '12px', fontWeight: 700, fontSize: '14px', cursor: profileSaving ? 'default' : 'pointer', marginTop: '4px' }}>
                   {profileSaving ? 'Saving…' : 'Save Business Profile'}
                 </button>
               </div>
@@ -4272,39 +4272,39 @@ const DistributorDashboard = () => {
                   layout. See desktop version's comment for full
                   context on why this was completely missing. */}
               <div style={{ marginTop: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>👥 Staff Accounts</h2>
-                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Let your team log in and help manage orders, catalog, and collections.</p>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>👥 Staff Accounts</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Let your team log in and help manage orders, catalog, and collections.</p>
 
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
-                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
-                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Staff accounts are an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px' }}>
                     <input value={staffName} onChange={e => setStaffName(e.target.value)} placeholder="Staff name"
-                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
                     <input value={staffPhone} onChange={e => setStaffPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone" inputMode="numeric"
-                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', marginBottom: 8 }} />
                     <button onClick={handleAddDistStaff} disabled={addingStaff}
-                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', marginBottom: 12 }}>
+                      style={{ width: '100%', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', marginBottom: 12 }}>
                       {addingStaff ? 'Adding…' : '+ Add Staff'}
                     </button>
-                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 12px' }}>New staff log in with their phone number and default PIN <strong>1234</strong>.</p>
+                    <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: '0 0 12px' }}>New staff log in with their phone number and default PIN <strong>1234</strong>.</p>
 
                     {distStaff.length === 0 ? (
-                      <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '8px 0' }}>No staff added yet.</p>
+                      <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '8px 0' }}>No staff added yet.</p>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {distStaff.map(s => (
-                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+                          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8 }}>
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{s.name}</div>
-                              <div style={{ fontSize: 11, color: '#64748B' }}>{s.phone}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{s.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{s.phone}</div>
                             </div>
                             <button onClick={() => handleRemoveDistStaff(s.id, s.name)}
-                              style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '6px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                              style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '6px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                           </div>
                         ))}
                       </div>
@@ -4315,44 +4315,44 @@ const DistributorDashboard = () => {
 
               {/* API Access — same feature as desktop, mobile layout. */}
               <div style={{ marginTop: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>🔑 API Access</h2>
-                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>🔑 API Access</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Connect your own systems — pull orders, catalog, and credits programmatically.</p>
 
                 {!hasDistCap(user, 'apiAccess') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
-                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
-                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>API access is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px' }}>
                     {newlyGeneratedKey && (
-                      <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 12, marginBottom: 14 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: '#92400E' }}>⚠️ Copy this now — it won't be shown again:</p>
-                        <code style={{ display: 'block', background: '#fff', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 11, wordBreak: 'break-all', marginBottom: 8 }}>{newlyGeneratedKey}</code>
+                      <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--c-warning-strong)' }}>⚠️ Copy this now — it won't be shown again:</p>
+                        <code style={{ display: 'block', background: 'var(--c-surface)', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 10px', fontSize: 11, wordBreak: 'break-all', marginBottom: 8 }}>{newlyGeneratedKey}</code>
                         <button onClick={() => { navigator.clipboard?.writeText(newlyGeneratedKey); toast.success('Copied!'); }}
-                          style={{ width: '100%', background: '#B45309', color: '#fff', border: 'none', padding: '8px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Copy Key</button>
+                          style={{ width: '100%', background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Copy Key</button>
                       </div>
                     )}
 
                     {apiKeyInfo ? (
                       <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 12, color: '#0F172A', marginBottom: 4 }}>Active: <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                        <div style={{ fontSize: 12, color: 'var(--c-ink)', marginBottom: 4 }}>Active: <code style={{ background: 'var(--c-line-soft)', padding: '2px 6px', borderRadius: 4 }}>{apiKeyInfo.keyPrefix}</code></div>
+                        <div style={{ fontSize: 10, color: 'var(--c-faint)' }}>
                           Created {new Date(apiKeyInfo.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                           {apiKeyInfo.lastUsedAt ? ` · Used ${new Date(apiKeyInfo.lastUsedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : ' · Never used'}
                         </div>
                       </div>
                     ) : (
-                      <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 14 }}>No active API key.</p>
+                      <p style={{ fontSize: 12, color: 'var(--c-faint)', marginBottom: 14 }}>No active API key.</p>
                     )}
 
                     <button onClick={handleGenerateApiKey} disabled={generatingKey}
-                      style={{ width: '100%', background: '#4F46E5', color: '#fff', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: apiKeyInfo ? 8 : 0 }}>
+                      style={{ width: '100%', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', marginBottom: apiKeyInfo ? 8 : 0 }}>
                       {generatingKey ? 'Generating…' : apiKeyInfo ? 'Regenerate Key' : 'Generate API Key'}
                     </button>
                     {apiKeyInfo && (
-                      <button onClick={handleRevokeApiKey} style={{ width: '100%', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      <button onClick={handleRevokeApiKey} style={{ width: '100%', background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                         Revoke Key
                       </button>
                     )}
@@ -4362,25 +4362,25 @@ const DistributorDashboard = () => {
 
               {/* Custom Branded Reports (Logo) — same feature as desktop, mobile layout. */}
               <div style={{ marginTop: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>🖼️ Custom Branded Reports</h2>
-                <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#64748B' }}>Add your logo to invoices and reports sent to shops.</p>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>🖼️ Custom Branded Reports</h2>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--c-muted)' }}>Add your logo to invoices and reports sent to shops.</p>
 
                 {!hasDistCap(user, 'customBranding') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
-                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
-                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Custom branding is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
                     {logo ? (
-                      <img src={logo} alt="Distributor Logo" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', border: '2px solid #4F46E5', marginBottom: 10 }} />
+                      <img src={logo} alt="Distributor Logo" style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--c-primary)', marginBottom: 10 }} />
                     ) : (
-                      <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#F1F5F9', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 11 }}>No Logo</div>
+                      <div style={{ width: 90, height: 90, borderRadius: '50%', background: 'var(--c-line-soft)', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-faint)', fontSize: 11 }}>No Logo</div>
                     )}
                     <input type="file" accept="image/*" onChange={handleDistLogoFile} style={{ display: 'block', margin: '0 auto', fontSize: 11 }} />
                     {logo && (
-                      <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                      <button onClick={handleDistLogoRemove} style={{ marginTop: 10, background: 'var(--c-danger-soft)', border: '1px solid #FECACA', color: 'var(--c-danger-strong)', padding: '6px 14px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                         Remove Logo
                       </button>
                     )}
@@ -4395,9 +4395,9 @@ const DistributorDashboard = () => {
                   Pointing there rather than cramming a lesser version
                   of the same UI onto a phone screen. */}
               {hasDistCap(user, 'multiBranch') && (
-                <div style={{ marginTop: '20px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                  <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 6px 0', color: '#0F172A' }}>🏢 Multi-Branch</h2>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#4338CA' }}>Manage your branches (add new ones, reset passwords) from the desktop dashboard. You have {distBranches.filter(b => b.id !== user.id).length} branch{distBranches.filter(b => b.id !== user.id).length === 1 ? '' : 'es'} currently.</p>
+                <div style={{ marginTop: '20px', background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                  <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 6px 0', color: 'var(--c-ink)' }}>🏢 Multi-Branch</h2>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-primary-hover)' }}>Manage your branches (add new ones, reset passwords) from the desktop dashboard. You have {distBranches.filter(b => b.id !== user.id).length} branch{distBranches.filter(b => b.id !== user.id).length === 1 ? '' : 'es'} currently.</p>
                 </div>
               )}
 
@@ -4410,17 +4410,17 @@ const DistributorDashboard = () => {
                   Enterprise distributors using the same genuine
                   support channel already used elsewhere in the app. */}
               <div style={{ marginTop: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: '#0F172A' }}>⭐ Priority Support</h2>
+                <h2 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 4px 0', color: 'var(--c-ink)' }}>⭐ Priority Support</h2>
                 {!hasDistCap(user, 'staffAccounts') ? (
-                  <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
-                    <Lock size={24} style={{ color: '#B45309', marginBottom: '6px' }} />
-                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#92400E', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
-                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
+                  <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '18px', textAlign: 'center' }}>
+                    <Lock size={24} style={{ color: 'var(--c-warning-strong)', marginBottom: '6px' }} />
+                    <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'var(--c-warning-strong)', fontWeight: 600 }}>Priority support is an Enterprise plan feature.</p>
+                    <button onClick={() => setShowUpgradePlanModal(true)} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Upgrade to Enterprise</button>
                   </div>
                 ) : (
-                  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px' }}>
-                    <p style={{ margin: '0 0 10px', fontSize: 12, color: '#64748B' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
-                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'block', textAlign: 'center', background: '#4F46E5', color: '#fff', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '16px' }}>
+                    <p style={{ margin: '0 0 10px', fontSize: 12, color: 'var(--c-muted)' }}>As an Enterprise distributor, reach us directly for priority handling:</p>
+                    <a href="mailto:adexosindia@gmail.com?subject=Priority%20Support%20Request" style={{ display: 'block', textAlign: 'center', background: 'var(--c-primary)', color: 'var(--c-surface)', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
                       ✉️ adexosindia@gmail.com
                     </a>
                   </div>
@@ -4433,24 +4433,24 @@ const DistributorDashboard = () => {
           fix already applied to the shop dashboard's mobile nav
           tonight — clickable divs are a known cause of unreliable
           touch handling on mobile browsers). */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: '#FFFFFF', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 100, boxShadow: '0 -4px 16px rgba(0,0,0,0.04)' }}>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'dashboard' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px', background: 'var(--c-surface)', borderTop: '1px solid var(--c-line)', display: 'flex', justifyContent: 'space-around', padding: '12px 0', zIndex: 100, boxShadow: '0 -4px 16px rgba(0,0,0,0.04)' }}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'dashboard' ? 'var(--c-primary)' : 'var(--c-muted)', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
           <div style={{ fontSize: '20px' }}>📊</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Dashboard</span>
         </button>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'shops' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('shops')}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'shops' ? 'var(--c-primary)' : 'var(--c-muted)', cursor: 'pointer' }} onClick={() => setActiveTab('shops')}>
           <div style={{ fontSize: '20px' }}>🏪</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Shops</span>
         </button>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'orders' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('orders')}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'orders' ? 'var(--c-primary)' : 'var(--c-muted)', cursor: 'pointer' }} onClick={() => setActiveTab('orders')}>
           <div style={{ fontSize: '20px' }}>📥</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Orders</span>
         </button>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'catalog' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('catalog')}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'catalog' ? 'var(--c-primary)' : 'var(--c-muted)', cursor: 'pointer' }} onClick={() => setActiveTab('catalog')}>
           <div style={{ fontSize: '20px' }}>📦</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Catalog</span>
         </button>
-        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'history' ? '#4F46E5' : '#64748B', cursor: 'pointer' }} onClick={() => setActiveTab('history')}>
+        <button type="button" style={{ background: 'none', border: 'none', font: 'inherit', textAlign: 'center', color: activeTab === 'history' ? 'var(--c-primary)' : 'var(--c-muted)', cursor: 'pointer' }} onClick={() => setActiveTab('history')}>
           <div style={{ fontSize: '20px' }}>✅</div>
           <span style={{ fontSize: '10px', fontWeight: 'bold' }}>History</span>
         </button>
@@ -4468,15 +4468,15 @@ const DistributorDashboard = () => {
           management or any other account setting. */}
       {showMoreMenu && (
         <div onClick={() => setShowMoreMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
-            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 2, margin: '4px auto 12px auto' }} />
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', borderRadius: '16px 16px 0 0', padding: '8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' }}>
+            <div style={{ width: 36, height: 4, background: 'var(--c-line)', borderRadius: 2, margin: '4px auto 12px auto' }} />
             {[
               { id: 'routeplanner', Icon: Map, label: 'Route Planner', locked: !hasDistCap(user, 'routePlanner') },
               { id: 'analytics', Icon: TrendingUp, label: 'Advanced Analytics', locked: !hasDistCap(user, 'advancedAnalytics') },
               { id: 'settings', Icon: Settings, label: 'Settings', locked: false },
             ].map(({ id, Icon, label, locked }) => (
               <button key={id} type="button" onClick={() => { setActiveTab(id); setShowMoreMenu(false); }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? '#4F46E5' : '#1E293B', cursor: 'pointer', opacity: locked ? 0.6 : 1 }}>
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: 'none', border: 'none', textAlign: 'left', fontSize: 15, fontWeight: 600, color: activeTab === id ? 'var(--c-primary)' : 'var(--c-ink)', cursor: 'pointer', opacity: locked ? 0.6 : 1 }}>
                 <Icon size={20} />
                 {label}
                 {locked && <Lock size={14} style={{ marginLeft: 'auto' }} />}
@@ -4499,26 +4499,26 @@ const DistributorDashboard = () => {
       {/* 📥 1-Click Bulk Customer CSV Import Modal */}
       {showBulkCustModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '16px' }}>
-          <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '24px', maxWidth: '520px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'var(--c-surface)', borderRadius: '16px', padding: '24px', maxWidth: '520px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: '#0F172A' }}>📥 Bulk Import Customers (CSV)</h3>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748B' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: 'var(--c-ink)' }}>📥 Bulk Import Customers (CSV)</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--c-muted)' }}>
                   Upload or paste your retail shop client list from Vyapar, Tally, or Excel.
                 </p>
               </div>
-              <button onClick={() => setShowBulkCustModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+              <button onClick={() => setShowBulkCustModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-muted)' }}>
                 <X size={20} />
               </button>
             </div>
 
-            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px', marginBottom: '14px', fontSize: '11px', color: '#475569', lineHeight: 1.5 }}>
+            <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '12px', marginBottom: '14px', fontSize: '11px', color: 'var(--c-ink-2)', lineHeight: 1.5 }}>
               <strong>Format:</strong> <code>Shop Name, Phone, GSTIN, Address, Credit Limit</code><br />
               <strong>Sample Row:</strong> <code>Sri Lakshmi Stores, 9876543210, 37AAAAA0000A1Z5, Main Road Sompeta, 50000</code>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#334155', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: 'var(--c-ink-2)', marginBottom: '6px' }}>
                 Paste CSV Data or Drag &amp; Drop:
               </label>
               <textarea
@@ -4526,7 +4526,7 @@ const DistributorDashboard = () => {
                 value={bulkCustText}
                 onChange={e => setBulkCustText(e.target.value)}
                 placeholder="Sri Venkateswara Supermarket, 9876543210, 37AAAAA0000A1Z5, Main Bazaar, 50000&#10;Ganesh Traders, 9123456789, 37BBBBB1111B2Z6, MG Road, 25000"
-                style={{ width: '100%', padding: '12px', border: '1px solid #CBD5E1', borderRadius: '10px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px', border: '1px solid var(--c-line-strong)', borderRadius: '10px', fontSize: '12px', fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -4538,16 +4538,16 @@ const DistributorDashboard = () => {
                   setBulkCustText(sample);
                   toast.info('Sample CSV loaded!');
                 }}
-                style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '8px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: '1px solid var(--c-primary-border)', padding: '8px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
               >
                 📄 Load Sample Format
               </button>
 
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => setShowBulkCustModal(false)} style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', color: '#475569', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
+                <button onClick={() => setShowBulkCustModal(false)} style={{ background: 'var(--c-line-soft)', border: '1px solid var(--c-line-strong)', color: 'var(--c-ink-2)', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
                   Cancel
                 </button>
-                <button onClick={handleBulkCustomerCSV} disabled={bulkCustBusy} style={{ background: '#4F46E5', border: 'none', color: '#FFFFFF', padding: '10px 20px', borderRadius: '8px', fontWeight: '900', fontSize: '13px', cursor: 'pointer' }}>
+                <button onClick={handleBulkCustomerCSV} disabled={bulkCustBusy} style={{ background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', padding: '10px 20px', borderRadius: '8px', fontWeight: '900', fontSize: '13px', cursor: 'pointer' }}>
                   {bulkCustBusy ? 'Importing…' : '🚀 Import Customers'}
                 </button>
               </div>

@@ -79,7 +79,7 @@ class ErrorBoundary extends Component {
       return (
         <div style={{
           minHeight: this.props.fullPage ? '100vh' : '300px',
-          background: this.props.fullPage ? '#0f172a' : 'transparent',
+          background: this.props.fullPage ? 'var(--c-ink)' : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '24px', fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
         }}>
@@ -95,7 +95,7 @@ class ErrorBoundary extends Component {
             <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '800', color: 'white' }}>
               Something went wrong
             </h2>
-            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#94a3b8', lineHeight: '1.6' }}>
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: 'var(--c-faint)', lineHeight: '1.6' }}>
               We hit an unexpected error. Your data is safe — try refreshing the page or click retry below.
             </p>
 
@@ -115,7 +115,7 @@ class ErrorBoundary extends Component {
               <button
                 onClick={this.handleRetry}
                 style={{
-                  background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: 'white',
+                  background: 'linear-gradient(135deg, #7c3aed, var(--c-primary))', color: 'white',
                   border: 'none', padding: '12px 28px', borderRadius: '10px',
                   fontSize: '14px', fontWeight: '700', cursor: 'pointer',
                   transition: 'transform 0.2s, box-shadow 0.2s',
@@ -128,13 +128,13 @@ class ErrorBoundary extends Component {
               <button
                 onClick={() => window.location.reload()}
                 style={{
-                  background: 'rgba(255,255,255,0.06)', color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.06)', color: 'var(--c-faint)',
                   border: '1px solid rgba(255,255,255,0.1)', padding: '12px 28px',
                   borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#94a3b8'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--c-surface)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'var(--c-faint)'; }}
               >
                 Refresh Page
               </button>

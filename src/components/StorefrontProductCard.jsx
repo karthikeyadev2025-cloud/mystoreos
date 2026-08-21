@@ -26,12 +26,12 @@ function ProgressiveImg({ src, alt, style = {} }) {
   }, [inView, src]);
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height: '100%', background: '#F1F5F9', overflow: 'hidden', ...style }}>
+    <div ref={ref} style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--c-line-soft)', overflow: 'hidden', ...style }}>
       {/* Skeleton shimmer */}
       {state !== 'loaded' && state !== 'error' && (
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(90deg, #F1F5F9 0%, #E2E8F0 50%, #F1F5F9 100%)',
+          background: 'linear-gradient(90deg, var(--c-line-soft) 0%, var(--c-line) 50%, var(--c-line-soft) 100%)',
           backgroundSize: '200% 100%',
           animation: 'shimmer 1.4s ease-in-out infinite',
         }} />
@@ -143,8 +143,8 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
     <div
       className="sfpc-card"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E2E8F0',
+        background: 'var(--c-surface)',
+        border: '1px solid var(--c-line)',
         borderRadius: 16,
         overflow: 'hidden',
         display: 'flex',
@@ -165,7 +165,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
         {discPct > 0 && (
           <div style={{
             position: 'absolute', top: 8, left: 8, zIndex: 3,
-            background: '#EF4444', color: '#fff',
+            background: 'var(--c-danger)', color: 'var(--c-surface)',
             fontSize: 10, fontWeight: 800,
             padding: '3px 7px', borderRadius: 6,
             letterSpacing: '0.02em',
@@ -183,7 +183,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             backdropFilter: 'blur(2px)',
           }}>
-            <span style={{ background: '#0F172A', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 6, letterSpacing: '0.05em' }}>OUT OF STOCK</span>
+            <span style={{ background: 'var(--c-ink)', color: 'var(--c-surface)', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 6, letterSpacing: '0.05em' }}>OUT OF STOCK</span>
           </div>
         )}
 
@@ -202,7 +202,7 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             ))}
           </div>
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', fontSize: 44 }}>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--c-bg)', fontSize: 44 }}>
             {p.icon || '📦'}
           </div>
         )}
@@ -213,16 +213,16 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             <button
               aria-label="Previous photo"
               onClick={(e) => { e.stopPropagation(); go(idx - 1); }}
-              style={{ position: 'absolute', top: '50%', left: 5, transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', fontSize: 14, lineHeight: '24px', padding: 0, color: '#0F172A', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
+              style={{ position: 'absolute', top: '50%', left: 5, transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', fontSize: 14, lineHeight: '24px', padding: 0, color: 'var(--c-ink)', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
             >‹</button>
             <button
               aria-label="Next photo"
               onClick={(e) => { e.stopPropagation(); go(idx + 1); }}
-              style={{ position: 'absolute', top: '50%', right: 5, transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', fontSize: 14, lineHeight: '24px', padding: 0, color: '#0F172A', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
+              style={{ position: 'absolute', top: '50%', right: 5, transform: 'translateY(-50%)', zIndex: 3, width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', fontSize: 14, lineHeight: '24px', padding: 0, color: 'var(--c-ink)', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
             >›</button>
             <div style={{ position: 'absolute', bottom: 7, left: 0, right: 0, display: 'flex', gap: 4, justifyContent: 'center', zIndex: 3 }}>
               {images.map((_, i) => (
-                <span key={i} style={{ width: i === idx ? 14 : 5, height: 5, borderRadius: 3, background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'width 0.2s, background 0.2s', boxShadow: '0 0 2px rgba(0,0,0,0.3)' }} />
+                <span key={i} style={{ width: i === idx ? 14 : 5, height: 5, borderRadius: 3, background: i === idx ? 'var(--c-surface)' : 'rgba(255,255,255,0.5)', transition: 'width 0.2s, background 0.2s', boxShadow: '0 0 2px rgba(0,0,0,0.3)' }} />
               ))}
             </div>
           </>
@@ -231,17 +231,17 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
 
       {/* Info area */}
       <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: '#0F172A', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: 'var(--c-ink)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {p.name}
         </h3>
 
         {(p.weight || p.unit) && !hasVariantPricing && (
-          <p style={{ fontSize: 11, color: '#94A3B8', margin: 0 }}>
+          <p style={{ fontSize: 11, color: 'var(--c-faint)', margin: 0 }}>
             {p.weight || p.unit}
           </p>
         )}
         {hasVariantPricing && (
-          <p style={{ fontSize: 10, color: '#94A3B8', margin: 0, fontWeight: 600 }}>
+          <p style={{ fontSize: 10, color: 'var(--c-faint)', margin: 0, fontWeight: 600 }}>
             {p.variantPrices.length} sizes available
           </p>
         )}
@@ -252,21 +252,21 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             // Has discount — show MRP crossed + final price + savings
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                {hasVariantPricing && <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>from</span>}
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                {hasVariantPricing && <span style={{ fontSize: 11, color: 'var(--c-faint)', fontWeight: 600 }}>from</span>}
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-0.02em' }}>
                   ₹{displayPrice}
                 </span>
-                <span style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 500 }}>
+                <span style={{ fontSize: 11, color: 'var(--c-faint)', textDecoration: 'line-through', fontWeight: 500 }}>
                   ₹{originalPrice}
                 </span>
               </div>
-              <div style={{ fontSize: 10, color: '#16A34A', fontWeight: 700, marginTop: 2 }}>
+              <div style={{ fontSize: 10, color: 'var(--c-success-strong)', fontWeight: 700, marginTop: 2 }}>
                 Save ₹{originalPrice - displayPrice}
               </div>
             </div>
           ) : (
-            <span style={{ fontSize: 16, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
-              {hasVariantPricing && <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, marginRight: 4 }}>from</span>}
+            <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-0.02em' }}>
+              {hasVariantPricing && <span style={{ fontSize: 11, color: 'var(--c-faint)', fontWeight: 600, marginRight: 4 }}>from</span>}
               ₹{displayPrice}
             </span>
           )}
@@ -279,17 +279,17 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             instead) — so variant products always show ADD, which opens
             the detail sheet rather than guessing a variant. */}
         {!hasVariantPricing && qty > 0 ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 36, background: '#4F46E5', borderRadius: 10, marginTop: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 36, background: 'var(--c-primary)', borderRadius: 10, marginTop: 6 }}>
             <button
               aria-label="Remove one"
               onClick={() => updateQty(p.id, -1)}
-              style={{ width: 40, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 20, fontWeight: 700, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 40, height: '100%', background: 'transparent', border: 'none', color: 'var(--c-surface)', fontSize: 20, fontWeight: 700, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >−</button>
-            <span style={{ color: '#fff', fontSize: 14, fontWeight: 800, minWidth: 20, textAlign: 'center' }}>{qty}</span>
+            <span style={{ color: 'var(--c-surface)', fontSize: 14, fontWeight: 800, minWidth: 20, textAlign: 'center' }}>{qty}</span>
             <button
               aria-label="Add one more"
               onClick={() => updateQty(p.id, 1)}
-              style={{ width: 40, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 20, fontWeight: 700, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 40, height: '100%', background: 'transparent', border: 'none', color: 'var(--c-surface)', fontSize: 20, fontWeight: 700, cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >+</button>
           </div>
         ) : (
@@ -299,9 +299,9 @@ export default function StorefrontProductCard({ p, qty = 0, updateQty, onOpen })
             onClick={handleQuickAdd}
             style={{
               height: 36, marginTop: 6,
-              background: outOfStock ? '#F1F5F9' : '#FFFFFF',
-              border: `1.5px solid ${outOfStock ? '#CBD5E1' : '#4F46E5'}`,
-              color: outOfStock ? '#94A3B8' : '#4F46E5',
+              background: outOfStock ? 'var(--c-line-soft)' : 'var(--c-surface)',
+              border: `1.5px solid ${outOfStock ? 'var(--c-line-strong)' : 'var(--c-primary)'}`,
+              color: outOfStock ? 'var(--c-faint)' : 'var(--c-primary)',
               borderRadius: 10, fontSize: 13, fontWeight: 800,
               cursor: outOfStock ? 'not-allowed' : 'pointer',
               letterSpacing: '0.5px',

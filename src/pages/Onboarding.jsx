@@ -175,17 +175,17 @@ export default function Onboarding() {
   if (step === 3) {
     return (
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#090514,#120F2D)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-        <div style={{ textAlign: 'center', color: '#f8fafc', padding: '24px' }}>
+        <div style={{ textAlign: 'center', color: 'var(--c-bg)', padding: '24px' }}>
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
           <h2 style={{ fontSize: '28px', fontWeight: 900, margin: '0 0 12px' }}>You're all set!</h2>
-          <p style={{ color: '#94a3b8', margin: 0 }}>Taking you to your dashboard in a moment...</p>
+          <p style={{ color: 'var(--c-faint)', margin: 0 }}>Taking you to your dashboard in a moment...</p>
         </div>
       </div>
     );
   }
 
-  const inp = { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Plus Jakarta Sans, sans-serif' };
-  const lbl = { display: 'block', fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' };
+  const inp = { width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: 'var(--c-surface)', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Plus Jakarta Sans, sans-serif' };
+  const lbl = { display: 'block', fontSize: '12px', color: 'var(--c-faint)', fontWeight: 700, marginBottom: '6px' };
 
   // ── OAuth new-user role picker ──
   if (pickingRole) {
@@ -193,8 +193,8 @@ export default function Onboarding() {
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #090514, #120F2D, #020617)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
         <ToastContainer theme="dark" />
         <div style={{ background: 'rgba(30,41,59,0.85)', backdropFilter: 'blur(10px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '32px 28px', maxWidth: '460px', width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: '#f8fafc' }}>Welcome{oauthPending?.name ? `, ${oauthPending.name.split(' ')[0]}` : ''}! 👋</h2>
-          <p style={{ color: '#94a3b8', fontSize: '13.5px', margin: '0 0 24px', lineHeight: 1.6 }}>
+          <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: 'var(--c-bg)' }}>Welcome{oauthPending?.name ? `, ${oauthPending.name.split(' ')[0]}` : ''}! 👋</h2>
+          <p style={{ color: 'var(--c-faint)', fontSize: '13.5px', margin: '0 0 24px', lineHeight: 1.6 }}>
             How will you use MyStore OS? Pick your account type to get started.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -204,17 +204,17 @@ export default function Onboarding() {
                   padding: '16px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.12)',
                   borderRadius: '14px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1,
                   fontFamily: 'Plus Jakarta Sans, sans-serif', transition: 'border-color .15s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#4F46E5'}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--c-primary)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>
                 <span style={{ fontSize: '28px' }}>{icon}</span>
                 <span>
-                  <span style={{ display: 'block', color: '#f8fafc', fontWeight: 800, fontSize: '15px' }}>{label}</span>
-                  <span style={{ display: 'block', color: '#94a3b8', fontSize: '12.5px', marginTop: '2px' }}>{desc}</span>
+                  <span style={{ display: 'block', color: 'var(--c-bg)', fontWeight: 800, fontSize: '15px' }}>{label}</span>
+                  <span style={{ display: 'block', color: 'var(--c-faint)', fontSize: '12.5px', marginTop: '2px' }}>{desc}</span>
                 </span>
               </button>
             ))}
           </div>
-          {saving && <p style={{ color: '#818CF8', fontSize: '12px', textAlign: 'center', marginTop: '16px' }}>Creating your account…</p>}
+          {saving && <p style={{ color: 'var(--c-primary-light)', fontSize: '12px', textAlign: 'center', marginTop: '16px' }}>Creating your account…</p>}
         </div>
       </div>
     );
@@ -229,28 +229,28 @@ export default function Onboarding() {
 
           <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
             {[0, 1, 2].map(i => (
-              <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i <= step ? 'linear-gradient(90deg,#4F46E5,#818CF8)' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+              <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i <= step ? 'linear-gradient(90deg,var(--c-primary),var(--c-primary-light))' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
             ))}
           </div>
 
-          <div style={{ marginBottom: '4px', fontSize: '11px', color: '#4F46E5', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Step {step + 1} of 3</div>
-          <h2 style={{ margin: '0 0 24px', fontSize: '22px', fontWeight: 900, color: '#f8fafc' }}>{STEPS[step]}</h2>
+          <div style={{ marginBottom: '4px', fontSize: '11px', color: 'var(--c-primary)', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Step {step + 1} of 3</div>
+          <h2 style={{ margin: '0 0 24px', fontSize: '22px', fontWeight: 900, color: 'var(--c-bg)' }}>{STEPS[step]}</h2>
 
           {step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <input type="file" accept="image/*" className="onb-hidden" id="onb-logo" onChange={handleLogoFile} />
                 <label htmlFor="onb-logo" style={{ cursor: 'pointer', position: 'relative', display: 'inline-block' }}>
-                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: '#0f172a', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'var(--c-ink)', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {logo ? <img src={logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '28px' }}>📷</span>}
                   </div>
-                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', background: '#4F46E5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff', fontWeight: 800 }}>+</div>
+                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', background: 'var(--c-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: 'var(--c-surface)', fontWeight: 800 }}>+</div>
                 </label>
-                <span style={{ color: '#64748b', fontSize: '11px' }}>Tap to upload shop logo</span>
+                <span style={{ color: 'var(--c-muted)', fontSize: '11px' }}>Tap to upload shop logo</span>
               </div>
               <div>
                 <label style={lbl}>Business Type</label>
-                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, background: '#0f172a' }}>
+                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, background: 'var(--c-ink)' }}>
                   <option value="grocery">Grocery / Kirana</option>
                   <option value="pharmacy">Pharmacy / Medical</option>
                   <option value="electronics">Electronics</option>
@@ -290,7 +290,7 @@ export default function Onboarding() {
 
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 4px', lineHeight: 1.6 }}>Set up your payment and tax details. You can update these later from Settings.</p>
+              <p style={{ color: 'var(--c-faint)', fontSize: '13px', margin: '0 0 4px', lineHeight: 1.6 }}>Set up your payment and tax details. You can update these later from Settings.</p>
               <div>
                 <label style={lbl}>GST Number (optional)</label>
                 <input type="text" value={gst} onChange={e => setGst(e.target.value.toUpperCase())} placeholder="e.g. 29ABCDE1234F2Z5" style={inp} />
@@ -304,15 +304,15 @@ export default function Onboarding() {
 
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 4px', lineHeight: 1.6 }}>Add your first product. You can add hundreds more after approval.</p>
+              <p style={{ color: 'var(--c-faint)', fontSize: '13px', margin: '0 0 4px', lineHeight: 1.6 }}>Add your first product. You can add hundreds more after approval.</p>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                 <input type="file" accept="image/*" className="onb-hidden" id="onb-prod-img" onChange={handleProdImageFile} />
                 <label htmlFor="onb-prod-img" style={{ cursor: 'pointer', position: 'relative' }}>
-                  <div style={{ width: '70px', height: '70px', borderRadius: '12px', background: '#0f172a', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '12px', background: 'var(--c-ink)', border: '2px dashed rgba(79,70,229,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {prodImage ? <img src={prodImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '24px' }}>🖼</span>}
                   </div>
                 </label>
-                <span style={{ color: '#64748b', fontSize: '11px' }}>Product photo (optional)</span>
+                <span style={{ color: 'var(--c-muted)', fontSize: '11px' }}>Product photo (optional)</span>
               </div>
               <div>
                 <label style={lbl}>Product Name</label>
@@ -333,15 +333,15 @@ export default function Onboarding() {
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
             {step > 0 && (
-              <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '13px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8fafc', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '13px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--c-bg)', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                 Back
               </button>
             )}
-            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,#4F46E5,#818CF8)', border: 'none', color: '#fff', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            <button onClick={saveStep} disabled={saving} style={{ flex: 2, padding: '13px', background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', border: 'none', color: 'var(--c-surface)', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
               {saving ? 'Saving...' : step === 2 ? 'Finish Setup 🚀' : 'Next →'}
             </button>
           </div>
-          <button onClick={() => navigate('/waiting')} style={{ width: '100%', marginTop: '10px', background: 'none', border: 'none', color: '#475569', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: '8px' }}>
+          <button onClick={() => navigate('/waiting')} style={{ width: '100%', marginTop: '10px', background: 'none', border: 'none', color: 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: '8px' }}>
             Skip for now
           </button>
         </div>

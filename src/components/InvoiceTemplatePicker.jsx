@@ -37,7 +37,7 @@ function TemplateThumb({ templateId }) {
   return (
     <div style={{
       width: '100%', height: 150, borderRadius: 8, overflow: 'hidden',
-      border: '1px solid #E2E8F0', background: '#fff', position: 'relative',
+      border: '1px solid var(--c-line)', background: 'var(--c-surface)', position: 'relative',
       pointerEvents: 'none',
     }}>
       <iframe
@@ -61,8 +61,8 @@ export default function InvoiceTemplatePicker({ value, onChange }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <FileText size={16} color="#4F46E5" />
-        <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>Invoice Template</span>
+        <FileText size={16} color="var(--c-primary)" />
+        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-ink)' }}>Invoice Template</span>
       </div>
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12,
@@ -75,17 +75,17 @@ export default function InvoiceTemplatePicker({ value, onChange }) {
               onClick={() => onChange(t.id)}
               style={{
                 textAlign: 'left', cursor: 'pointer', width: '100%',
-                background: active ? '#EEF2FF' : '#fff',
-                border: `2px solid ${active ? '#4F46E5' : '#E2E8F0'}`,
+                background: active ? 'var(--c-primary-soft)' : 'var(--c-surface)',
+                border: `2px solid ${active ? 'var(--c-primary)' : 'var(--c-line)'}`,
                 borderRadius: 12, padding: 10,
                 transition: 'border-color .15s, background .15s',
               }}
             >
               <TemplateThumb templateId={t.id} />
-              <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: active ? '#4F46E5' : '#0F172A' }}>
+              <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: active ? 'var(--c-primary)' : 'var(--c-ink)' }}>
                 {t.name}
               </div>
-              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2, lineHeight: 1.4 }}>
                 {t.description}
               </div>
             </button>

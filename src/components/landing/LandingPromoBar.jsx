@@ -72,10 +72,10 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
     <div
       style={{
         position: 'sticky', top: 0, zIndex: 60,
-        background: 'linear-gradient(90deg,#4F46E5,#818CF8,#4F46E5)',
+        background: 'linear-gradient(90deg,var(--c-primary),var(--c-primary-light),var(--c-primary))',
         backgroundSize: '200% 100%',
         animation: 'mso-promo-shimmer 6s ease-in-out infinite',
-        color: '#fff',
+        color: 'var(--c-surface)',
         fontSize: 13,
         fontWeight: 700,
       }}
@@ -104,7 +104,7 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
         <button
           onClick={handleCta}
           style={{
-            background: '#fff', color: '#4F46E5', border: 'none', borderRadius: 7,
+            background: 'var(--c-surface)', color: 'var(--c-primary)', border: 'none', borderRadius: 7,
             padding: '5px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap',
           }}
@@ -118,7 +118,7 @@ export default function LandingPromoBar({ promo = DEFAULT_PROMO, navigate }) {
           style={{
             position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
             background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
-            width: 22, height: 22, color: '#fff', cursor: 'pointer',
+            width: 22, height: 22, color: 'var(--c-surface)', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}
         >

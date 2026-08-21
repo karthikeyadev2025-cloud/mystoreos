@@ -30,7 +30,7 @@ export const SkeletonCard = ({ height = '120px', style }) => (
 // Full-page dashboard skeleton for Suspense fallback
 export const DashboardSkeleton = () => (
   <div style={{
-    minHeight: '100vh', background: '#0f172a', display: 'flex',
+    minHeight: '100vh', background: 'var(--c-ink)', display: 'flex',
     fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
   }}>
     <style>{shimmerStyle}</style>
@@ -118,7 +118,7 @@ export const DashboardSkeleton = () => (
 // Mobile skeleton (no sidebar)
 export const MobileSkeleton = () => (
   <div style={{
-    minHeight: '100vh', background: '#0f172a', padding: '16px',
+    minHeight: '100vh', background: 'var(--c-ink)', padding: '16px',
     fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
   }}>
     <style>{shimmerStyle}</style>

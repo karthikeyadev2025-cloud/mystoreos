@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Send, Plus, ArrowLeft, LifeBuoy, Bot } from 'lucide-react';
 
 const C = {
-  bg: '#0F172A', card: '#1E293B', border: '#334155', text: '#F1F5F9',
-  sub: '#94A3B8', accent: '#4F46E5', green: '#16a34a',
+  bg: 'var(--c-ink)', card: 'var(--c-ink)', border: 'var(--c-ink-2)', text: 'var(--c-line-soft)',
+  sub: 'var(--c-faint)', accent: 'var(--c-primary)', green: 'var(--c-success-strong)',
 };
 
 export default function Support() {
@@ -81,8 +81,8 @@ export default function Support() {
   };
 
   const badge = (status) => {
-    const map = { open: '#10b981', pending: '#f59e0b', resolved: '#64748b', closed: '#64748b' };
-    return <span style={{ fontSize: 11, fontWeight: 700, color: map[status] || '#64748b', textTransform: 'capitalize' }}>{status}</span>;
+    const map = { open: 'var(--c-success)', pending: 'var(--c-warning)', resolved: 'var(--c-muted)', closed: 'var(--c-muted)' };
+    return <span style={{ fontSize: 11, fontWeight: 700, color: map[status] || 'var(--c-muted)', textTransform: 'capitalize' }}>{status}</span>;
   };
 
   return (
@@ -96,8 +96,8 @@ export default function Support() {
       {view === 'home' && (
         <>
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-            <button onClick={() => setView('chat')} style={{ flex: 1, minWidth: 150, background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', border: 'none', color: '#fff', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Bot size={18} /> Ask AI Assistant</button>
-            <button onClick={() => setView('new')} style={{ flex: 1, minWidth: 150, background: C.card, border: `1px solid ${C.border}`, color: '#fff', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Plus size={18} /> Raise a Ticket</button>
+            <button onClick={() => setView('chat')} style={{ flex: 1, minWidth: 150, background: 'linear-gradient(135deg,var(--c-primary),#7C3AED)', border: 'none', color: 'var(--c-surface)', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Bot size={18} /> Ask AI Assistant</button>
+            <button onClick={() => setView('new')} style={{ flex: 1, minWidth: 150, background: C.card, border: `1px solid ${C.border}`, color: 'var(--c-surface)', borderRadius: 12, padding: '16px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><Plus size={18} /> Raise a Ticket</button>
           </div>
 
           <h2 style={{ fontSize: 15, color: C.sub, fontWeight: 700, marginBottom: 12 }}>My Tickets</h2>
@@ -126,7 +126,7 @@ export default function Support() {
             <option value="account">Account</option>
           </select>
           <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Describe your issue..." rows={5} style={{ ...inp, resize: 'vertical' }} />
-          <button onClick={submitTicket} disabled={busy} style={{ width: '100%', background: C.green, border: 'none', color: '#fff', borderRadius: 10, padding: 14, fontWeight: 700, cursor: 'pointer' }}>{busy ? 'Submitting...' : 'Submit Ticket'}</button>
+          <button onClick={submitTicket} disabled={busy} style={{ width: '100%', background: C.green, border: 'none', color: 'var(--c-surface)', borderRadius: 10, padding: 14, fontWeight: 700, cursor: 'pointer' }}>{busy ? 'Submitting...' : 'Submit Ticket'}</button>
         </div>
       )}
 
@@ -138,7 +138,7 @@ export default function Support() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14, maxHeight: 360, overflowY: 'auto' }}>
             {messages.map(m => (
-              <div key={m.id} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%', background: m.sender === 'user' ? C.accent : '#0f172a', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', fontSize: 14 }}>
+              <div key={m.id} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%', background: m.sender === 'user' ? C.accent : 'var(--c-ink)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', fontSize: 14 }}>
                 <div style={{ fontSize: 10, color: C.sub, marginBottom: 2, textTransform: 'capitalize' }}>{m.sender === 'admin' ? 'Support team' : m.sender}</div>
                 {m.body}
               </div>
@@ -147,7 +147,7 @@ export default function Support() {
           {activeTicket.status !== 'closed' && (
             <div style={{ display: 'flex', gap: 8 }}>
               <input value={reply} onChange={e => setReply(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendReply()} placeholder="Type a reply..." style={{ ...inp, marginBottom: 0 }} />
-              <button onClick={sendReply} disabled={busy} style={{ background: C.accent, border: 'none', color: '#fff', borderRadius: 10, padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Send size={16} /></button>
+              <button onClick={sendReply} disabled={busy} style={{ background: C.accent, border: 'none', color: 'var(--c-surface)', borderRadius: 10, padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Send size={16} /></button>
             </div>
           )}
         </div>
@@ -157,14 +157,14 @@ export default function Support() {
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 18, display: 'flex', flexDirection: 'column', height: '70vh' }}>
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
             {chat.map((m, i) => (
-              <div key={i} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', background: m.sender === 'user' ? C.accent : '#0f172a', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', fontSize: 14, whiteSpace: 'pre-wrap' }}>{m.body}</div>
+              <div key={i} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', background: m.sender === 'user' ? C.accent : 'var(--c-ink)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', fontSize: 14, whiteSpace: 'pre-wrap' }}>{m.body}</div>
             ))}
             {chatBusy && <div style={{ alignSelf: 'flex-start', color: C.sub, fontSize: 13 }}>Assistant is typing…</div>}
             <div ref={chatEndRef} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder="Ask a question..." style={{ ...inp, marginBottom: 0 }} />
-            <button onClick={sendChat} disabled={chatBusy} style={{ background: C.accent, border: 'none', color: '#fff', borderRadius: 10, padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Send size={16} /></button>
+            <button onClick={sendChat} disabled={chatBusy} style={{ background: C.accent, border: 'none', color: 'var(--c-surface)', borderRadius: 10, padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Send size={16} /></button>
           </div>
           <button onClick={() => setView('new')} style={{ marginTop: 10, background: 'transparent', border: `1px solid ${C.border}`, color: C.sub, borderRadius: 8, padding: 10, cursor: 'pointer', fontSize: 13 }}>Still need help? Raise a ticket →</button>
         </div>
@@ -173,4 +173,4 @@ export default function Support() {
   );
 }
 
-const inp = { width: '100%', padding: '12px 14px', background: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#fff', fontSize: 14, marginBottom: 12, boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' };
+const inp = { width: '100%', padding: '12px 14px', background: 'var(--c-ink)', border: '1px solid var(--c-ink-2)', borderRadius: 10, color: 'var(--c-surface)', fontSize: 14, marginBottom: 12, boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' };

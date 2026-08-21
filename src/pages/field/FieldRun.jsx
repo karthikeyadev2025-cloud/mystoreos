@@ -166,28 +166,28 @@ export default function FieldRun() {
   const done = run.filter(s => s.status !== 'planned').length;
 
   const S = {
-    input: { width: '100%', padding: '12px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
+    input: { width: '100%', padding: '12px 14px', border: '1px solid var(--c-line)', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", paddingBottom: 40 }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
-      <h1 style={{ fontSize: 21, fontWeight: 900, color: '#0F172A', margin: '0 0 12px' }}>Today&apos;s Run</h1>
+      <h1 style={{ fontSize: 21, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 12px' }}>Today&apos;s Run</h1>
 
       {routes.length === 0 ? (
-        <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: '#92400E', fontSize: 13 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
           No routes set up yet.
           <div style={{ marginTop: 10 }}>
-            <button onClick={() => navigate('/field/routes')} style={{ background: '#B45309', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => navigate('/field/routes')} style={{ background: 'var(--c-warning-strong)', color: 'var(--c-surface)', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
               Plan a Route
             </button>
           </div>
@@ -209,13 +209,13 @@ export default function FieldRun() {
           </select>
 
           {routeId && run.length > 0 && (
-            <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 14px', marginBottom: 14, fontSize: 13, fontWeight: 700, color: '#4338CA', textAlign: 'center' }}>
+            <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, fontSize: 13, fontWeight: 700, color: 'var(--c-primary-hover)', textAlign: 'center' }}>
               {done} of {run.length} outlets done
             </div>
           )}
 
           {routeId && run.length === 0 && (
-            <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13, padding: '20px 0' }}>
+            <p style={{ textAlign: 'center', color: 'var(--c-faint)', fontSize: 13, padding: '20px 0' }}>
               This route has no outlets yet.
             </p>
           )}
@@ -227,40 +227,40 @@ export default function FieldRun() {
 
             return (
               <div key={stop.id} style={{
-                background: '#fff',
-                border: `1px solid ${isActive ? '#4F46E5' : '#E2E8F0'}`,
-                borderLeft: `4px solid ${isSkipped ? '#94A3B8' : isDone ? '#059669' : isActive ? '#4F46E5' : '#E2E8F0'}`,
+                background: 'var(--c-surface)',
+                border: `1px solid ${isActive ? 'var(--c-primary)' : 'var(--c-line)'}`,
+                borderLeft: `4px solid ${isSkipped ? 'var(--c-faint)' : isDone ? 'var(--c-success-strong)' : isActive ? 'var(--c-primary)' : 'var(--c-line)'}`,
                 borderRadius: 12, padding: 14, marginBottom: 10,
                 opacity: (isDone || isSkipped) && !isActive ? 0.65 : 1,
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>
-                      <span style={{ color: '#94A3B8', marginRight: 6 }}>{i + 1}.</span>{stop.name}
+                    <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)' }}>
+                      <span style={{ color: 'var(--c-faint)', marginRight: 6 }}>{i + 1}.</span>{stop.name}
                     </div>
                     {stop.address && (
-                      <div style={{ fontSize: 11, color: '#64748B', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                         <MapPin size={10} />{stop.address}
                       </div>
                     )}
                     {isSkipped && (
-                      <div style={{ fontSize: 11, color: '#64748B', marginTop: 4, fontStyle: 'italic' }}>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 4, fontStyle: 'italic' }}>
                         Skipped — {stop.skipReason}
                       </div>
                     )}
                   </div>
-                  {isDone && <Check size={18} color="#059669" style={{ flexShrink: 0 }} />}
+                  {isDone && <Check size={18} color="var(--c-success-strong)" style={{ flexShrink: 0 }} />}
                 </div>
 
                 {/* Not yet actioned — offer check-in or skip */}
                 {stop.status === 'planned' && !isActive && (
                   <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                     <button onClick={() => doCheckIn(stop)} disabled={busy}
-                      style={{ flex: 1, background: '#4F46E5', color: '#fff', border: 'none', padding: '12px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+                      style={{ flex: 1, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
                       Check In
                     </button>
                     <button onClick={() => setSkipFor(skipFor === stop.id ? null : stop.id)}
-                      style={{ background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', padding: '12px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-line-soft)', color: 'var(--c-muted)', border: '1px solid var(--c-line)', padding: '12px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                       <SkipForward size={14} />
                     </button>
                     {stop.phone && (
@@ -276,7 +276,7 @@ export default function FieldRun() {
                   <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {SKIP_REASONS.map(r => (
                       <button key={r} onClick={() => doSkip(stop, r)} disabled={busy}
-                        style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '8px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', padding: '8px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                         {r}
                       </button>
                     ))}
@@ -285,8 +285,8 @@ export default function FieldRun() {
 
                 {/* Checked in — order booking */}
                 {isActive && (
-                  <div style={{ marginTop: 14, borderTop: '1px solid #E2E8F0', paddingTop: 14 }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#4338CA', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ marginTop: 14, borderTop: '1px solid var(--c-line)', paddingTop: 14 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-primary-hover)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <ClipboardList size={13} /> Book Order
                     </div>
 
@@ -313,39 +313,39 @@ export default function FieldRun() {
                         <input type="number" inputMode="decimal" value={pickRate} onChange={e => setPickRate(e.target.value)} placeholder="0" style={S.input} />
                       </div>
                       <button onClick={addToCart}
-                        style={{ alignSelf: 'flex-end', background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer' }}>
+                        style={{ alignSelf: 'flex-end', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer' }}>
                         <Plus size={16} />
                       </button>
                     </div>
 
                     {cart.map(l => (
-                      <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                      <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.name}</div>
-                          <div style={{ fontSize: 11, color: '#64748B' }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
                             {l.qtyBase} {l.unit || 'units'} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}
                           </div>
                         </div>
                         <button onClick={() => setCart(c => c.filter(x => x.productId !== l.productId))}
-                          style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                          style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                           <X size={12} />
                         </button>
                       </div>
                     ))}
 
                     {cart.length > 0 && (
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#059669', textAlign: 'right', margin: '10px 0' }}>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--c-success-strong)', textAlign: 'right', margin: '10px 0' }}>
                         ₹{cartTotal.toLocaleString('en-IN')}
                       </div>
                     )}
 
                     <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                       <button onClick={() => submitOrder(stop)} disabled={busy || cart.length === 0}
-                        style={{ flex: 1, background: cart.length === 0 ? '#CBD5E1' : '#059669', color: '#fff', border: 'none', padding: '13px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: cart.length === 0 ? 'default' : 'pointer' }}>
+                        style={{ flex: 1, background: cart.length === 0 ? 'var(--c-line-strong)' : 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '13px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: cart.length === 0 ? 'default' : 'pointer' }}>
                         {busy ? 'Saving…' : 'Book & Next'}
                       </button>
                       <button onClick={() => { setActiveShop(null); setCart([]); }}
-                        style={{ background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', padding: '13px 16px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                        style={{ background: 'var(--c-line-soft)', color: 'var(--c-muted)', border: '1px solid var(--c-line)', padding: '13px 16px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                         Close
                       </button>
                     </div>

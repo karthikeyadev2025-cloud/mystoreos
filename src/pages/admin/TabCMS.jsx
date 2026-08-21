@@ -5,23 +5,23 @@ import { useSiteConfig } from '../../lib/siteConfig';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
-  label: { color: '#475569', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
-  input: { background: '#FFFFFF', border: '1px solid #D1D5DB', borderRadius: '8px', color: '#0F172A', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
-  textarea: { background: '#FFFFFF', border: '1px solid #D1D5DB', borderRadius: '8px', color: '#0F172A', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
+  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
+  input: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', transition: 'all 0.15s' },
+  textarea: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%', resize: 'vertical', minHeight: '80px', transition: 'all 0.15s' },
   row: { marginBottom: '16px' },
-  saveBtn: (busy) => ({ background: busy ? '#94A3B8' : '#4F46E5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(79, 70, 229, 0.2)' }),
-  sectionTitle: { color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
-  sectionSub: { color: '#64748B', fontSize: '12px', marginBottom: '20px' },
+  saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 1px 2px rgba(79, 70, 229, 0.2)' }),
+  sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
+  sectionSub: { color: 'var(--c-muted)', fontSize: '12px', marginBottom: '20px' },
   badge: (type) => {
-    const colors = { info: '#3B82F6', warning: '#F59E0B', success: '#10B981', error: '#EF4444' };
-    return { background: `${colors[type] || '#3B82F6'}15`, color: colors[type] || '#3B82F6', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 };
+    const colors = { info: 'var(--c-info)', warning: 'var(--c-warning)', success: 'var(--c-success)', error: 'var(--c-danger)' };
+    return { background: `${colors[type] || 'var(--c-info)'}15`, color: colors[type] || 'var(--c-info)', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 };
   },
 };
 
 const ANN_TYPES = ['info', 'warning', 'success', 'error'];
 
-function SectionHeader({ icon: Icon, title, sub, color = '#4F46E5' }) {
+function SectionHeader({ icon: Icon, title, sub, color = 'var(--c-primary)' }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
       <div style={{ background: `${color}15`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
@@ -146,24 +146,24 @@ export default function TabCMS() {
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: "#4F46E515", border: "1px solid #4F46E530", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Globe size={22} color="#4F46E5" />
+            <Globe size={22} color="var(--c-primary)" />
           </div>
           <div>
-            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Website & CMS</h2>
-            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Landing page content, SEO, announcements, and public site branding</p>
+            <h2 style={{ color: "var(--c-ink)", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Website & CMS</h2>
+            <p style={{ color: "var(--c-muted)", fontSize: 13, margin: "4px 0 0 0" }}>Landing page content, SEO, announcements, and public site branding</p>
           </div>
         </div>
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Megaphone} title="Announcement Banner" sub="Pinned banner shown at the top of every page — dismissable by users" color="#F59E0B" />
+        <SectionHeader icon={Megaphone} title="Announcement Banner" sub="Pinned banner shown at the top of every page — dismissable by users" color="var(--c-warning)" />
         {announcements.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
             {announcements.map(a => (
               <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', marginBottom: '8px' }}>
                 <span style={S.badge(a.type)}>{a.type}</span>
-                <span style={{ color: '#0F172A', fontSize: '13px', flex: 1 }}>{a.text}</span>
-                <button onClick={clearAnnouncements} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', display: 'flex' }}><X size={14} /></button>
+                <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1 }}>{a.text}</span>
+                <button onClick={clearAnnouncements} style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', display: 'flex' }}><X size={14} /></button>
               </div>
             ))}
           </div>
@@ -174,19 +174,19 @@ export default function TabCMS() {
         </div>
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
           {ANN_TYPES.map(t => (
-            <button key={t} onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? '#4F46E5' : '#E5E7EB'}`, background: annType === t ? 'rgba(79,70,229,0.08)' : 'transparent', color: annType === t ? '#4F46E5' : '#475569', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: annType === t ? 600 : 400 }}>
+            <button key={t} onClick={() => setAnnType(t)} style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${annType === t ? 'var(--c-primary)' : '#E5E7EB'}`, background: annType === t ? 'rgba(79,70,229,0.08)' : 'transparent', color: annType === t ? 'var(--c-primary)' : 'var(--c-ink-2)', fontSize: '12px', cursor: 'pointer', textTransform: 'capitalize', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: annType === t ? 600 : 400 }}>
               {t}
             </button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={sendAnnouncement} disabled={busy.ann} style={S.saveBtn(busy.ann)}><Megaphone size={14} />{busy.ann ? 'Sending...' : 'Broadcast Announcement'}</button>
-          {announcements.length > 0 && <button onClick={clearAnnouncements} disabled={busy.clearAnn} style={{ ...S.saveBtn(busy.clearAnn), background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#EF4444', boxShadow: 'none' }}><X size={14} />Clear All</button>}
+          {announcements.length > 0 && <button onClick={clearAnnouncements} disabled={busy.clearAnn} style={{ ...S.saveBtn(busy.clearAnn), background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', color: 'var(--c-danger)', boxShadow: 'none' }}><X size={14} />Clear All</button>}
         </div>
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Globe} title="Branding" sub="Site name, tagline, and logo used across the platform" color="#4F46E5" />
+        <SectionHeader icon={Globe} title="Branding" sub="Site name, tagline, and logo used across the platform" color="var(--c-primary)" />
         <div className="admin-grid-2col">
           <div style={S.row}>
             <label style={S.label}>Site Name</label>
@@ -211,7 +211,7 @@ export default function TabCMS() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={FileText} title="Landing Page Content" sub="Hero section text and call-to-action button" color="#10B981" />
+        <SectionHeader icon={FileText} title="Landing Page Content" sub="Hero section text and call-to-action button" color="var(--c-success)" />
         <div style={S.row}>
           <label style={S.label}>Hero Headline</label>
           <input value={landing.heroHeadline} onChange={e => setLanding(l => ({ ...l, heroHeadline: e.target.value }))} placeholder="Run Your Shop. Own Your Data." style={S.input} />
@@ -234,9 +234,9 @@ export default function TabCMS() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Zap} title="Promo Banner" sub="The sticky bar at the very top of the landing page — the one this control was missing until now." color="#F59E0B" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '10px 14px', background: promo.active ? '#FEF3C7' : '#F1F5F9', borderRadius: 8 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13, color: promo.active ? '#92400E' : '#475569' }}>
+        <SectionHeader icon={Zap} title="Promo Banner" sub="The sticky bar at the very top of the landing page — the one this control was missing until now." color="var(--c-warning)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '10px 14px', background: promo.active ? 'var(--c-warning-soft)' : 'var(--c-line-soft)', borderRadius: 8 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13, color: promo.active ? 'var(--c-warning-strong)' : 'var(--c-ink-2)' }}>
             <input type="checkbox" checked={promo.active} onChange={e => setPromo(p => ({ ...p, active: e.target.checked }))} style={{ width: 16, height: 16, cursor: 'pointer' }} />
             {promo.active ? '🟢 Banner is LIVE on the site right now' : '⚪ Banner is OFF — nothing shows'}
           </label>
@@ -265,7 +265,7 @@ export default function TabCMS() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Globe} title="SEO & Social" sub="Meta tags and social profile links" color="#3B82F6" />
+        <SectionHeader icon={Globe} title="SEO & Social" sub="Meta tags and social profile links" color="var(--c-info)" />
         <div style={S.row}>
           <label style={S.label}>Meta Description</label>
           <textarea value={seo.metaDescription} onChange={e => setSeo(s => ({ ...s, metaDescription: e.target.value }))} placeholder="MyStore OS — digital billing, inventory, GST, and more for Indian small businesses." style={S.textarea} rows={2} />
@@ -290,7 +290,7 @@ export default function TabCMS() {
       <div style={S.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
           <SectionHeader icon={CreditCard} title="Plan Names & Descriptions" sub="Edit plan display names and descriptions. Prices, discounts & cycles are managed in Settings → Subscription Pricing." color="#F43F5E" />
-          <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#4F46E5', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
+          <a href="/pricing" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--c-primary)', fontSize: '12px', textDecoration: 'none', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
             Preview <ExternalLink size={12} />
           </a>
         </div>
@@ -298,17 +298,17 @@ export default function TabCMS() {
             separately — same split as pricing_v2.tiers. Without this
             toggle there was no way to edit Service tier copy at all,
             only the hardcoded defaults in api.js would ever show. */}
-        <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 8, padding: 3, marginBottom: 14, gap: 3 }}>
+        <div style={{ display: 'inline-flex', background: 'var(--c-line-soft)', borderRadius: 8, padding: 3, marginBottom: 14, gap: 3 }}>
           {['retail', 'service'].map(k => (
             <button key={k} onClick={() => setPlansKind(k)}
-              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: plansKind === k ? '#fff' : 'transparent', color: plansKind === k ? '#4F46E5' : '#64748B', boxShadow: plansKind === k ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', background: plansKind === k ? 'var(--c-surface)' : 'transparent', color: plansKind === k ? 'var(--c-primary)' : 'var(--c-muted)', boxShadow: plansKind === k ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
               {k === 'retail' ? '🏪 Retail plans' : '💇 Service plans'}
             </button>
           ))}
         </div>
         {plans.map((plan, idx) => (
           <div key={plan.id} style={{ background: '#F9FAFB', borderRadius: '8px', padding: '14px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
-            <div style={{ fontSize: '12px', color: '#4F46E5', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{plan.id}</div>
+            <div style={{ fontSize: '12px', color: 'var(--c-primary)', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{plan.id}</div>
             <div style={S.row}>
               <label style={S.label}>Plan Name</label>
               <input value={plan.name} onChange={e => updatePlan(idx, 'name', e.target.value)} style={S.input} />
@@ -329,8 +329,8 @@ export default function TabCMS() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
           <span style={{ fontSize: '20px' }}>📱</span>
           <div>
-            <div style={{ color: '#0F172A', fontWeight: 700, fontSize: '15px' }}>App Store & Social Links</div>
-            <div style={{ color: '#64748B', fontSize: '12px' }}>These appear on the landing page. Leave blank to hide.</div>
+            <div style={{ color: 'var(--c-ink)', fontWeight: 700, fontSize: '15px' }}>App Store & Social Links</div>
+            <div style={{ color: 'var(--c-muted)', fontSize: '12px' }}>These appear on the landing page. Leave blank to hide.</div>
           </div>
         </div>
 

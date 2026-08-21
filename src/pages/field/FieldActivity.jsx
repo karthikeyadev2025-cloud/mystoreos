@@ -57,38 +57,38 @@ export default function FieldActivity() {
   const activeNow = activity.filter(a => a.currentShopName).length;
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16, marginBottom: 10, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 16, marginBottom: 10, boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 720, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: 0 }}>Field Activity</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: 0 }}>Field Activity</h1>
         <button onClick={refresh} disabled={refreshing}
-          style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <RefreshCw size={12} /> Refresh
         </button>
       </div>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 20px' }}>
         Built from check-in/check-out activity, not live GPS tracking — nothing drains a rep's phone for this.
       </p>
 
       {activity.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: '#94A3B8', padding: 40 }}>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-faint)', padding: 40 }}>
           No field reps assigned yet.
         </div>
       ) : (
         <>
-          <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 13, fontWeight: 700, color: '#4338CA' }}>
+          <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 13, fontWeight: 700, color: 'var(--c-primary-hover)' }}>
             {activeNow} of {activity.length} rep{activity.length === 1 ? '' : 's'} currently checked in at a shop
           </div>
 
@@ -96,32 +96,32 @@ export default function FieldActivity() {
             <div key={a.userId} style={S.card}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>{a.name}</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)' }}>{a.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 2 }}>
                     {a.vehicleCode ? `${a.vehicleCode} · ` : ''}{a.phone}
                   </div>
 
                   {a.currentShopName ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: '#059669' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: 'var(--c-success-strong)' }}>
                       <MapPin size={13} /> Currently at {a.currentShopName}
-                      <span style={{ color: '#94A3B8', fontWeight: 500 }}>· since {timeAgo(a.currentSince)}</span>
+                      <span style={{ color: 'var(--c-faint)', fontWeight: 500 }}>· since {timeAgo(a.currentSince)}</span>
                     </div>
                   ) : a.lastActivityShopName ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 12, color: '#64748B' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 12, color: 'var(--c-muted)' }}>
                       <Clock size={13} /> Last at {a.lastActivityShopName} · {timeAgo(a.lastActivityAt)}
                     </div>
                   ) : (
-                    <div style={{ marginTop: 8, fontSize: 12, color: '#CBD5E1' }}>No activity yet today</div>
+                    <div style={{ marginTop: 8, fontSize: 12, color: 'var(--c-line-strong)' }}>No activity yet today</div>
                   )}
                 </div>
 
                 {a.totalToday > 0 && (
                   <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: '#059669' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: 'var(--c-success-strong)' }}>
                       <CheckCircle2 size={13} /> {a.visitedCount}
                     </span>
                     {a.skippedCount > 0 && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: '#94A3B8' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: 'var(--c-faint)' }}>
                         <SkipForward size={13} /> {a.skippedCount}
                       </span>
                     )}

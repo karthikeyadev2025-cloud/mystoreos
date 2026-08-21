@@ -43,11 +43,11 @@ export default function ProductImageUploader({ images = [], onChange, userId, ma
   const [busy, setBusy] = useState(false);
   const list = (images || []).filter(Boolean);
 
-  const labelColor = dark ? '#CBD5E1' : '#475569';
-  const hintColor = '#94A3B8';
-  const addBg = dark ? 'rgba(255,255,255,0.04)' : '#FFFFFF';
-  const addBorder = dark ? '1.5px dashed rgba(255,255,255,0.18)' : '1.5px dashed #CBD5E1';
-  const addText = dark ? '#94A3B8' : '#64748B';
+  const labelColor = dark ? 'var(--c-line-strong)' : 'var(--c-ink-2)';
+  const hintColor = 'var(--c-faint)';
+  const addBg = dark ? 'rgba(255,255,255,0.04)' : 'var(--c-surface)';
+  const addBorder = dark ? '1.5px dashed rgba(255,255,255,0.18)' : '1.5px dashed var(--c-line-strong)';
+  const addText = dark ? 'var(--c-faint)' : 'var(--c-muted)';
 
   const pick = () => { if (!busy && list.length < max) inputRef.current?.click(); };
 
@@ -83,7 +83,7 @@ export default function ProductImageUploader({ images = [], onChange, userId, ma
     onChange([picked, ...next]);
   };
 
-  const tile = { width: 84, height: 84, borderRadius: 10, border: '1px solid #E2E8F0', position: 'relative', overflow: 'hidden', background: '#FFFFFF', flexShrink: 0 };
+  const tile = { width: 84, height: 84, borderRadius: 10, border: '1px solid var(--c-line)', position: 'relative', overflow: 'hidden', background: 'var(--c-surface)', flexShrink: 0 };
 
   return (
     <div>
@@ -97,13 +97,13 @@ export default function ProductImageUploader({ images = [], onChange, userId, ma
           <div key={url + i} style={tile}>
             <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             {i === 0 && (
-              <span style={{ position: 'absolute', top: 4, left: 4, background: '#4F46E5', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 5px', borderRadius: 5 }}>COVER</span>
+              <span style={{ position: 'absolute', top: 4, left: 4, background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 9, fontWeight: 700, padding: '2px 5px', borderRadius: 5 }}>COVER</span>
             )}
             <button type="button" onClick={() => remove(i)} aria-label="Remove photo"
-              style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.72)', color: '#fff', fontSize: 11, lineHeight: '18px', cursor: 'pointer', padding: 0 }}>×</button>
+              style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.72)', color: 'var(--c-surface)', fontSize: 11, lineHeight: '18px', cursor: 'pointer', padding: 0 }}>×</button>
             {i !== 0 && (
               <button type="button" onClick={() => makeCover(i)}
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, border: 'none', background: 'rgba(15,23,42,0.62)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '3px 0', cursor: 'pointer' }}>Set cover</button>
+                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, border: 'none', background: 'rgba(15,23,42,0.62)', color: 'var(--c-surface)', fontSize: 9, fontWeight: 600, padding: '3px 0', cursor: 'pointer' }}>Set cover</button>
             )}
           </div>
         ))}

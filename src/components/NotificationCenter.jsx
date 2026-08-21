@@ -17,20 +17,20 @@ import { useNavigate } from 'react-router-dom';
 // arrives while the app is open — otherwise the bell badge just
 // increments silently.
 const CATEGORY = {
-  order:   { Icon: ShoppingCart, color: '#4F46E5', bg: '#EEF2FF' },
-  booking: { Icon: Calendar,     color: '#10B981', bg: '#ECFDF5' },
-  credit:  { Icon: CreditCard,   color: '#F59E0B', bg: '#FEF3C7' },
+  order:   { Icon: ShoppingCart, color: 'var(--c-primary)', bg: 'var(--c-primary-soft)' },
+  booking: { Icon: Calendar,     color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
+  credit:  { Icon: CreditCard,   color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
   signup:  { Icon: UserPlus,     color: '#7C3AED', bg: '#F3E8FF' },
-  info:    { Icon: Info,         color: '#64748B', bg: '#F1F5F9' },
+  info:    { Icon: Info,         color: 'var(--c-muted)', bg: 'var(--c-line-soft)' },
   // Was falling through to the generic grey 'info' style — completely
   // inadequate for an emergency alert. Red, unmissable, distinct from
   // every other category on purpose.
-  sos:            { Icon: AlertTriangle, color: '#FFFFFF', bg: '#DC2626' },
-  overdue_checkin:{ Icon: AlertTriangle, color: '#B45309', bg: '#FEF3C7' },
+  sos:            { Icon: AlertTriangle, color: 'var(--c-surface)', bg: 'var(--c-danger-strong)' },
+  overdue_checkin:{ Icon: AlertTriangle, color: 'var(--c-warning-strong)', bg: 'var(--c-warning-soft)' },
   // New — the welcome notification sent at signup had nowhere to
   // render distinctly, would have fallen through to the same grey
   // 'info' style as a routine system message.
-  welcome:        { Icon: UserPlus, color: '#059669', bg: '#D1FAE5' },
+  welcome:        { Icon: UserPlus, color: 'var(--c-success-strong)', bg: 'var(--c-success-soft)' },
   // New — payment confirmations (subscription upgrades, add-on
   // purchases) had nowhere to render distinctly before tonight.
   payment:        { Icon: CreditCard, color: '#0891B2', bg: '#CFFAFE' },
@@ -84,9 +84,9 @@ export default function NotificationCenter({ userId, onToast }) {
         aria-label={`Notifications${unread ? ` — ${unread} unread` : ''}`}
         style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer', padding: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, width: 'auto' }}
       >
-        <Bell size={20} color="#475569" />
+        <Bell size={20} color="var(--c-ink-2)" />
         {unread > 0 && (
-          <span style={{ position: 'absolute', top: 2, right: 2, background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 999, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', boxShadow: '0 0 0 2px #fff' }}>
+          <span style={{ position: 'absolute', top: 2, right: 2, background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: 10, fontWeight: 700, borderRadius: 999, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', boxShadow: '0 0 0 2px var(--c-surface)' }}>
             {unread > 99 ? '99+' : unread}
           </span>
         )}
@@ -95,16 +95,16 @@ export default function NotificationCenter({ userId, onToast }) {
       {open && (
         <div ref={drawerRef} className="notif-drawer" style={{
           position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 360, maxHeight: 480,
-          background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14,
+          background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14,
           boxShadow: '0 20px 40px -10px rgba(15,23,42,0.2)',
           display: 'flex', flexDirection: 'column', zIndex: 1000, overflow: 'hidden',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #F1F5F9' }}>
-            <div style={{ fontWeight: 700, color: '#0F172A', fontSize: 14 }}>
-              Notifications {unread > 0 && <span style={{ color: '#64748B', fontWeight: 500 }}>({unread} new)</span>}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid var(--c-line-soft)' }}>
+            <div style={{ fontWeight: 700, color: 'var(--c-ink)', fontSize: 14 }}>
+              Notifications {unread > 0 && <span style={{ color: 'var(--c-muted)', fontWeight: 500 }}>({unread} new)</span>}
             </div>
             {unread > 0 && (
-              <button onClick={markAllRead} style={{ background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: 4, width: 'auto' }}>
+              <button onClick={markAllRead} style={{ background: 'transparent', border: 'none', color: 'var(--c-primary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: 4, width: 'auto' }}>
                 Mark all read
               </button>
             )}
@@ -112,7 +112,7 @@ export default function NotificationCenter({ userId, onToast }) {
 
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {items.length === 0 ? (
-              <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>
+              <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--c-faint)', fontSize: 13 }}>
                 <Bell size={28} style={{ opacity: 0.4, marginBottom: 8 }} />
                 <div>You're all caught up.</div>
               </div>
@@ -125,8 +125,8 @@ export default function NotificationCenter({ userId, onToast }) {
                   onClick={() => handleClick(row)}
                   style={{
                     display: 'flex', gap: 10, padding: '12px 16px', cursor: 'pointer',
-                    borderBottom: '1px solid #F8FAFC',
-                    background: row.read ? '#fff' : 'rgba(79,70,229,0.03)',
+                    borderBottom: '1px solid var(--c-bg)',
+                    background: row.read ? 'var(--c-surface)' : 'rgba(79,70,229,0.03)',
                     transition: 'background .1s',
                   }}
                 >
@@ -135,15 +135,15 @@ export default function NotificationCenter({ userId, onToast }) {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: row.read ? 500 : 700, color: '#0F172A', lineHeight: 1.3 }}>{row.title}</div>
-                      <span style={{ fontSize: 11, color: '#94A3B8', flexShrink: 0 }}>{relTime(row.created_at)}</span>
+                      <div style={{ fontSize: 13, fontWeight: row.read ? 500 : 700, color: 'var(--c-ink)', lineHeight: 1.3 }}>{row.title}</div>
+                      <span style={{ fontSize: 11, color: 'var(--c-faint)', flexShrink: 0 }}>{relTime(row.created_at)}</span>
                     </div>
-                    {row.body && <div style={{ fontSize: 12, color: '#64748B', marginTop: 2, lineHeight: 1.35 }}>{row.body}</div>}
+                    {row.body && <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, lineHeight: 1.35 }}>{row.body}</div>}
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); remove(row.id); }}
                     aria-label="Dismiss"
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#CBD5E1', padding: 2, alignSelf: 'flex-start', width: 'auto' }}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--c-line-strong)', padding: 2, alignSelf: 'flex-start', width: 'auto' }}
                   >
                     <X size={14} />
                   </button>

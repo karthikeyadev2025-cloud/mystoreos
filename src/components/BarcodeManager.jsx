@@ -152,8 +152,8 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
       .mrp-row { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
       .mrp-label { font-size: 8px; color: #666; font-weight: 700; }
       .mrp-strike { font-size: 10px; text-decoration: line-through; color: #999; }
-      .disc-badge { background: #EF4444; color: #fff; font-size: 8px; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
-      .sale-price { font-size: 17px; font-weight: 900; color: #16A34A; margin-top: 1px; }`;
+      .disc-badge { background: var(--c-danger); color: var(--c-surface); font-size: 8px; font-weight: 800; padding: 1px 4px; border-radius: 3px; }
+      .sale-price { font-size: 17px; font-weight: 900; color: var(--c-success-strong); margin-top: 1px; }`;
 
     const thermalCss = `
       @page { size: 58mm 40mm; margin: 1mm; }
@@ -166,7 +166,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
       .mrp-row { display: flex; align-items: center; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 0.5mm; line-height: 1; }
       .mrp-label { font-size: 6px; color: #555; font-weight: 700; }
       .mrp-strike { font-size: 7.5px; text-decoration: line-through; color: #888; }
-      .disc-badge { background: #000; color: #fff; font-size: 6px; font-weight: 800; padding: 0.5px 2px; border-radius: 2px; }
+      .disc-badge { background: #000; color: var(--c-surface); font-size: 6px; font-weight: 800; padding: 0.5px 2px; border-radius: 2px; }
       .sale-price { font-size: 12px; font-weight: 900; color: #000; line-height: 1.1; }`;
 
     win.document.write(`<!doctype html><html><head><title>Price Labels</title>
@@ -179,7 +179,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: '#fff', width: '100%', maxWidth: '900px', maxHeight: '92vh', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--c-surface)', width: '100%', maxWidth: '900px', maxHeight: '92vh', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         {/* Hidden barcode container — always in DOM so getSvgForProduct() can find SVGs */}
         <div ref={printContainerRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden' }}>
@@ -191,25 +191,25 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
         </div>
 
         {/* Header */}
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg,#4F46E5,#7C3AED)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
+        <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg,var(--c-primary),#7C3AED)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--c-surface)' }}>
             <Layers size={22} />
             <div>
               <div style={{ fontSize: '17px', fontWeight: 800 }}>Barcode & Price Label Manager</div>
               <div style={{ fontSize: '11px', opacity: 0.85 }}>Scan · Generate · Print labels with discounts</div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: '#fff', display: 'flex' }}><X size={18} /></button>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: 'var(--c-surface)', display: 'flex' }}><X size={18} /></button>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '4px', padding: '12px 22px 0', borderBottom: '1px solid #E2E8F0' }}>
+        <div style={{ display: 'flex', gap: '4px', padding: '12px 22px 0', borderBottom: '1px solid var(--c-line)' }}>
           {[
             { k: 'manage', label: 'Manage & Generate', icon: Tag },
             { k: 'scan',   label: 'Scan',               icon: ScanLine },
             { k: 'print',  label: `Print Labels${selectedProducts.length ? ` (${selectedProducts.length})` : ''}`, icon: Printer },
           ].map(t => (
-            <button key={t.k} onClick={() => setTab(t.k)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 14px', border: 'none', background: 'none', borderBottom: tab === t.k ? '2px solid #4F46E5' : '2px solid transparent', color: tab === t.k ? '#4F46E5' : '#64748B', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+            <button key={t.k} onClick={() => setTab(t.k)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 14px', border: 'none', background: 'none', borderBottom: tab === t.k ? '2px solid var(--c-primary)' : '2px solid transparent', color: tab === t.k ? 'var(--c-primary)' : 'var(--c-muted)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
               <t.icon size={15} /> {t.label}
             </button>
           ))}
@@ -223,16 +223,16 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
             <div>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-                  <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products…" style={{ width: '100%', padding: '9px 12px 9px 32px', border: '1px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-faint)' }} />
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products…" style={{ width: '100%', padding: '9px 12px 9px 32px', border: '1px solid var(--c-line-strong)', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' }} />
                 </div>
-                <button onClick={toggleAll} style={{ padding: '9px 14px', border: '1px solid #CBD5E1', background: '#F8FAFC', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', color: '#334155' }}>
+                <button onClick={toggleAll} style={{ padding: '9px 14px', border: '1px solid var(--c-line-strong)', background: 'var(--c-bg)', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', color: 'var(--c-ink-2)' }}>
                   {selectedProducts.length === filtered.length && filtered.length ? 'Unselect all' : 'Select all'}
                 </button>
               </div>
 
               {noBarcodeCount > 0 && (
-                <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#92400E', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FCD34D', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: 'var(--c-warning-strong)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Sparkles size={14} /> {noBarcodeCount} product{noBarcodeCount !== 1 ? 's' : ''} have no barcode — click "Generate" to create one.
                 </div>
               )}
@@ -247,49 +247,49 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                   const localOverride = discounts[p.id] !== undefined ? discounts[p.id] : '';
 
                   return (
-                    <div key={p.id} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px 14px', background: selected[p.id] ? '#EEF2FF' : '#fff' }}>
+                    <div key={p.id} style={{ border: '1px solid var(--c-line)', borderRadius: '12px', padding: '12px 14px', background: selected[p.id] ? 'var(--c-primary-soft)' : 'var(--c-surface)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <input type="checkbox" checked={!!selected[p.id]} onChange={() => setSelected(s => ({ ...s, [p.id]: !s[p.id] }))} style={{ width: '18px', height: '18px', cursor: 'pointer', flexShrink: 0 }} />
 
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                          <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+                          <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--c-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--c-muted)', marginTop: '2px' }}>
                             MRP ₹{mrp}
                             {saleAmt != null && (
-                              <> &rarr; <span style={{ color: '#16A34A', fontWeight: 700 }}>₹{saleAmt}</span>{' '}
-                                <span style={{ background: '#EF4444', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>{discPct}% OFF</span>
+                              <> &rarr; <span style={{ color: 'var(--c-success-strong)', fontWeight: 700 }}>₹{saleAmt}</span>{' '}
+                                <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>{discPct}% OFF</span>
                               </>
                             )}
                             {' · '}
-                            {p.barcode ? <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> : <span style={{ color: '#DC2626' }}>no barcode</span>}
+                            {p.barcode ? <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> : <span style={{ color: 'var(--c-danger-strong)' }}>no barcode</span>}
                           </div>
                         </div>
 
                         {/* Discount % input — shows saved value, allow override */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '4px 8px', minWidth: '110px' }}>
-                          <Percent size={12} color="#64748B" />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '8px', padding: '4px 8px', minWidth: '110px' }}>
+                          <Percent size={12} color="var(--c-muted)" />
                           <input
                             type="number" min="0" max="99"
                             placeholder={p.discountPct > 0 ? String(p.discountPct) : '0'}
                             value={localOverride}
                             onChange={e => setDiscounts(d => ({ ...d, [p.id]: e.target.value }))}
-                            style={{ width: '50px', border: 'none', background: 'transparent', fontSize: '13px', fontWeight: 700, color: '#0F172A', outline: 'none' }}
+                            style={{ width: '50px', border: 'none', background: 'transparent', fontSize: '13px', fontWeight: 700, color: 'var(--c-ink)', outline: 'none' }}
                           />
-                          <span style={{ fontSize: '11px', color: '#64748B' }}>% off</span>
+                          <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>% off</span>
                         </div>
 
                         {/* Symbology */}
-                        <select value={fmt} onChange={e => setPerProductFormat(m => ({ ...m, [p.id]: e.target.value }))} style={{ padding: '6px 8px', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '11px', maxWidth: '130px' }}>
+                        <select value={fmt} onChange={e => setPerProductFormat(m => ({ ...m, [p.id]: e.target.value }))} style={{ padding: '6px 8px', border: '1px solid var(--c-line-strong)', borderRadius: '8px', fontSize: '11px', maxWidth: '130px' }}>
                           {FORMATS.map(f => <option key={f.value} value={f.value}>{f.value}</option>)}
                         </select>
 
                         {/* Barcode preview or generate */}
                         {p.barcode && valid ? (
-                          <div style={{ background: '#fff', padding: '2px' }}>
+                          <div style={{ background: 'var(--c-surface)', padding: '2px' }}>
                             <Barcode value={p.barcode} format={fmt} height={34} width={1.3} fontSize={11} margin={2} renderer="svg" />
                           </div>
                         ) : (
-                          <button onClick={() => handleGenerate(p)} style={{ padding: '8px 12px', background: '#4F46E5', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => handleGenerate(p)} style={{ padding: '8px 12px', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                             Generate
                           </button>
                         )}
@@ -297,7 +297,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                     </div>
                   );
                 })}
-                {!filtered.length && <div style={{ textAlign: 'center', color: '#94A3B8', padding: '24px', fontSize: '13px' }}>No products match.</div>}
+                {!filtered.length && <div style={{ textAlign: 'center', color: 'var(--c-faint)', padding: '24px', fontSize: '13px' }}>No products match.</div>}
               </div>
             </div>
           )}
@@ -305,29 +305,29 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
           {/* ─── SCAN ─── */}
           {tab === 'scan' && (
             <div style={{ textAlign: 'center' }}>
-              {!scanResult && <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '12px' }}>Point your camera at a product barcode to instantly identify it.</p>}
+              {!scanResult && <p style={{ fontSize: '13px', color: 'var(--c-muted)', marginBottom: '12px' }}>Point your camera at a product barcode to instantly identify it.</p>}
               {!scanResult && <div id="bc-mgr-reader" style={{ maxWidth: '420px', margin: '0 auto' }} />}
               {scanResult && (
-                <div style={{ maxWidth: '420px', margin: '0 auto', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '20px' }}>
-                  <div style={{ fontSize: '12px', color: '#64748B' }}>Scanned code</div>
+                <div style={{ maxWidth: '420px', margin: '0 auto', border: '1px solid var(--c-line)', borderRadius: '14px', padding: '20px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--c-muted)' }}>Scanned code</div>
                   <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 800, margin: '4px 0 14px' }}>{scanResult.code}</div>
                   {scanResult.product ? (
-                    <div style={{ background: '#ECFDF5', border: '1px solid #6EE7B7', borderRadius: '10px', padding: '14px' }}>
-                      <div style={{ color: '#059669', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={16} /> Product found</div>
+                    <div style={{ background: 'var(--c-success-soft)', border: '1px solid #6EE7B7', borderRadius: '10px', padding: '14px' }}>
+                      <div style={{ color: 'var(--c-success-strong)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Check size={16} /> Product found</div>
                       <div style={{ fontSize: '15px', fontWeight: 700, marginTop: '6px' }}>{scanResult.product.name}</div>
-                      <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>₹{scanResult.product.price} · Stock: {scanResult.product.stock}</div>
-                      {scanResult.product.batchNumber && <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Batch: {scanResult.product.batchNumber}</div>}
-                      {scanResult.product.expiryDate && <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Expiry: {scanResult.product.expiryDate}</div>}
+                      <div style={{ fontSize: '13px', color: 'var(--c-ink-2)', marginTop: '4px' }}>₹{scanResult.product.price} · Stock: {scanResult.product.stock}</div>
+                      {scanResult.product.batchNumber && <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginTop: '2px' }}>Batch: {scanResult.product.batchNumber}</div>}
+                      {scanResult.product.expiryDate && <div style={{ fontSize: '11px', color: 'var(--c-muted)', marginTop: '2px' }}>Expiry: {scanResult.product.expiryDate}</div>}
                     </div>
                   ) : (
-                    <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '10px', padding: '14px' }}>
-                      <div style={{ color: '#92400E', fontWeight: 800 }}>New barcode — not in inventory</div>
-                      <button onClick={() => { onScanToAdd?.(scanResult.code); onClose(); }} style={{ marginTop: '10px', padding: '10px 16px', background: '#4F46E5', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+                    <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FCD34D', borderRadius: '10px', padding: '14px' }}>
+                      <div style={{ color: 'var(--c-warning-strong)', fontWeight: 800 }}>New barcode — not in inventory</div>
+                      <button onClick={() => { onScanToAdd?.(scanResult.code); onClose(); }} style={{ marginTop: '10px', padding: '10px 16px', background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
                         ➕ Add as new product
                       </button>
                     </div>
                   )}
-                  <button onClick={() => setScanResult(null)} style={{ marginTop: '14px', padding: '8px 16px', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>Scan another</button>
+                  <button onClick={() => setScanResult(null)} style={{ marginTop: '14px', padding: '8px 16px', background: 'var(--c-line-soft)', border: '1px solid var(--c-line-strong)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>Scan another</button>
                 </div>
               )}
             </div>
@@ -338,16 +338,16 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
             <div>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '6px' }}>Label format</label>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--c-ink-2)', display: 'block', marginBottom: '6px' }}>Label format</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {[{ k: 'a4', label: 'A4 Sheet (3-up grid)' }, { k: 'thermal', label: 'Thermal (58×40mm)' }].map(o => (
-                      <button key={o.k} onClick={() => changeLabelFormat(o.k)} style={{ flex: 1, padding: '10px', border: labelFormat === o.k ? '2px solid #4F46E5' : '1px solid #CBD5E1', background: labelFormat === o.k ? '#EEF2FF' : '#fff', borderRadius: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: labelFormat === o.k ? '#4F46E5' : '#475569' }}>{o.label}</button>
+                      <button key={o.k} onClick={() => changeLabelFormat(o.k)} style={{ flex: 1, padding: '10px', border: labelFormat === o.k ? '2px solid var(--c-primary)' : '1px solid var(--c-line-strong)', background: labelFormat === o.k ? 'var(--c-primary-soft)' : 'var(--c-surface)', borderRadius: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', color: labelFormat === o.k ? 'var(--c-primary)' : 'var(--c-ink-2)' }}>{o.label}</button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div style={{ fontSize: '13px', color: '#475569', marginBottom: '14px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--c-ink-2)', marginBottom: '14px' }}>
                 {selectedProducts.length
                   ? `${selectedProducts.filter(p => p.barcode).length} label(s) ready to print`
                   : 'Select products in the "Manage & Generate" tab first, then come back here to print.'}
@@ -362,8 +362,8 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                   const saleAmt = discPct > 0 ? Math.round(mrp * (1 - discPct / 100)) : null;
 
                   return (
-                    <div key={p.id} style={{ border: '1px dashed #CBD5E1', borderRadius: '8px', padding: '8px', textAlign: 'center', background: '#fff' }}>
-                      <div style={{ fontSize: '9px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{shopName}</div>
+                    <div key={p.id} style={{ border: '1px dashed var(--c-line-strong)', borderRadius: '8px', padding: '8px', textAlign: 'center', background: 'var(--c-surface)' }}>
+                      <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--c-ink-2)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{shopName}</div>
                       <div style={{ fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '4px' }}>{p.name}</div>
                       <Barcode value={p.barcode} format={fmt} height={34} width={1.2} fontSize={10} margin={2} renderer="svg" />
                       {saleAmt != null ? (
@@ -371,9 +371,9 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '9px', color: '#888', fontWeight: 700 }}>MRP</span>
                             <span style={{ fontSize: '11px', textDecoration: 'line-through', color: '#999' }}>₹{mrp}</span>
-                            <span style={{ background: '#EF4444', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '1px 4px', borderRadius: '3px' }}>{discPct}% OFF</span>
+                            <span style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: '9px', fontWeight: 800, padding: '1px 4px', borderRadius: '3px' }}>{discPct}% OFF</span>
                           </div>
-                          <div style={{ fontSize: '17px', fontWeight: 900, color: '#16A34A' }}>₹{saleAmt}</div>
+                          <div style={{ fontSize: '17px', fontWeight: 900, color: 'var(--c-success-strong)' }}>₹{saleAmt}</div>
                         </div>
                       ) : (
                         <div style={{ fontSize: '14px', fontWeight: 800, marginTop: '4px' }}>₹{mrp}</div>
@@ -386,7 +386,7 @@ export default function BarcodeManager({ products, shopName, shopId, onClose, on
               <button
                 onClick={handlePrint}
                 disabled={!selectedProducts.filter(p => p.barcode).length}
-                style={{ width: '100%', padding: '14px', background: selectedProducts.filter(p => p.barcode).length ? 'linear-gradient(135deg,#4F46E5,#7C3AED)' : '#CBD5E1', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ width: '100%', padding: '14px', background: selectedProducts.filter(p => p.barcode).length ? 'linear-gradient(135deg,var(--c-primary),#7C3AED)' : 'var(--c-line-strong)', color: 'var(--c-surface)', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <Printer size={18} /> Print {selectedProducts.filter(p => p.barcode).length} Label{selectedProducts.filter(p => p.barcode).length !== 1 ? 's' : ''} ({labelFormat === 'a4' ? 'A4' : 'Thermal'})
               </button>

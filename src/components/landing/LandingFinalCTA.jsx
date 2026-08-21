@@ -29,7 +29,7 @@ export default function LandingFinalCTA({ navigate: nav }) {
         <h2 style={{
           fontFamily: F.display, fontWeight: 800,
           fontSize: 'clamp(30px,4.6vw,50px)', letterSpacing: '-0.03em',
-          color: '#fff', lineHeight: 1.08, margin: '14px 0 0', maxWidth: '17ch',
+          color: 'var(--c-surface)', lineHeight: 1.08, margin: '14px 0 0', maxWidth: '17ch',
         }}>
           Stop keeping the books by hand.
         </h2>

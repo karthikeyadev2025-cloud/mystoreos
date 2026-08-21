@@ -4,21 +4,21 @@ import { RefreshCw, TrendingUp, IndianRupee, Store, Truck, CreditCard } from 'lu
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_COLORS = { starter: '#f59e0b', pro: '#4F46E5', enterprise: '#10b981', service_starter: '#fb923c', service_pro: '#a78bfa', service_enterprise: '#34d399' };
-const DIST_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
+const TIER_COLORS = { starter: 'var(--c-warning)', pro: 'var(--c-primary)', enterprise: 'var(--c-success)', service_starter: '#fb923c', service_pro: '#a78bfa', service_enterprise: '#34d399' };
+const DIST_COLORS = { basic_distributor: 'var(--c-muted)', pro_distributor: 'var(--c-primary)', enterprise_distributor: 'var(--c-success)' };
 
 const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '24px' },
-  label: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' },
-  val: { color: '#0F172A', fontSize: '26px', fontWeight: 700 },
-  sub: { color: '#64748B', fontSize: '12px', marginTop: '4px' },
-  th: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
-  td: { color: '#0F172A', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #F3F4F6' },
+  label: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' },
+  val: { color: 'var(--c-ink)', fontSize: '26px', fontWeight: 700 },
+  sub: { color: 'var(--c-muted)', fontSize: '12px', marginTop: '4px' },
+  th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '11px 12px', borderBottom: '1px solid #F3F4F6' },
 };
 
-const CHART_STYLE = { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#0F172A', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
+const CHART_STYLE = { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
   return (
@@ -62,7 +62,7 @@ export default function TabRevenue() {
 
   useEffect(() => { const t = setTimeout(load, 0); return () => clearTimeout(t); }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading revenue...</div>;
+  if (loading) return <div style={{ textAlign: 'center', color: 'var(--c-muted)', padding: '60px' }}>Loading revenue...</div>;
 
   // Was ['starter', 'pro', 'enterprise'] only — every Service-tier
   // business (service_starter/_pro/_enterprise, added when Service
@@ -89,10 +89,10 @@ export default function TabRevenue() {
   // paying, upgraded customer) would never register as having
   // progressed past "Active" in this funnel at all.
   const funnelData = [
-    { name: 'Total Shops', value: shops.length, fill: '#4F46E5' },
-    { name: 'Active (paid)', value: shops.filter(s => s.subscriptionTier !== 'trial' && s.subscription !== 'trial').length, fill: '#818CF8' },
-    { name: 'Pro+', value: shops.filter(s => ['pro', 'enterprise', 'service_pro', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: '#10B981' },
-    { name: 'Enterprise', value: shops.filter(s => ['enterprise', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: '#F59E0B' },
+    { name: 'Total Shops', value: shops.length, fill: 'var(--c-primary)' },
+    { name: 'Active (paid)', value: shops.filter(s => s.subscriptionTier !== 'trial' && s.subscription !== 'trial').length, fill: 'var(--c-primary-light)' },
+    { name: 'Pro+', value: shops.filter(s => ['pro', 'enterprise', 'service_pro', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: 'var(--c-success)' },
+    { name: 'Enterprise', value: shops.filter(s => ['enterprise', 'service_enterprise'].includes(s.subscriptionTier)).length, fill: 'var(--c-warning)' },
   ];
 
   const totalMRR = (stats?.shopMRR || 0) + (stats?.distMRR || 0);
@@ -101,50 +101,50 @@ export default function TabRevenue() {
     <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Revenue & Billing</h2>
-          <p style={{ color: '#64748B', fontSize: '13px', marginTop: '4px' }}>MRR breakdown and subscription analytics</p>
+          <h2 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700 }}>Revenue & Billing</h2>
+          <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>MRR breakdown and subscription analytics</p>
         </div>
-        <button onClick={() => load(true)} disabled={refreshing} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#475569', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <button onClick={() => load(true)} disabled={refreshing} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '8px', color: 'var(--c-ink-2)', padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
           <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
           Refresh
         </button>
       </div>
 
       <div style={S.grid}>
-        <StatCard icon={IndianRupee} label="Total MRR" value={`₹${totalMRR.toLocaleString()}`} sub="Shops + Distributors" color="#4F46E5" />
-        <StatCard icon={Store} label="Shop MRR" value={`₹${(stats?.shopMRR || 0).toLocaleString()}`} sub={`${stats?.paidShops || 0} paid shops`} color="#818CF8" />
-        <StatCard icon={Truck} label="Distributor MRR" value={`₹${(stats?.distMRR || 0).toLocaleString()}`} sub={`${distributors.length} distributors`} color="#10B981" />
-        <StatCard icon={TrendingUp} label="Annualized ARR" value={`₹${(totalMRR * 12).toLocaleString()}`} color="#F59E0B" />
-        <StatCard icon={CreditCard} label="Outstanding Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues across platform" color="#EF4444" />
+        <StatCard icon={IndianRupee} label="Total MRR" value={`₹${totalMRR.toLocaleString()}`} sub="Shops + Distributors" color="var(--c-primary)" />
+        <StatCard icon={Store} label="Shop MRR" value={`₹${(stats?.shopMRR || 0).toLocaleString()}`} sub={`${stats?.paidShops || 0} paid shops`} color="var(--c-primary-light)" />
+        <StatCard icon={Truck} label="Distributor MRR" value={`₹${(stats?.distMRR || 0).toLocaleString()}`} sub={`${distributors.length} distributors`} color="var(--c-success)" />
+        <StatCard icon={TrendingUp} label="Annualized ARR" value={`₹${(totalMRR * 12).toLocaleString()}`} color="var(--c-warning)" />
+        <StatCard icon={CreditCard} label="Outstanding Credit" value={`₹${Number(stats?.activeCredit || 0).toLocaleString()}`} sub="Unpaid dues across platform" color="var(--c-danger)" />
         <StatCard icon={Store} label="Paid Shops" value={stats?.paidShops || 0} sub={`of ${stats?.totalShops || 0} total`} color="#06B6D4" />
       </div>
 
       <div style={{ ...S.card, marginBottom: '20px' }}>
-        <div style={{ color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Monthly Revenue (12 Months)</div>
+        <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Monthly Revenue (12 Months)</div>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={revenueData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
             <defs>
               <linearGradient id="rShop" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                <stop offset="5%" stopColor="#12457A" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#12457A" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="rDist" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#818CF8" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#818CF8" stopOpacity={0} />
+                <stop offset="5%" stopColor="#4A7CAD" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#4A7CAD" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
+            <XAxis dataKey="month" tick={{ fill: 'var(--c-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: 'var(--c-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
             <Tooltip contentStyle={CHART_STYLE} formatter={v => [`₹${v}`, '']} />
-            <Area type="monotone" dataKey="shops" name="Shops" stroke="#4F46E5" fill="url(#rShop)" strokeWidth={2} dot={false} />
-            <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#818CF8" fill="url(#rDist)" strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="shops" name="Shops" stroke="#12457A" fill="url(#rShop)" strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#4A7CAD" fill="url(#rDist)" strokeWidth={2} dot={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
       <div className="admin-grid-2col">
         <div style={S.card}>
-          <div style={{ color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Shop Tier Breakdown</div>
+          <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Shop Tier Breakdown</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
@@ -164,12 +164,12 @@ export default function TabRevenue() {
           <div style={{ marginTop: '16px' }}>
             <ResponsiveContainer width="100%" height={100}>
               <BarChart data={shopTierBreakdown} layout="vertical" margin={{ left: 0, right: 10 }}>
-                <XAxis type="number" tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} width={65} />
+                <XAxis type="number" tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill: 'var(--c-muted)', fontSize: 11 }} axisLine={false} tickLine={false} width={65} />
                 <Tooltip contentStyle={CHART_STYLE} />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                   {shopTierBreakdown.map((row, i) => <Cell key={i} fill={row.color} />)}
-                  <LabelList dataKey="count" position="right" style={{ fill: '#64748B', fontSize: 11 }} />
+                  <LabelList dataKey="count" position="right" style={{ fill: 'var(--c-muted)', fontSize: 11 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -177,7 +177,7 @@ export default function TabRevenue() {
         </div>
 
         <div style={S.card}>
-          <div style={{ color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Distributor Tier Breakdown</div>
+          <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Distributor Tier Breakdown</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
@@ -198,15 +198,15 @@ export default function TabRevenue() {
       </div>
 
       <div style={S.card}>
-        <div style={{ color: '#0F172A', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Conversion Funnel</div>
+        <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Conversion Funnel</div>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={funnelData} layout="vertical" margin={{ left: 10, right: 40 }}>
-            <XAxis type="number" tick={{ fill: '#64748B', fontSize: 10 }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} width={90} />
+            <XAxis type="number" tick={{ fill: 'var(--c-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="name" tick={{ fill: 'var(--c-muted)', fontSize: 11 }} axisLine={false} tickLine={false} width={90} />
             <Tooltip contentStyle={CHART_STYLE} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]}>
               {funnelData.map((row, i) => <Cell key={i} fill={row.fill} />)}
-              <LabelList dataKey="value" position="right" style={{ fill: '#64748B', fontSize: 11 }} />
+              <LabelList dataKey="value" position="right" style={{ fill: 'var(--c-muted)', fontSize: 11 }} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

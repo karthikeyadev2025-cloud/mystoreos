@@ -30,10 +30,10 @@ const daysSince = (d) => d ? Math.floor((Date.now() - new Date(d).getTime()) / D
  */
 export function agingBuckets(credits = []) {
   const buckets = {
-    current: { label: '0–30 days', amount: 0, count: 0, tone: '#059669' },
+    current: { label: '0–30 days', amount: 0, count: 0, tone: 'var(--c-success-strong)' },
     d31:     { label: '31–60 days', amount: 0, count: 0, tone: '#CA8A04' },
     d61:     { label: '61–90 days', amount: 0, count: 0, tone: '#EA580C' },
-    d90:     { label: '90+ days',   amount: 0, count: 0, tone: '#DC2626' },
+    d90:     { label: '90+ days',   amount: 0, count: 0, tone: 'var(--c-danger-strong)' },
   };
 
   credits.filter(c => !c.paid).forEach(c => {

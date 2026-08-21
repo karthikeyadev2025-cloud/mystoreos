@@ -42,7 +42,7 @@ export async function initNativeApp() {
     // which returns 0 on most Android devices. Instead, MainActivity.java
     // owns the layout via setDecorFitsSystemWindows(true) so content
     // always sits BELOW the status bar and ABOVE the nav bar.
-    await StatusBar.setBackgroundColor({ color: '#0F172A' });
+    await StatusBar.setBackgroundColor({ color: '#0B1F33' });
 
     // White icons/text on the dark status bar
     await StatusBar.setStyle({ style: Style.Light });

@@ -236,27 +236,27 @@ export default function Purchases() {
   const totalPayableDebt = useMemo(() => balances.reduce((s, b) => s + Math.max(b.outstanding, 0), 0), [balances]);
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 20, marginBottom: 18, boxShadow: '0 4px 12px rgba(15,23,42,0.03)' },
-    input: { width: '100%', padding: '11px 14px', border: '1px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', boxSizing: 'border-box', background: '#FFFFFF', color: '#0F172A' },
-    label: { display: 'block', fontSize: 12, fontWeight: 800, color: '#334155', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.3px' },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 16, padding: 20, marginBottom: 18, boxShadow: '0 4px 12px rgba(15,23,42,0.03)' },
+    input: { width: '100%', padding: '11px 14px', border: '1px solid var(--c-line-strong)', borderRadius: 10, fontSize: 14, outline: 'none', boxSizing: 'border-box', background: 'var(--c-surface)', color: 'var(--c-ink)' },
+    label: { display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--c-ink-2)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.3px' },
   };
 
   if (loading) {
-    return <div style={{ padding: 60, textAlign: 'center', color: '#64748B', fontSize: '16px', fontWeight: 'bold' }}>Loading Supplier Payables &amp; Inward Purchasing…</div>;
+    return <div style={{ padding: 60, textAlign: 'center', color: 'var(--c-muted)', fontSize: '16px', fontWeight: 'bold' }}>Loading Supplier Payables &amp; Inward Purchasing…</div>;
   }
 
   return (
-    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: '#0F172A' }}>
+    <div style={{ padding: '24px 16px', maxWidth: 960, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: 'var(--c-ink)' }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/distributor')}
-        style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#4F46E5', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+        style={{ background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
         <ArrowLeft size={16} /> Back to Dashboard
       </button>
 
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', margin: 0 }}>Inward Stock &amp; Supplier Payables</h1>
-        <p style={{ fontSize: 13, color: '#64748B', margin: '4px 0 0' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: 'var(--c-ink)', margin: 0 }}>Inward Stock &amp; Supplier Payables</h1>
+        <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
           Record manufacturer bills, increase warehouse stock, capture cost basis, and track payables.
         </p>
       </div>
@@ -269,7 +269,7 @@ export default function Purchases() {
               <div style={{ fontSize: 11, color: '#9A3412', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Owed to Manufacturers / Suppliers</div>
               <div style={{ fontSize: 26, fontWeight: 900, color: '#C2410C', marginTop: 2 }}>₹{Math.round(totalPayableDebt).toLocaleString('en-IN')}</div>
             </div>
-            <button onClick={() => setTab('owed')} style={{ background: '#EA580C', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(234,88,12,0.3)' }}>
+            <button onClick={() => setTab('owed')} style={{ background: '#EA580C', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(234,88,12,0.3)' }}>
               View Payables List
             </button>
           </div>
@@ -286,9 +286,9 @@ export default function Purchases() {
           <button key={k} onClick={() => setTab(k)}
             style={{
               padding: '11px 20px', borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: 'pointer',
-              border: `2px solid ${tab === k ? '#4F46E5' : '#E2E8F0'}`,
-              background: tab === k ? '#EEF2FF' : '#FFFFFF',
-              color: tab === k ? '#4338CA' : '#64748B',
+              border: `2px solid ${tab === k ? 'var(--c-primary)' : 'var(--c-line)'}`,
+              background: tab === k ? 'var(--c-primary-soft)' : 'var(--c-surface)',
+              color: tab === k ? 'var(--c-primary-hover)' : 'var(--c-muted)',
               boxShadow: tab === k ? '0 4px 12px rgba(79,70,229,0.15)' : 'none',
             }}>
             {l}
@@ -304,15 +304,15 @@ export default function Purchases() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <label style={S.label}>Manufacturer / Supplier</label>
               <button onClick={() => setShowAddSup(!showAddSup)}
-                style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+                style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
                 {showAddSup ? 'Cancel' : '+ Create New Supplier Account'}
               </button>
             </div>
 
             {/* Quick Supplier Creation Card */}
             {showAddSup ? (
-              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, marginBottom: 16 }}>
-                <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>Create Supplier Account</h4>
+              <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+                <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 800, color: 'var(--c-ink)' }}>Create Supplier Account</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                   <div>
                     <label style={S.label}>Supplier / Company Name</label>
@@ -332,7 +332,7 @@ export default function Purchases() {
                   </div>
                 </div>
                 <button onClick={addSupplier} disabled={busy}
-                  style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
                   Save &amp; Select Supplier
                 </button>
               </div>
@@ -360,7 +360,7 @@ export default function Purchases() {
             <label style={S.label}>Add Inward Item &amp; Cost Basis</label>
             <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Product</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)' }}>Product</label>
                 <select value={pickProduct}
                   onChange={e => {
                     setPickProduct(e.target.value);
@@ -375,36 +375,36 @@ export default function Purchases() {
               </div>
 
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Boxes / Cases</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)' }}>Boxes / Cases</label>
                 <input type="number" inputMode="numeric" value={pickBoxes} onChange={e => setPickBoxes(e.target.value)} placeholder="0" style={S.input} />
               </div>
 
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Loose Jars</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)' }}>Loose Jars</label>
                 <input type="number" inputMode="numeric" value={pickLooseUnits} onChange={e => setPickLooseUnits(e.target.value)} placeholder="0" style={S.input} />
               </div>
 
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>Cost Rate (₹)</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)' }}>Cost Rate (₹)</label>
                 <input type="number" inputMode="decimal" value={pickCost} onChange={e => setPickCost(e.target.value)} placeholder="Cost ₹" style={S.input} />
               </div>
 
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>GST %</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)' }}>GST %</label>
                 <select value={pickGst} onChange={e => setPickGst(e.target.value)} style={S.input}>
                   {['0', '3', '5', '12', '18', '28'].map(g => <option key={g} value={g}>{g}%</option>)}
                 </select>
               </div>
 
               <button onClick={addLineItem}
-                style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 18px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+                style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '11px 18px', borderRadius: 10, fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
                 <Plus size={16} /> Add Item
               </button>
             </div>
 
             {/* Margin Predictor */}
             {selectedProduct && selectedProduct.price > 0 && parseFloat(pickCost) > 0 && (
-              <div style={{ marginTop: 10, fontSize: 12, color: parseFloat(pickCost) < selectedProduct.price ? '#059669' : '#DC2626', fontWeight: 800, background: '#F8FAFC', padding: '8px 12px', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+              <div style={{ marginTop: 10, fontSize: 12, color: parseFloat(pickCost) < selectedProduct.price ? 'var(--c-success-strong)' : 'var(--c-danger-strong)', fontWeight: 800, background: 'var(--c-bg)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--c-line)' }}>
                 📊 Selling Price: ₹{selectedProduct.price} → Cost: ₹{pickCost} · Profit Margin: {Math.round(((selectedProduct.price - parseFloat(pickCost)) / selectedProduct.price) * 100)}%
               </div>
             )}
@@ -413,13 +413,13 @@ export default function Purchases() {
           {/* Inward Items Table & Settlement */}
           {lines.length > 0 && (
             <div style={S.card}>
-              <h3 style={{ margin: '0 0 14px', fontSize: 16, fontWeight: 900, color: '#0F172A' }}>
+              <h3 style={{ margin: '0 0 14px', fontSize: 16, fontWeight: 900, color: 'var(--c-ink)' }}>
                 Inward Bill Items ({lines.length})
               </h3>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569' }}>
+                    <tr style={{ background: 'var(--c-bg)', borderBottom: '2px solid var(--c-line)', color: 'var(--c-ink-2)' }}>
                       <th style={{ padding: '10px 8px', fontWeight: 800 }}>#</th>
                       <th style={{ padding: '10px 8px', fontWeight: 800 }}>Product Name</th>
                       <th style={{ padding: '10px 8px', fontWeight: 800, textAlign: 'center' }}>Total Qty Received</th>
@@ -431,15 +431,15 @@ export default function Purchases() {
                   </thead>
                   <tbody>
                     {lines.map((item, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                        <td style={{ padding: '12px 8px', color: '#64748B', fontWeight: 700 }}>{idx + 1}</td>
-                        <td style={{ padding: '12px 8px', fontWeight: 800, color: '#0F172A' }}>{item.productName}</td>
+                      <tr key={idx} style={{ borderBottom: '1px solid var(--c-line-soft)' }}>
+                        <td style={{ padding: '12px 8px', color: 'var(--c-muted)', fontWeight: 700 }}>{idx + 1}</td>
+                        <td style={{ padding: '12px 8px', fontWeight: 800, color: 'var(--c-ink)' }}>{item.productName}</td>
                         <td style={{ padding: '12px 8px', textAlign: 'center', fontWeight: 800 }}>{item.qty} units</td>
                         <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 700 }}>₹{item.costRate}</td>
-                        <td style={{ padding: '12px 8px', textAlign: 'right', color: '#475569' }}>{item.gstPct}%</td>
-                        <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: '#0F172A' }}>₹{item.lineTotal.toFixed(2)}</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'right', color: 'var(--c-ink-2)' }}>{item.gstPct}%</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 900, color: 'var(--c-ink)' }}>₹{item.lineTotal.toFixed(2)}</td>
                         <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                          <button onClick={() => removeLineItem(idx)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                          <button onClick={() => removeLineItem(idx)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                             <X size={14} />
                           </button>
                         </td>
@@ -449,11 +449,11 @@ export default function Purchases() {
                 </table>
               </div>
 
-              <div style={{ marginTop: 16, paddingTop: 14, borderTop: '2px solid #F1F5F9', textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ fontSize: 13, color: '#64748B' }}>
+              <div style={{ marginTop: 16, paddingTop: 14, borderTop: '2px solid var(--c-line-soft)', textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ fontSize: 13, color: 'var(--c-muted)' }}>
                   Subtotal: <strong>₹{totals.rawSubtotal.toFixed(2)}</strong> · GST Input Credit: <strong>₹{totals.gstTotal.toFixed(2)}</strong>
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#0F172A' }}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--c-ink)' }}>
                   Grand Total: ₹{totals.grandTotal.toLocaleString('en-IN')}
                 </div>
               </div>
@@ -479,7 +479,7 @@ export default function Purchases() {
               </div>
 
               <button onClick={handleSavePurchase} disabled={busy}
-                style={{ width: '100%', marginTop: 20, background: 'linear-gradient(135deg, #059669, #047857)', color: '#fff', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', boxShadow: '0 6px 20px rgba(5,150,105,0.3)' }}>
+                style={{ width: '100%', marginTop: 20, background: 'linear-gradient(135deg, var(--c-success-strong), #047857)', color: 'var(--c-surface)', border: 'none', padding: '16px', borderRadius: 14, fontWeight: 900, fontSize: 16, cursor: 'pointer', boxShadow: '0 6px 20px rgba(5,150,105,0.3)' }}>
                 {busy ? 'Recording Purchase…' : 'Record Purchase & Increment Stock'}
               </button>
             </div>
@@ -490,25 +490,25 @@ export default function Purchases() {
       {/* TAB 2: MANUFACTURER PAYABLES DIRECTORY & SETTLEMENT */}
       {tab === 'owed' && (
         <div style={S.card}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 900, color: '#0F172A' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 900, color: 'var(--c-ink)' }}>
             Manufacturer Payables Directory
           </h3>
 
           {balances.filter(b => b.outstanding > 0).length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#94A3B8', padding: 40 }}>
-              <CheckCircle2 size={36} color="#10B981" style={{ marginBottom: 10 }} />
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0F172A' }}>No Outstanding Payables!</p>
-              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>All manufacturer bills are fully settled.</p>
+            <div style={{ textAlign: 'center', color: 'var(--c-faint)', padding: 40 }}>
+              <CheckCircle2 size={36} color="var(--c-success)" style={{ marginBottom: 10 }} />
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--c-ink)' }}>No Outstanding Payables!</p>
+              <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--c-muted)' }}>All manufacturer bills are fully settled.</p>
             </div>
           ) : (
             balances.filter(b => b.outstanding > 0).map(b => (
-              <div key={b.supplierId} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: '5px solid #EA580C', borderRadius: 14, padding: 18, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+              <div key={b.supplierId} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderLeft: '5px solid #EA580C', borderRadius: 14, padding: 18, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                 <div>
-                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{b.name}</h4>
-                  <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: 'var(--c-ink)' }}>{b.name}</h4>
+                  <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 4 }}>
                     Total Purchases: ₹{Math.round(b.purchased).toLocaleString('en-IN')} · Total Paid: ₹{Math.round(b.paid).toLocaleString('en-IN')}
                   </div>
-                  {b.lastBillDate && <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Last Bill: {new Date(b.lastBillDate).toLocaleDateString()}</div>}
+                  {b.lastBillDate && <div style={{ fontSize: 10, color: 'var(--c-faint)', marginTop: 2 }}>Last Bill: {new Date(b.lastBillDate).toLocaleDateString()}</div>}
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
@@ -516,7 +516,7 @@ export default function Purchases() {
                     ₹{Math.round(b.outstanding).toLocaleString('en-IN')}
                   </div>
                   <button onClick={() => { setPayModalSupplier(b); setPayModalAmount(String(Math.round(b.outstanding))); }}
-                    style={{ marginTop: 6, background: '#059669', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer' }}>
+                    style={{ marginTop: 6, background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer' }}>
                     💸 Pay Supplier
                   </button>
                 </div>
@@ -529,27 +529,27 @@ export default function Purchases() {
       {/* TAB 3: PURCHASE HISTORY */}
       {tab === 'history' && (
         <div style={S.card}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 900, color: '#0F172A' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 900, color: 'var(--c-ink)' }}>
             Inward Purchase History
           </h3>
 
           {history.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#94A3B8', padding: 40 }}>
+            <div style={{ textAlign: 'center', color: 'var(--c-faint)', padding: 40 }}>
               <FileText size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
               <p style={{ margin: 0, fontSize: 14 }}>No inward purchases recorded yet.</p>
             </div>
           ) : (
             history.map(h => (
-              <div key={h.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, marginBottom: 14 }}>
+              <div key={h.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 16, marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0F172A' }}>{h.supplierName}</h4>
-                    <p style={{ margin: '3px 0 0', fontSize: 12, color: '#64748B' }}>
+                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--c-ink)' }}>{h.supplierName}</h4>
+                    <p style={{ margin: '3px 0 0', fontSize: 12, color: 'var(--c-muted)' }}>
                       Bill No: <strong>{h.billNo}</strong> · Date: {new Date(h.billDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 17, fontWeight: 900, color: '#0F172A' }}>₹{Math.round(h.total).toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 17, fontWeight: 900, color: 'var(--c-ink)' }}>₹{Math.round(h.total).toLocaleString('en-IN')}</div>
                     {h.total - h.amountPaid > 0 && (
                       <span style={{ fontSize: 10, background: '#FFEDD5', color: '#C2410C', padding: '2px 6px', borderRadius: 6, fontWeight: 800 }}>
                         Due: ₹{Math.round(h.total - h.amountPaid).toLocaleString('en-IN')}
@@ -558,7 +558,7 @@ export default function Purchases() {
                   </div>
                 </div>
 
-                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #F1F5F9', fontSize: 12, color: '#475569' }}>
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--c-line-soft)', fontSize: 12, color: 'var(--c-ink-2)' }}>
                   {h.lines.map((l, i) => <span key={i}>{i > 0 && ' · '}{l.name} ×{l.qty}</span>)}
                 </div>
               </div>
@@ -570,10 +570,10 @@ export default function Purchases() {
       {/* Supplier Payment Settlement Modal */}
       {payModalSupplier && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: 440, borderRadius: 20, padding: 24, border: '1px solid #E2E8F0', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'var(--c-surface)', width: '100%', maxWidth: 440, borderRadius: 20, padding: 24, border: '1px solid var(--c-line)', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0F172A' }}>Settle Supplier Payment</h3>
-              <button onClick={() => setPayModalSupplier(null)} style={{ background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }}>×</button>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: 'var(--c-ink)' }}>Settle Supplier Payment</h3>
+              <button onClick={() => setPayModalSupplier(null)} style={{ background: 'var(--c-line-soft)', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }}>×</button>
             </div>
 
             <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: 14, marginBottom: 16 }}>
@@ -604,7 +604,7 @@ export default function Purchases() {
             </div>
 
             <button onClick={handlePaySupplierSubmit} disabled={busy}
-              style={{ width: '100%', background: 'linear-gradient(135deg, #059669, #047857)', color: '#fff', border: 'none', padding: 14, borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, var(--c-success-strong), #047857)', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}>
               {busy ? 'Recording Payment…' : 'Record Supplier Payment'}
             </button>
           </div>

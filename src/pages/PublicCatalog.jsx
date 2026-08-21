@@ -65,16 +65,16 @@ export default function PublicCatalog() {
     }, {});
 
   const S = {
-    wrap: { minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
-    header: { background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', padding: '28px 20px' },
+    wrap: { minHeight: '100vh', background: 'var(--c-bg)', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" },
+    header: { background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', padding: '28px 20px' },
     body: { padding: '20px', maxWidth: 720, margin: '0 auto' },
-    card: { background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 14, marginBottom: 10, display: 'flex', gap: 12, alignItems: 'center' },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 14, marginBottom: 10, display: 'flex', gap: 12, alignItems: 'center' },
   };
 
   if (loading) {
     return (
       <div style={{ ...S.wrap, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={28} className="animate-spin" color="#4F46E5" />
+        <Loader2 size={28} className="animate-spin" color="var(--c-primary)" />
       </div>
     );
   }
@@ -83,9 +83,9 @@ export default function PublicCatalog() {
     return (
       <div style={{ ...S.wrap, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, textAlign: 'center' }}>
         <div>
-          <Store size={40} color="#94A3B8" style={{ marginBottom: 12 }} />
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#334155' }}>Catalog not found</h2>
-          <p style={{ fontSize: 13, color: '#94A3B8' }}>Check the link and try again, or ask the distributor to resend it.</p>
+          <Store size={40} color="var(--c-faint)" style={{ marginBottom: 12 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--c-ink-2)' }}>Catalog not found</h2>
+          <p style={{ fontSize: 13, color: 'var(--c-faint)' }}>Check the link and try again, or ask the distributor to resend it.</p>
         </div>
       </div>
     );
@@ -96,10 +96,10 @@ export default function PublicCatalog() {
       <div style={S.header}>
         <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           {distributor.logo ? (
-            <img src={distributor.logo} alt="" style={{ width: 54, height: 54, borderRadius: 12, objectFit: 'cover', background: '#fff' }} />
+            <img src={distributor.logo} alt="" style={{ width: 54, height: 54, borderRadius: 12, objectFit: 'cover', background: 'var(--c-surface)' }} />
           ) : (
             <div style={{ width: 54, height: 54, borderRadius: 12, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Store size={26} color="#fff" />
+              <Store size={26} color="var(--c-surface)" />
             </div>
           )}
           <div>
@@ -117,29 +117,29 @@ export default function PublicCatalog() {
         <input
           value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search products…"
-          style={{ width: '100%', padding: '12px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 14, marginBottom: 18, boxSizing: 'border-box', background: '#fff' }}
+          style={{ width: '100%', padding: '12px 14px', border: '1px solid var(--c-line)', borderRadius: 10, fontSize: 14, marginBottom: 18, boxSizing: 'border-box', background: 'var(--c-surface)' }}
         />
 
         {products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--c-faint)' }}>
             <Package size={28} style={{ opacity: 0.4, marginBottom: 8 }} />
             <p style={{ fontSize: 13, margin: 0 }}>No products in this catalog yet.</p>
           </div>
         ) : Object.entries(grouped).map(([cat, items]) => (
           <div key={cat} style={{ marginBottom: 18 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 800, color: '#475569', textTransform: 'uppercase', margin: '0 0 8px' }}>{cat}</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-ink-2)', textTransform: 'uppercase', margin: '0 0 8px' }}>{cat}</h3>
             {items.map(p => (
               <div key={p.id} style={S.card}>
                 {p.image ? (
-                  <img src={p.image} alt="" style={{ width: 52, height: 52, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #E2E8F0' }} />
+                  <img src={p.image} alt="" style={{ width: 52, height: 52, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--c-line)' }} />
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: 8, background: '#F1F5F9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Package size={20} color="#CBD5E1" />
+                  <div style={{ width: 52, height: 52, borderRadius: 8, background: 'var(--c-line-soft)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Package size={20} color="var(--c-line-strong)" />
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{p.name}</div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#4F46E5', marginTop: 2 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-ink)' }}>{p.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-primary)', marginTop: 2 }}>
                     ₹{p.price}{p.unit ? ` / ${UNIT_SUFFIX[p.unit] || p.unit}` : ''}
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export default function PublicCatalog() {
                     after signup. */}
                 <button
                   onClick={() => navigate(`/register?type=shop&distributor=${encodeURIComponent(code)}`)}
-                  style={{ flexShrink: 0, background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                  style={{ flexShrink: 0, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                   Order
                 </button>
               </div>
@@ -159,12 +159,12 @@ export default function PublicCatalog() {
           </div>
         ))}
 
-        <div style={{ marginTop: 24, textAlign: 'center', padding: 20, background: '#EEF2FF', borderRadius: 12 }}>
+        <div style={{ marginTop: 24, textAlign: 'center', padding: 20, background: 'var(--c-primary-soft)', borderRadius: 12 }}>
           <p style={{ fontSize: 13, color: '#3730A3', fontWeight: 700, margin: '0 0 10px' }}>
             Want to order from {distributor.name}?
           </p>
           <button onClick={() => navigate(`/register?type=shop&distributor=${encodeURIComponent(code)}`)}
-            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+            style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
             Start your 15-day free trial
           </button>
         </div>

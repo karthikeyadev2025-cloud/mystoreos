@@ -4,17 +4,17 @@ import { Search, RefreshCw, Trash2, Key, ChevronDown, CheckCircle, XCircle, Tren
 import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
-const TIER_COLORS = { basic_distributor: '#64748b', pro_distributor: '#4F46E5', enterprise_distributor: '#10b981' };
+const TIER_COLORS = { basic_distributor: 'var(--c-muted)', pro_distributor: 'var(--c-primary)', enterprise_distributor: 'var(--c-success)' };
 const TIER_LABELS = { basic_distributor: 'Basic', pro_distributor: 'Pro', enterprise_distributor: 'Enterprise' };
 const TIERS = ['basic_distributor', 'pro_distributor', 'enterprise_distributor'];
 
 const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
-  badge: (tier) => ({ background: `${TIER_COLORS[tier] || '#64748b'}15`, color: TIER_COLORS[tier] || '#64748b', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 }),
-  btn: (color = '#4F46E5') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }),
-  input: { background: '#FFFFFF', border: '1px solid #D1D5DB', borderRadius: '8px', color: '#0F172A', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
-  th: { color: '#64748B', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
-  td: { color: '#0F172A', fontSize: '13px', padding: '12px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
+  card: { background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  badge: (tier) => ({ background: `${TIER_COLORS[tier] || 'var(--c-muted)'}15`, color: TIER_COLORS[tier] || 'var(--c-muted)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: 600 }),
+  btn: (color = 'var(--c-primary)') => ({ background: `${color}15`, border: `1px solid ${color}30`, color, borderRadius: '6px', padding: '5px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }),
+  input: { background: 'var(--c-surface)', border: '1px solid #D1D5DB', borderRadius: '8px', color: 'var(--c-ink)', padding: '8px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  th: { color: 'var(--c-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left', whiteSpace: 'nowrap' },
+  td: { color: 'var(--c-ink)', fontSize: '13px', padding: '12px', borderBottom: '1px solid #F3F4F6', verticalAlign: 'middle' },
 };
 
 function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
@@ -32,21 +32,21 @@ function UpgradeModal({ dist, onClose, onDone, tierPrices }) {
   };
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', width: '360px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ color: '#0F172A', fontWeight: 700, marginBottom: '8px' }}>Change Distributor Plan</h3>
-        <p style={{ color: '#64748B', fontSize: '13px', marginBottom: '16px' }}><b>{dist.name}</b></p>
+      <div style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', width: '360px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ color: 'var(--c-ink)', fontWeight: 700, marginBottom: '8px' }}>Change Distributor Plan</h3>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '16px' }}><b>{dist.name}</b></p>
         {TIERS.map(t => (
-          <button key={t} onClick={() => setTier(t)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${tier === t ? TIER_COLORS[t] : '#E5E7EB'}`, background: tier === t ? `${TIER_COLORS[t]}15` : 'transparent', color: tier === t ? TIER_COLORS[t] : '#475569', cursor: 'pointer', marginBottom: '8px', fontFamily: 'Plus Jakarta Sans, sans-serif', textAlign: 'left' }}>
+          <button key={t} onClick={() => setTier(t)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${tier === t ? TIER_COLORS[t] : '#E5E7EB'}`, background: tier === t ? `${TIER_COLORS[t]}15` : 'transparent', color: tier === t ? TIER_COLORS[t] : 'var(--c-ink-2)', cursor: 'pointer', marginBottom: '8px', fontFamily: 'Plus Jakarta Sans, sans-serif', textAlign: 'left' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: TIER_COLORS[t] }} />
               {TIER_LABELS[t]}
             </span>
-            <span style={{ fontSize: '11px', color: '#64748B' }}>₹{tierPrices[t]}/mo</span>
+            <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>₹{tierPrices[t]}/mo</span>
           </button>
         ))}
         <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-          <button onClick={save} disabled={busy} style={{ flex: 1, background: '#4F46E5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? 'Saving...' : 'Apply'}</button>
-          <button onClick={onClose} style={{ flex: 1, background: '#FFFFFF', border: '1px solid #D1D5DB', color: '#475569', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button onClick={save} disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? 'Saving...' : 'Apply'}</button>
+          <button onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid #D1D5DB', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
         </div>
       </div>
     </div>
@@ -70,13 +70,13 @@ function ResetModal({ dist, onClose, onDone }) {
   };
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <form onSubmit={submit} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', width: '340px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ color: '#0F172A', fontWeight: 700, marginBottom: '8px' }}>Reset Password</h3>
-        <p style={{ color: '#64748B', fontSize: '13px', marginBottom: '14px' }}><b>{dist.name}</b></p>
+      <form onSubmit={submit} style={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '24px', width: '340px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ color: 'var(--c-ink)', fontWeight: 700, marginBottom: '8px' }}>Reset Password</h3>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginBottom: '14px' }}><b>{dist.name}</b></p>
         <input value={pass} onChange={e => setPass(e.target.value)} type="password" placeholder="New password" style={{ ...S.input, width: '100%', marginBottom: '14px' }} required />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="submit" disabled={busy} style={{ flex: 1, background: '#4F46E5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
-          <button type="button" onClick={onClose} style={{ flex: 1, background: '#FFFFFF', border: '1px solid #D1D5DB', color: '#475569', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
+          <button type="submit" disabled={busy} style={{ flex: 1, background: 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>{busy ? '...' : 'Reset'}</button>
+          <button type="button" onClick={onClose} style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid #D1D5DB', color: 'var(--c-ink-2)', borderRadius: '8px', padding: '10px', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Cancel</button>
         </div>
       </form>
     </div>
@@ -172,7 +172,7 @@ export default function TabDistributors() {
     }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', color: '#64748B', padding: '60px' }}>Loading distributors...</div>;
+  if (loading) return <div style={{ textAlign: 'center', color: 'var(--c-muted)', padding: '60px' }}>Loading distributors...</div>;
 
   const totalMRR = distributors.reduce((s, d) => s + (tierPrices[d.distributorPlanTier] || 0), 0);
 
@@ -180,19 +180,19 @@ export default function TabDistributors() {
     <div className="admin-tab-content">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ color: '#0F172A', fontSize: '20px', fontWeight: 700 }}>Distributor Network</h2>
-          <p style={{ color: '#64748B', fontSize: '13px', marginTop: '4px' }}>{distributors.length} distributors · ₹{totalMRR.toLocaleString()} MRR</p>
+          <h2 style={{ color: 'var(--c-ink)', fontSize: '20px', fontWeight: 700 }}>Distributor Network</h2>
+          <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>{distributors.length} distributors · ₹{totalMRR.toLocaleString()} MRR</p>
         </div>
-        <button onClick={load} style={S.btn('#475569')}><RefreshCw size={13} />Refresh</button>
+        <button onClick={load} style={S.btn('var(--c-ink-2)')}><RefreshCw size={13} />Refresh</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px', marginBottom: '20px' }}>
         {['all', ...TIERS].map(t => {
           const count = t === 'all' ? distributors.length : distributors.filter(d => (d.distributorPlanTier || 'basic_distributor') === t).length;
           return (
-            <button key={t} onClick={() => setFilterTier(t)} style={{ padding: '12px', borderRadius: '10px', border: `1px solid ${filterTier === t ? (TIER_COLORS[t] || '#4F46E5') : '#E5E7EB'}`, background: filterTier === t ? `${TIER_COLORS[t] || '#4F46E5'}15` : '#FFFFFF', cursor: 'pointer', textAlign: 'left', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-              <div style={{ color: TIER_COLORS[t] || '#0F172A', fontWeight: 700, fontSize: '20px' }}>{count}</div>
-              <div style={{ color: '#64748B', fontSize: '11px', textTransform: t === 'all' ? 'capitalize' : 'none' }}>{t === 'all' ? 'All Distributors' : TIER_LABELS[t]}</div>
+            <button key={t} onClick={() => setFilterTier(t)} style={{ padding: '12px', borderRadius: '10px', border: `1px solid ${filterTier === t ? (TIER_COLORS[t] || 'var(--c-primary)') : '#E5E7EB'}`, background: filterTier === t ? `${TIER_COLORS[t] || 'var(--c-primary)'}15` : 'var(--c-surface)', cursor: 'pointer', textAlign: 'left', fontFamily: 'Plus Jakarta Sans, sans-serif', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <div style={{ color: TIER_COLORS[t] || 'var(--c-ink)', fontWeight: 700, fontSize: '20px' }}>{count}</div>
+              <div style={{ color: 'var(--c-muted)', fontSize: '11px', textTransform: t === 'all' ? 'capitalize' : 'none' }}>{t === 'all' ? 'All Distributors' : TIER_LABELS[t]}</div>
             </button>
           );
         })}
@@ -201,14 +201,14 @@ export default function TabDistributors() {
       {topByCredit.length > 0 && (
         <div style={{ ...S.card, marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <TrendingUp size={15} color="#10B981" />
-            <span style={{ color: '#0F172A', fontSize: '14px', fontWeight: 600 }}>Top Distributors by Credit Issued</span>
+            <TrendingUp size={15} color="var(--c-success)" />
+            <span style={{ color: 'var(--c-ink)', fontSize: '14px', fontWeight: 600 }}>Top Distributors by Credit Issued</span>
           </div>
           {topByCredit.map((d, i) => (
             <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: i < topByCredit.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
-              <span style={{ color: '#64748B', fontSize: '12px', width: '20px' }}>#{i + 1}</span>
-              <span style={{ color: '#0F172A', fontSize: '13px', flex: 1 }}>{d.name}</span>
-              <span style={{ color: '#10B981', fontWeight: 600, fontSize: '13px' }}>₹{Number(d.total).toLocaleString()}</span>
+              <span style={{ color: 'var(--c-muted)', fontSize: '12px', width: '20px' }}>#{i + 1}</span>
+              <span style={{ color: 'var(--c-ink)', fontSize: '13px', flex: 1 }}>{d.name}</span>
+              <span style={{ color: 'var(--c-success)', fontWeight: 600, fontSize: '13px' }}>₹{Number(d.total).toLocaleString()}</span>
             </div>
           ))}
         </div>
@@ -217,7 +217,7 @@ export default function TabDistributors() {
       <div style={S.card}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={14} color="#64748B" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={14} color="var(--c-muted)" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or phone…" style={{ ...S.input, width: '100%', paddingLeft: '32px' }} />
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function TabDistributors() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ ...S.td, textAlign: 'center', color: '#64748B', padding: '40px' }}>No distributors found</td></tr>
+                <tr><td colSpan={6} style={{ ...S.td, textAlign: 'center', color: 'var(--c-muted)', padding: '40px' }}>No distributors found</td></tr>
               )}
               {filtered.map(d => {
                 const tier = d.distributorPlanTier || 'basic_distributor';
@@ -245,23 +245,23 @@ export default function TabDistributors() {
                   <tr key={d.id}>
                     <td style={S.td}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg,#4F46E5,#10B981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>{(d.name||'D')[0]}</div>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg,var(--c-primary),var(--c-success))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: 'var(--c-surface)', flexShrink: 0 }}>{(d.name||'D')[0]}</div>
                         <span style={{ fontWeight: 500 }}>{d.name}</span>
                       </div>
                     </td>
-                    <td style={{ ...S.td, color: '#475569' }}>{d.phone}</td>
+                    <td style={{ ...S.td, color: 'var(--c-ink-2)' }}>{d.phone}</td>
                     <td style={S.td}><span style={S.badge(tier)}>{TIER_LABELS[tier]}</span></td>
-                    <td style={S.td}><span style={{ color: d.status === 'active' ? '#10B981' : '#F59E0B', fontSize: '12px', fontWeight: 600 }}>{d.status === 'active' ? '● Active' : '● Pending'}</span></td>
-                    <td style={{ ...S.td, color: '#10B981', fontWeight: 600 }}>₹{tierPrices[tier] || 0}</td>
+                    <td style={S.td}><span style={{ color: d.status === 'active' ? 'var(--c-success)' : 'var(--c-warning)', fontSize: '12px', fontWeight: 600 }}>{d.status === 'active' ? '● Active' : '● Pending'}</span></td>
+                    <td style={{ ...S.td, color: 'var(--c-success)', fontWeight: 600 }}>₹{tierPrices[tier] || 0}</td>
                     <td style={S.td}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
                         {d.status === 'active'
-                          ? <button disabled={isBusy} onClick={() => suspend(d)} style={S.btn('#F59E0B')}><XCircle size={12} />Suspend</button>
-                          : <button disabled={isBusy} onClick={() => activate(d)} style={S.btn('#10B981')}><CheckCircle size={12} />Activate</button>
+                          ? <button disabled={isBusy} onClick={() => suspend(d)} style={S.btn('var(--c-warning)')}><XCircle size={12} />Suspend</button>
+                          : <button disabled={isBusy} onClick={() => activate(d)} style={S.btn('var(--c-success)')}><CheckCircle size={12} />Activate</button>
                         }
-                        <button disabled={isBusy} onClick={() => setUpgradeModal(d)} style={S.btn('#4F46E5')}><ChevronDown size={12} />Plan</button>
-                        <button disabled={isBusy} onClick={() => setResetModal(d)} style={S.btn('#475569')}><Key size={12} />Reset PW</button>
-                        <button disabled={isBusy} onClick={() => del(d)} style={S.btn('#EF4444')}><Trash2 size={12} />Delete</button>
+                        <button disabled={isBusy} onClick={() => setUpgradeModal(d)} style={S.btn('var(--c-primary)')}><ChevronDown size={12} />Plan</button>
+                        <button disabled={isBusy} onClick={() => setResetModal(d)} style={S.btn('var(--c-ink-2)')}><Key size={12} />Reset PW</button>
+                        <button disabled={isBusy} onClick={() => del(d)} style={S.btn('var(--c-danger)')}><Trash2 size={12} />Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -277,36 +277,36 @@ export default function TabDistributors() {
           tier's price, description, and feature list (what actually
           shows on the pricing page and in the distributor dashboard's
           own upgrade prompts) without touching the database directly. */}
-      <div style={{ marginTop: '24px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '20px' }}>
-        <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>Distributor Plan Features</h3>
-        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#64748B' }}>Edit what each tier promises — reflected on the pricing page and every upgrade prompt immediately after saving.</p>
+      <div style={{ marginTop: '24px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '20px' }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: 'var(--c-ink)' }}>Distributor Plan Features</h3>
+        <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--c-muted)' }}>Edit what each tier promises — reflected on the pricing page and every upgrade prompt immediately after saving.</p>
 
         {editablePlans.map(plan => (
-          <div key={plan.id} style={{ border: '1px solid #E2E8F0', borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+          <div key={plan.id} style={{ border: '1px solid var(--c-line)', borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
             <button onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
-              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#F8FAFC', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'var(--c-bg)', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, color: 'var(--c-ink)' }}>
               <span>{plan.name} — ₹{plan.price}/mo</span>
               <ChevronDown size={16} style={{ transform: expandedPlan === plan.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
             </button>
             {expandedPlan === plan.id && (
               <div style={{ padding: 16 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Price (₹/month)</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Price (₹/month)</label>
                 <input type="number" value={plan.price} onChange={e => updatePlanField(plan.id, 'price', parseInt(e.target.value) || 0)}
-                  style={{ width: 160, padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, marginBottom: 12 }} />
+                  style={{ width: 160, padding: '8px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 13, marginBottom: 12 }} />
 
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Description</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Description</label>
                 <input value={plan.description} onChange={e => updatePlanField(plan.id, 'description', e.target.value)}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, marginBottom: 12, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 13, marginBottom: 12, boxSizing: 'border-box' }} />
 
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Features</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 6 }}>Features</label>
                 {plan.features.map((f, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                     <input value={f} onChange={e => updateFeatureLine(plan.id, idx, e.target.value)}
-                      style={{ flex: 1, padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
-                    <button onClick={() => removeFeatureLine(plan.id, idx)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', padding: '0 10px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>✕</button>
+                      style={{ flex: 1, padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
+                    <button onClick={() => removeFeatureLine(plan.id, idx)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', padding: '0 10px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>✕</button>
                   </div>
                 ))}
-                <button onClick={() => addFeatureLine(plan.id)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}>
+                <button onClick={() => addFeatureLine(plan.id)} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}>
                   + Add Feature
                 </button>
               </div>
@@ -315,7 +315,7 @@ export default function TabDistributors() {
         ))}
 
         <button onClick={savePlans} disabled={savingPlans}
-          style={{ marginTop: 8, background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          style={{ marginTop: 8, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
           {savingPlans ? 'Saving…' : 'Save All Plan Changes'}
         </button>
       </div>

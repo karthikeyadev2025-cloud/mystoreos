@@ -59,10 +59,10 @@ const Pricing = lazy(() => import('./pages/Pricing'));
 const AffiliateDashboard = lazy(() => import('./pages/AffiliateDashboard'));
 
 const PageLoader = () => (
-  <div style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  <div style={{ minHeight: '100vh', background: 'var(--c-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div style={{ textAlign: 'center' }}>
-      <div style={{ width: '40px', height: '40px', border: '3px solid rgba(139,92,246,0.2)', borderTop: '3px solid #8b5cf6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-      <p style={{ color: '#475569', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Loading MyStore OS...</p>
+      <div style={{ width: '40px', height: '40px', border: '3px solid rgba(139,92,246,0.2)', borderTop: '3px solid #4A7CAD', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+      <p style={{ color: 'var(--c-ink-2)', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Loading MyStore OS...</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   </div>
@@ -143,7 +143,7 @@ const PendingRoute = ({ children }) => {
 const AppLayout = ({ children }) => <div className="app-container">{children}</div>;
 const WideAppLayout = ({ children }) => <div className="app-container wide-layout">{children}</div>;
 
-const BANNER_COLORS = { info: '#3b82f6', warning: '#f59e0b', success: '#10b981', error: '#ef4444' };
+const BANNER_COLORS = { info: 'var(--c-info)', warning: 'var(--c-warning)', success: 'var(--c-success)', error: 'var(--c-danger)' };
 
 function AnnouncementBanner() {
   const { config } = useSiteConfig();
@@ -151,9 +151,9 @@ function AnnouncementBanner() {
   const dismissed = dismissedKey === config.announcementText;
   if (!config.announcementActive || !config.announcementText || dismissed) return null;
   return (
-    <div style={{ background: BANNER_COLORS[config.announcementType] || '#3b82f6', color: '#fff', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div style={{ background: BANNER_COLORS[config.announcementType] || 'var(--c-info)', color: 'var(--c-surface)', padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <span>{config.announcementText}</span>
-      <button onClick={() => { try { sessionStorage.setItem('ann_dismissed', config.announcementText); } catch (_e) { /* ignore */ } setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
+      <button onClick={() => { try { sessionStorage.setItem('ann_dismissed', config.announcementText); } catch (_e) { /* ignore */ } setDismissedKey(config.announcementText); }} style={{ background: 'none', border: 'none', color: 'var(--c-surface)', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }} aria-label="Dismiss">×</button>
     </div>
   );
 }
@@ -163,10 +163,10 @@ function MaintenanceModeOverlay() {
   const { user } = useAuth();
   if (!config.maintenanceMode || user?.role === 'admin') return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'var(--c-ink)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <div style={{ fontSize: '48px' }}>🔧</div>
-      <h2 style={{ color: '#f8fafc', fontSize: '24px', fontWeight: 700 }}>Under Maintenance</h2>
-      <p style={{ color: '#94a3b8', fontSize: '15px', textAlign: 'center', maxWidth: '400px' }}>{config.maintenanceMessage || 'We are performing scheduled maintenance. Back soon!'}</p>
+      <h2 style={{ color: 'var(--c-bg)', fontSize: '24px', fontWeight: 700 }}>Under Maintenance</h2>
+      <p style={{ color: 'var(--c-faint)', fontSize: '15px', textAlign: 'center', maxWidth: '400px' }}>{config.maintenanceMessage || 'We are performing scheduled maintenance. Back soon!'}</p>
     </div>
   );
 }
@@ -182,8 +182,8 @@ function MockDataWarningBanner() {
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100000,
-      background: 'linear-gradient(90deg, #dc2626, #b91c1c)',
-      color: '#fff', padding: '10px 16px', textAlign: 'center',
+      background: 'linear-gradient(90deg, var(--c-danger-strong), var(--c-danger-strong))',
+      color: 'var(--c-surface)', padding: '10px 16px', textAlign: 'center',
       fontSize: 13, fontWeight: 700, letterSpacing: 0.3,
       boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)',
     }}>

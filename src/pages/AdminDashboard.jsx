@@ -114,27 +114,27 @@ export default function AdminDashboard() {
 
   const sidebar = (
     <div style={{
-      width: '260px', minWidth: '260px', background: '#FFFFFF', borderRight: '1px solid #E5E7EB',
+      width: '260px', minWidth: '260px', background: 'var(--c-surface)', borderRight: '1px solid #E5E7EB',
       display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0
     }}>
-      <div style={{ padding: '20px 16px', borderBottom: '1px solid #E5E7EB', background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' }}>
+      <div style={{ padding: '20px 16px', borderBottom: '1px solid #E5E7EB', background: 'linear-gradient(135deg, var(--c-primary) 0%, #7C3AED 100%)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '15px', letterSpacing: '-0.01em' }}>MyStore OS</div>
+            <div style={{ color: 'var(--c-surface)', fontWeight: 800, fontSize: '15px', letterSpacing: '-0.01em' }}>MyStore OS</div>
             <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 2 }}>Enterprise · Admin</div>
           </div>
           {isMobile && (
-            <button onClick={() => setSidebarOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', cursor: 'pointer', borderRadius: 6, padding: 4, width: 'auto' }}>
+            <button onClick={() => setSidebarOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: 'var(--c-surface)', cursor: 'pointer', borderRadius: 6, padding: 4, width: 'auto' }}>
               <X size={16} />
             </button>
           )}
         </div>
         <div style={{ marginTop: '12px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#FBBF24,#F59E0B)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg,#FBBF24,var(--c-warning))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0, boxShadow: '0 2px 8px rgba(245,158,11,0.4)' }}>
             {(user?.name || 'A')[0].toUpperCase()}
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
+            <div style={{ color: 'var(--c-surface)', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Admin'}</div>
             <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '10px' }}>Super Admin · Full Access</div>
           </div>
         </div>
@@ -147,17 +147,17 @@ export default function AdminDashboard() {
             <button key={id} onClick={() => { setActiveTab(id); if (isMobile) setSidebarOpen(false); }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px',
-                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid #4F46E5' : '3px solid transparent',
+                borderRadius: '8px', border: 'none', borderLeft: active ? '3px solid var(--c-primary)' : '3px solid transparent',
                 cursor: 'pointer', marginBottom: '2px', textAlign: 'left',
                 background: active ? 'rgba(79,70,229,0.08)' : 'transparent',
-                color: active ? '#4F46E5' : '#475569',
+                color: active ? 'var(--c-primary)' : 'var(--c-ink-2)',
                 fontWeight: active ? 600 : 400, fontSize: '13px', transition: 'all 0.15s',
                 fontFamily: "'Sora', system-ui, sans-serif"
               }}>
               <Icon size={15} />
               <span style={{ flex: 1 }}>{label}</span>
               {id === 'shops' && pendingApprovals.length > 0 && (
-                <span style={{ background: '#4F46E5', color: '#fff', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                <span style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: '10px', fontWeight: 800, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
                   {pendingApprovals.length}
                 </span>
               )}
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={{ padding: '8px', borderTop: '1px solid #E5E7EB' }}>
-        <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: '#ef4444', fontSize: '13px', fontFamily: "'Sora', system-ui, sans-serif" }}>
+        <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: 'var(--c-danger)', fontSize: '13px', fontFamily: "'Sora', system-ui, sans-serif" }}>
           <LogOut size={15} />
           Sign Out
         </button>
@@ -195,13 +195,13 @@ export default function AdminDashboard() {
       )}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '14px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 0 rgba(15,23,42,0.03)' }}>
-          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', cursor: 'pointer', display: 'flex', width: 'auto', padding: '6px', borderRadius: 6 }}>
+        <div style={{ background: 'var(--c-surface)', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '14px', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 0 rgba(15,23,42,0.03)' }}>
+          <button onClick={() => setSidebarOpen(s => !s)} style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', color: 'var(--c-ink-2)', cursor: 'pointer', display: 'flex', width: 'auto', padding: '6px', borderRadius: 6 }}>
             <Menu size={16} />
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: '#94A3B8', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Admin · {activeTabDef.id === 'overview' ? 'Home' : 'Section'}</div>
-            <div style={{ color: '#0F172A', fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em' }}>{activeTabDef.label}</div>
+            <div style={{ color: 'var(--c-faint)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Admin · {activeTabDef.id === 'overview' ? 'Home' : 'Section'}</div>
+            <div style={{ color: 'var(--c-ink)', fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em' }}>{activeTabDef.label}</div>
           </div>
           <NotificationCenter
             userId={user?.id}
@@ -213,31 +213,31 @@ export default function AdminDashboard() {
           {pendingApprovals.length > 0 && (
             <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#4F46E5', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--c-primary)', boxShadow: '0 0 0 4px rgba(244,63,94,0.2)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
                 <div style={{ color: '#f43f5e', fontWeight: 800, fontSize: '15px', flex: 1 }}>
                   ⚠️ {pendingApprovals.length} shop/distributor{pendingApprovals.length > 1 ? 's' : ''} waiting for approval
                 </div>
-                <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', flexShrink: 0 }}>
+                <button onClick={approveAll} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: 'var(--c-success)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', flexShrink: 0 }}>
                   <CheckCircle size={13} /> Approve All
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {pendingApprovals.map(u => (
                   <div key={u.id} className='premium-glass-card premium-glass-card-hover' style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg,#2F7FFF,#E8A020)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 800, color: 'var(--c-surface)', flexShrink: 0 }}>
                       {(u.name || 'U')[0].toUpperCase()}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: '#0F172A', fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
-                      <div style={{ color: '#64748b', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ color: 'var(--c-ink)', fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                      <div style={{ color: 'var(--c-muted)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Clock size={11} /> {u.role} · {u.phone}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <button onClick={() => approvePending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10b981', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                      <button onClick={() => approvePending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: 'var(--c-success)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <CheckCircle size={14} /> Approve
                       </button>
-                      <button onClick={() => rejectPending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                      <button onClick={() => rejectPending(u)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: 'var(--c-danger)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <XCircle size={14} /> Reject
                       </button>
                     </div>
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
         </main>
       </div>
 
-      <ToastContainer position="bottom-right" theme="light" toastStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '10px' }} />
+      <ToastContainer position="bottom-right" theme="light" toastStyle={{ background: 'var(--c-surface)', border: '1px solid #E5E7EB', borderRadius: '10px' }} />
     </div>
   );
 }

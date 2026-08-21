@@ -28,15 +28,15 @@ export const T = {
   edgeGlow:    'rgba(129,140,248,0.35)',
 
   // Text
-  text:        '#F8FAFC',
+  text:        'var(--c-bg)',
   textSoft:    'rgba(248,250,252,0.62)',
   textFaint:   'rgba(248,250,252,0.38)',
   textGhost:   'rgba(248,250,252,0.22)',
 
   // Brand — the energy of the page
-  brand:       '#6366F1',
-  brandBright: '#818CF8',
-  brandDeep:   '#4F46E5',
+  brand:       'var(--c-primary-light)',
+  brandBright: 'var(--c-primary-light)',
+  brandDeep:   'var(--c-primary)',
   brandGlow:   'rgba(99,102,241,0.28)',
 
   // Gold — money, totals, the bottom line. The second voice.
@@ -148,7 +148,7 @@ html { scroll-behavior: smooth; }
 }
 .lx-btn-primary {
   background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
-  color: #fff;
+  color: var(--c-surface);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.25),
     0 2px 8px rgba(0,0,0,0.4),
@@ -192,7 +192,7 @@ html { scroll-behavior: smooth; }
 }
 .lx-tab:hover { color: ${T.text}; border-color: ${T.edgeLift}; background: rgba(255,255,255,0.06); }
 .lx-tab[data-active='true'] {
-  color: #fff;
+  color: var(--c-surface);
   background: linear-gradient(135deg, ${T.brandBright}, ${T.brandDeep});
   border-color: transparent;
   box-shadow: 0 0 28px -6px ${T.brandGlow}, inset 0 1px 0 rgba(255,255,255,0.25);

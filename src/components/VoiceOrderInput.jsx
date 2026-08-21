@@ -109,8 +109,8 @@ export default function VoiceOrderInput({ onTranscript }) {
       onClick={toggleListening}
       disabled={starting}
       style={{
-        background: listening ? '#DC2626' : '#4F46E5',
-        color: '#FFFFFF',
+        background: listening ? 'var(--c-danger-strong)' : 'var(--c-primary)',
+        color: 'var(--c-surface)',
         border: 'none',
         borderRadius: 10,
         padding: '8px 12px',

@@ -11,22 +11,22 @@ import { toast } from 'react-toastify';
 // Enterprise admin cockpit tokens — deeper indigo→violet hero, muted
 // monochrome cards. Keeps focus on numbers, not chrome.
 const T = {
-  cardBg:        '#FFFFFF',
-  cardBorder:    '#E2E8F0',
-  ink:           '#0F172A',
-  inkMuted:      '#475569',
-  inkFaint:      '#94A3B8',
-  accent:        '#4F46E5',
-  positive:      '#10B981',
-  negative:      '#EF4444',
-  warn:          '#F59E0B',
-  heroGradient:  'linear-gradient(135deg,#4F46E5 0%,#7C3AED 45%,#4338CA 100%)',
+  cardBg:        'var(--c-surface)',
+  cardBorder:    'var(--c-line)',
+  ink:           'var(--c-ink)',
+  inkMuted:      'var(--c-ink-2)',
+  inkFaint:      'var(--c-faint)',
+  accent:        'var(--c-primary)',
+  positive:      'var(--c-success)',
+  negative:      'var(--c-danger)',
+  warn:          'var(--c-warning)',
+  heroGradient:  'linear-gradient(135deg,var(--c-primary) 0%,#7C3AED 45%,var(--c-primary-hover) 100%)',
 };
 
 const styles = {
   hero: {
     background: T.heroGradient, borderRadius: 20, padding: '28px 32px',
-    marginBottom: 20, color: '#fff', position: 'relative', overflow: 'hidden',
+    marginBottom: 20, color: 'var(--c-surface)', position: 'relative', overflow: 'hidden',
     boxShadow: '0 10px 30px -10px rgba(79,70,229,0.5)',
   },
   heroGlow: {
@@ -61,13 +61,13 @@ const styles = {
   panelHint:   { color: T.inkFaint, fontSize: 11 },
 };
 
-const PIE_COLORS = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B'];
+const PIE_COLORS = ['var(--c-primary)', '#7C3AED', 'var(--c-success)', 'var(--c-warning)'];
 
 // Delta chip. Guards against Infinity (previous period was 0) and NaN
 // so the dashboard never shows a broken number.
 function DeltaChip({ pct }) {
   if (pct === Infinity || pct === -Infinity) return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: T.positive, background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: T.positive, background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
       <Sparkles size={10} /> NEW
     </span>
   );
@@ -75,8 +75,8 @@ function DeltaChip({ pct }) {
   const zero = pct === 0;
   const positive = pct > 0;
   const color = zero ? T.inkFaint : (positive ? T.positive : T.negative);
-  const bg    = zero ? '#F1F5F9' : (positive ? '#ECFDF5' : '#FEF2F2');
-  const border= zero ? '#E2E8F0' : (positive ? '#A7F3D0' : '#FECACA');
+  const bg    = zero ? 'var(--c-line-soft)' : (positive ? 'var(--c-success-soft)' : 'var(--c-danger-soft)');
+  const border= zero ? 'var(--c-line)' : (positive ? '#A7F3D0' : '#FECACA');
   const Icon  = zero ? null : (positive ? ArrowUpRight : ArrowDownRight);
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color, background: bg, border: `1px solid ${border}`, padding: '2px 7px', borderRadius: 999, fontSize: 10, fontWeight: 700 }}>
@@ -199,7 +199,7 @@ export default function TabOverview() {
       <div style={{ fontSize: 32 }}>⚠️</div>
       <div style={{ color: T.ink, fontWeight: 700, fontSize: 16 }}>Failed to load metrics</div>
       <div style={{ color: T.inkMuted, fontSize: 13 }}>Check Supabase connection or admin permissions</div>
-      <button onClick={() => load()} style={{ background: T.accent, color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 13, marginTop: 8, width: 'auto' }}>Retry</button>
+      <button onClick={() => load()} style={{ background: T.accent, color: 'var(--c-surface)', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 13, marginTop: 8, width: 'auto' }}>Retry</button>
     </div>
   );
 
@@ -223,7 +223,7 @@ export default function TabOverview() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <HealthPill level={health.level} text={health.text} />
             <button onClick={() => load(true)} disabled={refreshing}
-              style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '7px 12px', borderRadius: 8, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, backdropFilter: 'blur(6px)', width: 'auto' }}>
+              style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)', color: 'var(--c-surface)', padding: '7px 12px', borderRadius: 8, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, backdropFilter: 'blur(6px)', width: 'auto' }}>
               <RefreshCw size={13} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
               {refreshing ? 'Refreshing' : 'Refresh'}
             </button>
@@ -260,12 +260,12 @@ export default function TabOverview() {
 
       {/* KPI ROW */}
       <div style={styles.kpiGrid}>
-        <Kpi Icon={Store}        color="#4F46E5" label="Total Shops"    value={stats.totalShops || 0}         sub={`${stats.paidShops || 0} paying`} deltaPct={stats.shopsDeltaPct}   spark={sparks.shops} />
+        <Kpi Icon={Store}        color="var(--c-primary)" label="Total Shops"    value={stats.totalShops || 0}         sub={`${stats.paidShops || 0} paying`} deltaPct={stats.shopsDeltaPct}   spark={sparks.shops} />
         <Kpi Icon={Users}        color="#7C3AED" label="Customers"      value={stats.totalUsers || 0}         deltaPct={stats.custDeltaPct}                                       spark={sparks.customers} />
-        <Kpi Icon={Truck}        color="#10B981" label="Distributors"   value={stats.totalDistributors || 0}                                                                     spark={sparks.distributors} />
-        <Kpi Icon={ShoppingCart} color="#3B82F6" label="Orders (30d)"   value={Number(stats.ordersLast30 || 0).toLocaleString('en-IN')} deltaPct={stats.ordersDeltaPct} />
+        <Kpi Icon={Truck}        color="var(--c-success)" label="Distributors"   value={stats.totalDistributors || 0}                                                                     spark={sparks.distributors} />
+        <Kpi Icon={ShoppingCart} color="var(--c-info)" label="Orders (30d)"   value={Number(stats.ordersLast30 || 0).toLocaleString('en-IN')} deltaPct={stats.ordersDeltaPct} />
         <Kpi Icon={IndianRupee}  color="#06B6D4" label="Revenue Total"  value={stats.revenue || '₹0'}         sub="MRR run rate" spark={revenueSpark} />
-        <Kpi Icon={AlertCircle}  color="#EF4444" label="Open Credit"    value={`₹${Number(stats.activeCredit || 0).toLocaleString('en-IN')}`} sub="Unpaid dues" />
+        <Kpi Icon={AlertCircle}  color="var(--c-danger)" label="Open Credit"    value={`₹${Number(stats.activeCredit || 0).toLocaleString('en-IN')}`} sub="Unpaid dues" />
       </div>
 
       {/* PANELS */}
@@ -289,7 +289,7 @@ export default function TabOverview() {
               </defs>
               <XAxis dataKey="month" tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
-              <Tooltip contentStyle={{ background: '#FFFFFF', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} formatter={v => [`₹${v}`, '']} />
+              <Tooltip contentStyle={{ background: 'var(--c-surface)', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} formatter={v => [`₹${v}`, '']} />
               <Area type="monotone" dataKey="shops"        name="Shops"        stroke="#4F46E5" fill="url(#shopGrad)" strokeWidth={2} dot={false} />
               <Area type="monotone" dataKey="distributors" name="Distributors" stroke="#7C3AED" fill="url(#distGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
@@ -306,7 +306,7 @@ export default function TabOverview() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={54} outerRadius={82} dataKey="value" paddingAngle={3}>
                 {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#FFFFFF', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: 'var(--c-surface)', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginTop: 6 }}>
@@ -330,7 +330,7 @@ export default function TabOverview() {
           <BarChart data={growthData} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
             <XAxis dataKey="month" tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: T.inkFaint, fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ background: '#FFFFFF', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} cursor={{ fill: 'rgba(79,70,229,0.05)' }} />
+            <Tooltip contentStyle={{ background: 'var(--c-surface)', border: `1px solid ${T.cardBorder}`, borderRadius: 10, color: T.ink, fontSize: 12 }} cursor={{ fill: 'rgba(79,70,229,0.05)' }} />
             <Bar dataKey="shops"        name="Shops"        fill="#4F46E5" radius={[6, 6, 0, 0]} />
             <Bar dataKey="customers"    name="Customers"    fill="#7C3AED" radius={[6, 6, 0, 0]} />
             <Bar dataKey="distributors" name="Distributors" fill="#10B981" radius={[6, 6, 0, 0]} />

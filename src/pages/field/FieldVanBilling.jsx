@@ -371,8 +371,8 @@ export default function FieldVanBilling() {
   };
 
   const S = {
-    input: { width: '100%', padding: '12px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
+    input: { width: '100%', padding: '12px 14px', border: '1px solid var(--c-line)', borderRadius: 10, fontSize: 15, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
   };
 
   // Van sales specifically is Enterprise — the rest of field
@@ -383,12 +383,12 @@ export default function FieldVanBilling() {
     return (
       <div style={{ padding: 20, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
         <button onClick={() => navigate('/field/setup')}
-          style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+          style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
           <ArrowLeft size={15} /> Field Setup
         </button>
         <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 14, padding: 28, textAlign: 'center' }}>
-          <Truck size={30} color="#B45309" style={{ marginBottom: 10 }} />
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#92400E', margin: '0 0 6px' }}>Van Sales is an Enterprise feature</h2>
+          <Truck size={30} color="var(--c-warning-strong)" style={{ marginBottom: 10 }} />
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-warning-strong)', margin: '0 0 6px' }}>Van Sales is an Enterprise feature</h2>
           <p style={{ fontSize: 13, color: '#78350F', margin: 0, lineHeight: 1.6 }}>
             Bill customers directly from the van with zero network connection, take returns
             on the spot, and sync everything when you're back in range.
@@ -398,26 +398,26 @@ export default function FieldVanBilling() {
     );
   }
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 16, maxWidth: 560, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", paddingBottom: 40 }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <h1 style={{ fontSize: 21, fontWeight: 900, color: '#0F172A', margin: 0 }}>Van Billing</h1>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 800, color: isOnline ? '#059669' : '#B45309' }}>
+        <h1 style={{ fontSize: 21, fontWeight: 900, color: 'var(--c-ink)', margin: 0 }}>Van Billing</h1>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 800, color: isOnline ? 'var(--c-success-strong)' : 'var(--c-warning-strong)' }}>
           {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />} {isOnline ? 'Online' : 'Offline'}
         </span>
       </div>
 
       {vehicles.length === 0 ? (
-        <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: '#92400E', fontSize: 13 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 18, textAlign: 'center', color: 'var(--c-warning-strong)', fontSize: 13 }}>
           No vans set up yet.
         </div>
       ) : (
@@ -429,13 +429,13 @@ export default function FieldVanBilling() {
           </select>
 
           {vehicleId && !seriesState && (
-            <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: 16, marginBottom: 14, textAlign: 'center' }}>
-              <Truck size={22} color="#4F46E5" style={{ marginBottom: 6 }} />
-              <p style={{ fontSize: 12, color: '#4338CA', margin: '0 0 10px' }}>
+            <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: 12, padding: 16, marginBottom: 14, textAlign: 'center' }}>
+              <Truck size={22} color="var(--c-primary)" style={{ marginBottom: 6 }} />
+              <p style={{ fontSize: 12, color: 'var(--c-primary-hover)', margin: '0 0 10px' }}>
                 One-time setup for today — needs a connection now, then billing works fully offline.
               </p>
               <button onClick={doPrime} disabled={priming}
-                style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+                style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
                 {priming ? 'Preparing…' : 'Start Billing'}
               </button>
             </div>
@@ -445,11 +445,11 @@ export default function FieldVanBilling() {
             <>
               {(pendingCount + returnPendingCount) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#92400E' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-warning-strong)' }}>
                     {pendingCount + returnPendingCount} document{(pendingCount + returnPendingCount) === 1 ? '' : 's'} not yet synced
                   </span>
                   <button onClick={doSync} disabled={syncing || !isOnline}
-                    style={{ background: isOnline ? '#B45309' : '#CBD5E1', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 8, fontWeight: 700, fontSize: 11, cursor: isOnline ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    style={{ background: isOnline ? 'var(--c-warning-strong)' : 'var(--c-line-strong)', color: 'var(--c-surface)', border: 'none', padding: '6px 12px', borderRadius: 8, fontWeight: 700, fontSize: 11, cursor: isOnline ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 5 }}>
                     <RefreshCw size={11} /> {syncing ? 'Syncing…' : 'Sync Now'}
                   </button>
                 </div>
@@ -458,31 +458,31 @@ export default function FieldVanBilling() {
               <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
                 <button onClick={() => setMode('sell')}
                   style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer',
-                    border: `1px solid ${mode === 'sell' ? '#4F46E5' : '#E2E8F0'}`,
-                    background: mode === 'sell' ? '#EEF2FF' : '#fff', color: mode === 'sell' ? '#4338CA' : '#64748B' }}>
+                    border: `1px solid ${mode === 'sell' ? 'var(--c-primary)' : 'var(--c-line)'}`,
+                    background: mode === 'sell' ? 'var(--c-primary-soft)' : 'var(--c-surface)', color: mode === 'sell' ? 'var(--c-primary-hover)' : 'var(--c-muted)' }}>
                   Sell
                 </button>
                 <button onClick={() => setMode('return')}
                   style={{ flex: 1, padding: '10px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    border: `1px solid ${mode === 'return' ? '#DC2626' : '#E2E8F0'}`,
-                    background: mode === 'return' ? '#FEF2F2' : '#fff', color: mode === 'return' ? '#B91C1C' : '#64748B' }}>
+                    border: `1px solid ${mode === 'return' ? 'var(--c-danger-strong)' : 'var(--c-line)'}`,
+                    background: mode === 'return' ? 'var(--c-danger-soft)' : 'var(--c-surface)', color: mode === 'return' ? 'var(--c-danger-strong)' : 'var(--c-muted)' }}>
                   <RotateCcw size={13} /> Return
                 </button>
               </div>
 
               {mode === 'sell' && lastReceipt && (
-                <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                    <CheckCircle2 size={14} color="#059669" />
+                    <CheckCircle2 size={14} color="var(--c-success-strong)" />
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#047857' }}>{lastReceipt.invoiceRef} · ₹{lastReceipt.total.toLocaleString('en-IN')}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={printSaleInvoice}
-                      style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Receipt size={12} /> Print Invoice
                     </button>
                     <button onClick={shareReceipt}
-                      style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                       💬 Share
                     </button>
                   </div>
@@ -490,16 +490,16 @@ export default function FieldVanBilling() {
               )}
 
               {mode === 'return' && lastReturnReceipt && (
-                <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                <div style={{ background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CheckCircle2 size={14} color="#B91C1C" />
+                    <CheckCircle2 size={14} color="var(--c-danger-strong)" />
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#991B1B' }}>{lastReturnReceipt.creditRef} · ₹{lastReturnReceipt.totalCredit.toLocaleString('en-IN')} credited</span>
                   </div>
                 </div>
               )}
 
               {mode === 'sell' && (
-              <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16 }}>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
                 <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setWalkInName(''); setWalkInPhone(''); } }} style={{ ...S.input, marginBottom: shopId ? 12 : 8 }}>
                   <option value="">— walk-in / not listed —</option>
@@ -523,19 +523,19 @@ export default function FieldVanBilling() {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                   <input type="number" inputMode="decimal" value={pickQty} onChange={e => setPickQty(e.target.value)} placeholder="Qty" style={S.input} />
                   <input type="number" inputMode="decimal" value={pickRate} onChange={e => setPickRate(e.target.value)} placeholder="Rate ₹" style={S.input} />
-                  <button onClick={addToCart} style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>
+                  <button onClick={addToCart} style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>
                     <Plus size={16} />
                   </button>
                 </div>
 
                 {cart.map(l => (
-                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.name}</div>
-                      <div style={{ fontSize: 11, color: '#64748B' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
                     </div>
                     <button onClick={() => setCart(c => c.filter(x => x.productId !== l.productId))}
-                      style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>
@@ -543,7 +543,7 @@ export default function FieldVanBilling() {
 
                 {cart.length > 0 && (
                   <>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#059669', textAlign: 'right', margin: '10px 0' }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-success-strong)', textAlign: 'right', margin: '10px 0' }}>
                       ₹{total.toLocaleString('en-IN')}
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
@@ -557,15 +557,15 @@ export default function FieldVanBilling() {
                           title={blocked ? 'Credit needs a linked shop' : ''}
                           onClick={() => !blocked && setPaymentMode(m)}
                           style={{ flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 700, textTransform: 'capitalize',
-                            border: `1px solid ${paymentMode === m ? '#4F46E5' : '#E2E8F0'}`,
-                            background: paymentMode === m ? '#EEF2FF' : '#fff',
-                            color: paymentMode === m ? '#4338CA' : '#64748B',
+                            border: `1px solid ${paymentMode === m ? 'var(--c-primary)' : 'var(--c-line)'}`,
+                            background: paymentMode === m ? 'var(--c-primary-soft)' : 'var(--c-surface)',
+                            color: paymentMode === m ? 'var(--c-primary-hover)' : 'var(--c-muted)',
                             opacity: blocked ? 0.4 : 1, cursor: blocked ? 'not-allowed' : 'pointer' }}>{m}</button>
                         );
                       })}
                     </div>
                     <button onClick={completeSale}
-                      style={{ width: '100%', background: '#059669', color: '#fff', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                      style={{ width: '100%', background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
                       Complete Sale
                     </button>
                   </>
@@ -574,7 +574,7 @@ export default function FieldVanBilling() {
               )}
 
               {mode === 'return' && (
-              <div style={{ background: '#fff', border: '1px solid #FECACA', borderRadius: 12, padding: 16 }}>
+              <div style={{ background: 'var(--c-surface)', border: '1px solid #FECACA', borderRadius: 12, padding: 16 }}>
                 <label style={S.label}>Shop</label>
                 <select value={shopId} onChange={e => { setShopId(e.target.value); if (e.target.value) { setWalkInName(''); setWalkInPhone(''); } }} style={{ ...S.input, marginBottom: shopId ? 12 : 8 }}>
                   <option value="">— walk-in / not listed —</option>
@@ -592,9 +592,9 @@ export default function FieldVanBilling() {
                   {RETURN_REASONS.map(r => (
                     <button key={r.v} onClick={() => setReturnReason(r.v)}
                       style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                        border: `1px solid ${returnReason === r.v ? '#DC2626' : '#E2E8F0'}`,
-                        background: returnReason === r.v ? '#FEF2F2' : '#fff',
-                        color: returnReason === r.v ? '#B91C1C' : '#64748B' }}>{r.l}</button>
+                        border: `1px solid ${returnReason === r.v ? 'var(--c-danger-strong)' : 'var(--c-line)'}`,
+                        background: returnReason === r.v ? 'var(--c-danger-soft)' : 'var(--c-surface)',
+                        color: returnReason === r.v ? 'var(--c-danger-strong)' : 'var(--c-muted)' }}>{r.l}</button>
                   ))}
                 </div>
 
@@ -607,7 +607,7 @@ export default function FieldVanBilling() {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                   <input type="number" inputMode="decimal" value={returnPickQty} onChange={e => setReturnPickQty(e.target.value)} placeholder="Qty" style={S.input} />
                   <input type="number" inputMode="decimal" value={returnPickRate} onChange={e => setReturnPickRate(e.target.value)} placeholder="Rate ₹" style={S.input} />
-                  <button onClick={addToReturnCart} style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>
+                  <button onClick={addToReturnCart} style={{ background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>
                     <Plus size={16} />
                   </button>
                 </div>
@@ -617,11 +617,11 @@ export default function FieldVanBilling() {
                     <label style={S.label}>Photo proof {returnReason === 'damaged' ? '(recommended)' : '(optional)'}</label>
                     {returnPhoto ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <img src={returnPhoto} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid #E2E8F0' }} />
-                        <button onClick={() => setReturnPhoto('')} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+                        <img src={returnPhoto} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--c-line)' }} />
+                        <button onClick={() => setReturnPhoto('')} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Remove</button>
                       </div>
                     ) : (
-                      <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px dashed #E2E8F0', borderRadius: 10, padding: 12, cursor: 'pointer', color: '#64748B', fontSize: 12, fontWeight: 700 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px dashed var(--c-line)', borderRadius: 10, padding: 12, cursor: 'pointer', color: 'var(--c-muted)', fontSize: 12, fontWeight: 700 }}>
                         <Camera size={16} /> Take Photo
                         <input type="file" accept="image/*" capture="environment" onChange={captureReturnPhoto} style={{ display: 'none' }} />
                       </label>
@@ -630,13 +630,13 @@ export default function FieldVanBilling() {
                 )}
 
                 {returnCart.map(l => (
-                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
+                  <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.name}</div>
-                      <div style={{ fontSize: 11, color: '#B91C1C' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-danger-strong)' }}>{l.qtyBase} × ₹{l.rate} = ₹{(l.qtyBase * l.rate).toLocaleString('en-IN')}</div>
                     </div>
                     <button onClick={() => setReturnCart(c => c.filter(x => x.productId !== l.productId))}
-                      style={{ background: '#fff', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
+                      style={{ background: 'var(--c-surface)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '4px 8px', cursor: 'pointer' }}>
                       <X size={12} />
                     </button>
                   </div>
@@ -644,11 +644,11 @@ export default function FieldVanBilling() {
 
                 {returnCart.length > 0 && (
                   <>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#B91C1C', textAlign: 'right', margin: '10px 0' }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-danger-strong)', textAlign: 'right', margin: '10px 0' }}>
                       ₹{returnTotal.toLocaleString('en-IN')} credit
                     </div>
                     <button onClick={completeReturn}
-                      style={{ width: '100%', background: '#DC2626', color: '#fff', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                      style={{ width: '100%', background: 'var(--c-danger-strong)', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
                       Record Return &amp; Credit Shop
                     </button>
                   </>

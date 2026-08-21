@@ -223,7 +223,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
   };
 
   if (loading) return (
-    <div style={{ textAlign: 'center', padding: 32, color: '#94A3B8' }}>
+    <div style={{ textAlign: 'center', padding: 32, color: 'var(--c-faint)' }}>
       <div style={{ fontSize: 24, marginBottom: 8 }}>✂️</div>
       Loading services…
     </div>
@@ -238,21 +238,21 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       : selectedDate;
     return (
       <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-        <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-          <CheckCircle size={32} color="#10B981" />
+        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--c-success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <CheckCircle size={32} color="var(--c-success)" />
         </div>
-        <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Appointment Booked!</h3>
-        <p style={{ margin: '0 0 20px', fontSize: 13, color: '#64748B' }}>We'll confirm your appointment shortly</p>
-        <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'left', marginBottom: 20, border: '1px solid #E2E8F0' }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', marginBottom: 10 }}>{selectedService?.name}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: '#475569' }}>
+        <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, color: 'var(--c-ink)' }}>Appointment Booked!</h3>
+        <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--c-muted)' }}>We'll confirm your appointment shortly</p>
+        <div style={{ background: 'var(--c-bg)', borderRadius: 12, padding: 16, textAlign: 'left', marginBottom: 20, border: '1px solid var(--c-line)' }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink)', marginBottom: 10 }}>{selectedService?.name}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--c-ink-2)' }}>
             {selectedProvider && <div>💇 With {selectedProvider.name}</div>}
             <div>📅 {dateDisplay}</div>
             <div>⏰ {fmt12(selectedTime)}</div>
             <div>⏱️ {selectedService?.duration_minutes} min</div>
             {serviceLocation === 'at_home' ? (
               <>
-                <div style={{ fontWeight: 700, color: '#4F46E5' }}>🏠 Home visit — {address}</div>
+                <div style={{ fontWeight: 700, color: 'var(--c-primary)' }}>🏠 Home visit — {address}</div>
                 <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}{Number(selectedService?.home_service_fee) > 0 ? ` + ₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')} visit fee` : ''}</div>
               </>
             ) : (
@@ -261,22 +261,22 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           </div>
         </div>
         <button onClick={() => { setStep(1); setSelectedService(null); setSelectedProvider(null); setSelectedTime(''); setConfirmedAppt(null); setServiceLocation('in_shop'); setAddress(''); setPreciseLocation(null); }}
-          style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 10 }}>
+          style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontWeight: 700, fontSize: 14, cursor: 'pointer', marginBottom: 10 }}>
           Book Another Appointment
         </button>
         {confirmedAppt?.manage_token && selfServiceOn && (
           <a href={`/manage-booking/${confirmedAppt.manage_token}`} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'block', textAlign: 'center', width: '100%', padding: 12, borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontWeight: 700, fontSize: 13, textDecoration: 'none', boxSizing: 'border-box' }}>
+            style={{ display: 'block', textAlign: 'center', width: '100%', padding: 12, borderRadius: 10, border: '1px solid var(--c-line)', background: 'var(--c-surface)', color: 'var(--c-ink-2)', fontWeight: 700, fontSize: 13, textDecoration: 'none', boxSizing: 'border-box' }}>
             📋 Manage This Booking
           </a>
         )}
         {confirmedAppt?.manage_token && selfServiceOn && (
-          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>
+          <p style={{ margin: '10px 0 0', fontSize: 11, color: 'var(--c-faint)', textAlign: 'center' }}>
             Save this link to reschedule or cancel later — we can't recover it if lost.
           </p>
         )}
         {confirmedAppt && !selfServiceOn && (
-          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>
+          <p style={{ margin: '10px 0 0', fontSize: 11, color: 'var(--c-faint)', textAlign: 'center' }}>
             To reschedule or cancel, please contact the shop directly.
           </p>
         )}
@@ -302,11 +302,11 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           return (
             <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, cursor: i < currentPos ? 'pointer' : 'default' }}
               onClick={() => { if (i < currentPos) setStep(hasProviders ? i + 1 : (i === 0 ? 1 : i === 1 ? 3 : 4)); }}>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: currentPos > i ? '#10B981' : currentPos === i ? '#4F46E5' : '#E2E8F0', color: currentPos >= i ? '#fff' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: currentPos > i ? 'var(--c-success)' : currentPos === i ? 'var(--c-primary)' : 'var(--c-line)', color: currentPos >= i ? 'var(--c-surface)' : 'var(--c-faint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
                 {currentPos > i ? '✓' : i + 1}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 600, color: currentPos === i ? '#4F46E5' : '#94A3B8', whiteSpace: 'nowrap' }}>{label}</span>
-              {i < stepLabels.length - 1 && <div style={{ flex: 1, height: 1, background: currentPos > i ? '#10B981' : '#E2E8F0' }} />}
+              <span style={{ fontSize: 11, fontWeight: 600, color: currentPos === i ? 'var(--c-primary)' : 'var(--c-faint)', whiteSpace: 'nowrap' }}>{label}</span>
+              {i < stepLabels.length - 1 && <div style={{ flex: 1, height: 1, background: currentPos > i ? 'var(--c-success)' : 'var(--c-line)' }} />}
             </div>
           );
         })}
@@ -319,12 +319,12 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           {usedCategories.length > 1 && (
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12 }}>
               <button onClick={() => setCategoryFilter('all')}
-                style={{ flexShrink: 0, padding: '5px 12px', borderRadius: 999, border: '1px solid', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderColor: categoryFilter === 'all' ? '#4F46E5' : '#E2E8F0', background: categoryFilter === 'all' ? '#EEF2FF' : '#fff', color: categoryFilter === 'all' ? '#4F46E5' : '#64748B' }}>
+                style={{ flexShrink: 0, padding: '5px 12px', borderRadius: 999, border: '1px solid', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderColor: categoryFilter === 'all' ? 'var(--c-primary)' : 'var(--c-line)', background: categoryFilter === 'all' ? 'var(--c-primary-soft)' : 'var(--c-surface)', color: categoryFilter === 'all' ? 'var(--c-primary)' : 'var(--c-muted)' }}>
                 All
               </button>
               {SERVICE_CATEGORIES.filter(c => usedCategories.includes(c.id)).map(c => (
                 <button key={c.id} onClick={() => setCategoryFilter(c.id)}
-                  style={{ flexShrink: 0, padding: '5px 12px', borderRadius: 999, border: '1px solid', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderColor: categoryFilter === c.id ? '#4F46E5' : '#E2E8F0', background: categoryFilter === c.id ? '#EEF2FF' : '#fff', color: categoryFilter === c.id ? '#4F46E5' : '#64748B' }}>
+                  style={{ flexShrink: 0, padding: '5px 12px', borderRadius: 999, border: '1px solid', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderColor: categoryFilter === c.id ? 'var(--c-primary)' : 'var(--c-line)', background: categoryFilter === c.id ? 'var(--c-primary-soft)' : 'var(--c-surface)', color: categoryFilter === c.id ? 'var(--c-primary)' : 'var(--c-muted)' }}>
                   {c.label}
                 </button>
               ))}
@@ -334,24 +334,24 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {filteredServices.map(svc => (
               <button key={svc.id} onClick={() => { setSelectedService(svc); setServiceLocation('in_shop'); setAddress(''); setPreciseLocation(null); setStep(hasProviders ? 2 : 3); }}
-                style={{ width: '100%', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+                style={{ width: '100%', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--c-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
                   {(SERVICE_CATEGORIES.find(c => c.id === svc.category) || SERVICE_CATEGORIES[7]).label.split(' ')[0]}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', marginBottom: 2 }}>{svc.name}</div>
-                  {svc.description && <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.description}</div>}
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink)', marginBottom: 2 }}>{svc.name}</div>
+                  {svc.description && <div style={{ fontSize: 12, color: 'var(--c-muted)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.description}</div>}
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>₹{Number(svc.price).toLocaleString('en-IN')}</span>
-                    <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {svc.duration_minutes} min</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-success)' }}>₹{Number(svc.price).toLocaleString('en-IN')}</span>
+                    <span style={{ fontSize: 12, color: 'var(--c-faint)', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {svc.duration_minutes} min</span>
                     {svc.home_service_enabled && homeServiceOn && (
-                      <span style={{ fontSize: 10.5, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '2px 7px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--c-primary)', background: 'var(--c-primary-soft)', padding: '2px 7px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         🏠 Home visit available
                       </span>
                     )}
                   </div>
                 </div>
-                <ChevronRight size={16} color="#94A3B8" />
+                <ChevronRight size={16} color="var(--c-faint)" />
               </button>
             ))}
           </div>
@@ -361,27 +361,27 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       {/* ── STEP 2: Choose Staff (only shown if the shop has staff set up) ── */}
       {step === 2 && hasProviders && (
         <div style={{ padding: '0 16px 16px' }}>
-          <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'var(--c-primary-soft)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 13, color: '#4F46E5' }}>{selectedService?.name}</div>
-              <div style={{ fontSize: 12, color: '#6366F1' }}>₹{Number(selectedService?.price).toLocaleString('en-IN')} · {selectedService?.duration_minutes} min</div>
+              <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-primary)' }}>{selectedService?.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--c-primary-light)' }}>₹{Number(selectedService?.price).toLocaleString('en-IN')} · {selectedService?.duration_minutes} min</div>
             </div>
-            <button onClick={() => setStep(1)} style={{ fontSize: 11, color: '#4F46E5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
+            <button onClick={() => setStep(1)} style={{ fontSize: 11, color: 'var(--c-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Who would you like to book with?</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 10 }}>Who would you like to book with?</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {providers.map(p => (
               <button key={p.id} onClick={() => { setSelectedProvider(p); setSelectedTime(''); setStep(3); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#4F46E5', fontWeight: 800, fontSize: 15 }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid var(--c-line)', background: 'var(--c-surface)', cursor: 'pointer', textAlign: 'left' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--c-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--c-primary)', fontWeight: 800, fontSize: 15 }}>
                   {p.name.charAt(0).toUpperCase()}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{p.name}</div>
-                  {p.title && <div style={{ fontSize: 12, color: '#64748B' }}>{p.title}</div>}
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-ink)' }}>{p.name}</div>
+                  {p.title && <div style={{ fontSize: 12, color: 'var(--c-muted)' }}>{p.title}</div>}
                 </div>
-                <ChevronRight size={16} color="#94A3B8" />
+                <ChevronRight size={16} color="var(--c-faint)" />
               </button>
             ))}
           </div>
@@ -392,24 +392,24 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       {step === 3 && (
         <div style={{ padding: '0 16px 16px' }}>
           {/* Selected service summary */}
-          <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'var(--c-primary-soft)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 13, color: '#4F46E5' }}>{selectedService?.name}</div>
-              <div style={{ fontSize: 12, color: '#6366F1' }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-primary)' }}>{selectedService?.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--c-primary-light)' }}>
                 ₹{Number(selectedService?.price).toLocaleString('en-IN')} · {selectedService?.duration_minutes} min
                 {selectedProvider && ` · with ${selectedProvider.name}`}
               </div>
             </div>
-            <button onClick={() => setStep(hasProviders ? 2 : 1)} style={{ fontSize: 11, color: '#4F46E5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
+            <button onClick={() => setStep(hasProviders ? 2 : 1)} style={{ fontSize: 11, color: 'var(--c-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Change</button>
           </div>
 
           {/* Date picker */}
           <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Select Date</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 10 }}>Select Date</div>
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
               {days.map(d => (
                 <button key={d.iso} onClick={() => { setSelectedDate(d.iso); setSelectedTime(''); }}
-                  style={{ flexShrink: 0, width: 52, padding: '8px 4px', borderRadius: 10, border: '1px solid', cursor: 'pointer', textAlign: 'center', transition: 'all .15s', borderColor: selectedDate === d.iso ? '#4F46E5' : '#E2E8F0', background: selectedDate === d.iso ? '#4F46E5' : '#fff', color: selectedDate === d.iso ? '#fff' : '#475569' }}>
+                  style={{ flexShrink: 0, width: 52, padding: '8px 4px', borderRadius: 10, border: '1px solid', cursor: 'pointer', textAlign: 'center', transition: 'all .15s', borderColor: selectedDate === d.iso ? 'var(--c-primary)' : 'var(--c-line)', background: selectedDate === d.iso ? 'var(--c-primary)' : 'var(--c-surface)', color: selectedDate === d.iso ? 'var(--c-surface)' : 'var(--c-ink-2)' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.8 }}>{d.day}</div>
                   <div style={{ fontSize: 18, fontWeight: 900, lineHeight: 1.2 }}>{d.date}</div>
                   <div style={{ fontSize: 10, opacity: 0.8 }}>{d.month}</div>
@@ -420,8 +420,8 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
 
           {/* Time slots */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>
-              Select Time {loadingSlots && <span style={{ color: '#94A3B8', fontWeight: 400 }}>(checking availability…)</span>}
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 10 }}>
+              Select Time {loadingSlots && <span style={{ color: 'var(--c-faint)', fontWeight: 400 }}>(checking availability…)</span>}
             </div>
             {selectedProvider && dayAvailability.onTimeOff ? (
               <div style={{ textAlign: 'center', padding: 24, background: '#FFF7ED', borderRadius: 10, border: '1px dashed #FDBA74' }}>
@@ -429,14 +429,14 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                 <div style={{ fontSize: 12, color: '#EA580C', marginTop: 4 }}>Please pick a different date</div>
               </div>
             ) : selectedProvider && !dayAvailability.isOpen ? (
-              <div style={{ textAlign: 'center', padding: 24, background: '#F8FAFC', borderRadius: 10, border: '1px dashed #E2E8F0' }}>
-                <div style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{selectedProvider.name} doesn't work this day</div>
-                <div style={{ fontSize: 12, color: '#CBD5E1', marginTop: 4 }}>Please pick a different date</div>
+              <div style={{ textAlign: 'center', padding: 24, background: 'var(--c-bg)', borderRadius: 10, border: '1px dashed var(--c-line)' }}>
+                <div style={{ fontSize: 13, color: 'var(--c-faint)', fontWeight: 600 }}>{selectedProvider.name} doesn't work this day</div>
+                <div style={{ fontSize: 12, color: 'var(--c-line-strong)', marginTop: 4 }}>Please pick a different date</div>
               </div>
             ) : (
               <>
                 {selectedProvider && dayAvailability.isOpen && (
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: 'var(--c-faint)', marginBottom: 8 }}>
                     {selectedProvider.name} works {fmt12(dayAvailability.workingStart)} – {fmt12(dayAvailability.workingEnd)} this day
                   </div>
                 )}
@@ -448,9 +448,9 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                         style={{
                           padding: '9px 4px', borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 600,
                           cursor: taken ? 'not-allowed' : 'pointer', transition: 'all .1s',
-                          borderColor: taken ? '#F1F5F9' : (selectedTime === t ? '#4F46E5' : '#E2E8F0'),
-                          background: taken ? '#F8FAFC' : (selectedTime === t ? '#4F46E5' : '#fff'),
-                          color: taken ? '#CBD5E1' : (selectedTime === t ? '#fff' : '#475569'),
+                          borderColor: taken ? 'var(--c-line-soft)' : (selectedTime === t ? 'var(--c-primary)' : 'var(--c-line)'),
+                          background: taken ? 'var(--c-bg)' : (selectedTime === t ? 'var(--c-primary)' : 'var(--c-surface)'),
+                          color: taken ? 'var(--c-line-strong)' : (selectedTime === t ? 'var(--c-surface)' : 'var(--c-ink-2)'),
                           textDecoration: taken ? 'line-through' : 'none',
                         }}>
                         {fmt12(t)}
@@ -463,7 +463,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           </div>
 
           <button onClick={() => { if (!selectedTime) return toast.error('Please select a time'); setStep(4); }}
-            style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+            style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
             Continue →
           </button>
         </div>
@@ -473,9 +473,9 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
       {step === 4 && (
         <div style={{ padding: '0 16px 16px' }}>
           {/* Summary — price includes the home visit fee when selected */}
-          <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, marginBottom: 16, border: '1px solid #E2E8F0' }}>
-            <div style={{ fontWeight: 800, fontSize: 15, color: '#0F172A', marginBottom: 10 }}>{selectedService?.name}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13, color: '#475569' }}>
+          <div style={{ background: 'var(--c-bg)', borderRadius: 12, padding: 16, marginBottom: 16, border: '1px solid var(--c-line)' }}>
+            <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--c-ink)', marginBottom: 10 }}>{selectedService?.name}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13, color: 'var(--c-ink-2)' }}>
               {selectedProvider && <div>💇 With {selectedProvider.name}</div>}
               <div>📅 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
               <div>⏰ {fmt12(selectedTime)}</div>
@@ -483,10 +483,10 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               {serviceLocation === 'at_home' && Number(selectedService?.home_service_fee) > 0 ? (
                 <>
                   <div>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')} + ₹{Number(selectedService?.home_service_fee).toLocaleString('en-IN')} home visit fee</div>
-                  <div style={{ fontWeight: 700, color: '#10B981' }}>Total: ₹{(Number(selectedService?.price) + Number(selectedService?.home_service_fee)).toLocaleString('en-IN')}</div>
+                  <div style={{ fontWeight: 700, color: 'var(--c-success)' }}>Total: ₹{(Number(selectedService?.price) + Number(selectedService?.home_service_fee)).toLocaleString('en-IN')}</div>
                 </>
               ) : (
-                <div style={{ fontWeight: 700, color: '#10B981' }}>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
+                <div style={{ fontWeight: 700, color: 'var(--c-success)' }}>💰 ₹{Number(selectedService?.price).toLocaleString('en-IN')}</div>
               )}
             </div>
           </div>
@@ -497,26 +497,26 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
               not the default, for most service businesses. */}
           {selectedService?.home_service_enabled && homeServiceOn && (
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Where should we come?</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 8 }}>Where should we come?</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: serviceLocation === 'at_home' ? 12 : 0 }}>
                 <button onClick={() => setServiceLocation('in_shop')}
-                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'in_shop' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'in_shop' ? '#EEF2FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'in_shop' ? '#4F46E5' : '#0F172A' }}>🏪 Visit the shop</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>No extra charge</div>
+                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'in_shop' ? '2px solid var(--c-primary)' : '1px solid var(--c-line)', background: serviceLocation === 'in_shop' ? 'var(--c-primary-soft)' : 'var(--c-surface)', cursor: 'pointer', textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'in_shop' ? 'var(--c-primary)' : 'var(--c-ink)' }}>🏪 Visit the shop</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 2 }}>No extra charge</div>
                 </button>
                 <button onClick={() => setServiceLocation('at_home')}
-                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'at_home' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'at_home' ? '#EEF2FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'at_home' ? '#4F46E5' : '#0F172A' }}>🏠 Home visit</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                  style={{ padding: '12px 10px', borderRadius: 10, border: serviceLocation === 'at_home' ? '2px solid var(--c-primary)' : '1px solid var(--c-line)', background: serviceLocation === 'at_home' ? 'var(--c-primary-soft)' : 'var(--c-surface)', cursor: 'pointer', textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: serviceLocation === 'at_home' ? 'var(--c-primary)' : 'var(--c-ink)' }}>🏠 Home visit</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 2 }}>
                     {Number(selectedService.home_service_fee) > 0 ? `+₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')}` : 'No extra charge'}
                   </div>
                 </button>
               </div>
               {serviceLocation === 'at_home' && (
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Your Address *</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Your Address *</label>
                   <textarea value={address} onChange={e => setAddress(e.target.value)} placeholder="House/flat no., street, area, landmark…" rows={2}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
                   {/* Optional precise location — supplements the typed
                       address, doesn't replace it. Helps staff actually
                       find the place, and is a real safety measure: it's
@@ -525,7 +525,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                   {isGeolocationSupported() && (
                     <div style={{ marginTop: 8 }}>
                       {preciseLocation ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--c-success-strong)', fontWeight: 700 }}>
                           <CheckCircle size={13} /> Exact location added — helps our staff find you
                         </div>
                       ) : (
@@ -540,7 +540,7 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
                           }
                           setLocatingAddress(false);
                         }} disabled={locatingAddress}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', padding: 0, cursor: locatingAddress ? 'wait' : 'pointer', fontSize: 12, fontWeight: 700, color: '#4F46E5', width: 'auto' }}>
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', padding: 0, cursor: locatingAddress ? 'wait' : 'pointer', fontSize: 12, fontWeight: 700, color: 'var(--c-primary)', width: 'auto' }}>
                           <MapPin size={13} /> {locatingAddress ? 'Getting your location…' : 'Add my exact location (recommended)'}
                         </button>
                       )}
@@ -554,27 +554,27 @@ export default function ServiceBookingWidget({ shopId, shopName, shopPhone, cust
           {/* Customer details */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Your Name *</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Your Name *</label>
               <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Full name"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Mobile Number *</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Mobile Number *</label>
               <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="10-digit mobile"
                 type="tel" maxLength={10}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Special Requests (optional)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Special Requests (optional)</label>
               <textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Any preferences or special requests…" rows={2}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setStep(3)} style={{ padding: '12px 18px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: '#475569' }}>← Back</button>
+            <button onClick={() => setStep(3)} style={{ padding: '12px 18px', borderRadius: 10, border: '1px solid var(--c-line)', background: 'var(--c-surface)', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: 'var(--c-ink-2)' }}>← Back</button>
             <button onClick={handleBook} disabled={booking}
-              style={{ flex: 1, padding: 13, borderRadius: 10, border: 'none', background: booking ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#6366F1)', color: '#fff', fontWeight: 800, fontSize: 14, cursor: booking ? 'wait' : 'pointer' }}>
+              style={{ flex: 1, padding: 13, borderRadius: 10, border: 'none', background: booking ? 'var(--c-faint)' : 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', color: 'var(--c-surface)', fontWeight: 800, fontSize: 14, cursor: booking ? 'wait' : 'pointer' }}>
               {booking ? 'Booking…' : '✓ Confirm Appointment'}
             </button>
           </div>

@@ -6,9 +6,9 @@ import { localDateStr } from '../lib/dateUtils';
 const EXPENSE_CATS = ['Rent', 'Electricity', 'Wages', 'Supplies', 'Packaging', 'Transport', 'Maintenance', 'Misc'];
 
 const CAT_COLORS = {
-  Rent: '#EF4444', Electricity: '#F59E0B', Wages: '#8B5CF6',
-  Supplies: '#3B82F6', Packaging: '#06B6D4', Transport: '#10B981',
-  Maintenance: '#F97316', Misc: '#64748B',
+  Rent: 'var(--c-danger)', Electricity: 'var(--c-warning)', Wages: '#4A7CAD',
+  Supplies: 'var(--c-info)', Packaging: '#06B6D4', Transport: 'var(--c-success)',
+  Maintenance: '#F97316', Misc: 'var(--c-muted)',
 };
 
 // Local calendar day/month — was new Date().toISOString(), which is UTC
@@ -20,13 +20,13 @@ const nowYM = () => localDateStr().slice(0, 7);
 const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
 const StatCard = ({ label, value, color, icon: Icon, sub }) => (
-  <div style={{ background: '#FFFFFF', border: `1px solid #E2E8F0`, borderRadius: '14px', padding: '16px 20px', display: 'flex', gap: '14px', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+  <div style={{ background: 'var(--c-surface)', border: `1px solid var(--c-line)`, borderRadius: '14px', padding: '16px 20px', display: 'flex', gap: '14px', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
     <div style={{ background: `${color}18`, color, width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <Icon size={20} />
     </div>
     <div>
-      <h4 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A' }}>{value}</h4>
-      <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#475569' }}>{label}</p>
+      <h4 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'var(--c-ink)' }}>{value}</h4>
+      <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-ink-2)' }}>{label}</p>
       {sub && <p style={{ margin: '1px 0 0 0', fontSize: '10px', color, fontWeight: '500' }}>{sub}</p>}
     </div>
   </div>
@@ -88,29 +88,29 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
   const sorted = [...expenses].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   return (
-      <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
+      <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <IndianRupee size={22} color="#F43F5E" /> Expense Tracker
+            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IndianRupee size={22} color="#12457A" /> Expense Tracker
             </h2>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-ink-2)' }}>
               Log daily shop costs and track profit vs revenue each month.
             </p>
           </div>
           <input
             type="month" value={yearMonth} onChange={e => setYearMonth(e.target.value)}
-            style={{ padding: '8px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', color: '#0F172A', fontSize: '13px', outline: 'none', cursor: 'pointer' }}
+            style={{ padding: '8px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', color: 'var(--c-ink)', fontSize: '13px', outline: 'none', cursor: 'pointer' }}
           />
         </div>
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '24px' }}>
-          <StatCard label="Revenue this month" value={fmt(monthRevenue)} color="#10B981" icon={TrendingUp} />
-          <StatCard label="Total Expenses" value={fmt(totalExpenses)} color="#EF4444" icon={TrendingDown}
+          <StatCard label="Revenue this month" value={fmt(monthRevenue)} color="var(--c-success)" icon={TrendingUp} />
+          <StatCard label="Total Expenses" value={fmt(totalExpenses)} color="var(--c-danger)" icon={TrendingDown}
             sub={byCategory.length > 0 ? `Top: ${byCategory[0][0]}` : undefined} />
-          <StatCard label="Net Profit" value={fmt(netProfit)} color={netProfit >= 0 ? '#4F46E5' : '#F43F5E'} icon={Activity}
+          <StatCard label="Net Profit" value={fmt(netProfit)} color={netProfit >= 0 ? 'var(--c-primary)' : '#12457A'} icon={Activity}
             sub={netProfit >= 0 ? 'Profitable month' : 'Loss — check expenses'} />
         </div>
 
@@ -125,43 +125,43 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', outline: 'none' }} />
                 <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '12px', outline: 'none' }}>
+                  style={{ padding: '8px 10px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', outline: 'none' }}>
                   {EXPENSE_CATS.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <input type="text" placeholder="Description (optional)" value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', outline: 'none' }} />
                 <input type="number" placeholder="Amount (₹)" value={form.amount} min="0"
                   onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                  style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#0F172A', fontSize: '12px', outline: 'none' }} />
+                  style={{ padding: '8px 10px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', fontSize: '12px', outline: 'none' }} />
               </div>
               <button onClick={handleAdd} disabled={saving || !form.amount}
-                style={{ background: saving ? '#94A3B8' : '#F43F5E', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: saving ? 'not-allowed' : 'pointer', opacity: !form.amount ? 0.5 : 1 }}>
+                style={{ background: saving ? 'var(--c-faint)' : '#12457A', color: 'white', border: 'none', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: saving ? 'not-allowed' : 'pointer', opacity: !form.amount ? 0.5 : 1 }}>
                 {saving ? 'Saving…' : '+ Add Expense'}
               </button>
             </div>
 
             {/* Expense list */}
             {sorted.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748B' }}>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--c-muted)' }}>
                 <IndianRupee size={36} style={{ opacity: 0.2, marginBottom: '10px' }} />
                 <p style={{ margin: 0, fontSize: '13px' }}>No expenses logged for this month.</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {sorted.map(e => (
-                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
-                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: `${CAT_COLORS[e.category] || '#64748B'}18`, color: CAT_COLORS[e.category] || '#64748B', border: `1px solid ${CAT_COLORS[e.category] || '#64748B'}30`, fontWeight: 'bold', flexShrink: 0 }}>
+                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 14px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px' }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '6px', background: `${CAT_COLORS[e.category] || 'var(--c-muted)'}18`, color: CAT_COLORS[e.category] || 'var(--c-muted)', border: `1px solid ${CAT_COLORS[e.category] || 'var(--c-muted)'}30`, fontWeight: 'bold', flexShrink: 0 }}>
                       {e.category}
                     </span>
-                    <span style={{ flex: 1, fontSize: '13px', color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ flex: 1, fontSize: '13px', color: 'var(--c-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {e.description || e.category}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#64748B', flexShrink: 0 }}>{e.date}</span>
-                    <span style={{ fontSize: '14px', fontWeight: '700', color: '#DC2626', flexShrink: 0 }}>-{fmt(e.amount)}</span>
-                    <button onClick={() => handleDelete(e.id)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '2px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--c-muted)', flexShrink: 0 }}>{e.date}</span>
+                    <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--c-danger-strong)', flexShrink: 0 }}>-{fmt(e.amount)}</span>
+                    <button onClick={() => handleDelete(e.id)} style={{ background: 'none', border: 'none', color: 'var(--c-faint)', cursor: 'pointer', padding: '2px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -171,22 +171,22 @@ const DesktopExpenses = ({ targetShopId, orders }) => {
           </div>
 
           {/* Right — category breakdown */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '16px' }}>
-            <p style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '700', color: '#0F172A' }}>Breakdown by Category</p>
+          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '14px', padding: '16px' }}>
+            <p style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '700', color: 'var(--c-ink)' }}>Breakdown by Category</p>
             {byCategory.length === 0 ? (
-              <p style={{ color: '#64748B', fontSize: '12px', margin: 0 }}>No data yet.</p>
+              <p style={{ color: 'var(--c-muted)', fontSize: '12px', margin: 0 }}>No data yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {byCategory.map(([cat, amt]) => {
                   const pct = totalExpenses > 0 ? Math.round((amt / totalExpenses) * 100) : 0;
-                  const color = CAT_COLORS[cat] || '#64748B';
+                  const color = CAT_COLORS[cat] || 'var(--c-muted)';
                   return (
                     <div key={cat}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                         <span style={{ fontSize: '12px', color, fontWeight: 'bold' }}>{cat}</span>
-                        <span style={{ fontSize: '12px', color: '#0F172A' }}>{fmt(amt)} <span style={{ color: '#64748B' }}>({pct}%)</span></span>
+                        <span style={{ fontSize: '12px', color: 'var(--c-ink)' }}>{fmt(amt)} <span style={{ color: 'var(--c-muted)' }}>({pct}%)</span></span>
                       </div>
-                      <div style={{ height: '4px', background: '#F1F5F9', borderRadius: '2px' }}>
+                      <div style={{ height: '4px', background: 'var(--c-line-soft)', borderRadius: '2px' }}>
                         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '2px', transition: 'width 0.4s' }} />
                       </div>
                     </div>

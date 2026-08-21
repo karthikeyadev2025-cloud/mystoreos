@@ -5,7 +5,7 @@ const SECTIONS = [
   {
     title: 'Acceptance of Terms',
     content: () => (
-      <p style={S.p}>By registering for or using MyStore OS, you agree to be bound by these Terms of Service and our <a href="/privacy" style={{ color: '#818CF8' }}>Privacy Policy</a>. If you do not agree, please do not use the platform. These terms constitute a legally binding agreement between you and <span style={S.highlight}>K² ADEXOS GLOBAL TECHNOLOGIES</span>.</p>
+      <p style={S.p}>By registering for or using MyStore OS, you agree to be bound by these Terms of Service and our <a href="/privacy" style={{ color: 'var(--c-primary-light)' }}>Privacy Policy</a>. If you do not agree, please do not use the platform. These terms constitute a legally binding agreement between you and <span style={S.highlight}>K² ADEXOS GLOBAL TECHNOLOGIES</span>.</p>
     ),
   },
   {

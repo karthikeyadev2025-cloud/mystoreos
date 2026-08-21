@@ -72,27 +72,27 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
     >
       <div
         onClick={e => e.stopPropagation()}
-        style={{ background: '#FFFFFF', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 520, maxHeight: '93vh', overflow: 'auto', boxShadow: '0 -8px 40px rgba(15,23,42,0.2)' }}
+        style={{ background: 'var(--c-surface)', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 520, maxHeight: '93vh', overflow: 'auto', boxShadow: '0 -8px 40px rgba(15,23,42,0.2)' }}
       >
         {/* Drag handle */}
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 4 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#CBD5E1' }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--c-line-strong)' }} />
         </div>
 
         {/* Image */}
         <div
-          style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', background: '#F8FAFC', overflow: 'hidden' }}
+          style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', background: 'var(--c-bg)', overflow: 'hidden' }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
           <button
             aria-label="Close"
             onClick={onClose}
-            style={{ position: 'absolute', top: 12, right: 12, zIndex: 5, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.5)', color: '#fff', fontSize: 18, cursor: 'pointer', padding: 0, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ position: 'absolute', top: 12, right: 12, zIndex: 5, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.5)', color: 'var(--c-surface)', fontSize: 18, cursor: 'pointer', padding: 0, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >×</button>
 
           {discPct > 0 && (
-            <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 5, background: '#EF4444', color: '#fff', fontSize: 12, fontWeight: 800, padding: '4px 10px', borderRadius: 8, boxShadow: '0 2px 8px rgba(239,68,68,0.4)', letterSpacing: '0.02em' }}>
+            <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 5, background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: 12, fontWeight: 800, padding: '4px 10px', borderRadius: 8, boxShadow: '0 2px 8px rgba(239,68,68,0.4)', letterSpacing: '0.02em' }}>
               {discPct}% OFF
             </div>
           )}
@@ -103,7 +103,7 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
                 <div key={i} style={{ position: 'absolute', inset: 0, opacity: i === idx ? 1 : 0, transition: 'opacity 0.25s ease' }}>
                   {/* Skeleton while loading */}
                   {!imgLoaded[i] && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,#F1F5F9 0%,#E2E8F0 50%,#F1F5F9 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,var(--c-line-soft) 0%,var(--c-line) 50%,var(--c-line-soft) 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s ease-in-out infinite' }} />
                   )}
                   <img
                     src={src}
@@ -127,7 +127,7 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
               <button onClick={() => go(idx + 1)} aria-label="Next"     style={{ position: 'absolute', top: '50%', right: 12, transform: 'translateY(-50%)', zIndex: 4, width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', fontSize: 18, padding: 0, boxShadow: '0 1px 6px rgba(0,0,0,0.15)' }}>›</button>
               <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0, display: 'flex', gap: 5, justifyContent: 'center', zIndex: 4 }}>
                 {images.map((_, i) => (
-                  <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 20 : 7, height: 7, borderRadius: 4, background: i === idx ? '#4F46E5' : 'rgba(255,255,255,0.65)', border: 'none', padding: 0, cursor: 'pointer', transition: 'width 0.2s, background 0.2s', boxShadow: '0 0 3px rgba(0,0,0,0.3)' }} />
+                  <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 20 : 7, height: 7, borderRadius: 4, background: i === idx ? 'var(--c-primary)' : 'rgba(255,255,255,0.65)', border: 'none', padding: 0, cursor: 'pointer', transition: 'width 0.2s, background 0.2s', boxShadow: '0 0 3px rgba(0,0,0,0.3)' }} />
                 ))}
               </div>
             </>
@@ -139,7 +139,7 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
           <div style={{ display: 'flex', gap: 8, padding: '12px 16px 0', overflowX: 'auto' }}>
             {images.map((src, i) => (
               <img key={i} src={src} alt="" onClick={() => setIdx(i)}
-                style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0, cursor: 'pointer', border: i === idx ? '2.5px solid #4F46E5' : '1.5px solid #E2E8F0', opacity: i === idx ? 1 : 0.65, transition: 'opacity 0.15s, border-color 0.15s' }}
+                style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0, cursor: 'pointer', border: i === idx ? '2.5px solid var(--c-primary)' : '1.5px solid var(--c-line)', opacity: i === idx ? 1 : 0.65, transition: 'opacity 0.15s, border-color 0.15s' }}
               />
             ))}
           </div>
@@ -147,10 +147,10 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
 
         {/* Info */}
         <div style={{ padding: '16px 16px 24px' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', color: '#0F172A', lineHeight: 1.25 }}>{product.name}</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', color: 'var(--c-ink)', lineHeight: 1.25 }}>{product.name}</h2>
 
           {(product.weight || product.unit) && !hasVariantPricing && (
-            <p style={{ fontSize: 13, color: '#94A3B8', margin: '0 0 14px', fontWeight: 500 }}>{product.weight || product.unit}</p>
+            <p style={{ fontSize: 13, color: 'var(--c-faint)', margin: '0 0 14px', fontWeight: 500 }}>{product.weight || product.unit}</p>
           )}
 
           {/* Variant picker — e.g. Rice Bag: 5kg / 20kg / 50kg, each its
@@ -158,7 +158,7 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
               and which cart line gets incremented. */}
           {hasVariantPricing && (
             <div style={{ marginBottom: 14 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px' }}>
                 Choose size / variant
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -171,8 +171,8 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
                       style={{
                         padding: '8px 14px',
                         borderRadius: 10,
-                        border: isSelected ? '2px solid #4F46E5' : '1.5px solid #E2E8F0',
-                        background: isSelected ? '#EEF2FF' : '#FFFFFF',
+                        border: isSelected ? '2px solid var(--c-primary)' : '1.5px solid var(--c-line)',
+                        background: isSelected ? 'var(--c-primary-soft)' : 'var(--c-surface)',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
@@ -180,8 +180,8 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
                         minWidth: 64,
                       }}
                     >
-                      <span style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#4F46E5' : '#0F172A' }}>{v.name}</span>
-                      <span style={{ fontSize: 11, color: isSelected ? '#4F46E5' : '#64748B', fontWeight: 600 }}>₹{v.price}</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: isSelected ? 'var(--c-primary)' : 'var(--c-ink)' }}>{v.name}</span>
+                      <span style={{ fontSize: 11, color: isSelected ? 'var(--c-primary)' : 'var(--c-muted)', fontWeight: 600 }}>₹{v.price}</span>
                     </button>
                   );
                 })}
@@ -191,43 +191,43 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
 
           {/* Price block */}
           {originalPrice ? (
-            <div style={{ background: 'linear-gradient(135deg, #FEF2F2, #FFF7ED)', border: '1px solid #FECACA', borderRadius: 12, padding: '12px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: 'linear-gradient(135deg, var(--c-danger-soft), #FFF7ED)', border: '1px solid #FECACA', borderRadius: 12, padding: '12px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontSize: 26, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em' }}>₹{displayPrice}</span>
-                  <span style={{ fontSize: 15, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 500 }}>₹{originalPrice}</span>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-0.03em' }}>₹{displayPrice}</span>
+                  <span style={{ fontSize: 15, color: 'var(--c-faint)', textDecoration: 'line-through', fontWeight: 500 }}>₹{originalPrice}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#16A34A', fontWeight: 700, marginTop: 3 }}>
+                <div style={{ fontSize: 12, color: 'var(--c-success-strong)', fontWeight: 700, marginTop: 3 }}>
                   🎉 You save ₹{saving} ({discPct}% off)
                 </div>
               </div>
-              <div style={{ background: '#EF4444', color: '#fff', fontSize: 13, fontWeight: 800, padding: '6px 12px', borderRadius: 8, boxShadow: '0 2px 8px rgba(239,68,68,0.35)' }}>
+              <div style={{ background: 'var(--c-danger)', color: 'var(--c-surface)', fontSize: 13, fontWeight: 800, padding: '6px 12px', borderRadius: 8, boxShadow: '0 2px 8px rgba(239,68,68,0.35)' }}>
                 {discPct}% OFF
               </div>
             </div>
           ) : (
             <div style={{ marginBottom: 16 }}>
-              <span style={{ fontSize: 26, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em' }}>₹{displayPrice}</span>
+              <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--c-ink)', letterSpacing: '-0.03em' }}>₹{displayPrice}</span>
             </div>
           )}
 
           {product.description && (
-            <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, margin: '0 0 16px' }}>{product.description}</p>
+            <p style={{ fontSize: 13, color: 'var(--c-ink-2)', lineHeight: 1.6, margin: '0 0 16px' }}>{product.description}</p>
           )}
 
           {/* Additional info */}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
             {product.batchNumber && (
-              <span style={{ fontSize: 11, background: '#F1F5F9', color: '#64748B', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>Batch: {product.batchNumber}</span>
+              <span style={{ fontSize: 11, background: 'var(--c-line-soft)', color: 'var(--c-muted)', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>Batch: {product.batchNumber}</span>
             )}
             {product.expiryDate && (
-              <span style={{ fontSize: 11, background: new Date(product.expiryDate) < new Date() ? '#FEF2F2' : '#F1F5F9', color: new Date(product.expiryDate) < new Date() ? '#DC2626' : '#64748B', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>Exp: {product.expiryDate}</span>
+              <span style={{ fontSize: 11, background: new Date(product.expiryDate) < new Date() ? 'var(--c-danger-soft)' : 'var(--c-line-soft)', color: new Date(product.expiryDate) < new Date() ? 'var(--c-danger-strong)' : 'var(--c-muted)', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>Exp: {product.expiryDate}</span>
             )}
             {product.hsnCode && (
-              <span style={{ fontSize: 11, background: '#F1F5F9', color: '#64748B', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>HSN: {product.hsnCode}</span>
+              <span style={{ fontSize: 11, background: 'var(--c-line-soft)', color: 'var(--c-muted)', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>HSN: {product.hsnCode}</span>
             )}
             {product.stock != null && (
-              <span style={{ fontSize: 11, background: outOfStock ? '#FEF2F2' : product.stock < 10 ? '#FEF3C7' : '#ECFDF5', color: outOfStock ? '#DC2626' : product.stock < 10 ? '#D97706' : '#16A34A', padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
+              <span style={{ fontSize: 11, background: outOfStock ? 'var(--c-danger-soft)' : product.stock < 10 ? 'var(--c-warning-soft)' : 'var(--c-success-soft)', color: outOfStock ? 'var(--c-danger-strong)' : product.stock < 10 ? 'var(--c-accent-hover)' : 'var(--c-success-strong)', padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
                 {outOfStock ? 'Out of stock' : product.stock < 10 ? `Only ${product.stock} left!` : 'In stock ✓'}
               </span>
             )}
@@ -235,16 +235,16 @@ export default function StorefrontProductDetail({ product, cart = {}, updateQty,
 
           {/* Add / Qty */}
           {qty > 0 ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52, background: '#4F46E5', borderRadius: 14, boxShadow: '0 4px 16px rgba(79,70,229,0.3)' }}>
-              <button aria-label="Remove one" onClick={() => updateQty(product.id, -1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>−</button>
-              <span style={{ color: '#fff', fontSize: 16, fontWeight: 800 }}>{qty} in cart</span>
-              <button aria-label="Add one more" onClick={() => updateQty(product.id, 1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>+</button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52, background: 'var(--c-primary)', borderRadius: 14, boxShadow: '0 4px 16px rgba(79,70,229,0.3)' }}>
+              <button aria-label="Remove one" onClick={() => updateQty(product.id, -1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: 'var(--c-surface)', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>−</button>
+              <span style={{ color: 'var(--c-surface)', fontSize: 16, fontWeight: 800 }}>{qty} in cart</span>
+              <button aria-label="Add one more" onClick={() => updateQty(product.id, 1, selectedVariant)} style={{ width: 60, height: '100%', background: 'transparent', border: 'none', color: 'var(--c-surface)', fontSize: 24, fontWeight: 700, cursor: 'pointer' }}>+</button>
             </div>
           ) : (
             <button
               disabled={outOfStock}
               onClick={() => !outOfStock && updateQty(product.id, 1, selectedVariant)}
-              style={{ width: '100%', height: 52, background: outOfStock ? '#F1F5F9' : '#4F46E5', border: 'none', color: outOfStock ? '#94A3B8' : '#fff', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: outOfStock ? 'not-allowed' : 'pointer', boxShadow: outOfStock ? 'none' : '0 4px 16px rgba(79,70,229,0.3)', letterSpacing: '0.3px' }}
+              style={{ width: '100%', height: 52, background: outOfStock ? 'var(--c-line-soft)' : 'var(--c-primary)', border: 'none', color: outOfStock ? 'var(--c-faint)' : 'var(--c-surface)', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: outOfStock ? 'not-allowed' : 'pointer', boxShadow: outOfStock ? 'none' : '0 4px 16px rgba(79,70,229,0.3)', letterSpacing: '0.3px' }}
             >
               {outOfStock ? 'Out of Stock' : hasVariantPricing ? `Add ${selectedVariant} to Cart` : 'Add to Cart'}
             </button>

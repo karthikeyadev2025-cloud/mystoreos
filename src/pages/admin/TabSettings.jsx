@@ -4,15 +4,15 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
-  label: { color: '#475569', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
-  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%' },
+  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  label: { color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' },
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '10px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none', width: '100%' },
   row: { marginBottom: '18px' },
-  sectionTitle: { color: '#0f172a', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
-  sectionSub: { color: '#64748b', fontSize: '12px', marginBottom: '18px' },
-  saveBtn: (busy) => ({ background: busy ? '#94a3b8' : '#4f46e5', border: 'none', color: '#fff', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
-  toggle: (on) => ({ width: '40px', height: '22px', borderRadius: '11px', background: on ? '#4f46e5' : '#cbd5e1', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }),
-  toggleKnob: (on) => ({ position: 'absolute', top: '3px', left: on ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }),
+  sectionTitle: { color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' },
+  sectionSub: { color: 'var(--c-muted)', fontSize: '12px', marginBottom: '18px' },
+  saveBtn: (busy) => ({ background: busy ? 'var(--c-faint)' : 'var(--c-primary)', border: 'none', color: 'var(--c-surface)', borderRadius: '8px', padding: '10px 20px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  toggle: (on) => ({ width: '40px', height: '22px', borderRadius: '11px', background: on ? 'var(--c-primary)' : 'var(--c-line-strong)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }),
+  toggleKnob: (on) => ({ position: 'absolute', top: '3px', left: on ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--c-surface)', transition: 'left 0.2s' }),
 };
 
 function Toggle({ on, onChange }) {
@@ -23,7 +23,7 @@ function Toggle({ on, onChange }) {
   );
 }
 
-function SectionHeader({ icon: Icon, title, sub, color = '#4f46e5' }) {
+function SectionHeader({ icon: Icon, title, sub, color = 'var(--c-primary)' }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
       <div style={{ background: `${color}15`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
@@ -127,44 +127,44 @@ export default function TabSettings() {
     finally { setBusy(b => ({ ...b, adminPass: false })); }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', color: '#64748b', padding: '60px' }}>Loading settings...</div>;
+  if (loading) return <div style={{ textAlign: 'center', color: 'var(--c-muted)', padding: '60px' }}>Loading settings...</div>;
 
   return (
     <div className="admin-tab-content" style={{ maxWidth: '720px' }}>
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: "#F59E0B15", border: "1px solid #F59E0B30", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Shield size={22} color="#F59E0B" />
+            <Shield size={22} color="var(--c-warning)" />
           </div>
           <div>
-            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>System Settings</h2>
-            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Platform configuration, admin credentials, and integration keys</p>
+            <h2 style={{ color: "var(--c-ink)", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>System Settings</h2>
+            <p style={{ color: "var(--c-muted)", fontSize: 13, margin: "4px 0 0 0" }}>Platform configuration, admin credentials, and integration keys</p>
           </div>
         </div>
-        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Platform configuration and security settings</p>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>Platform configuration and security settings</p>
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Key} title="Payment Gateway" sub="Razorpay public key shown to customers during checkout" color="#f59e0b" />
+        <SectionHeader icon={Key} title="Payment Gateway" sub="Razorpay public key shown to customers during checkout" color="var(--c-warning)" />
         <div style={S.row}>
           <label style={S.label}>Razorpay Public Key (VITE_RAZORPAY_KEY)</label>
           <div style={{ position: 'relative' }}>
             <input value={razorpayKey} onChange={e => setRazorpayKey(e.target.value)} type={showKey ? 'text' : 'password'} placeholder="rzp_live_..." autoComplete="off" spellCheck="false" style={{ ...S.input, paddingRight: '40px' }} />
-            <button type="button" onClick={() => setShowKey(s => !s)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}>
+            <button type="button" onClick={() => setShowKey(s => !s)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', display: 'flex' }}>
               {showKey ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
-          <p style={{ color: '#64748b', fontSize: '11px', marginTop: '6px' }}>The secret key lives in your server .env — never expose it here.</p>
+          <p style={{ color: 'var(--c-muted)', fontSize: '11px', marginTop: '6px' }}>The secret key lives in your server .env — never expose it here.</p>
         </div>
         <button onClick={savePayment} disabled={busy.payment} style={S.saveBtn(busy.payment)}><Save size={14} />{busy.payment ? 'Saving...' : 'Save Payment Settings'}</button>
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={AlertTriangle} title="Maintenance & Access" sub="Take the site offline for non-admin users during upgrades" color="#ef4444" />
+        <SectionHeader icon={AlertTriangle} title="Maintenance & Access" sub="Take the site offline for non-admin users during upgrades" color="var(--c-danger)" />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: 'rgba(239,68,68,0.05)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.15)' }}>
           <div>
-            <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: 600 }}>Maintenance Mode</div>
-            <div style={{ color: '#64748b', fontSize: '12px' }}>All users except admins will see a maintenance screen</div>
+            <div style={{ color: 'var(--c-danger)', fontSize: '13px', fontWeight: 600 }}>Maintenance Mode</div>
+            <div style={{ color: 'var(--c-muted)', fontSize: '12px' }}>All users except admins will see a maintenance screen</div>
           </div>
           <Toggle on={maintenance} onChange={setMaintenance} />
         </div>
@@ -174,10 +174,10 @@ export default function TabSettings() {
             <input value={maintenanceMsg} onChange={e => setMaintenanceMsg(e.target.value)} placeholder="We are performing scheduled maintenance. Back soon!" style={S.input} />
           </div>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '12px', background: 'var(--c-bg)', borderRadius: '8px', border: '1px solid var(--c-line)' }}>
           <div>
-            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Registration Open</div>
-            <div style={{ color: '#64748b', fontSize: '12px' }}>Allow new users to register on the platform</div>
+            <div style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 600 }}>Registration Open</div>
+            <div style={{ color: 'var(--c-muted)', fontSize: '12px' }}>Allow new users to register on the platform</div>
           </div>
           <Toggle on={registrationOpen} onChange={setRegistrationOpen} />
         </div>
@@ -185,7 +185,7 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Globe} title="Contact & Support" sub="Contact details shown to users across the platform" color="#3b82f6" />
+        <SectionHeader icon={Globe} title="Contact & Support" sub="Contact details shown to users across the platform" color="var(--c-info)" />
         <div style={S.row}>
           <label style={S.label}>Support Email</label>
           <input value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="support@mystore.app" type="email" style={S.input} />
@@ -202,18 +202,18 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Key} title="Authentication & Sign-in" sub="Google login and the URLs to configure it" color="#10b981" />
+        <SectionHeader icon={Key} title="Authentication & Sign-in" sub="Google login and the URLs to configure it" color="var(--c-success)" />
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--c-line-soft)' }}>
           <div>
-            <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600 }}>Enable "Continue with Google"</div>
-            <div style={{ color: '#64748b', fontSize: '12px' }}>Show the Google sign-in button on the login screen</div>
+            <div style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 600 }}>Enable "Continue with Google"</div>
+            <div style={{ color: 'var(--c-muted)', fontSize: '12px' }}>Show the Google sign-in button on the login screen</div>
           </div>
           <Toggle on={googleLoginEnabled} onChange={setGoogleLoginEnabled} />
         </div>
 
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', margin: '16px 0' }}>
-          <div style={{ color: '#475569', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>
+        <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: '10px', padding: '16px', margin: '16px 0' }}>
+          <div style={{ color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>
             Setup reference — paste these into Supabase &amp; Google Cloud:
           </div>
           {[
@@ -223,15 +223,15 @@ export default function TabSettings() {
             { label: 'Google Cloud → Authorized JS origin', val: window.location.origin },
           ].map(({ label, val }, i) => (
             <div key={i} style={{ marginBottom: '10px' }}>
-              <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '3px' }}>{label}</div>
+              <div style={{ color: 'var(--c-faint)', fontSize: '11px', marginBottom: '3px' }}>{label}</div>
               <div style={{ display: 'flex', gap: '6px' }}>
-                <code style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: '#0f172a', overflowX: 'auto', whiteSpace: 'nowrap' }}>{val}</code>
+                <code style={{ flex: 1, background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: 'var(--c-ink)', overflowX: 'auto', whiteSpace: 'nowrap' }}>{val}</code>
                 <button type="button" onClick={() => { navigator.clipboard?.writeText(val); toast.success('Copied'); }}
-                  style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0 10px', cursor: 'pointer', fontSize: '12px', color: '#475569', flexShrink: 0 }}>Copy</button>
+                  style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '6px', padding: '0 10px', cursor: 'pointer', fontSize: '12px', color: 'var(--c-ink-2)', flexShrink: 0 }}>Copy</button>
               </div>
             </div>
           ))}
-          <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '6px', lineHeight: 1.5 }}>
+          <div style={{ color: 'var(--c-faint)', fontSize: '11px', marginTop: '6px', lineHeight: 1.5 }}>
             The Google Client ID &amp; Secret are stored in Supabase (Auth → Providers → Google), never in the app.
             Password-reset emails are sent via the SMTP provider configured in Supabase.
           </div>
@@ -241,19 +241,19 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Save} title="Subscription Pricing & Launch Offer" sub="Monthly / quarterly / yearly prices, discounts and the first-N-users offer — the single source of truth shown everywhere" color="#f59e0b" />
+        <SectionHeader icon={Save} title="Subscription Pricing & Launch Offer" sub="Monthly / quarterly / yearly prices, discounts and the first-N-users offer — the single source of truth shown everywhere" color="var(--c-warning)" />
 
         {!pricing ? (
-          <p style={{ color: '#94a3b8', fontSize: '13px', padding: '12px 0' }}>Loading pricing…</p>
+          <p style={{ color: 'var(--c-faint)', fontSize: '13px', padding: '12px 0' }}>Loading pricing…</p>
         ) : (
           <>
             {/* Which billing cycles customers can choose */}
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid var(--c-line-soft)', marginBottom: '16px' }}>
               {['monthly', 'quarterly', 'yearly'].map(c => (
                 <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={pricing.enabledCycles?.[c] ?? false}
                     onChange={e => setPricing(p => ({ ...p, enabledCycles: { ...p.enabledCycles, [c]: e.target.checked } }))} />
-                  <span style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, textTransform: 'capitalize' }}>{c}</span>
+                  <span style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 600, textTransform: 'capitalize' }}>{c}</span>
                 </label>
               ))}
             </div>
@@ -263,21 +263,21 @@ export default function TabSettings() {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '460px' }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: 'left', color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Tier</th>
-                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Monthly ₹</th>
-                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Quarterly ₹</th>
-                    <th style={{ color: '#64748b', fontSize: '12px', padding: '6px 8px' }}>Yearly ₹</th>
+                    <th style={{ textAlign: 'left', color: 'var(--c-muted)', fontSize: '12px', padding: '6px 8px' }}>Tier</th>
+                    <th style={{ color: 'var(--c-muted)', fontSize: '12px', padding: '6px 8px' }}>Monthly ₹</th>
+                    <th style={{ color: 'var(--c-muted)', fontSize: '12px', padding: '6px 8px' }}>Quarterly ₹</th>
+                    <th style={{ color: 'var(--c-muted)', fontSize: '12px', padding: '6px 8px' }}>Yearly ₹</th>
                   </tr>
                 </thead>
                 <tbody>
                   {['starter', 'pro', 'enterprise', 'service_starter', 'service_pro', 'service_enterprise', 'basic_distributor', 'pro_distributor', 'enterprise_distributor'].map(tier => (
                     <tr key={tier}>
-                      <td style={{ color: '#0f172a', fontSize: '13px', fontWeight: 600, padding: '6px 8px' }}>{tier.replace('_distributor', ' (Distributor)').replace('service_', 'Service ').replace(/^\w/, c => c.toUpperCase())}</td>
+                      <td style={{ color: 'var(--c-ink)', fontSize: '13px', fontWeight: 600, padding: '6px 8px' }}>{tier.replace('_distributor', ' (Distributor)').replace('service_', 'Service ').replace(/^\w/, c => c.toUpperCase())}</td>
                       {['monthly', 'quarterly', 'yearly'].map(cycle => (
                         <td key={cycle} style={{ padding: '4px 6px' }}>
                           <input type="number" min="0" value={pricing.tiers?.[tier]?.[cycle] ?? ''}
                             onChange={e => setPricing(p => ({ ...p, tiers: { ...p.tiers, [tier]: { ...p.tiers[tier], [cycle]: Number(e.target.value) || 0 } } }))}
-                            style={{ width: '100%', padding: '8px 9px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                            style={{ width: '100%', padding: '8px 9px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                         </td>
                       ))}
                     </tr>
@@ -289,16 +289,16 @@ export default function TabSettings() {
             {/* Promo discount per cycle */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Quarterly discount %</label>
+                <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Quarterly discount %</label>
                 <input type="number" min="0" max="100" value={pricing.discounts?.quarterly ?? 0}
                   onChange={e => setPricing(p => ({ ...p, discounts: { ...p.discounts, quarterly: Number(e.target.value) || 0 } }))}
-                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Yearly discount %</label>
+                <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Yearly discount %</label>
                 <input type="number" min="0" max="100" value={pricing.discounts?.yearly ?? 0}
                   onChange={e => setPricing(p => ({ ...p, discounts: { ...p.discounts, yearly: Number(e.target.value) || 0 } }))}
-                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
@@ -307,26 +307,26 @@ export default function TabSettings() {
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
                 <input type="checkbox" checked={pricing.offer?.enabled ?? false}
                   onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, enabled: e.target.checked } }))} />
-                <span style={{ color: '#92400E', fontSize: '13px', fontWeight: 700 }}>Enable launch offer (extra discount for first N users)</span>
+                <span style={{ color: 'var(--c-warning-strong)', fontSize: '13px', fontWeight: 700 }}>Enable launch offer (extra discount for first N users)</span>
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Extra discount %</label>
+                  <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Extra discount %</label>
                   <input type="number" min="0" max="100" value={pricing.offer?.percent ?? 0}
                     onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, percent: Number(e.target.value) || 0 } }))}
-                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Cap (first N)</label>
+                  <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Cap (first N)</label>
                   <input type="number" min="0" value={pricing.offer?.cap ?? 0}
                     onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, cap: Number(e.target.value) || 0 } }))}
-                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Slots remaining</label>
+                  <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Slots remaining</label>
                   <input type="number" min="0" value={pricing.offer?.remaining ?? 0}
                     onChange={e => setPricing(p => ({ ...p, offer: { ...p.offer, remaining: Number(e.target.value) || 0 } }))}
-                    style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <p style={{ color: '#a16207', fontSize: '11px', margin: '10px 0 0', lineHeight: 1.5 }}>
@@ -341,16 +341,16 @@ export default function TabSettings() {
                 tampered client can never pay less than this) and by
                 razorpay-verify-payment for the payment_history record.
                 Change it here; no redeploy needed. */}
-            <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
+            <div style={{ background: 'var(--c-primary-soft)', border: '1px solid var(--c-primary-border)', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
               <div style={{ fontWeight: 700, fontSize: '13px', color: '#3730A3', marginBottom: '10px' }}>🏠 Add-ons</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px', alignItems: 'end' }}>
                 <div>
-                  <label style={{ display: 'block', color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Home Service Booking — ₹/month</label>
-                  <p style={{ margin: '0 0 6px', fontSize: '11px', color: '#64748B' }}>Standalone unlock, any plan tier — shown as the price on the "Enable" button shopkeepers see.</p>
+                  <label style={{ display: 'block', color: 'var(--c-ink-2)', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Home Service Booking — ₹/month</label>
+                  <p style={{ margin: '0 0 6px', fontSize: '11px', color: 'var(--c-muted)' }}>Standalone unlock, any plan tier — shown as the price on the "Enable" button shopkeepers see.</p>
                 </div>
                 <input type="number" min="0" value={pricing.addons?.homeService ?? 199}
                   onChange={e => setPricing(p => ({ ...p, addons: { ...p.addons, homeService: Number(e.target.value) || 0 } }))}
-                  style={{ width: '100%', padding: '9px 11px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 11px', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
@@ -360,7 +360,7 @@ export default function TabSettings() {
       </div>
 
       <div style={S.card}>
-        <SectionHeader icon={Shield} title="Admin Security" sub="Change the super-admin account password" color="#4f46e5" />
+        <SectionHeader icon={Shield} title="Admin Security" sub="Change the super-admin account password" color="var(--c-primary)" />
         <form onSubmit={changeAdminPassword}>
           <div style={S.row}>
             <label style={S.label}>New Admin Password</label>
@@ -371,8 +371,8 @@ export default function TabSettings() {
             <input value={adminPassConfirm} onChange={e => setAdminPassConfirm(e.target.value)} type="password" placeholder="Repeat new password" style={S.input} required />
           </div>
           <div style={{ background: 'rgba(79, 70, 229, 0.05)', border: '1px solid rgba(79, 70, 229, 0.15)', borderRadius: '8px', padding: '12px', marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-            <Users size={14} color="#4f46e5" style={{ marginTop: '2px', flexShrink: 0 }} />
-            <span style={{ color: '#4f46e5', fontSize: '12px' }}>This changes the super admin password only. Staff and shop passwords are managed in their respective management tabs.</span>
+            <Users size={14} color="var(--c-primary)" style={{ marginTop: '2px', flexShrink: 0 }} />
+            <span style={{ color: 'var(--c-primary)', fontSize: '12px' }}>This changes the super admin password only. Staff and shop passwords are managed in their respective management tabs.</span>
           </div>
           <button type="submit" disabled={busy.adminPass} style={S.saveBtn(busy.adminPass)}><Shield size={14} />{busy.adminPass ? 'Updating...' : 'Update Admin Password'}</button>
         </form>

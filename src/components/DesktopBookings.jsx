@@ -13,19 +13,19 @@ import { getCurrentLocation, mapsUrl } from '../lib/geolocation';
 const SERVICE_CATEGORIES = [
   { id: 'hair',     label: '✂️ Hair',          color: '#8B5CF6' },
   { id: 'beauty',   label: '💄 Beauty',        color: '#EC4899' },
-  { id: 'skincare', label: '🧴 Skincare',      color: '#10B981' },
-  { id: 'nail',     label: '💅 Nails',         color: '#F59E0B' },
-  { id: 'spa',      label: '🧖 Spa / Massage', color: '#3B82F6' },
-  { id: 'bridal',   label: '👰 Bridal',        color: '#EF4444' },
-  { id: 'mens',     label: '🪒 Men\'s Salon',  color: '#6366F1' },
-  { id: 'general',  label: '🛎️ General',       color: '#64748B' },
+  { id: 'skincare', label: '🧴 Skincare',      color: 'var(--c-success)' },
+  { id: 'nail',     label: '💅 Nails',         color: 'var(--c-warning)' },
+  { id: 'spa',      label: '🧖 Spa / Massage', color: 'var(--c-info)' },
+  { id: 'bridal',   label: '👰 Bridal',        color: 'var(--c-danger)' },
+  { id: 'mens',     label: '🪒 Men\'s Salon',  color: 'var(--c-primary-light)' },
+  { id: 'general',  label: '🛎️ General',       color: 'var(--c-muted)' },
 ];
 
 const STATUS_CONFIG = {
-  pending:   { label: 'Pending',   color: '#F59E0B', bg: '#FEF3C7' },
-  confirmed: { label: 'Confirmed', color: '#3B82F6', bg: '#DBEAFE' },
-  completed: { label: 'Completed', color: '#10B981', bg: '#D1FAE5' },
-  cancelled: { label: 'Cancelled', color: '#EF4444', bg: '#FEE2E2' },
+  pending:   { label: 'Pending',   color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
+  confirmed: { label: 'Confirmed', color: 'var(--c-info)', bg: '#DBEAFE' },
+  completed: { label: 'Completed', color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
+  cancelled: { label: 'Cancelled', color: 'var(--c-danger)', bg: 'var(--c-danger-soft)' },
 };
 
 const EMPTY_SERVICE = { name: '', description: '', category: 'general', duration_minutes: 30, price: '', active: true, home_service_enabled: false, home_service_fee: '' };
@@ -33,33 +33,33 @@ const EMPTY_SERVICE = { name: '', description: '', category: 'general', duration
 function ServiceCard({ service, onEdit, onDelete, onToggle }) {
   const cat = SERVICE_CATEGORIES.find(c => c.id === service.category) || SERVICE_CATEGORIES[7];
   return (
-    <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+    <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
       <div style={{ width: 40, height: 40, borderRadius: 10, background: cat.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
         {cat.label.split(' ')[0]}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{service.name}</span>
+          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink)' }}>{service.name}</span>
           <span style={{ fontSize: 11, color: cat.color, background: cat.color + '18', padding: '1px 7px', borderRadius: 999, fontWeight: 600 }}>{cat.label}</span>
-          {!service.active && <span style={{ fontSize: 11, color: '#94A3B8', background: '#F1F5F9', padding: '1px 7px', borderRadius: 999 }}>Inactive</span>}
+          {!service.active && <span style={{ fontSize: 11, color: 'var(--c-faint)', background: 'var(--c-line-soft)', padding: '1px 7px', borderRadius: 999 }}>Inactive</span>}
         </div>
-        {service.description && <p style={{ margin: '0 0 4px', fontSize: 12, color: '#64748B', lineHeight: 1.4 }}>{service.description}</p>}
+        {service.description && <p style={{ margin: '0 0 4px', fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.4 }}>{service.description}</p>}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>₹{Number(service.price).toLocaleString('en-IN')}</span>
-          <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {service.duration_minutes} min</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-success)' }}>₹{Number(service.price).toLocaleString('en-IN')}</span>
+          <span style={{ fontSize: 12, color: 'var(--c-faint)', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} /> {service.duration_minutes} min</span>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
         <button onClick={() => onToggle(service)} title={service.active ? 'Deactivate' : 'Activate'}
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: service.active ? '#10B981' : '#94A3B8' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: service.active ? 'var(--c-success)' : 'var(--c-faint)' }}>
           {service.active ? <Check size={14} /> : <X size={14} />}
         </button>
         <button onClick={() => onEdit(service)} title="Edit"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4F46E5' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-primary)' }}>
           <Edit2 size={13} />
         </button>
         <button onClick={() => onDelete(service.id)} title="Delete"
-          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+          style={{ width: 30, height: 30, borderRadius: 8, border: '1px solid var(--c-danger-soft)', background: '#FFF5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-danger)' }}>
           <Trash2 size={13} />
         </button>
       </div>
@@ -116,8 +116,8 @@ function HomeVisitSafetyPanel({ appt, onRefresh }) {
 
   if (appt.sos_triggered_at) {
     return (
-      <div style={{ marginTop: 8, padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: '#B91C1C' }}>
+      <div style={{ marginTop: 8, padding: '8px 12px', background: 'var(--c-danger-soft)', border: '1px solid var(--c-danger-border)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--c-danger-strong)' }}>
           🆘 Emergency alert sent {new Date(appt.sos_triggered_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
@@ -128,30 +128,30 @@ function HomeVisitSafetyPanel({ appt, onRefresh }) {
     <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
       <style>{'@keyframes sosPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }'}</style>
       {appt.staff_arrived_at ? (
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>✅ Arrived {new Date(appt.staff_arrived_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-success-strong)' }}>✅ Arrived {new Date(appt.staff_arrived_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
       ) : appt.staff_enroute_at ? (
         <>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5' }}>🚗 On the way {new Date(appt.staff_enroute_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-primary)' }}>🚗 On the way {new Date(appt.staff_enroute_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
           <button onClick={() => doCheckIn('arrived')} disabled={busy}
-            style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+            style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-success-strong)', color: 'var(--c-surface)', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
             ✅ I've arrived
           </button>
         </>
       ) : (
         <button onClick={() => doCheckIn('enroute')} disabled={busy}
-          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid #C7D2FE', background: '#EEF2FF', color: '#4F46E5', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--c-primary-border)', background: 'var(--c-primary-soft)', color: 'var(--c-primary)', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
           🚗 On my way
         </button>
       )}
       {sosConfirming ? (
         <button onClick={doSOS} disabled={busy}
-          style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#B91C1C', color: '#fff', cursor: busy ? 'wait' : 'pointer', width: 'auto', animation: 'sosPulse 1s infinite' }}
+          style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-danger-strong)', color: 'var(--c-surface)', cursor: busy ? 'wait' : 'pointer', width: 'auto', animation: 'sosPulse 1s infinite' }}
           onBlur={() => setSosConfirming(false)}>
           Tap again to confirm SOS
         </button>
       ) : (
         <button onClick={doSOS} disabled={busy}
-          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid #FCA5A5', background: '#FFF5F5', color: '#B91C1C', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
+          style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger-strong)', cursor: busy ? 'wait' : 'pointer', width: 'auto' }}>
           🆘 Emergency
         </button>
       )}
@@ -165,18 +165,18 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
   const dateStr = appt.appointment_date ? new Date(appt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
   const provider = appt.provider_id ? providers.find(p => p.id === appt.provider_id) : null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'center' }}>
+    <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'center' }}>
       {/* Time */}
       <div style={{ textAlign: 'center', minWidth: 48, flexShrink: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>{timeStr}</div>
-        <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>{dateStr}</div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-ink)', lineHeight: 1 }}>{timeStr}</div>
+        <div style={{ fontSize: 10, color: 'var(--c-faint)', marginTop: 2 }}>{dateStr}</div>
       </div>
       {/* Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{appt.service_name}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{appt.service_name}</span>
           {provider && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '1px 8px', borderRadius: 999 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-primary)', background: 'var(--c-primary-soft)', padding: '1px 8px', borderRadius: 999 }}>
               💇 {provider.name}
             </span>
           )}
@@ -187,10 +187,10 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
           )}
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><User size={11} />{appt.customer_name}</span>
-          <span style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} />{appt.customer_phone}</span>
-          <span style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} />{appt.duration_minutes} min</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>
+          <span style={{ fontSize: 12, color: 'var(--c-ink-2)', display: 'flex', alignItems: 'center', gap: 3 }}><User size={11} />{appt.customer_name}</span>
+          <span style={{ fontSize: 12, color: 'var(--c-ink-2)', display: 'flex', alignItems: 'center', gap: 3 }}><Phone size={11} />{appt.customer_phone}</span>
+          <span style={{ fontSize: 12, color: 'var(--c-faint)', display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={11} />{appt.duration_minutes} min</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-success)' }}>
             ₹{Number(appt.service_price).toLocaleString('en-IN')}
             {appt.service_location === 'at_home' && Number(appt.home_service_fee) > 0 && ` + ₹${Number(appt.home_service_fee).toLocaleString('en-IN')} visit fee`}
           </span>
@@ -202,7 +202,7 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
             📍 {appt.customer_address}
             {appt.customer_lat != null && appt.customer_lng != null && (
               <a href={mapsUrl(appt.customer_lat, appt.customer_lng)} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: 11, color: '#4F46E5', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
+                style={{ fontSize: 11, color: 'var(--c-primary)', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
                 (open map)
               </a>
             )}
@@ -213,12 +213,12 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
         {appt.service_location === 'at_home' && appt.status === 'confirmed' && (
           <HomeVisitSafetyPanel appt={appt} onRefresh={onRefresh} />
         )}
-        {appt.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>Note: {appt.notes}</div>}
+        {appt.notes && <div style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 3 }}>Note: {appt.notes}</div>}
         {/* The actual "finish confirmation" — who marked this done and
             when. Most valuable for a home visit, where this is the only
             record anyone at the shop has that the work happened. */}
         {appt.status === 'completed' && appt.completed_by_name && (
-          <div style={{ fontSize: 11, color: '#10B981', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontSize: 11, color: 'var(--c-success)', marginTop: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
             ✅ Confirmed done by {appt.completed_by_name}
             {appt.completed_at && ` · ${new Date(appt.completed_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
           </div>
@@ -231,17 +231,17 @@ function AppointmentRow({ appt, providers = [], onStatusChange, onCompleteWithBi
           {appt.status === 'pending' && (
             <>
               <button onClick={() => onStatusChange(appt.id, 'confirmed')}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#3B82F6', color: '#fff', cursor: 'pointer' }}>Confirm</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-info)', color: 'var(--c-surface)', cursor: 'pointer' }}>Confirm</button>
               <button onClick={() => onStatusChange(appt.id, 'cancelled')}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid #FCA5A5', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer' }}>✕</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
             </>
           )}
           {appt.status === 'confirmed' && (
             <>
               <button onClick={() => onCompleteWithBill(appt)}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: '#10B981', color: '#fff', cursor: 'pointer' }}>✓ Done</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--c-success)', color: 'var(--c-surface)', cursor: 'pointer' }}>✓ Done</button>
               <button onClick={() => onStatusChange(appt.id, 'cancelled')}
-                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid #FCA5A5', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer' }}>✕</button>
+                style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-danger-border)', background: '#FFF5F5', color: 'var(--c-danger)', cursor: 'pointer' }}>✕</button>
             </>
           )}
         </div>
@@ -306,7 +306,7 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
         name: 'MyStore OS — Home Service Add-on',
         description: 'Home Service Booking — 30 days',
         order_id: orderId,
-        theme: { color: '#4F46E5' },
+        theme: { color: 'var(--c-primary)' },
         prefill: { name: user?.name, contact: user?.phone },
         handler: async (response) => {
           try {
@@ -338,30 +338,30 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
 
   const field = (label, key, type = 'text', extra = {}) => (
     <div>
-      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>{label}</label>
+      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>{label}</label>
       <input type={type} value={form[key] || ''} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-        style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+        style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
         {...extra} />
     </div>
   );
 
   return (
-    <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{service?.id ? 'Edit Service' : 'Add New Service'}</div>
+    <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--c-ink)' }}>{service?.id ? 'Edit Service' : 'Add New Service'}</div>
       {field('Service Name *', 'name', 'text', { placeholder: 'e.g. Haircut & Styling' })}
       {field('Description', 'description', 'text', { placeholder: 'Optional short description' })}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Category</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Category</label>
           <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-            style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#fff' }}>
+            style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--c-surface)' }}>
             {SERVICE_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Duration (minutes)</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Duration (minutes)</label>
           <select value={form.duration_minutes} onChange={e => setForm(p => ({ ...p, duration_minutes: Number(e.target.value) }))}
-            style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', background: '#fff' }}>
+            style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--c-surface)' }}>
             {[15,20,30,45,60,90,120,150,180].map(d => <option key={d} value={d}>{d} min</option>)}
           </select>
         </div>
@@ -373,22 +373,22 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
           feature without upgrading their whole plan. Gated by a LIVE
           date comparison (features.canOfferHomeService), not a cached
           flag, so it can never show as active past its real expiry. */}
-      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12 }}>
+      <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 10, padding: 12 }}>
         {features.canOfferHomeService ? (
           <>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: form.home_service_enabled ? 10 : 0 }}>
               <input type="checkbox" checked={!!form.home_service_enabled}
                 onChange={e => setForm(p => ({ ...p, home_service_enabled: e.target.checked }))}
                 style={{ width: 16, height: 16 }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏠 Offer as a home visit</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>🏠 Offer as a home visit</span>
             </label>
             {form.home_service_enabled && (
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Extra fee for home visit (₹)</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Extra fee for home visit (₹)</label>
                 <input type="number" value={form.home_service_fee || ''} onChange={e => setForm(p => ({ ...p, home_service_fee: e.target.value }))}
                   placeholder="0 (no extra charge)" min="0" step="1"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8' }}>Added on top of the service price when a customer books a home visit. Leave at 0 if you don't charge extra for travel.</p>
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--c-faint)' }}>Added on top of the service price when a customer books a home visit. Leave at 0 if you don't charge extra for travel.</p>
               </div>
             )}
           </>
@@ -398,20 +398,20 @@ function ServiceForm({ service, shopId, sysSettings, onAddonPurchased, onSave, o
               <span style={{ fontSize: 17 }}>🏠</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Home Service Booking</div>
-              <div style={{ fontSize: 11, color: '#64748B' }}>Let customers book this service at their address. ₹{addonPrice}/month, any plan.</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>Home Service Booking</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>Let customers book this service at their address. ₹{addonPrice}/month, any plan.</div>
             </div>
             <button type="button" onClick={purchaseAddon} disabled={purchasing}
-              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: purchasing ? '#94A3B8' : '#4F46E5', color: '#fff', fontSize: 12, fontWeight: 700, cursor: purchasing ? 'wait' : 'pointer', flexShrink: 0, width: 'auto' }}>
+              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: purchasing ? 'var(--c-faint)' : 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 12, fontWeight: 700, cursor: purchasing ? 'wait' : 'pointer', flexShrink: 0, width: 'auto' }}>
               {purchasing ? 'Opening…' : `Enable — ₹${addonPrice}/mo`}
             </button>
           </div>
         )}
       </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-        <button onClick={onCancel} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+        <button onClick={onCancel} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-surface)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
         <button onClick={save} disabled={saving}
-          style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#4F46E5', color: '#fff', fontSize: 13, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}>
+          style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 13, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}>
           {saving ? 'Saving…' : (service?.id ? 'Save Changes' : 'Add Service')}
         </button>
       </div>
@@ -564,12 +564,12 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div style={{ background: '#fff', borderRadius: 16, maxWidth: 420, width: '100%', maxHeight: '90vh', overflow: 'auto', padding: 24 }}>
-        <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 18 }}>+ New Walk-in / Phone Booking</div>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 16, maxWidth: 420, width: '100%', maxHeight: '90vh', overflow: 'auto', padding: 24 }}>
+        <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--c-ink)', marginBottom: 18 }}>+ New Walk-in / Phone Booking</div>
 
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Service *</label>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Service *</label>
         <select value={serviceId} onChange={e => { setServiceId(e.target.value); setServiceLocation('in_shop'); setAddress(''); }}
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none', marginBottom: 14 }}>
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, background: 'var(--c-surface)', outline: 'none', marginBottom: 14 }}>
           {services.length === 0 && <option value="">No services yet — add one first</option>}
           {services.map(s => (
             <option key={s.id} value={s.id}>{s.name} — ₹{Number(s.price).toLocaleString('en-IN')} ({s.duration_minutes} min){s.home_service_enabled ? ' 🏠' : ''}</option>
@@ -577,30 +577,30 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         </select>
 
         {selectedService?.home_service_enabled && (
-          <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, marginBottom: 14, background: '#F8FAFC' }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8 }}>Where is this booking for?</label>
+          <div style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 12, marginBottom: 14, background: 'var(--c-bg)' }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 8 }}>Where is this booking for?</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: serviceLocation === 'at_home' ? 10 : 0 }}>
               <button type="button" onClick={() => setServiceLocation('in_shop')}
-                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'in_shop' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'in_shop' ? '#EEF2FF' : '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'in_shop' ? '#4F46E5' : '#0F172A' }}>
+                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'in_shop' ? '2px solid var(--c-primary)' : '1px solid var(--c-line)', background: serviceLocation === 'in_shop' ? 'var(--c-primary-soft)' : 'var(--c-surface)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'in_shop' ? 'var(--c-primary)' : 'var(--c-ink)' }}>
                 🏪 In-shop
               </button>
               <button type="button" onClick={() => setServiceLocation('at_home')}
-                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'at_home' ? '2px solid #4F46E5' : '1px solid #E2E8F0', background: serviceLocation === 'at_home' ? '#EEF2FF' : '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'at_home' ? '#4F46E5' : '#0F172A' }}>
+                style={{ padding: '9px 8px', borderRadius: 8, border: serviceLocation === 'at_home' ? '2px solid var(--c-primary)' : '1px solid var(--c-line)', background: serviceLocation === 'at_home' ? 'var(--c-primary-soft)' : 'var(--c-surface)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: serviceLocation === 'at_home' ? 'var(--c-primary)' : 'var(--c-ink)' }}>
                 🏠 Home visit{Number(selectedService.home_service_fee) > 0 ? ` (+₹${Number(selectedService.home_service_fee).toLocaleString('en-IN')})` : ''}
               </button>
             </div>
             {serviceLocation === 'at_home' && (
               <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Customer's address"
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             )}
           </div>
         )}
 
         {providers.length > 0 && features.canAssignStaffPerService && (
           <>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Staff Member</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Staff Member</label>
             <select value={providerId} onChange={e => { setProviderId(e.target.value); setTime(''); }}
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none', marginBottom: 14 }}>
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, background: 'var(--c-surface)', outline: 'none', marginBottom: 14 }}>
               <option value="">No preference / single resource</option>
               {providers.map(p => (
                 <option key={p.id} value={p.id}>{p.name}{p.title ? ` — ${p.title}` : ''}</option>
@@ -611,22 +611,22 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
           <div>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Customer Name *</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Customer Name *</label>
             <input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full name"
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Mobile *</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Mobile *</label>
             <input value={customerPhone} maxLength={10} onChange={e => setCustomerPhone(e.target.value.replace(/\D/g, ''))} placeholder="10-digit"
-              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
 
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Date *</label>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Date *</label>
         <input type="date" value={date} min={new Date().toISOString().slice(0, 10)} onChange={e => setDate(e.target.value)}
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 14 }} />
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 14 }} />
 
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Time *</label>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 6 }}>Time *</label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 14, maxHeight: 160, overflow: 'auto' }}>
           {TIME_SLOTS.map(t => {
             const taken = isSlotTaken(t);
@@ -635,9 +635,9 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
                 style={{
                   padding: '7px 4px', borderRadius: 6, border: '1px solid', fontSize: 11.5, fontWeight: 600,
                   cursor: taken ? 'not-allowed' : 'pointer',
-                  borderColor: taken ? '#F1F5F9' : (time === t ? '#4F46E5' : '#E2E8F0'),
-                  background: taken ? '#F8FAFC' : (time === t ? '#4F46E5' : '#fff'),
-                  color: taken ? '#CBD5E1' : (time === t ? '#fff' : '#475569'),
+                  borderColor: taken ? 'var(--c-line-soft)' : (time === t ? 'var(--c-primary)' : 'var(--c-line)'),
+                  background: taken ? 'var(--c-bg)' : (time === t ? 'var(--c-primary)' : 'var(--c-surface)'),
+                  color: taken ? 'var(--c-line-strong)' : (time === t ? 'var(--c-surface)' : 'var(--c-ink-2)'),
                   textDecoration: taken ? 'line-through' : 'none',
                 }}>
                 {fmt12(t)}
@@ -646,9 +646,9 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
           })}
         </div>
 
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Notes (optional)</label>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 }}>Notes (optional)</label>
         <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special requests…"
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 20 }} />
+          style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 20 }} />
 
         {/* Recurring booking (Enterprise Plan only) — reserves multiple
             future slots for the same customer + service + time. Each
@@ -656,41 +656,41 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
             downstream (conflict check, reminders, RLS, per-instance
             reschedule) works unchanged. */}
         {features.canScheduleRecurring && (
-          <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, padding: 14, marginBottom: 20, background: '#F8FAFC' }}>
+          <div style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 14, marginBottom: 20, background: 'var(--c-bg)' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', marginBottom: isRecurring ? 12 : 0 }}>
               <input type="checkbox" checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} style={{ width: 16, height: 16 }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Make this a recurring booking</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>Make this a recurring booking</span>
               <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '2px 8px', borderRadius: 999, marginLeft: 'auto' }}>Enterprise</span>
             </label>
             {isRecurring && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Repeats</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--c-muted)', marginBottom: 3 }}>Repeats</label>
                   <select value={recFrequency} onChange={e => setRecFrequency(e.target.value)}
-                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, background: 'var(--c-surface)' }}>
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Every</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--c-muted)', marginBottom: 3 }}>Every</label>
                   <select value={recInterval} onChange={e => setRecInterval(Number(e.target.value))}
-                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, background: 'var(--c-surface)' }}>
                     {[1,2,3,4].map(n => <option key={n} value={n}>{n} {recFrequency === 'daily' ? 'day' : recFrequency === 'weekly' ? 'week' : 'month'}{n > 1 ? 's' : ''}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748B', marginBottom: 3 }}>Occurrences</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--c-muted)', marginBottom: 3 }}>Occurrences</label>
                   <select value={recCount} onChange={e => setRecCount(Number(e.target.value))}
-                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, background: '#fff' }}>
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12, background: 'var(--c-surface)' }}>
                     {[2,4,6,8,10,12,16,20,26,52].map(n => <option key={n} value={n}>{n} slots</option>)}
                   </select>
                 </div>
               </div>
             )}
             {isRecurring && (
-              <p style={{ margin: '10px 0 0', fontSize: 11, color: '#64748B' }}>
+              <p style={{ margin: '10px 0 0', fontSize: 11, color: 'var(--c-muted)' }}>
                 Any occurrence that conflicts with an existing booking will be skipped — we'll tell you how many were reserved and how many were skipped.
               </p>
             )}
@@ -698,9 +698,9 @@ function NewWalkInBookingModal({ shopId, services, providers, onClose, onSaved }
         )}
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+          <button onClick={onClose} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-surface)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
           <button onClick={save} disabled={saving || services.length === 0}
-            style={{ flex: 1, padding: 10, borderRadius: 8, border: 'none', background: saving ? '#94A3B8' : '#4F46E5', color: '#fff', fontSize: 13, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
+            style={{ flex: 1, padding: 10, borderRadius: 8, border: 'none', background: saving ? 'var(--c-faint)' : 'var(--c-primary)', color: 'var(--c-surface)', fontSize: 13, fontWeight: 800, cursor: saving ? 'wait' : 'pointer' }}>
             {saving ? 'Saving…' : '+ Add Booking'}
           </button>
         </div>
@@ -791,21 +791,21 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
     <div style={{ padding: '28px 32px', maxWidth: 860, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8B5CF6,#6366F1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Scissors size={22} color="#fff" />
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8B5CF6,var(--c-primary-light))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Scissors size={22} color="var(--c-surface)" />
         </div>
         <div>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Service Bookings</h2>
-          <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>Manage appointments and your services catalogue</p>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--c-ink)' }}>Service Bookings</h2>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--c-muted)' }}>Manage appointments and your services catalogue</p>
         </div>
       </div>
 
       {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { label: "Today's Appts", value: counts.today, color: '#4F46E5', bg: '#EEF2FF' },
-          { label: 'Pending', value: counts.pending, color: '#F59E0B', bg: '#FEF3C7' },
-          { label: 'Confirmed', value: counts.confirmed, color: '#10B981', bg: '#D1FAE5' },
+          { label: "Today's Appts", value: counts.today, color: 'var(--c-primary)', bg: 'var(--c-primary-soft)' },
+          { label: 'Pending', value: counts.pending, color: 'var(--c-warning)', bg: 'var(--c-warning-soft)' },
+          { label: 'Confirmed', value: counts.confirmed, color: 'var(--c-success)', bg: 'var(--c-success-soft)' },
         ].map(s => (
           <div key={s.label} style={{ background: s.bg, borderRadius: 12, padding: '14px 18px', border: `1px solid ${s.color}22` }}>
             <div style={{ fontSize: 28, fontWeight: 900, color: s.color }}>{s.value}</div>
@@ -815,14 +815,14 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
       </div>
 
       {/* Tab switcher */}
-      <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', borderRadius: 10, padding: 4, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 4, background: 'var(--c-line-soft)', borderRadius: 10, padding: 4, marginBottom: 20 }}>
         {[
           { id: 'appointments', label: '📅 Appointments' },
           { id: 'services', label: '🛎️ Services' },
           { id: 'staff', label: '👤 Staff' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', background: tab === t.id ? '#fff' : 'transparent', color: tab === t.id ? '#4F46E5' : '#64748B', boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all .15s' }}>
+            style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', background: tab === t.id ? 'var(--c-surface)' : 'transparent', color: tab === t.id ? 'var(--c-primary)' : 'var(--c-muted)', boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all .15s' }}>
             {t.label}
           </button>
         ))}
@@ -839,25 +839,25 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
               { id: 'all', label: "All" },
             ].map(v => (
               <button key={v.id} onClick={() => setViewMode(v.id)}
-                style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderColor: viewMode === v.id ? '#4F46E5' : '#E2E8F0', background: viewMode === v.id ? '#EEF2FF' : '#fff', color: viewMode === v.id ? '#4F46E5' : '#64748B' }}>
+                style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderColor: viewMode === v.id ? 'var(--c-primary)' : 'var(--c-line)', background: viewMode === v.id ? 'var(--c-primary-soft)' : 'var(--c-surface)', color: viewMode === v.id ? 'var(--c-primary)' : 'var(--c-muted)' }}>
                 {v.label}
               </button>
             ))}
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #E2E8F0', fontSize: 12, fontWeight: 600, color: '#475569', background: '#fff', cursor: 'pointer', outline: 'none' }}>
+              style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--c-line)', fontSize: 12, fontWeight: 600, color: 'var(--c-ink-2)', background: 'var(--c-surface)', cursor: 'pointer', outline: 'none' }}>
               <option value="">All Status</option>
               {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
             <button onClick={() => setShowWalkInModal(true)}
-              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none', background: 'var(--c-primary)', color: 'var(--c-surface)', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
               <Plus size={14} /> New Booking
             </button>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 48, color: '#94A3B8' }}>Loading appointments…</div>
+            <div style={{ textAlign: 'center', padding: 48, color: 'var(--c-faint)' }}>Loading appointments…</div>
           ) : filteredAppts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8' }}>
+            <div style={{ textAlign: 'center', padding: 60, color: 'var(--c-faint)' }}>
               <Calendar size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
               <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>No appointments found</p>
               <p style={{ margin: '6px 0 0', fontSize: 12 }}>Share your booking link with customers to start receiving bookings</p>
@@ -891,7 +891,7 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
           )}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, alignItems: 'center', gap: 8 }}>
             {features.maxServices > 0 && features.maxServices !== -1 && (
-              <span style={{ fontSize: 11, color: '#64748B' }}>
+              <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>
                 {services.length} / {features.maxServices} services
               </span>
             )}
@@ -906,8 +906,8 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
               disabled={!features.canAddMoreServices(services.length)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none',
-                background: features.canAddMoreServices(services.length) ? '#4F46E5' : '#94A3B8',
-                color: '#fff', fontWeight: 700, fontSize: 13,
+                background: features.canAddMoreServices(services.length) ? 'var(--c-primary)' : 'var(--c-faint)',
+                color: 'var(--c-surface)', fontWeight: 700, fontSize: 13,
                 cursor: features.canAddMoreServices(services.length) ? 'pointer' : 'not-allowed',
                 opacity: features.canAddMoreServices(services.length) ? 1 : 0.7,
               }}>
@@ -929,9 +929,9 @@ export default function DesktopBookings({ shopId, initialTab = 'appointments', s
           )}
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 48, color: '#94A3B8' }}>Loading services…</div>
+            <div style={{ textAlign: 'center', padding: 48, color: 'var(--c-faint)' }}>Loading services…</div>
           ) : services.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8' }}>
+            <div style={{ textAlign: 'center', padding: 60, color: 'var(--c-faint)' }}>
               <Scissors size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
               <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>No services added yet</p>
               <p style={{ margin: '6px 0 0', fontSize: 12 }}>Add your services so customers can book appointments</p>

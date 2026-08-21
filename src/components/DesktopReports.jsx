@@ -77,8 +77,8 @@ function buildCatMargins(products) {
     .sort((a, b) => b.margin - a.margin);
 }
 
-const AXIS = { fill: '#64748B', fontSize: 10 };
-const TT_STYLE = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '11px', color: '#0F172A' };
+const AXIS = { fill: 'var(--c-muted)', fontSize: 10 };
+const TT_STYLE = { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', fontSize: '11px', color: 'var(--c-ink)' };
 const fmt = v => v > 999 ? `${(v / 1000).toFixed(0)}k` : v;
 
 const DesktopReports = ({
@@ -143,7 +143,7 @@ const DesktopReports = ({
   const displayPercent = Math.min(100, Math.max(0, Math.abs(marginPercent)));
   const strokeOffset = circumference - (displayPercent / 100) * circumference;
   const isLoss = netProfit < 0;
-  const strokeColor = isLoss ? '#EF4444' : '#10B981';
+  const strokeColor = isLoss ? 'var(--c-danger)' : 'var(--c-success)';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -153,8 +153,8 @@ const DesktopReports = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Margin gauge */}
-          <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <BarChart2 size={18} color="#FBBF24" /> Net Margin Analytics
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', gap: '16px', flexWrap: 'wrap' }}>
@@ -167,22 +167,22 @@ const DesktopReports = ({
                 </svg>
                 <div style={{ position: 'absolute', textAlign: 'center' }}>
                   <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: strokeColor }}>{isLoss ? '-' : '+'}{displayPercent}%</h4>
-                  <p style={{ margin: 0, fontSize: '9px', color: '#64748B', textTransform: 'uppercase', fontWeight: 'bold' }}>{isLoss ? 'Loss' : 'Net Margin'}</p>
+                  <p style={{ margin: 0, fontSize: '9px', color: 'var(--c-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>{isLoss ? 'Loss' : 'Net Margin'}</p>
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: '150px' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '800', color: isLoss ? '#EF4444' : '#10B981' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isLoss ? '#EF4444' : '#10B981' }} />{isLoss ? 'Loss Today' : 'Profit Today'}</span>
-                  <span style={{ display: 'block', fontSize: '24px', color: '#0F172A', fontWeight: '900', marginTop: '4px' }}>₹{Math.abs(netProfit)}</span>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '800', color: isLoss ? 'var(--c-danger)' : 'var(--c-success)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isLoss ? 'var(--c-danger)' : 'var(--c-success)' }} />{isLoss ? 'Loss Today' : 'Profit Today'}</span>
+                  <span style={{ display: 'block', fontSize: '24px', color: 'var(--c-ink)', fontWeight: '900', marginTop: '4px' }}>₹{Math.abs(netProfit)}</span>
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingUp size={14} color="#10B981" /> Cash-In Today:</span>
-                    <span style={{ color: '#10B981', fontWeight: 'bold' }}>₹{cashIn}</span>
+                    <span style={{ color: 'var(--c-ink-2)', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingUp size={14} color="var(--c-success)" /> Cash-In Today:</span>
+                    <span style={{ color: 'var(--c-success)', fontWeight: 'bold' }}>₹{cashIn}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                    <span style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingDown size={14} color="#EF4444" /> Cash-Out Today:</span>
-                    <span style={{ color: '#EF4444', fontWeight: 'bold' }}>₹{cashOut}</span>
+                    <span style={{ color: 'var(--c-ink-2)', display: 'flex', alignItems: 'center', gap: '4px' }}><TrendingDown size={14} color="var(--c-danger)" /> Cash-Out Today:</span>
+                    <span style={{ color: 'var(--c-danger)', fontWeight: 'bold' }}>₹{cashOut}</span>
                   </div>
                 </div>
               </div>
@@ -190,10 +190,10 @@ const DesktopReports = ({
           </div>
 
           {/* Tally Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: '#ECFDF5' , minWidth: 0}}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #A7F3D0', background: 'var(--c-success-soft)' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Tally ERP / Prime Exporter</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>Tally ERP / Prime Exporter</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#047857', lineHeight: '1.4' }}>Generate double-entry bookkeeping ledgers. Download compliant Sales XML.</p>
               </div>
               <PlanGate feature="tallyExport" fallback={<LockedFeature feature="tallyExport" compact />}>
@@ -202,7 +202,7 @@ const DesktopReports = ({
                     user.name,
                     { stockOrders, supplierCredits: credits, customerCredits, products }
                   )}
-                  style={{ background: '#10B981', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                  style={{ background: 'var(--c-success)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <Download size={14} /> Export XML
                 </button>
               </PlanGate>
@@ -213,7 +213,7 @@ const DesktopReports = ({
           <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #DDD6FE', background: '#F5F3FF' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>GSTR-1 CSV Exporter</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>GSTR-1 CSV Exporter</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#5B21B6', lineHeight: '1.4' }}>GST-portal ready GSTR-1 CSV with CGST/SGST/IGST split for B2B and B2C.</p>
               </div>
               <PlanGate feature="gst" fallback={<LockedFeature feature="gst" compact />}>
@@ -226,28 +226,28 @@ const DesktopReports = ({
           </div>
 
           {/* Zoho CRM Exporter */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: '#FEF3C7', position: 'relative' , minWidth: 0}}>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #FDE68A', background: 'var(--c-warning-soft)', position: 'relative' , minWidth: 0}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: '#0F172A' }}>Export to CRM</h3>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 'bold', color: 'var(--c-ink)' }}>Export to CRM</h3>
                 <p style={{ margin: 0, fontSize: '11px', color: '#78350F', lineHeight: '1.4' }}>Push your customers and leads into Zoho CRM in one click.</p>
               </div>
               <button onClick={() => setCrmMenuOpen(o => !o)}
-                style={{ background: '#F59E0B', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                style={{ background: 'var(--c-warning)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                 <Users size={14} /> Export ▾
               </button>
             </div>
             {crmMenuOpen && (
-              <div style={{ position: 'absolute', top: '52px', right: '20px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', minWidth: '220px', zIndex: 30, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '52px', right: '20px', background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '10px', minWidth: '220px', zIndex: 30, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
                 <button onClick={handleZohoContacts}
-                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#0F172A', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #E2E8F0' }}>
+                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: 'var(--c-ink)', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid var(--c-line)' }}>
                   Zoho Contacts CSV
-                  <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>{zohoCustomers.length} customer{zohoCustomers.length === 1 ? '' : 's'} from credit ledger</div>
+                  <div style={{ fontSize: '10px', color: 'var(--c-muted)', marginTop: '2px' }}>{zohoCustomers.length} customer{zohoCustomers.length === 1 ? '' : 's'} from credit ledger</div>
                 </button>
                 <button onClick={handleZohoLeads}
-                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: '#0F172A', fontSize: '12px', cursor: 'pointer' }}>
+                  style={{ width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', color: 'var(--c-ink)', fontSize: '12px', cursor: 'pointer' }}>
                   Zoho Leads CSV
-                  <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>Your shop as a Zoho lead</div>
+                  <div style={{ fontSize: '10px', color: 'var(--c-muted)', marginTop: '2px' }}>Your shop as a Zoho lead</div>
                 </button>
               </div>
             )}
@@ -255,27 +255,27 @@ const DesktopReports = ({
         </div>
 
         {/* Day Book ledger */}
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Book size={20} color="#FBBF24" /> Today's Retail Day Book
           </h3>
           {ledgerItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
+            <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--c-muted)' }}>
               <Book size={36} style={{ opacity: 0.15, marginBottom: '12px' }} />
               <p style={{ margin: 0, fontSize: '13px' }}>No cash flows recorded today yet.</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', paddingRight: '4px' }}>
               {ledgerItems.map((item, idx) => (
-                <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-bg)', padding: '12px', borderRadius: '12px', border: '1px solid var(--c-line)' }}>
                   <div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? '#ECFDF5' : '#FEF2F2', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? '#A7F3D0' : '#FCA5A5'}` }}>{item.category}</span>
-                      <span style={{ fontSize: '11px', color: '#64748B' }}>{item.time}</span>
+                      <span style={{ fontSize: '9px', background: item.type === 'Cash In' ? 'var(--c-success-soft)' : 'var(--c-danger-soft)', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', padding: '2px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase', border: `1px solid ${item.type === 'Cash In' ? '#A7F3D0' : 'var(--c-danger-border)'}` }}>{item.category}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--c-muted)' }}>{item.time}</span>
                     </div>
-                    <p style={{ margin: '6px 0 0 0', fontWeight: '700', fontSize: '13px', color: '#0F172A' }}>{item.desc}</p>
+                    <p style={{ margin: '6px 0 0 0', fontWeight: '700', fontSize: '13px', color: 'var(--c-ink)' }}>{item.desc}</p>
                   </div>
-                  <span style={{ fontWeight: '800', color: item.type === 'Cash In' ? '#10B981' : '#EF4444', fontSize: '15px' }}>
+                  <span style={{ fontWeight: '800', color: item.type === 'Cash In' ? 'var(--c-success)' : 'var(--c-danger)', fontSize: '15px' }}>
                     {item.type === 'Cash In' ? '+' : '-'}₹{item.amount}
                   </span>
                 </div>
@@ -287,14 +287,14 @@ const DesktopReports = ({
 
       {/* Row 2 — 30-day revenue AreaChart + top 10 products BarChart */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <TrendingUp size={16} color="#4F46E5" /> 30-Day Revenue Trend
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <TrendingUp size={16} color="var(--c-primary)" /> 30-Day Revenue Trend
             </h3>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>30-day total</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '20px', fontWeight: '900', color: '#4F46E5' }}>₹{total30.toLocaleString('en-IN')}</p>
+              <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-muted)' }}>30-day total</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '20px', fontWeight: '900', color: 'var(--c-primary)' }}>₹{total30.toLocaleString('en-IN')}</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={170}>
@@ -314,12 +314,12 @@ const DesktopReports = ({
           </ResponsiveContainer>
         </div>
 
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={16} color="#F59E0B" /> Top 10 Products (revenue this month)
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingUp size={16} color="var(--c-warning)" /> Top 10 Products (revenue this month)
           </h3>
           {top10.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: '#64748B' }}>
+            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--c-muted)' }}>
               <TrendingUp size={28} style={{ opacity: 0.2, marginBottom: '8px' }} />
               <p style={{ margin: 0, fontSize: '12px' }}>No sales data yet.</p>
             </div>
@@ -339,9 +339,9 @@ const DesktopReports = ({
 
       {/* Row 3 — Cash flow 30d | Credit gauge + Weekly target + Category margins */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingDown size={16} color="#EF4444" /> Cash In vs Out — 30 Days
+        <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingDown size={16} color="var(--c-danger)" /> Cash In vs Out — 30 Days
           </h3>
           <ResponsiveContainer width="100%" height={170}>
             <AreaChart data={cashFlowData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -359,7 +359,7 @@ const DesktopReports = ({
               <XAxis dataKey="date" tick={AXIS} tickLine={false} interval={6} />
               <YAxis tick={AXIS} tickLine={false} tickFormatter={fmt} />
               <Tooltip contentStyle={TT_STYLE} formatter={(v, n) => [`₹${Number(v).toLocaleString('en-IN')}`, n === 'cashIn' ? 'Cash In' : 'Cash Out']} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#64748B', paddingTop: '6px' }} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: 'var(--c-muted)', paddingTop: '6px' }} />
               <Area type="monotone" dataKey="cashIn" name="cashIn" stroke="#10B981" strokeWidth={2} fill="url(#inGrad)" dot={false} />
               <Area type="monotone" dataKey="cashOut" name="cashOut" stroke="#EF4444" strokeWidth={2} fill="url(#outGrad)" dot={false} />
             </AreaChart>
@@ -369,15 +369,15 @@ const DesktopReports = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Outstanding credit bars */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-            <h4 style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Outstanding Credit</h4>
-            {[['Receivable (customers owe you)', totalReceivable, '#10B981'], ['Payable (you owe suppliers)', totalPayable, '#EF4444']].map(([label, amount, color]) => (
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+            <h4 style={{ margin: '0 0 14px 0', fontSize: '13px', fontWeight: '800', color: 'var(--c-ink)' }}>Outstanding Credit</h4>
+            {[['Receivable (customers owe you)', totalReceivable, 'var(--c-success)'], ['Payable (you owe suppliers)', totalPayable, 'var(--c-danger)']].map(([label, amount, color]) => (
               <div key={label} style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
-                  <span style={{ color: '#64748B' }}>{label}</span>
+                  <span style={{ color: 'var(--c-muted)' }}>{label}</span>
                   <span style={{ color, fontWeight: '800' }}>₹{Number(amount).toLocaleString('en-IN')}</span>
                 </div>
-                <div style={{ height: '8px', background: '#E2E8F0', borderRadius: '4px' }}>
+                <div style={{ height: '8px', background: 'var(--c-line)', borderRadius: '4px' }}>
                   <div style={{ height: '100%', width: `${Math.round((amount / maxCredit) * 100)}%`, background: color, borderRadius: '4px', transition: 'width 0.6s ease', minWidth: amount > 0 ? '4px' : '0' }} />
                 </div>
               </div>
@@ -385,28 +385,28 @@ const DesktopReports = ({
           </div>
 
           {/* Weekly revenue vs target */}
-          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Weekly Revenue vs Target</h4>
+          <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: 'var(--c-ink)' }}>Weekly Revenue vs Target</h4>
             {weeklyTarget === 0 ? (
-              <p style={{ margin: 0, fontSize: '11px', color: '#64748B' }}>Set a daily target in Settings to track weekly progress.</p>
+              <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-muted)' }}>Set a daily target in Settings to track weekly progress.</p>
             ) : (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px' }}>
-                  <span style={{ color: '#64748B' }}>₹{thisWeekRev.toLocaleString('en-IN')} / ₹{weeklyTarget.toLocaleString('en-IN')}</span>
-                  <span style={{ color: weeklyPct >= 100 ? '#10B981' : '#FBBF24', fontWeight: '800' }}>{weeklyPct}%</span>
+                  <span style={{ color: 'var(--c-muted)' }}>₹{thisWeekRev.toLocaleString('en-IN')} / ₹{weeklyTarget.toLocaleString('en-IN')}</span>
+                  <span style={{ color: weeklyPct >= 100 ? 'var(--c-success)' : '#FBBF24', fontWeight: '800' }}>{weeklyPct}%</span>
                 </div>
-                <div style={{ height: '10px', background: '#E2E8F0', borderRadius: '5px' }}>
-                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? '#10B981' : 'linear-gradient(90deg,#4F46E5,#8B5CF6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                <div style={{ height: '10px', background: 'var(--c-line)', borderRadius: '5px' }}>
+                  <div style={{ height: '100%', width: `${weeklyPct}%`, background: weeklyPct >= 100 ? 'var(--c-success)' : 'linear-gradient(90deg,var(--c-primary),#8B5CF6)', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                 </div>
-                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#10B981', fontWeight: 'bold' }}>Weekly target achieved</p>}
+                {weeklyPct >= 100 && <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: 'var(--c-success)', fontWeight: 'bold' }}>Weekly target achieved</p>}
               </>
             )}
           </div>
 
           {/* Profit margin by product category */}
           {catMargins.length > 0 && (
-            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '800', color: '#0F172A' }}>Margin by Category</h4>
+            <div className="premium-glass" style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--c-line)', background: 'var(--c-surface)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' , minWidth: 0}}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '800', color: 'var(--c-ink)' }}>Margin by Category</h4>
               <ResponsiveContainer width="100%" height={130}>
                 <BarChart data={catMargins} margin={{ top: 0, right: 4, left: -28, bottom: 32 }}>
                   <XAxis dataKey="name" tick={{ ...AXIS, fontSize: 9 }} tickLine={false} angle={-30} textAnchor="end" interval={0} />
@@ -423,9 +423,9 @@ const DesktopReports = ({
       {/* ── AI Demand Forecasting ── */}
       <div style={{ marginTop: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
-          <span style={{ color: '#475569', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>AI Inventory Intelligence</span>
-          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+          <div style={{ flex: 1, height: '1px', background: 'var(--c-line)' }} />
+          <span style={{ color: 'var(--c-ink-2)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>AI Inventory Intelligence</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--c-line)' }} />
         </div>
         <AIDemandForecast orders={orders} products={products} user={user} />
       </div>

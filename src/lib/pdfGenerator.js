@@ -121,7 +121,7 @@ const drawFooter = (doc, shop, yStart) => {
 export const generateVoucherPDF = async (transaction, shop, isReceipt = true) => {
   const JsPDF = await getJsPDF();
   const doc = new JsPDF();
-  const themeColor = isReceipt ? '#10b981' : '#ef4444';
+  const themeColor = isReceipt ? '#22C55E' : '#C2382B';
   const title = isReceipt ? 'RECEIPT' : 'PAYMENT';
 
   let yOffset = drawHeader(doc, shop, title, themeColor, { showLogo: shop.printShowLogo });
@@ -198,7 +198,7 @@ export const generateVoucherPDF = async (transaction, shop, isReceipt = true) =>
 export const generateCreditNotePDF = async (order, returnItems, shop, refundAmount, opts = {}) => {
   const JsPDF = await getJsPDF();
   const doc = new JsPDF();
-  const themeColor = '#7c3aed';
+  const themeColor = '#12457A';
 
   let yOffset = drawHeader(doc, shop, 'CREDIT NOTE', themeColor, { showLogo: shop.printShowLogo });
 

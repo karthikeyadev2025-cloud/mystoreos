@@ -56,13 +56,13 @@ export default function BranchesManager({ ownerId, onChange }) {
   };
 
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+    <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 14, padding: 16, marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, gap: 10, flexWrap: 'wrap' }}>
         <div>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Store size={17} style={{ color: '#4F46E5' }} /> Your Branches
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Store size={17} style={{ color: 'var(--c-primary)' }} /> Your Branches
           </h3>
-          <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--c-muted)' }}>
             Run multiple shop locations? Add each branch here. Switch between them from the dropdown next to your shop name.
           </p>
         </div>
@@ -71,14 +71,14 @@ export default function BranchesManager({ ownerId, onChange }) {
             <button
               onClick={() => setStockTransferOpen(true)}
               title="Move inventory between branches"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFFFF', color: '#4F46E5', border: '1.5px solid #C7D2FE', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--c-surface)', color: 'var(--c-primary)', border: '1.5px solid var(--c-primary-border)', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
             >
               <ArrowLeftRight size={15} /> Stock Transfer
             </button>
           )}
           <button
             onClick={() => { setEditing(null); setModalOpen(true); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '8px 14px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
             <Plus size={15} /> Add Branch
           </button>
@@ -86,11 +86,11 @@ export default function BranchesManager({ ownerId, onChange }) {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 24, color: '#64748B', fontSize: 12 }}>
+        <div style={{ textAlign: 'center', padding: 24, color: 'var(--c-muted)', fontSize: 12 }}>
           <Loader2 size={20} className="spin" style={{ animation: 'spin 1s linear infinite' }} /> Loading branches…
         </div>
       ) : list.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 24, background: '#F8FAFC', borderRadius: 10, color: '#64748B', fontSize: 12 }}>
+        <div style={{ textAlign: 'center', padding: 24, background: 'var(--c-bg)', borderRadius: 10, color: 'var(--c-muted)', fontSize: 12 }}>
           No branches yet. Your main shop will show up here once branches exist.
         </div>
       ) : (
@@ -98,16 +98,16 @@ export default function BranchesManager({ ownerId, onChange }) {
           {list.map(b => {
             const isMain = !b.parentShopId;
             return (
-              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 10, background: isMain ? '#F8FAFC' : '#FFFFFF', flexWrap: 'wrap' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 9, background: isMain ? '#4F46E5' : '#E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isMain ? '#fff' : '#475569', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
+              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 10, background: isMain ? 'var(--c-bg)' : 'var(--c-surface)', flexWrap: 'wrap' }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: isMain ? 'var(--c-primary)' : 'var(--c-line)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isMain ? 'var(--c-surface)' : 'var(--c-ink-2)', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
                   {(b.name || 'B').slice(0, 2).toUpperCase()}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     {b.name}
-                    {isMain && <span style={{ fontSize: 9.5, background: '#4F46E5', color: '#fff', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
+                    {isMain && <span style={{ fontSize: 9.5, background: 'var(--c-primary)', color: 'var(--c-surface)', padding: '2px 7px', borderRadius: 999, fontWeight: 800, letterSpacing: 0.3 }}>MAIN</span>}
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {b.phone}{b.businessAddress ? ` · ${b.businessAddress}` : ''}
                   </div>
                 </div>
@@ -116,21 +116,21 @@ export default function BranchesManager({ ownerId, onChange }) {
                     <button
                       onClick={() => { setEditing(b); setModalOpen(true); }}
                       title="Edit branch"
-                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F1F5F9', color: '#475569', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                     >
                       <Edit3 size={13} /> Edit
                     </button>
                     <button
                       onClick={() => setResetting(b)}
                       title="Set or reset the branch login password"
-                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#EEF2FF', color: '#4F46E5', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--c-primary-soft)', color: 'var(--c-primary)', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                     >
                       <KeyRound size={13} /> Reset password
                     </button>
                     <button
                       onClick={() => handleDelete(b)}
                       title="Remove branch"
-                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', color: '#DC2626', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: 'none', padding: '6px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                     >
                       <Trash2 size={13} /> Remove
                     </button>
@@ -229,20 +229,20 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
   if (createdCreds) {
     return (
       <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-        <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A', textAlign: 'center' }}>Branch added</h3>
-          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: '#64748B', textAlign: 'center' }}>
+        <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--c-ink)', textAlign: 'center' }}>Branch added</h3>
+          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: 'var(--c-muted)', textAlign: 'center' }}>
             Share these login credentials with your branch staff. They'll sign in at <b>{window.location.origin}/login</b> with this phone and password.
           </p>
           <CredentialRow label="Phone (login ID)" value={createdCreds.phone} />
           <CredentialRow label="Password" value={createdCreds.password} />
-          <p style={{ fontSize: 11, color: '#92400E', background: '#FEF3C7', padding: '8px 10px', borderRadius: 8, margin: '14px 0' }}>
+          <p style={{ fontSize: 11, color: 'var(--c-warning-strong)', background: 'var(--c-warning-soft)', padding: '8px 10px', borderRadius: 8, margin: '14px 0' }}>
             ⚠️ This is the only time we'll show the password here. Copy it now. If you forget it later, use <b>Reset Password</b> on the branch row.
           </p>
           <button
             onClick={() => { setCreatedCreds(null); onSaved(); }}
-            style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
+            style={{ width: '100%', background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
           >
             Done — I've saved these
           </button>
@@ -253,12 +253,12 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-      <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 20, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 20, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0F172A' }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--c-ink)' }}>
             {isEdit ? 'Edit Branch' : 'Add a New Branch'}
           </h3>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 6 }}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', padding: 6 }}>
             <X size={18} />
           </button>
         </div>
@@ -299,7 +299,7 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
               <button
                 type="button"
                 onClick={() => setShowPassword(s => !s)}
-                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--c-primary)', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -345,14 +345,14 @@ function BranchFormModal({ ownerId, editing, onClose, onSaved }) {
           <button
             onClick={onClose}
             disabled={saving}
-            style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            style={{ flex: 1, background: saving ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 1, background: saving ? 'var(--c-faint)' : 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
           >
             {saving ? 'Saving…' : (isEdit ? 'Save changes' : 'Add branch')}
           </button>
@@ -371,14 +371,14 @@ function CredentialRow({ label, value }) {
     } catch { toast.error('Could not copy — select manually'); }
   };
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, marginBottom: 8 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 9, marginBottom: 8 }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 10.5, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>{label.toUpperCase()}</div>
-        <div style={{ fontSize: 14, color: '#0F172A', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", marginTop: 2, wordBreak: 'break-all' }}>{value}</div>
+        <div style={{ fontSize: 10.5, color: 'var(--c-muted)', fontWeight: 700, letterSpacing: 0.3 }}>{label.toUpperCase()}</div>
+        <div style={{ fontSize: 14, color: 'var(--c-ink)', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", marginTop: 2, wordBreak: 'break-all' }}>{value}</div>
       </div>
       <button
         onClick={copy}
-        style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#4F46E5', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '8px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
       >
         <Copy size={13} /> Copy
       </button>
@@ -408,17 +408,17 @@ function ResetPasswordModal({ branch, ownerId, onClose }) {
   if (doneCreds) {
     return (
       <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-        <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A', textAlign: 'center' }}>Password reset</h3>
-          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: '#64748B', textAlign: 'center' }}>
+        <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 22, maxWidth: 440, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,var(--c-success),var(--c-success-strong))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>✓</div>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--c-ink)', textAlign: 'center' }}>Password reset</h3>
+          <p style={{ margin: '6px 0 16px', fontSize: 12.5, color: 'var(--c-muted)', textAlign: 'center' }}>
             <b>{branch.name}</b>'s new credentials below. Share them with your branch staff — the old password will no longer work.
           </p>
           <CredentialRow label="Phone (login ID)" value={doneCreds.phone} />
           <CredentialRow label="New password" value={doneCreds.password} />
           <button
             onClick={onClose}
-            style={{ width: '100%', background: 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer', marginTop: 4 }}
+            style={{ width: '100%', background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: 'pointer', marginTop: 4 }}
           >
             Done
           </button>
@@ -429,15 +429,15 @@ function ResetPasswordModal({ branch, ownerId, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-      <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 20, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 20, maxWidth: 420, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0F172A' }}>Reset password</h3>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 6 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--c-ink)' }}>Reset password</h3>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', padding: 6 }}>
             <X size={18} />
           </button>
         </div>
-        <p style={{ margin: '0 0 14px', fontSize: 12, color: '#64748B' }}>
-          For branch <b>{branch.name}</b> (login phone: <code style={{ background: '#F1F5F9', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>{branch.phone}</code>). The old password will stop working immediately.
+        <p style={{ margin: '0 0 14px', fontSize: 12, color: 'var(--c-muted)' }}>
+          For branch <b>{branch.name}</b> (login phone: <code style={{ background: 'var(--c-line-soft)', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>{branch.phone}</code>). The old password will stop working immediately.
         </p>
         <Field label="New Password" required hint="Min 4 characters">
           <div style={{ position: 'relative' }}>
@@ -452,7 +452,7 @@ function ResetPasswordModal({ branch, ownerId, onClose }) {
             <button
               type="button"
               onClick={() => setShowPassword(s => !s)}
-              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#4F46E5', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--c-primary)', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 4 }}
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
@@ -462,14 +462,14 @@ function ResetPasswordModal({ branch, ownerId, onClose }) {
           <button
             onClick={onClose}
             disabled={saving}
-            style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            style={{ flex: 1, background: saving ? '#94A3B8' : 'linear-gradient(135deg,#4F46E5,#4338CA)', color: '#fff', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 1, background: saving ? 'var(--c-faint)' : 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))', color: 'var(--c-surface)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer' }}
           >
             {saving ? 'Resetting…' : 'Reset password'}
           </button>
@@ -482,10 +482,10 @@ function ResetPasswordModal({ branch, ownerId, onClose }) {
 const inputStyle = {
   width: '100%',
   padding: '10px 12px',
-  border: '1.5px solid #E2E8F0',
+  border: '1.5px solid var(--c-line)',
   borderRadius: 9,
   fontSize: 13,
-  color: '#0F172A',
+  color: 'var(--c-ink)',
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',
@@ -494,9 +494,9 @@ const inputStyle = {
 function Field({ label, required, hint, children }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 5, letterSpacing: 0.3 }}>
-        {label.toUpperCase()}{required && <span style={{ color: '#DC2626', marginLeft: 3 }}>*</span>}
-        {hint && <span style={{ marginLeft: 6, fontWeight: 500, color: '#94A3B8', textTransform: 'none', letterSpacing: 0 }}>· {hint}</span>}
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 5, letterSpacing: 0.3 }}>
+        {label.toUpperCase()}{required && <span style={{ color: 'var(--c-danger-strong)', marginLeft: 3 }}>*</span>}
+        {hint && <span style={{ marginLeft: 6, fontWeight: 500, color: 'var(--c-faint)', textTransform: 'none', letterSpacing: 0 }}>· {hint}</span>}
       </label>
       {children}
     </div>

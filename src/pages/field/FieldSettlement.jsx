@@ -100,35 +100,35 @@ export default function FieldSettlement() {
   const upiDiff = settlement && countedUpi !== '' ? (parseFloat(countedUpi) || 0) - settlement.expectedUpi : null;
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
-    input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
+    input: { width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
   };
 
-  const diffColor = (d) => d == null ? '#64748B' : d === 0 ? '#059669' : '#DC2626';
+  const diffColor = (d) => d == null ? 'var(--c-muted)' : d === 0 ? 'var(--c-success-strong)' : 'var(--c-danger-strong)';
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 720, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>End-of-Day Settlement</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>End-of-Day Settlement</h1>
         {/* The screen this session was missing — settlement only ever
             showed today. Without this link it would only be reachable
             by typing the URL directly. */}
         <button onClick={() => navigate('/field/settlement/history')}
-          style={{ background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          style={{ background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: '1px solid var(--c-line)', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
           📊 Day Reports
         </button>
       </div>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 20px' }}>
         Stock and cash both close independently — a real gap in either is blocked, not waved through.
       </p>
 
@@ -140,12 +140,12 @@ export default function FieldSettlement() {
 
       {vehicleId && !settlement && (
         <div style={{ ...S.card, textAlign: 'center' }}>
-          <Scale size={24} color="#4F46E5" style={{ marginBottom: 8 }} />
-          <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 12px' }}>
+          <Scale size={24} color="var(--c-primary)" style={{ marginBottom: 8 }} />
+          <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: '0 0 12px' }}>
             Pulls today's actual sales and current van stock to compute what's expected.
           </p>
           <button onClick={openToday} disabled={opening}
-            style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
+            style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '11px 22px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>
             {opening ? 'Opening…' : "Open Today's Settlement"}
           </button>
         </div>
@@ -154,8 +154,8 @@ export default function FieldSettlement() {
       {settlement && (
         <>
           {settlement.status === 'closed' ? (
-            <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <CheckCircle2 size={20} color="#059669" />
+            <div style={{ background: 'var(--c-success-soft)', border: '1px solid #A7F3D0', borderRadius: 12, padding: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <CheckCircle2 size={20} color="var(--c-success-strong)" />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#047857' }}>Settlement closed</div>
                 {settlement.overrideReason && <div style={{ fontSize: 11, color: '#065F46', marginTop: 2 }}>Override: {settlement.overrideReason}</div>}
@@ -165,29 +165,29 @@ export default function FieldSettlement() {
             <>
               {/* CASH SIDE */}
               <div style={S.card}>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 14px' }}>Cash &amp; UPI</h2>
+                <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 14px' }}>Cash &amp; UPI</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={S.label}>Expected cash</label>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>₹{settlement.expectedCash.toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-ink)', marginBottom: 8 }}>₹{settlement.expectedCash.toLocaleString('en-IN')}</div>
                     <label style={S.label}>Counted cash</label>
                     <input type="number" value={countedCash} onChange={e => setCountedCash(e.target.value)} placeholder="0" style={S.input} />
                   </div>
                   <div>
                     <label style={S.label}>Expected UPI</label>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', marginBottom: 8 }}>₹{settlement.expectedUpi.toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--c-ink)', marginBottom: 8 }}>₹{settlement.expectedUpi.toLocaleString('en-IN')}</div>
                     <label style={S.label}>Counted UPI (from app)</label>
                     <input type="number" value={countedUpi} onChange={e => setCountedUpi(e.target.value)} placeholder="0" style={S.input} />
                   </div>
                 </div>
                 {(cashDiff !== null || upiDiff !== null) && (
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #F1F5F9', display: 'flex', gap: 20, fontSize: 12, fontWeight: 700 }}>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--c-line-soft)', display: 'flex', gap: 20, fontSize: 12, fontWeight: 700 }}>
                     <span style={{ color: diffColor(cashDiff) }}>Cash diff: {cashDiff > 0 ? '+' : ''}₹{cashDiff?.toLocaleString('en-IN')}</span>
                     <span style={{ color: diffColor(upiDiff) }}>UPI diff: {upiDiff > 0 ? '+' : ''}₹{upiDiff?.toLocaleString('en-IN')}</span>
                   </div>
                 )}
                 {settlement.expectedCredit > 0 && (
-                  <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 10 }}>
+                  <p style={{ fontSize: 11, color: 'var(--c-faint)', marginTop: 10 }}>
                     + ₹{settlement.expectedCredit.toLocaleString('en-IN')} sold on credit today — added to shop khatas, not counted as cash.
                   </p>
                 )}
@@ -195,25 +195,25 @@ export default function FieldSettlement() {
 
               {/* STOCK SIDE */}
               <div style={S.card}>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 14px' }}>Physical Stock Count</h2>
+                <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 14px' }}>Physical Stock Count</h2>
                 {settlement.lines.length === 0 ? (
-                  <p style={{ fontSize: 12, color: '#94A3B8' }}>Van shows no stock to count.</p>
+                  <p style={{ fontSize: 12, color: 'var(--c-faint)' }}>Van shows no stock to count.</p>
                 ) : settlement.lines.map(l => {
                   const counted = counts[l.productId] ?? '';
                   const diff = counted !== '' ? (parseFloat(counted) || 0) - l.expectedQty : null;
                   return (
-                    <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F1F5F9' }}>
+                    <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--c-line-soft)' }}>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.productName}</div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>Expected {l.expectedQty}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
+                        <div style={{ fontSize: 11, color: 'var(--c-faint)' }}>Expected {l.expectedQty}</div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         {diff !== null && diff !== 0 && (
-                          <span style={{ fontSize: 11, fontWeight: 700, color: '#DC2626' }}>{diff > 0 ? '+' : ''}{diff}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-danger-strong)' }}>{diff > 0 ? '+' : ''}{diff}</span>
                         )}
                         <input type="number" value={counted}
                           onChange={e => setCounts(c => ({ ...c, [l.productId]: e.target.value }))}
-                          style={{ width: 80, padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 13, textAlign: 'center' }} />
+                          style={{ width: 80, padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 13, textAlign: 'center' }} />
                       </div>
                     </div>
                   );
@@ -221,10 +221,10 @@ export default function FieldSettlement() {
               </div>
 
               {blockedResult && (
-                <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <AlertTriangle size={16} color="#B45309" />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#92400E' }}>Variance outside normal tolerance</span>
+                    <AlertTriangle size={16} color="var(--c-warning-strong)" />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-warning-strong)' }}>Variance outside normal tolerance</span>
                   </div>
                   <p style={{ fontSize: 12, color: '#78350F', margin: '0 0 10px' }}>
                     Cash {blockedResult.cash_variance > 0 ? '+' : ''}₹{blockedResult.cash_variance} · UPI {blockedResult.upi_variance > 0 ? '+' : ''}₹{blockedResult.upi_variance} · Stock variance value ₹{blockedResult.stock_variance_value}
@@ -233,7 +233,7 @@ export default function FieldSettlement() {
                   <input value={overrideReason} onChange={e => setOverrideReason(e.target.value)} placeholder="e.g. Rep gave ₹200 advance, confirmed by shop owner"
                     style={{ ...S.input, marginBottom: 10 }} />
                   <button onClick={() => doClose(true)} disabled={closing || !overrideReason.trim()}
-                    style={{ background: overrideReason.trim() ? '#B45309' : '#CBD5E1', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: overrideReason.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    style={{ background: overrideReason.trim() ? 'var(--c-warning-strong)' : 'var(--c-line-strong)', color: 'var(--c-surface)', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: overrideReason.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Lock size={13} /> Close With Reason
                   </button>
                 </div>
@@ -241,7 +241,7 @@ export default function FieldSettlement() {
 
               {!blockedResult && (
                 <button onClick={() => doClose(false)} disabled={closing}
-                  style={{ width: '100%', background: '#059669', color: '#fff', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                  style={{ width: '100%', background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', padding: 14, borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
                   {closing ? 'Checking…' : 'Close Settlement'}
                 </button>
               )}

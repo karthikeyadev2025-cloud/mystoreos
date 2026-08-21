@@ -23,9 +23,9 @@ import fieldApi from '../../lib/fieldApi';
 import { distributorIdOf } from '../../lib/fieldIdentity';
 
 const TYPE_META = {
-  main:       { label: 'Depot',          color: '#4F46E5', Icon: Warehouse },
-  van:        { label: 'Van',            color: '#059669', Icon: Truck },
-  quarantine: { label: 'Quarantine Bay', color: '#DC2626', Icon: AlertTriangle },
+  main:       { label: 'Depot',          color: 'var(--c-primary)', Icon: Warehouse },
+  van:        { label: 'Van',            color: 'var(--c-success-strong)', Icon: Truck },
+  quarantine: { label: 'Quarantine Bay', color: 'var(--c-danger-strong)', Icon: AlertTriangle },
 };
 
 // Anything inside 30 days is worth flagging — that's roughly the
@@ -71,10 +71,10 @@ export default function FieldStock() {
   };
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading stock…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading stock…</div>;
 
   // Expiry alerts are pulled to the top rather than left buried inside
   // a location's product list — nobody scrolls 20 vans looking for them.
@@ -90,20 +90,20 @@ export default function FieldStock() {
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Stock Overview</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 24px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>Stock Overview</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 24px' }}>
         Live stock across every depot and van.
       </p>
 
       {expiringSoon.length > 0 && (
-        <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+        <div style={{ background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: 12, padding: 16, marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <AlertTriangle size={16} color="#B45309" />
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#92400E' }}>
+            <AlertTriangle size={16} color="var(--c-warning-strong)" />
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-warning-strong)' }}>
               {expiringSoon.length} batch{expiringSoon.length === 1 ? '' : 'es'} expiring within {EXPIRY_WARN_DAYS} days
             </span>
           </div>
@@ -120,7 +120,7 @@ export default function FieldStock() {
             </div>
           ))}
           {expiringSoon.length > 6 && (
-            <div style={{ fontSize: 11, color: '#92400E', marginTop: 6, opacity: 0.8 }}>
+            <div style={{ fontSize: 11, color: 'var(--c-warning-strong)', marginTop: 6, opacity: 0.8 }}>
               + {expiringSoon.length - 6} more
             </div>
           )}
@@ -128,7 +128,7 @@ export default function FieldStock() {
       )}
 
       {locations.length === 0 ? (
-        <div style={{ ...S.card, textAlign: 'center', color: '#64748B' }}>
+        <div style={{ ...S.card, textAlign: 'center', color: 'var(--c-muted)' }}>
           No locations yet — set up a depot first.
         </div>
       ) : locations.map(loc => {
@@ -143,17 +143,17 @@ export default function FieldStock() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Icon size={18} color={meta.color} />
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A' }}>{loc.name}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-ink)' }}>{loc.name}</div>
                   <div style={{ fontSize: 11, color: meta.color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{meta.label}</div>
                 </div>
               </div>
-              <span style={{ fontSize: 12, color: '#64748B' }}>
+              <span style={{ fontSize: 12, color: 'var(--c-muted)' }}>
                 {loc.lines.length} line{loc.lines.length === 1 ? '' : 's'}
               </span>
             </div>
 
             {loc.lines.length === 0 ? (
-              <p style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', padding: '12px 0', margin: 0 }}>
+              <p style={{ color: 'var(--c-faint)', fontSize: 13, textAlign: 'center', padding: '12px 0', margin: 0 }}>
                 {loc.type === 'van' ? 'Van is empty — nothing loaded.' : 'No stock here.'}
               </p>
             ) : (
@@ -162,17 +162,17 @@ export default function FieldStock() {
                   const d = daysUntil(l.expiryDate);
                   const warn = d !== null && d <= EXPIRY_WARN_DAYS;
                   return (
-                    <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 6 }}>
+                    <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 6 }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.productName}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
                         {l.batchNo && (
-                          <div style={{ fontSize: 11, color: warn ? '#B45309' : '#64748B', fontWeight: warn ? 700 : 400 }}>
+                          <div style={{ fontSize: 11, color: warn ? 'var(--c-warning-strong)' : 'var(--c-muted)', fontWeight: warn ? 700 : 400 }}>
                             Batch {l.batchNo}
                             {l.expiryDate && ` · exp ${new Date(l.expiryDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`}
                           </div>
                         )}
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#059669', whiteSpace: 'nowrap', marginLeft: 12 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-success-strong)', whiteSpace: 'nowrap', marginLeft: 12 }}>
                         {describeQty(l)}
                       </span>
                     </div>
@@ -181,16 +181,16 @@ export default function FieldStock() {
 
                 {held.length > 0 && (
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #FECACA' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#B91C1C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--c-danger-strong)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Package size={12} /> Not for sale
                     </div>
                     {held.map(l => (
-                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
+                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: 'var(--c-danger-soft)', border: '1px solid #FECACA', borderRadius: 8, marginBottom: 6 }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{l.productName}</div>
-                          <div style={{ fontSize: 11, color: '#B91C1C', textTransform: 'capitalize' }}>{l.condition}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{l.productName}</div>
+                          <div style={{ fontSize: 11, color: 'var(--c-danger-strong)', textTransform: 'capitalize' }}>{l.condition}</div>
                         </div>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#B91C1C', whiteSpace: 'nowrap', marginLeft: 12 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-danger-strong)', whiteSpace: 'nowrap', marginLeft: 12 }}>
                           {describeQty(l)}
                         </span>
                       </div>

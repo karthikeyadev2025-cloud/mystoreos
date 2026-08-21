@@ -23,7 +23,7 @@ export async function setStatusBarDark() {
   if (!isNative()) return;
   try {
     await StatusBar.setStyle({ style: Style.Dark });
-    if (isAndroid()) await StatusBar.setBackgroundColor({ color: '#0f172a' });
+    if (isAndroid()) await StatusBar.setBackgroundColor({ color: '#0B1F33' });
   } catch { /* status bar API unavailable on this platform — non-critical */ }
 }
 

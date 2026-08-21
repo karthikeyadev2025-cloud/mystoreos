@@ -4,9 +4,9 @@ import { api } from '../../lib/api';
 import { toast } from 'react-toastify';
 
 const S = {
-  card: { background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
-  input: { background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', padding: '9px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
-  dlBtn: (busy, color = '#4f46e5') => ({ background: busy ? '#f1f5f9' : `${color}10`, border: `1px solid ${busy ? '#cbd5e1' : color + '30'}`, color: busy ? '#64748b' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
+  card: { background: 'var(--c-surface)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' },
+  input: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '8px', color: 'var(--c-ink)', padding: '9px 12px', fontSize: '13px', fontFamily: 'Plus Jakarta Sans, sans-serif', outline: 'none' },
+  dlBtn: (busy, color = 'var(--c-primary)') => ({ background: busy ? 'var(--c-line-soft)' : `${color}10`, border: `1px solid ${busy ? 'var(--c-line-strong)' : color + '30'}`, color: busy ? 'var(--c-muted)' : color, borderRadius: '8px', padding: '10px 18px', cursor: busy ? 'default' : 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }),
 };
 
 function downloadCSV(csv, filename) {
@@ -25,8 +25,8 @@ function ExportCard({ icon: Icon, title, description, color, action, children })
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
         <div style={{ background: `${color}15`, borderRadius: '10px', padding: '10px', display: 'flex', flexShrink: 0 }}><Icon size={18} color={color} /></div>
         <div style={{ flex: 1 }}>
-          <div style={{ color: '#0f172a', fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>{title}</div>
-          <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '14px' }}>{description}</div>
+          <div style={{ color: 'var(--c-ink)', fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>{title}</div>
+          <div style={{ color: 'var(--c-muted)', fontSize: '12px', marginBottom: '14px' }}>{description}</div>
           {children}
           <div style={{ marginTop: '14px' }}>{action}</div>
         </div>
@@ -105,51 +105,51 @@ export default function TabExports() {
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: "#10B98115", border: "1px solid #10B98130", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Download size={22} color="#10B981" />
+            <Download size={22} color="var(--c-success)" />
           </div>
           <div>
-            <h2 style={{ color: "#0F172A", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Data Exports</h2>
-            <p style={{ color: "#64748B", fontSize: 13, margin: "4px 0 0 0" }}>Download CSV snapshots of shops, users, orders, credits, and distributors</p>
+            <h2 style={{ color: "var(--c-ink)", fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>Data Exports</h2>
+            <p style={{ color: "var(--c-muted)", fontSize: 13, margin: "4px 0 0 0" }}>Download CSV snapshots of shops, users, orders, credits, and distributors</p>
           </div>
         </div>
-        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>Download platform data as UTF-8 CSV (Telugu name safe)</p>
+        <p style={{ color: 'var(--c-muted)', fontSize: '13px', marginTop: '4px' }}>Download platform data as UTF-8 CSV (Telugu name safe)</p>
       </div>
 
-      <ExportCard icon={Users} title="All Users" description="Full user directory across all roles with subscription and join date." color="#3b82f6"
-        action={<button onClick={exportUsers} disabled={busy.users} style={S.dlBtn(busy.users, '#3b82f6')}><Download size={14} />{busy.users ? 'Exporting...' : 'Download Users CSV'}</button>}
+      <ExportCard icon={Users} title="All Users" description="Full user directory across all roles with subscription and join date." color="var(--c-info)"
+        action={<button onClick={exportUsers} disabled={busy.users} style={S.dlBtn(busy.users, 'var(--c-info)')}><Download size={14} />{busy.users ? 'Exporting...' : 'Download Users CSV'}</button>}
       />
 
       <ExportCard icon={Store} title="Shops Only" description="All shop accounts with GSTIN, location, and subscription tier." color="#f43f5e"
         action={<button onClick={exportShops} disabled={busy.shops} style={S.dlBtn(busy.shops, '#f43f5e')}><Download size={14} />{busy.shops ? 'Exporting...' : 'Download Shops CSV'}</button>}
       />
 
-      <ExportCard icon={Truck} title="Distributors" description="All distributor accounts with plan tier and status." color="#10b981"
-        action={<button onClick={exportDistributors} disabled={busy.distributors} style={S.dlBtn(busy.distributors, '#10b981')}><Download size={14} />{busy.distributors ? 'Exporting...' : 'Download Distributors CSV'}</button>}
+      <ExportCard icon={Truck} title="Distributors" description="All distributor accounts with plan tier and status." color="var(--c-success)"
+        action={<button onClick={exportDistributors} disabled={busy.distributors} style={S.dlBtn(busy.distributors, 'var(--c-success)')}><Download size={14} />{busy.distributors ? 'Exporting...' : 'Download Distributors CSV'}</button>}
       />
 
       <ExportCard icon={ShoppingCart} title="Orders" description="All transactions with optional date range filter." color="#8b5cf6"
         action={<button onClick={exportOrders} disabled={busy.orders} style={S.dlBtn(busy.orders, '#8b5cf6')}><Download size={14} />{busy.orders ? 'Exporting...' : 'Download Orders CSV'}</button>}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div>
-            <label style={{ color: '#475569', fontSize: '11px', display: 'block', marginBottom: '4px' }}>From</label>
+            <label style={{ color: 'var(--c-ink-2)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>From</label>
             <input type="date" value={dateRange.start} onChange={e => setDateRange(r => ({ ...r, start: e.target.value }))} style={S.input} />
           </div>
           <div>
-            <label style={{ color: '#475569', fontSize: '11px', display: 'block', marginBottom: '4px' }}>To</label>
+            <label style={{ color: 'var(--c-ink-2)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>To</label>
             <input type="date" value={dateRange.end} onChange={e => setDateRange(r => ({ ...r, end: e.target.value }))} style={S.input} />
           </div>
           {(dateRange.start || dateRange.end) && (
-            <button onClick={() => setDateRange({ start: '', end: '' })} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', marginTop: '16px', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Clear</button>
+            <button onClick={() => setDateRange({ start: '', end: '' })} style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', marginTop: '16px', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Clear</button>
           )}
         </div>
       </ExportCard>
 
-      <ExportCard icon={CreditCard} title="Credits & Ledger" description="All credit entries between distributors and shops (paid/unpaid)." color="#f59e0b"
-        action={<button onClick={exportCredits} disabled={busy.credits} style={S.dlBtn(busy.credits, '#f59e0b')}><Download size={14} />{busy.credits ? 'Exporting...' : 'Download Credits CSV'}</button>}
+      <ExportCard icon={CreditCard} title="Credits & Ledger" description="All credit entries between distributors and shops (paid/unpaid)." color="var(--c-warning)"
+        action={<button onClick={exportCredits} disabled={busy.credits} style={S.dlBtn(busy.credits, 'var(--c-warning)')}><Download size={14} />{busy.credits ? 'Exporting...' : 'Download Credits CSV'}</button>}
       />
 
-      <ExportCard icon={FileText} title="Expired Trials" description="All shop accounts whose 7-day trial has expired without upgrading." color="#ef4444"
-        action={<button onClick={exportExpiredTrials} disabled={busy.trials} style={S.dlBtn(busy.trials, '#ef4444')}><Download size={14} />{busy.trials ? 'Exporting...' : 'Download Expired Trials CSV'}</button>}
+      <ExportCard icon={FileText} title="Expired Trials" description="All shop accounts whose 7-day trial has expired without upgrading." color="var(--c-danger)"
+        action={<button onClick={exportExpiredTrials} disabled={busy.trials} style={S.dlBtn(busy.trials, 'var(--c-danger)')}><Download size={14} />{busy.trials ? 'Exporting...' : 'Download Expired Trials CSV'}</button>}
       />
     </div>
   );

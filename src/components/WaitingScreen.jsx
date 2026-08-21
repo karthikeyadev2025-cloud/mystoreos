@@ -29,21 +29,21 @@ function ProgressStepper() {
         return (
           <div key={s.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              {i > 0 && <div style={{ flex: 1, height: '2px', background: done ? '#10b981' : active ? 'linear-gradient(90deg,#10b981,#f59e0b)' : 'rgba(255,255,255,0.1)' }} />}
+              {i > 0 && <div style={{ flex: 1, height: '2px', background: done ? 'var(--c-success)' : active ? 'linear-gradient(90deg,var(--c-success),var(--c-warning))' : 'rgba(255,255,255,0.1)' }} />}
               <div style={{
                 width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                background: done ? '#10b981' : active ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)',
-                border: done ? '2px solid #10b981' : active ? '2px solid #f59e0b' : '2px solid rgba(255,255,255,0.15)',
+                background: done ? 'var(--c-success)' : active ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)',
+                border: done ? '2px solid var(--c-success)' : active ? '2px solid var(--c-warning)' : '2px solid rgba(255,255,255,0.15)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 animation: active ? 'pulse 2s infinite' : 'none',
               }}>
-                {done ? <CheckCircle size={18} color="#10b981" /> : active ? <Clock size={18} color="#f59e0b" /> : <Circle size={18} color="rgba(255,255,255,0.2)" />}
+                {done ? <CheckCircle size={18} color="var(--c-success)" /> : active ? <Clock size={18} color="var(--c-warning)" /> : <Circle size={18} color="rgba(255,255,255,0.2)" />}
               </div>
               {!last && <div style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.1)' }} />}
             </div>
             <div style={{ marginTop: 10, textAlign: 'center', padding: '0 4px' }}>
-              <div style={{ color: done ? '#10b981' : active ? '#f59e0b' : '#64748b', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</div>
-              <div style={{ color: '#475569', fontSize: '10px', marginTop: 2 }}>{s.sub}</div>
+              <div style={{ color: done ? 'var(--c-success)' : active ? 'var(--c-warning)' : 'var(--c-muted)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</div>
+              <div style={{ color: 'var(--c-ink-2)', fontSize: '10px', marginTop: 2 }}>{s.sub}</div>
             </div>
           </div>
         );
@@ -92,10 +92,10 @@ export default function WaitingScreen() {
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 8 }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,rgba(245,158,11,0.2),rgba(139,92,246,0.2))', border: '2px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <RoleIcon size={30} color="#f59e0b" />
+              <RoleIcon size={30} color="var(--c-warning)" />
             </div>
-            <h1 style={{ fontSize: '22px', color: '#f8fafc', margin: '0 0 6px', fontWeight: 900 }}>Application Under Review</h1>
-            <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>
+            <h1 style={{ fontSize: '22px', color: 'var(--c-bg)', margin: '0 0 6px', fontWeight: 900 }}>Application Under Review</h1>
+            <p style={{ color: 'var(--c-faint)', margin: 0, fontSize: '14px' }}>
               <span style={{ color: '#fbbf24', fontWeight: 700 }}>{user?.name || 'Your business'}</span> is pending admin approval
             </p>
           </div>
@@ -105,23 +105,23 @@ export default function WaitingScreen() {
           {/* Info box */}
           <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '12px', padding: '14px 16px', marginBottom: 20 }}>
             <div style={{ color: '#fbbf24', fontSize: '13px', fontWeight: 700, marginBottom: 6 }}>What happens next?</div>
-            <ul style={{ color: '#94a3b8', fontSize: '12px', margin: 0, paddingLeft: '16px', lineHeight: '1.8' }}>
+            <ul style={{ color: 'var(--c-faint)', fontSize: '12px', margin: 0, paddingLeft: '16px', lineHeight: '1.8' }}>
               <li>Admin reviews your registration details</li>
               <li>Usually approved within 24 hours</li>
-              <li>You'll receive a WhatsApp notification on <strong style={{ color: '#cbd5e1' }}>{user?.phone}</strong></li>
+              <li>You'll receive a WhatsApp notification on <strong style={{ color: 'var(--c-line-strong)' }}>{user?.phone}</strong></li>
             </ul>
           </div>
 
           {feedback && (
-            <div style={{ background: 'rgba(100,116,139,0.15)', border: '1px solid rgba(100,116,139,0.3)', borderRadius: '10px', padding: '10px 14px', marginBottom: 16, color: '#94a3b8', fontSize: '13px', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(100,116,139,0.15)', border: '1px solid rgba(100,116,139,0.3)', borderRadius: '10px', padding: '10px 14px', marginBottom: 16, color: 'var(--c-faint)', fontSize: '13px', textAlign: 'center' }}>
               {feedback}
             </div>
           )}
 
           {/* Refresh button */}
           <button onClick={handleRefresh} disabled={checking} style={{
-            width: '100%', padding: '14px', background: checking ? 'rgba(245,158,11,0.1)' : 'linear-gradient(135deg,#f59e0b,#d97706)',
-            color: checking ? '#f59e0b' : '#000', border: checking ? '1px solid rgba(245,158,11,0.4)' : 'none',
+            width: '100%', padding: '14px', background: checking ? 'rgba(245,158,11,0.1)' : 'linear-gradient(135deg,var(--c-warning),var(--c-accent-hover))',
+            color: checking ? 'var(--c-warning)' : '#000', border: checking ? '1px solid rgba(245,158,11,0.4)' : 'none',
             borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: checking ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: 12,
             transition: 'all 0.2s',

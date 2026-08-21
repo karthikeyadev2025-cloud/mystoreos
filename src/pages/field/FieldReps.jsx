@@ -133,34 +133,34 @@ export default function FieldReps() {
   };
 
   const S = {
-    card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
-    input: { width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
-    label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4 },
+    card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 12, padding: 20, boxShadow: '0 1px 2px rgba(15,23,42,0.06)', marginBottom: 16 },
+    input: { width: '100%', padding: '10px 12px', border: '1px solid var(--c-line)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' },
+    label: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', marginBottom: 4 },
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-muted)' }}>Loading…</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 900, margin: '0 auto', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <ToastContainer theme="light" position="top-center" />
 
       <button onClick={() => navigate('/field/setup')}
-        style={{ background: 'none', border: 'none', color: '#4F46E5', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
+        style={{ background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: 0 }}>
         <ArrowLeft size={15} /> Field Setup
       </button>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 4px' }}>Field Reps</h1>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 900, color: 'var(--c-ink)', margin: '0 0 4px' }}>Field Reps</h1>
+      <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '0 0 20px' }}>
         Assign your staff to depots and vans. A rep must already be added as staff in Distributor Settings.
       </p>
 
       <div style={S.card}>
-        <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Users size={16} color="#4F46E5" /> Assign a Staff Member
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Users size={16} color="var(--c-primary)" /> Assign a Staff Member
         </h2>
 
         {unassigned.length === 0 ? (
-          <p style={{ fontSize: 12, color: '#94A3B8' }}>
+          <p style={{ fontSize: 12, color: 'var(--c-faint)' }}>
             No unassigned staff. Add staff in Distributor Settings first, then assign them here.
           </p>
         ) : (
@@ -195,7 +195,7 @@ export default function FieldReps() {
               </div>
             </div>
             <button onClick={assign} disabled={busy}
-              style={{ background: '#4F46E5', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+              style={{ background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
               Assign to Field Work
             </button>
           </>
@@ -203,30 +203,30 @@ export default function FieldReps() {
       </div>
 
       <div style={S.card}>
-        <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', margin: '0 0 14px' }}>Active Field Team ({reps.length})</h2>
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-ink)', margin: '0 0 14px' }}>Active Field Team ({reps.length})</h2>
         {reps.length === 0 ? (
-          <p style={{ fontSize: 12, color: '#94A3B8' }}>No one assigned to field work yet.</p>
+          <p style={{ fontSize: 12, color: 'var(--c-faint)' }}>No one assigned to field work yet.</p>
         ) : reps.map(rep => (
-          <div key={rep.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+          <div key={rep.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 8, marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
             {editingId === rep.userId ? (
               <div style={{ display: 'flex', gap: 8, flex: 1, minWidth: 240, flexWrap: 'wrap' }}>
                 <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Name"
-                  style={{ flex: 1, padding: '7px 10px', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12 }} />
+                  style={{ flex: 1, padding: '7px 10px', border: '1px solid var(--c-primary-border)', borderRadius: 6, fontSize: 12 }} />
                 <input value={editPhone} onChange={e => setEditPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  inputMode="numeric" placeholder="Phone" style={{ width: 110, padding: '7px 10px', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12 }} />
-                <button onClick={saveEdit} disabled={busy} style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
+                  inputMode="numeric" placeholder="Phone" style={{ width: 110, padding: '7px 10px', border: '1px solid var(--c-primary-border)', borderRadius: 6, fontSize: 12 }} />
+                <button onClick={saveEdit} disabled={busy} style={{ background: 'var(--c-success-strong)', color: 'var(--c-surface)', border: 'none', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
                   <Check size={12} />
                 </button>
-                <button onClick={() => setEditingId(null)} style={{ background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
+                <button onClick={() => setEditingId(null)} style={{ background: 'var(--c-line-soft)', color: 'var(--c-muted)', border: '1px solid var(--c-line)', borderRadius: 6, padding: '7px 10px', cursor: 'pointer' }}>
                   <X size={12} />
                 </button>
               </div>
             ) : (
               <>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{rep.name}</div>
-                  <div style={{ fontSize: 11, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                    <span style={{ background: '#EEF2FF', color: '#4338CA', padding: '2px 8px', borderRadius: 10, fontWeight: 700, fontSize: 10 }}>{ROLE_LABEL[rep.fieldRole]}</span>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-ink)' }}>{rep.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-muted)', display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                    <span style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', padding: '2px 8px', borderRadius: 10, fontWeight: 700, fontSize: 10 }}>{ROLE_LABEL[rep.fieldRole]}</span>
                     {/* Was invisible on this screen entirely — no way to
                         even SEE a rep's phone here, let alone fix it. */}
                     {rep.phone && <span>{rep.phone}</span>}
@@ -235,14 +235,14 @@ export default function FieldReps() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <select value={rep.assignedVehicleId || ''} onChange={e => reassignVehicle(rep, e.target.value)}
-                    style={{ padding: '7px 10px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12 }}>
+                    style={{ padding: '7px 10px', border: '1px solid var(--c-line)', borderRadius: 6, fontSize: 12 }}>
                     <option value="">No vehicle</option>
                     {vehicles.map(v => <option key={v.id} value={v.id}>{v.code}</option>)}
                   </select>
-                  <button onClick={() => startEdit(rep)} style={{ background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => startEdit(rep)} style={{ background: 'var(--c-primary-soft)', color: 'var(--c-primary-hover)', border: '1px solid var(--c-primary-border)', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
                     <Pencil size={12} />
                   </button>
-                  <button onClick={() => remove(rep)} style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => remove(rep)} style={{ background: 'var(--c-danger-soft)', color: 'var(--c-danger-strong)', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 8px', cursor: 'pointer' }}>
                     <X size={12} />
                   </button>
                 </div>

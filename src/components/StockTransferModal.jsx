@@ -131,18 +131,18 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1500, padding: 16 }}>
-      <div style={{ background: '#FFFFFF', borderRadius: 16, padding: 0, maxWidth: 620, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 16, padding: 0, maxWidth: 620, width: '100%', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Package size={17} style={{ color: '#4F46E5' }} /> Transfer Stock Between Branches
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Package size={17} style={{ color: 'var(--c-primary)' }} /> Transfer Stock Between Branches
             </h3>
-            <p style={{ margin: '4px 0 0', fontSize: 11.5, color: '#64748B' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 11.5, color: 'var(--c-muted)' }}>
               Move inventory atomically + record a voucher for your audit trail.
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 6 }}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', padding: 6 }}>
             <X size={18} />
           </button>
         </div>
@@ -152,7 +152,7 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
           {/* From/To pickers */}
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 180 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: 0.3, marginBottom: 5 }}>FROM</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', letterSpacing: 0.3, marginBottom: 5 }}>FROM</label>
               <select
                 value={fromShopId}
                 onChange={e => setFromShopId(e.target.value)}
@@ -163,15 +163,15 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
                 ))}
               </select>
             </div>
-            <div style={{ alignSelf: 'center', paddingBottom: 8, color: '#4F46E5' }}>
+            <div style={{ alignSelf: 'center', paddingBottom: 8, color: 'var(--c-primary)' }}>
               <ArrowRight size={20} />
             </div>
             <div style={{ flex: 1, minWidth: 180 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: 0.3, marginBottom: 5 }}>TO</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', letterSpacing: 0.3, marginBottom: 5 }}>TO</label>
               <select
                 value={toShopId}
                 onChange={e => setToShopId(e.target.value)}
-                style={{ ...inputStyle, borderColor: sameShopError ? '#DC2626' : '#E2E8F0' }}
+                style={{ ...inputStyle, borderColor: sameShopError ? 'var(--c-danger-strong)' : 'var(--c-line)' }}
               >
                 <option value="">— Pick destination —</option>
                 {eligibleBranches.filter(b => b.id !== fromShopId).map(b => (
@@ -181,14 +181,14 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
             </div>
           </div>
           {sameShopError && (
-            <div style={{ fontSize: 11.5, color: '#DC2626', marginBottom: 10, padding: '6px 10px', background: '#FEF2F2', borderRadius: 7 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--c-danger-strong)', marginBottom: 10, padding: '6px 10px', background: 'var(--c-danger-soft)', borderRadius: 7 }}>
               Pick two DIFFERENT branches.
             </div>
           )}
 
           {/* Product list */}
           <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: 0.3, marginBottom: 5 }}>PRODUCTS · {totalProducts} picked, {totalQty} units</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', letterSpacing: 0.3, marginBottom: 5 }}>PRODUCTS · {totalProducts} picked, {totalQty} units</label>
             <input
               type="text"
               placeholder="Search products by name or barcode…"
@@ -196,13 +196,13 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
               onChange={e => setSearchTerm(e.target.value)}
               style={{ ...inputStyle, marginBottom: 8 }}
             />
-            <div style={{ border: '1px solid #E2E8F0', borderRadius: 9, maxHeight: 280, overflowY: 'auto' }}>
+            <div style={{ border: '1px solid var(--c-line)', borderRadius: 9, maxHeight: 280, overflowY: 'auto' }}>
               {loadingProducts ? (
-                <div style={{ padding: 20, textAlign: 'center', color: '#64748B', fontSize: 12 }}>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--c-muted)', fontSize: 12 }}>
                   <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Loading source products…
                 </div>
               ) : filteredProducts.length === 0 ? (
-                <div style={{ padding: 20, textAlign: 'center', color: '#64748B', fontSize: 12 }}>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--c-muted)', fontSize: 12 }}>
                   {sourceProducts.length === 0
                     ? 'Source branch has no products in stock to transfer.'
                     : `No products match "${searchTerm}".`}
@@ -211,13 +211,13 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
                 filteredProducts.map(p => {
                   const q = qtyMap[p.id] || 0;
                   return (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderBottom: '1px solid var(--c-line-soft)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                        <div style={{ fontSize: 10.5, color: '#64748B', marginTop: 1 }}>
-                          Stock: <b style={{ color: q > 0 ? '#4F46E5' : '#475569' }}>{p.stock}</b>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                        <div style={{ fontSize: 10.5, color: 'var(--c-muted)', marginTop: 1 }}>
+                          Stock: <b style={{ color: q > 0 ? 'var(--c-primary)' : 'var(--c-ink-2)' }}>{p.stock}</b>
                           {p.barcode ? ` · ${p.barcode}` : ''}
-                          {q > 0 && <span style={{ color: '#16A34A', fontWeight: 700 }}> · sending {q}</span>}
+                          {q > 0 && <span style={{ color: 'var(--c-success-strong)', fontWeight: 700 }}> · sending {q}</span>}
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -233,7 +233,7 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
                           placeholder="0"
                           min={0}
                           max={p.stock}
-                          style={{ width: 56, padding: '5px 6px', textAlign: 'center', border: '1.5px solid #E2E8F0', borderRadius: 7, fontSize: 12.5, fontWeight: 700 }}
+                          style={{ width: 56, padding: '5px 6px', textAlign: 'center', border: '1.5px solid var(--c-line)', borderRadius: 7, fontSize: 12.5, fontWeight: 700 }}
                         />
                         <button
                           onClick={() => setQty(p.id, q + 1)}
@@ -250,7 +250,7 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
 
           {/* Optional note */}
           <div>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: 0.3, marginBottom: 5 }}>NOTE (optional)</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--c-ink-2)', letterSpacing: 0.3, marginBottom: 5 }}>NOTE (optional)</label>
             <input
               type="text"
               value={note}
@@ -263,11 +263,11 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
         </div>
 
         {/* Sticky footer */}
-        <div style={{ padding: 14, borderTop: '1px solid #E2E8F0', display: 'flex', gap: 8 }}>
+        <div style={{ padding: 14, borderTop: '1px solid var(--c-line)', display: 'flex', gap: 8 }}>
           <button
             onClick={onClose}
             disabled={submitting}
-            style={{ flex: 1, background: '#F1F5F9', color: '#475569', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 1, background: 'var(--c-line-soft)', color: 'var(--c-ink-2)', border: 'none', padding: '11px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer' }}
           >
             Cancel
           </button>
@@ -276,8 +276,8 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
             disabled={!canSubmit}
             style={{
               flex: 2,
-              background: canSubmit ? 'linear-gradient(135deg,#4F46E5,#4338CA)' : '#94A3B8',
-              color: '#fff',
+              background: canSubmit ? 'linear-gradient(135deg,var(--c-primary),var(--c-primary-hover))' : 'var(--c-faint)',
+              color: 'var(--c-surface)',
               border: 'none',
               padding: '11px',
               borderRadius: 9,
@@ -297,10 +297,10 @@ export default function StockTransferModal({ ownerId, branches, onClose, onCompl
 const inputStyle = {
   width: '100%',
   padding: '9px 12px',
-  border: '1.5px solid #E2E8F0',
+  border: '1.5px solid var(--c-line)',
   borderRadius: 9,
   fontSize: 13,
-  color: '#0F172A',
+  color: 'var(--c-ink)',
   outline: 'none',
   fontFamily: 'inherit',
   boxSizing: 'border-box',
@@ -309,7 +309,7 @@ const inputStyle = {
 const qtyBtnStyle = (disabled) => ({
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   width: 28, height: 28, borderRadius: 7,
-  background: disabled ? '#F1F5F9' : '#EEF2FF',
-  color: disabled ? '#94A3B8' : '#4F46E5',
+  background: disabled ? 'var(--c-line-soft)' : 'var(--c-primary-soft)',
+  color: disabled ? 'var(--c-faint)' : 'var(--c-primary)',
   border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
 });

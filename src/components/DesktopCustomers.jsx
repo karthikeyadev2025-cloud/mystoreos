@@ -11,21 +11,21 @@ function getSegment(c) {
   const allDates = c.orders.map(o => new Date(o.date));
   const lastDate = allDates.length ? new Date(Math.max(...allDates)) : null;
   const isNew = c.orders.every(o => new Date(o.date) >= monthStart);
-  if (thisMonthSpend >= 5000) return { label: 'VIP', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' };
+  if (thisMonthSpend >= 5000) return { label: 'VIP', color: 'var(--c-warning-strong)', bg: 'var(--c-warning-soft)', border: '#FDE68A' };
   if (thisMonthOrders.length >= 3) return { label: '🔄 Regular', color: '#1D4ED8', bg: '#DBEAFE', border: '#BFDBFE' };
-  if (isNew && c.orders.length > 0) return { label: '🆕 New', color: '#047857', bg: '#D1FAE5', border: '#A7F3D0' };
-  if (!lastDate || lastDate < thirtyAgo) return { label: '⚠️ At-risk', color: '#B91C1C', bg: '#FEE2E2', border: '#FCA5A5' };
+  if (isNew && c.orders.length > 0) return { label: '🆕 New', color: '#047857', bg: 'var(--c-success-soft)', border: '#A7F3D0' };
+  if (!lastDate || lastDate < thirtyAgo) return { label: '⚠️ At-risk', color: 'var(--c-danger-strong)', bg: 'var(--c-danger-soft)', border: 'var(--c-danger-border)' };
   return null;
 }
 
 const StatCard = ({ icon, value, label, color }) => (
-  <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', padding: '14px', display: 'flex', gap: '12px', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
     <div style={{ background: `${color}18`, color, width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       {icon}
     </div>
     <div>
-      <h4 style={{ margin: 0, fontSize: '18px', color: '#0F172A', fontWeight: '800' }}>{value}</h4>
-      <p style={{ margin: 0, fontSize: '11px', color: '#475569' }}>{label}</p>
+      <h4 style={{ margin: 0, fontSize: '18px', color: 'var(--c-ink)', fontWeight: '800' }}>{value}</h4>
+      <p style={{ margin: 0, fontSize: '11px', color: 'var(--c-ink-2)' }}>{label}</p>
     </div>
   </div>
 );
@@ -82,15 +82,15 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
   const vipCustomers = useMemo(() => customers.filter(c => getSegment(c)?.label === 'VIP'), [customers]);
 
   return (
-    <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
+    <div className="premium-glass" style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--c-line)', background: 'var(--c-surface)' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={22} color="#64748B" /> Customer CRM
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'var(--c-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users size={22} color="var(--c-muted)" /> Customer CRM
           </h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#475569' }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--c-ink-2)' }}>
             {customers.length} unique customers tracked from billing history
           </p>
         </div>
@@ -98,17 +98,17 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
           {vipCustomers.length > 0 && (
             <button
               onClick={() => setShowVipPanel(v => !v)}
-              style={{ background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A', padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', border: '1px solid #FDE68A', padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <MessageSquare size={14} /> WhatsApp VIP ({vipCustomers.length})
             </button>
           )}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#FFFFFF', borderRadius: '10px', padding: '2px 12px', border: '1px solid #E2E8F0', width: '260px' }}>
-            <Search size={16} color="#64748B" />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'var(--c-surface)', borderRadius: '10px', padding: '2px 12px', border: '1px solid var(--c-line)', width: '260px' }}>
+            <Search size={16} color="var(--c-muted)" />
             <input
               type="text" placeholder="Search by name or phone..."
               value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: '#0F172A', outline: 'none', fontSize: '13px' }}
+              style={{ background: 'transparent', border: 'none', margin: 0, width: '100%', padding: '10px 0', color: 'var(--c-ink)', outline: 'none', fontSize: '13px' }}
             />
           </div>
         </div>
@@ -116,8 +116,8 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
       {/* VIP bulk-message panel */}
       {showVipPanel && vipCustomers.length > 0 && (
-        <div style={{ marginBottom: '20px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '16px' }}>
-          <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: '#B45309' }}>VIP Customers — Send WhatsApp</h4>
+        <div style={{ marginBottom: '20px', background: 'var(--c-warning-soft)', border: '1px solid #FDE68A', borderRadius: '12px', padding: '16px' }}>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '800', color: 'var(--c-warning-strong)' }}>VIP Customers — Send WhatsApp</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {vipCustomers.map(c => (
               <button
@@ -138,19 +138,19 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard icon={<Users size={18} />} value={customers.length} label="Total Customers" color="#3B82F6" />
-        <StatCard icon={<ShoppingBag size={18} />} value={`₹${totalRevenue.toLocaleString('en-IN')}`} label="Total Revenue" color="#10B981" />
-        <StatCard icon={<Star size={18} />} value={highValueCount} label="High-Value (₹1000+)" color="#F59E0B" />
+        <StatCard icon={<Users size={18} />} value={customers.length} label="Total Customers" color="var(--c-info)" />
+        <StatCard icon={<ShoppingBag size={18} />} value={`₹${totalRevenue.toLocaleString('en-IN')}`} label="Total Revenue" color="var(--c-success)" />
+        <StatCard icon={<Star size={18} />} value={highValueCount} label="High-Value (₹1000+)" color="var(--c-warning)" />
       </div>
 
       {/* Customer list */}
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <Users size={48} color="#475569" style={{ opacity: 0.15, marginBottom: '16px', display: 'block', margin: '0 auto 16px' }} />
-          <h3 style={{ color: '#0F172A', margin: '0 0 6px 0' }}>
+          <Users size={48} color="var(--c-ink-2)" style={{ opacity: 0.15, marginBottom: '16px', display: 'block', margin: '0 auto 16px' }} />
+          <h3 style={{ color: 'var(--c-ink)', margin: '0 0 6px 0' }}>
             {customers.length === 0 ? 'No Customers Yet' : 'No Results Found'}
           </h3>
-          <p style={{ color: '#475569', fontSize: '13px', margin: 0 }}>
+          <p style={{ color: 'var(--c-ink-2)', fontSize: '13px', margin: 0 }}>
             {customers.length === 0
               ? 'Customers appear here after you enter their name while billing.'
               : 'Try a different search term.'}
@@ -169,7 +169,7 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
             const segment = getSegment(c);
 
             return (
-              <div key={key} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
+              <div key={key} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.2s', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' }}>
                 {/* Summary row */}
                 <div
                   style={{ padding: '14px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px' }}
@@ -181,22 +181,22 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <h4 style={{ margin: 0, fontSize: '14px', color: '#0F172A', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</h4>
+                      <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--c-ink)', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</h4>
                       {segment && (
                         <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', background: segment.bg, color: segment.color, border: `1px solid ${segment.border}`, fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0 }}>
                           {segment.label}
                         </span>
                       )}
                     </div>
-                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#475569' }}>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--c-ink-2)' }}>
                       {c.phone ? c.phone : 'No phone'} · Last visit: {lastOrder?.date ? new Date(lastOrder.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
                     </p>
                   </div>
 
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexShrink: 0 }}>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#059669' }}>₹{c.totalSpend.toLocaleString('en-IN')}</p>
-                      <p style={{ margin: 0, fontSize: '10px', color: '#64748B' }}>{c.orders.length} order{c.orders.length !== 1 ? 's' : ''}</p>
+                      <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: 'var(--c-success-strong)' }}>₹{c.totalSpend.toLocaleString('en-IN')}</p>
+                      <p style={{ margin: 0, fontSize: '10px', color: 'var(--c-muted)' }}>{c.orders.length} order{c.orders.length !== 1 ? 's' : ''}</p>
                     </div>
 
                     {pts > 0 && (
@@ -219,33 +219,33 @@ const DesktopCustomers = ({ orders, targetShopId }) => {
                       </button>
                     )}
 
-                    {isExpanded ? <ChevronUp size={16} color="#64748B" /> : <ChevronDown size={16} color="#64748B" />}
+                    {isExpanded ? <ChevronUp size={16} color="var(--c-muted)" /> : <ChevronDown size={16} color="var(--c-muted)" />}
                   </div>
                 </div>
 
                 {/* Expanded order history */}
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid #E2E8F0', padding: '16px 20px', background: '#F8FAFC' }}>
-                    <h5 style={{ margin: '0 0 12px 0', fontSize: '11px', color: '#475569', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <div style={{ borderTop: '1px solid var(--c-line)', padding: '16px 20px', background: 'var(--c-bg)' }}>
+                    <h5 style={{ margin: '0 0 12px 0', fontSize: '11px', color: 'var(--c-ink-2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       Order History ({c.orders.length})
                     </h5>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '220px', overflowY: 'auto' }}>
                       {sortedOrders.map(order => (
-                        <div key={order.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', borderRadius: '8px', padding: '8px 12px', border: '1px solid #E2E8F0' }}>
+                        <div key={order.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--c-surface)', borderRadius: '8px', padding: '8px 12px', border: '1px solid var(--c-line)' }}>
                           <div style={{ flex: 1, minWidth: 0, marginRight: '12px' }}>
-                            <p style={{ margin: 0, fontSize: '12px', color: '#0F172A', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <p style={{ margin: 0, fontSize: '12px', color: 'var(--c-ink)', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {order.items?.map(i => i.name).join(', ') || 'Custom Order'}
                             </p>
-                            <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: '#64748B' }}>
+                            <p style={{ margin: '2px 0 0 0', fontSize: '10px', color: 'var(--c-muted)' }}>
                               {order.date ? new Date(order.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                             </p>
                           </div>
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#059669' }}>₹{order.total}</p>
+                            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: 'var(--c-success-strong)' }}>₹{order.total}</p>
                             <span style={{
                               fontSize: '9px', padding: '1px 6px', borderRadius: '6px', fontWeight: 'bold', textTransform: 'uppercase',
-                              background: order.status === 'Accepted' ? '#D1FAE5' : '#FEF3C7',
-                              color: order.status === 'Accepted' ? '#047857' : '#B45309',
+                              background: order.status === 'Accepted' ? 'var(--c-success-soft)' : 'var(--c-warning-soft)',
+                              color: order.status === 'Accepted' ? '#047857' : 'var(--c-warning-strong)',
                             }}>
                               {order.status}
                             </span>

@@ -48,8 +48,8 @@ export default function AuthReset() {
     justifyContent: 'center', background: '#0D1117', padding: 24,
     fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" };
   const input = { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.06)',
-    border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: 9, color: '#fff', fontSize: 14, outline: 'none' };
-  const btn = { width: '100%', padding: 13, background: '#4F46E5', color: '#fff', border: 'none',
+    border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: 9, color: 'var(--c-surface)', fontSize: 14, outline: 'none' };
+  const btn = { width: '100%', padding: 13, background: 'var(--c-primary)', color: 'var(--c-surface)', border: 'none',
     borderRadius: 9, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginTop: 4 };
 
   if (!ready) {
@@ -61,12 +61,12 @@ export default function AuthReset() {
       <div style={{ width: '100%', maxWidth: 360 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, justifyContent: 'center' }}>
           <MLogo size={36} radius={10} />
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
+          <span style={{ color: 'var(--c-surface)', fontWeight: 800, fontSize: 18 }}>MyStore OS</span>
         </div>
 
         {done ? (
           <div style={{ textAlign: 'center' }}>
-            <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Password updated</h2>
+            <h2 style={{ color: 'var(--c-surface)', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Password updated</h2>
             <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, marginBottom: 20 }}>
               You can now sign in with your new password.
             </p>
@@ -74,7 +74,7 @@ export default function AuthReset() {
           </div>
         ) : !validLink ? (
           <div style={{ textAlign: 'center' }}>
-            <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Link expired</h2>
+            <h2 style={{ color: 'var(--c-surface)', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Link expired</h2>
             <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, marginBottom: 20 }}>
               This password-reset link is invalid or has expired. Request a new one from the login page.
             </p>
@@ -82,7 +82,7 @@ export default function AuthReset() {
           </div>
         ) : (
           <>
-            <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 800, marginBottom: 6, textAlign: 'center' }}>
+            <h2 style={{ color: 'var(--c-surface)', fontSize: 20, fontWeight: 800, marginBottom: 6, textAlign: 'center' }}>
               Set a new password
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5, marginBottom: 22, textAlign: 'center' }}>
@@ -97,7 +97,7 @@ export default function AuthReset() {
                     border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, width: 28, height: 28,
                     color: 'rgba(255,255,255,0.85)', cursor: 'pointer', lineHeight: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s, color .15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.25)'; e.currentTarget.style.color = 'var(--c-surface)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -108,7 +108,7 @@ export default function AuthReset() {
               </div>
               {err && (
                 <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
-                  borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#FCA5A5', fontSize: 12.5 }}>
+                  borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: 'var(--c-danger-border)', fontSize: 12.5 }}>
                   {err}
                 </div>
               )}

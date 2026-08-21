@@ -8,12 +8,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Copy, Link, LogOut, Users, IndianRupee, Clock } from 'lucide-react';
 
 const S = {
-  card: { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
-  label: { color: '#475569', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
-  val: { color: '#0F172A', fontSize: 28, fontWeight: 800 },
-  sub: { color: '#64748B', fontSize: 12, marginTop: 4 },
-  th: { color: '#475569', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
-  td: { color: '#0F172A', fontSize: 13, padding: '11px 12px', borderBottom: '1px solid #F1F5F9' },
+  card: { background: 'var(--c-surface)', border: '1px solid var(--c-line)', borderRadius: 16, padding: '24px', boxShadow: '0 1px 2px rgba(15,23,42,0.06)' },
+  label: { color: 'var(--c-ink-2)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
+  val: { color: 'var(--c-ink)', fontSize: 28, fontWeight: 800 },
+  sub: { color: 'var(--c-muted)', fontSize: 12, marginTop: 4 },
+  th: { color: 'var(--c-ink-2)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 12px', textAlign: 'left' },
+  td: { color: 'var(--c-ink)', fontSize: 13, padding: '11px 12px', borderBottom: '1px solid var(--c-line-soft)' },
 };
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
@@ -65,68 +65,68 @@ export default function AffiliateDashboard() {
   };
 
   const statusChip = (s) => ({
-    pending: <span style={{ background: '#FEF3C7', color: '#B45309', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
+    pending: <span style={{ background: 'var(--c-warning-soft)', color: 'var(--c-warning-strong)', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Pending</span>,
     approved: <span style={{ background: '#DCFCE7', color: '#15803D', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Approved</span>,
-    paid: <span style={{ background: '#D1FAE5', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
-  }[s] || <span style={{ color: '#64748B', fontSize: 11 }}>{s}</span>);
+    paid: <span style={{ background: 'var(--c-success-soft)', color: '#047857', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>Paid</span>,
+  }[s] || <span style={{ color: 'var(--c-muted)', fontSize: 11 }}>{s}</span>);
 
   return (
-    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+    <div className="enterprise-wrapper" style={{ minHeight: '100vh', background: 'var(--c-bg)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
       <ToastContainer position="top-right" theme="light" />
 
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--c-primary),var(--c-primary-light))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 20, color: '#fff' }}>Affiliate Portal</div>
+          <div style={{ fontWeight: 800, fontSize: 20, color: 'var(--c-surface)' }}>Affiliate Portal</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Welcome, {user?.name} · Partner</div>
         </div>
-        <button onClick={() => { logout(); navigate('/login'); }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={() => { logout(); navigate('/login'); }} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--c-surface)', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <LogOut size={14} /> Logout
         </button>
       </div>
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
-          <div style={{ color: '#64748B', textAlign: 'center', padding: 60 }}>Loading your dashboard...</div>
+          <div style={{ color: 'var(--c-muted)', textAlign: 'center', padding: 60 }}>Loading your dashboard...</div>
         ) : (
           <>
             {/* Referral Code Card */}
-            <div style={{ ...S.card, background: 'linear-gradient(135deg,#EEF2FF,#FFFFFF)', border: '1px solid #C7D2FE', marginBottom: 24 }}>
-              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 18, fontWeight: 800 }}>Your Referral Code</h3>
+            <div style={{ ...S.card, background: 'linear-gradient(135deg,var(--c-primary-soft),var(--c-surface))', border: '1px solid var(--c-primary-border)', marginBottom: 24 }}>
+              <h3 style={{ margin: '0 0 16px', color: 'var(--c-ink)', fontSize: 18, fontWeight: 800 }}>Your Referral Code</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ background: '#FFFFFF', border: '2px solid #818CF8', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: '#4F46E5', letterSpacing: 4 }}>
+                <div style={{ background: 'var(--c-surface)', border: '2px solid var(--c-primary-light)', borderRadius: 12, padding: '12px 24px', fontFamily: 'monospace', fontSize: 28, fontWeight: 900, color: 'var(--c-primary)', letterSpacing: 4 }}>
                   {codeInfo?.code || '—'}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <button onClick={copyCode} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: '#4F46E5', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
+                  <button onClick={copyCode} style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.2)', color: 'var(--c-primary)', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Copy size={13} /> Copy Code
                   </button>
                   <button onClick={copyLink} style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, width: 'auto' }}>
                     <Link size={13} /> Copy Link
                   </button>
                 </div>
-                <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: '#fff', padding: '14px 22px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>
+                <button onClick={shareWA} style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)', border: 'none', color: 'var(--c-surface)', padding: '14px 22px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', width: 'auto', whiteSpace: 'nowrap' }}>
                   Share on WhatsApp
                 </button>
               </div>
-              <div style={{ marginTop: 14, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#475569', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              <div style={{ marginTop: 14, background: 'var(--c-line-soft)', border: '1px solid var(--c-line)', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: 'var(--c-ink-2)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {referralLink}
               </div>
-              <p style={{ margin: '10px 0 0', fontSize: 12, color: '#475569' }}>
-                Commission: <strong style={{ color: '#4F46E5' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
+              <p style={{ margin: '10px 0 0', fontSize: 12, color: 'var(--c-ink-2)' }}>
+                Commission: <strong style={{ color: 'var(--c-primary)' }}>{codeInfo?.commissionPct || 20}%</strong> of referred user's first 3 months subscription · Approved and paid monthly by admin.
               </p>
             </div>
 
             {/* Stats Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 24 }}>
               <StatCard icon={Users} label="Total Referred" value={stats?.totalReferred || 0} sub="Users who signed up via your link" color="#2563EB" />
-              <StatCard icon={Clock} label="Pending Commission" value={`₹${stats?.pendingAmount || 0}`} sub="Awaiting admin approval" color="#D97706" />
-              <StatCard icon={IndianRupee} label="Approved Earnings" value={`₹${stats?.approvedAmount || 0}`} sub="Ready for payout" color="#059669" />
+              <StatCard icon={Clock} label="Pending Commission" value={`₹${stats?.pendingAmount || 0}`} sub="Awaiting admin approval" color="var(--c-accent-hover)" />
+              <StatCard icon={IndianRupee} label="Approved Earnings" value={`₹${stats?.approvedAmount || 0}`} sub="Ready for payout" color="var(--c-success-strong)" />
             </div>
 
             {/* How it works */}
             <div style={{ ...S.card, marginBottom: 24 }}>
-              <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>How It Works</h3>
+              <h3 style={{ margin: '0 0 16px', color: 'var(--c-ink)', fontSize: 16, fontWeight: 800 }}>How It Works</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 14 }}>
                 {[
                   ['1', 'Share your link', 'Send your unique referral link to shop owners via WhatsApp, social media, or in-person.'],
@@ -134,10 +134,10 @@ export default function AffiliateDashboard() {
                   ['3', 'They subscribe', 'When they upgrade to any paid plan, your commission is calculated.'],
                   ['4', 'You get paid', 'Admin approves and pays your commission every month.'],
                 ].map(([emoji, title, desc]) => (
-                  <div key={title} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
+                  <div key={title} style={{ background: 'var(--c-bg)', border: '1px solid var(--c-line)', borderRadius: 10, padding: 14 }}>
                     <div style={{ fontSize: 20, marginBottom: 6 }}>{emoji}</div>
-                    <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{title}</div>
-                    <div style={{ color: '#475569', fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
+                    <div style={{ color: 'var(--c-ink)', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{title}</div>
+                    <div style={{ color: 'var(--c-ink-2)', fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
                   </div>
                 ))}
               </div>
@@ -146,11 +146,11 @@ export default function AffiliateDashboard() {
             {/* Referrals table */}
             {stats?.referrals?.length > 0 && (
               <div style={S.card}>
-                <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 16, fontWeight: 800 }}>Your Referrals</h3>
+                <h3 style={{ margin: '0 0 16px', color: 'var(--c-ink)', fontSize: 16, fontWeight: 800 }}>Your Referrals</h3>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                      <tr style={{ borderBottom: '1px solid var(--c-line)' }}>
                         {['Name', 'Phone', 'Plan', 'Commission', 'Status', 'Date'].map(h => <th key={h} style={S.th}>{h}</th>)}
                       </tr>
                     </thead>
@@ -158,11 +158,11 @@ export default function AffiliateDashboard() {
                       {stats.referrals.map(r => (
                         <tr key={r.id}>
                           <td style={S.td}><strong>{r.name}</strong></td>
-                          <td style={S.td}><span style={{ color: '#475569' }}>{r.phone || '—'}</span></td>
-                          <td style={S.td}><span style={{ color: '#4F46E5', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
-                          <td style={S.td}><span style={{ color: '#059669', fontWeight: 700 }}>₹{r.amount}</span></td>
+                          <td style={S.td}><span style={{ color: 'var(--c-ink-2)' }}>{r.phone || '—'}</span></td>
+                          <td style={S.td}><span style={{ color: 'var(--c-primary)', fontSize: 12 }}>{r.tier || 'trial'}</span></td>
+                          <td style={S.td}><span style={{ color: 'var(--c-success-strong)', fontWeight: 700 }}>₹{r.amount}</span></td>
                           <td style={S.td}>{statusChip(r.status)}</td>
-                          <td style={S.td}><span style={{ color: '#6366F1', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
+                          <td style={S.td}><span style={{ color: 'var(--c-primary-light)', fontSize: 12 }}>{r.date ? new Date(r.date).toLocaleDateString('en-IN') : '—'}</span></td>
                         </tr>
                       ))}
                     </tbody>
@@ -174,8 +174,8 @@ export default function AffiliateDashboard() {
             {(!stats?.referrals?.length) && (
               <div style={{ ...S.card, textAlign: 'center', padding: '48px 24px' }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>🚀</div>
-                <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>No referrals yet</div>
-                <div style={{ color: '#475569', fontSize: 13 }}>Share your referral link above to start earning commissions!</div>
+                <div style={{ color: 'var(--c-ink)', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>No referrals yet</div>
+                <div style={{ color: 'var(--c-ink-2)', fontSize: 13 }}>Share your referral link above to start earning commissions!</div>
               </div>
             )}
           </>
