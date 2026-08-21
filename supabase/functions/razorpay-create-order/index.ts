@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { resolvePrice } from '../_shared/pricing.ts'
 
 const CORS = {
   'Access-Control-Allow-Origin': 'https://mystoreos.in',
@@ -12,59 +13,50 @@ Deno.serve(async (req: Request) => {
 
   try {
     const { planId, amount, currency = 'INR', userId } = await req.json();
-    if (!planId || !amount) {
-      return new Response(JSON.stringify({ error: 'planId and amount required' }), {
+    if (!planId) {
+      return new Response(JSON.stringify({ error: 'planId required' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       });
     }
 
-    // For discounted (quarterly/yearly) plans, recompute the price server-side
-    // from admin config (pricing_v2) so a tampered client amount can't change
-    // what's charged or bypass the offer.
-    let chargeAmount = amount;
-    const m = planId.match(/^(starter|pro|enterprise|service_starter|service_pro|service_enterprise|basic_distributor|pro_distributor|enterprise_distributor)_(quarterly|yearly)$/);
-    if (m) {
-      try {
-        const sb = createClient(
-          Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-        );
-        const { data: cfgRow } = await sb
-          .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
-        const cfg = cfgRow?.value;
-        const tier = m[1]; const cycle = m[2];
-        const base = Number(cfg?.tiers?.[tier]?.[cycle]) || 0;
-        if (base > 0) {
-          const cycleDisc = Number(cfg?.discounts?.[cycle]) || 0;
-          const afterCycle = Math.round(base * (1 - cycleDisc / 100));
-          const offerOn = !!cfg?.offer?.enabled && Number(cfg?.offer?.remaining) > 0 && Number(cfg?.offer?.percent) > 0;
-          chargeAmount = offerOn ? Math.round(afterCycle * (1 - Number(cfg.offer.percent) / 100)) : afterCycle;
-        }
-      } catch (_e) { /* fall back to client amount */ }
+    // ── Server-side price resolution ─────────────────────────────
+    // The client's `amount` is now only a display hint. It is never
+    // what gets charged.
+    //
+    // The previous version recomputed the price for quarterly and
+    // yearly plans only. A monthly plan id ('pro', 'starter') did not
+    // match that pattern, so its amount came straight from the request
+    // body unchecked — and monthly is the default cycle. Ordering
+    // {planId:'pro', amount:1} produced a real Rs 1 order whose notes
+    // said 'pro', and verify-payment then confirmed that order against
+    // itself and activated a full Pro month.
+    //
+    // resolvePrice covers every plan id and throws rather than falling
+    // back to the client amount, so a config read that fails now
+    // rejects the order instead of quietly honouring Rs 1.
+    const sb = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+
+    let chargeAmount: number;
+    try {
+      chargeAmount = await resolvePrice(sb, planId);
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ error: `Could not price plan: ${(e as Error).message}` }),
+        { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } },
+      );
     }
 
-    // Home Service add-on — standalone price, server-verified so a
-    // tampered client amount can never underpay for it. Now reads from
-    // the SAME admin-configurable pricing_v2 config the tier plans
-    // above use (site_config key 'pricing_v2', addons.homeService) —
-    // an admin can change this from Admin > Settings > Pricing without
-    // any redeploy. Falls back to 199 only if the config row is
-    // missing or malformed, matching getPricing()'s own default on the
-    // client side so the two never silently disagree.
-    if (planId === 'home_service_addon') {
-      try {
-        const sb = createClient(
-          Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-        );
-        const { data: cfgRow } = await sb
-          .from('site_config').select('value').eq('key', 'pricing_v2').maybeSingle();
-        const addonPrice = Number(cfgRow?.value?.addons?.homeService);
-        chargeAmount = addonPrice > 0 ? addonPrice : 199;
-      } catch (_e) {
-        chargeAmount = 199;
-      }
+    // Log a mismatch rather than reject it: a stale price in an open
+    // tab is an ordinary race, and the server price is authoritative
+    // either way. A run of these is worth looking at.
+    if (typeof amount === 'number' && Math.abs(amount - chargeAmount) > 1) {
+      console.warn('create-order: client/server price mismatch', {
+        planId, clientAmount: amount, serverAmount: chargeAmount,
+      });
     }
 
     const keyId = Deno.env.get('RAZORPAY_KEY_ID');

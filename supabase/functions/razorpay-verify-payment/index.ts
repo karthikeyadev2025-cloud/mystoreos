@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { resolvePrice, amountMatches } from '../_shared/pricing.ts';
 
 const CORS = {
   'Access-Control-Allow-Origin': 'https://mystoreos.in',
@@ -113,6 +114,48 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
+
+    // ── Second gate: was enough actually paid for this plan? ──────
+    // create-order now prices every plan server-side, so an underpaid
+    // order should not exist. This is the independent check anyway,
+    // because the two functions fail differently: create-order can be
+    // redeployed, rolled back, or bypassed by an order minted through
+    // Razorpay's own dashboard or API with arbitrary notes. Signature
+    // validity proves a payment happened — it says nothing about
+    // whether the amount was right.
+    //
+    // Underpayment is recorded and refused rather than silently
+    // dropped, so a real pricing bug is visible instead of looking
+    // like customers who paid and got nothing.
+    try {
+      const expected = await resolvePrice(supabase, planId);
+      if (!amountMatches(actualAmountPaid, expected)) {
+        console.error('verify-payment: underpayment refused', {
+          planId, userId, paid: actualAmountPaid, expected,
+          payment_id: razorpay_payment_id,
+        });
+        await supabase.from('payment_history').insert({
+          user_id: userId,
+          plan_id: planId,
+          amount: actualAmountPaid,
+          status: 'rejected_underpaid',
+          razorpay_event_id: razorpay_payment_id,
+          raw_payload: {
+            razorpay_order_id, razorpay_payment_id, planId,
+            expected, paid: actualAmountPaid, source: 'verify',
+          },
+        });
+        return json({
+          error: 'Amount paid does not match the plan price. Nothing was activated — contact support with your payment id.',
+          payment_id: razorpay_payment_id,
+        }, 402);
+      }
+    } catch (e) {
+      // Price unresolvable: refuse rather than activate on an unknown
+      // basis. Fail closed, same rule as create-order.
+      console.error('verify-payment: could not resolve price', { planId, err: (e as Error).message });
+      return json({ error: 'Could not verify plan price. Nothing was activated — contact support.' }, 400);
+    }
 
     // Idempotency — payment_id is the deduplication key
     const { data: existing } = await supabase

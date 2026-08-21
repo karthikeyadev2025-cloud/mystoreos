@@ -23,6 +23,15 @@ const cycleOf = (planId: string) =>
 const daysFor = (cycle: string) =>
   cycle === 'yearly' ? 365 : cycle === 'quarterly' ? 90 : 30;
 
+/** Length-independent, branch-free hex comparison. */
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+
 Deno.serve(async (req: Request) => {
   try {
     const webhookSecret = Deno.env.get('RAZORPAY_WEBHOOK_SECRET');
@@ -40,7 +49,16 @@ Deno.serve(async (req: Request) => {
     const expectedSig = Array.from(new Uint8Array(sigBytes))
       .map((b) => b.toString(16).padStart(2, '0')).join('');
 
-    if (expectedSig !== signature) return new Response('Unauthorized', { status: 401 });
+    // Constant-time compare. `!==` on strings short-circuits at the first
+    // differing character, so response time leaks how many leading hex
+    // digits were correct — enough, with sustained sampling, to recover a
+    // valid signature byte by byte without ever knowing the secret.
+    // Remote timing attacks are noisy and hard, but this endpoint is
+    // public, unauthenticated and grants subscriptions, and the fix is
+    // three lines.
+    if (!timingSafeEqualHex(expectedSig, signature)) {
+      return new Response('Unauthorized', { status: 401 });
+    }
 
     const payload = JSON.parse(rawBody);
     if (payload.event !== 'payment.captured') return new Response('OK', { status: 200 });

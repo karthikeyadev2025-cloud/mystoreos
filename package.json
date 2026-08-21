@@ -20,7 +20,7 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
-    "test:db": "node tests/db/p4-authorization.test.mjs && node tests/db/p4-injection.test.mjs",
+    "test:db": "node tests/db/p4-authorization.test.mjs && node tests/db/p4-injection.test.mjs && node tests/db/pricing.test.mjs",
     "test:theme": "node tests/db/theme-integrity.test.mjs"
   },
   "dependencies": {
