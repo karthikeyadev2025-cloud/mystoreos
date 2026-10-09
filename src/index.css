@@ -138,6 +138,35 @@ body, #root {
   min-width: 320px;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ANDROID & MOBILE NATIVE CONTRAST & TEXT VISIBILITY FIXES
+   Guarantees 100% visible text across all mobile devices,
+   dark mode, native select pickers, inputs, and placeholders.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Force high-contrast text & background for native dropdown options */
+option, optgroup {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Prevent invisible placeholder text on mobile inputs */
+::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+/* Ensure standard inputs, textareas, and selects default to visible text */
+input, select, textarea {
+  color: #0F172A;
+}
+
+/* Ensure mobile native dialogs, buttons, and popups render with full contrast */
+select:focus option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
 /* ── App Container: full width enterprise ── */
 .app-container {
   max-width: 100% !important;
